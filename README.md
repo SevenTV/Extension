@@ -21,6 +21,10 @@ It's made up of 3 parts:
 
 A default server is available out of the box, currently at [7tv.anatole.dev](https://7tv.anatole.dev).
 
+### Installation (Browser Extension)
+
+The browser extension currently isn't available on any stores and must be installed manually
+
 ### How to host your own server / change your channel's server
 
 You can configure your twitch channel to use a different emote server instead of the default one by adding this tag somewhere in the Twitch description:
@@ -59,3 +63,13 @@ Change the configuration (config.json) to suit your needs
 Then use `npm start` to start the server. 
 
 In order to use the web app with a self-hosted server, you can use a direct link with the `server` query param, like `7tv.anatole.dev/?server=<custom server url>`.
+
+### Contributing
+
+Contributions to this project are welcome
+
+#### Browser Extension
+
+#### API
+
+#### Web App
