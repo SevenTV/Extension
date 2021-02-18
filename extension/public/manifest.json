@@ -4,29 +4,23 @@
 	"description": "Third party thing",
 	"version": "0.1",
 	"page_action": {
-		"default_icon": "icon.png",
-		"default_popup": "index.html"
+		"default_icon": "icon.png"
 	},
 	"background": {
 		"scripts": [
-			"background.js",
-			"runtime.js"
+			"background.js"
 		]
 	},
 	"content_scripts": [
 		{
-			"matches": ["*://*/*"],
+			"matches": ["*://www.twitch.tv/*"],
 			"js": [
-				"content.js",
-				"runtime.js"
+				"content.js"
 			]
 		}
 	],
-	"web_accessible_resources": [
-		"app/content/content.html"
-	],
 	"permissions": [
-		"*://twitch.tv/*",
+		"*://www.twitch.tv/*",
 		"tabs",
         "activeTab",
         "webNavigation"

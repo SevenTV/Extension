@@ -1,47 +1,43 @@
 {
-  "name": "odisehjfdzeh",
-  "version": "0.0.0",
+  "name": "seventv",
+  "version": "1.0.0",
+  "description": "SevenTV Browser Extension",
+  "main": "index.ts",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "start": "webpack --watch",
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "private": true,
-  "dependencies": {
-    "@angular/animations": "~11.2.0",
-    "@angular/common": "~11.2.0",
-    "@angular/compiler": "~11.2.0",
-    "@angular/core": "~11.2.0",
-    "@angular/elements": "^11.2.1",
-    "@angular/forms": "~11.2.0",
-    "@angular/platform-browser": "~11.2.0",
-    "@angular/platform-browser-dynamic": "~11.2.0",
-    "@angular/router": "~11.2.0",
-    "rxjs": "~6.6.0",
-    "tslib": "^2.0.0",
-    "zone.js": "~0.11.3"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnatoleAM/SevenTV.git"
   },
+  "author": "Anatole",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AnatoleAM/SevenTV/issues"
+  },
+  "homepage": "https://github.com/AnatoleAM/SevenTV#readme",
   "devDependencies": {
-    "@angular-builders/custom-webpack": "^11.0.0",
-    "@angular-devkit/build-angular": "~0.1102.0",
-    "@angular/cli": "~11.2.0",
-    "@angular/compiler-cli": "~11.2.0",
-    "@types/jasmine": "~3.6.0",
-    "@types/node": "^12.11.1",
-    "codelyzer": "^6.0.0",
-    "jasmine-core": "~3.6.0",
-    "jasmine-spec-reporter": "~5.0.0",
-    "karma": "~6.1.0",
-    "karma-chrome-launcher": "~3.1.0",
-    "karma-coverage": "~2.0.3",
-    "karma-jasmine": "~4.0.0",
-    "karma-jasmine-html-reporter": "^1.5.0",
-    "protractor": "~7.0.0",
-    "ts-node": "~8.3.0",
-    "tslint": "~6.1.0",
-    "typescript": "~4.1.2"
+    "@babel/core": "^7.12.16",
+    "@babel/preset-env": "^7.12.16",
+    "@babel/preset-react": "^7.12.13",
+    "@hot-loader/react-dom": "^17.0.1",
+    "@types/chrome": "0.0.130",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1",
+    "babel-loader": "^8.2.2",
+    "file-loader": "^6.2.0",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.1.5",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.22.0",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "copy-webpack-plugin": "^7.0.0",
+    "rxjs": "^6.6.3"
   }
 }

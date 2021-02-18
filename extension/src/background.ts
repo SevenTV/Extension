@@ -5,6 +5,5 @@ chrome.runtime.onInstalled.addListener(() => {
 			chrome.pageAction.show(id);
 		});
 
-		chrome.tabs.executeScript(null, {file: 'content.js'});
 	}, { url: [{ urlContains: 'twitch.tv' }] });
 });
