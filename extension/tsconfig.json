@@ -5,7 +5,9 @@
 		"module": "ES6",
 		"moduleResolution": "node",
 		"target": "ES5",
-		"jsx": "react"
+		"jsx": "react",
+		"baseUrl": "src",
+		"experimentalDecorators": true
 	},
 
 	"include": [

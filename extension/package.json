@@ -26,6 +26,7 @@
     "@types/chrome": "0.0.130",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
+    "@types/react-lazyload": "^3.1.0",
     "babel-loader": "^8.2.2",
     "file-loader": "^6.2.0",
     "style-loader": "^2.0.0",
@@ -38,6 +39,7 @@
   },
   "dependencies": {
     "copy-webpack-plugin": "^7.0.0",
+    "react-lazyload": "^3.2.0",
     "rxjs": "^6.6.3"
   }
 }
