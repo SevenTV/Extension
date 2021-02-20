@@ -2,15 +2,20 @@
 	"compilerOptions": {
 		"outDir": "dist/",
 		"sourceMap": true,
-		"module": "ES6",
+		"module": "CommonJS",
 		"moduleResolution": "node",
 		"target": "ES5",
 		"jsx": "react",
-		"baseUrl": "src",
-		"experimentalDecorators": true
+		"baseUrl": ".",
+		"experimentalDecorators": true,
+		"paths": {
+			"src/*": ["./src/*"],
+			"@typings/*": ["../shared/typings/*"]
+		}
 	},
 
 	"include": [
+		"src/*",
 		"src/**/*"
 	]
 }
