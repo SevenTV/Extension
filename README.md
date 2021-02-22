@@ -10,9 +10,9 @@ It's like another third party thing
 
 ### Yeah but this is a third party thing and idk
 
-The main extensions people use for third party emotes have a tendency to remove emotes when asked by twitter users who deem them "offensive" or such. These judgements tend to be out of touch with reality, and there is no reason for an extension to police what fun people are allowed to have.
+The main extensions people use for third party emotes have a tendency to remove emotes when users of Reddit and Twitter dislike them. These judgements tend to be out of touch with reality, and there is no reason for an extension to police what fun people are allowed to have.
 
-This project aims to fix this great injustice and restore our beloved emotes for the rest all of eternity.
+This project aims to give back full freedom over third party emotes, free of tyranny from deranged social media users with too much time on their hands.
 It's made up of 3 parts:
 
 1. An API/Server to deliver service

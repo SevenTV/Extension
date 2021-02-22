@@ -1,3 +1,5 @@
 *.code-workspace
 dist
 node_modules
+server/tmp
+server/.aws
