@@ -2,7 +2,7 @@ import { S3 } from '@aws-sdk/client-s3';
 import { s3_endpoint as endpoint, s3_bucket_name as bucketName } from 'Config';
 import { createWriteStream, createReadStream } from 'fs';
 import { asyncScheduler, fromEvent, Observable, scheduled, throwError } from 'rxjs';
-import { map, mapTo, mergeMap, switchMap, take, tap, toArray } from 'rxjs/operators';
+import { delay, map, mapTo, mergeAll, mergeMap, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { Emote } from 'src/Emotes/Emote';
 
 export class EmoteStore {
@@ -38,8 +38,7 @@ export class EmoteStore {
 				switchMap(stream => scheduled([ // Listen for stream events
 					fromEvent(stream, 'finish'),
 					fromEvent<Error>(stream, 'error').pipe(switchMap(err => throwError(err)))
-				], asyncScheduler)),
-				take(1),
+				], asyncScheduler).pipe(mergeAll(), take(1))),
 
 				// Create all the emote sizes
 				switchMap(() => emote.resize()),

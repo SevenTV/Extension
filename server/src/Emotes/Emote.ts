@@ -1,9 +1,10 @@
 import { DataStructure } from '@typings/DataStructure';
 import * as Jimp from 'jimp';
+import * as Gif from '@jimp/gif';
 import { ObjectId } from 'mongodb';
 import { existsSync, mkdirp } from 'fs-extra';
 import { asyncScheduler, from, iif, Observable, of, scheduled } from 'rxjs';
-import { concatMap, map, mapTo, switchMap } from 'rxjs/operators';
+import { concatMap, delay, map, mapTo, switchMap, take } from 'rxjs/operators';
 
 export class Emote {
 	fileID = new ObjectId();
@@ -30,12 +31,13 @@ export class Emote {
 			this.ensureFilepath().pipe( // Read original image
 				switchMap(() => from(Jimp.read(`${this.filepath}/og`))),
 				switchMap(image => from(sizes).pipe( // Iterate sizes and write new sizes
-					concatMap(([scope, size]) => from(image.resize(size, size).writeAsync(`${this.filepath}/${scope}x.png`)).pipe(mapTo(scope)))
+					delay(1000),
+					concatMap(([scope, size]) => from(image.resize(size, size).writeAsync(`${this.filepath}/${scope}x.${image.getExtension()}`)).pipe(mapTo({ extension: image.getExtension(), scope })))
 				)),
 
-				map(scope => ({ // Emit "resized" objects, used to upload emote sizes to the CDN
+				map(({ extension, scope}) => ({ // Emit "resized" objects, used to upload emote sizes to the CDN
 					scope,
-					path: `${this.filepath}/${scope}x.png`
+					path: `${this.filepath}/${scope}x.${extension}`
 				} as Emote.Resized))
 			).subscribe({
 				next(resized) { console.log(resized); observer.next(resized); },
@@ -67,6 +69,7 @@ export class Emote {
 export namespace Emote {
 	export interface Resized {
 		scope: number;
+		extension: string;
 		path: string;
 	}
 }
