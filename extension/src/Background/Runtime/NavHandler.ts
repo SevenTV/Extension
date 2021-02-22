@@ -1,3 +1,6 @@
+import { DataStructure } from '@typings/DataStructure';
+import { Observable } from 'rxjs';
+import { map, toArray } from 'rxjs/operators';
 import { Background } from 'src/Background/Background';
 import { Logger } from 'src/Logger';
 
@@ -17,9 +20,31 @@ export class NavHandler {
 		const url = new URL(tab.url);
 		Logger.Get().info('Navigation to', url.pathname);
 
-		Background.Messaging.send({
-			tag: 'SwitchChannel',
-			channelName: url.pathname.slice(1)
+		this.getEmotes().pipe(
+			toArray(),
+			map(emotes => Background.Messaging.send({
+				tag: 'SwitchChannel',
+				emotes,
+				channelName: url.pathname.slice(1)
+			}))
+		).subscribe();
+	}
+
+
+	getEmotes(): Observable<DataStructure.Emote> {
+		return new Observable<DataStructure.Emote>(observer => {
+			const xhr = new XMLHttpRequest();
+
+			xhr.addEventListener('load', (ev) => {
+				const data = JSON.parse(xhr.responseText);
+				for (const e of data) {
+					observer.next(e as DataStructure.Emote);
+				}
+
+				observer.complete();
+			});
+			xhr.open('GET', 'http://localhost:3000/emotes/AnatoleAM');
+			xhr.send();
 		});
 	}
 }

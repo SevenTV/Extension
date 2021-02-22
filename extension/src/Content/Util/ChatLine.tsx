@@ -1,9 +1,10 @@
 import { from, iif, Observable, of, range } from 'rxjs';
-import { filter, map, mergeMap, takeLast, tap, toArray } from 'rxjs/operators';
+import { map, mergeMap, takeLast, tap, toArray } from 'rxjs/operators';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ChatListener } from 'src/Content/Util/ChatListener';
 import { Emote } from 'src/Content/Components/EmoteComponent';
+import { DataStructure } from '@typings/DataStructure';
 
 export class ChatLine {
 	/**
@@ -22,13 +23,13 @@ export class ChatLine {
 	 *
 	 * @param emoteName
 	 */
-	renderEmote(emoteName: string): void {
+	renderEmote(emotes: DataStructure.Emote[]): void {
 		// const emote = this.listener.cachedEmotes.get(emoteName) ?? this.listener.cachedEmotes.set(emoteName, ReactDOM.renderToString(<Emote />)).get(emoteName);
 
 		this.getFragments().pipe(
-			filter(el => el?.innerText?.includes(emoteName)), // Search for the presence of emote
+			// filter(el => el?.innerText?.includes(emote.name)), // Search for the presence of emote
 			// Emote found: find matches and render emotes
-			mergeMap(span => this.replaceFragmentKeyword(span, emoteName).pipe(
+			mergeMap(span => this.replaceFragmentKeyword(span, emotes).pipe(
 				toArray(),
 				map(newMarkup => ({ newMarkup, span })),
 				takeLast(1)
@@ -48,19 +49,25 @@ export class ChatLine {
 	/**
 	 * Find and replace text inside a given text fragment element and render an Emote component
 	 */
-	private replaceFragmentKeyword(el: HTMLSpanElement, emoteName: string): Observable<JSX.Element> {
+	private replaceFragmentKeyword(el: HTMLSpanElement, emotes: DataStructure.Emote[]): Observable<JSX.Element> {
 		return new Observable<JSX.Element>(observer => {
 			const parts = el.innerText.split(' ').filter(s => s.length > 0).map(s => s.trim());
 			const newMarkup = [] as JSX.Element[];
 
+			// Index emotes by name
+			const eIndex = emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b }));
 			from(parts).pipe( // Iterate thru message parts (word by word, separated by space)
-				mergeMap(part => iif(() => part === emoteName, // Part is emote?
-					iif(() => this.listener.cachedEmotes.has(emoteName), // Check if emote was already rendered and cached before
+				map(part => ({
+					part,
+					emote: eIndex[part] ?? null // Get the emote this part corresponds to, if any
+				})),
+				mergeMap(({ emote, part }) => iif(() => part === emote?.name, // Part is emote?
+					iif(() => this.listener.cachedEmotes.has(emote.name), // Check if emote was already rendered and cached before
 						of(undefined).pipe(
-							map(() => this.listener.cachedEmotes.get(emoteName)) // If cached then return the cached emote rendition
+							map(() => this.listener.cachedEmotes.get(emote.name)) // If cached then return the cached emote rendition
 						),
 						of(undefined).pipe( // Otherwise render the emote now														Test URL (is PagMan), waiting for backend to be written
-							map(() => this.listener.cachedEmotes.set(emoteName, <Emote name={emoteName} url='https://cdn.discordapp.com/emojis/797197297675010071.gif?v=1&size=32' />).get(emoteName))
+							map(() => this.listener.cachedEmotes.set(emote.name, <Emote emote={emote} name={emote.name} url={emote.url} />).get(emote.name))
 						)
 					),
 					of((<span> { part } </span>))
@@ -117,5 +124,19 @@ export class ChatLine {
 				error(err) { observer.error(err); }
 			});
 		});
+	}
+
+	static postStatus(data: string): void {
+		const message = document.createElement('span');
+		message.innerText = data;
+
+		const div = document.createElement('div');
+		div.classList.add('chat-line__status');
+		div.appendChild(message);
+
+		const log = document.getElementsByClassName('chat-scrollable-area__message-container').item(0);
+		if (log) {
+			log.appendChild(div);
+		}
 	}
 }
