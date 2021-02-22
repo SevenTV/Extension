@@ -1,4 +1,7 @@
 {
 	"name": "A SevenTV Emote Server",
-	"description": "A new emote server"
+	"description": "A new emote server",
+
+	"s3_endpoint": "https://ams3.digitaloceanspaces.com",
+	"s3_bucket_name": "7tv"
 }
