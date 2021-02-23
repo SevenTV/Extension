@@ -1,0 +1,10 @@
+@mixin global-theming($theme) {
+	& {
+		$background: map-get($theme, background);
+		$foreground: map-get($theme, foreground);
+		$text-color: mat-color($foreground, text);
+  
+		background-color: mat-color($background, background) !important;
+		color: mat-color($foreground, text);
+	}
+}

@@ -1,0 +1,90 @@
+.app-title {
+	z-index: 1;
+	display: flex;
+	align-items: center;
+
+	cursor: pointer;
+	transition: .5s;
+	&:hover {
+		filter: brightness(120%);
+	}
+
+	&.is-loading {
+		animation-name: loadingAnimation;
+		animation-duration: 750ms;
+		animation-iteration-count: infinite;
+	}
+
+	@keyframes loadingAnimation  {
+		0% { filter: brightness(100%); }
+		50% { filter: brightness(140%); }
+		100% { filter: brightness(100%); }
+	}
+
+	._logo {
+		margin-right: 8px;
+		width: 32px;
+		height: 32px;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+
+	._text {
+		font-weight: 700;
+		font-family: 'Work Sans', sans-serif;
+		font-size: 1.25em;
+	}
+
+	._dev-stage-text {
+		width: 0;
+		position: relative;
+		color: red;
+		font-size: 8.8px;
+		bottom: -13px;
+		left: -30%;
+		font-family: 'Work Sans', sans-serif;
+		font-weight: 600;
+
+		&.env-offset {
+			font-size: 10px;
+			bottom: 14px;
+			left: -72%;
+			font-weight: 600;
+		}
+	}
+}
+
+.nav-button-list {
+	height: 64px;
+	display: flex;
+	flex-direction: row;
+	
+	.nav-button {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		padding: .5em;
+		height: 100%;
+
+		&.selected {
+			._select_indicator {
+				height: 100%;
+				align-items: flex-end;
+				display: flex;
+				position: absolute;
+	
+				:first-child {
+					display: block;
+					position: relative;
+					bottom: 15;
+					height: 1px;
+					width: 100px;
+					background-color: white;
+				}
+			}
+		}
+
+	}
+}
