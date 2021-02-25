@@ -26,7 +26,7 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 							<span className='emote-submitter'> by {this.props.emote.submitted_by} </span>
 						</Emote.Details>
 					</React.Fragment>
-				} arrow interactive>
+				} arrow interactive placement='left-start'>
 					<Emote.Style
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
