@@ -1,5 +1,5 @@
 import Tooltip from '@material-ui/core/Tooltip';
-import { DataStructure } from '@typings/DataStructure';
+import { DataStructure } from '@typings/typings/DataStructure';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -15,15 +15,17 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 	render() {
 		return (
 			<div style={{ display: 'inline-block' }}>
-				<Tooltip title={
+				<Tooltip enterDelay={0} title={
 					<React.Fragment>
 						<Emote.TooltipImage>
-							<img src={this.props.url}></img>
+							<img src={this.props.url + '3x'}></img>
 						</Emote.TooltipImage>
 
 						<Emote.Details>
 							<h3 className='emote-name'> {this.props.emote.name} </h3>
-							<span className='emote-submitter'> by {this.props.emote.submitted_by} </span>
+							<span className='emote-submitter'> by {this.props.emote.owner_name} </span>
+
+							<h4> 7TV {this.props.emote.global ? 'Global' : 'Channel'} Emote </h4>
 						</Emote.Details>
 					</React.Fragment>
 				} arrow interactive placement='left-start'>
@@ -31,11 +33,15 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
-						<img className='chat-image chat-line__message--emote' src={this.props.url} />
+						<img alt={this.props.name} className='chat-image chat-line__message--emote' src={this.props.url + '1x'} />
 					</Emote.Style>
 				</Tooltip>
 			</div>
 		);
+	}
+
+	getURL(): string {
+		return ``;
 	}
 
 	openDetails(ev: React.MouseEvent) {
@@ -70,17 +76,9 @@ export namespace Emote {
 
 	export const TooltipImage = styled.div`
 		margin: 1em;
-		height: 16em;
-		width: 16em;
 
 		display: flex;
 		justify-content: center;
-		img {
-			border: 1px solid ##dcdcdc
-			border-radius: 4px;
-			padding: 5px;
-			width: 16em;
-		}
 	`;
 
 	export const Details = styled.div`

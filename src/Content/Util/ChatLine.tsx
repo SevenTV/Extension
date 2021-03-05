@@ -4,7 +4,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ChatListener } from 'src/Content/Util/ChatListener';
 import { Emote } from 'src/Content/Components/EmoteComponent';
-import { DataStructure } from '@typings/DataStructure';
+import { DataStructure } from '@typings/typings/DataStructure';
+import { Config } from 'src/Config';
 
 export class ChatLine {
 	/**
@@ -67,7 +68,7 @@ export class ChatLine {
 							map(() => this.listener.cachedEmotes.get(emote.name)) // If cached then return the cached emote rendition
 						),
 						of(undefined).pipe( // Otherwise render the emote now														Test URL (is PagMan), waiting for backend to be written
-							map(() => this.listener.cachedEmotes.set(emote.name, <Emote emote={emote} name={emote.name} url={emote.url} />).get(emote.name))
+							map(() => this.listener.cachedEmotes.set(emote.name, <Emote emote={emote} name={emote.name} url={Config.cdnUrl + `/emote/${emote._id}/`} />).get(emote.name))
 						)
 					),
 					of((<span> { part } </span>))
@@ -128,7 +129,7 @@ export class ChatLine {
 
 	static postStatus(data: string): void {
 		const message = document.createElement('span');
-		message.innerText = data;
+		message.innerHTML = data;
 
 		const div = document.createElement('div');
 		div.classList.add('chat-line__status');

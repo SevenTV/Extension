@@ -2,11 +2,12 @@
 
 export class BackgroundMessaging {
 	send(data: any): void {
-		chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+		chrome.tabs.query({ url: 'https://www.twitch.tv/*', }, tabs => {
 			if (tabs.length === 0) return undefined;
-			const tab = tabs[0];
 
-			chrome.tabs.sendMessage(tab.id, data);
+			for (const tab of tabs) {
+				chrome.tabs.sendMessage(tab.id, data);
+			}
 		});
 	}
 }

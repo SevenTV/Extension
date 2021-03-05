@@ -4,13 +4,15 @@
 		"sourceMap": true,
 		"module": "CommonJS",
 		"moduleResolution": "node",
+		"resolveJsonModule": true,
 		"target": "ES5",
 		"jsx": "react",
 		"baseUrl": ".",
 		"experimentalDecorators": true,
 		"paths": {
+			"*": ["@types/*.d.ts"],
 			"src/*": ["./src/*"],
-			"@typings/*": ["../shared/typings/*"]
+			"@typings/*": ["../Shared/*", "Typings/*", "node_modules/seventv-typings/*"],
 		}
 	},
 

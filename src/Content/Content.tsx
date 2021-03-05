@@ -3,8 +3,6 @@ import * as ReactDOM from 'react-dom';
 import { Subject } from 'rxjs';
 import styled from 'styled-components';
 
-console.log('Pag 12');
-
 class Main extends React.Component {
 	render() {
 		return (
@@ -31,8 +29,6 @@ export const Content = {
 };
 
 chrome.runtime.onMessage.addListener(msg => {
-	console.log('Msg from background', msg);
-	Content.onMessage.next(msg);
 
 	return true;
 });
