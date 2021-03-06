@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Subject } from 'rxjs';
+import { Logger } from 'src/Logger';
 import styled from 'styled-components';
 
 class Main extends React.Component {
@@ -29,6 +30,13 @@ export const Content = {
 };
 
 chrome.runtime.onMessage.addListener(msg => {
+	Content.onMessage.next(msg);
 
 	return true;
+});
+
+Logger.Get().info('Extension active!');
+
+window.onbeforeunload = () => chrome.runtime.sendMessage({
+	tag: 'Unload'
 });

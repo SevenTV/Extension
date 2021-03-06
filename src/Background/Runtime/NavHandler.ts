@@ -1,6 +1,6 @@
 import { DataStructure } from '@typings/typings/DataStructure';
-import { EMPTY, Observable } from 'rxjs';
-import { delay, filter, map, tap, toArray } from 'rxjs/operators';
+import { asyncScheduler, BehaviorSubject, iif, Observable, of, scheduled, Subject, timer } from 'rxjs';
+import { catchError, concatAll, delay, filter, map, mapTo, mergeAll, mergeMap, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
 import { Background } from 'src/Background/Background';
 import { Config } from 'src/Config';
 import { Logger } from 'src/Logger';
@@ -9,43 +9,107 @@ import { version as extVersion } from '../../../package.json';
 export class NavHandler {
 	private versionChecked = false;
 	private channelURL = /(https:\/\/www.twitch.tv\/)(?:(popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
-	private currentChannel: string | null = null;
+	private channels = new Subject<NavHandler.CurrentChannelUpdate>();
+
+	private loadedTabs = new Map<number, chrome.tabs.Tab>();
+	private globalEmoteCache = new BehaviorSubject<DataStructure.Emote[]>([]).pipe(
+		mergeMap(emotes => scheduled([
+			of(emotes),
+			timer(60 * 1000).pipe(
+				takeUntil(this.globalEmoteCache),
+				mapTo([])
+			)
+		], asyncScheduler).pipe(mergeAll()))
+	) as BehaviorSubject<DataStructure.Emote[]>;
 
 	constructor() {
 		chrome.tabs.onUpdated.addListener((id, change, tab) => this.onUpdate(id, change, tab));
+
+
+		chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+			const tabId = sender.tab?.id ?? 0;
+			if (tabId === 0) return undefined;
+
+			// Listen for tabs being unloaded
+			if (msg.tag === 'Unload') {
+				this.loadedTabs.delete(tabId);
+				Logger.Get().info(`Unloaded tab ${tabId}`);
+				sendResponse('goodbye');
+			}
+		});
+
+		this.channels.pipe( // Listen for changes to loaded channels
+			tap(change => Logger.Get().info(`Loading Channel ${change.channelName}:${change.tab.id}`)),
+			filter(change => (!this.loadedTabs.has(change.tab.id as number))), // Make sure this tab isn't already loaded
+
+			// Load content script
+			tap(change => chrome.tabs.executeScript(change.tab.id as number, { file: 'content.js', runAt: 'document_start' }, () => {
+				if (!change.tab) return Logger.Get().error(`Tried to start content script but tab no longer exists`);
+
+				this.loadedTabs.set(change.tab.id as number, change.tab); // Add to loaded tabs so it's not loaded again
+				scheduled([
+					this.getGlobalEmotes(change.tab).pipe( // Retrieve global emotes
+						toArray(),
+						tap(emotes => Background.Messaging.send({
+							tag: 'MapGlobalEmotes',
+							emotes
+						}, change.tab.id as number))
+					),
+
+					this.getEmotes(change.channelName).pipe( // Then get the channel's emotes
+						toArray(),
+						catchError(err => of(undefined).pipe(
+							tap(() => Logger.Get().error(`Error getting channel emotes of ${change.channelName}, ${err}`)),
+							mapTo([])
+						)),
+						map(emotes => Background.Messaging.send({
+							tag: 'LoadChannel',
+							emotes,
+							channelName: change.channelName
+						}, change.tab.id as number))
+					)
+				], asyncScheduler).pipe(concatAll()).subscribe();
+			})),
+			delay(50)
+		).subscribe();
 	}
 
-	onContentOK(): void {
+	getGlobalEmotes(tab: chrome.tabs.Tab): Observable<DataStructure.Emote> {
+		if (!tab.id) throw new Error('tab id is undefined or null');
+
 		// Make one time request to fetch global emotes
-		this.getEmotes('@global').pipe(
-			toArray(),
-			tap(emotes => Logger.Get().info(`Loaded ${emotes.length} global emotes`)),
-			map(emotes => Background.Messaging.send({
-				tag: 'MapGlobalEmotes',
-				emotes
-			}))
-		).subscribe({
-			error: (err) => Logger.Get().error('Failed to retrieve global emotes', err)
-		});
+		return this.globalEmoteCache.pipe(
+			take(1),
+			switchMap(emotes => iif(() => emotes.length > 0,
+				of(emotes).pipe(
+					tap(emotes => Logger.Get().info(`Retrieved ${emotes.length} global emotes from cache`)),
+					mergeAll(),
+				),
+				this.getEmotes('@global').pipe(
+					toArray(),
+					tap(emotes => this.globalEmoteCache.next(emotes)),
+					mergeAll()
+				)
+			))
+		);
 	}
 
 	private onUpdate(id: number, change: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab): void {
+		if (!tab.url) return undefined;
 		if (!this.channelURL.test(tab.url)) return undefined;
 		if (change.status !== 'complete') return undefined;
 
 		// const url = new URL(tab.url.replace('/popout', ''));
 		const parsedURL = tab.url.match(this.channelURL);
-		const channelName = this.currentChannel = parsedURL[3]; // Index 3 of regex-matched string will always be the channel name
+		if (!parsedURL) return undefined;
+
+		const channelName = parsedURL[3]; // Index 3 of regex-matched string will always be the channel name
 		Logger.Get().info('Navigation to channel', channelName);
 
-		this.getEmotes(channelName).pipe(
-			toArray(),
-			map(emotes => Background.Messaging.send({
-				tag: 'SwitchChannel',
-				emotes,
-				channelName
-			}))
-		).subscribe();
+		// Emit channels update
+		this.channels.next({
+			channelName, tab
+		});
 
 		if (!this.versionChecked) {
 			this.versionChecked = true;
@@ -58,7 +122,7 @@ export class NavHandler {
 						latestVersion: res.version,
 						clientVersion: extVersion,
 
-					});
+					}, tab.id as number);
 				})
 			).subscribe();
 		}
@@ -70,10 +134,15 @@ export class NavHandler {
 
 			xhr.addEventListener('load', (ev) => {
 				const data = JSON.parse(xhr.responseText);
+				if (xhr.status >= 400 && xhr.status <= 599) {
+					return observer.error(Error(data.error.message));
+				}
+
 				for (const e of data.emotes) {
 					observer.next(e as DataStructure.Emote);
 				}
 
+				Logger.Get().info(`Loaded ${data.count ?? data.total_estimated_size ?? 0} emotes in ${channelName}`);
 				observer.complete();
 			});
 
@@ -105,5 +174,10 @@ export namespace NavHandler {
 	export interface CheckVersionResult {
 		version: string;
 		releaseUrl: string;
+	}
+
+	export interface CurrentChannelUpdate {
+		channelName: string;
+		tab: chrome.tabs.Tab;
 	}
 }

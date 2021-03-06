@@ -1,7 +1,8 @@
-import { from, iif, Observable, of, range } from 'rxjs';
-import { map, mergeMap, takeLast, tap, toArray } from 'rxjs/operators';
+import { asyncScheduler, from, iif, Observable, of, range, scheduled } from 'rxjs';
+import { filter, map, mergeAll, mergeMap, takeLast, tap, toArray } from 'rxjs/operators';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as ReactDOMS from 'react-dom/server';
 import { ChatListener } from 'src/Content/Util/ChatListener';
 import { Emote } from 'src/Content/Components/EmoteComponent';
 import { DataStructure } from '@typings/typings/DataStructure';
@@ -11,9 +12,7 @@ export class ChatLine {
 	/**
 	 * A wrapper around the Twitch chat line elements
 	 */
-	constructor(public listener: ChatListener, private readonly el: HTMLDivElement) {
-
-	}
+	constructor(public listener: ChatListener, private readonly el: HTMLDivElement) {}
 
 	private getSubElements(className: string): HTMLCollectionOf<HTMLSpanElement> {
 		return this.el.getElementsByClassName(`chat-line__${className}`) as HTMLCollectionOf<HTMLSpanElement>;
@@ -27,22 +26,28 @@ export class ChatLine {
 	renderEmote(emotes: DataStructure.Emote[]): void {
 		// const emote = this.listener.cachedEmotes.get(emoteName) ?? this.listener.cachedEmotes.set(emoteName, ReactDOM.renderToString(<Emote />)).get(emoteName);
 
-		this.getFragments().pipe(
+		scheduled([
+			this.getFragments(),
+			this.getEmoteFragments().pipe(
+				filter(el => emotes.map(e => e.name).includes(el.alt))
+			)
+		], asyncScheduler).pipe(
+			mergeAll(),
 			// filter(el => el?.innerText?.includes(emote.name)), // Search for the presence of emote
 			// Emote found: find matches and render emotes
-			mergeMap(span => this.replaceFragmentKeyword(span, emotes).pipe(
+			mergeMap(frag => this.replaceFragmentKeyword(frag, emotes).pipe(
 				toArray(),
-				map(newMarkup => ({ newMarkup, span })),
+				map(newMarkup => ({ newMarkup, frag })),
 				takeLast(1)
 			)),
 
 			// Re-render message with added emotes
-			tap(({ span, newMarkup }) => {
+			tap(({ frag, newMarkup }) => {
 				const newEl = document.createElement('span');
 				// newEl.innerHTML = newMarkup;
 
 				ReactDOM.render(newMarkup, newEl);
-				span.replaceWith(newEl);
+				frag.replaceWith(newEl);
 			})
 		).subscribe();
 	}
@@ -50,9 +55,9 @@ export class ChatLine {
 	/**
 	 * Find and replace text inside a given text fragment element and render an Emote component
 	 */
-	private replaceFragmentKeyword(el: HTMLSpanElement, emotes: DataStructure.Emote[]): Observable<JSX.Element> {
+	private replaceFragmentKeyword(el: HTMLSpanElement | HTMLImageElement, emotes: DataStructure.Emote[]): Observable<JSX.Element> {
 		return new Observable<JSX.Element>(observer => {
-			const parts = el.innerText.split(' ').filter(s => s.length > 0).map(s => s.trim());
+			const parts = ((el.innerText || el.getAttribute('alt') as string) ?? '').split(' ').filter(s => s.length > 0).map(s => s.trim());
 			const newMarkup = [] as JSX.Element[];
 
 			// Index emotes by name
@@ -74,7 +79,7 @@ export class ChatLine {
 					of((<span> { part } </span>))
 				)),
 				tap(el => {
-					newMarkup.push(el); // Add to markup string
+					newMarkup.push(el as JSX.Element); // Add to markup string
 				}),
 			).subscribe({
 				next(el) { observer.next(el); },
@@ -90,9 +95,10 @@ export class ChatLine {
 	getUsername(): Observable<HTMLSpanElement> {
 		return new Observable<HTMLSpanElement>(observer => {
 			const el = this.getSubElements('username').item(0)
-				.getElementsByTagName('span').item(0)
-				.getElementsByClassName('chat-author__display-name').item(0) as HTMLSpanElement;
+				?.getElementsByTagName('span').item(0)
+				?.getElementsByClassName('chat-author__display-name').item(0) as HTMLSpanElement;
 
+			if (!el) return observer.error(Error('Couldn\'t find elements for username'));
 			observer.next(el);
 			observer.complete();
 		});
@@ -117,14 +123,20 @@ export class ChatLine {
 
 	getFragments(): Observable<HTMLSpanElement> {
 		return new Observable<HTMLSpanElement>(observer => {
-			const fragments = this.el.getElementsByClassName('text-fragment');
+			const fragments: HTMLCollectionOf<HTMLSpanElement> = this.el.getElementsByClassName('text-fragment') as HTMLCollectionOf<any>;
 
 			from(Array.from(fragments)).subscribe({
-				next(el: HTMLSpanElement) { observer.next(el); },
+				next(el) { observer.next(el); },
 				complete() { observer.complete(); },
 				error(err) { observer.error(err); }
 			});
 		});
+	}
+
+	getEmoteFragments(): Observable<HTMLImageElement> {
+		const fragments: HTMLCollectionOf<HTMLImageElement> = this.el.getElementsByClassName('chat-line__message--emote') as HTMLCollectionOf<any>;
+
+		return from(Array.from(fragments));
 	}
 
 	static postStatus(data: string): void {

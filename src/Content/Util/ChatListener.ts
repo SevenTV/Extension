@@ -9,14 +9,13 @@ import { Logger } from 'src/Logger';
 export class ChatListener {
 	globalEmotes = [] as DataStructure.Emote[];
 	cachedEmotes = new Map<string, JSX.Element>();
-	private currentChannel: string;
-	private currentObserver: MutationObserver;
+	private currentObserver: MutationObserver | undefined;
 
 	constructor() {
 		// Handle channel switch
 		Content.onMessage.pipe(
-			filter(({ tag }) => tag === 'SwitchChannel'),
-			map(({ channelName, emotes }) => this.setChannel(channelName, emotes)),
+			filter(({ tag }) => tag === 'LoadChannel'),
+			map(({ channelName, emotes }) => this.loadChannel(channelName, emotes)),
 		).subscribe();
 
 		// Receive global emotes
@@ -31,39 +30,34 @@ export class ChatListener {
 		Content.onMessage.pipe(
 			filter(({ tag }) => tag === 'OutdatedVersion'),
 			map(msg => ChatLine.postStatus(''.concat(
-				'SevenTV is outdated! ',
+				'7TV is outdated! ',
 				`You are running version ${msg.clientVersion} but the latest is ${msg.latestVersion}. `,
 				`<a target="_blank" href="https://github.com/SevenTV/SevenTV/releases">Get the latest release</a>`
 			)))
 		).subscribe();
 	}
 
-	setChannel(channelName: string, emotes: DataStructure.Emote[]): void {
-		const oldChannel = String(this.currentChannel);
-		Logger.Get().info(`Switched to channel ${channelName}`);
+	loadChannel(channelName: string, emotes: DataStructure.Emote[]): void {
+		Logger.Get().info(`Loaded channel ${channelName}`);
 
+		// Combine global & channel emotes
 		const allEmotes = [...emotes, ...this.globalEmotes];
 		const targetNode = document.getElementsByClassName('stream-chat').item(0);
+		if (!targetNode) return undefined;
+
+		// Receive mutations
 		const cb = (mutations: MutationRecord[], observer: MutationObserver) => {
 			from(mutations).pipe(
-				map(mutation => ({ mutation, nodes: [] as HTMLDivElement[] })),
+				map(mutation => ({ mutation, nodes: [] as HTMLDivElement[] })), // Get added nodes only
 				concatMap(({ mutation, nodes }) => of(mutation.addedNodes.forEach((n: any) => nodes.push(n as HTMLDivElement))).pipe(
 					mapTo(nodes)
 				)),
-				concatAll(),
+				concatAll(), // Stream elements in order
 				filter(el => el.classList?.contains('chat-line__message')),
-				map(el => new ChatLine(this, el)),
+				map(el => new ChatLine(this, el)), // Serialize the chatline & render emotes
 				map(line => line.renderEmote(allEmotes))
-
-				// do stuff with fragments...
 			).subscribe();
 		};
-
-		// Stop old observer if it exists
-		if (this.currentObserver) {
-			Logger.Get().info(`Stopped observer for previous channel ${oldChannel}`);
-			this.currentObserver.disconnect();
-		}
 
 		// Create new MutationObserver
 		const mutationObserver = this.currentObserver = new MutationObserver(cb);
@@ -71,7 +65,6 @@ export class ChatListener {
 			attributes: true, childList: true, subtree: true
 		});
 
-		this.currentChannel = channelName;
-		ChatLine.postStatus(`SevenTV is enabled, found ${emotes.length} emotes in ${channelName} and ${this.globalEmotes.length} global emotes`);
+		ChatLine.postStatus(`7TV is active, found ${emotes.length} emotes in ${channelName} and ${this.globalEmotes.length} global emotes`);
 	}
 }
