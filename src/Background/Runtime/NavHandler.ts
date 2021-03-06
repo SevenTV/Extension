@@ -56,6 +56,19 @@ export class NavHandler {
 						}, change.tab.id as number))
 					),
 
+					this.checkVersion().pipe(
+						tap(res => Logger.Get().warn(`Extension is Outdated! Latest release is ${res.version} but this is ${extVersion}`)),
+						filter(res => res.version !== extVersion),
+						map(res => {
+							Background.Messaging.send({
+								tag: 'OutdatedVersion',
+								latestVersion: res.version,
+								clientVersion: extVersion,
+
+							}, change.tab.id as number);
+						})
+					),
+
 					this.getEmotes(change.channelName).pipe( // Then get the channel's emotes
 						toArray(),
 						catchError(err => of(undefined).pipe(
@@ -110,22 +123,6 @@ export class NavHandler {
 		this.channels.next({
 			channelName, tab
 		});
-
-		if (!this.versionChecked) {
-			this.versionChecked = true;
-			// Check version
-			this.checkVersion().pipe(
-				tap(res => Logger.Get().warn(`Extension is Outdated! Latest release is ${res.version} but this is ${extVersion}`)),
-				map(res => {
-					Background.Messaging.send({
-						tag: 'OutdatedVersion',
-						latestVersion: res.version,
-						clientVersion: extVersion,
-
-					}, tab.id as number);
-				})
-			).subscribe();
-		}
 	}
 
 	getEmotes(channelName: string | '@global'): Observable<DataStructure.Emote> {
@@ -163,6 +160,8 @@ export class NavHandler {
 						releaseUrl: data.release_url
 					});
 				}
+
+				observer.complete();
 			});
 			xhr.open('GET', `${Config.apiUrl}/extension?type=chrome`);
 			xhr.send();

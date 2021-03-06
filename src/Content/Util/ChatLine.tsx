@@ -1,4 +1,4 @@
-import { asyncScheduler, from, iif, Observable, of, range, scheduled } from 'rxjs';
+import { asapScheduler, from, iif, Observable, of, range, scheduled } from 'rxjs';
 import { filter, map, mergeAll, mergeMap, takeLast, tap, toArray } from 'rxjs/operators';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -25,12 +25,13 @@ export class ChatLine {
 	renderEmote(emotes: DataStructure.Emote[]): void {
 		// const emote = this.listener.cachedEmotes.get(emoteName) ?? this.listener.cachedEmotes.set(emoteName, ReactDOM.renderToString(<Emote />)).get(emoteName);
 
+		const emoteNames = emotes.map(e => e.name);
 		scheduled([
 			this.getFragments(),
 			this.getEmoteFragments().pipe(
-				filter(el => emotes.map(e => e.name).includes(el.alt))
+				filter(el => emoteNames.indexOf(el.alt) !== -1)
 			)
-		], asyncScheduler).pipe(
+		], asapScheduler).pipe(
 			mergeAll(),
 			// filter(el => el?.innerText?.includes(emote.name)), // Search for the presence of emote
 			// Emote found: find matches and render emotes

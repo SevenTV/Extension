@@ -26,9 +26,10 @@ The browser extension currently isn't available on any stores and must be instal
 
 #### Chromium / Google Chrome
 1. Download the latest build from the [releases page](https://github.com/SevenTV/SevenTV/releases)
+1. Unzip the archive
 1. Go into the browser's [extensions page](brave://extensions/)
 1. Enable "Developer mode" (top right)
-1. Click "Load unpacked" and select the previously downloaded file
+1. Click "Load unpacked" and select the "7tv-extension" folder
 1. The extension should now be enabled
 
 #### Firefox
