@@ -4,7 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const config = {
-  mode: 'development',
+  mode: 'production',
   entry: {
     content: path.join(__dirname, 'src/Content/Content.tsx'),
     background: path.join(__dirname, 'src/Background/Background.tsx')

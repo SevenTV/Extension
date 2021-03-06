@@ -2,7 +2,6 @@ import { asyncScheduler, from, iif, Observable, of, range, scheduled } from 'rxj
 import { filter, map, mergeAll, mergeMap, takeLast, tap, toArray } from 'rxjs/operators';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import * as ReactDOMS from 'react-dom/server';
 import { ChatListener } from 'src/Content/Util/ChatListener';
 import { Emote } from 'src/Content/Components/EmoteComponent';
 import { DataStructure } from '@typings/typings/DataStructure';
