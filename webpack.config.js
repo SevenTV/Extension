@@ -7,7 +7,8 @@ const config = {
   mode: 'development',
   entry: {
     content: path.join(__dirname, 'src/Content/Content.tsx'),
-    background: path.join(__dirname, 'src/Background/Background.tsx')
+    background: path.join(__dirname, 'src/Background/Background.tsx'),
+    page: path.join(__dirname, 'src/Page/Page.tsx')
   },
   output: { path: path.join(__dirname, 'dist'), filename: '[name].js' },
   module: {

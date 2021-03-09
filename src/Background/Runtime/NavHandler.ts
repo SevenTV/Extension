@@ -43,7 +43,7 @@ export class NavHandler {
 			filter(change => (!this.loadedTabs.has(change.tab.id as number))), // Make sure this tab isn't already loaded
 
 			// Load content script
-			tap(change => chrome.tabs.executeScript(change.tab.id as number, { file: 'content.js', runAt: 'document_start' }, () => {
+			tap(change => chrome.tabs.executeScript(change.tab.id as number, { file: 'content.js' }, () => {
 				if (!change.tab) return Logger.Get().error(`Tried to start content script but tab no longer exists`);
 
 				this.loadedTabs.set(change.tab.id as number, change.tab); // Add to loaded tabs so it's not loaded again

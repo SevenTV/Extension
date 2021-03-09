@@ -5,11 +5,13 @@
 		"sourceMap": true,
 		"module": "CommonJS",
 		"moduleResolution": "node",
+		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"target": "ES5",
 		"jsx": "react",
 		"baseUrl": ".",
 		"experimentalDecorators": true,
+		"downlevelIteration": true,
 		"paths": {
 			"*": ["@types/*.d.ts"],
 			"src/*": ["./src/*"],
