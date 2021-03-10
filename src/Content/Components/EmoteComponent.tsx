@@ -14,8 +14,8 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 
 	render() {
 		return (
-			<div style={{ display: 'inline-block' }}>
-				<Tooltip enterDelay={0} title={
+			<Emote.Container className='7tv-emote' style={{ display: 'inline-block' }}>
+				<Tooltip enterDelay={0} TransitionProps={{ timeout: 50 }} title={
 					<React.Fragment>
 						<Emote.TooltipImage>
 							<img src={this.props.url + '3x'}></img>
@@ -28,7 +28,7 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 							<h4> 7TV {this.props.emote.global ? 'Global' : 'Channel'} Emote </h4>
 						</Emote.Details>
 					</React.Fragment>
-				} arrow interactive placement='left-start'>
+				} arrow placement='left-start'>
 					<Emote.Style
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
@@ -36,7 +36,7 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 						<img alt={this.props.name} className='chat-image chat-line__message--emote' src={this.props.url + '1x'} />
 					</Emote.Style>
 				</Tooltip>
-			</div>
+			</Emote.Container>
 		);
 	}
 
@@ -57,7 +57,7 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 
 export namespace Emote {
 	export interface Props {
-		name: string;
+		name?: string;
 		url: string;
 		emote: DataStructure.Emote;
 	}
@@ -69,6 +69,11 @@ export namespace Emote {
 			posY: number;
 		};
 	}
+
+	export const Container = styled.div`
+		display: 'inline-block';
+		margin-bottom: 10px;
+	`;
 
 	export const Style = styled.div`
 		display: 'inline-flex';

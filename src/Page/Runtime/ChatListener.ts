@@ -1,4 +1,4 @@
-import { from, Observable, of } from 'rxjs';
+import { from, Observable, of, Subject } from 'rxjs';
 import { concatMap, mapTo, map, concatAll, filter, tap, mergeAll, takeLast } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { Page } from 'src/Page/Page';
@@ -13,8 +13,9 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
 	private pendingMessages = [] as string[];
-
 	private badgeManager = new BadgeManager();
+
+	public newLine = new Subject<Twitch.ChatLineAndComponent>();
 
 	constructor() {
 		super(observer => {
@@ -34,7 +35,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				// Push emotes to seventv.emotes property
 				const patcher = new MessagePatcher(msg, Page.EmoteSet);
 				msg.seventv = {
-					emotes: [],
+					parts: [],
 					badges: [],
 					patcher
 				};
@@ -42,6 +43,8 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				// Tokenize 7TV emotes to Message Data
 				// This detects/matches 7TV emotes as text and adds it to a seventv namespace within the message
 				patcher.tokenize();
+
+				patcher.render();
 
 				// Emit the message
 				observer.next(msg);
@@ -56,7 +59,8 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 			tap(line => this.badgeManager.patchChatLine(line)),
 
 			// Render 7TV emotes
-			tap(line => line.component.setState(line.component.state))
+			tap(line => line.component.setState(line.component.state)),
+			tap(line => this.newLine.next(line))
 		).subscribe();
 
 		const chat = this.twitch.getChat();
@@ -94,8 +98,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 					takeLast(1),
 					map(() => this.twitch.getChatLines(this.pendingMessages)), // Get component & element of pending messages
 					mergeAll(), // Remove the IDs from pending messages
-					tap(msg => this.pendingMessages.splice(this.pendingMessages.indexOf(msg.component?.props?.message.id), 1)),
-					tap(() => console.log('pending size', this.pendingMessages.length))
+					tap(msg => this.pendingMessages.splice(this.pendingMessages.indexOf(msg.component?.props?.message.id), 1))
 				).subscribe({ // Emit the line
 					next(line) { observer.next(line); }
 				});

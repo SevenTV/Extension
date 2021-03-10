@@ -1,7 +1,11 @@
 import { DataStructure } from '@typings/typings/DataStructure';
-import { noop } from 'rxjs';
+import { filter, map, take } from 'rxjs/operators';
 import { Page } from 'src/Page/Page';
 import { Twitch } from 'src/Page/Util/Twitch';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { Emote } from 'src/Content/Components/EmoteComponent';
+import { Config } from 'src/Config';
 
 export class MessagePatcher {
 	constructor(
@@ -20,10 +24,9 @@ export class MessagePatcher {
 		const eIndex = Page.EmoteSet.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b }));
 		const eNames = Object.keys(eIndex);
 
-		let atIndex = -1;
+		// Find all emotes across the message parts
+		const emotes = [] as DataStructure.Emote[];
 		for (const part of this.msg.messageParts) {
-			++atIndex;
-
 			// Get part text content
 			const text: string = (part.content as any)?.alt ?? part.content as string;
 
@@ -32,31 +35,93 @@ export class MessagePatcher {
 
 			// Apply matches to message parts
 			const foundEmotes = text.match(matches)
-				?.map(emoteName => eIndex[emoteName]);
-			if (!foundEmotes) continue; // Stop here if no emotes could be found
+				?.map(emoteName => eIndex[emoteName]) ?? [];
+			const foundEmoteNames = foundEmotes?.map(e => e.name) ?? [];
 
-			// Splice matches from this message part & order them
-			if (part.type === 6) { // Part is emote, but a 7TV emote matched: note this index as a 7TV Emote to be later rerendered
-				const emote = foundEmotes[0];
+			const words = text.match(this.getRegexp());
+			if (!words) continue;
 
-				this.msg.seventv.emotes.push({
-					atIndex,
-					emote
-				});
-			} else if (part.type === 0) { // Part is text: match and remove emote tokens
-				foundEmotes.map(emote => this.msg.seventv.emotes.push({
-					atIndex,
-					emote
-				}));
+			// Iterate through words in this part
+			// Check for emotes, and append to seventv namespace
+			let currentStack = [] as string[];
+			const pushCurrentStack = (): void => { // Push the current word stack
+				if (currentStack.length === 0) return undefined;
+
+				this.msg.seventv.parts.push({ type: 'text', content: currentStack.join(' ') });
+				currentStack = [];
+			};
+			for (const word of words) {
+				const isEmote = foundEmoteNames.includes(word); // Is this word an emote?
+				if (isEmote) {
+					pushCurrentStack(); // Push the current word stack as a single part
+					// Then push the emote part
+					this.msg.seventv.parts.push({ type: 'emote', content: eIndex[word] });
+				} else {
+					currentStack.push(word);
+				}
+			}
+			pushCurrentStack();
+		}
+	}
+
+	/**
+	 * Render the message with 7TV emotes
+	 */
+	render(): void {
+		const domObserver = Page.ChatListener.newLine; // Get DOM Observer (for receiving element & component of the message)
+
+		domObserver.pipe(
+			filter(line => line.component.props.message.id === this.msg.id),
+			take(1),
+
+			map(line => ({
+				...line,
+				jsx: this.renderMessageTree(line)
+			})),
+
+			map(({ element, jsx }) => {
+				// Hide twitch fragments
+				const fragments = element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, img.chat-line__message--emote');
+				fragments.forEach(oldFrag => oldFrag.style.display = 'none');
+
+				// Render 7TV third party stuff (and idk...)
+				const newContext = document.createElement('span');
+				newContext.classList.add('7tv-message-context');
+				newContext.style.display = 'inline-block';
+
+				ReactDOM.render(jsx, newContext);
+				(element.querySelector(Twitch.Selectors.ChatMessageContainer)?.firstChild ?? element).appendChild(newContext);
+			})
+		).subscribe();
+	}
+
+	/**
+	 * Create a new message tree
+	 */
+	private renderMessageTree(line: Twitch.ChatLineAndComponent): JSX.Element[] {
+		const parts = this.msg.seventv.parts; // Get the tokenized emotes
+		const jsxArray = [] as JSX.Element[];
+
+		for (const { type, content } of parts) {
+			if (type === 'text') {
+				jsxArray.push((
+					<span className='text-fragment'> {content as string} </span>
+				));
+			} else if (type === 'emote') {
+				const emote = content as DataStructure.Emote;
+
+				jsxArray.push(<Emote emote={emote} url={Config.cdnUrl + `/emote/${emote._id}/`} />);
 			}
 		}
+
+		return jsxArray;
 	}
 
 	/**
 	 * Get a Regular Expression matching a list of emotes
 	 */
-	private getRegexp(emoteNames: string[]): RegExp {
-		return new RegExp(`(?<![^ ])(${emoteNames.join('|')})(?![^ ])`, 'g');
+	private getRegexp(emoteNames?: string[]): RegExp {
+		return new RegExp(`(?<![^ ])(${!!emoteNames ? emoteNames.join('|') : '[^ ]*'})(?![^ ])`, 'g');
 		// Negative Lookbehind	- Match Enote Names - Negative Lookahead
 		// Match space backward or nothing			  Match space forward or nothing
 	}

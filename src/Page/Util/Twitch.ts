@@ -101,6 +101,7 @@ export namespace Twitch {
 		export const ROOT = '#root div';
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
 		export const ChatLine = '.chat-line__message';
+		export const ChatMessageContainer = '.chat-line__message-container';
 		export const ChatUsernameContainer = '.chat-line__username-container';
 		export const ChatAuthorDisplayName = '.chat-author__display-name';
 		export const ChatMessageBadges = '.chat-line__message--badges';
@@ -257,7 +258,7 @@ export namespace Twitch {
 		id: string;
 		isHistorical: unknown;
 		seventv: {
-			emotes: ChatMessage.AppEmoteRef[];
+			parts: ChatMessage.AppPart[];
 			badges?: ChatBadge[];
 			patcher?: MessagePatcher;
 		};
@@ -286,9 +287,7 @@ export namespace Twitch {
 	export namespace ChatMessage {
 		export interface Part {
 			content: string | EmoteRef;
-			/** type 777 if it is a 7TV emote */
 			type: number;
-			seventv_emote?: DataStructure.Emote;
 		}
 
 		export interface EmoteRef {
@@ -305,9 +304,9 @@ export namespace Twitch {
 			};
 		}
 
-		export interface AppEmoteRef {
-			emote: DataStructure.Emote;
-			atIndex: number;
+		export interface AppPart {
+			type: 'text' | 'emote';
+			content?: DataStructure.Emote | string;
 		}
 	}
 

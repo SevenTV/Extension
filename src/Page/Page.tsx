@@ -3,11 +3,11 @@ import { ChatListener } from 'src/Page/Runtime/ChatListener';
 import { DataStructure } from '@typings/typings/DataStructure';
 
 export const Page = {
-	EmoteSet: [] as DataStructure.Emote[]
+	EmoteSet: [] as DataStructure.Emote[],
+	ChatListener: new ChatListener()
 };
 
-const lis = new ChatListener();
-lis.subscribe();
+Page.ChatListener.subscribe();
 
 window.addEventListener('7TV#BackgroundExtMessage', event => {
 	if (!(event instanceof CustomEvent)) return undefined;
