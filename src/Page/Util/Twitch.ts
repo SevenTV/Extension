@@ -258,9 +258,9 @@ export namespace Twitch {
 		id: string;
 		isHistorical: unknown;
 		seventv: {
+			words: string[];
 			parts: ChatMessage.AppPart[];
 			badges?: ChatBadge[];
-			patcher?: MessagePatcher;
 		};
 		message: string;
 		messageBody: string;

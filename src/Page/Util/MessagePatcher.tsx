@@ -4,7 +4,7 @@ import { Page } from 'src/Page/Page';
 import { Twitch } from 'src/Page/Util/Twitch';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Emote } from 'src/Content/Components/EmoteComponent';
+import { Emote } from 'src/Page/Components/EmoteComponent';
 import { Config } from 'src/Config';
 
 export class MessagePatcher {
@@ -58,6 +58,7 @@ export class MessagePatcher {
 					this.msg.seventv.parts.push({ type: 'emote', content: eIndex[word] });
 				} else {
 					currentStack.push(word);
+					this.msg.seventv.words.push(word);
 				}
 			}
 			pushCurrentStack();
@@ -82,7 +83,10 @@ export class MessagePatcher {
 			map(({ element, jsx }) => {
 				// Hide twitch fragments
 				const fragments = element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, img.chat-line__message--emote');
-				fragments.forEach(oldFrag => oldFrag.style.display = 'none');
+				fragments.forEach(oldFrag => {
+					oldFrag.setAttribute('superceded', '');
+					oldFrag.style.display = 'none';
+				});
 
 				// Render 7TV third party stuff (and idk...)
 				const newContext = document.createElement('span');
@@ -90,7 +94,7 @@ export class MessagePatcher {
 				newContext.style.display = 'inline-block';
 
 				ReactDOM.render(jsx, newContext);
-				(element.querySelector(Twitch.Selectors.ChatMessageContainer)?.firstChild ?? element).appendChild(newContext);
+				(element.querySelector(Twitch.Selectors.ChatMessageContainer) ?? element).appendChild(newContext);
 			})
 		).subscribe();
 	}
@@ -100,17 +104,41 @@ export class MessagePatcher {
 	 */
 	private renderMessageTree(line: Twitch.ChatLineAndComponent): JSX.Element[] {
 		const parts = this.msg.seventv.parts; // Get the tokenized emotes
+		const words = this.msg.seventv.words;
 		const jsxArray = [] as JSX.Element[];
 
 		for (const { type, content } of parts) {
 			if (type === 'text') {
-				jsxArray.push((
-					<span className='text-fragment'> {content as string} </span>
-				));
+				let text = content as string;
+				// Scan for first party or other third party emotes
+				for (const word of words) {
+					if (word.trim().length === 0 || !text.includes(word)) continue;
+
+					// Pull the emote out (7tv-superceded)
+					const superceded = line.element.querySelector(`img[alt="${word.replace(/"/g, '\\"')}"]`) as HTMLImageElement;
+					if (!superceded) continue;
+
+					text = text.replace(word, '');
+					jsxArray.push(<Emote
+						src={{ preview: superceded.src, small: superceded.src }}
+						provider={superceded.getAttribute('data-provider') ?? 'N/A'}
+						name={superceded.alt}
+					/>);
+				}
+
+				jsxArray.push(
+					( <span className='text-fragment'> {text as string} </span> )
+				);
 			} else if (type === 'emote') {
 				const emote = content as DataStructure.Emote;
 
-				jsxArray.push(<Emote emote={emote} url={Config.cdnUrl + `/emote/${emote._id}/`} />);
+				jsxArray.push(<Emote
+					src={{ preview: `${Config.cdnUrl}/emote/${emote._id}/3x`, small: `${Config.cdnUrl}/emote/${emote._id}/1x` }}
+					provider='7tv'
+					name={emote.name}
+					ownerName={emote.owner_name}
+					global={emote.global}
+				/>);
 			}
 		}
 

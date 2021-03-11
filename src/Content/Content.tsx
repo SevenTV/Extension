@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Subject } from 'rxjs';
-import { bufferToggle, bufferWhen, filter, mergeAll, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import styled from 'styled-components';
 

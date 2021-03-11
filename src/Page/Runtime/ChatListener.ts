@@ -37,7 +37,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				msg.seventv = {
 					parts: [],
 					badges: [],
-					patcher
+					words: []
 				};
 
 				// Tokenize 7TV emotes to Message Data
@@ -51,6 +51,8 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 			});
 		});
 
+		(window as any).twitch = this.twitch;
+
 		/**
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
 		 */
@@ -59,7 +61,6 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 			tap(line => this.badgeManager.patchChatLine(line)),
 
 			// Render 7TV emotes
-			tap(line => line.component.setState(line.component.state)),
 			tap(line => this.newLine.next(line))
 		).subscribe();
 

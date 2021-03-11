@@ -18,14 +18,14 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 				<Tooltip enterDelay={0} TransitionProps={{ timeout: 50 }} title={
 					<React.Fragment>
 						<Emote.TooltipImage>
-							<img src={this.props.url + '3x'}></img>
+							<img src={this.props?.src.preview}></img>
 						</Emote.TooltipImage>
 
 						<Emote.Details>
-							<h3 className='emote-name'> {this.props.emote.name} </h3>
-							<span className='emote-submitter'> by {this.props.emote.owner_name} </span>
+							<h3 className='emote-name'> {this.props.name} </h3>
+							<span className='emote-submitter'> by {this.props.ownerName ?? 'Unknown Submitter'} </span>
 
-							<h4> 7TV {this.props.emote.global ? 'Global' : 'Channel'} Emote </h4>
+							<h4> {this.props.provider} {this.props.global ? 'Global' : 'Channel'} Emote </h4>
 						</Emote.Details>
 					</React.Fragment>
 				} arrow placement='left-start'>
@@ -33,7 +33,7 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
-						<img alt={this.props.name} className='chat-image chat-line__message--emote' src={this.props.url + '1x'} />
+						<img alt={this.props.name} className='chat-image chat-line__message--emote' src={this.props?.src.small} />
 					</Emote.Style>
 				</Tooltip>
 			</Emote.Container>
@@ -57,9 +57,14 @@ export class Emote extends React.Component<Emote.Props, Emote.State> {
 
 export namespace Emote {
 	export interface Props {
-		name?: string;
-		url: string;
-		emote: DataStructure.Emote;
+		provider: string;
+		src: {
+			small: string;
+			preview: string;
+		};
+		name: string;
+		ownerName?: string;
+		global?: boolean;
 	}
 
 	export interface State {
