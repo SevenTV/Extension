@@ -49,8 +49,6 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 			});
 		});
 
-		(window as any).twitch = this.twitch;
-
 		/**
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
 		 */

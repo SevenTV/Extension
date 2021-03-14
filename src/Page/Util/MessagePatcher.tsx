@@ -30,14 +30,14 @@ export class MessagePatcher {
 			if (typeof text !== 'string') continue;
 
 			// Check if part contains one or more 7TV emotes?
-			const matches = this.getRegexp(eNames);
+			const matches = MessagePatcher.getRegexp(eNames);
 
 			// Apply matches to message parts
 			const foundEmotes = text.match(matches)
 				?.map(emoteName => eIndex[emoteName]) ?? [];
 			const foundEmoteNames = foundEmotes?.map(e => e.name) ?? [];
 
-			const words = text.match(this.getRegexp());
+			const words = text.match(MessagePatcher.getRegexp());
 			if (!words) continue;
 
 			// Iterate through words in this part
@@ -89,7 +89,7 @@ export class MessagePatcher {
 	/**
 	 * Get a Regular Expression matching a list of emotes
 	 */
-	private getRegexp(emoteNames?: string[]): RegExp {
+	static getRegexp(emoteNames?: string[]): RegExp {
 		return new RegExp(`(?<![^ ])(${!!emoteNames ? emoteNames.join('|') : '[^ ]*'})(?![^ ])`, 'g');
 		// Negative Lookbehind	- Match Enote Names - Negative Lookahead
 		// Match space backward or nothing			  Match space forward or nothing

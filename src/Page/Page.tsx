@@ -1,12 +1,13 @@
-import { Twitch } from 'src/Page/Util/Twitch';
 import { ChatListener } from 'src/Page/Runtime/ChatListener';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { EmoteStore } from 'src/Page/Util/EmoteStore';
+import { TabCompletion } from 'src/Page/Runtime/TabCompletion';
 
 export const Page = {
 	EmoteSet: [] as DataStructure.Emote[],
 	EmoteStore: new EmoteStore(),
-	ChatListener: new ChatListener()
+	ChatListener: new ChatListener(),
+	TabCompletion: new TabCompletion()
 };
 
 Page.ChatListener.subscribe();
@@ -36,3 +37,4 @@ window.addEventListener('7TV#BackgroundExtMessage', event => {
 setTimeout(() => {
 	window.dispatchEvent(new Event('7TV#PageScriptReady'));
 }, 50);
+
