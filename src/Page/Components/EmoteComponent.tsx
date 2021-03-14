@@ -22,7 +22,7 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 
 						<Emote.Details>
 							<h3 className='emote-name'> {this.props.name} </h3>
-							<span className='emote-submitter'> by {this.props.ownerName ?? 'Unknown Submitter'} </span>
+							{!!this.props.ownerName ? <span className='emote-submitter'> {this.props.ownerName} </span> : ''}
 
 							<h4> {this.props.provider} {this.props.global ? 'Global' : 'Channel'} Emote </h4>
 						</Emote.Details>
@@ -32,7 +32,7 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
-						<img alt={this.props.name} className='chat-image chat-line__message--emote' src={this.props?.src.small} />
+						<img alt={this.props.name} height={this.props.provider === 'emoji' ? 19.5 : ''} className='chat-image chat-line__message--emote' src={this.props?.src.small} />
 					</Emote.Style>
 				</Tooltip>
 			</Emote.Container>
@@ -80,7 +80,6 @@ export namespace Emote {
 	`;
 
 	export const Style = styled.div`
-		max-height: 32px;
 		display: 'inline-flex';
 	`;
 

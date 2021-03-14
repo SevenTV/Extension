@@ -21,7 +21,6 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 
 			// Begin listening to incoming messages
 			this.twitch.getChatController().props.messageHandlerAPI.addMessageHandler(msg => {
-				/// console.log('hi', msg);
 				if (msg.messageType !== 0) return undefined;
 
 				/**
@@ -48,11 +47,13 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				observer.next(msg);
 			});
 		});
+		// (window as any).twitch = this.twitch;
 
 		/**
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
 		 */
 		this.observeDOM().pipe(
+			filter(line => !!line.component.props.message.seventv),
 			// Patch with badges LUL
 			// tap(line => this.badgeManager.patchChatLine(line)),
 
@@ -67,19 +68,20 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 		).subscribe();
 	}
 
-	constructStringMsgBody(msg: Twitch.ChatMessage): string {
-		return (msg.messageParts.map(p => {
-			switch (p.type) {
-				case 0:
-					return p.content as string;
+	sendSystemMessage(msg: string): void {
+		const controller = this.twitch.getChatController();
 
-				case 6:
-					return (p.content as any).alt;
-
-				default:
-					break;
-			}
-		}) as string[]).join('');
+		if (controller) {
+			const id = Date.now().toString();
+			const text = msg.replace(/\$currentChannel/g, controller.props.channelLogin);
+			controller.pushMessage({
+				id,
+				msgid: id,
+				channel: `#${controller.props.channelLogin}`,
+				type: 32,
+				message: `[7TV] ${text}`
+			});
+		}
 	}
 
 	/**

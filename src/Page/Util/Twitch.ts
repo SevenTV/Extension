@@ -236,7 +236,9 @@ export namespace Twitch {
 		userDisplayName: string | undefined;
 		userID: string | undefined;
 		userLogin: string | undefined;
-	}>;
+	}> & {
+		pushMessage: (msg: { id: string; msgid: string; channel: string; type: number; message: any; }) => void;
+	};
 
 	export type ChatComponent = React.PureComponent<{
 		authToken: string;
@@ -332,7 +334,7 @@ export namespace Twitch {
 	}
 	export namespace ChatMessage {
 		export interface Part {
-			content: string | EmoteRef;
+			content: string | EmoteRef | { [key: string]: any; };
 			type: number;
 		}
 
@@ -351,8 +353,8 @@ export namespace Twitch {
 		}
 
 		export interface AppPart {
-			type: 'text' | 'emote';
-			content?: DataStructure.Emote | string;
+			type: 'text' | 'emote' | 'link' | 'mention';
+			content?: DataStructure.Emote | string | { [key: string]: any; };
 		}
 	}
 

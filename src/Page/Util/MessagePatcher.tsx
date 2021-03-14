@@ -25,6 +25,14 @@ export class MessagePatcher {
 		// Find all emotes across the message parts
 		const emotes = [] as DataStructure.Emote[];
 		for (const part of this.msg.messageParts) {
+			// Handle link / mention
+			if (part.type === 4) { // Is mention
+				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });
+				continue;
+			} else if (part.type === 5) {
+				this.msg.seventv.parts.push({ type: 'link', content: part.content });
+			}
+
 			// Get part text content
 			const text: string = (part.content as any)?.alt ?? part.content as string;
 			if (typeof text !== 'string') continue;

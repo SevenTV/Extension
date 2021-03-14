@@ -24,6 +24,7 @@ window.addEventListener('7TV#BackgroundExtMessage', event => {
 
 		// Append new channel emote
 		Page.EmoteSet.push(...ev.detail.emotes);
+		Page.ChatListener.sendSystemMessage(`Loaded ${ev.detail.emotes.length} emotes in $currentChannel: ${ev.detail.emotes.map((e: DataStructure.Emote) => e.name).join(', ')}`);
 	} else if (ev.detail.tag === 'MapGlobalEmotes') {
 		// Unload previous global emotes from the current set
 		Page.EmoteSet
@@ -31,6 +32,9 @@ window.addEventListener('7TV#BackgroundExtMessage', event => {
 			.map(emote => Page.EmoteSet.splice(Page.EmoteSet.indexOf(emote), 1));
 
 		Page.EmoteSet.push(...ev.detail.emotes);
+	} else if (ev.detail.tag === 'OutdatedVersion') {
+		console.log('Eotudtated', ev.detail);
+		Page.ChatListener.sendSystemMessage(`7TV is outdated! Your version is ${ev.detail.clientVersion}, while the latest is ${ev.detail.latestVersion}`);
 	}
 });
 

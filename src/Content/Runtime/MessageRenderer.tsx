@@ -26,7 +26,7 @@ export class MessageRenderer {
 		const el = this.getElement();
 		if (!el) return undefined;
 
-		const container = el.querySelector('.chat-line__no-background') ?? el;
+		const container = el.querySelector('.chat-line__no-background') ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
 		el.querySelector('.message')?.remove();
 		const newContext = document.createElement('span');
 		newContext.classList.add('7tv-message-context');
@@ -82,6 +82,10 @@ export class MessageRenderer {
 				/>);
 
 				jsxArray.push(reactElement);
+			} else if (type === 'mention') {
+				jsxArray.push(<strong> @{content} </strong>);
+			} else if (type === 'link') {
+				jsxArray.push(<a href={(content as any).url} target='_blank'> {(content as any).displayText} </a>);
 			}
 			index++;
 		}

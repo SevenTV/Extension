@@ -22,7 +22,6 @@ export class TabCompletion {
 			input.onkeydown = (ev) => {
 				observer.next(ev);
 
-				console.log(ev);
 				if (ev.code === 'Space') {
 					this.createPreview();
 				}
