@@ -1,5 +1,5 @@
 import { from, Observable, of, Subject } from 'rxjs';
-import { concatMap, mapTo, map, concatAll, filter, tap, mergeAll, takeLast } from 'rxjs/operators';
+import { concatMap, mapTo, map, concatAll, filter, tap, mergeAll, takeLast, mergeMap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { Page } from 'src/Page/Page';
 import { BadgeManager } from 'src/Page/Util/BadgeManager';
@@ -12,10 +12,8 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 	private twitch = new Twitch();
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
-	private pendingMessages = [] as string[];
+	private pendingMessages = new Set<string>();
 	private badgeManager = new BadgeManager();
-
-	public newLine = new Subject<Twitch.ChatLineAndComponent>();
 
 	constructor() {
 		super(observer => {
@@ -23,6 +21,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 
 			// Begin listening to incoming messages
 			this.twitch.getChatController().props.messageHandlerAPI.addMessageHandler(msg => {
+				/// console.log('hi', msg);
 				if (msg.messageType !== 0) return undefined;
 
 				/**
@@ -30,11 +29,12 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				 * We can edit the message in the meantime
 				 * @see observeDOM()
 				 */
-				this.pendingMessages.push(msg.id);
+				this.pendingMessages.add(msg.id);
 
 				// Push emotes to seventv.emotes property
 				const patcher = new MessagePatcher(msg, Page.EmoteSet);
 				msg.seventv = {
+					patcher,
 					parts: [],
 					badges: [],
 					words: []
@@ -43,8 +43,6 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				// Tokenize 7TV emotes to Message Data
 				// This detects/matches 7TV emotes as text and adds it to a seventv namespace within the message
 				patcher.tokenize();
-
-				patcher.render();
 
 				// Emit the message
 				observer.next(msg);
@@ -58,13 +56,17 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 		 */
 		this.observeDOM().pipe(
 			// Patch with badges LUL
-			tap(line => this.badgeManager.patchChatLine(line)),
+			// tap(line => this.badgeManager.patchChatLine(line)),
 
 			// Render 7TV emotes
-			tap(line => this.newLine.next(line))
-		).subscribe();
+			tap(line => line.component.props.message.seventv.patcher?.render(line)),
 
-		const chat = this.twitch.getChat();
+			// Testing
+			// map(line => {
+			// 	const { inst, component, element } = line;
+			// 	console.log(inst);
+			// }),
+		).subscribe();
 	}
 
 	constructStringMsgBody(msg: Twitch.ChatMessage): string {
@@ -87,27 +89,25 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 	 */
 	observeDOM(): Observable<Twitch.ChatLineAndComponent> {
 		return new Observable<Twitch.ChatLineAndComponent>(observer => {
-			const onMutate = (mutations: MutationRecord[]) => {
-				from(mutations).pipe(
-					map(mutation => ({ mutation, nodes: [] as HTMLDivElement[] })), // Get added nodes only
-					concatMap(({ mutation, nodes }) => of(mutation.addedNodes.forEach((n: any) => nodes.push(n as HTMLDivElement))).pipe(
-						mapTo(nodes)
-					)),
-					concatAll(), // Stream elements in order
-					filter(el => el.classList?.contains('chat-line__message')), // Only get messages
+			Logger.Get().info('Creating MutationObserver');
 
-					takeLast(1),
-					map(() => this.twitch.getChatLines(this.pendingMessages)), // Get component & element of pending messages
-					mergeAll(), // Remove the IDs from pending messages
-					tap(msg => this.pendingMessages.splice(this.pendingMessages.indexOf(msg.component?.props?.message.id), 1))
-				).subscribe({ // Emit the line
-					next(line) { observer.next(line); }
-				});
-			};
+			const mutationObserver = new MutationObserver((records) => {
+				const lines = this.twitch.getChatLines(Array.from(this.pendingMessages.values()));
 
-			const mutationObserver = new MutationObserver(onMutate);
-			mutationObserver.observe(this.twitch.getChat().state.chatListElement, {
-				childList: true, subtree: true, attributes: true
+				for (const line of lines) {
+					this.pendingMessages.delete(line.component?.props?.message.id);
+
+					observer.next(line);
+				}
+
+				// Find removed nodes
+			});
+
+			const container = this.twitch.getChat().state.chatListElement.querySelector('.chat-scrollable-area__message-container');
+			if (!container) throw new Error('Could not find chat container');
+
+			mutationObserver.observe(container, {
+				childList: true
 			});
 		});
 	}

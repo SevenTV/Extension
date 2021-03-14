@@ -1,7 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Subject } from 'rxjs';
+import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
+import { EmoteStore } from 'src/Content/Util/EmoteStore';
 import { Logger } from 'src/Logger';
+import { MessageBody } from 'src/Page/Components/MessageBody';
+import { Twitch } from 'src/Page/Util/Twitch';
 import styled from 'styled-components';
 
 class Main extends React.Component {
@@ -25,18 +29,19 @@ ReactDOM.render(<Main />, app);
 
 export const Content = {
 	onMessage: new Subject<any>(),
-	PageReady: new Subject<void>()
+	PageReady: new Subject<void>(),
+	EmoteStore: new EmoteStore()
 };
 
 // Listen for messages from background
 // Forward them to page
 let pageReady = false;
 const bufferedPageEvents = [] as CustomEvent[];
-chrome.runtime.onMessage.addListener(msg => {
+chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
 	const ev = new CustomEvent(`7TV#BackgroundExtMessage`, { detail: msg });
 	pageReady ?	window.dispatchEvent(ev) : bufferedPageEvents.push(ev);
 
-	return true;
+	sendResponse(true);
 });
 
 // Listen to page becoming ready
@@ -45,6 +50,18 @@ window.addEventListener('7TV#PageScriptReady', () => {
 	for (const ev of bufferedPageEvents) {
 		window.dispatchEvent(ev);
 	}
+});
+
+window.addEventListener('7TV#RenderChatLine', event => {
+	if (!(event instanceof CustomEvent)) return undefined;
+	const ev = event as CustomEvent;
+	const data = JSON.parse(ev.detail);
+
+	const renderer = new MessageRenderer(data.msg, data.elementId);
+
+	renderer.renderMessageTree();
+	renderer.insert();
+
 });
 
 Logger.Get().info('Extension active!');

@@ -5,6 +5,7 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const config = {
   mode: 'development',
+  devtool: 'cheap-module-source-map',
   entry: {
     content: path.join(__dirname, 'src/Content/Content.tsx'),
     background: path.join(__dirname, 'src/Background/Background.tsx'),

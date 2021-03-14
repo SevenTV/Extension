@@ -1,9 +1,11 @@
 import { Twitch } from 'src/Page/Util/Twitch';
 import { ChatListener } from 'src/Page/Runtime/ChatListener';
 import { DataStructure } from '@typings/typings/DataStructure';
+import { EmoteStore } from 'src/Page/Util/EmoteStore';
 
 export const Page = {
 	EmoteSet: [] as DataStructure.Emote[],
+	EmoteStore: new EmoteStore(),
 	ChatListener: new ChatListener()
 };
 

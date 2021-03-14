@@ -1,9 +1,8 @@
 import Tooltip from '@material-ui/core/Tooltip';
-import { DataStructure } from '@typings/typings/DataStructure';
 import * as React from 'react';
 import styled from 'styled-components';
 
-export class Emote extends React.Component<Emote.Props, Emote.State> {
+export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 	state = {
 		details: {
 			visible: false,
@@ -81,6 +80,7 @@ export namespace Emote {
 	`;
 
 	export const Style = styled.div`
+		max-height: 32px;
 		display: 'inline-flex';
 	`;
 

@@ -11,9 +11,6 @@
 			"background.js"
 		]
 	},
-	"content_scripts": [
-
-	],
 	"web_accessible_resources": ["page.js"],
 	"permissions": [
 		"*://www.twitch.tv/*",

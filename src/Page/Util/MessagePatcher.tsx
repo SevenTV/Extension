@@ -1,13 +1,11 @@
 import { DataStructure } from '@typings/typings/DataStructure';
-import { filter, map, take } from 'rxjs/operators';
 import { Page } from 'src/Page/Page';
 import { Twitch } from 'src/Page/Util/Twitch';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { Emote } from 'src/Page/Components/EmoteComponent';
-import { Config } from 'src/Config';
 
 export class MessagePatcher {
+	static cachedEmotes = new Map<string, JSX.Element>();
+	static trash = document.createElement('trash');
+
 	constructor(
 		private msg: Twitch.ChatMessage,
 		private emoteSet: DataStructure.Emote[]
@@ -29,6 +27,7 @@ export class MessagePatcher {
 		for (const part of this.msg.messageParts) {
 			// Get part text content
 			const text: string = (part.content as any)?.alt ?? part.content as string;
+			if (typeof text !== 'string') continue;
 
 			// Check if part contains one or more 7TV emotes?
 			const matches = this.getRegexp(eNames);
@@ -68,82 +67,24 @@ export class MessagePatcher {
 	/**
 	 * Render the message with 7TV emotes
 	 */
-	render(): void {
-		const domObserver = Page.ChatListener.newLine; // Get DOM Observer (for receiving element & component of the message)
-
-		domObserver.pipe(
-			filter(line => line.component.props.message.id === this.msg.id),
-			take(1),
-
-			map(line => ({
-				...line,
-				jsx: this.renderMessageTree(line)
-			})),
-
-			map(({ element, jsx }) => {
-				// Hide twitch fragments
-				const fragments = element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, img.chat-line__message--emote');
-				fragments.forEach(oldFrag => {
-					oldFrag.setAttribute('superceded', '');
-					oldFrag.style.display = 'none';
-				});
-
-				// Render 7TV third party stuff (and idk...)
-				const newContext = document.createElement('span');
-				newContext.classList.add('7tv-message-context');
-				newContext.style.display = 'inline-block';
-
-				ReactDOM.render(jsx, newContext);
-				(element.querySelector(Twitch.Selectors.ChatMessageContainer) ?? element).appendChild(newContext);
-			})
-		).subscribe();
-	}
-
-	/**
-	 * Create a new message tree
-	 */
-	private renderMessageTree(line: Twitch.ChatLineAndComponent): JSX.Element[] {
-		const parts = this.msg.seventv.parts; // Get the tokenized emotes
-		const words = this.msg.seventv.words;
-		const jsxArray = [] as JSX.Element[];
-
-		for (const { type, content } of parts) {
-			if (type === 'text') {
-				let text = content as string;
-				// Scan for first party or other third party emotes
-				for (const word of words) {
-					if (word.trim().length === 0 || !text.includes(word)) continue;
-
-					// Pull the emote out (7tv-superceded)
-					const superceded = line.element.querySelector(`img[alt="${word.replace(/"/g, '\\"')}"]`) as HTMLImageElement;
-					if (!superceded) continue;
-
-					text = text.replace(word, '');
-					jsxArray.push(<Emote
-						src={{ preview: superceded.src, small: superceded.src }}
-						provider={superceded.getAttribute('data-provider') ?? 'N/A'}
-						name={superceded.alt}
-					/>);
-				}
-
-				jsxArray.push(
-					( <span className='text-fragment'> {text as string} </span> )
-				);
-			} else if (type === 'emote') {
-				const emote = content as DataStructure.Emote;
-
-				jsxArray.push(<Emote
-					src={{ preview: `${Config.cdnUrl}/emote/${emote._id}/3x`, small: `${Config.cdnUrl}/emote/${emote._id}/1x` }}
-					provider='7tv'
-					name={emote.name}
-					ownerName={emote.owner_name}
-					global={emote.global}
-				/>);
-			}
+	render(line: Twitch.ChatLineAndComponent): void {
+		// Hide twitch fragments
+		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, img.chat-line__message--emote'));
+		for (const oldFrag of oldFragments) {
+			oldFrag.setAttribute('superceded', '');
+			oldFrag.style.display = 'none';
 		}
 
-		return jsxArray;
-	}
+		// Render 7TV third party stuff (and idk...)
+		// Send message data back to the content script
+		line.element.id = `7TV#msg:${this.msg.id}`; // Give an ID to the message element
+		this.msg.seventv.patcher = null;
+		const data = JSON.stringify({
+			msg: this.msg,
+			elementId: line.element.id
+		}); // Rendering the message body moves on Content.MessageRenderer from now on
+		window.dispatchEvent(new CustomEvent('7TV#RenderChatLine', { detail: data } ));
+	} // [i] This is done on the pagescript, because Twitch will maintain references to our React components and cause a memory leak!
 
 	/**
 	 * Get a Regular Expression matching a list of emotes

@@ -71,10 +71,18 @@ export class Twitch {
 	/**
 	 * Get an individual chat line
 	 */
-	getChatLine(el: HTMLElement): Twitch.AnyPureComponent {
+	getChatLine(el: HTMLElement): Twitch.GetChatLineResult {
 		const inst = this.getReactInstance(el);
+		const separator = this.findReactChildren(inst,
+			n => n.key === 'separator',
+			1000
+		);
 
-		return inst?.return?.stateNode;
+		return {
+			component: inst?.return?.stateNode,
+			separatorComponent: separator as Twitch.TwitchPureComponent,
+			instance: inst as Twitch.TwitchPureComponent
+		};
 	}
 
 	/**
@@ -82,11 +90,16 @@ export class Twitch {
 	 */
 	getChatLines(idList?: string[]): Twitch.ChatLineAndComponent[] {
 		let lines = Array.from(document.querySelectorAll<HTMLElement>(Twitch.Selectors.ChatLine))
-			.reverse()
-			.map(element => ({
-				element,
-				component: this.getChatLine(element)
-			}));
+			.map(element => {
+				const chatLine = this.getChatLine(element);
+
+				return {
+					element,
+					component: chatLine.component,
+					separatorComponent: chatLine.separatorComponent,
+					inst: chatLine.instance
+				};
+			});
 
 		if (!!idList) {
 			lines = lines.filter(({ component }) => idList?.includes((component?.props as any)?.message?.id));
@@ -100,6 +113,7 @@ export namespace Twitch {
 	export namespace Selectors {
 		export const ROOT = '#root div';
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
+		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
 		export const ChatLine = '.chat-line__message';
 		export const ChatMessageContainer = '.chat-line__message-container';
 		export const ChatUsernameContainer = '.chat-line__username-container';
@@ -112,10 +126,39 @@ export namespace Twitch {
 
 	export type FindReactInstancePredicate = (node: any) => boolean;
 	export type AnyPureComponent = React.PureComponent & { [x: string]: any; };
+	export interface TwitchPureComponent extends AnyPureComponent {
+		child: TwitchPureComponent;
+		alternate: TwitchPureComponent;
+		childExpirationTime: number;
+		dependencies: any;
+		effectTag: number;
+		elementType: string;
+		expirationTime: number;
+		firstEffect: any;
+		index: number;
+		key: any;
+		lastEffect: any;
+		memoizedProps: any;
+		pendingProps: any;
+		mode: number;
+		nextEffect: any;
+		ref: any;
+		return: TwitchPureComponent | AnyPureComponent;
+		tag: number;
+		type: string;
+		updateQueue: any;
+	}
 
+	export interface GetChatLineResult {
+		instance: TwitchPureComponent;
+		component: AnyPureComponent;
+		separatorComponent: TwitchPureComponent | null;
+	}
 	export interface ChatLineAndComponent {
 		element: HTMLDivElement;
+		inst: TwitchPureComponent;
 		component: ChatLineComponent;
+		separatorComponent: TwitchPureComponent | null;
 	}
 	export type ChatLineComponent = React.PureComponent<{
 		badgeSets: BadgeSets;
@@ -258,6 +301,7 @@ export namespace Twitch {
 		id: string;
 		isHistorical: unknown;
 		seventv: {
+			patcher: MessagePatcher | null;
 			words: string[];
 			parts: ChatMessage.AppPart[];
 			badges?: ChatBadge[];
