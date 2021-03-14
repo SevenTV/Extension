@@ -21,7 +21,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 
 			// Begin listening to incoming messages
 			this.twitch.getChatController().props.messageHandlerAPI.addMessageHandler(msg => {
-				if (msg.messageType !== 0) return undefined;
+				if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
 
 				/**
 				 * Push new messages as "pending" while we are waiting for Twitch to create the component
@@ -36,7 +36,8 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 					patcher,
 					parts: [],
 					badges: [],
-					words: []
+					words: [],
+					is_slash_me: msg.messageType === 1
 				};
 
 				// Tokenize 7TV emotes to Message Data

@@ -309,6 +309,7 @@ export namespace Twitch {
 			words: string[];
 			parts: ChatMessage.AppPart[];
 			badges?: ChatBadge[];
+			is_slash_me?: boolean;
 		};
 		message: string;
 		messageBody: string;

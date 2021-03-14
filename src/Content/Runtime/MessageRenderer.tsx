@@ -40,6 +40,7 @@ export class MessageRenderer {
 	 * Create a new message tree
 	 */
 	renderMessageTree(): JSX.Element[] {
+		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
 		const parts = this.msg.seventv.parts; // Get the tokenized emotes
 		const words = this.msg.seventv.words;
 		const element = this.getElement();
@@ -68,7 +69,7 @@ export class MessageRenderer {
 				}
 
 				jsxArray.push(
-					(<span className='text-fragment 7tv-txf'> {text as string} </span>)
+					(<span style={{ color }} className='text-fragment 7tv-txf'> {text as string} </span>)
 				);
 			} else if (type === 'emote') {
 				const emote = content as DataStructure.Emote;
