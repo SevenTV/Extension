@@ -1,8 +1,8 @@
 {
 	"manifest_version": 2,
-	"name": "SevenTV",
-	"description": "Third party thing",
-	"version": "1.3.0",
+	"name": "7TV",
+	"description": "A third party emote extension for Twitch",
+	"version": "1.3.1",
 	"page_action": {
 		"default_icon": "icon.png"
 	},
@@ -13,10 +13,6 @@
 	},
 	"web_accessible_resources": ["page.js"],
 	"permissions": [
-		"*://www.twitch.tv/*",
-		"webRequest",
-		"tabs",
-        "activeTab",
-        "webNavigation"
+		"*://*.twitch.tv/*"
 	]
 }
