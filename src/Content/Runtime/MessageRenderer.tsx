@@ -30,7 +30,7 @@ export class MessageRenderer {
 		el.querySelector('.message')?.remove();
 		const newContext = document.createElement('span');
 		newContext.classList.add('7tv-message-context');
-		newContext.style.display = 'inline-block';
+		newContext.style.position = 'relative';
 
 		ReactDOM.render(<MessageBody parts={this.jsx} />, newContext);
 		container.appendChild(newContext);
@@ -69,7 +69,7 @@ export class MessageRenderer {
 				}
 
 				jsxArray.push(
-					(<span style={{ color }} className='text-fragment 7tv-txf'> {text as string} </span>)
+					(<span style={{ color, wordWrap: 'break-word' }} className='text-fragment 7tv-txf'> {text as string} </span>)
 				);
 			} else if (type === 'emote') {
 				const emote = content as DataStructure.Emote;

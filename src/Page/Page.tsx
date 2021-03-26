@@ -33,7 +33,6 @@ window.addEventListener('7TV#BackgroundExtMessage', event => {
 
 		Page.EmoteSet.push(...ev.detail.emotes);
 	} else if (ev.detail.tag === 'OutdatedVersion') {
-		console.log('Eotudtated', ev.detail);
 		Page.ChatListener.sendSystemMessage(`7TV is outdated! Your version is ${ev.detail.clientVersion}, while the latest is ${ev.detail.latestVersion}`);
 	}
 });
