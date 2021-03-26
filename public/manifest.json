@@ -7,12 +7,8 @@
 		"default_icon": "icon.png"
 	},
 	"background": {
-		"scripts": [
-			"background.js"
-		]
+		"scripts": ["background.js"]
 	},
 	"web_accessible_resources": ["page.js"],
-	"permissions": [
-		"*://*.twitch.tv/*"
-	]
+	"permissions": ["*://*.twitch.tv/*"]
 }

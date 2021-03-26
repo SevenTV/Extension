@@ -1,12 +1,13 @@
 # SevenTV
+
 A third-party emote extension for Twitch
 
 ### Features
 
-* Hundreds of emote slots
-* Support for wide and animated emotes
-* Support for self-hosted emote servers
-* No more emote censorship PagMan
+-   Hundreds of emote slots
+-   Support for wide and animated emotes
+-   Support for self-hosted emote servers
+-   No more emote censorship PagMan
 
 ### Yeah but this is a third party thing and idk
 
@@ -25,6 +26,7 @@ A default server is available out of the box, currently at [7tv.anatole.dev](htt
 The browser extension currently isn't available on any stores and must be installed manually
 
 #### Chromium / Google Chrome
+
 1. Download the latest build from the [releases page](https://github.com/SevenTV/SevenTV/releases)
 1. Unzip the archive
 1. Go into the browser's [extensions page](brave://extensions/)
@@ -54,9 +56,9 @@ This guide outlines how to set up a simple single-node emote server
 
 ###### Pre-requisites
 
-* A linux machine with port 80 opened to the internet and [Node.JS installed](https://nodejs.org/en/)
-* (Optional) A Amazon S3 bucket (or from a different service which supports AWS S3 API, such as DigitalOcean Spaces)
-* (Optional) A Redis Instance (for scaling and data consistency purposes)
+-   A linux machine with port 80 opened to the internet and [Node.JS installed](https://nodejs.org/en/)
+-   (Optional) A Amazon S3 bucket (or from a different service which supports AWS S3 API, such as DigitalOcean Spaces)
+-   (Optional) A Redis Instance (for scaling and data consistency purposes)
 
 Start by cloning the [Server Repo](https://github.com/SevenTV/Server)
 
@@ -65,27 +67,28 @@ git clone git@github.com:AnatoleAM/SevenTV.git
 ```
 
 Then install the packages
+
 ```sh
 npm install
 ```
 
 Copy the sample configuration file (config.example.json) and modify it as you see fit
 
-| Key					| Type						| Description						|
-| ----------------------|:-------------------------:|:---------------------------------:|
-| name                  | String                    | The name of the server            |
-| description           | String                    | The server description            |
-| hostname              | String                    | *¹ The server hostname            |
-| tls                   | Boolean                   | *² Whether the server is HTTPS    |
-| app_url               | String                    | *³ URL to the web application     |
+| Key         |  Type   |           Description           |
+| ----------- | :-----: | :-----------------------------: |
+| name        | String  |     The name of the server      |
+| description | String  |     The server description      |
+| hostname    | String  |     \*¹ The server hostname     |
+| tls         | Boolean | \*² Whether the server is HTTPS |
+| app_url     | String  | \*³ URL to the web application  |
 
 The undocumented fields are optional because this service is delegated back to the default server, however if you are an advanced user you may set up these optional components in order to fully decouple your implementation.
 
-_*¹ This must be a TLD or IP pointing directly to the machine, including the port if it is other than 80. Example: https://anatole.dev:3000_
-_*² This must be set to true in production, or the extension will refuse to connect_
-_*³ Leave this to default, the web app at https://7tv.app is universal and is capable of connecting to your server_
+_\*¹ This must be a TLD or IP pointing directly to the machine, including the port if it is other than 80. Example: https://anatole.dev:3000_
+_\*² This must be set to true in production, or the extension will refuse to connect_
+_\*³ Leave this to default, the web app at https://7tv.app is universal and is capable of connecting to your server_
 
-Then use `npm start` to start the server. 
+Then use `npm start` to start the server.
 
 In order to use the web app with a self-hosted server, you can use a direct link with the `server` query param, like `7tv.app/?server=<custom server url>`.
 

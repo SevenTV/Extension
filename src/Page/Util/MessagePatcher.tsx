@@ -1,15 +1,12 @@
-import { DataStructure } from '@typings/typings/DataStructure';
-import { Page } from 'src/Page/Page';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { DataStructure } from "@typings/typings/DataStructure";
+import { Page } from "src/Page/Page";
+import { Twitch } from "src/Page/Util/Twitch";
 
 export class MessagePatcher {
 	static cachedEmotes = new Map<string, JSX.Element>();
-	static trash = document.createElement('trash');
+	static trash = document.createElement("trash");
 
-	constructor(
-		private msg: Twitch.ChatMessage,
-		private emoteSet: DataStructure.Emote[]
-	) { }
+	constructor(private msg: Twitch.ChatMessage, private emoteSet: DataStructure.Emote[]) {}
 
 	/**
 	 * Tokenize the chat line, inserting emote data into the seventv namespace of message data
@@ -19,31 +16,39 @@ export class MessagePatcher {
 
 		// Begin iterating through message parts
 		// Daily Quest: find 7TV emotes ZULUL
-		const eIndex = Page.EmoteSet.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b }));
+		const eIndex = Page.EmoteSet.map((e) => ({
+			[e.name]: e,
+		})).reduce((a, b) => ({ ...a, ...b }));
 		const eNames = Object.keys(eIndex);
 
 		// Find all emotes across the message parts
-		const emotes = [] as DataStructure.Emote[];
+		// const emotes = [] as DataStructure.Emote[];
 		for (const part of this.msg.messageParts) {
 			// Handle link / mention
-			if (part.type === 4) { // Is mention
-				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });
+			if (part.type === 4) {
+				// Is mention
+				this.msg.seventv.parts.push({
+					type: "mention",
+					content: (part.content as any).recipient,
+				});
 				continue;
 			} else if (part.type === 5) {
-				this.msg.seventv.parts.push({ type: 'link', content: part.content });
+				this.msg.seventv.parts.push({
+					type: "link",
+					content: part.content,
+				});
 			}
 
 			// Get part text content
-			const text: string = (part.content as any)?.alt ?? part.content as string;
-			if (typeof text !== 'string') continue;
+			const text: string = (part.content as any)?.alt ?? (part.content as string);
+			if (typeof text !== "string") continue;
 
 			// Check if part contains one or more 7TV emotes?
 			const matches = MessagePatcher.getRegexp(eNames);
 
 			// Apply matches to message parts
-			const foundEmotes = text.match(matches)
-				?.map(emoteName => eIndex[emoteName]) ?? [];
-			const foundEmoteNames = foundEmotes?.map(e => e.name) ?? [];
+			const foundEmotes = text.match(matches)?.map((emoteName) => eIndex[emoteName]) ?? [];
+			const foundEmoteNames = foundEmotes?.map((e) => e.name) ?? [];
 
 			const words = text.match(MessagePatcher.getRegexp());
 			if (!words) continue;
@@ -51,10 +56,14 @@ export class MessagePatcher {
 			// Iterate through words in this part
 			// Check for emotes, and append to seventv namespace
 			let currentStack = [] as string[];
-			const pushCurrentStack = (): void => { // Push the current word stack
+			const pushCurrentStack = (): void => {
+				// Push the current word stack
 				if (currentStack.length === 0) return undefined;
 
-				this.msg.seventv.parts.push({ type: 'text', content: currentStack.join(' ') });
+				this.msg.seventv.parts.push({
+					type: "text",
+					content: currentStack.join(" "),
+				});
 				currentStack = [];
 			};
 			for (const word of words) {
@@ -62,7 +71,10 @@ export class MessagePatcher {
 				if (isEmote) {
 					pushCurrentStack(); // Push the current word stack as a single part
 					// Then push the emote part
-					this.msg.seventv.parts.push({ type: 'emote', content: eIndex[word] });
+					this.msg.seventv.parts.push({
+						type: "emote",
+						content: eIndex[word],
+					});
 				} else {
 					currentStack.push(word);
 					this.msg.seventv.words.push(word);
@@ -77,10 +89,12 @@ export class MessagePatcher {
 	 */
 	render(line: Twitch.ChatLineAndComponent): void {
 		// Hide twitch fragments
-		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, img.chat-line__message--emote'));
+		const oldFragments = Array.from(
+			line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>("span.text-fragment, img.chat-line__message--emote")
+		);
 		for (const oldFrag of oldFragments) {
-			oldFrag.setAttribute('superceded', '');
-			oldFrag.style.display = 'none';
+			oldFrag.setAttribute("superceded", "");
+			oldFrag.style.display = "none";
 		}
 
 		// Render 7TV third party stuff (and idk...)
@@ -89,16 +103,16 @@ export class MessagePatcher {
 		this.msg.seventv.patcher = null;
 		const data = JSON.stringify({
 			msg: this.msg,
-			elementId: line.element.id
+			elementId: line.element.id,
 		}); // Rendering the message body moves on Content.MessageRenderer from now on
-		window.dispatchEvent(new CustomEvent('7TV#RenderChatLine', { detail: data } ));
+		window.dispatchEvent(new CustomEvent("7TV#RenderChatLine", { detail: data }));
 	} // [i] This is done on the pagescript, because Twitch will maintain references to our React components and cause a memory leak!
 
 	/**
 	 * Get a Regular Expression matching a list of emotes
 	 */
 	static getRegexp(emoteNames?: string[]): RegExp {
-		return new RegExp(`(?<![^ ])(${!!emoteNames ? emoteNames.join('|') : '[^ ]*'})(?![^ ])`, 'g');
+		return new RegExp(`(?<![^ ])(${emoteNames ? emoteNames.join("|") : "[^ ]*"})(?![^ ])`, "g");
 		// Negative Lookbehind	- Match Enote Names - Negative Lookahead
 		// Match space backward or nothing			  Match space forward or nothing
 	}

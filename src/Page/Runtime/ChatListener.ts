@@ -1,11 +1,10 @@
-import { from, Observable, of, Subject } from 'rxjs';
-import { concatMap, mapTo, map, concatAll, filter, tap, mergeAll, takeLast, mergeMap } from 'rxjs/operators';
-import { Logger } from 'src/Logger';
-import { Page } from 'src/Page/Page';
-import { BadgeManager } from 'src/Page/Util/BadgeManager';
-import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
-import { Twitch } from 'src/Page/Util/Twitch';
-
+import { Observable } from "rxjs";
+import { filter, tap } from "rxjs/operators";
+import { Logger } from "src/Logger";
+import { Page } from "src/Page/Page";
+import { BadgeManager } from "src/Page/Util/BadgeManager";
+import { MessagePatcher } from "src/Page/Util/MessagePatcher";
+import { Twitch } from "src/Page/Util/Twitch";
 
 export class ChatListener extends Observable<Twitch.ChatMessage> {
 	/** Create a Twitch instance bound to this listener */
@@ -16,11 +15,11 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 	private badgeManager = new BadgeManager();
 
 	constructor() {
-		super(observer => {
-			Logger.Get().info('Listening for chat messages');
+		super((observer) => {
+			Logger.Get().info("Listening for chat messages");
 
 			// Begin listening to incoming messages
-			this.twitch.getChatController().props.messageHandlerAPI.addMessageHandler(msg => {
+			this.twitch.getChatController().props.messageHandlerAPI.addMessageHandler((msg) => {
 				if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
 
 				/**
@@ -37,7 +36,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 					parts: [],
 					badges: [],
 					words: [],
-					is_slash_me: msg.messageType === 1
+					is_slash_me: msg.messageType === 1,
 				};
 
 				// Tokenize 7TV emotes to Message Data
@@ -53,20 +52,22 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 		/**
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
 		 */
-		this.observeDOM().pipe(
-			filter(line => !!line.component.props.message.seventv),
-			// Patch with badges LUL
-			// tap(line => this.badgeManager.patchChatLine(line)),
+		this.observeDOM()
+			.pipe(
+				filter((line) => !!line.component.props.message.seventv),
+				// Patch with badges LUL
+				// tap(line => this.badgeManager.patchChatLine(line)),
 
-			// Render 7TV emotes
-			tap(line => line.component.props.message.seventv.patcher?.render(line)),
+				// Render 7TV emotes
+				tap((line) => line.component.props.message.seventv.patcher?.render(line))
 
-			// Testing
-			// map(line => {
-			// 	const { inst, component, element } = line;
-			// 	console.log(inst);
-			// }),
-		).subscribe();
+				// Testing
+				// map(line => {
+				// 	const { inst, component, element } = line;
+				// 	console.log(inst);
+				// }),
+			)
+			.subscribe();
 	}
 
 	sendSystemMessage(msg: string): void {
@@ -80,7 +81,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				msgid: id,
 				channel: `#${controller.props.channelLogin}`,
 				type: 32,
-				message: `[7TV] ${text}`
+				message: `[7TV] ${text}`,
 			});
 		}
 	}
@@ -89,10 +90,10 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 	 * Observe the DOM for additions and get message components of pending messages
 	 */
 	observeDOM(): Observable<Twitch.ChatLineAndComponent> {
-		return new Observable<Twitch.ChatLineAndComponent>(observer => {
-			Logger.Get().info('Creating MutationObserver');
+		return new Observable<Twitch.ChatLineAndComponent>((observer) => {
+			Logger.Get().info("Creating MutationObserver");
 
-			const mutationObserver = new MutationObserver((records) => {
+			const mutationObserver = new MutationObserver(() => {
 				const lines = this.twitch.getChatLines(Array.from(this.pendingMessages.values()));
 
 				for (const line of lines) {
@@ -104,11 +105,11 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				// Find removed nodes
 			});
 
-			const container = this.twitch.getChat().state.chatListElement.querySelector('.chat-scrollable-area__message-container');
-			if (!container) throw new Error('Could not find chat container');
+			const container = this.twitch.getChat().state.chatListElement.querySelector(".chat-scrollable-area__message-container");
+			if (!container) throw new Error("Could not find chat container");
 
 			mutationObserver.observe(container, {
-				childList: true
+				childList: true,
 			});
 		});
 	}

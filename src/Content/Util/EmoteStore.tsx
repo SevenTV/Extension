@@ -1,5 +1,3 @@
-
-
 export class EmoteStore {
 	private cachedElements = new Map<string, JSX.Element>();
 

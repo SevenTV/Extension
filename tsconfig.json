@@ -3,7 +3,7 @@
 		"outDir": "dist/",
 		"strict": true,
 		"sourceMap": true,
-		"module": "CommonJS",
+		"module": "ESNEXT",
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
@@ -15,12 +15,9 @@
 		"paths": {
 			"*": ["@types/*.d.ts"],
 			"src/*": ["./src/*"],
-			"@typings/*": ["../Shared/*", "Typings/*", "node_modules/seventv-typings/*"],
+			"@typings/*": ["../Shared/*", "Typings/*", "node_modules/seventv-typings/*"]
 		}
 	},
 
-	"include": [
-		"src/*",
-		"src/**/*"
-	]
+	"include": ["src/*", "src/**/*"]
 }

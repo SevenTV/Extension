@@ -1,19 +1,16 @@
-import React from 'react';
+import React from "react";
+import { cloneElement, Fragment } from "react";
 
-export class MessageBody extends React.PureComponent<MessageBody.Props> {
-	return = {};
+export function MessageBody(props: MessageBody.Props): JSX.Element {
+	const { parts } = props;
 
-	render() {
-		return (
-			this.props.parts.map(part => {
-				return React.cloneElement(part, part.props);
-			})
-		);
-	}
-
-	componentWillUnmount() {
-		console.log('Component WILL unmount.');
-	}
+	return (
+		<Fragment>
+			{parts.map((part) => {
+				return cloneElement(part, part.props);
+			})}
+		</Fragment>
+	);
 }
 
 export namespace MessageBody {
