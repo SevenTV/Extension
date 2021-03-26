@@ -9,19 +9,13 @@ import styled from 'styled-components';
 class Main extends React.Component {
 	render() {
 		return (
-			<Main.Style>
-				ALLO
-			</Main.Style>
+			<Main.Style></Main.Style>
 		);
 	}
 }
 
 namespace Main {
-	export const Style = styled.div`
-		display: absolute;
-		height: 100vh;
-		width: 100vw;
-	`;
+	export const Style = styled.div``;
 }
 
 export const Content = {
