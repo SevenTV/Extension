@@ -49,28 +49,39 @@ export class MessageRenderer {
 		let index = 0;
 		if (!element) return [];
 		for (const { type, content } of parts) {
+			const localJsxArray = [] as JSX.Element[];
 			if (type === 'text') {
 				let text = content as string;
+				let currentText = [] as string[];
 				// Scan for first party or other third party emotes
+				const createSpan = (text: string): JSX.Element => (<span style={{ color, wordWrap: 'break-word' }} className='text-fragment 7tv-txf'> {text} </span>);
 				for (let i = 0; i < words.length; ++i) {
 					const word = words[i];
 					if (word.trim().length === 0 || !text.includes(word)) continue;
+					text = text.replace(word, '');
 
 					// Pull the emote out (7tv-superceded)
-					const superceded = element.querySelector(`img[alt="${word.replace(/"/g, '\\"')}"]`) as HTMLImageElement;
-					if (!superceded) continue;
+					const target = word.replace(/"/g, '\\"').trimEnd();
+					const superceded = element.querySelector(`img[alt="${target}"]`) as HTMLImageElement;
+					if (!superceded) {
+						currentText.push(word);
+						continue;
+					} else {
+						localJsxArray.push(
+							createSpan(currentText.join(' '))
+						);
+						currentText = [];
+					}
 
-					text = text.replace(word, '');
-					jsxArray.push(Content.EmoteStore.getElement(superceded.alt) ?? Content.EmoteStore.addElement(superceded.alt, <Emote
-						src={{ preview: superceded.src, small: superceded.src }}
+					localJsxArray.push(Content.EmoteStore.getElement(superceded.alt) ?? Content.EmoteStore.addElement(superceded.alt, <Emote
+						src={{ preview: superceded.src.replace('1x', '3x'), small: superceded.src }}
 						provider={superceded.getAttribute('data-provider') ?? 'N/A'}
 						name={superceded.alt}
 					/>));
 				}
 
-				jsxArray.push(
-					(<span style={{ color, wordWrap: 'break-word' }} className='text-fragment 7tv-txf'> {text as string} </span>)
-				);
+				jsxArray.push(...localJsxArray);
+				if (currentText.length > 0) jsxArray.push(createSpan(currentText.join(' ')));
 			} else if (type === 'emote') {
 				const emote = content as DataStructure.Emote;
 

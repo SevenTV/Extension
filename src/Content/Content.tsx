@@ -74,7 +74,6 @@ window.addEventListener('7TV#RenderChatLine', event => {
 	const ev = event as CustomEvent;
 	const data = JSON.parse(ev.detail);
 
-	console.log('Hihi', event);
 	const renderer = new MessageRenderer(data.msg, data.elementId);
 
 	renderer.renderMessageTree();

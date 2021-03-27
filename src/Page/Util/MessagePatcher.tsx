@@ -29,7 +29,7 @@ export class MessagePatcher {
 			if (part.type === 4) { // Is mention
 				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });
 				continue;
-			} else if (part.type === 5) {
+			} else if (part.type === 5) { // Is link
 				this.msg.seventv.parts.push({ type: 'link', content: part.content });
 			}
 

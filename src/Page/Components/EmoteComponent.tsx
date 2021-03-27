@@ -24,7 +24,7 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 							<h3 className='emote-name'> {this.props.name} </h3>
 							{!!this.props.ownerName ? <span className='emote-submitter'> {this.props.ownerName} </span> : ''}
 
-							<h4> {this.props.provider} {this.props.global ? 'Global' : 'Channel'} Emote </h4>
+							<h4> {this.props.provider} {this.props.global ? 'Global' : ''} Emote </h4>
 						</Emote.Details>
 					</React.Fragment>
 				} arrow placement='left-start'>
@@ -76,7 +76,8 @@ export namespace Emote {
 
 	export const Container = styled.div`
 		display: 'inline-block';
-		margin-bottom: 10px;
+		padding-bottom: 4px;
+		padding-top: 4px;
 	`;
 
 	export const Style = styled.div`
