@@ -5,8 +5,11 @@ export class MessageBody extends React.PureComponent<MessageBody.Props> {
 
 	render() {
 		return (
-			this.props.parts.map(part => {
-				return React.cloneElement(part, part.props);
+			this.props.parts.map((part, i) => {
+				return React.cloneElement(part, {
+					...part.props,
+					key: `msg-part-${i}`
+				});
 			})
 		);
 	}
