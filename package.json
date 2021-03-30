@@ -26,6 +26,7 @@
     "@babel/preset-react": "^7.12.13",
     "@hot-loader/react-dom": "^17.0.1",
     "@types/chrome": "0.0.130",
+    "@types/mongodb": "^3.6.10",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
     "@types/react-lazyload": "^3.1.0",
@@ -35,10 +36,10 @@
     "file-loader": "^6.2.0",
     "sass": "^1.32.8",
     "sass-loader": "^11.0.1",
+    "seventv-typings": "git+https://github.com/SevenTV/Typings.git",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
-    "seventv-typings": "git+https://github.com/SevenTV/Typings.git",
     "tslint": "^6.1.3",
     "typescript": "^4.1.5",
     "url-loader": "^4.1.1",
@@ -47,7 +48,6 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "@material-ui/core": "^4.11.3",
     "copy-webpack-plugin": "^7.0.0",
     "react-lazyload": "^3.2.0",
     "rxjs": "^6.6.3",
