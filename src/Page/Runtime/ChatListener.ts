@@ -1,8 +1,7 @@
-import { from, Observable, of, Subject } from 'rxjs';
-import { concatMap, mapTo, map, concatAll, filter, tap, mergeAll, takeLast, mergeMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { filter, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { Page } from 'src/Page/Page';
-import { BadgeManager } from 'src/Page/Util/BadgeManager';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 import { Twitch } from 'src/Page/Util/Twitch';
 
@@ -13,7 +12,6 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
 	private pendingMessages = new Set<string>();
-	private badgeManager = new BadgeManager();
 
 	linesRendered = 0;
 
