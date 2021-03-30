@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Content } from 'src/Content/Content';
+import { Main } from 'src/Content/Components/MainComponent';
 import styled from 'styled-components';
 
 export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
@@ -14,7 +14,7 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 
 	render() {
 		return (
-			<Emote.Container className='7tv-emote' style={{ display: 'inline-block' }} onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
+			<Emote.Container className='7tv-emote' onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
 					<Emote.Style
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
@@ -30,7 +30,7 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 	}
 
 	onMouseEvent(hover: boolean, event: React.MouseEvent): void {
-		Content.ShowTooltip.next({ event, emote: this, hover });
+		Main.ShowTooltip.next({ event, emote: this, hover });
 	}
 
 	openDetails(ev: React.MouseEvent) {
@@ -66,13 +66,13 @@ export namespace Emote {
 	}
 
 	export const Container = styled.div`
-		display: 'inline-block';
+		display: inline-block;
 		padding-bottom: 4px;
 		padding-top: 4px;
 	`;
 
 	export const Style = styled.div`
-		display: 'inline-flex';
+
 	`;
 
 	export const TooltipImage = styled.div`

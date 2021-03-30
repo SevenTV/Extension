@@ -68,6 +68,15 @@ export class Twitch {
 		return node?.stateNode;
 	}
 
+	getEmotePicker(): Twitch.AnyPureComponent {
+		const node = this.findReactParents(
+			this.getReactInstance(document.querySelector('[data-a-target=emote-picker]')),
+			n => !(n.stateNode instanceof HTMLElement) && n.stateNode !== null
+		);
+
+		return node as any;
+	}
+
 	/**
 	 * Get an individual chat line
 	 */

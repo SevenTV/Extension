@@ -11,6 +11,7 @@ export const Page = {
 };
 
 Page.ChatListener.subscribe();
+Page.TabCompletion.listen().subscribe();
 
 window.addEventListener('7TV#BackgroundExtMessage', event => {
 	if (!(event instanceof CustomEvent)) return undefined;
