@@ -1,23 +1,23 @@
 import React from 'react';
-import { defer, iif, Observable } from 'rxjs';
-import { filter, map, pairwise, switchMap, take, tap } from 'rxjs/operators';
+import { defer, iif, Observable, Subject } from 'rxjs';
+import { filter, switchMap, take, tap } from 'rxjs/operators';
 import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
-import { Content } from 'src/Content/Content';
 import { Emote } from 'src/Page/Components/EmoteComponent';
 import styled from 'styled-components';
 
 export class Main extends React.Component<{}, Main.State> {
-	render() {
-		Content.ShowTooltip.pipe(
-			pairwise(),
-			filter(([a, b]) => a.hover === false || a.emote.props.name !== b.emote.props.name),
-			map(([_, b]) => b),
+	constructor(props: {}) {
+		super(props);
+
+		Main.ShowTooltip.pipe(
 			switchMap(({ event, emote, hover }) => iif(() => hover,
 				this.showTooltip(event, emote),
 				defer(() => this.hideTooltip())
 			))
 		).subscribe();
+	}
 
+	render() {
 		return (
 			<Main.Style>
 				{this.state?.currentTooltip &&
@@ -41,7 +41,7 @@ export class Main extends React.Component<{}, Main.State> {
 				}
 			});
 
-			Content.ShowTooltip.pipe(
+			Main.ShowTooltip.pipe(
 				filter(({ hover }) => hover === false),
 				take(1),
 				tap(() => this.hideTooltip())
@@ -58,6 +58,8 @@ export class Main extends React.Component<{}, Main.State> {
 }
 
 export namespace Main {
+	export const ShowTooltip = new Subject<{ event: React.MouseEvent; emote: Emote; hover: boolean; }>();
+
 	export const Style = styled.div`
 		width: 100vw;
 		height: 100vh;

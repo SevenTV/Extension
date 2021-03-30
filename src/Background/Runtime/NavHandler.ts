@@ -7,7 +7,6 @@ import { Logger } from 'src/Logger';
 import { version as extVersion } from '../../../package.json';
 
 export class NavHandler {
-	private versionChecked = false;
 	private channelURL = /(https:\/\/www.twitch.tv\/)(?:(popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
 	private channels = new Subject<NavHandler.CurrentChannelUpdate>();
 

@@ -5,15 +5,12 @@ import { Main } from 'src/Content/Components/MainComponent';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { EmoteStore } from 'src/Content/Util/EmoteStore';
 import { Logger } from 'src/Logger';
-import { Emote } from 'src/Page/Components/EmoteComponent';
 import 'src/Style/Style.scss';
 
 export const Content = {
 	onMessage: new Subject<any>(),
 	PageReady: new Subject<void>(),
-	EmoteStore: new EmoteStore(),
-
-	ShowTooltip: new Subject<{ event: React.MouseEvent; emote: Emote; hover: boolean; }>()
+	EmoteStore: new EmoteStore()
 };
 
 const onInjected = () => {
