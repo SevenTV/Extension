@@ -1,15 +1,15 @@
-import { Observable, throwError } from 'rxjs';
-import { Page } from 'src/Page/Page';
-import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
+import { Observable, Subject, throwError } from 'rxjs';
 import { Twitch } from 'src/Page/Util/Twitch';
-import { Config } from 'src/Config';
+import ReactDOM from 'react-dom';
+import React from 'react';
+import { ChatInput } from 'src/Page/Components/ChatInput';
 
 export class TabCompletion {
 	private twitch = new Twitch();
 
-	constructor() {
-		this.listen().subscribe();
-	}
+	onInputEvent = new Subject<KeyboardEvent>();
+
+	constructor() {}
 
 	/**
 	 * Listen to keyboard inputs
@@ -20,45 +20,23 @@ export class TabCompletion {
 
 		return new Observable<KeyboardEvent>(observer => {
 			input.onkeydown = (ev) => {
-				observer.next(ev);
-
-				if (ev.code === 'Space') {
-					this.createPreview();
-				}
+				setTimeout(() => {
+					observer.next(ev);
+					this.onInputEvent.next(ev);
+				}, 0);
 			};
 		});
 	}
 
-	/**
-	 * Create a preview of the current text input with emotes
-	 */
-	createPreview(): void {
+	createOverlayInput(): void {
+		const container = document.createElement('div');
+		container.classList.add('seventv-chat-input');
+
 		const input = this.getInput();
-		const container = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer)?.firstChild as HTMLDivElement;
-		if (!container) return undefined;
+		ReactDOM.render(<ChatInput originalInput={input} />, container);
 
-		// Split words
-		const emotes = MessagePatcher.getRegexp();
-		const matches = input.value.match(emotes);
-		if (!matches) return undefined;
-
-		container.innerHTML = '';
-		container.style.alignItems = 'center';
-		container.style.flexWrap = 'wrap';
-		for (const match of matches) { // Add emotes/text to preview
-			const emote = Page.EmoteSet.find(e => e.name === match);
-			if (!!emote) {
-				const img = document.createElement('img');
-				img.src = `${Config.cdnUrl}/emote/${emote?._id}/1x`;
-				img.title = emote.name;
-				img.alt = emote.name;
-				// ReactDOM.render(<Emote name={emote.name} provider='7TV' src={{ preview: '', small: `${Config.cdnUrl}/emote/${emote?._id}/1x` }} ownerName={emote.owner_name} />, img);
-				container?.appendChild(img);
-			} else {
-				container.appendChild(new Text(match + ' '));
-			}
-
-		}
+		input.classList.add('seventv-has-hidden-input-text');
+		input.parentElement?.insertBefore(container, input);
 	}
 
 	getInput(): HTMLInputElement {
@@ -72,6 +50,7 @@ export class TabCompletion {
 
 		const inst = this.twitch.getReactInstance(el) as Twitch.TwitchPureComponent;
 
+		console.log(value);
 		if (inst) {
 			const props = inst.memoizedProps;
 			if (props && props.onChange) {
