@@ -1,0 +1,13 @@
+@use './Components/Tooltip.scss';
+
+.seventv-overlay {
+	display: flex;
+	position: absolute;
+	background-color: transparent;
+
+	pointer-events: none;
+
+	.clickable-overlay-child {
+		pointer-events: all;
+	}
+}

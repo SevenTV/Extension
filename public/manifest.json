@@ -11,7 +11,10 @@
 			"background.js"
 		]
 	},
-	"web_accessible_resources": ["page.js"],
+	"web_accessible_resources": [
+		"page.js",
+		"styles/Style.css"
+	],
 	"permissions": [
 		"*://*.twitch.tv/*"
 	]

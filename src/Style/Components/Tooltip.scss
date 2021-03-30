@@ -1,0 +1,13 @@
+/** 7TV Stylesheets -  Tooltip Component */
+
+.seventv-emote-tooltip {
+	display: flex;
+	flex-direction: column;
+	background-color: #303030;
+	border-radius: 6px;
+
+	width: fit-content;
+	height: fit-content;
+	min-width: 12em;
+	min-height: 12em;
+}
