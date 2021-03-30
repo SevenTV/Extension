@@ -75,7 +75,7 @@ export class MessageRenderer {
 
 					localJsxArray.push(Content.EmoteStore.getElement(superceded.alt) ?? Content.EmoteStore.addElement(superceded.alt, <Emote
 						src={{ preview: superceded.src.replace('1x', '3x'), small: superceded.src }}
-						provider={superceded.getAttribute('data-provider') ?? 'N/A'}
+						provider={superceded.getAttribute('data-provider')}
 						name={superceded.alt}
 					/>));
 				}

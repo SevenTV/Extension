@@ -1,38 +1,39 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Subject } from 'rxjs';
+import { Main } from 'src/Content/Components/MainComponent';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { EmoteStore } from 'src/Content/Util/EmoteStore';
 import { Logger } from 'src/Logger';
-import styled from 'styled-components';
-
-class Main extends React.Component {
-	render() {
-		return (
-			<Main.Style></Main.Style>
-		);
-	}
-}
-
-namespace Main {
-	export const Style = styled.div``;
-}
+import { Emote } from 'src/Page/Components/EmoteComponent';
+import 'src/Style/Style.scss';
 
 export const Content = {
 	onMessage: new Subject<any>(),
 	PageReady: new Subject<void>(),
-	EmoteStore: new EmoteStore()
+	EmoteStore: new EmoteStore(),
+
+	ShowTooltip: new Subject<{ event: React.MouseEvent; emote: Emote; hover: boolean; }>()
 };
 
 const onInjected = () => {
 	const app = document.createElement('div');
+	app.classList.add('seventv-overlay');
+	app.style.position = 'absolute';
 	app.id = 'seventv';
-	document.body.appendChild(app);
+
+	const target = document.getElementById('root');
 	ReactDOM.render(<Main />, app);
+
+	target?.firstChild?.appendChild(app);
 };
 
 {
 	const script = document.createElement('script');
+	const style = document.createElement('link');
+	style.rel = 'stylesheet';
+	style.type = 'text/css';
+	style.href = chrome.runtime.getURL('styles/Style.css');
 	script.src = chrome.runtime.getURL('page.js');
 	script.onload = () => {
 		Logger.Get().info('Injected into Twitch');
@@ -41,6 +42,8 @@ const onInjected = () => {
 	};
 
 	(document.head ?? document.documentElement).appendChild(script);
+	(document.head ?? document.documentElement).appendChild(style);
+	console.log(style);
 }
 
 

@@ -1,5 +1,5 @@
-import Tooltip from '@material-ui/core/Tooltip';
 import * as React from 'react';
+import { Content } from 'src/Content/Content';
 import styled from 'styled-components';
 
 export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
@@ -8,39 +8,29 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 			visible: false,
 			posX: 0,
 			posY: 0
-		}
+		},
+		hover: false
 	};
 
 	render() {
 		return (
-			<Emote.Container className='7tv-emote' style={{ display: 'inline-block' }}>
-				<Tooltip enterDelay={0} TransitionProps={{ timeout: 50 }} title={
-					<React.Fragment>
-						<Emote.TooltipImage>
-							<img src={this.props?.src.preview}></img>
-						</Emote.TooltipImage>
-
-						<Emote.Details>
-							<h3 className='emote-name'> {this.props.name} </h3>
-							{!!this.props.ownerName ? <span className='emote-submitter'> {this.props.ownerName} </span> : ''}
-
-							<h4> {this.props.provider} {this.props.global ? 'Global' : ''} Emote </h4>
-						</Emote.Details>
-					</React.Fragment>
-				} arrow placement='left-start'>
+			<Emote.Container className='7tv-emote' style={{ display: 'inline-block' }} onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
 					<Emote.Style
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
 						<img alt={this.props.name} height={this.props.provider === 'emoji' ? 19.5 : ''} className='chat-image chat-line__message--emote' src={this.props?.src.small} />
 					</Emote.Style>
-				</Tooltip>
 			</Emote.Container>
 		);
 	}
 
 	getURL(): string {
 		return ``;
+	}
+
+	onMouseEvent(hover: boolean, event: React.MouseEvent): void {
+		Content.ShowTooltip.next({ event, emote: this, hover });
 	}
 
 	openDetails(ev: React.MouseEvent) {
@@ -56,7 +46,7 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 
 export namespace Emote {
 	export interface Props {
-		provider: string;
+		provider?: string | undefined | null;
 		src: {
 			small: string;
 			preview: string;
@@ -72,6 +62,7 @@ export namespace Emote {
 			posX: number;
 			posY: number;
 		};
+		hover: boolean;
 	}
 
 	export const Container = styled.div`
