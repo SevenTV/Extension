@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "webpack --watch",
+    "lint": "tslint -p tsconfig.json",
     "build": "webpack",
     "build-production": "webpack --config webpack.prod.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
