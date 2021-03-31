@@ -42,6 +42,7 @@ jobs:
   release:
     name: Publish Build Artifact to Release
     runs-on: ubuntu-latest
+    needs: [pack]
 
     steps:
       - name: Download Artifacvt
