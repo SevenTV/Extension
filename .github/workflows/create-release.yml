@@ -1,0 +1,42 @@
+name: Create New Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tagName:
+        description: Tag Name
+        required: true
+
+
+
+jobs:
+  release:
+    name: Publish Build Artifact to Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Artifacvt
+        uses: actions/download-artifact@v2
+        with:
+          name: build-output
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.tagName }}
+          release_name: Version ${{ github.event.inputs.tagName }}
+          draft: true
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url }}
+          asset_path: ./release.zip
+          asset_name: 7tv-${{ github.event.inputs.tagName }}-chromium.zip
+          asset_content_type: application/zip
