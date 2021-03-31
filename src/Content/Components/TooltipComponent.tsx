@@ -34,7 +34,7 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 	}
 
 	getPosY(): number {
-		return this.props.posY;
+		return this.props.posY - 120;
 	}
 
 	getPosX(): number {

@@ -12,3 +12,8 @@
 		pointer-events: all;
 	}
 }
+
+// This hides the emote buttons created by Twitch
+.chat-line__message--emote-button {
+	display: none;
+}

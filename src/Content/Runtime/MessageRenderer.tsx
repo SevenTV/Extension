@@ -75,7 +75,7 @@ export class MessageRenderer {
 
 					localJsxArray.push(Content.EmoteStore.getElement(superceded.alt) ?? Content.EmoteStore.addElement(superceded.alt, <Emote
 						src={{ preview: superceded.src.replace(/1(?![\s\S]*1)/, '3'), small: superceded.src }}
-						provider={superceded.getAttribute('data-provider')}
+						provider={superceded.getAttribute('data-provider') ?? 'Twitch'}
 						name={superceded.alt}
 					/>));
 				}
