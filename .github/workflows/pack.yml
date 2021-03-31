@@ -6,7 +6,7 @@ on:
 
 jobs:
   pack:
-    name: Build Project
+    name: Pack Project
     runs-on: ubuntu-latest
 
     steps:
@@ -24,9 +24,14 @@ jobs:
           npm run lint
           npm run build-production
 
+      - name: ZIP Release
+        run: |
+          apt-get update && apt-get install -y zip
+          cd dist/ && zip -r release.zip .
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: build-output
-          path: dist
+          path: dist/release.zip
           retention-days: 3
