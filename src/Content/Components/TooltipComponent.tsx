@@ -1,5 +1,5 @@
 import React from 'react';
-import { Emote } from 'src/Page/Components/EmoteComponent';
+import { Emote } from 'src/Content/Components/EmoteComponent';
 import styled from 'styled-components';
 
 

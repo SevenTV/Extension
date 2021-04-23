@@ -2,10 +2,10 @@ import React from 'react';
 import { defer, iif, Observable, Subject } from 'rxjs';
 import { filter, switchMap, take, tap } from 'rxjs/operators';
 import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
-import { Emote } from 'src/Page/Components/EmoteComponent';
+import { Emote } from 'src/Content/Components/EmoteComponent';
 import styled from 'styled-components';
 
-export class Main extends React.Component<{}, Main.State> {
+export class MainComponent extends React.Component<{}, Main.State> {
 	constructor(props: {}) {
 		super(props);
 

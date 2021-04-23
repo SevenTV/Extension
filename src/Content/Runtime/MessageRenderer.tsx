@@ -3,8 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Config } from 'src/Config';
-import { Emote } from 'src/Page/Components/EmoteComponent';
-import { Content } from 'src/Content/Content';
+import { Emote } from 'src/Content/Components/EmoteComponent';
+import { Content } from 'src/Content/Contentv1';
 import { MessageBody } from 'src/Page/Components/MessageBody';
 
 export class MessageRenderer {

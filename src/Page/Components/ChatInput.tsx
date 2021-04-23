@@ -1,7 +1,7 @@
 import React from 'react';
 import { tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
-import { Emote } from 'src/Page/Components/EmoteComponent';
+import { Emote } from 'src/Content/Components/EmoteComponent';
 import { Page } from 'src/Page/Page';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 
@@ -20,9 +20,7 @@ export class ChatInput extends React.Component<ChatInput.Props, ChatInput.State>
 	constructor(props: ChatInput.Props) {
 		super(props);
 
-		Page.TabCompletion.onInputEvent.pipe(
-			tap(x => console.log('hi', x))
-		).subscribe({
+		Page.TabCompletion.onInputEvent.subscribe({
 			next: (ev) => this.setState({ value: (ev.target as HTMLTextAreaElement).value })
 		});
 	}
