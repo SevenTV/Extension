@@ -1,21 +1,21 @@
 import { Observable } from 'rxjs';
-import { filter, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
-import { Page } from 'src/Page/Page';
+import { Page, PageScript } from 'src/Page/Page';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 import { Twitch } from 'src/Page/Util/Twitch';
 
 
 export class ChatListener extends Observable<Twitch.ChatMessage> {
 	/** Create a Twitch instance bound to this listener */
-	private twitch = new Twitch();
+	private twitch = this.page.twitch;
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
 	private pendingMessages = new Set<string>();
 
 	linesRendered = 0;
 
-	constructor() {
+	constructor(private page: PageScript) {
 		super(observer => {
 			Logger.Get().info('Listening for chat messages');
 
@@ -29,7 +29,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				observer.next(msg);
 			});
 		});
-		// (window as any).twitch = this.twitch;
+		(window as any).twitch = this.twitch;
 
 		// Detect rerenders
 		const listener = this; // Get class context to pass it into the function
@@ -52,18 +52,11 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
 		 */
 		this.observeDOM().pipe(
-			filter(line => !!line.component.props.message.seventv),
 			// Patch with badges LUL
 			// tap(line => this.badgeManager.patchChatLine(line)),
 
 			// Render 7TV emotes
-			tap(line => line.component.props.message.seventv.patcher?.render(line)),
-
-			// Testing
-			// map(line => {
-			// 	const { inst, component, element } = line;
-			// 	console.log(inst);
-			// }),
+			tap(line => line.component.props.message.seventv.patcher?.render(line))
 		).subscribe();
 	}
 

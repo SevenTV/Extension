@@ -1,9 +1,8 @@
 
 import { emitHook } from 'src/Content/Global/Hooks';
-import { Child, Hook } from 'src/Content/Global/Decorators';
+import { WebEventListener } from 'src/Content/Global/Decorators';
 import { Logger } from 'src/Logger';
 import { App } from 'src/Content/App/App';
-
 
 export class ExtensionContentScript {
 	app = new App();
@@ -29,30 +28,17 @@ export class ExtensionContentScript {
 		(document.head ?? document.documentElement).appendChild(style);
 	}
 
-	@Hook()
-	Test(): void {
-		console.log('test');
+	@WebEventListener('window', 'beforeunload')
+	whenThePageUnloads(): void { // On beforeunload event, send message to background that this tab is no longer active
+		chrome.runtime.sendMessage({
+			tag: 'Unload'
+		});
 	}
 }
 
-export namespace ExtensionContentScript {
-
-}
+export namespace ExtensionContentScript {}
 
 // Bootstrap app
 (() => {
-	new ExtensionContentScript().Test();
+	new ExtensionContentScript();
 })();
-
-window.onbeforeunload = () => chrome.runtime.sendMessage({
-	tag: 'Unload'
-});
-
-@Child
-class Testing implements Child.OnInjected {
-	onInjected(): void {
-		console.log('INJECTION COMPLETE');
-	}
-}
-
-new Testing();

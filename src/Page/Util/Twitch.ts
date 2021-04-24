@@ -39,7 +39,7 @@ export class Twitch {
 		}
 	}
 
-	getChatService(): any {
+	getChatService(): Twitch.ChatServiceComponent {
 		const node = this.findReactChildren(
 			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ROOT)[0]),
 			n => n.stateNode?.join && n.stateNode?.client,
@@ -203,6 +203,20 @@ export namespace Twitch {
 		}
 		useHighContrastColors: boolean;
 	}>;
+
+	export type ChatServiceComponent = React.PureComponent<{
+		authToken: string;
+		channelLogin: string;
+		channelID: string;
+	}> & {
+		service: {
+			client: {
+				events: {
+					joined: (fn: (x: { channel: string; gotUsername: boolean; username: string; }) => void) => void;
+				}
+			};
+		}
+	};
 
 	export type ChatControllerComponent = React.PureComponent<{
 		authToken: string | undefined;

@@ -4,12 +4,13 @@ import ReactDOM from 'react-dom';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Config } from 'src/Config';
 import { Emote } from 'src/Content/Components/EmoteComponent';
-import { Content } from 'src/Content/Contentv1';
 import { MessageBody } from 'src/Page/Components/MessageBody';
+import { App } from 'src/Content/App/App';
 
 export class MessageRenderer {
 	private jsx = [] as JSX.Element[];
 	constructor(
+		private app: App,
 		public msg: Twitch.ChatMessage,
 		public elementId: string
 	) { }
@@ -73,7 +74,7 @@ export class MessageRenderer {
 						currentText = [];
 					}
 
-					localJsxArray.push(Content.EmoteStore.getElement(superceded.alt) ?? Content.EmoteStore.addElement(superceded.alt, <Emote
+					localJsxArray.push(this.app.emotes.getElement(superceded.alt) ?? this.app.emotes.addElement(superceded.alt, <Emote
 						src={{ preview: superceded.src.replace(/1(?![\s\S]*1)/, '3'), small: superceded.src }}
 						provider={superceded.getAttribute('data-provider') ?? 'Twitch'}
 						name={superceded.alt}
@@ -85,7 +86,7 @@ export class MessageRenderer {
 			} else if (type === 'emote') {
 				const emote = content as DataStructure.Emote;
 
-				const reactElement = Content.EmoteStore.getElement(emote.name) ?? Content.EmoteStore.addElement(emote.name, <Emote
+				const reactElement = this.app.emotes.getElement(emote.name) ?? this.app.emotes.addElement(emote.name, <Emote
 					src={{ preview: `${Config.cdnUrl}/emote/${emote._id}/3x`, small: `${Config.cdnUrl}/emote/${emote._id}/1x` }}
 					provider='7TV'
 					name={emote.name}
