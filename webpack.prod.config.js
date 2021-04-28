@@ -65,6 +65,7 @@ const config = {
       patterns: [{ from: 'public', to: '.' }],
     }),
     new webpack.DefinePlugin({
+			__ENVIRONMENT__: JSON.stringify('production'),
       AppMeta: JSON.stringify({ version: 1 })
     }),
   ],

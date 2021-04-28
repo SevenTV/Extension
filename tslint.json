@@ -6,6 +6,8 @@
 			"options": "tabs"
 		},
 		"no-trailing-whitespace": true,
-		"semicolon": true
+		"semicolon": true,
+		"no-unused-variable": true,
+		"no-unused-expression": true
 	}
 }
