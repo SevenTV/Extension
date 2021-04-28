@@ -40,5 +40,5 @@ export namespace ExtensionContentScript {}
 
 // Bootstrap app
 (() => {
-	new ExtensionContentScript();
+	const _ = new ExtensionContentScript();
 })();

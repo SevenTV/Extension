@@ -95,5 +95,5 @@ export class PageScript {
 }
 
 (() => {
-	new PageScript();
+	const _ = new PageScript();
 })();

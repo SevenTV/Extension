@@ -50,7 +50,6 @@ export class TabCompletion {
 
 		const inst = this.twitch.getReactInstance(el) as Twitch.TwitchPureComponent;
 
-		console.log(value);
 		if (inst) {
 			const props = inst.memoizedProps;
 			if (props && props.onChange) {

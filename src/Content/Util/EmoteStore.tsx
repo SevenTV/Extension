@@ -1,6 +1,7 @@
 
 
 export class EmoteStore {
+	size = 0;
 	private cachedElements = new Map<string, JSX.Element>();
 
 	addElement(name: string, jsx: JSX.Element): JSX.Element {

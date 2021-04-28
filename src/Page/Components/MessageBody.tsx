@@ -13,10 +13,6 @@ export class MessageBody extends React.PureComponent<MessageBody.Props> {
 			})
 		);
 	}
-
-	componentWillUnmount() {
-		console.log('Component WILL unmount.');
-	}
 }
 
 export namespace MessageBody {
