@@ -3,13 +3,14 @@ import { Twitch } from 'src/Page/Util/Twitch';
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { ChatInput } from 'src/Page/Components/ChatInput';
+import { PageScript } from 'src/Page/Page';
 
 export class TabCompletion {
 	private twitch = new Twitch();
 
 	onInputEvent = new Subject<KeyboardEvent>();
 
-	constructor() {}
+	constructor(private page: PageScript) {}
 
 	/**
 	 * Listen to keyboard inputs
@@ -33,7 +34,7 @@ export class TabCompletion {
 		container.classList.add('seventv-chat-input');
 
 		const input = this.getInput();
-		ReactDOM.render(<ChatInput originalInput={input} />, container);
+		ReactDOM.render(<ChatInput emotes={this.page.getAllEmotes()} originalInput={input} />, container);
 
 		input.classList.add('seventv-has-hidden-input-text');
 		input.parentElement?.insertBefore(container, input);

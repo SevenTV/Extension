@@ -2,7 +2,7 @@ import React from 'react';
 import { defer, iif, Observable, Subject } from 'rxjs';
 import { filter, switchMap, take, tap } from 'rxjs/operators';
 import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
-import { Emote } from 'src/Content/Components/EmoteComponent';
+import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import styled from 'styled-components';
 
 export class MainComponent extends React.Component<{}, Main.State> {
@@ -31,7 +31,7 @@ export class MainComponent extends React.Component<{}, Main.State> {
 		);
 	}
 
-	showTooltip(event: React.MouseEvent, emote: Emote): Observable<void> {
+	showTooltip(event: React.MouseEvent, emote: EmoteComponent): Observable<void> {
 		return new Observable<void>(observer => {
 			this.setState({
 				currentTooltip: {
@@ -58,7 +58,7 @@ export class MainComponent extends React.Component<{}, Main.State> {
 }
 
 export namespace Main {
-	export const ShowTooltip = new Subject<{ event: React.MouseEvent; emote: Emote; hover: boolean; }>();
+	export const ShowTooltip = new Subject<{ event: React.MouseEvent; emote: EmoteComponent; hover: boolean; }>();
 
 	export const Style = styled.div`
 		width: 100vw;
@@ -72,7 +72,7 @@ export namespace Main {
 	}
 	export namespace State {
 		export interface CurrentTooltip {
-			emote: Emote;
+			emote: EmoteComponent;
 			posX: number;
 			posY: number;
 		}

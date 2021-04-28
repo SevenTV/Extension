@@ -1,11 +1,10 @@
 import { Twitch } from 'src/Page/Util/Twitch';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { DataStructure } from '@typings/typings/DataStructure';
-import { Config } from 'src/Config';
-import { Emote } from 'src/Content/Components/EmoteComponent';
+import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MessageBody } from 'src/Page/Components/MessageBody';
 import { App } from 'src/Content/App/App';
+import { EmoteStore } from 'src/Global/EmoteStore';
 
 export class MessageRenderer {
 	private jsx = [] as JSX.Element[];
@@ -74,27 +73,32 @@ export class MessageRenderer {
 						currentText = [];
 					}
 
-					localJsxArray.push(this.app.emotes.getElement(superceded.alt) ?? this.app.emotes.addElement(superceded.alt, <Emote
-						src={{ preview: superceded.src.replace(/1(?![\s\S]*1)/, '3'), small: superceded.src }}
-						provider={superceded.getAttribute('data-provider') ?? 'Twitch'}
-						name={superceded.alt}
+					localJsxArray.push(this.app.emotes.getElement(superceded.alt) ?? this.app.emotes.addElement(superceded.alt, <EmoteComponent
+						emote={new EmoteStore.Emote({} as any) as EmoteStore.Emote}
+						// src={{ preview: superceded.src.replace(/1(?![\s\S]*1)/, '3'), small: superceded.src }}
+						// provider={superceded.getAttribute('data-provider') ?? 'Twitch'}
+						// name={superceded.alt}
 					/>));
 				}
 
 				jsxArray.push(...localJsxArray);
 				if (currentText.length > 0) jsxArray.push(createSpan(currentText.join(' ')));
 			} else if (type === 'emote') {
-				const emote = content as DataStructure.Emote;
+				const id = content as string;
+				const emote = this.app.emotes.getEmote(id);
 
-				const reactElement = this.app.emotes.getElement(emote.name) ?? this.app.emotes.addElement(emote.name, <Emote
-					src={{ preview: `${Config.cdnUrl}/emote/${emote._id}/3x`, small: `${Config.cdnUrl}/emote/${emote._id}/1x` }}
-					provider='7TV'
-					name={emote.name}
-					ownerName={emote.owner_name}
-					global={emote.global}
-				/>);
+				if (!!emote) {
+					const reactElement = this.app.emotes.getElement(emote.name) ?? this.app.emotes.addElement(emote.name, <EmoteComponent
+					emote={emote}
+						// src={{ preview: `${Config.cdnUrl}/emote/${emote._id}/3x`, small: `${Config.cdnUrl}/emote/${emote._id}/1x` }}
+						// provider='7TV'
+						// name={emote.name}
+						// ownerName={emote.owner_name}
+						// global={emote.global}
+					/>);
 
-				jsxArray.push(reactElement);
+					jsxArray.push(reactElement);
+				}
 			} else if (type === 'mention') {
 				jsxArray.push(<strong> @{content} </strong>);
 			} else if (type === 'link') {

@@ -1,4 +1,5 @@
 import { DataStructure } from '@typings/typings/DataStructure';
+import { EmoteStore } from 'src/Global/EmoteStore';
 import { Page } from 'src/Page/Page';
 import { Twitch } from 'src/Page/Util/Twitch';
 
@@ -8,22 +9,19 @@ export class MessagePatcher {
 
 	constructor(
 		private msg: Twitch.ChatMessage,
-		private emoteSet: DataStructure.Emote[]
+		private emotes: EmoteStore.Emote[]
 	) { }
 
 	/**
 	 * Tokenize the chat line, inserting emote data into the seventv namespace of message data
 	 */
 	tokenize(): void {
-		if (this.emoteSet.length === 0) return undefined;
-
 		// Begin iterating through message parts
 		// Daily Quest: find 7TV emotes ZULUL
-		const eIndex = Page.EmoteSet.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b }));
+		const eIndex = this.emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b }));
 		const eNames = Object.keys(eIndex);
 
 		// Find all emotes across the message parts
-		const emotes = [] as DataStructure.Emote[];
 		for (const part of this.msg.messageParts) {
 			// Handle link / mention
 			if (part.type === 4) { // Is mention
@@ -62,7 +60,7 @@ export class MessagePatcher {
 				if (isEmote) {
 					pushCurrentStack(); // Push the current word stack as a single part
 					// Then push the emote part
-					this.msg.seventv.parts.push({ type: 'emote', content: eIndex[word] });
+					this.msg.seventv.parts.push({ type: 'emote', content: eIndex[word].id });
 				} else {
 					currentStack.push(word);
 					this.msg.seventv.words.push(word);

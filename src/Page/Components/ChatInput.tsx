@@ -1,7 +1,6 @@
 import React from 'react';
-import { tap } from 'rxjs/operators';
-import { Config } from 'src/Config';
-import { Emote } from 'src/Content/Components/EmoteComponent';
+import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
+import { EmoteStore } from 'src/Global/EmoteStore';
 import { Page } from 'src/Page/Page';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 
@@ -20,9 +19,9 @@ export class ChatInput extends React.Component<ChatInput.Props, ChatInput.State>
 	constructor(props: ChatInput.Props) {
 		super(props);
 
-		Page.TabCompletion.onInputEvent.subscribe({
-			next: (ev) => this.setState({ value: (ev.target as HTMLTextAreaElement).value })
-		});
+		// Page.TabCompletion.onInputEvent.subscribe({
+		// 	next: (ev) => this.setState({ value: (ev.target as HTMLTextAreaElement).value })
+		// });
 	}
 
 	render(): JSX.Element {
@@ -47,10 +46,10 @@ export class ChatInput extends React.Component<ChatInput.Props, ChatInput.State>
 		const matches = this.state.value.match(MessagePatcher.getRegexp());
 
 		return matches?.map(val => {
-			const emote = Page.EmoteSet.find(e => e.name === val);
+			const emote = this.props.emotes.find(e => e.name === val);
 
 			if (!!emote) {
-				return <Emote name={emote.name} provider='7TV' src={{ preview: '', small: `${Config.cdnUrl}/emote/${emote?._id}/1x` }} ownerName={emote.owner_name} />;
+				return <EmoteComponent emote={{} as EmoteStore.Emote} />;
 			} else {
 				return <div style={{ width: val.length * 8.5 }}></div>;
 			}
@@ -75,6 +74,7 @@ export class ChatInput extends React.Component<ChatInput.Props, ChatInput.State>
 export namespace ChatInput {
 	export interface Props {
 		originalInput: HTMLInputElement;
+		emotes: EmoteStore.Emote[];
 	}
 
 	export interface State {

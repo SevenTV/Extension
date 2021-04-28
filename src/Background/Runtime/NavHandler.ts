@@ -3,12 +3,14 @@ import { asyncScheduler, BehaviorSubject, iif, Observable, of, scheduled, Subjec
 import { catchError, concatAll, delay, filter, map, mapTo, mergeAll, mergeMap, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
 import { Background } from 'src/Background/Background';
 import { Config } from 'src/Config';
+import { API } from 'src/Global/API';
 import { Logger } from 'src/Logger';
 import { version as extVersion } from '../../../package.json';
 
 export class NavHandler {
 	private channelURL = /(https:\/\/www.twitch.tv\/)(?:(popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
 	private channels = new Subject<NavHandler.CurrentChannelUpdate>();
+	private api = new API();
 
 	private loadedTabs = new Map<number, chrome.tabs.Tab>();
 	private globalEmoteCache = new BehaviorSubject<DataStructure.Emote[]>([]).pipe(
@@ -35,6 +37,15 @@ export class NavHandler {
 				Logger.Get().info(`Unloaded tab ${tabId}`);
 				sendResponse('goodbye');
 			}
+
+			if (msg.tag === 'APIRequest') {
+				this.api.createRequest(msg.data.route, msg.data.options).subscribe({
+					error(err) { sendResponse(err); },
+					next(res) { sendResponse(res); }
+				});
+			}
+
+			return true;
 		});
 
 		this.channels.pipe( // Listen for changes to loaded channels
@@ -49,41 +60,6 @@ export class NavHandler {
 				if (!change.tab) return Logger.Get().error(`Tried to start content script but tab no longer exists`);
 
 				this.loadedTabs.set(change.tab.id as number, change.tab); // Add to loaded tabs so it's not loaded again
-				scheduled([
-					this.getGlobalEmotes(change.tab).pipe( // Retrieve global emotes
-						toArray(),
-						tap(emotes => Background.Messaging.send({
-							tag: 'MapGlobalEmotes',
-							emotes
-						}, change.tab.id as number))
-					),
-
-					this.checkVersion().pipe(
-						tap(res => Logger.Get().warn(`Extension is Outdated! Latest release is ${res.version} but this is ${extVersion}`)),
-						filter(res => res.version !== extVersion),
-						map(res => {
-							Background.Messaging.send({
-								tag: 'OutdatedVersion',
-								latestVersion: res.version,
-								clientVersion: extVersion,
-
-							}, change.tab.id as number);
-						})
-					),
-
-					this.getEmotes(change.channelName).pipe( // Then get the channel's emotes
-						toArray(),
-						catchError(err => of(undefined).pipe(
-							tap(() => Logger.Get().error(`Error getting channel emotes of ${change.channelName}, ${err}`)),
-							mapTo([])
-						)),
-						map(emotes => Background.Messaging.send({
-							tag: 'LoadChannel',
-							emotes,
-							channelName: change.channelName
-						}, change.tab.id as number))
-					)
-				], asyncScheduler).pipe(concatAll()).subscribe();
 			})),
 			delay(50)
 		).subscribe();

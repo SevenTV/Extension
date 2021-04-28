@@ -1,3 +1,4 @@
+import { getRunningContext } from 'src/Global/Util';
 
 export class Logger {
 	private static instance: Logger;
@@ -14,7 +15,7 @@ export class Logger {
 
 	private print(type: 'error' | 'warn' | 'debug' | 'info', text: string[], extraCSS: string[]): void {
 		const prefix = this.getPrefix();
-		console[type](prefix.text + ' ' + text.join(' '), prefix.css, ...extraCSS);
+		console[type](prefix.text + ' ' + text.join(' ') + ` (${ctx})`, prefix.css, ...extraCSS);
 	}
 
 	debug(...text: string[]): void {
@@ -37,3 +38,5 @@ export class Logger {
 export namespace Logger {
 
 }
+
+const ctx = getRunningContext();

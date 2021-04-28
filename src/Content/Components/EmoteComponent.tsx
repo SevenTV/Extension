@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Main } from 'src/Content/Components/MainComponent';
+import { EmoteStore } from 'src/Global/EmoteStore';
 import styled from 'styled-components';
 
-export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
+export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, EmoteComponent.State> {
 	state = {
 		details: {
 			visible: false,
@@ -14,14 +15,14 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 
 	render() {
 		return (
-			<Emote.Container className='7tv-emote' onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
-					<Emote.Style
+			<EmoteComponent.Container className='7tv-emote' onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
+					<EmoteComponent.Style
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
-						<img alt={this.props.name} height={this.props.provider === 'emoji' ? 19.5 : ''} className='chat-image chat-line__message--emote' src={this.props?.src.small} />
-					</Emote.Style>
-			</Emote.Container>
+						<img alt={this.props.emote.name} height={this.props.provider === 'emoji' ? 19.5 : ''} className='chat-image chat-line__message--emote' src={this.props.emote.cdn('1x')} />
+					</EmoteComponent.Style>
+			</EmoteComponent.Container>
 		);
 	}
 
@@ -44,16 +45,10 @@ export class Emote extends React.PureComponent<Emote.Props, Emote.State> {
 	}
 }
 
-export namespace Emote {
+export namespace EmoteComponent {
 	export interface Props {
 		provider?: string | undefined | null;
-		src: {
-			small: string;
-			preview: string;
-		};
-		name: string;
-		ownerName?: string;
-		global?: boolean;
+		emote: EmoteStore.Emote;
 	}
 
 	export interface State {

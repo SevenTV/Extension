@@ -79,7 +79,7 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 		this.pendingMessages.add(msg.id);
 
 		// Push emotes to seventv.emotes property
-		const patcher = new MessagePatcher(msg, Page.EmoteSet);
+		const patcher = new MessagePatcher(msg, this.page.getAllEmotes());
 		msg.seventv = {
 			patcher,
 			parts: [],

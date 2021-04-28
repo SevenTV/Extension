@@ -1,17 +1,15 @@
 import { ChatListener } from 'src/Page/Runtime/ChatListener';
-import { DataStructure } from '@typings/typings/DataStructure';
-import { EmoteStore } from 'src/Page/Util/EmoteStore';
 import { TabCompletion } from 'src/Page/Runtime/TabCompletion';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { Logger } from 'src/Logger';
+import { PageScriptListener } from 'src/Global/Decorators';
+import { EmoteStore } from 'src/Global/EmoteStore';
 
 export const Page = {
-	EmoteSet: [] as DataStructure.Emote[],
-	EmoteStore: new EmoteStore(),
-	TabCompletion: new TabCompletion()
+	EmoteStore: new EmoteStore()
 };
 
-Page.TabCompletion.listen().subscribe();
+// Page.TabCompletion.listen().subscribe();
 
 // window.addEventListener('7TV#BackgroundExtMessage', event => {
 // 	if (!(event instanceof CustomEvent)) return undefined;
@@ -40,7 +38,9 @@ Page.TabCompletion.listen().subscribe();
 
 export class PageScript {
 	twitch = new Twitch();
-	chatListener = new ChatListener(this);
+	emoteStore = emoteStore = new EmoteStore();
+	chatListener = chatListener = new ChatListener(this);
+	tabCompletion = new TabCompletion(this);
 
 	currentChannel = '';
 
@@ -76,11 +76,28 @@ export class PageScript {
 		// Begin listening for joined events, meaning the end user has switched to another channel
 		service.service.client.events.joined(({ channel }) => {
 			const channelName = channel.replace('#', '');
+			if (channelName === this.currentChannel) return undefined;
 
 			Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
 			switched(this.currentChannel = channelName);
 		});
 		switched(this.currentChannel);
+	}
+
+	@PageScriptListener('EnableEmoteSet')
+	whenEmoteSetIsAdded(data: EmoteStore.EmoteSet.Resolved): void {
+		const set = emoteStore.enableSet(data.name, data.emotes);
+
+		chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
+	}
+
+	getAllEmotes(): EmoteStore.Emote[] {
+		const emotes = [] as EmoteStore.Emote[];
+		for (const set of this.emoteStore.sets.values()) {
+			emotes.push(...set.getEmotes());
+		}
+
+		return emotes;
 	}
 
 	/**
@@ -93,6 +110,9 @@ export class PageScript {
 		window.dispatchEvent(new CustomEvent(`7TV#${tag}`, { detail: JSON.stringify(data) }));
 	}
 }
+
+let emoteStore: EmoteStore;
+let chatListener: ChatListener;
 
 (() => {
 	const _ = new PageScript();

@@ -1,6 +1,6 @@
 import { from, Subject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { Child } from 'src/Content/Global/Decorators';
+import { Child } from 'src/Global/Decorators';
 
 const emitter = new Subject<HookType>();
 

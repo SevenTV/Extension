@@ -1,5 +1,5 @@
 import React from 'react';
-import { Emote } from 'src/Content/Components/EmoteComponent';
+import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import styled from 'styled-components';
 
 
@@ -14,19 +14,19 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		return (
 			<div ref={this.ref} className='seventv-emote-tooltip' style={{ position: 'relative', top: (this.getPosY() - 74), left: this.getPosX() - 74 }}>
 				<TooltipComponent.Image>
-					<img src={this.emoteProps.src.preview}></img>
+					<img src={this.emoteProps.emote.cdn('3x')}></img>
 				</TooltipComponent.Image>
 
 				<TooltipComponent.Details>
-					<h3 className='emote-name'> {this.emoteProps.name} </h3>
-					{!!this.emoteProps.ownerName ? <span className='emote-submitter'> by {this.emoteProps.ownerName} </span> : ''}
+					<h3 className='emote-name'> {this.emoteProps.emote.name} </h3>
+					{!!this.emoteProps.emote.owner?.display_name ? <span className='emote-submitter'> by {this.emoteProps.emote.owner.display_name} </span> : ''}
 
-					{this.emoteProps.global && <p className='is-7tv-global'>Global Emote</p>}
+					{this.emoteProps.emote.isGlobal() && <p className='is-7tv-global'>Global Emote</p>}
 				</TooltipComponent.Details>
 				<TooltipComponent.Provider>
 					{this.emoteProps.provider === '7TV'
 						? <img width={32} src='https://7tv.app/assets/brand/7tv-light.svg' /> // TODO: don't hardcode this
-						: <span> {this.emoteProps.provider} {this.emoteProps.global ? 'Global' : ''} Emote </span>
+						: <span> {this.emoteProps.emote.provider} Emote </span>
 					}
 				</TooltipComponent.Provider>
 			</div>
@@ -55,7 +55,7 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		});
 	}
 
-	get emoteProps(): Emote.Props {
+	get emoteProps(): EmoteComponent.Props {
 		return this.props.emote.props;
 	}
 }
@@ -67,7 +67,7 @@ export namespace TooltipComponent {
 	}
 
 	export interface Props {
-		emote: Emote;
+		emote: EmoteComponent;
 		posX: number;
 		posY: number;
 	}

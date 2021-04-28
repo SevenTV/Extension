@@ -1,18 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
-import { Child, PageScriptListener } from 'src/Content/Global/Decorators';
+import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { API } from 'src/Global/API';
-import { EmoteStore } from 'src/Content/Util/EmoteStore';
+import { EmoteStore } from 'src/Global/EmoteStore';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
-	emotes = new EmoteStore();
-
-	constructor() {}
+	constructor() { }
 
 	onInjected(): void {
 		// Once the extension injected itself into Twitch
@@ -34,9 +32,14 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	}
 
 	@PageScriptListener('SwitchChannel')
-	whenTheChannelSwitches(data: { channelName: 'anatoleam' }): void {
+	whenTheChannelSwitches(data: { channelName: string; }): void {
 		api.GetChannelEmotes(data.channelName).pipe(
+			map(e => emoteStore.enableSet(data.channelName, e)),
+			tap(x => console.log('got set:', x)),
 
+			map(emotes => {
+				this.sendMessageDown('EnableEmoteSet', emotes.resolve());
+			})
 		).subscribe();
 	}
 
@@ -47,7 +50,22 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		renderer.renderMessageTree();
 		renderer.insert();
 	}
+
+	/**
+	 * Send a message to the page script layer
+	 *
+	 * @param tag the event tag
+	 * @param data the event data
+	 */
+	sendMessageDown(tag: string, data: any): void {
+		window.dispatchEvent(new CustomEvent(`7TV#${tag}`, { detail: JSON.stringify(data) }));
+	}
+
+	get emotes() {
+		return emoteStore;
+	}
 }
 
 
 const api = new API();
+const emoteStore = new EmoteStore();
