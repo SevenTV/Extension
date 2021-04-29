@@ -1,10 +1,13 @@
 import { BitField } from '@typings/src/BitField';
+import { Constants } from '@typings/src/Constants';
 import { DataStructure } from '@typings/typings/DataStructure';
 import React from 'react';
 import { Config } from 'src/Config';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { Logger } from 'src/Logger';
+import { Twitch } from 'src/Page/Util/Twitch';
 
+const TWITCH_SET_NAME = 'twitch';
 export class EmoteStore {
 	size = 0;
 	private cachedElements = new Map<string, JSX.Element>();
@@ -30,6 +33,25 @@ export class EmoteStore {
 		}
 
 		return null;
+	}
+
+	fromTwitchEmote(data: Twitch.ChatMessage.EmoteRef): EmoteStore.Emote {
+		if (!this.sets.has(TWITCH_SET_NAME)) {
+			this.sets.set(TWITCH_SET_NAME, new EmoteStore.EmoteSet(TWITCH_SET_NAME));
+		}
+
+		const set = this.sets.get(TWITCH_SET_NAME) as EmoteStore.EmoteSet;
+		set.push([{
+			id: data.emoteID ?? '',
+			name: data.alt,
+			provider: 'Twitch',
+			visibility: 0,
+			mime: '',
+			status: Constants.Emotes.Status.LIVE,
+			tags: []
+		}], false);
+
+		return set.getEmoteByName(data.alt) as EmoteStore.Emote;
 	}
 
 	enableSet(name: string, emotes: DataStructure.Emote[]): EmoteStore.EmoteSet {
@@ -65,8 +87,10 @@ export namespace EmoteStore {
 		 * @param emotes the emotes that will be in this set
 		 * @returns this
 		 */
-		push(emotes: DataStructure.Emote[]): EmoteSet {
-			this.emotes = [];
+		push(emotes: DataStructure.Emote[], override = true): EmoteSet {
+			if (override) {
+				this.emotes = [];
+			}
 
 			const arr = emotes.map(e => new Emote(e));
 			this.emotes.push(...arr);
@@ -76,6 +100,10 @@ export namespace EmoteStore {
 
 		getEmotes(): Emote[] {
 			return this.emotes;
+		}
+
+		getEmoteByName(name: string): Emote | null {
+			return this.emotes.filter(e => e.name === name)[0];
 		}
 
 		/**
@@ -104,20 +132,38 @@ export namespace EmoteStore {
 		tags = [] as string[];
 		visibility: DataStructure.Emote.Visibility = 0;
 		owner: Partial<DataStructure.TwitchUser> | null = null;
-		provider: Emote.Provider = '7TV';
+		provider: DataStructure.Emote.Provider = '7TV';
 
 		constructor(private data: DataStructure.Emote) {
-			this.id = data.id;
-			this.name = data.name;
+			this.id = data.id ?? '';
+			this.name = data.name ?? '';
 			this.mime = data.mime ?? '';
 			this.visibility = data.visibility ?? 0;
+			this.provider = data.provider ?? '7TV';
 			if (!!data.owner) {
 				this.owner = data.owner;
 			}
 		}
 
-		cdn(size: '1x' | '2x' | '3x' | '4x'): string {
-			return `${Config.cdnUrl}/emote/${this.id}/${size}`;
+		/**
+		 * Get the URL to this emote
+		 *
+		 * @param size the size of the emote to return
+		 */
+		cdn(size: 1 | 2 | 3 | 4): string {
+			switch (this.provider) {
+				case '7TV': // First party
+					return `${Config.cdnUrl}/emote/${this.id}/${size}x`;
+
+				// Third party
+				case 'BTTV':
+					return '';
+				case 'FFZ':
+					return '';
+				case 'Twitch':
+					return `https://static-cdn.jtvnw.net/emoticons/v2/${this.id}/default/dark/${size}.0`;
+					// https://static-cdn.jtvnw.net/emoticons/v2/306327809/default/dark/3.0
+			}
 		}
 
 		/**
@@ -137,14 +183,12 @@ export namespace EmoteStore {
 		toJSX(): JSX.Element {
 			return <EmoteComponent
 				emote={this}
+				provider={this.provider}
 			/>;
 		}
 
 		resolve(): DataStructure.Emote {
 			return this.data;
 		}
-	}
-	export namespace Emote {
-		export type Provider = '7TV' | 'Twitch' | 'BTTV' | 'FFZ';
 	}
 }

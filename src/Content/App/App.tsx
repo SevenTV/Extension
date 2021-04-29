@@ -35,7 +35,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	whenTheChannelSwitches(data: { channelName: string; }): void {
 		api.GetChannelEmotes(data.channelName).pipe(
 			map(e => emoteStore.enableSet(data.channelName, e)),
-			tap(x => console.log('got set:', x)),
 
 			map(emotes => {
 				this.sendMessageDown('EnableEmoteSet', emotes.resolve());

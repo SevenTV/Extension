@@ -18,7 +18,7 @@ export class MessagePatcher {
 	tokenize(): void {
 		// Begin iterating through message parts
 		// Daily Quest: find 7TV emotes ZULUL
-		const eIndex = this.emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b }));
+		const eIndex = this.emotes.length > 0 ? this.emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b })) : {};
 		const eNames = Object.keys(eIndex);
 
 		// Find all emotes across the message parts
@@ -29,6 +29,14 @@ export class MessagePatcher {
 				continue;
 			} else if (part.type === 5) { // Is link
 				this.msg.seventv.parts.push({ type: 'link', content: part.content });
+			} else if (part.type === 6) {
+				const content = part.content as Twitch.ChatMessage.EmoteRef;
+
+				this.msg.seventv.parts.push({
+					type: 'twitch-emote',
+					content
+				});
+				continue;
 			}
 
 			// Get part text content
@@ -41,7 +49,7 @@ export class MessagePatcher {
 			// Apply matches to message parts
 			const foundEmotes = text.match(matches)
 				?.map(emoteName => eIndex[emoteName]) ?? [];
-			const foundEmoteNames = foundEmotes?.map(e => e.name) ?? [];
+			const foundEmoteNames = foundEmotes.filter(e => !!e)?.map(e => e.name) ?? [];
 
 			const words = text.match(MessagePatcher.getRegexp());
 			if (!words) continue;

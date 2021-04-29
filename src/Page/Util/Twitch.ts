@@ -377,7 +377,7 @@ export namespace Twitch {
 		}
 
 		export interface AppPart {
-			type: 'text' | 'emote' | 'link' | 'mention';
+			type: 'text' | 'emote' | 'twitch-emote' | 'link' | 'mention';
 			content?: string | { [key: string]: any; };
 		}
 	}

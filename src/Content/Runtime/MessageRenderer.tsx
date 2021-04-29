@@ -99,6 +99,11 @@ export class MessageRenderer {
 
 					jsxArray.push(reactElement);
 				}
+			} else if (type === 'twitch-emote') {
+				const data = content as Twitch.ChatMessage.EmoteRef;
+				const emote = this.app.emotes.fromTwitchEmote(data);
+
+				jsxArray.push(emote.toJSX());
 			} else if (type === 'mention') {
 				jsxArray.push(<strong> @{content} </strong>);
 			} else if (type === 'link') {

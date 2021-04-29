@@ -20,7 +20,7 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
-						<img alt={this.props.emote.name} height={this.props.provider === 'emoji' ? 19.5 : ''} className='chat-image chat-line__message--emote' src={this.props.emote.cdn('1x')} />
+						<img alt={this.props.emote.name} height={this.props.provider === 'emoji' ? 19.5 : ''} className='chat-image chat-line__message--emote' src={this.props.emote.cdn(1)} />
 					</EmoteComponent.Style>
 			</EmoteComponent.Container>
 		);
