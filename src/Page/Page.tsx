@@ -89,6 +89,7 @@ export class PageScript {
 		const set = emoteStore.enableSet(data.name, data.emotes);
 
 		chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
+		chatListener.sendSystemMessage(`${set.getEmotes().map(e => e.name).join(', ')}`);
 	}
 
 	getAllEmotes(): EmoteStore.Emote[] {

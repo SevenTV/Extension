@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { map, tap } from 'rxjs/operators';
+import { catchError, concatAll, map, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { API } from 'src/Global/API';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import { asapScheduler, of, scheduled } from 'rxjs';
+import { Logger } from 'src/Logger';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -33,13 +35,24 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	@PageScriptListener('SwitchChannel')
 	whenTheChannelSwitches(data: { channelName: string; }): void {
-		api.GetChannelEmotes(data.channelName).pipe(
+		scheduled([
+			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
+			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
+			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV', 'FFZ']),
+			api.GetThirdPartyGlobalEmotes(['BTTV', 'FFZ'])
+		], asapScheduler).pipe(
+			concatAll(),
+			toArray(),
+			map(a => a.reduce((a, b) => a.concat(b))),
 			map(e => emoteStore.enableSet(data.channelName, e)),
-
-			map(emotes => {
-				this.sendMessageDown('EnableEmoteSet', emotes.resolve());
-			})
-		).subscribe();
+		).subscribe({
+			next: (set: EmoteStore.EmoteSet) => {
+				this.sendMessageDown('EnableEmoteSet', set.resolve());
+			},
+			error(err) {
+				Logger.Get().error(`Failed to fetch current channel's emote set, the extension will be disabled`);
+			}
+		});
 	}
 
 	@PageScriptListener('RenderChatLine')
