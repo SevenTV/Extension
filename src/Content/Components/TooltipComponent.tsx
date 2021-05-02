@@ -14,7 +14,7 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		return (
 			<div ref={this.ref} className='seventv-emote-tooltip' style={{ position: 'relative', top: (this.getPosY() - 74), left: this.getPosX() - 74 }}>
 				<TooltipComponent.Image>
-					<img src={this.emoteProps.emote.cdn(3)}></img>
+					<img src={this.emoteProps.emote.cdn('3')}></img>
 				</TooltipComponent.Image>
 
 				<TooltipComponent.Details>

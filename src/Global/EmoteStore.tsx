@@ -44,7 +44,7 @@ export class EmoteStore {
 		set.push([{
 			id: data.emoteID ?? '',
 			name: data.alt,
-			provider: 'Twitch',
+			provider: 'TWITCH',
 			visibility: 0,
 			mime: '',
 			status: Constants.Emotes.Status.LIVE,
@@ -133,6 +133,7 @@ export namespace EmoteStore {
 		visibility: DataStructure.Emote.Visibility = 0;
 		owner: Partial<DataStructure.TwitchUser> | null = null;
 		provider: DataStructure.Emote.Provider = '7TV';
+		urls = [] as [string, string][];
 
 		constructor(private data: DataStructure.Emote) {
 			this.id = data.id ?? '';
@@ -143,6 +144,9 @@ export namespace EmoteStore {
 			if (!!data.owner) {
 				this.owner = data.owner;
 			}
+			if (Array.isArray(data.urls)) {
+				this.urls = data.urls;
+			}
 		}
 
 		/**
@@ -150,19 +154,17 @@ export namespace EmoteStore {
 		 *
 		 * @param size the size of the emote to return
 		 */
-		cdn(size: 1 | 2 | 3 | 4): string {
-			switch (this.provider) {
-				case '7TV': // First party
-					return `${Config.cdnUrl}/emote/${this.id}/${size}x`;
+		cdn(size: '1' | '2' | '3' | '4'): string {
+			const url = this.urls.filter(([s]) => s === size)?.[0] ?? ['', ''];
 
-				// Third party
-				case 'BTTV':
-					return '';
+			switch (this.provider) {
 				case 'FFZ':
-					return '';
-				case 'Twitch':
+					url[0] = url[0] === '3' ? '4' : url[0];
+					return url[1];
+				case 'TWITCH':
 					return `https://static-cdn.jtvnw.net/emoticons/v2/${this.id}/default/dark/${size}.0`;
-					// https://static-cdn.jtvnw.net/emoticons/v2/306327809/default/dark/3.0
+				default:
+					return url[1];
 			}
 		}
 
