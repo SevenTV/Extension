@@ -4,12 +4,11 @@ import ReactDOM from 'react-dom';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MessageBody } from 'src/Page/Components/MessageBody';
 import { App } from 'src/Content/App/App';
-import { EmoteStore } from 'src/Global/EmoteStore';
 
 export class MessageRenderer {
 	private jsx = [] as JSX.Element[];
 	constructor(
-		private app: App,
+		public app: App,
 		public msg: Twitch.ChatMessage,
 		public elementId: string
 	) { }
@@ -32,7 +31,7 @@ export class MessageRenderer {
 		newContext.classList.add('7tv-message-context');
 		newContext.style.position = 'relative';
 
-		ReactDOM.render(<MessageBody parts={this.jsx} />, newContext);
+		ReactDOM.render(<MessageBody renderer={this} id={this.msg.id} parts={this.jsx} />, newContext);
 		container.appendChild(newContext);
 	}
 
@@ -72,13 +71,6 @@ export class MessageRenderer {
 						);
 						currentText = [];
 					}
-
-					localJsxArray.push(this.app.emotes.getElement(superceded.alt) ?? this.app.emotes.addElement(superceded.alt, <EmoteComponent
-						emote={new EmoteStore.Emote({} as any) as EmoteStore.Emote}
-						// src={{ preview: superceded.src.replace(/1(?![\s\S]*1)/, '3'), small: superceded.src }}
-						// provider={superceded.getAttribute('data-provider') ?? 'Twitch'}
-						// name={superceded.alt}
-					/>));
 				}
 
 				jsxArray.push(...localJsxArray);
@@ -89,12 +81,7 @@ export class MessageRenderer {
 
 				if (!!emote) {
 					const reactElement = this.app.emotes.getElement(emote.name) ?? this.app.emotes.addElement(emote.name, <EmoteComponent
-					emote={emote}
-						// src={{ preview: `${Config.cdnUrl}/emote/${emote._id}/3x`, small: `${Config.cdnUrl}/emote/${emote._id}/1x` }}
-						// provider='7TV'
-						// name={emote.name}
-						// ownerName={emote.owner_name}
-						// global={emote.global}
+						emote={emote}
 					/>);
 
 					jsxArray.push(reactElement);
@@ -103,7 +90,7 @@ export class MessageRenderer {
 				const data = content as Twitch.ChatMessage.EmoteRef;
 				const emote = this.app.emotes.fromTwitchEmote(data);
 
-				jsxArray.push(emote.toJSX());
+				jsxArray.push(emote.toJSX(this.app.emotes));
 			} else if (type === 'mention') {
 				jsxArray.push(<strong> @{content} </strong>);
 			} else if (type === 'link') {

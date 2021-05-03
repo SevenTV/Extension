@@ -92,6 +92,7 @@ export class MessagePatcher {
 		// Render 7TV third party stuff (and idk...)
 		// Send message data back to the content script
 		line.element.id = `7TV#msg:${this.msg.id}`; // Give an ID to the message element
+		line.element.setAttribute('seventv-id', this.msg.id);
 		this.msg.seventv.patcher = null;
 		const data = JSON.stringify({
 			msg: this.msg,

@@ -1,14 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, map, tap, toArray } from 'rxjs/operators';
+import { catchError, concatAll, map, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { API } from 'src/Global/API';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { asapScheduler, of, scheduled } from 'rxjs';
+import { asapScheduler, of, scheduled, Subject } from 'rxjs';
 import { Logger } from 'src/Logger';
+import { Twitch } from 'src/Page/Util/Twitch';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -56,11 +57,21 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	}
 
 	@PageScriptListener('RenderChatLine')
-	whenAChatLineIsRendered(data: { msg: any; elementId: string; }): void {
+	whenAChatLineIsRendered(data: { msg: Twitch.ChatMessage; elementId: string; }): void {
 		const renderer = new MessageRenderer(this, data.msg, data.elementId);
 
 		renderer.renderMessageTree();
 		renderer.insert();
+	}
+
+	@PageScriptListener('UnrenderChatLine')
+	whenAChatLineIsUnrendered(data: { id: string; }): void {
+		onMessageUnrender.next(data.id);
+	}
+
+	@PageScriptListener('ScrollChat')
+	whenTheChatIsScrolledByUser() {
+		onChatScroll.next(undefined);
 	}
 
 	/**
@@ -81,3 +92,5 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 const api = new API();
 const emoteStore = new EmoteStore();
+export const onMessageUnrender = new Subject<string>();
+export const onChatScroll = new Subject<void>();
