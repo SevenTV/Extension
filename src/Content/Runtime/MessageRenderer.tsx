@@ -58,19 +58,7 @@ export class MessageRenderer {
 					const word = words[i];
 					if (word.trim().length === 0 || !text.includes(word)) continue;
 					text = text.replace(word, '');
-
-					// Pull the emote out (7tv-superceded)
-					const target = word.replace(/"/g, '\\"').trimEnd();
-					const superceded = element.querySelector(`img[alt="${target}"]`) as HTMLImageElement;
-					if (!superceded) {
-						currentText.push(word);
-						continue;
-					} else {
-						localJsxArray.push(
-							createSpan(currentText.join(' '))
-						);
-						currentText = [];
-					}
+					currentText.push(word);
 				}
 
 				jsxArray.push(...localJsxArray);

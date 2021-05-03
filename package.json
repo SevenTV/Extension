@@ -32,6 +32,7 @@
     "@types/react-lazyload": "^3.1.0",
     "@types/styled-components": "^5.1.7",
     "@types/superagent": "^4.1.10",
+    "@types/twemoji": "^12.1.1",
     "babel-loader": "^8.2.2",
     "eslint": "^7.20.0",
     "file-loader": "^6.2.0",
@@ -55,6 +56,7 @@
     "react-lazyload": "^3.2.0",
     "rxjs": "^6.6.3",
     "styled-components": "^5.2.1",
-    "superagent": "^6.1.0"
+    "superagent": "^6.1.0",
+    "twemoji": "^13.0.2"
   }
 }

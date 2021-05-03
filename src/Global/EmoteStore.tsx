@@ -2,12 +2,14 @@ import { BitField } from '@typings/src/BitField';
 import { Constants } from '@typings/src/Constants';
 import { DataStructure } from '@typings/typings/DataStructure';
 import React from 'react';
-import { Config } from 'src/Config';
+import EmojiData from 'src/Content/Util/Emoji.json';
+import twemoji from 'twemoji';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 
 const TWITCH_SET_NAME = 'twitch';
+const EMOJI_SET_NAME = 'emoji';
 export class EmoteStore {
 	size = 0;
 	private cachedElements = new Map<string, JSX.Element>();
@@ -52,6 +54,34 @@ export class EmoteStore {
 		}], false);
 
 		return set.getEmoteByName(data.alt) as EmoteStore.Emote;
+	}
+
+	fromEmoji(data: HTMLImageElement): EmoteStore.Emote {
+		if (!this.sets.has(EMOJI_SET_NAME)) {
+			this.sets.set(EMOJI_SET_NAME, new EmoteStore.EmoteSet(EMOJI_SET_NAME));
+		}
+
+		const set = this.sets.get(EMOJI_SET_NAME) as EmoteStore.EmoteSet;
+		const index = EmojiData.index[twemoji.convert.toCodePoint(data.alt).toUpperCase() as keyof typeof EmojiData.index] as number;
+		const emoji = EmojiData.list[index];
+		const fallback = encodeURIComponent(data.alt);
+
+		const urls = [] as [string, string][];
+		for (let i = 1; i <= 4; i++) {
+			urls.push([`${i}`, data.src]);
+		}
+		set.push([{
+			id: emoji?.unified ?? fallback,
+			name: emoji?.name.toLowerCase() ?? '',
+			visibility: DataStructure.Emote.Visibility.GLOBAL,
+			tags: [],
+			mime: '',
+			status: Constants.Emotes.Status.LIVE,
+			provider: 'EMOJI',
+			urls
+		}]);
+
+		return set.getEmoteByID(emoji?.unified ?? fallback) as EmoteStore.Emote;
 	}
 
 	enableSet(name: string, emotes: DataStructure.Emote[]): EmoteStore.EmoteSet {
@@ -102,6 +132,10 @@ export namespace EmoteStore {
 
 		getEmotes(): Emote[] {
 			return Array.from(this.emotes.values());
+		}
+
+		getEmoteByID(id: string): Emote | null {
+			return this.emotes.get(id) ?? null;
 		}
 
 		getEmoteByName(name: string): Emote | null {
