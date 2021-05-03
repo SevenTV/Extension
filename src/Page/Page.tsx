@@ -54,8 +54,19 @@ export class PageScript {
 	 */
 	constructor() {
 		this.chatListener.subscribe();
-
 		this.handleChannelSwitch();
+
+		const scroller = this.twitch.getChatScroller();
+		if (!!scroller) {
+			const x = scroller.onScroll;
+			scroller.onScroll = e => {
+				this.sendMessageUp('ScrollChat', e);
+
+				if (typeof x === 'function') {
+					x(e);
+				}
+			};
+		}
 	}
 
 	/**

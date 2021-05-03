@@ -1,4 +1,3 @@
-import { DataStructure } from '@typings/typings/DataStructure';
 import * as React from 'react';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 
@@ -54,6 +53,16 @@ export class Twitch {
 			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ChatContainer)[0]),
 			n => n.stateNode?.props.messageHandlerAPI && n.stateNode?.props.chatConnectionAPI,
 			1000
+		);
+
+		return node?.stateNode;
+	}
+
+	getChatScroller(): Twitch.ChatScrollerComponent {
+		const node = this.findReactParents(
+			this.getReactInstance(document.querySelector('.scrollable-area')),
+			n =>  n.stateNode.props['data-a-target'] === 'chat-scroller' as any,
+			10
 		);
 
 		return node?.stateNode;
@@ -261,6 +270,10 @@ export namespace Twitch {
 		userLogin: string | undefined;
 	}> & {
 		pushMessage: (msg: { id: string; msgid: string; channel: string; type: number; message: any; }) => void;
+	};
+
+	export type ChatScrollerComponent = React.PureComponent<{}> & {
+		onScroll: (e: Event) => void;
 	};
 
 	export type ChatComponent = React.PureComponent<{
