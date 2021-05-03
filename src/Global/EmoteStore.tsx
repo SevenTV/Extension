@@ -13,14 +13,14 @@ export class EmoteStore {
 	private cachedElements = new Map<string, JSX.Element>();
 	sets = new Map<string, EmoteStore.EmoteSet>();
 
-	addElement(name: string, jsx: JSX.Element): JSX.Element {
-		this.cachedElements.set(name, jsx);
+	addElement(id: string, jsx: JSX.Element): JSX.Element {
+		this.cachedElements.set(id, jsx);
 
 		return jsx;
 	}
 
-	getElement(name: string): JSX.Element | undefined {
-		return this.cachedElements.get(name);
+	getElement(id: string): JSX.Element | undefined {
+		return this.cachedElements.get(id);
 	}
 
 	getEmote(nameOrID: string): EmoteStore.Emote | null {
@@ -65,9 +65,9 @@ export class EmoteStore {
 
 export namespace EmoteStore {
 	export class EmoteSet {
-		private emotes = [] as Emote[];
+		private emotes = new Map<string, Emote>();
 		get size(): number {
-			return this.emotes.length;
+			return this.emotes.size;
 		}
 
 		/**
@@ -89,21 +89,28 @@ export namespace EmoteStore {
 		 */
 		push(emotes: DataStructure.Emote[], override = true): EmoteSet {
 			if (override) {
-				this.emotes = [];
+				this.emotes.clear();
 			}
 
 			const arr = emotes.map(e => new Emote(e));
-			this.emotes.push(...arr);
+			for (const e of arr) {
+				this.emotes.set(e.id, e);
+			}
 
 			return this;
 		}
 
 		getEmotes(): Emote[] {
-			return this.emotes;
+			return Array.from(this.emotes.values());
 		}
 
 		getEmoteByName(name: string): Emote | null {
-			return this.emotes.filter(e => e.name === name)[0];
+			for (const emote of this.emotes.values()) {
+				if (emote.name === name) {
+					return emote;
+				}
+			}
+			return null;
 		}
 
 		/**
@@ -114,7 +121,7 @@ export namespace EmoteStore {
 		resolve(): EmoteSet.Resolved {
 			return {
 				name: this.name,
-				emotes: this.emotes.map(e => e.resolve())
+				emotes: this.getEmotes().map(e => e.resolve())
 			};
 		}
 	}
@@ -155,12 +162,9 @@ export namespace EmoteStore {
 		 * @param size the size of the emote to return
 		 */
 		cdn(size: '1' | '2' | '3' | '4'): string {
-			const url = this.urls.filter(([s]) => s === size)?.[0] ?? ['', ''];
+			const url = this.urls.filter(([s]) => s === size)?.[0] ?? this.urls[this.urls.length - 1];
 
 			switch (this.provider) {
-				case 'FFZ':
-					url[0] = url[0] === '3' ? '4' : url[0];
-					return url[1];
 				case 'TWITCH':
 					return `https://static-cdn.jtvnw.net/emoticons/v2/${this.id}/default/dark/${size}.0`;
 				default:
@@ -182,11 +186,23 @@ export namespace EmoteStore {
 			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.PRIVATE);
 		}
 
-		toJSX(): JSX.Element {
-			return <EmoteComponent
-				emote={this}
-				provider={this.provider}
-			/>;
+		toJSX(store?: EmoteStore): JSX.Element {
+			let element: JSX.Element | undefined;
+			if (!!store) {
+				element = store.getElement(this.id);
+			}
+
+			if (!!element) {
+				return element;
+			} else {
+				element = <EmoteComponent
+					emote={this}
+					provider={this.provider}
+				/>;
+			}
+
+			store?.addElement(this.id, element);
+			return element;
 		}
 
 		resolve(): DataStructure.Emote {
