@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
-import { Page, PageScript } from 'src/Page/Page';
+import { PageScript } from 'src/Page/Page';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 import { Twitch } from 'src/Page/Util/Twitch';
 

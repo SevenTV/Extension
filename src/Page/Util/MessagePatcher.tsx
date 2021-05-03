@@ -1,6 +1,4 @@
-import { DataStructure } from '@typings/typings/DataStructure';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { Page } from 'src/Page/Page';
 import { Twitch } from 'src/Page/Util/Twitch';
 
 export class MessagePatcher {

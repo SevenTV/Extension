@@ -45,7 +45,6 @@ export class MessageRenderer {
 		const element = this.getElement();
 		const jsxArray = [] as JSX.Element[];
 
-		let index = 0;
 		if (!element) return [];
 		for (const { type, content } of parts) {
 			const localJsxArray = [] as JSX.Element[];
@@ -84,7 +83,6 @@ export class MessageRenderer {
 			} else if (type === 'link') {
 				jsxArray.push(<a href={(content as any).url} target='_blank'> {(content as any).displayText} </a>);
 			}
-			index++;
 		}
 
 		return this.jsx = jsxArray;

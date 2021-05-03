@@ -127,5 +127,5 @@ let emoteStore: EmoteStore;
 let chatListener: ChatListener;
 
 (() => {
-	const _ = new PageScript();
+	const {} = new PageScript();
 })();

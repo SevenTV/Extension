@@ -1,7 +1,6 @@
 import React from 'react';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { Page } from 'src/Page/Page';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 
 /**

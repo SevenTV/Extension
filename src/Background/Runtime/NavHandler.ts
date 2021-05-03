@@ -1,11 +1,9 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { asyncScheduler, BehaviorSubject, iif, Observable, of, scheduled, Subject, timer } from 'rxjs';
-import { catchError, concatAll, delay, filter, map, mapTo, mergeAll, mergeMap, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
-import { Background } from 'src/Background/Background';
+import { delay, filter, mapTo, mergeAll, mergeMap, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { API } from 'src/Global/API';
 import { Logger } from 'src/Logger';
-import { version as extVersion } from '../../../package.json';
 
 export class NavHandler {
 	private channelURL = /(https:\/\/www.twitch.tv\/)(?:(popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
