@@ -51,7 +51,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 			},
 			error(err) {
-				Logger.Get().error(`Failed to fetch current channel's emote set, the extension will be disabled`);
+				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
 			}
 		});
 	}

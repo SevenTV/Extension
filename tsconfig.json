@@ -8,6 +8,8 @@
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"target": "ES5",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
 		"jsx": "react",
 		"baseUrl": ".",
 		"experimentalDecorators": true,

@@ -22,7 +22,7 @@ export class NavHandler {
 	) as BehaviorSubject<DataStructure.Emote[]>;
 
 	constructor() {
-		chrome.tabs.onUpdated.addListener((id, change, tab) => this.onUpdate(id, change, tab));
+		chrome.tabs.onUpdated.addListener((_, change, tab) => this.onUpdate(change, tab));
 
 
 		chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -83,7 +83,7 @@ export class NavHandler {
 		);
 	}
 
-	private onUpdate(id: number, change: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab): void {
+	private onUpdate(change: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab): void {
 		if (!tab.url) return undefined;
 		if (!this.channelURL.test(tab.url)) return undefined;
 		if (change.status !== 'complete') return undefined;
@@ -105,7 +105,7 @@ export class NavHandler {
 		return new Observable<DataStructure.Emote>(observer => {
 			const xhr = new XMLHttpRequest();
 
-			xhr.addEventListener('load', (ev) => {
+			xhr.addEventListener('load', () => {
 				const data = JSON.parse(xhr.responseText);
 				if (xhr.status >= 400 && xhr.status <= 599) {
 					return observer.error(Error(data.error.message));
@@ -128,7 +128,7 @@ export class NavHandler {
 		return new Observable<NavHandler.CheckVersionResult>(observer => {
 			const xhr = new XMLHttpRequest();
 
-			xhr.addEventListener('load', ev => {
+			xhr.addEventListener('load', () => {
 				const data = JSON.parse(xhr.responseText);
 				if (typeof data.version === 'string') {
 					observer.next({

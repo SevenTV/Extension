@@ -1,5 +1,4 @@
 import { HookStore } from 'src/Content/Global/Hooks';
-import { ExtensionRuntimeMessage } from 'src/Global/Util';
 
 export function Child<T extends typeof AnyClass>(target: T) {
 	return class extends target {
@@ -91,32 +90,6 @@ export function PageScriptListener(tag: string) {
 				return result;
 			})(data);
 		});
-	};
-}
-
-/**
- * Listen to messages on the extension runtime
- *
- * @param tag Themessage tag to listen to
- * @param take How many messages to accept before closing the listener
- */
-export function ExtensionRuntimeListener(tag: string, take?: number) {
-	return function(target: Object, _prrop	: string, descriptor: PropertyDescriptor) {
-		const originalMethod = descriptor.value;
-		let count = 0;
-
-		const fn = (msg: ExtensionRuntimeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-			(descriptor.value = function(...args: any[]) {
-				const result = originalMethod.apply(target, args);
-
-				return result;
-			})(msg, sender, sendResponse);
-
-			if (typeof take === 'number' && count >= take) {
-				chrome.runtime.onMessage.removeListener(fn);
-			}
-		};
-		chrome.runtime.onMessage.addListener(fn);
 	};
 }
 
