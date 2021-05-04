@@ -38,7 +38,6 @@
     "file-loader": "^6.2.0",
     "sass": "^1.32.8",
     "sass-loader": "^11.0.1",
-    "seventv-typings": "git+https://github.com/SevenTV/Typings.git",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
