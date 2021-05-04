@@ -17,6 +17,9 @@ export class ExtensionContentScript {
 		style.rel = 'stylesheet';
 		style.type = 'text/css';
 		style.href = chrome.runtime.getURL('styles/Style.css');
+		style.setAttribute('charset', 'utf-8');
+		style.setAttribute('content', 'text/html');
+		style.setAttribute('http-equiv', 'content-type');
 		script.src = chrome.runtime.getURL('page.js');
 		script.onload = () => {
 			Logger.Get().info('Injected into Twitch');

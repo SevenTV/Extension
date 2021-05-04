@@ -49,10 +49,6 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 	}
 
 	componentDidMount(): void {
-		this.setState({
-			refWidth: this.ref.current?.clientWidth,
-			refHeight: this.ref.current?.clientHeight
-		});
 	}
 
 	get emoteProps(): EmoteComponent.Props {

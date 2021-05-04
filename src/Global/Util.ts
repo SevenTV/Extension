@@ -1,6 +1,6 @@
 export function getRunningContext(): Context {
 	try {
-		if (!!chrome.extension?.getBackgroundPage) {
+		if (!!chrome?.extension?.getBackgroundPage) {
 			return 'background';
 		}
 		else if (typeof chrome.runtime.id !== 'undefined') {
