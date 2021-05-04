@@ -34,9 +34,14 @@ The browser extension is currently available on Chromium-based browsers (Google 
 1. Click "Load unpacked" and select the "7tv-extension" folder
 1. The extension should now be enabled
 
-#### Firefox
+#### Mozilla Firefox (Manual Install)
 
-The firefox extension is a work in progress
+1. Download the latest build from the [releases page]()
+1. Unzip the archive into a new folder
+1. Go to the URL [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox) in the browser
+1. Click the button "Load Temporary Add-on..."
+1. In the folder previously created from the archive, select the manifest.json file
+1. The extension should now be enabled
 
 #### Chatterino
 
