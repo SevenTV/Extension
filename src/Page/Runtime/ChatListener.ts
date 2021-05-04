@@ -5,8 +5,8 @@ import { PageScript } from 'src/Page/Page';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
 import { Twitch } from 'src/Page/Util/Twitch';
 
-
-export class ChatListener extends Observable<Twitch.ChatMessage> {
+let currentHandler: (msg: Twitch.ChatMessage) => void;
+export class ChatListener {
 	/** Create a Twitch instance bound to this listener */
 	private twitch = this.page.twitch;
 
@@ -16,19 +16,6 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 	linesRendered = 0;
 
 	constructor(private page: PageScript) {
-		super(observer => {
-			Logger.Get().info('Listening for chat messages');
-
-			// Begin listening to incoming messages
-			this.twitch.getChatController().props.messageHandlerAPI.addMessageHandler(msg => {
-				if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
-
-				this.onMessage(msg);
-
-				// Emit the message
-				observer.next(msg);
-			});
-		});
 		(window as any).twitch = this.twitch;
 
 		// Detect rerenders
@@ -47,6 +34,22 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 				// Their error doesn't appear to have adverse effects on the chat experience so we ignore it Okayge
 			}
 		};
+	}
+
+	listen(): void {
+		Logger.Get().info('Listening for chat messages');
+		const msgHandler = this.twitch.getChatController().props.messageHandlerAPI;
+		if (!!currentHandler) {
+			Logger.Get().info('Unloading previous handler');
+			msgHandler.removeMessageHandler(currentHandler);
+		}
+
+		currentHandler = msg => {
+			if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
+
+			this.onMessage(msg);
+		};
+		msgHandler.addMessageHandler(currentHandler);
 
 		/**
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
@@ -57,7 +60,6 @@ export class ChatListener extends Observable<Twitch.ChatMessage> {
 
 			// Render 7TV emotes
 			tap(line => line.component.props.message.seventv.patcher?.render(line)),
-			// tap(line => console.log('Line', line))
 		).subscribe();
 	}
 

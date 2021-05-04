@@ -72,7 +72,7 @@ export class EmoteStore {
 		}
 		set.push([{
 			id: emoji?.unified ?? fallback,
-			name: emoji?.name.toLowerCase() ?? '',
+			name: emoji?.short_name.toLowerCase() ?? '',
 			visibility: DataStructure.Emote.Visibility.GLOBAL,
 			tags: [],
 			mime: '',

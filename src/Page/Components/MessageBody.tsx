@@ -4,13 +4,13 @@ import { filter, take, tap } from 'rxjs/operators';
 import { onMessageUnrender } from 'src/Content/App/App';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
+import { Logger } from 'src/Logger';
 import twemoji from 'twemoji';
 
 export class MessageBody extends React.PureComponent<MessageBody.Props, MessageBody.State> {
 	node: Element | undefined;
 	return = {};
 	state = {} as MessageBody.State;
-	offScreen = false;
 
 	constructor(props: MessageBody.Props) {
 		super(props);
@@ -19,7 +19,12 @@ export class MessageBody extends React.PureComponent<MessageBody.Props, MessageB
 			filter(id => this.props.id === id),
 			take(1),
 			tap(() => {
-				ReactDOM.unmountComponentAtNode(this.node?.parentNode as Element);
+				try {
+					ReactDOM.unmountComponentAtNode(this.node?.parentNode as Element);
+				} catch (e) {
+					Logger.Get().error(`Could not unload message (${e}), hiding it instead`);
+					this.setState({ offScreen: true });
+				}
 			})
 		).subscribe();
 	}

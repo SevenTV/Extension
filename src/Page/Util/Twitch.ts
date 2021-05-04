@@ -255,7 +255,7 @@ export namespace Twitch {
 		isStaff: boolean;
 		messageHandlerAPI: {
 			addMessageHandler: (event: (msg: ChatMessage) => void) => void;
-			removeMessageHandler: ((event: ChatMessage) => void);
+			removeMessageHandler: (event: (msg: ChatMessage) => void) => void;
 			handleMessage: () => void;
 		}
 		rightColumnExpanded: boolean;

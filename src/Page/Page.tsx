@@ -4,37 +4,11 @@ import { Twitch } from 'src/Page/Util/Twitch';
 import { Logger } from 'src/Logger';
 import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import 'src/Style/Style.scss';
 
 export const Page = {
 	EmoteStore: new EmoteStore()
 };
-
-// Page.TabCompletion.listen().subscribe();
-
-// window.addEventListener('7TV#BackgroundExtMessage', event => {
-// 	if (!(event instanceof CustomEvent)) return undefined;
-// 	const ev = event as CustomEvent;
-//
-// 	if (ev.detail.tag === 'LoadChannel') { // Handle LoadChannel
-// 		// Unload all non-global emotes from the current set
-// 		Page.EmoteSet
-// 			.filter(emote => !emote.global)
-// 			.map(emote => Page.EmoteSet.splice(Page.EmoteSet.indexOf(emote), 1));
-//
-// 		// Append new channel emote
-// 		Page.EmoteSet.push(...ev.detail.emotes);
-// 		Page.ChatListener.sendSystemMessage(`Loaded ${ev.detail.emotes.length} emotes in $currentChannel: ${ev.detail.emotes.map((e: DataStructure.Emote) => e.name).join(', ')}`);
-// 	} else if (ev.detail.tag === 'MapGlobalEmotes') {
-// 		// Unload previous global emotes from the current set
-// 		Page.EmoteSet
-// 			.filter(emote => emote.global)
-// 			.map(emote => Page.EmoteSet.splice(Page.EmoteSet.indexOf(emote), 1));
-//
-// 		Page.EmoteSet.push(...ev.detail.emotes);
-// 	} else if (ev.detail.tag === 'OutdatedVersion') {
-// 		Page.ChatListener.sendSystemMessage(`7TV is outdated! Your version is ${ev.detail.clientVersion}, while the latest is ${ev.detail.latestVersion}`);
-// 	}
-// });
 
 export class PageScript {
 	twitch = new Twitch();
@@ -53,7 +27,6 @@ export class PageScript {
 	 * cause major memory leak problems.
 	 */
 	constructor() {
-		this.chatListener.subscribe();
 		this.handleChannelSwitch();
 
 		const scroller = this.twitch.getChatScroller();
@@ -101,6 +74,7 @@ export class PageScript {
 
 		chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
 		chatListener.sendSystemMessage(`${set.getEmotes().map(e => e.name).join(', ')}`);
+		chatListener.listen();
 	}
 
 	getAllEmotes(): EmoteStore.Emote[] {
