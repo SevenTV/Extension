@@ -1,4 +1,4 @@
-const webpack = require('webpack');
+const { DefinePlugin } = require('webpack');
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
@@ -64,7 +64,7 @@ const config = {
     new CopyPlugin({
       patterns: [{ from: 'public', to: '.' }],
     }),
-    new webpack.DefinePlugin({
+    new DefinePlugin({
 			__ENVIRONMENT__: JSON.stringify('production'),
       AppMeta: JSON.stringify({ version: 1 })
     }),

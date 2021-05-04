@@ -24,9 +24,9 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 					{this.emoteProps.emote.isGlobal() && <p className='is-7tv-global'>Global Emote</p>}
 				</TooltipComponent.Details>
 				<TooltipComponent.Provider>
-					{this.emoteProps.provider === '7TV'
+					{this.emoteProps.emote.provider === '7TV'
 						? <img width={32} src='https://7tv.app/assets/brand/7tv-light.svg' /> // TODO: don't hardcode this
-						: <span> {this.emoteProps.emote.provider} Emote </span>
+						: <span> { this.emoteProps.emote.provider.toUpperCase() } </span>
 					}
 				</TooltipComponent.Provider>
 			</div>
@@ -84,9 +84,10 @@ export namespace TooltipComponent {
 	`;
 
 	export const Details = styled.div`
-		display: block;
-		margin-left: 1.25em;
-		margin-bottom: 1em;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 1em;
 
 		.emote-name {
 			width: 100%;
