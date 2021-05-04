@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { filter, take, tap } from 'rxjs/operators';
+import { filter, mapTo, take, tap } from 'rxjs/operators';
 import { onMessageUnrender } from 'src/Content/App/App';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
@@ -15,17 +15,20 @@ export class MessageBody extends React.PureComponent<MessageBody.Props, MessageB
 	constructor(props: MessageBody.Props) {
 		super(props);
 
+		// Detect the moment this message gets unrendered by Twitch
 		onMessageUnrender.pipe(
 			filter(id => this.props.id === id),
 			take(1),
-			tap(() => {
+			tap(() => { // Then unmount this component
 				try {
 					ReactDOM.unmountComponentAtNode(this.node?.parentNode as Element);
+					this.node?.remove();
 				} catch (e) {
 					Logger.Get().error(`Could not unload message (${e}), hiding it instead`);
 					this.setState({ offScreen: true });
 				}
-			})
+			}),
+			mapTo('Unloaded')
 		).subscribe();
 	}
 

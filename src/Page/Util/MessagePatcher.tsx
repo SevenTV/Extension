@@ -1,4 +1,4 @@
-import { EmoteStore } from 'src/Global/EmoteStore';
+import { PageScript } from 'src/Page/Page';
 import { Twitch } from 'src/Page/Util/Twitch';
 
 export class MessagePatcher {
@@ -6,8 +6,8 @@ export class MessagePatcher {
 	static trash = document.createElement('trash');
 
 	constructor(
-		private msg: Twitch.ChatMessage,
-		private emotes: EmoteStore.Emote[]
+		private page: PageScript,
+		private msg: Twitch.ChatMessage
 	) { }
 
 	/**
@@ -16,7 +16,7 @@ export class MessagePatcher {
 	tokenize(): void {
 		// Begin iterating through message parts
 		// Daily Quest: find 7TV emotes ZULUL
-		const eIndex = this.emotes.length > 0 ? this.emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b })) : {};
+		const eIndex = this.page.getEmoteIndex();
 		const eNames = Object.keys(eIndex);
 
 		// Find all emotes across the message parts

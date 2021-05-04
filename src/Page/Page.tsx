@@ -63,6 +63,7 @@ export class PageScript {
 			if (channelName === this.currentChannel) return undefined;
 
 			Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
+			this.eIndex = null;
 			switched(this.currentChannel = channelName);
 		});
 		switched(this.currentChannel);
@@ -75,6 +76,18 @@ export class PageScript {
 		chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
 		chatListener.sendSystemMessage(`${set.getEmotes().map(e => e.name).join(', ')}`);
 		chatListener.listen();
+	}
+
+	private eIndex: {
+		[x: string]: EmoteStore.Emote;
+	} | null = null;
+	getEmoteIndex() {
+		if (!!this.eIndex) {
+			return this.eIndex;
+		}
+
+		const emotes = this.getAllEmotes();
+		return emotes.length > 0 ? this.eIndex = emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b })) : {};
 	}
 
 	getAllEmotes(): EmoteStore.Emote[] {

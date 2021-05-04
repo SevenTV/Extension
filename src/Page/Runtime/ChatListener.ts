@@ -82,7 +82,7 @@ export class ChatListener {
 		this.pendingMessages.add(msg.id);
 
 		// Push emotes to seventv.emotes property
-		const patcher = new MessagePatcher(msg, this.page.getAllEmotes());
+		const patcher = new MessagePatcher(this.page, msg);
 		msg.seventv = {
 			patcher,
 			parts: [],

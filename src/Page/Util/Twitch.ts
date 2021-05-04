@@ -91,14 +91,9 @@ export class Twitch {
 	 */
 	getChatLine(el: HTMLElement): Twitch.GetChatLineResult {
 		const inst = this.getReactInstance(el);
-		const separator = this.findReactChildren(inst,
-			n => n.key === 'separator',
-			1000
-		);
 
 		return {
 			component: inst?.return?.stateNode,
-			separatorComponent: separator as Twitch.TwitchPureComponent,
 			instance: inst as Twitch.TwitchPureComponent
 		};
 	}
@@ -114,7 +109,6 @@ export class Twitch {
 				return {
 					element,
 					component: chatLine.component,
-					separatorComponent: chatLine.separatorComponent,
 					inst: chatLine.instance
 				};
 			});
@@ -172,13 +166,11 @@ export namespace Twitch {
 	export interface GetChatLineResult {
 		instance: TwitchPureComponent;
 		component: AnyPureComponent;
-		separatorComponent: TwitchPureComponent | null;
 	}
 	export interface ChatLineAndComponent {
 		element: HTMLDivElement;
 		inst: TwitchPureComponent;
 		component: ChatLineComponent;
-		separatorComponent: TwitchPureComponent | null;
 	}
 	export type ChatLineComponent = React.PureComponent<{
 		badgeSets: BadgeSets;
