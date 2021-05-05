@@ -6,7 +6,7 @@ import { API } from 'src/Global/API';
 import { Logger } from 'src/Logger';
 
 export class NavHandler {
-	private channelURL = /(https:\/\/www.twitch.tv\/)(?:(popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
+	private channelURL = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
 	private channels = new Subject<NavHandler.CurrentChannelUpdate>();
 	private api = new API();
 

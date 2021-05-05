@@ -54,18 +54,20 @@ export class PageScript {
 		const switched = (ch: string) => this.sendMessageUp('SwitchChannel', { channelName: ch });
 
 		// Get chat service
-		const service = this.twitch.getChatService();
+		const service = this.twitch.getChatService() ?? this.twitch.getChatController();
 		this.currentChannel = service.props.channelLogin; // Set current channel
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
-		service.service.client.events.joined(({ channel }) => {
-			const channelName = channel.replace('#', '');
-			if (channelName === this.currentChannel) return undefined;
+		if (!!service.service) {
+			service.service.client.events.joined(({ channel }) => {
+				const channelName = channel.replace('#', '');
+				if (channelName === this.currentChannel) return undefined;
 
-			Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
-			this.eIndex = null;
-			switched(this.currentChannel = channelName);
-		});
+				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
+				this.eIndex = null;
+				switched(this.currentChannel = channelName);
+			});
+		}
 		switched(this.currentChannel);
 	}
 
