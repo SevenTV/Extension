@@ -1,13 +1,15 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
+import { Config } from 'src/Config';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import styled from 'styled-components';
-
 
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
 	ref = React.createRef<any>();
 	state = {
 		refWidth: 0,
-		refHeight: 0
+		refHeight: 0,
+		node: null
 	} as TooltipComponent.State;
 
 	render() {
@@ -24,31 +26,65 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 					{this.emoteProps.emote.isGlobal() && <p className='is-7tv-global'>Global Emote</p>}
 				</TooltipComponent.Details>
 				<TooltipComponent.Provider>
-					{this.emoteProps.emote.provider === '7TV'
-						? <img width={32} src='https://7tv.app/assets/brand/7tv-light.svg' /> // TODO: don't hardcode this
-						: <span> { this.emoteProps.emote.provider.toUpperCase() } </span>
-					}
+					<img src={this.getProviderLogo()} />
 				</TooltipComponent.Provider>
 			</div>
 		);
 	}
 
 	getPosY(): number {
-		return this.props.posY - 120;
+		const h = (this.state.node?.clientHeight ?? 0);
+
+		return (this.props.posY - (h / 1.35));
 	}
 
 	getPosX(): number {
-		const maxWidth = (document.getElementsByClassName('stream-chat').item(0) as HTMLDivElement)?.scrollWidth ?? window.innerWidth;
-		const offset = (this.state.refWidth - maxWidth) + this.state.refWidth;
+		const w = (this.state.node?.clientWidth ?? 0);
 
-		if ((this.state.refWidth + offset) > maxWidth) {
-			return Math.max(offset, this.props.posX - offset);
-		} else {
-			return this.props.posX;
+		const maxWidth = (document.getElementsByClassName('stream-chat').item(0) as HTMLDivElement)?.scrollWidth ?? window.innerWidth;
+		const mostX = this.props.posX - (window.innerWidth - maxWidth) + w;
+
+		return mostX > maxWidth ? (this.props.posX - (mostX - maxWidth) + 32) : this.props.posX;
+	}
+
+	/**
+	 * @returns the cdn url to a provider's logo
+	 */
+	getProviderLogo(): string {
+		let value = Config.cdnUrl;
+		switch (this.emoteProps.emote.provider) {
+			case '7TV':
+				value += '/misc/7tv-d.webp';
+				break;
+			case 'BTTV':
+				value += '/misc/bttv.webp';
+				break;
+			case 'FFZ':
+				value += '/misc/ffz.webp';
+				break;
+			case 'TWITCH':
+				value += '/misc/twitch.webp';
+				break;
 		}
+
+		return value;
 	}
 
 	componentDidMount(): void {
+		setTimeout(() => {
+			let node: Element | null = null;
+			try {
+				node = ReactDOM.findDOMNode(this) as Element;
+			} catch (_) { }
+
+			this.setState({
+				node
+			});
+		}, 0);
+	}
+
+	componentWillUnmount(): void {
+		this.state.node = null;
 	}
 
 	get emoteProps(): EmoteComponent.Props {
@@ -60,6 +96,7 @@ export namespace TooltipComponent {
 	export interface State {
 		refWidth: 0;
 		refHeight: 0;
+		node: Element | null;
 	}
 
 	export interface Props {
@@ -84,10 +121,13 @@ export namespace TooltipComponent {
 		flex-direction: column;
 		justify-content: center;
 		padding: 1em;
+		padding-right: 3em;
+		max-width: 270px;
 
 		.emote-name {
 			width: 100%;
 			margin-bottom: 1px;
+			word-wrap: break-word;
 		}
 
 		.emote-submitter {
@@ -109,5 +149,10 @@ export namespace TooltipComponent {
 		bottom: 0;
 		right: 0;
 		margin: .4em;
+		padding-left: 32px;
+
+		img {
+			max-width: 28px;
+		}
 	`;
 }
