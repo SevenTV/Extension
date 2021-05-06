@@ -78,6 +78,7 @@ export class PageScript {
 		chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
 		chatListener.sendSystemMessage(`${set.getEmotes().map(e => e.name).join(', ')}`);
 		chatListener.listen();
+		tabCompletion.listen();
 	}
 
 	@PageScriptListener('InsertEmoteInChatInput')
