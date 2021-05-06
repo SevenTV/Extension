@@ -10,9 +10,12 @@ import { EmoteStore } from 'src/Global/EmoteStore';
 import { asapScheduler, of, scheduled, Subject } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
+import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
+	mainComponent: MainComponent | null = null;
+
 	constructor() { }
 
 	onInjected(): void {
@@ -23,7 +26,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		app.id = 'seventv';
 
 		const target = document.getElementById('root');
-		ReactDOM.render(<MainComponent />, app);
+		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} />, app) as unknown as MainComponent;
+		this.mainComponent.app = this;
 
 		target?.firstChild?.appendChild(app);
 
@@ -31,7 +35,15 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	}
 
 	onAppLoaded(): void {
-		console.log('APP IS LOADED');
+		// Add emote list button
+		const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
+		if (!!buttons && !!buttons.lastChild) {
+			const last = buttons.lastChild;
+			const container = document.createElement('div');
+			last.insertBefore(container, last.lastChild ?? null);
+
+			ReactDOM.render(<EmoteMenuButton main={this.mainComponent} />, container);
+		}
 	}
 
 	@PageScriptListener('SwitchChannel')

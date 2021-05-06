@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Config } from 'src/Config';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
+import { getProviderLogo } from 'src/Global/Util';
 import styled from 'styled-components';
 
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
@@ -24,9 +24,10 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 					{!!this.emoteProps.emote.owner?.display_name ? <span className='emote-submitter'> by {this.emoteProps.emote.owner.display_name} </span> : ''}
 
 					{this.emoteProps.emote.isGlobal() && <p className='is-7tv-global'>Global Emote</p>}
+					{this.emoteProps.emote.provider === 'EMOJI' && <p>Emoji</p>}
 				</TooltipComponent.Details>
 				<TooltipComponent.Provider>
-					<img src={this.getProviderLogo()} />
+					<img src={getProviderLogo(this.emoteProps.emote.provider)} />
 				</TooltipComponent.Provider>
 			</div>
 		);
@@ -45,29 +46,6 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		const mostX = this.props.posX - (window.innerWidth - maxWidth) + w;
 
 		return mostX > maxWidth ? (this.props.posX - (mostX - maxWidth) + 32) : this.props.posX;
-	}
-
-	/**
-	 * @returns the cdn url to a provider's logo
-	 */
-	getProviderLogo(): string {
-		let value = Config.cdnUrl;
-		switch (this.emoteProps.emote.provider) {
-			case '7TV':
-				value += '/misc/7tv-d.webp';
-				break;
-			case 'BTTV':
-				value += '/misc/bttv.webp';
-				break;
-			case 'FFZ':
-				value += '/misc/ffz.webp';
-				break;
-			case 'TWITCH':
-				value += '/misc/twitch.webp';
-				break;
-		}
-
-		return value;
 	}
 
 	componentDidMount(): void {

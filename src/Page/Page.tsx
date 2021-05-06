@@ -14,7 +14,7 @@ export class PageScript {
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
-	tabCompletion = new TabCompletion(this);
+	tabCompletion = tabCompletion = new TabCompletion(this);
 
 	currentChannel = '';
 
@@ -80,6 +80,14 @@ export class PageScript {
 		chatListener.listen();
 	}
 
+	@PageScriptListener('InsertEmoteInChatInput')
+	whenUserInsertsEmoteFromEmoteMenu(emoteName: string): void {
+		const currentValue = tabCompletion.getInput().value ?? '';
+		const spacing = currentValue.length > 0 ? ' ' : '';
+
+		tabCompletion.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);
+	}
+
 	private eIndex: {
 		[x: string]: EmoteStore.Emote;
 	} | null = null;
@@ -114,6 +122,7 @@ export class PageScript {
 
 let emoteStore: EmoteStore;
 let chatListener: ChatListener;
+let tabCompletion: TabCompletion;
 
 (() => {
 	const {} = new PageScript();
