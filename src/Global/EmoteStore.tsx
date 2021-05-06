@@ -84,12 +84,31 @@ export class EmoteStore {
 		return set.getEmoteByID(emoji?.unified ?? fallback) as EmoteStore.Emote;
 	}
 
+	/**
+	 * Enable an emote set
+	 *
+	 * @param name the name of the set to enable
+	 * @param emotes the emotes that the set contains
+	 * @returns the emote set that was created
+	 */
 	enableSet(name: string, emotes: DataStructure.Emote[]): EmoteStore.EmoteSet {
 		const set = new EmoteStore.EmoteSet(name).push(emotes);
 
 		this.sets.set(set.name, set);
 		Logger.Get().debug(`Enabled emote set: ${name} (${emotes.length} emotes)`);
 		return set;
+	}
+
+	/**
+	 * @returns all amotes, across all sets
+	 */
+	getAllEmotes(providers?: DataStructure.Emote.Provider[]): EmoteStore.Emote[] {
+		const emotes = [] as EmoteStore.Emote[];
+		for (const set of this.sets.values()) {
+			emotes.push(...set.getEmotes().filter(e => !Array.isArray(providers) || providers.includes(e.provider)));
+		}
+
+		return emotes;
 	}
 }
 
