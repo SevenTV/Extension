@@ -13,7 +13,8 @@
 	},
 	"web_accessible_resources": [
 		"page.js",
-		"styles/Style.css"
+		"styles/Style.css",
+		"image/*.webp"
 	],
 	"permissions": [
 		"*://*.twitch.tv/*"
