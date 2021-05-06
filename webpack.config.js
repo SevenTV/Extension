@@ -26,17 +26,17 @@ const config = {
 			},
 			{
 				test: /\.s[ac]ss$/i,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: { outputPath: 'styles/', name: '[name].css'}
-                    },
-                    'sass-loader'
-                ]
+				use: [
+					{
+						loader: 'file-loader',
+						options: { outputPath: 'styles/', name: '[name].css' }
+					},
+					'sass-loader'
+				]
 			},
 			{
 				test: /\.svg$/,
-				use: 'file-loader',
+				use: ['@svgr/webpack'],
 			},
 			{
 				test: /\.png$/,

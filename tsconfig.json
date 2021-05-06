@@ -17,12 +17,14 @@
 		"paths": {
 			"*": ["@types/*.d.ts"],
 			"src/*": ["./src/*"],
+			"public/*": ["./public/*"],
 			"@typings/*": ["../Shared/*", "Typings/*", "node_modules/seventv-typings/*"],
 		}
 	},
 
 	"include": [
 		"src/*",
-		"src/**/*"
+		"src/**/*",
+		"src/custom.d.ts"
 	]
 }
