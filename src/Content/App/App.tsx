@@ -61,6 +61,15 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		).subscribe({
 			next: (set: EmoteStore.EmoteSet) => {
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
+
+				// Connect to the WebSocket
+				api.ws.create();
+				api.ws.send('SUBSCRIBE', {
+					type: 1,
+					params: {
+						channel: data.channelName
+					}
+				});
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);

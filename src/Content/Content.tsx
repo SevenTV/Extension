@@ -6,12 +6,18 @@ import { App } from 'src/Content/App/App';
 
 export class ExtensionContentScript {
 	app = new App();
+	injected = false;
 
 	constructor() {
 		this.inject();
 	}
 
 	private inject(): void {
+		if (this.injected) {
+			return;
+		}
+
+		this.injected = true;
 		const script = document.createElement('script');
 		const style = document.createElement('link');
 		style.rel = 'stylesheet';

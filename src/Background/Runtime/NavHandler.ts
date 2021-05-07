@@ -1,29 +1,19 @@
 import { DataStructure } from '@typings/typings/DataStructure';
-import { asyncScheduler, BehaviorSubject, iif, Observable, of, scheduled, Subject, timer } from 'rxjs';
-import { delay, filter, mapTo, mergeAll, mergeMap, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { delay, filter, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { API } from 'src/Global/API';
+import { WebSocketAPI } from 'src/Global/WebSocket';
 import { Logger } from 'src/Logger';
 
 export class NavHandler {
 	private channelURL = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
 	private channels = new Subject<NavHandler.CurrentChannelUpdate>();
 	private api = new API();
-
 	private loadedTabs = new Map<number, chrome.tabs.Tab>();
-	private globalEmoteCache = new BehaviorSubject<DataStructure.Emote[]>([]).pipe(
-		mergeMap(emotes => scheduled([
-			of(emotes),
-			timer(60 * 1000).pipe(
-				takeUntil(this.globalEmoteCache),
-				mapTo([])
-			)
-		], asyncScheduler).pipe(mergeAll()))
-	) as BehaviorSubject<DataStructure.Emote[]>;
 
 	constructor() {
 		chrome.tabs.onUpdated.addListener((_, change, tab) => this.onUpdate(change, tab));
-
 
 		chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			const tabId = sender.tab?.id ?? 0;
@@ -41,6 +31,22 @@ export class NavHandler {
 					error(err) { sendResponse(err); },
 					next(res) { sendResponse(res); }
 				});
+			}
+
+			if (msg.tag === 'EditWebSocket') {
+				const action = msg.data.do as WebSocketAPI.ExtensionMessage.Type;
+
+				switch (action) {
+					case 'create':
+						this.api.ws.create();
+						break;
+					case 'send-message':
+						const d = msg.data.d;
+						const op = msg.data.op;
+
+						this.api.ws.send(op, d);
+						break;
+				}
 			}
 
 			return true;
@@ -61,26 +67,6 @@ export class NavHandler {
 			})),
 			delay(50)
 		).subscribe();
-	}
-
-	getGlobalEmotes(tab: chrome.tabs.Tab): Observable<DataStructure.Emote> {
-		if (!tab.id) throw new Error('tab id is undefined or null');
-
-		// Make one time request to fetch global emotes
-		return this.globalEmoteCache.pipe(
-			take(1),
-			switchMap(emotes => iif(() => emotes.length > 0,
-				of(emotes).pipe(
-					tap(emotes => Logger.Get().info(`Retrieved ${emotes.length} global emotes from cache`)),
-					mergeAll(),
-				),
-				this.getEmotes('@global').pipe(
-					toArray(),
-					tap(emotes => this.globalEmoteCache.next(emotes)),
-					mergeAll()
-				)
-			))
-		);
 	}
 
 	private onUpdate(change: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab): void {

@@ -3,10 +3,13 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
+import { WebSocketAPI } from 'src/Global/WebSocket';
 import { post } from 'superagent';
 
 export class API {
-	private BASE_URL = Config.apiUrl + '/v2';
+	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
+
+	ws = new WebSocketAPI();
 
 	constructor() {}
 

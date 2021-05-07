@@ -2,12 +2,14 @@ declare const __ENVIRONMENT__: 'production' | 'development';
 
 const byEnv = () => ({
 	production: {
-		apiUrl: 'https://api.7tv.app',
-		cdnUrl: 'https://cdn.7tv.app'
+		apiUrl: '//api.7tv.app',
+		cdnUrl: '//cdn.7tv.app',
+		secure: true,
 	},
 	development: {
-		apiUrl: 'http://localhost:3000',
-		cdnUrl: 'https://cdn.7tv.app'
+		apiUrl: '//localhost:3000',
+		cdnUrl: '//cdn.7tv.app',
+		secure: false
 	}
 }[__ENVIRONMENT__]);
 
