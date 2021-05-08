@@ -10,7 +10,7 @@ export class NavHandler {
 	private channelURL = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
 	private channels = new Subject<NavHandler.CurrentChannelUpdate>();
 	private api = new API();
-	private loadedTabs = new Map<number, chrome.tabs.Tab>();
+	private loadedTabs = new Map<number, NavHandler.TabWithSocket>();
 
 	constructor() {
 		chrome.tabs.onUpdated.addListener((_, change, tab) => this.onUpdate(change, tab));
@@ -18,10 +18,12 @@ export class NavHandler {
 		chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			const tabId = sender.tab?.id ?? 0;
 			if (tabId === 0) return undefined;
+			const tab = this.loadedTabs.get(tabId);
 
 			// Listen for tabs being unloaded
 			if (msg.tag === 'Unload') {
 				this.loadedTabs.delete(tabId);
+				tab?.socket?.terminate();
 				Logger.Get().info(`Unloaded tab ${tabId}`);
 				sendResponse('goodbye');
 			}
@@ -38,13 +40,18 @@ export class NavHandler {
 
 				switch (action) {
 					case 'create':
-						this.api.ws.create();
+						const socket = this.api.newWebSocket(tabId);
+						socket.create();
+
+						if (!!tab) {
+							tab.socket = socket;
+						}
 						break;
 					case 'send-message':
 						const d = msg.data.d;
 						const op = msg.data.op;
 
-						this.api.ws.send(op, d);
+						tab?.socket?.send(op, d);
 						break;
 				}
 			}
@@ -140,5 +147,9 @@ export namespace NavHandler {
 	export interface CurrentChannelUpdate {
 		channelName: string;
 		tab: chrome.tabs.Tab;
+	}
+
+	export interface TabWithSocket extends chrome.tabs.Tab {
+		socket?: WebSocketAPI;
 	}
 }

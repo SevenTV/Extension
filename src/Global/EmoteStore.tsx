@@ -37,6 +37,18 @@ export class EmoteStore {
 		return null;
 	}
 
+	/**
+	 * @returns all amotes, across all sets
+	 */
+	getAllEmotes(providers?: DataStructure.Emote.Provider[]): EmoteStore.Emote[] {
+		const emotes = [] as EmoteStore.Emote[];
+		for (const set of this.sets.values()) {
+			emotes.push(...set.getEmotes().filter(e => !Array.isArray(providers) || providers.includes(e.provider)));
+		}
+
+		return emotes;
+	}
+
 	fromTwitchEmote(data: Twitch.ChatMessage.EmoteRef): EmoteStore.Emote {
 		if (!this.sets.has(TWITCH_SET_NAME)) {
 			this.sets.set(TWITCH_SET_NAME, new EmoteStore.EmoteSet(TWITCH_SET_NAME));
@@ -92,23 +104,14 @@ export class EmoteStore {
 	 * @returns the emote set that was created
 	 */
 	enableSet(name: string, emotes: DataStructure.Emote[]): EmoteStore.EmoteSet {
+		if (this.sets.has(name)) {
+			return (this.sets.get(name) as EmoteStore.EmoteSet).push(emotes);
+		}
 		const set = new EmoteStore.EmoteSet(name).push(emotes);
 
 		this.sets.set(set.name, set);
 		Logger.Get().debug(`Enabled emote set: ${name} (${emotes.length} emotes)`);
 		return set;
-	}
-
-	/**
-	 * @returns all amotes, across all sets
-	 */
-	getAllEmotes(providers?: DataStructure.Emote.Provider[]): EmoteStore.Emote[] {
-		const emotes = [] as EmoteStore.Emote[];
-		for (const set of this.sets.values()) {
-			emotes.push(...set.getEmotes().filter(e => !Array.isArray(providers) || providers.includes(e.provider)));
-		}
-
-		return emotes;
 	}
 }
 
@@ -164,6 +167,10 @@ export namespace EmoteStore {
 				}
 			}
 			return null;
+		}
+
+		deleteEmote(id: string): void {
+			this.emotes.delete(id);
 		}
 
 		/**

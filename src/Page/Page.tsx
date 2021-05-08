@@ -6,10 +6,6 @@ import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import 'src/Style/Style.scss';
 
-export const Page = {
-	EmoteStore: new EmoteStore()
-};
-
 export class PageScript {
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
@@ -17,6 +13,7 @@ export class PageScript {
 	tabCompletion = tabCompletion = new TabCompletion(this);
 
 	currentChannel = '';
+	currentChannelSet: EmoteStore.EmoteSet | null = null;
 
 	/**
 	 * The PageScript is the lower layer of the extension, it nests itself directly into the page
@@ -65,6 +62,7 @@ export class PageScript {
 
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
 				this.eIndex = null;
+				this.currentChannelSet = null;
 				switched(this.currentChannel = channelName);
 			});
 		}
@@ -75,10 +73,14 @@ export class PageScript {
 	whenEmoteSetIsAdded(data: EmoteStore.EmoteSet.Resolved): void {
 		const set = emoteStore.enableSet(data.name, data.emotes);
 
-		chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
-		chatListener.sendSystemMessage(`${set.getEmotes().map(e => e.name).join(', ')}`);
-		chatListener.listen();
-		tabCompletion.listen();
+		if (!page.currentChannelSet) {
+			chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
+			chatListener.sendSystemMessage(`${set.getEmotes().map(e => e.name).join(', ')}`);
+			chatListener.listen();
+			tabCompletion.listen();
+		}
+		page.currentChannelSet = set;
+		page.eIndex = null;
 	}
 
 	@PageScriptListener('InsertEmoteInChatInput')
@@ -87,6 +89,11 @@ export class PageScript {
 		const spacing = currentValue.length > 0 ? ' ' : '';
 
 		tabCompletion.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);
+	}
+
+	@PageScriptListener('SendSystemMessage')
+	whenUpperLayerSendsSystemMessage(message: string): void {
+		chatListener.sendSystemMessage(message);
 	}
 
 	private eIndex: {
@@ -103,7 +110,7 @@ export class PageScript {
 
 	getAllEmotes(): EmoteStore.Emote[] {
 		const emotes = [] as EmoteStore.Emote[];
-		for (const set of this.emoteStore.sets.values()) {
+		for (const set of emoteStore.sets.values()) {
 			emotes.push(...set.getEmotes());
 		}
 
@@ -125,6 +132,7 @@ let emoteStore: EmoteStore;
 let chatListener: ChatListener;
 let tabCompletion: TabCompletion;
 
+let page: PageScript;
 (() => {
-	const {} = new PageScript();
+	const { } = page = new PageScript();
 })();

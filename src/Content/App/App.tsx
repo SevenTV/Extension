@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, map, toArray } from 'rxjs/operators';
+import { catchError, concatAll, filter, map, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -11,12 +11,39 @@ import { asapScheduler, of, scheduled, Subject } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
+import { WebSocketAPI } from 'src/Global/WebSocket';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
 	mainComponent: MainComponent | null = null;
 
-	constructor() { }
+	constructor() {
+		// Listen for websocket dispatches
+		// Channel Emotes Update: the current channel's emotes are updated
+		api.ws.dispatch.pipe(
+			filter(msg => msg.t === 'CHANNEL_EMOTES_UPDATE'),
+		).subscribe({
+			next: async (msg: WebSocketAPI.Message<WebSocketAPI.MessageData.DispatchChannelEmotesUpdate>) => {
+				const set = emoteStore.sets.get(state.channel);
+				if (!set) {
+					return;
+				}
+
+				// Remove deleted emotes from set
+				if (msg.d.removed) {
+					const emote = set.getEmoteByID(msg.d.emote.id);
+
+					this.sendMessageDown('SendSystemMessage', `${msg.d.actor} removed the emote "${emote?.name}"`);
+					set.deleteEmote(msg.d.emote.id);
+				} else {
+					set.push([msg.d.emote], false);
+					this.sendMessageDown('SendSystemMessage', `${msg.d.actor} added the emote "${msg.d.emote?.name}"`);
+				}
+
+				this.sendMessageDown('EnableEmoteSet', set.resolve());
+			}
+		});
+	}
 
 	onInjected(): void {
 		// Once the extension injected itself into Twitch
@@ -60,6 +87,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			map(e => emoteStore.enableSet(data.channelName, e)),
 		).subscribe({
 			next: (set: EmoteStore.EmoteSet) => {
+				state.channel = data.channelName;
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 
 				// Connect to the WebSocket
@@ -110,6 +138,9 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	}
 }
 
+const state = {
+	channel: ''
+};
 
 const api = new API();
 const emoteStore = new EmoteStore();

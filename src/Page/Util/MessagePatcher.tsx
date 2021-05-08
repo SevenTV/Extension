@@ -2,9 +2,6 @@ import { PageScript } from 'src/Page/Page';
 import { Twitch } from 'src/Page/Util/Twitch';
 
 export class MessagePatcher {
-	static cachedEmotes = new Map<string, JSX.Element>();
-	static trash = document.createElement('trash');
-
 	constructor(
 		private page: PageScript,
 		private msg: Twitch.ChatMessage

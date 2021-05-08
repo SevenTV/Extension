@@ -38,6 +38,23 @@ export class API {
 		);
 	}
 
+	GetEmotesByIDList(list: string[]): Observable<DataStructure.Emote[]> {
+		return this.createRequest<{ data: { emotes: DataStructure.Emote[] } }>('/gql', {
+			body: {
+				query: `
+					{
+						emotes(list: [${list.map(s => `"${s}"`)}]) {
+							${defaultEmoteQuery}
+						}
+					}
+				`,
+				variables: {}
+			}
+		}).pipe(
+			map(res => res.body.data.emotes)
+		);
+	}
+
 	/**
 	 * Get 7TV global emotes
 	 *
@@ -105,6 +122,10 @@ export class API {
 		}).pipe(
 			map(res => res.body.data.third_party_emotes)
 		);
+	}
+
+	newWebSocket(tabId: number): WebSocketAPI {
+		return new WebSocketAPI(tabId);
 	}
 
 	createRequest<T>(route: string, options: Partial<API.CreateRequestOptions>): Observable<API.Response<T>> {

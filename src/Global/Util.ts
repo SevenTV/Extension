@@ -19,7 +19,14 @@ export function getRunningContext(): Context {
 	}
 }
 
-export function sendExtensionMessage(tag: string, data: any, callback?: ((response: any) => void)): void {
+export function sendExtensionMessage(tag: string, data: any, callback?: ((response: any) => void), tabId?: number): void {
+	if (typeof tabId === 'number') {
+		chrome.tabs.sendMessage(tabId, {
+			tag, data
+		}, callback);
+		return;
+	}
+
 	chrome.runtime.sendMessage({
 		tag,
 		data

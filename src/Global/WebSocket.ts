@@ -1,3 +1,4 @@
+import { DataStructure } from '@typings/typings/DataStructure';
 import { Subject, timer } from 'rxjs';
 import { map, take, takeWhile, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
@@ -15,11 +16,16 @@ export class WebSocketAPI {
 		return !!this.socket && this.socket.readyState === WebSocket.OPEN;
 	}
 	opened = new Subject<void>();
+	dispatch = new Subject<WebSocketAPI.Message>();
 
-	constructor() { }
+	constructor(private tabId?: number) {}
 
 	create(): void{
 		if (this.ctx === 'background') {
+			if (this.open) {
+				this.socket?.close(1000, 'Client is starting a new session');
+				this.socket = null;
+			}
 			const socket = this.socket = new WebSocket(this.connectionURL);
 
 			socket.onmessage = ev => this.onMessage(ev);
@@ -28,6 +34,12 @@ export class WebSocketAPI {
 		} else if (this.ctx === 'content') {
 			sendExtensionMessage('EditWebSocket', {
 				do: 'create'
+			});
+
+			chrome.runtime.onMessage.addListener((msg: ExtensionRuntimeMessage) => {
+				if (msg.tag === 'WebSocketDispatch') {
+					this.dispatch.next(msg.data);
+				}
 			});
 		}
 	}
@@ -42,11 +54,17 @@ export class WebSocketAPI {
 	}
 
 	private onMessage(ev: MessageEvent<string>): void {
-		const msg = JSON.parse(ev.data) as WebSocketAPI.Message;
+		let msg: WebSocketAPI.Message | undefined;
+		try {
+			msg = JSON.parse(ev.data);
+		} catch (e) {
+			Logger.Get().error(`couldn't parse incoming message, err=${e}`);
+		}
+		if (!msg) return undefined;
 
 		Logger.Get().info(`<WS> Receive -> op: ${msg.op} | length: ${ev.data.length}`);
 		switch (msg.op) {
-			case WebSocketAPI.Op.HELLO:
+			case WebSocketAPI.Op.HELLO: {
 				const d = msg.d as {
 					timestamp: string;
 					heartbeat_interval: number;
@@ -57,7 +75,11 @@ export class WebSocketAPI {
 					map(() => this.send('HEARTBEAT', {}))
 				).subscribe();
 				break;
-
+			}
+			case WebSocketAPI.Op.DISPATCH: {
+				sendExtensionMessage('WebSocketDispatch', msg, undefined, this.tabId);
+				break;
+			}
 			default:
 				break;
 		}
@@ -101,13 +123,33 @@ export class WebSocketAPI {
 			});
 		}
 	}
+
+	terminate(code = 1000): void {
+		if (this.ctx !== 'background') return undefined;
+
+		this.opened.complete();
+		this.dispatch.complete();
+
+		if (!!this.socket) {
+			this.socket.close(code);
+		}
+		Logger.Get().info(`<WS> Terminated (tab ${this.tabId})`);
+	}
 }
 
 export namespace WebSocketAPI {
-	export interface Message {
+	export interface Message<T = any> {
 		op: Op;
-		d: any;
+		d: T;
 		seq: number | null;
+		t: string | null;
+	}
+	export namespace MessageData {
+		export interface DispatchChannelEmotesUpdate {
+			emote: DataStructure.Emote;
+			removed: boolean;
+			actor: string;
+		}
 	}
 
 	export enum Op {
