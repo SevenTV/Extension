@@ -51,6 +51,8 @@ export class TabCompletion {
 		this.tab.index >= (entries.length - 1) ? this.tab.index = 0 : this.tab.index++;
 
 		const next = entries[this.tab.index];
+		if (!next) return undefined;
+
 		this.setInputValue(input.value.replace(currentWord, next));
 	}
 
