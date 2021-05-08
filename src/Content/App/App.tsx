@@ -18,6 +18,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	mainComponent: MainComponent | null = null;
 
 	constructor() {
+		app = this;
+
 		// Listen for websocket dispatches
 		// Channel Emotes Update: the current channel's emotes are updated
 		api.ws.dispatch.pipe(
@@ -70,17 +72,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		emitHook('onAppLoaded');
 	}
 
-	onAppLoaded(): void {
-		// Add emote list button
-		const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
-		if (!!buttons && !!buttons.lastChild) {
-			const last = buttons.lastChild;
-			const container = document.createElement('div');
-			last.insertBefore(container, last.lastChild ?? null);
-
-			ReactDOM.render(<EmoteMenuButton main={this.mainComponent} />, container);
-		}
-	}
+	onAppLoaded(): void { }
 
 	@PageScriptListener('SwitchChannel')
 	whenTheChannelSwitches(data: { channelName: string; }): void {
@@ -101,6 +93,18 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 				// Connect to the WebSocket
 				api.ws.create();
+
+				// Add emote list button
+				const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
+				if (!!buttons && !!buttons.lastChild) {
+					const last = buttons.lastChild;
+					const container = document.createElement('div');
+					last.insertBefore(container, last.lastChild ?? null);
+
+					if (!!app) {
+						ReactDOM.render(<EmoteMenuButton main={app.mainComponent} />, container);
+					}
+				}
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
@@ -145,6 +149,7 @@ const state = {
 	channel: ''
 };
 
+let app: App | null = null;
 const api = new API();
 const emoteStore = new EmoteStore();
 export const onMessageUnrender = new Subject<string>();
