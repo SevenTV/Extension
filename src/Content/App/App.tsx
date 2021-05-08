@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, filter, map, tap, toArray } from 'rxjs/operators';
+import { catchError, concatAll, filter, map, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -43,6 +43,15 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 			}
 		});
+
+		api.ws.opened.pipe(
+			map(() => api.ws.send('SUBSCRIBE', {
+				type: 1,
+				params: {
+					channel: state.channel
+				}
+			}))
+		).subscribe();
 	}
 
 	onInjected(): void {
@@ -92,12 +101,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 				// Connect to the WebSocket
 				api.ws.create();
-				api.ws.send('SUBSCRIBE', {
-					type: 1,
-					params: {
-						channel: data.channelName
-					}
-				});
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);

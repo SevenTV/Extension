@@ -5,12 +5,13 @@ import { Config } from 'src/Config';
 import { ExtensionRuntimeMessage, getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
 
-
+const BACKOFF_MULTIPLIER = 1.47;
 export class WebSocketAPI {
 	ctx = getRunningContext();
 
 	private connectionURL = `${Config.secure ? 'wss' : 'ws'}:${Config.apiUrl}/v2/ws`;
 	private socket: WebSocket | null = null;
+	private currentBackoff = 1000;
 
 	get open(): boolean {
 		return !!this.socket && this.socket.readyState === WebSocket.OPEN;
@@ -18,9 +19,9 @@ export class WebSocketAPI {
 	opened = new Subject<void>();
 	dispatch = new Subject<WebSocketAPI.Message>();
 
-	constructor(private tabId?: number) {}
+	constructor(private tabId?: number) { }
 
-	create(): void{
+	create(): void {
 		if (this.ctx === 'background') {
 			if (this.open) {
 				this.socket?.close(1000, 'Client is starting a new session');
@@ -40,6 +41,13 @@ export class WebSocketAPI {
 				if (msg.tag === 'WebSocketDispatch') {
 					this.dispatch.next(msg.data);
 				}
+				if (msg.tag === 'WebSocketState') {
+					switch (msg.data.state) {
+						case 'open':
+							this.opened.next(undefined);
+							break;
+					}
+				}
 			});
 		}
 	}
@@ -47,10 +55,20 @@ export class WebSocketAPI {
 	private onOpen(): void {
 		Logger.Get().info(`<WS> Connected to ${this.connectionURL}`);
 		this.opened.next(undefined);
+		sendExtensionMessage('WebSocketState', { state: 'open' }, undefined, this.tabId);
 	}
 
 	private onClose(ev: CloseEvent): void {
 		Logger.Get().info(`<WS> Connection closed (${ev.code}${!!ev.reason ? ` ${ev.reason}` : ''})`);
+
+		if (ev.code !== 1000 && ev.reason !== 'Unknown User') {
+			Logger.Get().debug(`<WS> Trying to reconnect in ${(this.currentBackoff / 1000).toFixed(1)}s`);
+
+			setTimeout(() => {
+				this.currentBackoff *= BACKOFF_MULTIPLIER;
+				this.create();
+			}, this.currentBackoff);
+		}
 	}
 
 	private onMessage(ev: MessageEvent<string>): void {
@@ -110,6 +128,7 @@ export class WebSocketAPI {
 					return;
 				}
 
+				Logger.Get().info(`<WS> Send -> op: ${op}`);
 				this.socket.send(JSON.stringify({
 					op: WebSocketAPI.Op[op],
 					d: data
