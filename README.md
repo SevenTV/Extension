@@ -36,7 +36,7 @@ The browser extension is currently available on Chromium-based browsers (Google 
 
 #### Mozilla Firefox (Firefox Add-Ons)
 
-Awaiting approval.
+[Download here](https://addons.mozilla.org/en-US/firefox/addon/7tv/)
 
 #### Mozilla Firefox (Manual Install)
 
