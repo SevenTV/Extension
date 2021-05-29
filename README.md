@@ -34,6 +34,10 @@ The browser extension is currently available on Chromium-based browsers (Google 
 1. Click "Load unpacked" and select the "7tv-extension" folder
 1. The extension should now be enabled
 
+#### Mozilla Firefox (Firefox Add-Ons)
+
+Awaiting approval.
+
 #### Mozilla Firefox (Manual Install)
 
 1. Download the latest build from the [releases page]()
@@ -47,6 +51,16 @@ The browser extension is currently available on Chromium-based browsers (Google 
 
 Chatterino support for 7TV is coming soon. It will be available through our own [fork of chatterino](https://github.com/SevenTV/chatterino7) for updates
 
+### Building
+
+Pre-requisites:
+- NPM / Node.JS installed
+
+1. Clone this repo
+1. Run `npm install`
+1. Build the project using `npm run build` or `npm run build-production`
+1. Built files will be in the `dist/` folder
+
 ### How to host your own server / change your channel's server
 
 To automatically import emotes from a custom server, add this tag into your [Twitch Profile Bio](https://dashboard.twitch.tv/u/settings/channel#profile-settings):
@@ -54,6 +68,7 @@ To automatically import emotes from a custom server, add this tag into your [Twi
 `EmoteServer=<url to your server>`
 
 If this is correct and the server is online, the extension will automatically connect to it. Otherwise it'll connect to the default server instead.
+
 
 #### Hosting your own server
 
@@ -66,13 +81,3 @@ This guide outlines how to set up a simple single-node emote server
 * A MongoDB Database
 
 Guide is coming soon.
-
-### Contributing
-
-Contributions to this project are welcome
-
-#### Browser Extension
-
-#### API
-
-#### Web App
