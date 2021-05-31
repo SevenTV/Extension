@@ -86,7 +86,6 @@ export namespace EmoteComponent {
 
 		.emote-name {
 			width: 100%;
-			margin-bottom: 6px;
 		}
 
 		.emote-submitter {
