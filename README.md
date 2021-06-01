@@ -3,14 +3,17 @@ A third-party emote extension for Twitch
 
 ### Features
 
-* Hundreds of emote slots
+* Up to 200 emote slots per channel
 * Support for wide emotes, animated emotes and animated wide emotes
-* Support for self-hosted emote servers
-* No more emote censorship PagMan
+* Greater creative support for emote artists
+* WEBP Compression (Super-light file sizes!)
+* Less opinionated, free and open-source
+* Adding or removing emotes in chat updates instantly for everyone
+* Integrates and supports other popular emote extensions
 
 ### Yeah but this is a third party thing and idk
 
-7TV is a less opinionated emote extension for Twitch, offering more creative freedom for emote artists and decentralization capabilities. This project was originally started as a reaction to the unfair removal of certain emotes by the developers of other extensions.
+7TV is a less opinionated emote extension for Twitch, offering more creative freedom for emote artists and many extra features. This project was originally started as a personal work experience project, as a reaction to the unfair removal of certain emotes by the developers of other extensions but has since become a fully maintained service.
 
 Currently this project is made up of 3 components
 
@@ -61,23 +64,8 @@ Pre-requisites:
 1. Build the project using `npm run build` or `npm run build-production`
 1. Built files will be in the `dist/` folder
 
-### How to host your own server / change your channel's server
+### Future plans
 
-To automatically import emotes from a custom server, add this tag into your [Twitch Profile Bio](https://dashboard.twitch.tv/u/settings/channel#profile-settings):
-
-`EmoteServer=<url to your server>`
-
-If this is correct and the server is online, the extension will automatically connect to it. Otherwise it'll connect to the default server instead.
-
-
-#### Hosting your own server
-
-This guide outlines how to set up a simple single-node emote server
-
-###### Pre-requisites
-
-* A Amazon S3 bucket (or from a different service which supports AWS S3 API, such as DigitalOcean Spaces)
-* A Redis Instance (for scaling and data consistency purposes)
-* A MongoDB Database
-
-Guide is coming soon.
+* Self-hosted servers
+* More features beyond just chat emotes
+* Support other streaming platforms such as a YouTube
