@@ -15,14 +15,13 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 
 	render() {
 		return (
-			<EmoteComponent.Container className='7tv-emote' onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
+			<EmoteComponent.Container style={{ minWidth: this.props.emote.width[0], minHeight: this.props.emote.height[0] }} className='7tv-emote' onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
 					<EmoteComponent.Style
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
 						<EmoteComponent.Img
 							alt={this.props.emote.name}
-							width={this.props.emote.width[0]}
 							className={'chat-image chat-line__message--emote' + (this.isEmoji ? ' emoji' : '')}
 							src={this.props.emote.cdn('1')} />
 					</EmoteComponent.Style>

@@ -179,12 +179,14 @@ export namespace API {
 }
 
 const defaultEmoteQuery = `
-	id,
-	name,
-	provider,
-	provider_id,
-	visibility,
-	mime,
+	id
+	name
+	provider
+	provider_id
+	visibility
+	mime
+	width
+	height
 	owner {
 		id, display_name, login, twitch_id
 		role {
