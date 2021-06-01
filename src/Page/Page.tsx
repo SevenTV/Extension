@@ -75,7 +75,6 @@ export class PageScript {
 			}
 		}, 500);
 
-		switched(this.currentChannel, service.props.currentUserLogin);
 		this.chatListener.start();
 	}
 
