@@ -7,10 +7,15 @@ import twemoji from 'twemoji';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
+import { Observable } from 'rxjs';
+import request from 'superagent';
+import { getRunningContext } from 'src/Global/Util';
 
 const TWITCH_SET_NAME = 'twitch';
 const EMOJI_SET_NAME = 'emoji';
 export class EmoteStore {
+	ctx = getRunningContext();
+
 	size = 0;
 	private cachedElements = new Map<string, JSX.Element>();
 	sets = new Map<string, EmoteStore.EmoteSet>();
@@ -90,10 +95,23 @@ export class EmoteStore {
 			mime: '',
 			status: Constants.Emotes.Status.LIVE,
 			provider: 'EMOJI',
+			width: [19.5],
+			height: [19.5],
 			urls
 		}]);
 
 		return set.getEmoteByID(emoji?.unified ?? fallback) as EmoteStore.Emote;
+	}
+
+	defineSets(data: EmoteStore.EmoteSet.Resolved[]): void {
+		this.sets.clear();
+		for (const s of data) {
+			const set = new EmoteStore.EmoteSet(s.name).push(s.emotes);
+
+			this.sets.set(set.name, set);
+		}
+
+		return undefined;
 	}
 
 	/**
@@ -112,6 +130,31 @@ export class EmoteStore {
 		this.sets.set(set.name, set);
 		Logger.Get().debug(`Enabled emote set: ${name} (${emotes.length} emotes)`);
 		return set;
+	}
+
+	/**
+	 * Disable an emote set
+	 *
+	 * @param name the name of the set to disable
+	 * @returns nothing LULW
+	 */
+	disableSet(name: string): void {
+		if (!this.sets.has(name)) {
+			return undefined;
+		}
+
+		this.sets.delete(name);
+		return undefined;
+	}
+
+	resolve(): EmoteStore.EmoteSet.Resolved[] {
+		const result = [] as EmoteStore.EmoteSet.Resolved[];
+
+		for (const set of this.sets.values()) {
+			result.push(set.resolve());
+		}
+
+		return result;
 	}
 }
 
@@ -197,6 +240,8 @@ export namespace EmoteStore {
 		name = '';
 		mime = '';
 		tags = [] as string[];
+		width = [] as number[];
+		height = [] as number[];
 		visibility: DataStructure.Emote.Visibility = 0;
 		owner: Partial<DataStructure.TwitchUser> | null = null;
 		provider: DataStructure.Emote.Provider = '7TV';
@@ -208,6 +253,8 @@ export namespace EmoteStore {
 			this.mime = data.mime ?? '';
 			this.visibility = data.visibility ?? 0;
 			this.provider = data.provider ?? '7TV';
+			this.width = data.width ?? [];
+			this.height = data.height ?? [];
 			if (!!data.owner) {
 				this.owner = data.owner;
 			}
@@ -230,6 +277,31 @@ export namespace EmoteStore {
 				default:
 					return url[1];
 			}
+		}
+
+		fetchData(): Observable<Uint8Array> {
+			return new Observable<Uint8Array>(observer => {
+				// testing
+				request(this.cdn('1'),)
+					.responseType('blob')
+					.send().then(res => {
+						const d = new TextEncoder().encode(res.body);
+						const u = `data:application/octet-stream,${encodeURIComponent(res.text)}`;
+						console.log(u);
+
+						const blob = new Blob([d], { type: 'image/webp' });
+						const reader = new FileReader();
+						reader.addEventListener('loadend', _ => {
+							const content = reader.result;
+
+							console.log('Content:', content);
+						});
+						reader.readAsDataURL(blob);
+
+						observer.next(d);
+						observer.complete();
+					});
+			});
 		}
 
 		/**

@@ -22,10 +22,8 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 					>
 						<EmoteComponent.Img
 							alt={this.props.emote.name}
-							width={this.props.maxSize?.[0]}
-							height={this.props.maxSize?.[1]}
-							style={{ maxHeight: 32 }}
-							className={'chat-image chat-line__message--emote' + (this.props.emote.provider === 'EMOJI' ? ' emoji' : '')}
+							width={this.props.emote.width[0]}
+							className={'chat-image chat-line__message--emote' + (this.isEmoji ? ' emoji' : '')}
 							src={this.props.emote.cdn('1')} />
 					</EmoteComponent.Style>
 			</EmoteComponent.Container>
@@ -38,6 +36,10 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 
 	onMouseEvent(hover: boolean, event: React.MouseEvent): void {
 		Main.ShowTooltip.next({ event, emote: this, hover });
+	}
+
+	get isEmoji(): boolean {
+		return this.props.emote.provider === 'EMOJI';
 	}
 
 	openDetails(ev: React.MouseEvent) {
@@ -69,8 +71,6 @@ export namespace EmoteComponent {
 
 	export const Container = styled.div`
 		display: inline-block;
-		padding-bottom: 4px;
-		padding-top: 4px;
 	`;
 
 	export const Style = styled.div`
@@ -78,7 +78,6 @@ export namespace EmoteComponent {
 	`;
 
 	export const Img = styled.img`
-
 	`;
 
 	export const Details = styled.div`
