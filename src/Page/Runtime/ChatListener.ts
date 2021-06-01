@@ -16,7 +16,7 @@ export class ChatListener {
 	linesRendered = 0;
 
 	constructor(private page: PageScript) {
-		// (window as any).twitch = this.twitch;
+		(window as any).twitch = this.twitch;
 	}
 
 	start(): void {

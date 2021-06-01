@@ -38,6 +38,16 @@ export class Twitch {
 		}
 	}
 
+	getRouter(): Twitch.RouterComponent {
+		const node = this.findReactChildren(
+			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ROOT)[0]),
+			n => n.stateNode?.props?.match?.isExact === true,
+			1000
+		);
+
+		return node?.stateNode;
+	}
+
 	getChatService(): Twitch.ChatServiceComponent {
 		const node = this.findReactChildren(
 			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ROOT)[0]),
@@ -203,6 +213,15 @@ export namespace Twitch {
 			show: Function; showRich: Function; hide: Function;
 		}
 		useHighContrastColors: boolean;
+	}>;
+
+	export type RouterComponent = React.PureComponent<{
+		isExact: boolean;
+		params: {
+			channel: string;
+		};
+		path: string;
+		url: string;
 	}>;
 
 	export type ChatServiceComponent = React.PureComponent<{

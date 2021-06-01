@@ -11,7 +11,6 @@ const config = {
     page: path.join(__dirname, 'src/Page/Page.tsx')
   },
   output: { path: path.join(__dirname, 'dist'), filename: '[name].js' },
-  node: false,
   module: {
     rules: [
       {

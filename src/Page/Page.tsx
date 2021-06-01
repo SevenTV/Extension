@@ -57,27 +57,30 @@ export class PageScript {
 		const switched = (ch: string, as: string) => this.sendMessageUp('SwitchChannel', { channelName: ch, as });
 
 		// Get chat service
-		const service = this.twitch.getChatService();
+		const service = this.twitch.getChatService() ?? this.twitch.getChatController();
 		if (!service) {
-			setTimeout(() => this.handleChannelSwitch(), 3000);
+			setTimeout(() => this.handleChannelSwitch(), 1000);
 			return undefined;
 		}
-		this.currentChannel = service.props.channelLogin; // Set current channel
+		let channelName = this.getCurrentChannelFromURL(); // Set current channel
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
-		if (!!service.service) {
-			service.service.client.events.joined(({ channel }) => {
-				const channelName = channel.replace('#', '');
-				if (channelName === this.currentChannel) return undefined;
-
+		setInterval(() => {
+			channelName = this.getCurrentChannelFromURL();
+			if (channelName !== this.currentChannel) {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
 				this.eIndex = null;
 				this.currentChannelSet = null;
-				switched(this.currentChannel = channelName, service.props.currentUserLogin);
-			});
-		}
+				switched(this.currentChannel = channelName, service.props.currentUserLogin ?? service.props.channelLogin);
+			}
+		}, 500);
+
 		switched(this.currentChannel, service.props.currentUserLogin);
 		this.chatListener.start();
+	}
+
+	getCurrentChannelFromURL(): string {
+		return window.location.href.match(this.channelRegex)?.[3] ?? '';
 	}
 
 	@PageScriptListener('EnableEmoteSet')
