@@ -94,17 +94,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 					}
 				});
 
-				// Add emote list button
-				const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
-				if (!!buttons && !!buttons.lastChild) {
-					const last = buttons.lastChild;
-					const container = document.createElement('div');
-					last.insertBefore(container, last.lastChild ?? null);
-
-					if (!!app) {
-						ReactDOM.render(<EmoteMenuButton main={app.mainComponent} />, container);
-					}
-				}
+				insertEmoteButton();
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
@@ -162,3 +152,28 @@ const api = new API();
 const emoteStore = new EmoteStore();
 export const onMessageUnrender = new Subject<string>();
 export const onChatScroll = new Subject<void>();
+
+const insertEmoteButton = (): void => {
+	// Add emote list button
+	const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
+	if (!!buttons && !!buttons.lastChild) {
+		const last = buttons.lastChild;
+		const container = document.createElement('div');
+		container.classList.add('seventv-emote-menu-button');
+
+		last.insertBefore(container, last.lastChild ?? null);
+
+		if (!!app) {
+			ReactDOM.render(<EmoteMenuButton main={app.mainComponent} />, container);
+		}
+
+		// Ensure the button doesn't get cucked by FFZ rerendering the entire chat window FeelsOkayMan
+		setTimeout(() => {
+			const hasButton = !!buttons?.getElementsByClassName('seventv-emote-menu-button').item(0);
+
+			if (!hasButton) {
+				insertEmoteButton();
+			}
+		}, 2500);
+	}
+};
