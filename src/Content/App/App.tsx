@@ -23,7 +23,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		// Listen for websocket dispatches
 		// Channel Emotes Update: the current channel's emotes are updated
 		api.ws.dispatch.pipe(
-			filter(msg => msg.t === 'CHANNEL_EMOTES_UPDATE'),
+			filter(msg => msg.t === 'CHANNEL_EMOTES_UPDATE' && msg.d.channel === state.channel),
 		).subscribe({
 			next: async (msg: WebSocketAPI.Message<WebSocketAPI.MessageData.DispatchChannelEmotesUpdate>) => {
 				const set = emoteStore.sets.get(state.channel);
@@ -45,15 +45,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 			}
 		});
-
-		api.ws.opened.pipe(
-			map(() => api.ws.send('SUBSCRIBE', {
-				type: 1,
-				params: {
-					channel: state.channel
-				}
-			}))
-		).subscribe();
 	}
 
 	onInjected(): void {
@@ -94,6 +85,14 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			next: (set: EmoteStore.EmoteSet) => {
 				state.channel = data.channelName;
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
+
+				api.ws.create();
+				api.ws.send('SUBSCRIBE', {
+					type: 1,
+					params: {
+						channel: state.channel
+					}
+				});
 
 				// Add emote list button
 				const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);

@@ -7,16 +7,32 @@ export class NavHandler {
 	private api = new API();
 	private loadedTabs = new Map<number, NavHandler.TabWithSocket>();
 
+	ws: WebSocketAPI | null = null;
+
 	constructor() {
+		setInterval(() => {
+			chrome.tabs.query({
+				url: '*://*.twitch.tv/*'
+			}, tabs => {
+				if (tabs.length > 0) {
+					return undefined;
+				}
+
+				// Terminate the websocket if user is no longer using Twitch.
+				this.ws?.close();
+			});
+		}, 30 * 1000);
+
 		chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+			if (!sender.tab) {
+				return undefined;
+			}
 			const tabId = sender.tab?.id ?? 0;
 			if (tabId === 0) return undefined;
-			const tab = this.loadedTabs.get(tabId);
 
 			// Listen for tabs being unloaded
 			if (msg.tag === 'Unload') {
 				this.loadedTabs.delete(tabId);
-				tab?.socket?.terminate();
 				Logger.Get().info(`Unloaded tab ${tabId}`);
 				sendResponse('goodbye');
 			}
@@ -33,18 +49,18 @@ export class NavHandler {
 
 				switch (action) {
 					case 'create':
-						const socket = this.api.newWebSocket(tabId);
-						socket.create();
-
-						if (!!tab) {
-							tab.socket = socket;
+						const socket = this.ws ?? this.api.newWebSocket();
+						if (socket.closed) {
+							socket.create();
+							this.ws = socket;
 						}
+
 						break;
 					case 'send-message':
 						const d = msg.data.d;
 						const op = msg.data.op;
 
-						tab?.socket?.send(op, d);
+						this.ws?.send(op, d);
 						break;
 				}
 			}

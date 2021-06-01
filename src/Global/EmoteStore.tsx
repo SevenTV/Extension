@@ -7,8 +7,6 @@ import twemoji from 'twemoji';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
-import { Observable } from 'rxjs';
-import request from 'superagent';
 import { getRunningContext } from 'src/Global/Util';
 
 const TWITCH_SET_NAME = 'twitch';
@@ -277,31 +275,6 @@ export namespace EmoteStore {
 				default:
 					return url[1];
 			}
-		}
-
-		fetchData(): Observable<Uint8Array> {
-			return new Observable<Uint8Array>(observer => {
-				// testing
-				request(this.cdn('1'),)
-					.responseType('blob')
-					.send().then(res => {
-						const d = new TextEncoder().encode(res.body);
-						const u = `data:application/octet-stream,${encodeURIComponent(res.text)}`;
-						console.log(u);
-
-						const blob = new Blob([d], { type: 'image/webp' });
-						const reader = new FileReader();
-						reader.addEventListener('loadend', _ => {
-							const content = reader.result;
-
-							console.log('Content:', content);
-						});
-						reader.readAsDataURL(blob);
-
-						observer.next(d);
-						observer.complete();
-					});
-			});
 		}
 
 		/**

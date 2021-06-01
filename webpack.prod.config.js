@@ -11,6 +11,7 @@ const config = {
     page: path.join(__dirname, 'src/Page/Page.tsx')
   },
   output: { path: path.join(__dirname, 'dist'), filename: '[name].js' },
+  node: false,
   module: {
     rules: [
       {
@@ -65,6 +66,7 @@ const config = {
       patterns: [{ from: 'public', to: '.' }],
     }),
     new DefinePlugin({
+      global: 'window',
 			__ENVIRONMENT__: JSON.stringify('production'),
       AppMeta: JSON.stringify({ version: 1 })
     }),

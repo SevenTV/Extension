@@ -33,6 +33,14 @@ export function sendExtensionMessage(tag: string, data: any, callback?: ((respon
 	}, callback);
 }
 
+export function broadcastExtensionMessage(tag: string, data: any, callback?: ((response: any) => void)): void {
+	chrome.tabs.query({ url: '*://*.twitch.tv/*' }, tabs => {
+		for (const tab of tabs) {
+			sendExtensionMessage(tag, data, callback, tab.id);
+		}
+	});
+}
+
 type Context = 'background' | 'content' | 'page';
 
 export interface ExtensionRuntimeMessage<T = any> {

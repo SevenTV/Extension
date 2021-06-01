@@ -124,8 +124,8 @@ export class API {
 		);
 	}
 
-	newWebSocket(tabId: number): WebSocketAPI {
-		return new WebSocketAPI(tabId);
+	newWebSocket(): WebSocketAPI {
+		return new WebSocketAPI();
 	}
 
 	createRequest<T>(route: string, options: Partial<API.CreateRequestOptions>): Observable<API.Response<T>> {

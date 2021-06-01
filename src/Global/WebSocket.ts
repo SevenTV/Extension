@@ -1,8 +1,8 @@
 import { DataStructure } from '@typings/typings/DataStructure';
-import { Subject, timer } from 'rxjs';
-import { map, take, takeWhile, tap } from 'rxjs/operators';
+import { BehaviorSubject, Subject, timer } from 'rxjs';
+import { filter, map, take, takeWhile, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
-import { ExtensionRuntimeMessage, getRunningContext, sendExtensionMessage } from 'src/Global/Util';
+import { broadcastExtensionMessage, ExtensionRuntimeMessage, getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
 
 const BACKOFF_MULTIPLIER = 1.47;
@@ -16,10 +16,12 @@ export class WebSocketAPI {
 	get open(): boolean {
 		return !!this.socket && this.socket.readyState === WebSocket.OPEN;
 	}
-	opened = new Subject<void>();
+	opened = new BehaviorSubject<boolean>(false);
 	dispatch = new Subject<WebSocketAPI.Message>();
 
-	constructor(private tabId?: number) { }
+	closed = true;
+
+	constructor() { }
 
 	create(): void {
 		if (this.ctx === 'background') {
@@ -44,7 +46,7 @@ export class WebSocketAPI {
 				if (msg.tag === 'WebSocketState') {
 					switch (msg.data.state) {
 						case 'open':
-							this.opened.next(undefined);
+							this.opened.next(true);
 							break;
 					}
 				}
@@ -54,12 +56,13 @@ export class WebSocketAPI {
 
 	private onOpen(): void {
 		Logger.Get().info(`<WS> Connected to ${this.connectionURL}`);
-		this.opened.next(undefined);
-		sendExtensionMessage('WebSocketState', { state: 'open' }, undefined, this.tabId);
+		this.opened.next(true);
+		broadcastExtensionMessage('WebSocketState', { state: 'open' }, undefined);
 	}
 
 	private onClose(ev: CloseEvent): void {
 		Logger.Get().info(`<WS> Connection closed (${ev.code}${!!ev.reason ? ` ${ev.reason}` : ''})`);
+		this.closed = true;
 
 		if (ev.code !== 1000 && ev.reason !== 'Unknown User') {
 			Logger.Get().debug(`<WS> Trying to reconnect in ${(this.currentBackoff / 1000).toFixed(1)}s`);
@@ -95,7 +98,7 @@ export class WebSocketAPI {
 				break;
 			}
 			case WebSocketAPI.Op.DISPATCH: {
-				sendExtensionMessage('WebSocketDispatch', msg, undefined, this.tabId);
+				broadcastExtensionMessage('WebSocketDispatch', msg, undefined);
 				break;
 			}
 			default:
@@ -110,6 +113,7 @@ export class WebSocketAPI {
 		}
 
 		this.opened.pipe(
+			filter(open => open === true),
 			take(1),
 			tap(() => cb())
 		).subscribe();
@@ -143,16 +147,13 @@ export class WebSocketAPI {
 		}
 	}
 
-	terminate(code = 1000): void {
+	close(code = 1000): void {
 		if (this.ctx !== 'background') return undefined;
-
-		this.opened.complete();
-		this.dispatch.complete();
 
 		if (!!this.socket) {
 			this.socket.close(code);
 		}
-		Logger.Get().info(`<WS> Terminated (tab ${this.tabId})`);
+		Logger.Get().info(`<WS> Terminated WebSocket.`);
 	}
 }
 
