@@ -56,10 +56,10 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 	 *
 	 * @param bounds the position at which the menu should appear
 	 */
-	toggleEmoteMenu(bounds: DOMRect | undefined): void {
+	toggleEmoteMenu(bounds: DOMRect | undefined, forceState?: boolean): void {
 		this.setState({
 			emoteMenu: {
-				open: !this.state?.emoteMenu.open,
+				open: typeof forceState !== 'boolean' ? !this.state?.emoteMenu.open : forceState,
 				bounds
 			}
 		});

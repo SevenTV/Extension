@@ -51,7 +51,7 @@ export class MessageRenderer {
 			if (type === 'text') {
 				let text = content as string;
 				let currentText = [] as string[];
-				// Scan for first party or other third party emotes
+
 				const createSpan = (text: string): JSX.Element => (<span style={{ color, wordWrap: 'break-word' }} className='text-fragment 7tv-txf'> {text} </span>);
 				for (let i = 0; i < words.length; ++i) {
 					const word = words[i];

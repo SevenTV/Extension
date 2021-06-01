@@ -43,7 +43,7 @@ export class MessageBody extends React.PureComponent<MessageBody.Props, MessageB
 					for (const emoji of Array.from(emojis)) {
 						const emoteji = this.props.renderer.app.emotes.fromEmoji(emoji);
 
-						const jsx = <EmoteComponent provider='Emoji' emote={emoteji} maxSize={[19.5, 19.5]} />;
+						const jsx = <EmoteComponent provider='Emoji' emote={emoteji}/>;
 						const emojiContainer = document.createElement('span');
 						ReactDOM.render(jsx, emojiContainer);
 

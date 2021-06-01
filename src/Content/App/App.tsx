@@ -64,7 +64,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		app.id = 'seventv';
 
 		const target = document.getElementById('root');
-		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} />, app) as unknown as MainComponent;
+		this.mainComponent = mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} />, app) as unknown as MainComponent;
 		this.mainComponent.app = this;
 
 		target?.firstChild?.appendChild(app);
@@ -76,6 +76,10 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	@PageScriptListener('SwitchChannel')
 	whenTheChannelSwitches(data: { channelName: string; }): void {
+		emoteStore.disableSet(state.channel);
+		mainComponent?.toggleEmoteMenu(undefined, false);
+		this.sendMessageDown('DisableEmoteSet', state.channel);
+
 		scheduled([
 			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
 			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
@@ -90,9 +94,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			next: (set: EmoteStore.EmoteSet) => {
 				state.channel = data.channelName;
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
-
-				// Connect to the WebSocket
-				api.ws.create();
 
 				// Add emote list button
 				const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
@@ -131,6 +132,13 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	}
 
 	/**
+	 * Synchronize the emote sets with the pagescript
+	 */
+	sync(): void {
+		this.sendMessageDown('SyncEmoteStore', emoteStore.resolve());
+	}
+
+	/**
 	 * Send a message to the page script layer
 	 *
 	 * @param tag the event tag
@@ -150,6 +158,7 @@ const state = {
 };
 
 let app: App | null = null;
+let mainComponent: MainComponent | undefined;
 const api = new API();
 const emoteStore = new EmoteStore();
 export const onMessageUnrender = new Subject<string>();

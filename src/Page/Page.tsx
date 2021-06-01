@@ -82,6 +82,11 @@ export class PageScript {
 		page.eIndex = null;
 	}
 
+	@PageScriptListener('DisableEmoteSet')
+	whenEmoteSetIsRemoved(name: string): void {
+		emoteStore.disableSet(name);
+	}
+
 	@PageScriptListener('InsertEmoteInChatInput')
 	whenUserInsertsEmoteFromEmoteMenu(emoteName: string): void {
 		const currentValue = tabCompletion.getInput().value ?? '';
