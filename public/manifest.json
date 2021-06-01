@@ -11,6 +11,12 @@
 			"background.js"
 		]
 	},
+	"content_scripts": [
+		{
+			"file": "content.js",
+			"runAt": "document_start"
+		}
+	],
 	"web_accessible_resources": [
 		"page.js",
 		"styles/Style.css",
