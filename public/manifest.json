@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "7TV",
 	"description": "A third party emote extension for Twitch",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"page_action": {
 		"default_icon": "icon128.png"
 	},
@@ -13,7 +13,8 @@
 	},
 	"content_scripts": [
 		{
-			"file": "content.js",
+			"matches": ["*://*.twitch.tv/*"],
+			"js": ["content.js"],
 			"runAt": "document_start"
 		}
 	],
