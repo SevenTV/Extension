@@ -3,7 +3,6 @@ import { WebSocketAPI } from 'src/Global/WebSocket';
 import { Logger } from 'src/Logger';
 
 export class NavHandler {
-	// private channelURL = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
 	private api = new API();
 	private loadedTabs = new Map<number, NavHandler.TabWithSocket>();
 
