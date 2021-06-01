@@ -207,6 +207,7 @@ export namespace Twitch {
 
 	export type ChatServiceComponent = React.PureComponent<{
 		authToken: string;
+		currentUserLogin: string;
 		channelLogin: string;
 		channelID: string;
 	}> & {

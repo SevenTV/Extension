@@ -66,10 +66,11 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	onAppLoaded(): void { }
 
 	@PageScriptListener('SwitchChannel')
-	whenTheChannelSwitches(data: { channelName: string; }): void {
+	whenTheChannelSwitches(data: { channelName: string; as: string; }): void {
 		emoteStore.disableSet(state.channel);
 		mainComponent?.toggleEmoteMenu(undefined, false);
 		this.sendMessageDown('DisableEmoteSet', state.channel);
+		this.sendMessageDown('DisableEmoteSet', data.as);
 
 		scheduled([
 			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),

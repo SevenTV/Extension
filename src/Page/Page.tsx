@@ -16,7 +16,6 @@ export class PageScript {
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
 
 	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
-	handling = false;
 
 	/**
 	 * The PageScript is the lower layer of the extension, it nests itself directly into the page
@@ -49,24 +48,20 @@ export class PageScript {
 	 * the user is currently watching.
 	 */
 	private handleChannelSwitch(): void {
-		console.log(window.location);
-		if (this.handling) return undefined;
 		if (!this.channelRegex.test(window.location.href)) {
 			setTimeout(() => this.handleChannelSwitch(), 1000);
 			return undefined;
 		}
 		if (this.currentChannel != '') throw new Error('Already listening for channel switches');
-		this.handling = true;
 
-		const switched = (ch: string) => this.sendMessageUp('SwitchChannel', { channelName: ch });
+		const switched = (ch: string, as: string) => this.sendMessageUp('SwitchChannel', { channelName: ch, as });
 
 		// Get chat service
-		const service = this.twitch.getChatService() ?? this.twitch.getChatController()?.props;
+		const service = this.twitch.getChatService();
 		if (!service) {
 			setTimeout(() => this.handleChannelSwitch(), 3000);
 			return undefined;
 		}
-
 		this.currentChannel = service.props.channelLogin; // Set current channel
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
@@ -78,10 +73,10 @@ export class PageScript {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
 				this.eIndex = null;
 				this.currentChannelSet = null;
-				switched(this.currentChannel = channelName);
+				switched(this.currentChannel = channelName, service.props.currentUserLogin);
 			});
 		}
-		switched(this.currentChannel);
+		switched(this.currentChannel, service.props.currentUserLogin);
 		this.chatListener.start();
 	}
 
