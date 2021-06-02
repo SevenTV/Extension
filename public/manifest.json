@@ -24,8 +24,7 @@
 		"image/*.webp"
 	],
 	"permissions": [
-		"*://*.twitch.tv/*",
-		"storage", "unlimitedStorage"
+		"*://*.twitch.tv/*"
 	],
 	"icons": {
 		"16": "icon16.png",
