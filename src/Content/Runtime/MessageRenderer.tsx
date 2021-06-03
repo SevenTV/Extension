@@ -28,7 +28,6 @@ export class MessageRenderer {
 		// Delete previous message context if it exists
 		const currentContext = el.querySelectorAll('.seventv-message-context');
 		currentContext.forEach(c => {
-			el.removeChild(c);
 			c.remove();
 		});
 

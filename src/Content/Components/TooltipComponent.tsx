@@ -106,6 +106,7 @@ export namespace TooltipComponent {
 			width: 100%;
 			margin-bottom: 1px;
 			word-wrap: break-word;
+			color: currentColor;
 		}
 
 		.emote-submitter {

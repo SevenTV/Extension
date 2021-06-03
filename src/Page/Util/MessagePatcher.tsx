@@ -82,6 +82,7 @@ export class MessagePatcher {
 		for (const oldFrag of oldFragments) {
 			oldFrag.setAttribute('superceded', '');
 			oldFrag.style.display = 'none';
+			oldFrag.remove();
 		}
 
 		// Render 7TV third party stuff (and idk...)

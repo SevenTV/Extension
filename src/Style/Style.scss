@@ -25,3 +25,13 @@
 .seventv-mention {
 	font-weight: bold;
 }
+
+.seventv-emote-menu {
+	.seventv-emote-menu-header {
+		background-color: var(--color-background-body)
+	}
+
+	.seventv-emote-menu-scrollable {
+		background-color: var(--color-background-base);
+	}
+}

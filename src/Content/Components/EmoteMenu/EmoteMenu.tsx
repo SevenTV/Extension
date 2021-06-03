@@ -2,7 +2,7 @@ import React from 'react';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { Colors, getProviderLogo } from 'src/Global/Util';
+import { getProviderLogo } from 'src/Global/Util';
 import { DataStructure } from '@typings/typings/DataStructure';
 import styled from 'styled-components';
 import BaseButton from '@material-ui/core/ButtonBase';
@@ -29,10 +29,10 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 
 	render(): React.ReactNode {
 		return (
-			<EmoteMenu.Styled ref={this.ref} style={{ top: this.posY, left: this.posX }} className='seventv-clickable-overlay-child'>
+			<EmoteMenu.Styled ref={this.ref} style={{ top: this.posY, left: this.posX, maxWidth: window.innerWidth }} className='seventv-clickable-overlay-child seventv-emote-menu'>
 
 				{/* Provider Tabs*/}
-				<EmoteMenu.TabList >
+				<EmoteMenu.TabList className='seventv-emote-menu-header'>
 					{providers.map(p => (
 						<EmoteMenu.Tab className={this.state.provider === p ? 'selected' : ''} onClick={() => this.selectProvider(p)} key={`provider-${p}`}>
 							<img src={getProviderLogo(p)} />
@@ -41,7 +41,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 				</EmoteMenu.TabList>
 
 				{/* Scrollable Area */}
-				<EmoteMenu.Scrollable>
+				<EmoteMenu.Scrollable className='seventv-emote-menu-scrollable'>
 					{/* Render current emotes*/}
 					<EmoteMenu.EmoteListSection>
 						<h3>Channel Emotes</h3>
@@ -81,7 +81,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 	get posX(): number {
 		const offset = this.ref.current?.getBoundingClientRect().width ?? 0;
 
-		return (this.props.bounds?.left ?? 0) - (offset / 2) - 46;
+		return (this.props.bounds?.left ?? 0) - (offset / 2) - 64;
 	}
 
 	onInsertEmote(emote: EmoteStore.Emote): void {
@@ -121,7 +121,6 @@ export namespace EmoteMenu {
 
 	export const Styled = styled.div`
 		position: absolute;
-		background-color: ${Colors.Background.darken(.2).hex()};
 	`;
 
 	export const Scrollable = styled.div`
@@ -130,14 +129,12 @@ export namespace EmoteMenu {
 		width: 320px;
 		height: 400px;
 		overflow: auto;
-		background-color: ${Colors.Background.hex()};
 	`;
 
 	export const TabList = styled.div`
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
-		background-color: ${Colors.Background.darken(.2).hex()};
 		border-radius: 4px;
 	`;
 
