@@ -78,7 +78,7 @@ export class MessagePatcher {
 	 */
 	render(line: Twitch.ChatLineAndComponent): void {
 		// Hide twitch fragments
-		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, img.chat-line__message--emote'));
+		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote'));
 		for (const oldFrag of oldFragments) {
 			oldFrag.setAttribute('superceded', '');
 			oldFrag.style.display = 'none';
