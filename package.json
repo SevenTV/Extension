@@ -59,6 +59,7 @@
     "react-is": "^17.0.2",
     "react-lazyload": "^3.2.0",
     "rxjs": "^6.6.3",
+    "seventv-lib": "git+https://github.com/SevenTV/Typings.git",
     "styled-components": "^5.2.1",
     "superagent": "^6.1.0",
     "twemoji": "^13.0.2"
