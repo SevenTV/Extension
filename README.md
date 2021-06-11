@@ -3,7 +3,7 @@ A third-party emote extension for Twitch
 
 ### Features
 
-* Up to 200 emote slots per channel
+* 200 free emote slots per channel
 * Support for wide emotes, animated emotes and animated wide emotes
 * Greater creative support for emote artists
 * WEBP Compression (Super-light file sizes!)
@@ -52,7 +52,7 @@ The browser extension is currently available on Chromium-based browsers (Google 
 
 #### Chatterino
 
-Chatterino support for 7TV is coming soon. It will be available through our own [fork of chatterino](https://github.com/SevenTV/chatterino7) for updates
+Download the [Chatterino7 fork](https://github.com/SevenTV/chatterino7). 7TV is not a part of the official Chatterino2 release at this time.
 
 ### Building
 
@@ -60,6 +60,7 @@ Pre-requisites:
 - NPM / Node.JS installed
 
 1. Clone this repo
+1. Navigate to the repo `cd ./SevenTV` and clone the shared typings repository: `git clone git@github.com:SevenTV/Typings.git`
 1. Run `npm install`
 1. Build the project using `npm run build` or `npm run build-production`
 1. Built files will be in the `dist/` folder
