@@ -15,7 +15,7 @@ export class PageScript {
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
 
-	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{4,25})/;
+	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
 
 	/**
 	 * The PageScript is the lower layer of the extension, it nests itself directly into the page
