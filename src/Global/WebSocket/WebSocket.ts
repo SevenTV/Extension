@@ -40,22 +40,24 @@ export class WebSocketAPI {
 				do: 'create'
 			});
 
-			chrome.runtime.onMessage.addListener((msg: ExtensionRuntimeMessage) => {
-				if (msg.tag === 'WebSocketDispatch') {
-					this.dispatch.next(msg.data);
-				}
-				if (msg.tag === 'WebSocketState') {
-					switch (msg.data.state) {
-						case 'open':
-							this.opened.next(true);
-							this.closed.next(false);
-							break;
-						case 'close':
-							this.closed.next(true);
-							this.opened.next(false);
+			if (!this.opened.getValue()) {
+				chrome.runtime.onMessage.addListener((msg: ExtensionRuntimeMessage) => {
+					if (msg.tag === 'WebSocketDispatch') {
+						this.dispatch.next(msg.data);
 					}
-				}
-			});
+					if (msg.tag === 'WebSocketState') {
+						switch (msg.data.state) {
+							case 'open':
+								this.opened.next(true);
+								this.closed.next(false);
+								break;
+							case 'close':
+								this.closed.next(true);
+								this.opened.next(false);
+						}
+					}
+				});
+			}
 		}
 	}
 
