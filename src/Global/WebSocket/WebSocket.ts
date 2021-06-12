@@ -18,16 +18,17 @@ export class WebSocketAPI {
 	}
 	opened = new BehaviorSubject<boolean>(false);
 	dispatch = new Subject<WebSocketAPI.Message>();
+	subscriptions = [] as WebSocketAPI.Subscription[];
 
-	closed = true;
+	closed = new BehaviorSubject<boolean>(true);
 
 	constructor() { }
 
 	create(): void {
 		if (this.ctx === 'background') {
 			if (this.open) {
-				this.socket?.close(1000, 'Client is starting a new session');
-				this.socket = null;
+				Logger.Get().debug('Session is already ongoing');
+				return undefined;
 			}
 			const socket = this.socket = new WebSocket(this.connectionURL);
 
@@ -47,7 +48,11 @@ export class WebSocketAPI {
 					switch (msg.data.state) {
 						case 'open':
 							this.opened.next(true);
+							this.closed.next(false);
 							break;
+						case 'close':
+							this.closed.next(true);
+							this.opened.next(false);
 					}
 				}
 			});
@@ -57,12 +62,14 @@ export class WebSocketAPI {
 	private onOpen(): void {
 		Logger.Get().info(`<WS> Connected to ${this.connectionURL}`);
 		this.opened.next(true);
+		this.closed.next(false);
 		broadcastExtensionMessage('WebSocketState', { state: 'open' }, undefined);
 	}
 
 	private onClose(ev: CloseEvent): void {
 		Logger.Get().info(`<WS> Connection closed (${ev.code}${!!ev.reason ? ` ${ev.reason}` : ''})`);
-		this.closed = true;
+		this.closed.next(true);
+		broadcastExtensionMessage('WebSocketState', { state: 'close' }, undefined);
 
 		if (ev.code !== 1000 && ev.reason !== 'Unknown User') {
 			Logger.Get().debug(`<WS> Trying to reconnect in ${(this.currentBackoff / 1000).toFixed(1)}s`);
@@ -70,7 +77,7 @@ export class WebSocketAPI {
 			setTimeout(() => {
 				this.currentBackoff *= BACKOFF_MULTIPLIER;
 				this.create();
-			}, this.currentBackoff);
+			}, Math.min(600 * 1000, this.currentBackoff));
 		}
 	}
 
@@ -187,6 +194,11 @@ export namespace WebSocketAPI {
 		SERVER_CLOSURE,
 		/** @send */
 		SUBSCRIBE
+	}
+
+	export interface Subscription {
+		type: number;
+		params: { [key: string]: any; };
 	}
 
 	export interface ExtensionMessage extends ExtensionRuntimeMessage {

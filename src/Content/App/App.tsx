@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, filter, map, toArray } from 'rxjs/operators';
+import { catchError, concatAll, filter, map, switchMap, take, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -11,7 +11,7 @@ import { asapScheduler, of, scheduled, Subject } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
-import { WebSocketAPI } from 'src/Global/WebSocket';
+import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -43,6 +43,20 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				}
 
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
+			}
+		});
+
+		api.ws.closed.pipe(
+			filter(c => c === true),
+			switchMap(() => api.ws.opened.pipe(filter(o => o === true), take(1)))
+		).subscribe({
+			next: () => {
+				api.ws.send('SUBSCRIBE', {
+					type: 1,
+					params: {
+						channel: state.channel
+					}
+				});
 			}
 		});
 	}
