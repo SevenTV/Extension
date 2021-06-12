@@ -1,5 +1,5 @@
 import { API } from 'src/Global/API';
-import { WebSocketAPI } from 'src/Global/WebSocket';
+import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import { Logger } from 'src/Logger';
 
 export class NavHandler {

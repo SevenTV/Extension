@@ -3,7 +3,7 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
-import { WebSocketAPI } from 'src/Global/WebSocket';
+import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import { post } from 'superagent';
 
 export class API {
