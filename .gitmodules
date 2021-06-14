@@ -1,0 +1,3 @@
+[submodule "Typings"]
+	path = Typings
+	url = git@github.com:SevenTV/Typings.git
