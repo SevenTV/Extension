@@ -1,4 +1,5 @@
 import { Config } from 'src/Config';
+import { version } from 'public/manifest.json';
 
 class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	constructor(...args: any[]) {
@@ -295,7 +296,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 				if (chat.props.channelLogin == data.channel) {
 					chat.addMessage({
 						type: this.siteChat.chat_types.Notice,
-						message: `${data.actor} ${data.removed ? 'removed' : 'added'} a 7TV emote "${data.emote.name}".`
+						message: `[7TV] ${data.actor} ${data.removed ? 'removed' : 'added'} the emote "${data.emote.name}"`
 					});
 				}
 			}
@@ -346,7 +347,7 @@ SevenTVEmotes.register({
 	'name': '7TV Emotes',
 	'author': 'Melonify',
 	'description': 'Adds 7TV badges, channel and global emotes as well as live emote update support.',
-	'version': '1.0.0',
+	'version': version,
 	'website': 'https://7tv.app',
 	'settings': 'add_ons.7tv_emotes',
 	'icon': 'https://7tv.app/assets/icons/icon-96x96.png'
