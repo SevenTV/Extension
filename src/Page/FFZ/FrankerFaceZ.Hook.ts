@@ -1,8 +1,8 @@
 declare let FrankerFaceZ: any;
 
-declare interface Window { 
+declare interface Window {
 	ffz?: any;
-};
+}
 
 let initialized = false;
 function tryInit() {
@@ -11,12 +11,15 @@ function tryInit() {
 		if (ffz) {
 			ffz.addons.on(':ready', () => {
 				//TODO: Signal to content script that FFZ has loaded
+				console.log('ffz loaded!!');
+				window.postMessage('FFZ_HOOK::FFZ_ADDONS_READY', 'https://www.twitch.tv');
 			});
 		}
 	}
 }
 
 if (window.ffz) {
+	console.log('HM', window.ffz);
 	tryInit();
 }
 else {

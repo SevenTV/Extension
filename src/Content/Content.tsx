@@ -10,6 +10,38 @@ export class ExtensionContentScript {
 
 	constructor() {
 		this.inject();
+
+		// Load FFZ Add-on in place of 7TV?
+		{
+			const inject = (scriptName: string, id?: string) => {
+				const script = document.createElement('script');
+				script.src = chrome.runtime.getURL(scriptName);
+				if (typeof id === 'string') {
+					script.id = id;
+				}
+				document.head.appendChild(script);
+				console.log(script);
+			};
+
+			let injected = false;
+			const attemptLoad = () => {
+				if (!injected) {
+					inject('ffz_addon.js', 'ffz-addon-seventv-emotes');
+					this.app.sendMessageDown('Cease', {});
+
+					Logger.Get().info(`FrankerFaceZ Detected -- unloading 7TV PageScript and loading as an FFZ Add-On`);
+				}
+			};
+
+			window.addEventListener('message', function (event: any) {
+				if (event.data === 'FFZ_HOOK::FFZ_ADDONS_READY') {
+					console.log(event);
+					attemptLoad();
+				}
+			});
+
+			inject('ffz_hook.js');
+		}
 	}
 
 	private inject(): void {

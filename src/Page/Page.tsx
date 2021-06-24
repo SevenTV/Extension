@@ -89,6 +89,10 @@ export class PageScript {
 
 	@PageScriptListener('EnableEmoteSet')
 	whenEmoteSetIsAdded(data: EmoteStore.EmoteSet.Resolved): void {
+		if (stopped) {
+			return undefined;
+		}
+
 		const set = emoteStore.enableSet(data.name, data.emotes);
 
 		if (!page.currentChannelSet) {
@@ -122,6 +126,7 @@ export class PageScript {
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
 		stopped = true;
 		chatListener.kill();
+		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 
 	private eIndex: {
