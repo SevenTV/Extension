@@ -65,7 +65,12 @@ export class PageScript {
 		let channelName = this.getCurrentChannelFromURL(); // Set current channel
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
-		setInterval(() => {
+		const interval = setInterval(() => {
+			if (stopped) {
+				clearInterval(interval);
+				return undefined;
+			}
+
 			channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
@@ -113,6 +118,12 @@ export class PageScript {
 		chatListener.sendSystemMessage(message);
 	}
 
+	@PageScriptListener('Cease')
+	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
+		stopped = true;
+		chatListener.kill();
+	}
+
 	private eIndex: {
 		[x: string]: EmoteStore.Emote;
 	} | null = null;
@@ -150,6 +161,7 @@ let chatListener: ChatListener;
 let tabCompletion: TabCompletion;
 
 let page: PageScript;
+let stopped = false;
 (() => {
 	const { } = page = new PageScript();
 })();
