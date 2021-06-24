@@ -10,40 +10,40 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 		this.siteChat = this.resolve('site.chat');
 
-		this.settings.add('addon.seventv_emotes.global_emotes', {
+		this.settings.add('addon.7tv_emotes.global_emotes', {
 			default: true,
 			ui: {
-				path: 'Add-Ons > SevenTV Emotes >> Emotes',
+				path: 'Add-Ons > 7TV Emotes >> Emotes',
 				title: 'Global Emotes',
-				description: 'Enables global emotes from SevenTV.',
+				description: 'Enables global emotes from 7TV.',
 				component: 'setting-check-box',
 			}
 		});
 
-		this.settings.add('addon.seventv_emotes.channel_emotes', {
+		this.settings.add('addon.7tv_emotes.channel_emotes', {
 			default: true,
 			ui: {
-				path: 'Add-Ons > SevenTV Emotes >> Emotes',
+				path: 'Add-Ons > 7TV Emotes >> Emotes',
 				title: 'Channel Emotes',
-				description: 'Enables channel specific emotes from SevenTV.',
+				description: 'Enables channel specific emotes from 7TV.',
 				component: 'setting-check-box',
 			}
 		});
 
-		this.settings.add('addon.seventv_emotes.socket', {
+		this.settings.add('addon.7tv_emotes.socket', {
 			default: true,
 			ui: {
-				path: 'Add-Ons > SevenTV Emotes >> Socket',
+				path: 'Add-Ons > 7TV Emotes >> Socket',
 				title: 'Web Socket',
-				description: 'Enables live SevenTV emote updates via Web Socket.',
+				description: 'Enables live 7TV emote updates via Web Socket.',
 				component: 'setting-check-box',
 			}
 		});
 
-		this.settings.add('addon.seventv_emotes.update_messages', {
+		this.settings.add('addon.7tv_emotes.update_messages', {
 			default: true,
 			ui: {
-				path: 'Add-Ons > SevenTV Emotes >> Socket',
+				path: 'Add-Ons > 7TV Emotes >> Socket',
 				title: 'Emote update messages',
 				description: 'Show messages in chat when emotes are updated in the current channel.',
 				component: 'setting-check-box',
@@ -58,9 +58,9 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			await this.setupSocket();
 		} catch (e) { }
 
-		this.chat.context.on('changed:addon.seventv_emotes.global_emotes', () => this.updateGlobalEmotes());
-		this.chat.context.on('changed:addon.seventv_emotes.channel_emotes', () => this.updateChannels());
-		this.chat.context.on('changed:addon.seventv_emotes.socket', async () => {
+		this.chat.context.on('changed:addon.7tv_emotes.global_emotes', () => this.updateGlobalEmotes());
+		this.chat.context.on('changed:addon.7tv_emotes.channel_emotes', () => this.updateChannels());
+		this.chat.context.on('changed:addon.7tv_emotes.socket', async () => {
 			try {
 				await this.setupSocket();
 			}
@@ -89,10 +89,10 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	async updateGlobalEmotes() {
-		this.emotes.removeDefaultSet('addon.seventv_emotes', 'addon.seventv_emotes.global');
-		this.emotes.unloadSet('addon.seventv_emotes.global');
+		this.emotes.removeDefaultSet('addon.7tv_emotes', 'addon.7tv_emotes.global');
+		this.emotes.unloadSet('addon.7tv_emotes.global');
 
-		if (!this.chat.context.get('addon.seventv_emotes.global_emotes')) return;
+		if (!this.chat.context.get('addon.7tv_emotes.global_emotes')) return;
 
 		const response = await fetch('https://api.7tv.app/v2/emotes/global');
 		if (response.ok) {
@@ -103,9 +103,9 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 				emotes.push(this.convertEmote(emote));
 			}
 
-			this.emotes.addDefaultSet('addon.seventv_emotes', 'addon.seventv_emotes.global', {
+			this.emotes.addDefaultSet('addon.7tv_emotes', 'addon.7tv_emotes.global', {
 				title: 'Global Emotes',
-				source: 'SevenTV',
+				source: '7TV',
 				icon: 'https://7tv.app/assets/favicon.png',
 				emotes: emotes
 			});
@@ -127,7 +127,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	getChannelSetID(channel: any) {
-		return `addon.seventv_emotes.channel-${channel.login}`;
+		return `addon.7tv_emotes.channel-${channel.login}`;
 	}
 
 	async addChannelSet(channel: any, emotes?: any[]) {
@@ -137,9 +137,9 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			emotes = await this.fetchChannelEmotes(channel.login);
 		}
 
-		channel.addSet('addon.seventv_emotes', this.getChannelSetID(channel), {
+		channel.addSet('addon.7tv_emotes', this.getChannelSetID(channel), {
 			title: 'Channel Emotes',
-			source: 'SevenTV',
+			source: '7TV',
 			icon: 'https://7tv.app/assets/favicon.png',
 			emotes: emotes
 		});
@@ -147,7 +147,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 	removeChannelSet(channel: any) {
 		const setID = this.getChannelSetID(channel);
-		channel.removeSet('addon.seventv_emotes', setID);
+		channel.removeSet('addon.7tv_emotes', setID);
 		this.emotes.unloadSet(setID);
 	}
 
@@ -157,7 +157,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 	async updateChannels() {
 		const promises = [];
-		const enabled = this.chat.context.get('addon.seventv_emotes.channel_emotes');
+		const enabled = this.chat.context.get('addon.7tv_emotes.channel_emotes');
 		for (const channel of this.chat.iterateRooms()) {
 			if (enabled) {
 				promises.push(this.addChannel(channel));
@@ -201,7 +201,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			const json = await response.json();
 			if (typeof json == 'object' && json != null && json.badges) {
 				for (const badge of json.badges) {
-					const id = `addon.seventv_emotes.badge-${badge.id}`;
+					const id = `addon.7tv_emotes.badge-${badge.id}`;
 					this.badges.loadBadgeData(id, {
 						id: badge.id,
 						title: badge.tooltip,
@@ -214,7 +214,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 					});
 
 					for (const userID of badge.users) {
-						this.chat.getUser(String(userID)).addBadge('addon.seventv_emotes', id);
+						this.chat.getUser(String(userID)).addBadge('addon.7tv_emotes', id);
 					}
 				}
 			}
@@ -225,7 +225,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		return new Promise((resolve, reject) => {
 			this.closeSocket();
 
-			if (this.chat.context.get('addon.seventv_emotes.socket')) {
+			if (this.chat.context.get('addon.7tv_emotes.socket')) {
 				this.socket = new WebSocket('wss://api.7tv.app/v2/ws');
 
 				this.socket.addEventListener('message', (event: any) => {
@@ -288,12 +288,12 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	handleChannelEmoteUpdate(data: any) {
-		if (this.chat.context.get('addon.seventv_emotes.update_messages')) {
+		if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
 			for (const chat of this.siteChat.ChatService.instances) {
 				if (chat.props.channelLogin == data.channel) {
 					chat.addMessage({
 						type: this.siteChat.chat_types.Notice,
-						message: `${data.actor} ${data.removed ? 'removed' : 'added'} a SevenTV emote "${data.emote.name}".`
+						message: `${data.actor} ${data.removed ? 'removed' : 'added'} a 7TV emote "${data.emote.name}".`
 					});
 				}
 			}
@@ -341,11 +341,11 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 }
 
 SevenTVEmotes.register({
-	'name': 'SevenTV Emotes',
+	'name': '7TV Emotes',
 	'author': 'Melonify',
-	'description': 'Adds SevenTV badges, channel and global emotes as well as live emote update support.',
+	'description': 'Adds 7TV badges, channel and global emotes as well as live emote update support.',
 	'version': '1.0.0',
 	'website': 'https://7tv.app',
-	'settings': 'add_ons.seven_tv_emotes',
+	'settings': 'add_ons.7tv_emotes',
 	'icon': 'https://7tv.app/assets/icons/icon-96x96.png'
 });
