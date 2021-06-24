@@ -10,8 +10,6 @@ function tryInit() {
 		let ffz = FrankerFaceZ.get();
 		if (ffz) {
 			ffz.addons.on(':ready', () => {
-				//TODO: Signal to content script that FFZ has loaded
-				console.log('ffz loaded!!');
 				window.postMessage('FFZ_HOOK::FFZ_ADDONS_READY', 'https://www.twitch.tv');
 			});
 		}
@@ -19,7 +17,6 @@ function tryInit() {
 }
 
 if (window.ffz) {
-	console.log('HM', window.ffz);
 	tryInit();
 }
 else {

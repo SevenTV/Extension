@@ -20,7 +20,6 @@ export class ExtensionContentScript {
 					script.id = id;
 				}
 				document.head.appendChild(script);
-				console.log(script);
 			};
 
 			let injected = false;
@@ -34,10 +33,11 @@ export class ExtensionContentScript {
 			};
 
 			window.addEventListener('message', function (event: any) {
-				if (event.data === 'FFZ_HOOK::FFZ_ADDONS_READY') {
-					console.log(event);
-					attemptLoad();
+				if (event.data !== 'FFZ_HOOK::FFZ_ADDONS_READY') {
+					return undefined;
 				}
+
+				attemptLoad();
 			});
 
 			inject('ffz_hook.js');

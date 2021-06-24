@@ -1,3 +1,5 @@
+import { Config } from 'src/Config';
+
 class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	constructor(...args: any[]) {
 		super(...args);
@@ -94,7 +96,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 		if (!this.chat.context.get('addon.7tv_emotes.global_emotes')) return;
 
-		const response = await fetch('https://api.7tv.app/v2/emotes/global');
+		const response = await fetch(`${apiBase}/v2/emotes/global`);
 		if (response.ok) {
 			const json = await response.json();
 
@@ -113,7 +115,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	async fetchChannelEmotes(channelLogin: string) {
-		const response = await fetch(`https://api.7tv.app/v2/users/${channelLogin}/emotes`);
+		const response = await fetch(`${apiBase}/v2/users/${channelLogin}/emotes`);
 		if (response.ok) {
 			const json = await response.json();
 
@@ -196,7 +198,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	async addBadges() {
-		const response = await fetch(`https://api.7tv.app/v2/badges?user_identifier=twitch_id`);
+		const response = await fetch(`${apiBase}/v2/badges?user_identifier=twitch_id`);
 		if (response.ok) {
 			const json = await response.json();
 			if (typeof json == 'object' && json != null && json.badges) {
@@ -226,7 +228,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			this.closeSocket();
 
 			if (this.chat.context.get('addon.7tv_emotes.socket')) {
-				this.socket = new WebSocket('wss://api.7tv.app/v2/ws');
+				this.socket = new WebSocket(`${wsBase}/v2/ws`);
 
 				this.socket.addEventListener('message', (event: any) => {
 					this.onSocketMessage(event.data);
@@ -349,3 +351,6 @@ SevenTVEmotes.register({
 	'settings': 'add_ons.7tv_emotes',
 	'icon': 'https://7tv.app/assets/icons/icon-96x96.png'
 });
+
+const apiBase = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}`;
+const wsBase = `${Config.secure ? 'wss' : 'ws'}:${Config.apiUrl}`;
