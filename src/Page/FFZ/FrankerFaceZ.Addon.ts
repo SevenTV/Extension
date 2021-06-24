@@ -54,6 +54,12 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		});
 
 		this.enable();
+
+		// Handle WzbSocket Messages
+		window.addEventListener('7TV#ChannelEmoteChange', (event) => {
+			const data = JSON.parse(((event as CustomEvent).detail));
+			this.handleChannelEmoteUpdate(data);
+		});
 	}
 
 	async onEnable() {
@@ -224,41 +230,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		}
 	}
 
-	setupSocket(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			this.closeSocket();
-
-			if (this.chat.context.get('addon.7tv_emotes.socket')) {
-				this.socket = new WebSocket(`${wsBase}/v2/ws`);
-
-				this.socket.addEventListener('message', (event: any) => {
-					this.onSocketMessage(event.data);
-				});
-
-				this.socket.addEventListener('close', () => {
-					this.closeSocket();
-
-					this.socketReconnectTimeout = setTimeout(() => {
-						this.socketReconnectTimeout = undefined;
-						this.setupSocket();
-					}, 500);
-				});
-
-				this.socket.addEventListener('open', () => {
-					resolve();
-				});
-
-				this.socket.addEventListener('error', () => {
-					this.closeSocket();
-					reject();
-				});
-			}
-			else {
-				resolve();
-			}
-		});
-	}
-
 	closeSocket() {
 		if (this.socket) this.socket.close();
 		if (this.socketHeartbeat) clearInterval(this.socketHeartbeat);
@@ -277,17 +248,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	subscribeChannel(channel: any) {
-		if (this.socket) {
-			this.socket.send(JSON.stringify({
-				op: 6,
-				d: {
-					type: 1,
-					params: {
-						channel: channel.login
-					}
-				}
-			}));
-		}
+		this.sendMessageUp('SwitchChannel', { channelName: channel.login, skip_download: true });
 	}
 
 	handleChannelEmoteUpdate(data: any) {
@@ -319,34 +280,15 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		}
 	}
 
-	onSocketMessage(messageString: any) {
-		const message = JSON.parse(messageString);
-
-		const data = message.d;
-
-		switch (message.op) {
-			case 0: {
-				switch (message.t) {
-					case 'CHANNEL_EMOTES_UPDATE': {
-						this.handleChannelEmoteUpdate(data);
-						break;
-					}
-				}
-				break;
-			}
-			case 1: {
-				if (this.socketHeartbeat) clearInterval(this.socketHeartbeat);
-				this.socketHeartbeat = setInterval(this.sendSocketHeartbeat.bind(this), data.heartbeat_interval);
-				break;
-			}
-		}
+	sendMessageUp(tag: string, data: any): void {
+		window.dispatchEvent(new CustomEvent(`7TV#${tag}`, { detail: JSON.stringify(data) }));
 	}
 }
 
 SevenTVEmotes.register({
 	'name': '7TV Emotes',
 	'author': 'Melonify',
-	'description': 'Adds 7TV badges, channel and global emotes as well as live emote update support.',
+	'description': 'Adds 7TV channel and global emotes, badges as well as live emote update support.',
 	'version': version,
 	'website': 'https://7tv.app',
 	'settings': 'add_ons.7tv_emotes',
@@ -354,4 +296,3 @@ SevenTVEmotes.register({
 });
 
 const apiBase = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}`;
-const wsBase = `${Config.secure ? 'wss' : 'ws'}:${Config.apiUrl}`;

@@ -106,6 +106,10 @@ export class PageScript {
 
 	@PageScriptListener('DisableEmoteSet')
 	whenEmoteSetIsRemoved(name: string): void {
+		if (stopped) {
+			return undefined;
+		}
+
 		emoteStore.disableSet(name);
 	}
 
@@ -119,6 +123,10 @@ export class PageScript {
 
 	@PageScriptListener('SendSystemMessage')
 	whenUpperLayerSendsSystemMessage(message: string): void {
+		if (stopped) {
+			return undefined;
+		}
+
 		chatListener.sendSystemMessage(message);
 	}
 

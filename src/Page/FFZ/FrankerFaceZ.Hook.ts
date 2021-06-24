@@ -10,7 +10,7 @@ function tryInit() {
 		let ffz = FrankerFaceZ.get();
 		if (ffz) {
 			ffz.addons.on(':ready', () => {
-				window.postMessage('FFZ_HOOK::FFZ_ADDONS_READY', 'https://www.twitch.tv');
+				window.postMessage('FFZ_HOOK::FFZ_ADDONS_READY', '*');
 			});
 		}
 	}
