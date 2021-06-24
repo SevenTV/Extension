@@ -9,7 +9,10 @@ const config = {
 	entry: {
 		content: path.join(__dirname, 'src/Content/Content.tsx'),
 		background: path.join(__dirname, 'src/Background/Background.tsx'),
-		page: path.join(__dirname, 'src/Page/Page.tsx')
+		page: path.join(__dirname, 'src/Page/Page.tsx'),
+
+		ffz_addon: path.join(__dirname, 'src/Page/FFZ/FrankerFaceZ.Addon.ts'),
+		ffz_loader: path.join(__dirname, 'src/Page/FFZ/FrankerFaceZ.Loader.ts'),
 	},
 	output: { path: path.join(__dirname, 'dist'), filename: '[name].js' },
 	module: {
