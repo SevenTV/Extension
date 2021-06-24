@@ -26,6 +26,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			filter(msg => msg.t === 'CHANNEL_EMOTES_UPDATE' && msg.d.channel === state.channel),
 		).subscribe({
 			next: async (msg: WebSocketAPI.Message<WebSocketAPI.MessageData.DispatchChannelEmotesUpdate>) => {
+				this.sendMessageDown('ChannelEmoteChange', msg.d);
+
 				const set = emoteStore.sets.get(state.channel);
 				if (!set) {
 					return;
@@ -80,18 +82,34 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	onAppLoaded(): void { }
 
 	@PageScriptListener('SwitchChannel')
-	whenTheChannelSwitches(data: { channelName: string; as: string; }): void {
+	whenTheChannelSwitches(data: { channelName: string; as: string; skip_download: boolean; }): void {
 		emoteStore.disableSet(state.channel);
 		emoteStore.disableSet(data.as);
 		mainComponent?.toggleEmoteMenu(undefined, false);
 		this.sendMessageDown('DisableEmoteSet', state.channel);
 		this.sendMessageDown('DisableEmoteSet', data.as);
 
+		const updateWS = () => {
+			api.ws.create();
+			api.ws.send('SUBSCRIBE', {
+				type: 1,
+				params: {
+					channel: state.channel
+				}
+			});
+		};
+
+		if (data.skip_download) {
+			updateWS();
+			state.channel = data.channelName;
+
+			return undefined;
+		}
 		scheduled([
 			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
 			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
-			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV', 'FFZ']),
-			api.GetThirdPartyGlobalEmotes(['BTTV', 'FFZ'])
+			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV']),
+			api.GetThirdPartyGlobalEmotes(['BTTV'])
 		], asapScheduler).pipe(
 			concatAll(),
 			toArray(),
@@ -102,14 +120,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				state.channel = data.channelName;
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 
-				api.ws.create();
-				api.ws.send('SUBSCRIBE', {
-					type: 1,
-					params: {
-						channel: state.channel
-					}
-				});
-
+				updateWS();
 				insertEmoteButton();
 			},
 			error(err) {

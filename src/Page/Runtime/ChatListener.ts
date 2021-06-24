@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { PageScript } from 'src/Page/Page';
 import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
@@ -14,6 +14,8 @@ export class ChatListener {
 	private pendingMessages = new Set<string>();
 
 	linesRendered = 0;
+
+	private killed = new Subject<void>();
 
 	constructor(private page: PageScript) {
 		(window as any).twitch = this.twitch;
@@ -39,6 +41,13 @@ export class ChatListener {
 				}
 			};
 		}
+
+		// Handle kill
+		this.killed.subscribe({
+			next: () => {
+				controller.componentDidUpdate = x;
+			}
+		});
 	}
 
 	listen(): void {
@@ -60,6 +69,7 @@ export class ChatListener {
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
 		 */
 		this.observeDOM().pipe(
+			takeUntil(this.killed),
 			// Patch with badges LUL
 			// tap(line => this.badgeManager.patchChatLine(line)),
 
@@ -158,5 +168,10 @@ export class ChatListener {
 				childList: true
 			});
 		});
+	}
+
+	kill(): void {
+		this.killed.next(undefined);
+		this.killed.complete();
 	}
 }
