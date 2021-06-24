@@ -12,7 +12,7 @@ const config = {
 		page: path.join(__dirname, 'src/Page/Page.tsx'),
 
 		ffz_addon: path.join(__dirname, 'src/Page/FFZ/FrankerFaceZ.Addon.ts'),
-		ffz_loader: path.join(__dirname, 'src/Page/FFZ/FrankerFaceZ.Loader.ts'),
+		ffz_hook: path.join(__dirname, 'src/Page/FFZ/FrankerFaceZ.Hook.ts'),
 	},
 	output: { path: path.join(__dirname, 'dist'), filename: '[name].js' },
 	module: {

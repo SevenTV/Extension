@@ -80,7 +80,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	async addChannel(channel: any) {
-		await this.addChannelSet(channel, undefined);
+		await this.addChannelSet(channel);
 		this.subscribeChannel(channel);
 	}
 
@@ -130,7 +130,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		return `addon.seventv_emotes.channel-${channel.login}`;
 	}
 
-	async addChannelSet(channel: any, emotes: any) {
+	async addChannelSet(channel: any, emotes?: any[]) {
 		this.removeChannelSet(channel);
 
 		if (emotes === undefined) {
@@ -221,7 +221,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		}
 	}
 
-	setupSocket() {
+	setupSocket(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			this.closeSocket();
 
@@ -242,7 +242,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 				});
 
 				this.socket.addEventListener('open', () => {
-					resolve(undefined);
+					resolve();
 				});
 
 				this.socket.addEventListener('error', () => {
@@ -251,7 +251,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 				});
 			}
 			else {
-				resolve(undefined);
+				resolve();
 			}
 		});
 	}
