@@ -1,4 +1,4 @@
-name: Pack new release
+name: Build PR
 
 on:
   pull_request:
