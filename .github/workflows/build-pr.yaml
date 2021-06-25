@@ -1,11 +1,11 @@
-name: Build Pull Request
+name: Pack new release
 
 on:
   pull_request:
 
 jobs:
   pack:
-    name: Pack as Browser Extension
+    name: Pack Project
     runs-on: ubuntu-latest
 
     steps:
