@@ -2,8 +2,6 @@ name: Pack new release
 
 on:
   pull_request:
-    branches:
-      - dev
 
 jobs:
   pack:
