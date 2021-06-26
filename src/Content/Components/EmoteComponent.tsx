@@ -27,7 +27,7 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
 						<EmoteComponent.Img
-							alt={this.props.emote.name + ' '}
+							alt={this.props.alt ?? this.props.emote.name}
 							className={'chat-image chat-line__message--emote' + (this.isEmoji ? ' emoji' : '')}
 							src={this.props.emote.cdn('1')} />
 					</EmoteComponent.Style>
@@ -63,8 +63,7 @@ export namespace EmoteComponent {
 		provider?: string | undefined | null;
 		emote: EmoteStore.Emote;
 		maxSize?: [number, number];
-		hasMarginLeft?: boolean;
-		hasMarginRight?: boolean;
+		alt?: string;
 	}
 
 	export interface State {
