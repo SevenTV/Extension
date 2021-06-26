@@ -105,6 +105,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 			return undefined;
 		}
+
+		insertEmoteButton();
 		scheduled([
 			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
 			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
@@ -121,7 +123,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 
 				updateWS();
-				insertEmoteButton();
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
