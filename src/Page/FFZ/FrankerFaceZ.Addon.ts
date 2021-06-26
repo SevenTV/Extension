@@ -136,12 +136,14 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			emotes = await this.fetchChannelEmotes(channel.login);
 		}
 
-		channel.addSet('addon.7tv_emotes', this.getChannelSetID(channel), {
-			title: 'Channel Emotes',
-			source: '7TV',
-			icon: 'https://7tv.app/assets/favicon.png',
-			emotes: emotes
-		});
+		if (emotes && emotes.length > 0) {
+			channel.addSet('addon.7tv_emotes', this.getChannelSetID(channel), {
+				title: 'Channel Emotes',
+				source: '7TV',
+				icon: 'https://7tv.app/assets/favicon.png',
+				emotes: emotes
+			});
+		}
 	}
 
 	removeChannelSet(channel: any) {
