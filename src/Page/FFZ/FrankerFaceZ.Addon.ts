@@ -33,16 +33,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			}
 		});
 
-		this.settings.add('addon.7tv_emotes.socket', {
-			default: true,
-			ui: {
-				path: 'Add-Ons > 7TV Emotes >> Socket',
-				title: 'Web Socket',
-				description: 'Enables live 7TV emote updates via Web Socket.',
-				component: 'setting-check-box',
-			}
-		});
-
 		this.settings.add('addon.7tv_emotes.update_messages', {
 			default: true,
 			ui: {
@@ -90,7 +80,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 	async addChannel(channel: any) {
 		await this.addChannelSet(channel);
-		this.subscribeChannel(channel);
 	}
 
 	removeChannel(channel: any) {
@@ -141,17 +130,20 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 	async addChannelSet(channel: any, emotes?: any[]) {
 		this.removeChannelSet(channel);
+		this.sendMessageUp('SwitchChannel', { channelName: channel.login, skip_download: true });
 
 		if (emotes === undefined) {
 			emotes = await this.fetchChannelEmotes(channel.login);
 		}
 
-		channel.addSet('addon.7tv_emotes', this.getChannelSetID(channel), {
-			title: 'Channel Emotes',
-			source: '7TV',
-			icon: 'https://7tv.app/assets/favicon.png',
-			emotes: emotes
-		});
+		if (emotes && emotes.length > 0) {
+			channel.addSet('addon.7tv_emotes', this.getChannelSetID(channel), {
+				title: 'Channel Emotes',
+				source: '7TV',
+				icon: 'https://7tv.app/assets/favicon.png',
+				emotes: emotes
+			});
+		}
 	}
 
 	removeChannelSet(channel: any) {
@@ -214,7 +206,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 					this.badges.loadBadgeData(id, {
 						id: badge.id,
 						title: badge.tooltip,
-						slot: 22,
+						slot: 69,
 						image: badge.urls[1][1],
 						urls: {
 							1: badge.urls[2][1]
@@ -228,27 +220,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 				}
 			}
 		}
-	}
-
-	closeSocket() {
-		if (this.socket) this.socket.close();
-		if (this.socketHeartbeat) clearInterval(this.socketHeartbeat);
-		if (this.socketReconnectTimeout) clearTimeout(this.socketReconnectTimeout);
-		this.socket = undefined;
-		this.socketHeartbeat = undefined;
-		this.socketReconnectTimeout = undefined;
-	}
-
-	sendSocketHeartbeat() {
-		if (this.socket) {
-			this.socket.send(JSON.stringify({
-				op: 2
-			}));
-		}
-	}
-
-	subscribeChannel(channel: any) {
-		this.sendMessageUp('SwitchChannel', { channelName: channel.login, skip_download: true });
 	}
 
 	handleChannelEmoteUpdate(data: any) {
