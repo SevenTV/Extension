@@ -18,19 +18,20 @@ export class MessagePatcher {
 
 		// Find all emotes across the message parts
 		for (const part of this.msg.messageParts) {
+
 			// Handle link / mention
 			if (part.type === 4) { // Is mention
 				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });
 				continue;
 			} else if (part.type === 5) { // Is link
 				this.msg.seventv.parts.push({ type: 'link', content: part.content });
-			} else if (part.type === 6) {
+			} else if (part.type === 6) { // Is twitch emote
 				const content = part.content as Twitch.ChatMessage.EmoteRef;
-
 				this.msg.seventv.parts.push({
 					type: 'twitch-emote',
 					content
 				});
+
 				continue;
 			}
 
@@ -63,13 +64,27 @@ export class MessagePatcher {
 				if (isEmote) {
 					pushCurrentStack(); // Push the current word stack as a single part
 					// Then push the emote part
-					this.msg.seventv.parts.push({ type: 'emote', content: eIndex[word].id });
+					this.msg.seventv.parts.push({
+						type: 'emote',
+						content: eIndex[word].id
+					});
 				} else {
 					currentStack.push(word);
 					this.msg.seventv.words.push(word);
 				}
 			}
 			pushCurrentStack();
+		}
+
+		// Add space between parts?
+		let i = -1;
+		for (const part of this.msg.seventv.parts) {
+
+			i++;
+			const previous = this.msg.seventv.parts[i-1]; // Get previous part
+			const next = this.msg.seventv.parts[i+1]; // Get next part
+			// Compare previous/next part, whether either is a text part. If so, the emote should gain left-right margin
+			part.space_between = (!!previous && previous?.type === 'text') || (!!next && previous?.type === 'text');
 		}
 	}
 
