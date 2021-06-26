@@ -3,10 +3,13 @@ import { emitHook } from 'src/Content/Global/Hooks';
 import { WebEventListener } from 'src/Global/Decorators';
 import { Logger } from 'src/Logger';
 import { App } from 'src/Content/App/App';
+import { BehaviorSubject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 export class ExtensionContentScript {
 	app = new App();
 	injected = false;
+	pageScriptLoaded = new BehaviorSubject<boolean>(false);
 
 	constructor() {
 		this.inject();
@@ -26,9 +29,11 @@ export class ExtensionContentScript {
 			const attemptLoad = () => {
 				if (!injected) {
 					inject('ffz_addon.js', 'ffz-addon-seventv-emotes');
-					this.app.sendMessageDown('Cease', {});
 
 					Logger.Get().info(`FrankerFaceZ Detected -- unloading 7TV PageScript and loading as an FFZ Add-On`);
+					this.pageScriptLoaded.pipe(
+						filter(r => r === true)
+					).subscribe({ next: () => this.app.sendMessageDown('Cease', {}) });
 				}
 			};
 
@@ -62,6 +67,7 @@ export class ExtensionContentScript {
 		script.onload = () => {
 			Logger.Get().info('Injected into Twitch');
 
+			this.pageScriptLoaded.next(true);
 			emitHook('onInjected');
 		};
 
