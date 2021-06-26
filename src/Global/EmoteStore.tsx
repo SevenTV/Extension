@@ -77,16 +77,22 @@ export class EmoteStore {
 		}
 
 		const set = this.sets.get(EMOJI_SET_NAME) as EmoteStore.EmoteSet;
+
+		const codePoint = twemoji.convert.toCodePoint(data.alt).toUpperCase();
+		const emoteji = set.getEmoteByID(codePoint);
+		if (!!emoteji) {
+			return emoteji;
+		}
+
 		const index = EmojiData.index[twemoji.convert.toCodePoint(data.alt).toUpperCase() as keyof typeof EmojiData.index] as number;
 		const emoji = EmojiData.list[index];
-		const fallback = encodeURIComponent(data.alt);
 
 		const urls = [] as [string, string][];
 		for (let i = 1; i <= 4; i++) {
 			urls.push([`${i}`, data.src]);
 		}
 		set.push([{
-			id: emoji?.unified ?? fallback,
+			id: codePoint,
 			name: emoji?.short_name.toLowerCase() ?? '',
 			visibility: DataStructure.Emote.Visibility.GLOBAL,
 			tags: [],
@@ -98,7 +104,7 @@ export class EmoteStore {
 			urls
 		}]);
 
-		return set.getEmoteByID(emoji?.unified ?? fallback) as EmoteStore.Emote;
+		return set.getEmoteByID(codePoint) as EmoteStore.Emote;
 	}
 
 	defineSets(data: EmoteStore.EmoteSet.Resolved[]): void {

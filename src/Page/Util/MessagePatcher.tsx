@@ -18,19 +18,20 @@ export class MessagePatcher {
 
 		// Find all emotes across the message parts
 		for (const part of this.msg.messageParts) {
+
 			// Handle link / mention
 			if (part.type === 4) { // Is mention
 				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });
 				continue;
 			} else if (part.type === 5) { // Is link
 				this.msg.seventv.parts.push({ type: 'link', content: part.content });
-			} else if (part.type === 6) {
+			} else if (part.type === 6) { // Is twitch emote
 				const content = part.content as Twitch.ChatMessage.EmoteRef;
-
 				this.msg.seventv.parts.push({
 					type: 'twitch-emote',
 					content
 				});
+
 				continue;
 			}
 
@@ -63,7 +64,10 @@ export class MessagePatcher {
 				if (isEmote) {
 					pushCurrentStack(); // Push the current word stack as a single part
 					// Then push the emote part
-					this.msg.seventv.parts.push({ type: 'emote', content: eIndex[word].id });
+					this.msg.seventv.parts.push({
+						type: 'emote',
+						content: eIndex[word].id
+					});
 				} else {
 					currentStack.push(word);
 					this.msg.seventv.words.push(word);
@@ -78,7 +82,7 @@ export class MessagePatcher {
 	 */
 	render(line: Twitch.ChatLineAndComponent): void {
 		// Hide twitch fragments
-		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote'));
+		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, [data-test-selector=emote-button]'));
 		for (const oldFrag of oldFragments) {
 			oldFrag.setAttribute('superceded', '');
 			oldFrag.style.display = 'none';
@@ -95,7 +99,7 @@ export class MessagePatcher {
 			elementId: line.element.id
 		}); // Rendering the message body moves on Content.MessageRenderer from now on
 		window.dispatchEvent(new CustomEvent('7TV#RenderChatLine', { detail: data } ));
-	} // [i] This is done on the pagescript, because Twitch will maintain references to our React components and cause a memory leak!
+	} // [i] This is done on the content script, because Twitch will maintain references to our React components and cause a memory leak!
 
 	/**
 	 * Get a Regular Expression matching a list of emotes

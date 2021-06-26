@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { filter, mapTo, take, tap } from 'rxjs/operators';
 import { onMessageUnrender } from 'src/Content/App/App';
-import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { Logger } from 'src/Logger';
 import twemoji from 'twemoji';
@@ -42,12 +41,9 @@ export class MessageBody extends React.PureComponent<MessageBody.Props, MessageB
 					const emojis = span.querySelectorAll('img');
 					for (const emoji of Array.from(emojis)) {
 						const emoteji = this.props.renderer.app.emotes.fromEmoji(emoji);
-
-						const jsx = <EmoteComponent provider='Emoji' emote={emoteji}/>;
-						const emojiContainer = document.createElement('span');
-						ReactDOM.render(jsx, emojiContainer);
-
-						emoji.replaceWith(emojiContainer);
+						emoji.title = emoteji.name;
+						emoji.width = 19.5;
+						emoji.height = 19.5;
 					}
 				}
 			});
