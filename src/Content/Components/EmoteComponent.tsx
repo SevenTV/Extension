@@ -15,13 +15,19 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 
 	render() {
 		return (
-			<EmoteComponent.Container style={{ minWidth: this.props.emote.width[0], minHeight: this.props.emote.height[0] }} className='7tv-emote' onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
+			<EmoteComponent.Container
+				style={{
+					minWidth: this.props.emote.width[0], minHeight: this.props.emote.height[0]
+				}}
+				className='seventv-emote'
+				onMouseLeave={ev => this.onMouseEvent(false, ev)}
+				onMouseEnter={ev => this.onMouseEvent(true, ev)}
+			>
 					<EmoteComponent.Style
-						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
 					>
 						<EmoteComponent.Img
-							alt={this.props.emote.name}
+							alt={this.props.emote.name + ' '}
 							className={'chat-image chat-line__message--emote' + (this.isEmoji ? ' emoji' : '')}
 							src={this.props.emote.cdn('1')} />
 					</EmoteComponent.Style>
@@ -57,6 +63,8 @@ export namespace EmoteComponent {
 		provider?: string | undefined | null;
 		emote: EmoteStore.Emote;
 		maxSize?: [number, number];
+		hasMarginLeft?: boolean;
+		hasMarginRight?: boolean;
 	}
 
 	export interface State {
@@ -68,30 +76,13 @@ export namespace EmoteComponent {
 		hover: boolean;
 	}
 
-	export const Container = styled.div`
+	export const Container = styled.span`
 		display: inline-block;
 	`;
 
-	export const Style = styled.div`
-
+	export const Style = styled.span`
 	`;
 
 	export const Img = styled.img`
-	`;
-
-	export const Details = styled.div`
-		display: block;
-
-		.emote-name {
-			width: 100%;
-		}
-
-		.emote-submitter {
-			font-size: 2em;
-		}
-
-		.is-7tv-emote {
-			font-size: 1.6em;
-		}
 	`;
 }

@@ -75,7 +75,7 @@ export class MessageTree {
 	private addTextPart(part: Part): JSX.Element {
 		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
 
-		return <span style={{ color, wordWrap: 'break-word' }}>{part.content}</span>;
+		return <span style={{ color, wordWrap: 'break-word' }}> {part.content} </span>;
 	}
 
 	private addCustomEmotePart(part: Part): JSX.Element {
@@ -113,4 +113,4 @@ export class MessageTree {
 	}
 }
 
-type Part = Twitch.ChatMessage.AppPart | Twitch.ChatMessage.Part;
+type Part = Twitch.ChatMessage.AppPart;
