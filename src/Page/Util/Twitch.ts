@@ -403,7 +403,8 @@ export namespace Twitch {
 
 		export interface AppPart {
 			type: 'text' | 'emote' | 'twitch-emote' | 'link' | 'mention';
-			space_between?: boolean;
+			margin_left?: boolean;
+			margin_right?: boolean;
 			content?: string | { [key: string]: any; };
 		}
 	}

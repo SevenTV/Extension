@@ -79,12 +79,16 @@ export class MessagePatcher {
 		// Add space between parts?
 		let i = -1;
 		for (const part of this.msg.seventv.parts) {
-
 			i++;
+
+			if (part.type !== 'emote' && part.type !== 'twitch-emote') {
+				continue;
+			}
 			const previous = this.msg.seventv.parts[i-1]; // Get previous part
 			const next = this.msg.seventv.parts[i+1]; // Get next part
 			// Compare previous/next part, whether either is a text part. If so, the emote should gain left-right margin
-			part.space_between = (!!previous && previous?.type === 'text') || (!!next && previous?.type === 'text');
+			part.margin_left = !!previous && previous?.type === 'text';
+			part.margin_right = !!next && next?.type === 'text';
 		}
 	}
 

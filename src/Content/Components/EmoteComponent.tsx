@@ -15,7 +15,16 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 
 	render() {
 		return (
-			<EmoteComponent.Container style={{ minWidth: this.props.emote.width[0], minHeight: this.props.emote.height[0] }} className='7tv-emote' onMouseLeave={ev => this.onMouseEvent(false, ev)} onMouseEnter={ev => this.onMouseEvent(true, ev)}>
+			<EmoteComponent.Container
+				style={{
+					minWidth: this.props.emote.width[0], minHeight: this.props.emote.height[0],
+					marginLeft: this.props.hasMarginLeft ? '.5em' : '',
+					marginRight: this.props.hasMarginRight ? '.5em' : ''
+				}}
+				className='seventv-emote'
+				onMouseLeave={ev => this.onMouseEvent(false, ev)}
+				onMouseEnter={ev => this.onMouseEvent(true, ev)}
+			>
 					<EmoteComponent.Style
 						className='seventv-emote'
 						onClick={(ev: React.MouseEvent) => this.openDetails(ev)}
@@ -57,6 +66,8 @@ export namespace EmoteComponent {
 		provider?: string | undefined | null;
 		emote: EmoteStore.Emote;
 		maxSize?: [number, number];
+		hasMarginLeft?: boolean;
+		hasMarginRight?: boolean;
 	}
 
 	export interface State {

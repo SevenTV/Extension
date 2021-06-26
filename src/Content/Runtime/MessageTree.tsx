@@ -85,7 +85,7 @@ export class MessageTree {
 
 		if (!!emote) {
 			const reactElement = emoteStore.getElement(emoteID) ?? emoteStore.addElement(emote?.name,
-				<EmoteComponent emote={emote}></EmoteComponent>
+				<EmoteComponent emote={emote} hasMarginLeft={part.margin_left} hasMarginRight={part.margin_right}></EmoteComponent>
 			);
 
 			return reactElement;
@@ -113,4 +113,4 @@ export class MessageTree {
 	}
 }
 
-type Part = Twitch.ChatMessage.AppPart | Twitch.ChatMessage.Part;
+type Part = Twitch.ChatMessage.AppPart;
