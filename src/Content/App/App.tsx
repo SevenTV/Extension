@@ -61,6 +61,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				});
 			}
 		});
+		api.ws.create();
 	}
 
 	onInjected(): void {
@@ -90,7 +91,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		this.sendMessageDown('DisableEmoteSet', data.as);
 
 		const updateWS = () => {
-			api.ws.create();
 			api.ws.send('SUBSCRIBE', {
 				type: 1,
 				params: {
@@ -105,6 +105,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 			return undefined;
 		}
+
+		insertEmoteButton();
 		scheduled([
 			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
 			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
@@ -121,7 +123,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 
 				updateWS();
-				insertEmoteButton();
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
@@ -180,7 +181,7 @@ const emoteStore = new EmoteStore();
 export const onMessageUnrender = new Subject<string>();
 export const onChatScroll = new Subject<void>();
 
-const insertEmoteButton = (): void => {
+export const insertEmoteButton = (): void => {
 	// Add emote list button
 	const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
 	if (!!buttons && !!buttons.lastChild) {
@@ -193,14 +194,15 @@ const insertEmoteButton = (): void => {
 		if (!!app) {
 			ReactDOM.render(<EmoteMenuButton main={app.mainComponent} />, container);
 		}
+	}
+};
 
-		// Ensure the button doesn't get cucked by FFZ rerendering the entire chat window FeelsOkayMan
-		setTimeout(() => {
-			const hasButton = !!buttons?.getElementsByClassName('seventv-emote-menu-button').item(0);
+export const unloadEmoteButton = () => {
+	const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
+	if (!!buttons) {
+		const btn = buttons.querySelector('.seventv-emote-menu-button');
+		if (!btn) return undefined;
 
-			if (!hasButton) {
-				insertEmoteButton();
-			}
-		}, 2500);
+		btn.remove();
 	}
 };
