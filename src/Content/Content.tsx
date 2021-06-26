@@ -2,7 +2,7 @@
 import { emitHook } from 'src/Content/Global/Hooks';
 import { WebEventListener } from 'src/Global/Decorators';
 import { Logger } from 'src/Logger';
-import { App } from 'src/Content/App/App';
+import { App, unloadEmoteButton } from 'src/Content/App/App';
 import { BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -33,7 +33,12 @@ export class ExtensionContentScript {
 					Logger.Get().info(`FrankerFaceZ Detected -- unloading 7TV PageScript and loading as an FFZ Add-On`);
 					this.pageScriptLoaded.pipe(
 						filter(r => r === true)
-					).subscribe({ next: () => this.app.sendMessageDown('Cease', {}) });
+					).subscribe({
+						next: () => {
+							this.app.sendMessageDown('Cease', {});
+							unloadEmoteButton();
+						}
+					});
 				}
 			};
 
