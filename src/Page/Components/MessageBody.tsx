@@ -5,7 +5,6 @@ import { onMessageUnrender } from 'src/Content/App/App';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { Logger } from 'src/Logger';
-import styled from 'styled-components';
 import twemoji from 'twemoji';
 
 export class MessageBody extends React.PureComponent<MessageBody.Props, MessageBody.State> {
@@ -55,12 +54,12 @@ export class MessageBody extends React.PureComponent<MessageBody.Props, MessageB
 		}, 0);
 
 		return (this.state.offScreen ? <span></span> :
-			<MessageBody.PartsList>{this.props.parts.map((part, i) => {
+			this.props.parts.map((part, i) => {
 				return React.cloneElement(part, {
 					...part.props,
 					key: `msg-part-${i}`
 				});
-			})}</MessageBody.PartsList>
+			})
 		);
 	}
 
@@ -100,8 +99,4 @@ export namespace MessageBody {
 	export interface State {
 		offScreen: boolean;
 	}
-
-	export const PartsList = styled.span`
-		display: inline-block;
-	`;
 }

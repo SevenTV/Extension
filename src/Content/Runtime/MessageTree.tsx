@@ -75,7 +75,7 @@ export class MessageTree {
 	private addTextPart(part: Part): JSX.Element {
 		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
 
-		return <span style={{ color, wordWrap: 'break-word' }}>{part.content}</span>;
+		return <span style={{ color, wordWrap: 'break-word' }}> {part.content} </span>;
 	}
 
 	private addCustomEmotePart(part: Part): JSX.Element {
@@ -85,7 +85,7 @@ export class MessageTree {
 
 		if (!!emote) {
 			const reactElement = emoteStore.getElement(emoteID) ?? emoteStore.addElement(emote?.name,
-				<EmoteComponent emote={emote} hasMarginLeft={part.margin_left} hasMarginRight={part.margin_right}></EmoteComponent>
+				<EmoteComponent emote={emote}></EmoteComponent>
 			);
 
 			return reactElement;

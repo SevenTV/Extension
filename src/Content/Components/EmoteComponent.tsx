@@ -17,9 +17,7 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 		return (
 			<EmoteComponent.Container
 				style={{
-					minWidth: this.props.emote.width[0], minHeight: this.props.emote.height[0],
-					marginLeft: this.props.hasMarginLeft ? '.5em' : '',
-					marginRight: this.props.hasMarginRight ? '.5em' : ''
+					minWidth: this.props.emote.width[0], minHeight: this.props.emote.height[0]
 				}}
 				className='seventv-emote'
 				onMouseLeave={ev => this.onMouseEvent(false, ev)}
