@@ -206,7 +206,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 					this.badges.loadBadgeData(id, {
 						id: badge.id,
 						title: badge.tooltip,
-						slot: 22,
+						slot: 69,
 						image: badge.urls[1][1],
 						urls: {
 							1: badge.urls[2][1]
