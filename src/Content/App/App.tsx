@@ -61,6 +61,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				});
 			}
 		});
+		api.ws.create();
 	}
 
 	onInjected(): void {
@@ -90,7 +91,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		this.sendMessageDown('DisableEmoteSet', data.as);
 
 		const updateWS = () => {
-			api.ws.create();
 			api.ws.send('SUBSCRIBE', {
 				type: 1,
 				params: {
