@@ -33,16 +33,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			}
 		});
 
-		this.settings.add('addon.7tv_emotes.socket', {
-			default: true,
-			ui: {
-				path: 'Add-Ons > 7TV Emotes >> Socket',
-				title: 'Web Socket',
-				description: 'Enables live 7TV emote updates via Web Socket.',
-				component: 'setting-check-box',
-			}
-		});
-
 		this.settings.add('addon.7tv_emotes.update_messages', {
 			default: true,
 			ui: {
@@ -227,23 +217,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 					}
 				}
 			}
-		}
-	}
-
-	closeSocket() {
-		if (this.socket) this.socket.close();
-		if (this.socketHeartbeat) clearInterval(this.socketHeartbeat);
-		if (this.socketReconnectTimeout) clearTimeout(this.socketReconnectTimeout);
-		this.socket = undefined;
-		this.socketHeartbeat = undefined;
-		this.socketReconnectTimeout = undefined;
-	}
-
-	sendSocketHeartbeat() {
-		if (this.socket) {
-			this.socket.send(JSON.stringify({
-				op: 2
-			}));
 		}
 	}
 
