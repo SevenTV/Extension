@@ -82,7 +82,7 @@ export class MessagePatcher {
 	 */
 	render(line: Twitch.ChatLineAndComponent): void {
 		// Hide twitch fragments
-		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote'));
+		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, [data-test-selector=emote-button]'));
 		for (const oldFrag of oldFragments) {
 			oldFrag.setAttribute('superceded', '');
 			oldFrag.style.display = 'none';
@@ -99,7 +99,7 @@ export class MessagePatcher {
 			elementId: line.element.id
 		}); // Rendering the message body moves on Content.MessageRenderer from now on
 		window.dispatchEvent(new CustomEvent('7TV#RenderChatLine', { detail: data } ));
-	} // [i] This is done on the pagescript, because Twitch will maintain references to our React components and cause a memory leak!
+	} // [i] This is done on the content script, because Twitch will maintain references to our React components and cause a memory leak!
 
 	/**
 	 * Get a Regular Expression matching a list of emotes
