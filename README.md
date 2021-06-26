@@ -59,8 +59,7 @@ Download the [Chatterino7 fork](https://github.com/SevenTV/chatterino7). 7TV is 
 Pre-requisites:
 - NPM / Node.JS installed
 
-1. Clone this repo
-1. Navigate to the repo `cd ./SevenTV` and clone the shared typings repository: `git clone git@github.com:SevenTV/Typings.git`
+1. Clone this repo with submodule: `git clone git@github.com:SevenTV/SevenTV.git --recursive`
 1. Run `npm install`
 1. Build the project using `npm run build` or `npm run build-production`
 1. Built files will be in the `dist/` folder
