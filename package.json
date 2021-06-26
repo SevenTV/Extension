@@ -1,6 +1,6 @@
 {
   "name": "seventv",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "SevenTV Browser Extension",
   "main": "index.ts",
   "scripts": {

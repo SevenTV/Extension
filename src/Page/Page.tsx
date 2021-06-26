@@ -65,7 +65,12 @@ export class PageScript {
 		let channelName = this.getCurrentChannelFromURL(); // Set current channel
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
-		setInterval(() => {
+		const interval = setInterval(() => {
+			if (stopped) {
+				clearInterval(interval);
+				return undefined;
+			}
+
 			channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
@@ -84,6 +89,10 @@ export class PageScript {
 
 	@PageScriptListener('EnableEmoteSet')
 	whenEmoteSetIsAdded(data: EmoteStore.EmoteSet.Resolved): void {
+		if (stopped) {
+			return undefined;
+		}
+
 		const set = emoteStore.enableSet(data.name, data.emotes);
 
 		if (!page.currentChannelSet) {
@@ -97,6 +106,10 @@ export class PageScript {
 
 	@PageScriptListener('DisableEmoteSet')
 	whenEmoteSetIsRemoved(name: string): void {
+		if (stopped) {
+			return undefined;
+		}
+
 		emoteStore.disableSet(name);
 	}
 
@@ -110,7 +123,18 @@ export class PageScript {
 
 	@PageScriptListener('SendSystemMessage')
 	whenUpperLayerSendsSystemMessage(message: string): void {
+		if (stopped) {
+			return undefined;
+		}
+
 		chatListener.sendSystemMessage(message);
+	}
+
+	@PageScriptListener('Cease')
+	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
+		stopped = true;
+		chatListener.kill();
+		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 
 	private eIndex: {
@@ -150,6 +174,7 @@ let chatListener: ChatListener;
 let tabCompletion: TabCompletion;
 
 let page: PageScript;
+let stopped = false;
 (() => {
 	const { } = page = new PageScript();
 })();

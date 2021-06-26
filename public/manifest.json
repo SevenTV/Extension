@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "7TV",
 	"description": "A third party emote extension for Twitch",
-	"version": "1.5.3",
+	"version": "1.5.4",
 	"page_action": {
 		"default_icon": "icon128.png"
 	},
@@ -20,6 +20,8 @@
 	],
 	"web_accessible_resources": [
 		"page.js",
+		"ffz_hook.js",
+		"ffz_addon.js",
 		"styles/Style.css",
 		"image/*.webp"
 	],

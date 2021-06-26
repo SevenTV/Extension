@@ -175,7 +175,7 @@ export namespace API {
 
 	/** List of foreign emote providers  */
 	export type EmoteProvider = 'BTTV' | 'FFZ';
-	export type EmoteProviderList = [EmoteProvider, EmoteProvider];
+	export type EmoteProviderList = [EmoteProvider?, EmoteProvider?];
 }
 
 const defaultEmoteQuery = `
