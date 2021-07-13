@@ -12,10 +12,13 @@ import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
 import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
+import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
+import { DataStructure } from '@typings/typings/DataStructure';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
 	mainComponent: MainComponent | null = null;
+	emoteStore = emoteStore;
 
 	constructor() {
 		app = this;
@@ -83,7 +86,11 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	onAppLoaded(): void { }
 
 	@PageScriptListener('SwitchChannel')
-	whenTheChannelSwitches(data: { channelName: string; as: string; skip_download: boolean; }): void {
+	whenTheChannelSwitches(data: {
+		channelName: string; as: string;
+		skip_download: boolean;
+		emotes: DataStructure.Emote[];
+	}): void {
 		emoteStore.disableSet(state.channel);
 		emoteStore.disableSet(data.as);
 		mainComponent?.toggleEmoteMenu(undefined, false);
@@ -98,6 +105,13 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				}
 			});
 		};
+
+		const tabCompleteDetector = new TabCompleteDetection(app as App);
+		if (Array.isArray(data.emotes) && data.emotes.length > 0) {
+			emoteStore.enableSet(data.channelName, data.emotes);
+
+			tabCompleteDetector.start();
+		}
 
 		if (data.skip_download) {
 			updateWS();
@@ -121,6 +135,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			next: (set: EmoteStore.EmoteSet) => {
 				state.channel = data.channelName;
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
+				tabCompleteDetector.start();
 
 				updateWS();
 			},
