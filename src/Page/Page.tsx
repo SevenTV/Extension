@@ -17,6 +17,10 @@ export class PageScript {
 
 	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
 
+	get stopped(): boolean {
+		return stopped;
+	}
+
 	/**
 	 * The PageScript is the lower layer of the extension, it nests itself directly into the page
 	 * in order to gain access to Twitch's react instance and components.
@@ -115,10 +119,19 @@ export class PageScript {
 
 	@PageScriptListener('InsertEmoteInChatInput')
 	whenUserInsertsEmoteFromEmoteMenu(emoteName: string): void {
+		if (stopped) {
+			return undefined;
+		}
+
 		const currentValue = tabCompletion.getInput().value ?? '';
 		const spacing = currentValue.length > 0 ? ' ' : '';
 
 		tabCompletion.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);
+	}
+
+	@PageScriptListener('SetChatInput')
+	whenUserTabCompletesAndTheChatInputBoxShouldBeChanged(value: string): void {
+		tabCompletion.setInputValue(value);
 	}
 
 	@PageScriptListener('SendSystemMessage')

@@ -1,4 +1,3 @@
-import { Subject } from 'rxjs';
 import { Twitch } from 'src/Page/Util/Twitch';
 import ReactDOM from 'react-dom';
 import React from 'react';
@@ -8,7 +7,6 @@ import { Logger } from 'src/Logger';
 
 export class TabCompletion {
 	private twitch = new Twitch();
-	onInputEvent = new Subject<KeyboardEvent>();
 
 	tab = {
 		index: 0,
@@ -25,35 +23,6 @@ export class TabCompletion {
 		if (!input) throw Error('Chat Text Input not found!');
 
 		Logger.Get().info(`Handling tab completion`);
-
-		const emotes = this.page.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ']);
-		input.onkeydown = (ev) => {
-			if (ev.key === 'Tab') {
-				ev.preventDefault();
-
-				this.handleTabPress(emotes.map(e => e.name));
-			}
-
-			setTimeout(() => this.onInputEvent.next(ev), 0);
-		};
-	}
-
-	private handleTabPress(emotes: string[]): void {
-		const input = this.getInput();
-		const currentWord = input.value.match(/\b(\w+)\W*$/)?.[0];
-		if (!currentWord) return undefined;
-
-		const entries = emotes.filter(e => startsWith(currentWord ?? '', e));
-		if (this.tab.entry !== currentWord) {
-			this.tab.entry = currentWord;
-			this.tab.index = -1;
-		}
-		this.tab.index >= (entries.length - 1) ? this.tab.index = 0 : this.tab.index++;
-
-		const next = entries[this.tab.index];
-		if (!next) return undefined;
-
-		this.setInputValue(input.value.replace(currentWord, next));
 	}
 
 	createOverlayInput(): void {
@@ -86,6 +55,3 @@ export class TabCompletion {
 		}
 	}
 }
-
-const startsWith = (prefix: string, emoteName: string): boolean =>
-	emoteName.toLowerCase().startsWith(prefix.toLowerCase());
