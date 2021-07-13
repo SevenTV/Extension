@@ -10,8 +10,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		this.inject('chat.emotes');
 		this.inject('chat.badges');
 		this.inject('site');
-
-		this.siteChat = this.resolve('site.chat');
+		this.injectAs('siteChat', 'site.chat');
 
 		this.settings.add('addon.7tv_emotes.global_emotes', {
 			default: true,
@@ -53,21 +52,8 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	async onEnable() {
-		try {
-			await this.setupSocket();
-		} catch (e) { }
-
 		this.chat.context.on('changed:addon.7tv_emotes.global_emotes', () => this.updateGlobalEmotes());
 		this.chat.context.on('changed:addon.7tv_emotes.channel_emotes', () => this.updateChannels());
-		this.chat.context.on('changed:addon.7tv_emotes.socket', async () => {
-			try {
-				await this.setupSocket();
-			}
-			catch (e) {
-				return;
-			}
-			await this.updateChannels();
-		});
 
 		this.addBadges();
 
@@ -156,7 +142,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		return this.emotes.emote_sets[this.getChannelSetID(channel)];
 	}
 
-	async updateChannels() {
+	updateChannels() {
 		const promises = [];
 		const enabled = this.chat.context.get('addon.7tv_emotes.channel_emotes');
 		for (const channel of this.chat.iterateRooms()) {
@@ -257,9 +243,10 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 }
 
 SevenTVEmotes.register({
+	'id': '7tv-emotes',
 	'name': '7TV Emotes',
-	'author': 'Melonify',
-	'description': 'Adds 7TV channel and global emotes, badges as well as live emote update support.',
+	'author': '7TV',
+	'description': '7TV FrankerFaceZ compatibility Add-On',
 	'version': version,
 	'website': 'https://7tv.app',
 	'settings': 'add_ons.7tv_emotes',
