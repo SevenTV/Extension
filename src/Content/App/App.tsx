@@ -108,7 +108,9 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 		const tabCompleteDetector = new TabCompleteDetection(app as App);
 		if (Array.isArray(data.emotes) && data.emotes.length > 0) {
-			tabCompleteDetector.start();
+			setTimeout(() => {
+				tabCompleteDetector.start();
+			}, 1000);
 		}
 
 		const getThirdParty = [
