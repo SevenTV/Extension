@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, filter, map, switchMap, take, toArray } from 'rxjs/operators';
+import { catchError, concatAll, filter, map, mergeAll, switchMap, take, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -108,14 +108,24 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 		const tabCompleteDetector = new TabCompleteDetection(app as App);
 		if (Array.isArray(data.emotes) && data.emotes.length > 0) {
-			emoteStore.enableSet(data.channelName, data.emotes);
-
 			tabCompleteDetector.start();
 		}
 
+		const getThirdParty = [
+			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV', 'FFZ']),
+			api.GetThirdPartyGlobalEmotes(['BTTV', 'FFZ'])
+		];
 		if (data.skip_download) {
 			updateWS();
 			state.channel = data.channelName;
+
+			scheduled(getThirdParty, asapScheduler).pipe(
+				mergeAll(),
+				toArray(),
+				map(emotes => emoteStore.enableSet(data.channelName, [...data.emotes, ...emotes[0], ...emotes[1]]))
+			).subscribe({
+				next: (set) => console.log('FullSet:', set)
+			});
 
 			return undefined;
 		}
@@ -124,8 +134,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		scheduled([
 			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
 			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
-			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV', 'FFZ']),
-			api.GetThirdPartyGlobalEmotes(['BTTV', 'FFZ'])
+			...getThirdParty
 		], asapScheduler).pipe(
 			concatAll(),
 			toArray(),
