@@ -5,6 +5,7 @@ import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import { post } from 'superagent';
+import { version } from 'public/manifest.json';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
@@ -134,7 +135,12 @@ export class API {
 
 			if (ctx === 'background') {
 				const uri = this.BASE_URL + route;
-				from(post(uri).send(options.body ?? {})).subscribe({
+
+				from(post(uri).set(
+					'X-SevenTV-Platform', 'Web',
+				).set(
+					'X-SevenTV-Version', version
+				).send(options.body ?? {})).subscribe({
 					error(err) { observer.error(new API.ErrorResponse(err.status, err)); },
 					next(res) { observer.next({ status: res.status, body: res.body, headers: res.headers }); },
 					complete() { observer.complete(); }
