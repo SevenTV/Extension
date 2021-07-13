@@ -126,7 +126,9 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				toArray(),
 				map(emotes => emoteStore.enableSet(data.channelName, [...data.emotes, ...emotes[0], ...emotes[1]]))
 			).subscribe({
-				next: (set) => console.log('FullSet:', set)
+				error(err) {
+					Logger.Get().error(`Failed to fetch third-party emotes (${err})`);
+				}
 			});
 
 			return undefined;
