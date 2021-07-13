@@ -106,6 +106,11 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 				emotes.push(this.convertEmote(emote));
 			}
 
+			this.sendMessageUp('SwitchChannel', {
+				channelName: channelLogin,
+				emotes: emotes ?? [],
+				skip_download: true
+			});
 			return emotes;
 		}
 	}
@@ -116,12 +121,12 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 	async addChannelSet(channel: any, emotes?: any[]) {
 		this.removeChannelSet(channel);
-		this.sendMessageUp('SwitchChannel', { channelName: channel.login, skip_download: true });
 
 		if (emotes === undefined) {
 			emotes = await this.fetchChannelEmotes(channel.login);
 		}
 
+		this.sendMessageUp('EmoteSetUpdateFFZ', emotes);
 		if (emotes && emotes.length > 0) {
 			channel.addSet('addon.7tv_emotes', this.getChannelSetID(channel), {
 				title: 'Channel Emotes',
