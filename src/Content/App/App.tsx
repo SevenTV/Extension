@@ -110,8 +110,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		scheduled([
 			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
 			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
-			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV']),
-			api.GetThirdPartyGlobalEmotes(['BTTV'])
+			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV', 'FFZ']),
+			api.GetThirdPartyGlobalEmotes(['BTTV', 'FFZ'])
 		], asapScheduler).pipe(
 			concatAll(),
 			toArray(),
