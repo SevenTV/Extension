@@ -1,12 +1,9 @@
 import { Twitch } from 'src/Page/Util/Twitch';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { MessageBody } from 'src/Page/Components/MessageBody';
 import { App } from 'src/Content/App/App';
 import { MessageTree } from 'src/Content/Runtime/MessageTree';
 
 export class MessageRenderer {
-	private jsx = [] as JSX.Element[];
+	private parts = [] as HTMLElement[];
 	constructor(
 		public app: App,
 		public msg: Twitch.ChatMessage,
@@ -37,13 +34,16 @@ export class MessageRenderer {
 		newContext.classList.add('seventv-message-context');
 		newContext.style.position = 'relative';
 
-		ReactDOM.render(<MessageBody renderer={this} id={this.msg.id} parts={this.jsx} />, newContext);
+		for (const part of this.parts) {
+			newContext.appendChild(part);
+		}
+
 		container.appendChild(newContext);
 	}
 
-	renderMessageTree(): JSX.Element[] {
+	renderMessageTree(): HTMLElement[] {
 		const tree = new MessageTree(this);
 
-		return this.jsx = tree.fill();
+		return this.parts = tree.fill();
 	}
 }

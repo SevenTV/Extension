@@ -2,6 +2,7 @@ import { BitField } from '@typings/src/BitField';
 import { Constants } from '@typings/src/Constants';
 import { DataStructure } from '@typings/typings/DataStructure';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import EmojiData from 'src/Content/Util/Emoji.json';
 import twemoji from 'twemoji';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
@@ -251,6 +252,8 @@ export namespace EmoteStore {
 		provider: DataStructure.Emote.Provider = '7TV';
 		urls = [] as [string, string][];
 
+		private element: HTMLDivElement | null = null;
+
 		constructor(private data: DataStructure.Emote) {
 			this.id = data.id ?? '';
 			this.name = data.name ?? '';
@@ -314,6 +317,18 @@ export namespace EmoteStore {
 
 			store?.addElement(this.id, element);
 			return element;
+		}
+
+		toElement(): HTMLSpanElement {
+			if (!!this.element) {
+				return this.element;
+			}
+
+			const jsx = this.toJSX();
+			const container = document.createElement('span');
+
+			ReactDOM.render(jsx, container);
+			return container;
 		}
 
 		resolve(): DataStructure.Emote {
