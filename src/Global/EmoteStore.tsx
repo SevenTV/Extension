@@ -296,11 +296,18 @@ export namespace EmoteStore {
 			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.PRIVATE);
 		}
 
+		isZeroWidth(): boolean {
+			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.ZERO_WIDTH);
+		}
+
 		toElement(): HTMLSpanElement {
 			const container = document.createElement('span');
 			container.style.minWidth = `${this.width[0]}px`;
 			container.style.minHeight = `${this.height[0]}px`;
 			container.classList.add('seventv-emote');
+			if (this.isZeroWidth()) {
+				container.classList.add('seventv-zerowidth');
+			}
 
 			const inner = document.createElement('span');
 			inner.addEventListener('mouseenter', event => {
