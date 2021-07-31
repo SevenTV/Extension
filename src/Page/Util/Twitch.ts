@@ -230,6 +230,11 @@ export namespace Twitch {
 		channelLogin: string;
 		channelID: string;
 	}> & {
+		client: {
+			connection: {
+				ws: WebSocket;
+			};
+		};
 		service: {
 			client: {
 				events: {

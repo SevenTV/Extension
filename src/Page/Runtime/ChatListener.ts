@@ -42,6 +42,29 @@ export class ChatListener {
 			};
 		}
 
+		// Hijack WebSocket
+		// Capture send events and edit the nonce
+		// We are tagging the message with an extra bitfield
+		const ws = this.twitch.getChatService().client.connection.ws;
+		if (!!ws) {
+			const xs = ws.send;
+			ws.send = function(s: string) {
+				const nonceTag = s.match(/(?:@client-nonce=).+?(?= )/)?.[0] ?? '';
+				const nonce = nonceTag.split('=')[1];
+				if (typeof nonce === 'string' && nonce.length > 0) {
+					s = s.replace(nonceTag, `@client-nonce=${nonce}#7TV{0}`);
+				}
+
+				if (!!x && typeof x === 'function') {
+					try {
+						xs.call(this, s); // Pass the execution on
+					} catch (err) {
+						console.error('hm', err);
+					}
+				}
+			};
+		}
+
 		// Handle kill
 		this.killed.subscribe({
 			next: () => {
