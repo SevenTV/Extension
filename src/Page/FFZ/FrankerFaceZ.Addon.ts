@@ -1,5 +1,6 @@
 import { Config } from 'src/Config';
 import { version } from 'public/manifest.json';
+import { DataStructure } from '@typings/typings/DataStructure';
 
 class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	constructor(...args: any[]) {
@@ -171,6 +172,8 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 				3: emote.urls[2][1],
 				4: emote.urls[3][1]
 			},
+			modifier: (emote.visibility & DataStructure.Emote.Visibility.ZERO_WIDTH) == DataStructure.Emote.Visibility.ZERO_WIDTH,
+			modifier_offset: '0',
 			width: emote.width[0],
 			height: emote.height[0],
 			click_url: `https://7tv.app/emotes/${emote.id}`,
