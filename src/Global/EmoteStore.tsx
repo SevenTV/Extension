@@ -252,7 +252,7 @@ export namespace EmoteStore {
 		provider: DataStructure.Emote.Provider = '7TV';
 		urls = [] as [string, string][];
 
-		private element: HTMLDivElement | null = null;
+		private element: HTMLSpanElement | null = null;
 
 		constructor(private data: DataStructure.Emote) {
 			this.id = data.id ?? '';
@@ -328,7 +328,7 @@ export namespace EmoteStore {
 			const container = document.createElement('span');
 
 			ReactDOM.render(jsx, container);
-			return container;
+			return this.element = container;
 		}
 
 		resolve(): DataStructure.Emote {
