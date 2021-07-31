@@ -1,6 +1,7 @@
 import { Twitch } from 'src/Page/Util/Twitch';
 import { App } from 'src/Content/App/App';
 import { MessageTree } from 'src/Content/Runtime/MessageTree';
+import twemoji from 'twemoji';
 
 export class MessageRenderer {
 	private parts = [] as HTMLElement[];
@@ -37,6 +38,20 @@ export class MessageRenderer {
 		for (const part of this.parts) {
 			newContext.appendChild(part);
 		}
+		newContext.querySelectorAll('span').forEach(span => {
+			if (twemoji.test(span.innerText)) {
+				twemoji.parse(span, {
+					className: 'seventv-emoji'
+				});
+				const emojis = span.querySelectorAll('img');
+				for (const emoji of Array.from(emojis)) {
+					const emoteji = this.app.emotes.fromEmoji(emoji);
+					emoji.title = emoteji.name;
+					emoji.width = 19.5;
+					emoji.height = 19.5;
+				}
+			}
+		});
 
 		container.appendChild(newContext);
 	}
