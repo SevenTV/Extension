@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
+import { EmoteStore } from 'src/Global/EmoteStore';
 import { getProviderLogo } from 'src/Global/Util';
 import styled from 'styled-components';
 
@@ -16,18 +16,18 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		return (
 			<div ref={this.ref} className='seventv-emote-tooltip' style={{ position: 'relative', top: (this.getPosY() - 74), left: this.getPosX() - 74 }}>
 				<TooltipComponent.Image>
-					<img src={this.emoteProps.emote.cdn('3')}></img>
+					<img src={this.props.emote.cdn('3')}></img>
 				</TooltipComponent.Image>
 
 				<TooltipComponent.Details>
-					<h3 className='emote-name'> {this.emoteProps.emote.name} </h3>
-					{!!this.emoteProps.emote.owner?.display_name ? <span className='emote-submitter'> by {this.emoteProps.emote.owner.display_name} </span> : ''}
+					<h3 className='emote-name'> {this.props.emote.name} </h3>
+					{!!this.props.emote.owner?.display_name ? <span className='emote-submitter'> by {this.props.emote.owner.display_name} </span> : ''}
 
-					{this.emoteProps.emote.isGlobal() && <p className='is-7tv-global'>Global Emote</p>}
-					{this.emoteProps.emote.provider === 'EMOJI' && <p>Emoji</p>}
+					{this.props.emote.isGlobal() && <p className='is-7tv-global'>Global Emote</p>}
+					{this.props.emote.provider === 'EMOJI' && <p>Emoji</p>}
 				</TooltipComponent.Details>
 				<TooltipComponent.Provider>
-					<img src={getProviderLogo(this.emoteProps.emote.provider)} />
+					<img src={getProviderLogo(this.props.emote.provider)} />
 				</TooltipComponent.Provider>
 			</div>
 		);
@@ -64,10 +64,6 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 	componentWillUnmount(): void {
 		this.state.node = null;
 	}
-
-	get emoteProps(): EmoteComponent.Props {
-		return this.props.emote.props;
-	}
 }
 
 export namespace TooltipComponent {
@@ -78,7 +74,7 @@ export namespace TooltipComponent {
 	}
 
 	export interface Props {
-		emote: EmoteComponent;
+		emote: EmoteStore.Emote;
 		posX: number;
 		posY: number;
 	}
