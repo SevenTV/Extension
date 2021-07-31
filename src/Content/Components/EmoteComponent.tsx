@@ -40,7 +40,7 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 	}
 
 	onMouseEvent(hover: boolean, event: React.MouseEvent): void {
-		Main.ShowTooltip.next({ event, emote: this, hover });
+		Main.ShowTooltip.next({ event: event.nativeEvent, emote: this.props.emote, hover });
 	}
 
 	get isEmoji(): boolean {
