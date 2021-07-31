@@ -1,12 +1,10 @@
 import { Twitch } from 'src/Page/Util/Twitch';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { MessageBody } from 'src/Page/Components/MessageBody';
 import { App } from 'src/Content/App/App';
 import { MessageTree } from 'src/Content/Runtime/MessageTree';
+import twemoji from 'twemoji';
 
 export class MessageRenderer {
-	private jsx = [] as JSX.Element[];
+	private parts = [] as HTMLElement[];
 	constructor(
 		public app: App,
 		public msg: Twitch.ChatMessage,
@@ -37,13 +35,30 @@ export class MessageRenderer {
 		newContext.classList.add('seventv-message-context');
 		newContext.style.position = 'relative';
 
-		ReactDOM.render(<MessageBody renderer={this} id={this.msg.id} parts={this.jsx} />, newContext);
+		for (const part of this.parts) {
+			newContext.appendChild(part);
+		}
+		newContext.querySelectorAll('span').forEach(span => {
+			if (twemoji.test(span.innerText)) {
+				twemoji.parse(span, {
+					className: 'seventv-emoji'
+				});
+				const emojis = span.querySelectorAll('img');
+				for (const emoji of Array.from(emojis)) {
+					const emoteji = this.app.emotes.fromEmoji(emoji);
+					emoji.title = emoteji.name;
+					emoji.width = 19.5;
+					emoji.height = 19.5;
+				}
+			}
+		});
+
 		container.appendChild(newContext);
 	}
 
-	renderMessageTree(): JSX.Element[] {
+	renderMessageTree(): HTMLElement[] {
 		const tree = new MessageTree(this);
 
-		return this.jsx = tree.fill();
+		return this.parts = tree.fill();
 	}
 }

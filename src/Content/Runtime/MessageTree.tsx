@@ -1,5 +1,3 @@
-import React from 'react';
-import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { Twitch } from 'src/Page/Util/Twitch';
 
@@ -30,8 +28,8 @@ export class MessageTree {
 	 *
 	 * @returns an array of elements corresponding to a full message body
 	 */
-	fill(): JSX.Element[] {
-		const parts = [] as JSX.Element[];
+	fill(): HTMLElement[] {
+		const parts = [] as HTMLElement[];
 
 		for (const part of this.getParts()) {
 			parts.push(this.addPart(part));
@@ -40,8 +38,8 @@ export class MessageTree {
 		return parts;
 	}
 
-	addPart(part: Part): JSX.Element {
-		let jsx: JSX.Element;
+	addPart(part: Part): HTMLElement{
+		let jsx: HTMLElement;
 
 		switch (part.type) {
 			case 'text':
@@ -65,51 +63,59 @@ export class MessageTree {
 				break;
 
 			default:
-				jsx = <span></span>;
+				jsx = document.createElement('span');
 				break;
 		}
 
 		return jsx;
 	}
 
-	private addTextPart(part: Part): JSX.Element {
+	private addTextPart(part: Part): HTMLSpanElement {
+		const span = document.createElement('span');
 		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
 
-		return <span style={{ color, wordWrap: 'break-word' }}> {part.content} </span>;
+		span.style.color = color;
+		span.style.wordWrap = 'break-word';
+		span.innerText = part.content as string;
+		return span;
 	}
 
-	private addCustomEmotePart(part: Part): JSX.Element {
+	private addCustomEmotePart(part: Part): HTMLElement {
 		const emoteStore = this.renderer.app.emotes;
 		const emoteID = part.content as string;
 		const emote = emoteStore.getEmote(emoteID);
 
 		if (!!emote) {
-			const reactElement = emoteStore.getElement(emoteID) ?? emoteStore.addElement(emote?.name,
-				<EmoteComponent emote={emote}></EmoteComponent>
-			);
-
-			return reactElement;
+			return emote.toElement();
 		}
 
-		return <span></span>;
+		return document.createElement('span');
 	}
 
-	private addTwitchEmotePart(part: Part): JSX.Element {
+	private addTwitchEmotePart(part: Part): HTMLElement {
 		const emoteStore = this.renderer.app.emotes;
 		const data = part.content as Twitch.ChatMessage.EmoteRef;
 		const emote = emoteStore.fromTwitchEmote(data);
 
-		return emote.toJSX(emoteStore);
+		return emote.toElement();
 	}
 
-	private addMentionPart(part: Part): JSX.Element {
-		return <span className='seventv-mention'>@{part.content}</span>;
+	private addMentionPart(part: Part): HTMLSpanElement {
+		const span = document.createElement('span');
+		span.classList.add('seventv-mention');
+		span.innerHTML = `@${part.content}`;
+
+		return span;
 	}
 
-	private addLinkPart(part: Part): JSX.Element {
+	private addLinkPart(part: Part): HTMLAnchorElement {
 		const data = part.content as { displayText: string; url: string; };
+		const link = document.createElement('a');
+		link.innerHTML = data.displayText;
+		link.href = data.url;
+		link.target = '_blank';
 
-		return <a href={data.url} target='_blank'>{data.displayText}</a>;
+		return link;
 	}
 }
 

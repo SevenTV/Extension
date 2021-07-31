@@ -1,13 +1,12 @@
 import { BitField } from '@typings/src/BitField';
 import { Constants } from '@typings/src/Constants';
 import { DataStructure } from '@typings/typings/DataStructure';
-import React from 'react';
 import EmojiData from 'src/Content/Util/Emoji.json';
 import twemoji from 'twemoji';
-import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { getRunningContext } from 'src/Global/Util';
+import { Main } from 'src/Content/Components/MainComponent';
 
 const TWITCH_SET_NAME = 'twitch';
 const EMOJI_SET_NAME = 'emoji';
@@ -297,23 +296,29 @@ export namespace EmoteStore {
 			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.PRIVATE);
 		}
 
-		toJSX(store?: EmoteStore): JSX.Element {
-			let element: JSX.Element | undefined;
-			if (!!store) {
-				element = store.getElement(this.id);
-			}
+		toElement(): HTMLSpanElement {
+			const container = document.createElement('span');
+			container.style.minWidth = `${this.width[0]}px`;
+			container.style.minHeight = `${this.height[0]}px`;
+			container.classList.add('seventv-emote');
 
-			if (!!element) {
-				return element;
-			} else {
-				element = <EmoteComponent
-					emote={this}
-					provider={this.provider}
-				/>;
-			}
+			const inner = document.createElement('span');
+			inner.addEventListener('mouseenter', event => {
+				Main.ShowTooltip.next({ event, emote: this, hover: true });
+			});
+			inner.addEventListener('mouseleave', event => {
+				Main.ShowTooltip.next({ event, emote: this, hover: false });
+			});
 
-			store?.addElement(this.id, element);
-			return element;
+			const img = document.createElement('img');
+			img.alt = ` ${this.name} `;
+			img.classList.add('chat-image');
+			img.classList.add('chat-line__message--emote');
+			img.src = this.cdn('1');
+
+			inner.appendChild(img);
+			container.appendChild(inner);
+			return container;
 		}
 
 		resolve(): DataStructure.Emote {

@@ -2,7 +2,6 @@ import React from 'react';
 import { defer, iif, Observable, Subject } from 'rxjs';
 import { filter, switchMap, take, tap } from 'rxjs/operators';
 import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
-import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { EmoteMenu } from 'src/Content/Components/EmoteMenu/EmoteMenu';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { App } from 'src/Content/App/App';
@@ -65,7 +64,7 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 		});
 	}
 
-	showTooltip(event: React.MouseEvent, emote: EmoteComponent): Observable<void> {
+	showTooltip(event: MouseEvent, emote: EmoteStore.Emote): Observable<void> {
 		return new Observable<void>(observer => {
 			this.setState({
 				currentTooltip: {
@@ -92,7 +91,7 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 }
 
 export namespace Main {
-	export const ShowTooltip = new Subject<{ event: React.MouseEvent; emote: EmoteComponent; hover: boolean; }>();
+	export const ShowTooltip = new Subject<{ event: MouseEvent; emote: EmoteStore.Emote; hover: boolean; }>();
 
 	export const Style = styled.div`
 		width: 100vw;
@@ -114,7 +113,7 @@ export namespace Main {
 	}
 	export namespace State {
 		export interface CurrentTooltip {
-			emote: EmoteComponent;
+			emote: EmoteStore.Emote;
 			posX: number;
 			posY: number;
 		}
