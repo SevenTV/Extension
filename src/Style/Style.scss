@@ -26,6 +26,12 @@
 	font-weight: bold;
 }
 
+.seventv-emote.seventv-zerowidth {
+	width: 0px;
+	position: absolute;
+	z-index: 1;
+}
+
 .seventv-emote-menu {
 	.seventv-emote-menu-header {
 		background-color: var(--color-background-body)
