@@ -9,7 +9,7 @@ const BACKOFF_MULTIPLIER = 1.3;
 export class WebSocketAPI {
 	ctx = getRunningContext();
 
-	private connectionURL = `${Config.secure ? 'wss' : 'ws'}:${Config.apiUrl}/v2/ws`;
+	private connectionURL = `${Config.secure ? 'wss' : 'ws'}:${Config.wsUrl}`;
 	private socket: WebSocket | null = null;
 	private currentBackoff = 1000;
 
