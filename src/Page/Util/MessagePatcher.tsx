@@ -105,7 +105,7 @@ export class MessagePatcher {
 	 * Get a Regular Expression matching a list of emotes
 	 */
 	static getRegexp(emoteNames?: string[]): RegExp {
-		return new RegExp(`(?<![^ ])(${!!emoteNames ? emoteNames.join('|') : '[^ ]*'})(?![^ ])`, 'g');
+		return new RegExp(`(?<![^ ])(${!!emoteNames ? emoteNames.join('|').replace(/[-[\]{}()*+?.,\\^$#\s]/g, '\\$&') : '[^ ]*'})(?![^ ])`, 'g');
 		// Negative Lookbehind	- Match Enote Names - Negative Lookahead
 		// Match space backward or nothing			  Match space forward or nothing
 	}
