@@ -80,7 +80,11 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 						id = u;
 					}
 
-					this.badgeMap.set(id as number, i);
+					if (this.badgeMap.has(id as number)) {
+						this.badgeMap.set(id as number, [...this.badgeMap.get(id as number) as number[], i]);
+					} else {
+						this.badgeMap.set(id as number, [i]);
+					}
 				}
 				return badge;
 			}),
@@ -225,7 +229,7 @@ let mainComponent: MainComponent | undefined;
 const api = new API();
 const emoteStore = new EmoteStore();
 const badges = [] as Badge[];
-const badgeMap = new Map<number, number>();
+const badgeMap = new Map<number, number[]>();
 export const onMessageUnrender = new Subject<string>();
 export const onChatScroll = new Subject<void>();
 
