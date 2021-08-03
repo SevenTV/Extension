@@ -22,8 +22,8 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 		super(props);
 
 		Main.ShowTooltip.pipe(
-			switchMap(({ event, emote, hover }) => iif(() => hover,
-				this.showTooltip(event, emote),
+			switchMap(({ event, hover, fields }) => iif(() => hover,
+				this.showTooltip(event, fields),
 				defer(() => this.hideTooltip())
 			))
 		).subscribe();
@@ -38,7 +38,11 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 						<TooltipComponent
 							posX={this.state.currentTooltip.posX}
 							posY={this.state.currentTooltip.posY}
-							emote={this.state.currentTooltip.emote}>
+							name={this.state.currentTooltip.name}
+							hint={this.state.currentTooltip.hint}
+							imageURL={this.state.currentTooltip.imageURL}
+							providerIconURL={this.state.currentTooltip.providerIconURL}
+							extra={this.state.currentTooltip.extra}>
 						</TooltipComponent>
 					}
 
@@ -64,13 +68,13 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 		});
 	}
 
-	showTooltip(event: MouseEvent, emote: EmoteStore.Emote): Observable<void> {
+	showTooltip(event: MouseEvent, fields?: Main.State.TooltipFields): Observable<void> {
 		return new Observable<void>(observer => {
 			this.setState({
 				currentTooltip: {
-					emote,
 					posX: event.pageX,
-					posY: event.pageY
+					posY: event.pageY,
+					...fields,
 				}
 			});
 
@@ -91,7 +95,11 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 }
 
 export namespace Main {
-	export const ShowTooltip = new Subject<{ event: MouseEvent; emote: EmoteStore.Emote; hover: boolean; }>();
+	export const ShowTooltip = new Subject<{
+		event: MouseEvent;
+		hover: boolean;
+		fields?: State.TooltipFields;
+	}>();
 
 	export const Style = styled.div`
 		width: 100vw;
@@ -112,8 +120,14 @@ export namespace Main {
 		};
 	}
 	export namespace State {
-		export interface CurrentTooltip {
-			emote: EmoteStore.Emote;
+		export interface TooltipFields {
+			name?: string;
+			hint?: string;
+			imageURL?: string;
+			providerIconURL?: string;
+			extra?: JSX.Element[];
+		}
+		export interface CurrentTooltip extends TooltipFields {
 			posX: number;
 			posY: number;
 		}

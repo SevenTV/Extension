@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Main } from 'src/Content/Components/MainComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import { getProviderLogo } from 'src/Global/Util';
 import styled from 'styled-components';
 
 export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, EmoteComponent.State> {
@@ -40,7 +41,18 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 	}
 
 	onMouseEvent(hover: boolean, event: React.MouseEvent): void {
-		Main.ShowTooltip.next({ event: event.nativeEvent, emote: this.props.emote, hover });
+		const tooltipExtra = [] as JSX.Element[];
+		if (this.props.emote.isGlobal()) {
+			tooltipExtra.push(<p key='globalstate' className='is-7tv-global'>Global Emote</p>);
+		}
+
+		Main.ShowTooltip.next({ event: event.nativeEvent, hover, fields: {
+			name: this.props.emote.name,
+			hint: `by ${this.props.emote.owner?.display_name ?? 'Unknown User'}`,
+			imageURL: this.props.emote.cdn('3'),
+			providerIconURL: getProviderLogo(this.props.emote.provider),
+			extra: tooltipExtra
+		}});
 	}
 
 	get isEmoji(): boolean {

@@ -1,11 +1,12 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, switchMap, tap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
-import { post } from 'superagent';
+import request, { post } from 'superagent';
 import { version } from 'public/manifest.json';
+import { Badge } from 'src/Global/Badge';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
@@ -98,6 +99,14 @@ export class API {
 		);
 	}
 
+	GetBadges(): Observable<Badge[]> {
+		return this.createRequest<{ badges: Badge.Data[] }>('/badges?user_identifier=twitch_id', { method: 'GET' }).pipe(
+			switchMap(res => from(res.body.badges)),
+			map(b => new Badge(b)),
+			toArray()
+		);
+	}
+
 	newWebSocket(): WebSocketAPI {
 		return new WebSocketAPI();
 	}
@@ -109,7 +118,7 @@ export class API {
 			if (ctx === 'background') {
 				const uri = this.BASE_URL + route;
 
-				from(post(uri).set(
+				from(request(options.method || 'POST', uri).set(
 					'X-SevenTV-Platform', 'Web',
 				).set(
 					'X-SevenTV-Version', version
@@ -138,6 +147,7 @@ export namespace API {
 		auth: boolean;
 		body?: any;
 		tabId: string;
+		method?: string;
 	}
 
 	export interface Response<T> {

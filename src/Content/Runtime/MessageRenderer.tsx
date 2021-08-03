@@ -35,9 +35,11 @@ export class MessageRenderer {
 		newContext.classList.add('seventv-message-context');
 		newContext.style.position = 'relative';
 
+		// Insert message body parts
 		for (const part of this.parts) {
 			newContext.appendChild(part);
 		}
+		// Render emojis
 		newContext.querySelectorAll('span').forEach(span => {
 			if (twemoji.test(span.innerText)) {
 				twemoji.parse(span, {
@@ -52,6 +54,43 @@ export class MessageRenderer {
 				}
 			}
 		});
+
+		// Render user badges
+		const authorID = this.msg.user?.userID;
+		if (typeof authorID === 'string') {
+			(() => {
+				const usernameContainer = container.querySelector(Twitch.Selectors.ChatUsernameContainer); // Chat Line - Username Container
+				const badgeList = this.app.badgeMap.get(parseInt(authorID)); // Get the badge index ID for this user
+				if (!Array.isArray(badgeList) || badgeList.length === 0) {
+					return undefined;
+				}
+				// Clear existing badge list
+				const badgeListEl = usernameContainer?.querySelectorAll('.seventv-badge-list');
+				badgeListEl?.forEach(x => x.remove());
+
+				// Append to DOM
+				const badgeContainer = usernameContainer?.children[0]; // Twitch Badge Container
+
+				// Create an application context where 7TV badges will rneder
+				const appBagdeContainer = document.createElement('span');
+				appBagdeContainer.classList.add('seventv-badge-list');
+				badgeContainer?.insertAdjacentElement('afterend', appBagdeContainer);
+
+				for (const badgeID of badgeList) {
+					const badge = this.app.badges[badgeID];
+					if (badge === undefined) {
+						continue;
+					}
+
+					if (!!badgeContainer) {
+						appBagdeContainer.appendChild(badge.toElement());
+					}
+
+				}
+
+				return undefined;
+			})();
+		}
 
 		container.appendChild(newContext);
 	}
