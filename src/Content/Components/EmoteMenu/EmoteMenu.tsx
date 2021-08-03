@@ -18,7 +18,8 @@ const styles = () => ({
 export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State> {
 	ref: React.RefObject<HTMLDivElement>;
 	state = {
-		provider: '7TV'
+		provider: '7TV',
+		search: ''
 	} as EmoteMenu.State;
 
 	constructor(props: EmoteMenu.Props) {
@@ -47,7 +48,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 						<EmoteMenu.CategoryHeader>Channel Emotes</EmoteMenu.CategoryHeader>
 					</EmoteMenu.EmoteListSection>
 					<EmoteMenu.EmoteList>
-						{this.emotes.getAllEmotes([this.state.provider]).filter(e => !e.isGlobal()).map((e, i) => (
+						{this.emotes.getAllEmotes([this.state.provider]).filter(e => !e.isGlobal() && e.name.toLowerCase().includes(this.state.search)).map((e, i) => (
 							<span key={`${i}-${e.id}`} onClick={() => this.onInsertEmote(e)}>
 								<EmoteComponent emote={e}></EmoteComponent>
 							</span>
@@ -58,7 +59,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 						<EmoteMenu.CategoryHeader>Global Emotes</EmoteMenu.CategoryHeader>
 					</EmoteMenu.EmoteListSection>
 					<EmoteMenu.EmoteList>
-						{this.emotes.getAllEmotes([this.state.provider]).filter(e => e.isGlobal()).map((e, i) => (
+						{this.emotes.getAllEmotes([this.state.provider]).filter(e => e.isGlobal() && e.name.toLowerCase().includes(this.state.search)).map((e, i) => (
 							<span key={`${i}-${e.id}`} onClick={() => this.onInsertEmote(e)}>
 								<EmoteComponent emote={e}></EmoteComponent>
 							</span>
@@ -69,7 +70,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 
 				{/** Search Bar */}
 				<EmoteMenu.Search>
-					<input className='seventv-emote-search' placeholder='Search Emotes...'>
+					<input className='seventv-emote-search' placeholder='Search Emotes...' onChange={ev => this.onSearchChange(ev)}>
 
 					</input>
 				</EmoteMenu.Search>
@@ -89,6 +90,14 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 		const offset = this.ref.current?.getBoundingClientRect().width ?? 0;
 
 		return (this.props.bounds?.left ?? 0) - (offset / 2) - 64;
+	}
+
+	onSearchChange(ev: React.ChangeEvent<HTMLInputElement>): void {
+		const value = ev.currentTarget.value;
+
+		this.setState({
+			search: value.toLowerCase()
+		});
 	}
 
 	onInsertEmote(emote: EmoteStore.Emote): void {
@@ -124,6 +133,7 @@ export namespace EmoteMenu {
 
 	export interface State {
 		provider: DataStructure.Emote.Provider;
+		search: string;
 	}
 
 	export const Styled = styled.div`
