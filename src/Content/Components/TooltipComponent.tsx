@@ -4,6 +4,7 @@ import { Main } from 'src/Content/Components/MainComponent';
 import styled from 'styled-components';
 
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
+	unmounted = false;
 	ref = React.createRef<any>();
 	state = {
 		refWidth: 0,
@@ -52,6 +53,10 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 
 	componentDidMount(): void {
 		setTimeout(() => {
+			if (this.unmounted) {
+				return undefined;
+			}
+
 			let node: Element | null = null;
 			try {
 				node = ReactDOM.findDOMNode(this) as Element;
@@ -64,6 +69,7 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 	}
 
 	componentWillUnmount(): void {
+		this.unmounted = true;
 		this.state.node = null;
 	}
 }

@@ -43,7 +43,7 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 	onMouseEvent(hover: boolean, event: React.MouseEvent): void {
 		const tooltipExtra = [] as JSX.Element[];
 		if (this.props.emote.isGlobal()) {
-			tooltipExtra.push(<p className='is-7tv-global'>Global Emote</p>);
+			tooltipExtra.push(<p key='globalstate' className='is-7tv-global'>Global Emote</p>);
 		}
 
 		Main.ShowTooltip.next({ event: event.nativeEvent, hover, fields: {
