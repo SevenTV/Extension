@@ -44,7 +44,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 				<EmoteMenu.Scrollable className='seventv-emote-menu-scrollable'>
 					{/* Render current emotes*/}
 					<EmoteMenu.EmoteListSection>
-						<h3>Channel Emotes</h3>
+						<EmoteMenu.CategoryHeader>Channel Emotes</EmoteMenu.CategoryHeader>
 					</EmoteMenu.EmoteListSection>
 					<EmoteMenu.EmoteList>
 						{this.emotes.getAllEmotes([this.state.provider]).filter(e => !e.isGlobal()).map((e, i) => (
@@ -55,7 +55,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 					</EmoteMenu.EmoteList>
 
 					<EmoteMenu.EmoteListSection>
-						<h3>Global Emotes</h3>
+						<EmoteMenu.CategoryHeader>Global Emotes</EmoteMenu.CategoryHeader>
 					</EmoteMenu.EmoteListSection>
 					<EmoteMenu.EmoteList>
 						{this.emotes.getAllEmotes([this.state.provider]).filter(e => e.isGlobal()).map((e, i) => (
@@ -66,6 +66,13 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 					</EmoteMenu.EmoteList>
 
 				</EmoteMenu.Scrollable>
+
+				{/** Search Bar */}
+				<EmoteMenu.Search>
+					<input className='seventv-emote-search' placeholder='Search Emotes...'>
+
+					</input>
+				</EmoteMenu.Search>
 			</EmoteMenu.Styled>
 		);
 	}
@@ -147,6 +154,17 @@ export namespace EmoteMenu {
 		&.selected {
 			border-bottom: 1px solid white !important;
 		}
+	`;
+
+	export const CategoryHeader = styled.span`
+		display: flex;
+		width: 100%;
+		justify-content: center;
+		font-size: 1.65rem;
+
+		border-style: solid;
+		border-bottom-width: 1px;
+		border-color: white;
 	`;
 
 	export const Search = styled.div`
