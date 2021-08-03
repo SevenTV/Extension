@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { EmoteStore } from 'src/Global/EmoteStore';
-import { getProviderLogo } from 'src/Global/Util';
+import { Main } from 'src/Content/Components/MainComponent';
 import styled from 'styled-components';
 
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
@@ -15,20 +14,23 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 	render() {
 		return (
 			<div ref={this.ref} className='seventv-emote-tooltip' style={{ position: 'relative', top: (this.getPosY() - 74), left: this.getPosX() - 74 }}>
-				<TooltipComponent.Image>
-					<img src={this.props.emote.cdn('3')}></img>
+				{!!this.props.imageURL && <TooltipComponent.Image>
+					<img src={this.props.imageURL}></img>
 				</TooltipComponent.Image>
+				}
 
 				<TooltipComponent.Details>
-					<h3 className='emote-name'> {this.props.emote.name} </h3>
-					{!!this.props.emote.owner?.display_name ? <span className='emote-submitter'> by {this.props.emote.owner.display_name} </span> : ''}
+					<h3 className='item-name'> {this.props.name} </h3>
+					{!!this.props.hint ? <span className='item-hint'>{this.props.hint}</span> : ''}
 
-					{this.props.emote.isGlobal() && <p className='is-7tv-global'>Global Emote</p>}
-					{this.props.emote.provider === 'EMOJI' && <p>Emoji</p>}
+					{...this.props.extra ?? []}
 				</TooltipComponent.Details>
+
+				{!!this.props.providerIconURL &&
 				<TooltipComponent.Provider>
-					<img src={getProviderLogo(this.props.emote.provider)} />
+					<img src={this.props.providerIconURL} />
 				</TooltipComponent.Provider>
+				}
 			</div>
 		);
 	}
@@ -73,10 +75,8 @@ export namespace TooltipComponent {
 		node: Element | null;
 	}
 
-	export interface Props {
-		emote: EmoteStore.Emote;
-		posX: number;
-		posY: number;
+	export interface Props extends Main.State.CurrentTooltip {
+		[x: string]: any;
 	}
 
 	export const EmoteTitle = styled.h3`

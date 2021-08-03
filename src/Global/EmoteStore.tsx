@@ -5,8 +5,9 @@ import EmojiData from 'src/Content/Util/Emoji.json';
 import twemoji from 'twemoji';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
-import { getRunningContext } from 'src/Global/Util';
+import { getProviderLogo, getRunningContext } from 'src/Global/Util';
 import { Main } from 'src/Content/Components/MainComponent';
+import React from 'react';
 
 const TWITCH_SET_NAME = 'twitch';
 const EMOJI_SET_NAME = 'emoji';
@@ -303,11 +304,22 @@ export namespace EmoteStore {
 			container.classList.add('seventv-emote');
 
 			const inner = document.createElement('span');
+
+			const tooltipExtra = [] as JSX.Element[];
+			if (this.isGlobal()) {
+				tooltipExtra.push(<p className='is-7tv-global'>Global Emote</p>);
+			}
 			inner.addEventListener('mouseenter', event => {
-				Main.ShowTooltip.next({ event, emote: this, hover: true });
+				Main.ShowTooltip.next({ event, hover: true, fields: {
+					name: this.name,
+					hint: this.owner?.display_name ?? '',
+					imageURL: this.cdn('3'),
+					providerIconURL: getProviderLogo(this.provider),
+					extra: tooltipExtra
+				}});
 			});
 			inner.addEventListener('mouseleave', event => {
-				Main.ShowTooltip.next({ event, emote: this, hover: false });
+				Main.ShowTooltip.next({ event, hover: false });
 			});
 
 			const img = document.createElement('img');

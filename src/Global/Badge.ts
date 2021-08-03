@@ -1,3 +1,4 @@
+import { Main } from 'src/Content/Components/MainComponent';
 
 
 export class Badge {
@@ -36,6 +37,16 @@ export class Badge {
 		img.classList.add('chat-badge');
 		img.src = this.cdn('1');
 		img.srcset = `${this.cdn('1')} 1x, ${this.cdn('2')} 2x, ${this.cdn('3')} 3x`;
+		button.addEventListener('mouseenter', event => {
+			Main.ShowTooltip.next({ event, hover: true, fields: {
+				name: this.name,
+				hint: this.tooltip,
+				imageURL: this.cdn('3')
+			}});
+		});
+		button.addEventListener('mouseleave', event => {
+			Main.ShowTooltip.next({ event, hover: false });
+		});
 
 		button.appendChild(img);
 		return button;
