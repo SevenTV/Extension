@@ -1,24 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, filter, map, mergeAll, switchMap, take, toArray } from 'rxjs/operators';
+import { catchError, concatAll, filter, map, mergeAll, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { API } from 'src/Global/API';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { asapScheduler, of, scheduled, Subject } from 'rxjs';
+import { asapScheduler, from, of, scheduled, Subject } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
 import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
 import { DataStructure } from '@typings/typings/DataStructure';
+import { Badge } from 'src/Global/Badge';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
 	mainComponent: MainComponent | null = null;
 	emoteStore = emoteStore;
+	badges = badges;
+	badgeMap = badgeMap;
 
 	constructor() {
 		app = this;
@@ -65,6 +68,25 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			}
 		});
 		api.ws.create();
+
+		// Fetch Badges
+		api.GetBadges().pipe(
+			switchMap(badges => from(badges)),
+			map((badge, i) => {
+				this.badges[i] = badge;
+				for (const u of badge.users) {
+					let id: number | string = parseInt(u);
+					if (isNaN(id)) {
+						id = u;
+					}
+
+					this.badgeMap.set(id as number, i);
+				}
+				return badge;
+			}),
+			toArray(),
+			tap(badges => Logger.Get().info(`Loaded ${badges.length} badges`))
+		).subscribe();
 	}
 
 	onInjected(): void {
@@ -156,7 +178,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	@PageScriptListener('RenderChatLine')
 	whenAChatLineIsRendered(data: { msg: Twitch.ChatMessage; elementId: string; }): void {
-		const renderer = new MessageRenderer(this, data.msg, data.elementId);
+		const renderer = new MessageRenderer(app as App, data.msg, data.elementId);
 
 		renderer.renderMessageTree();
 		renderer.insert();
@@ -202,6 +224,8 @@ let app: App | null = null;
 let mainComponent: MainComponent | undefined;
 const api = new API();
 const emoteStore = new EmoteStore();
+const badges = [] as Badge[];
+const badgeMap = new Map<number, number>();
 export const onMessageUnrender = new Subject<string>();
 export const onChatScroll = new Subject<void>();
 
