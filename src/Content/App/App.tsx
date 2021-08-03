@@ -113,15 +113,15 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			}, 1000);
 		}
 
-		const getThirdParty = [
-			api.GetThirdPartyChannelEmotes(data.channelName, ['BTTV', 'FFZ']),
-			api.GetThirdPartyGlobalEmotes(['BTTV', 'FFZ'])
+		const emoteGetter = [
+			api.GetChannelEmotes(data.channelName, ['BTTV', 'FFZ']).pipe(catchError(_ => of([]))),
+			api.GetGlobalEmotes(['BTTV', 'FFZ']).pipe(catchError(_ => of([]))),
 		];
 		if (data.skip_download) {
 			updateWS();
 			state.channel = data.channelName;
 
-			scheduled(getThirdParty, asapScheduler).pipe(
+			scheduled(emoteGetter, asapScheduler).pipe(
 				mergeAll(),
 				toArray(),
 				map(emotes => emoteStore.enableSet(data.channelName, [...data.emotes, ...emotes[0], ...emotes[1]]))
@@ -135,14 +135,10 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		}
 
 		insertEmoteButton();
-		scheduled([
-			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
-			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
-			...getThirdParty
-		], asapScheduler).pipe(
+		scheduled(emoteGetter, asapScheduler).pipe(
 			concatAll(),
 			toArray(),
-			map(a => a.reduce((a, b) => a.concat(b))),
+			map(a => a.reduce((a, b) => a.concat(b as any))),
 			map(e => emoteStore.enableSet(data.channelName, e)),
 		).subscribe({
 			next: (set: EmoteStore.EmoteSet) => {

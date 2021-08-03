@@ -1,6 +1,6 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
@@ -18,24 +18,34 @@ export class API {
 	 * Get the channel emotes of a channel
 	 *
 	 * @param channelName the channel's name
+	 * @param providers a list of providers from which to get emotes
 	 * @returns an array of emotes
 	 */
-	GetChannelEmotes(channelName: string): Observable<DataStructure.Emote[]> {
-		return this.createRequest<{ data: { user: DataStructure.TwitchUser; } }>('/gql', {
+	GetChannelEmotes(channelName: string, providers: API.EmoteProviderList): Observable<DataStructure.Emote[]> {
+		return this.createRequest<{ data: { user: DataStructure.TwitchUser; third_party_emotes: DataStructure.Emote[]; } }>('/gql', {
 			body: {
 				query: `
-					{
-						user(id: "${channelName}") {
+					query GetChannelEmotes($channel: String!, $providers: [Provider!]!) {
+						user(id: $channel) {
 							emotes {
 								${defaultEmoteQuery}
 							}
 						}
+
+						third_party_emotes(providers: $providers, channel: $channel, global: false) {
+							${defaultEmoteQuery}
+						}
 					}
 				`,
-				variables: {}
+				variables: {
+					providers: providers.map(p => String(p)),
+					channel: channelName,
+					global: false
+				}
 			}
 		}).pipe(
-			map(res => res.body.data.user.emotes)
+			tap(x => console.log(x.body.data)),
+			map(res => [...res.body.data.user.emotes, ...res.body.data.third_party_emotes])
 		);
 	}
 
@@ -59,69 +69,32 @@ export class API {
 	/**
 	 * Get 7TV global emotes
 	 *
+	 * @param providers a list of providers from which to retrieve global emotes
 	 * @returns an array of emotes
 	 */
-	GetGlobalEmotes(): Observable<DataStructure.Emote[]> {
-		return this.createRequest<{ data: { search_emotes: DataStructure.Emote[]; } }>('/gql', {
+	GetGlobalEmotes(providers: API.EmoteProviderList): Observable<DataStructure.Emote[]> {
+		return this.createRequest<{ data: { search_emotes: DataStructure.Emote[]; third_party_emotes: DataStructure.Emote[]; } }>('/gql', {
 			body: {
 				query: `
-					{
-						search_emotes(query: "", globalState: "only", limit: 150, pageSize: 150) {
+					query GetGlobalEmotes($query: String!, $globalState: String!, $limit: Int, $pageSize: Int, $providers: [Provider!]!) {
+						search_emotes(query: $query, globalState: $globalState, limit: $limit, pageSize: $pageSize) {
 							${defaultEmoteQuery}
 						}
-					}
-				`,
-				variables: {}
-			}
-		}).pipe(
-			map(res => res.body.data.search_emotes)
-		);
-	}
 
-	/**
-	 * Get the foreign third-party emotes of a channel
-	 *
-	 * @param channelName the channel's name
-	 * @param providers a list of providers from which to get emotes
-	 * @returns an array of emotes which are not native to 7TV
-	 */
-	GetThirdPartyChannelEmotes(channelName: string, providers: API.EmoteProviderList): Observable<DataStructure.Emote[]> {
-		return this.createRequest<{ data: { third_party_emotes: DataStructure.Emote[]; } }>('/gql', {
-			body: {
-				query: `
-					{
-						third_party_emotes(providers: [${providers.map(p => String(p))}], channel: "${channelName}", global: false) {
+						third_party_emotes(providers: $providers, channel: "", global: true) {
 							${defaultEmoteQuery}
 						}
 					}
 				`,
-				variables: {}
+				variables: {
+					query: '',
+					globalState: 'only', global: true,
+					limit: 150, pageSize: 150,
+					providers
+				}
 			}
 		}).pipe(
-			map(res => res.body.data.third_party_emotes)
-		);
-	}
-
-	/**
-	 * Get the global emotes from foreign third-party providers
-	 *
-	 * @param providers a list of providers from which to retrieve global emotes
-	 * @returns an array of emotes which are not native to 7TV
-	 */
-	GetThirdPartyGlobalEmotes(providers: API.EmoteProviderList): Observable<DataStructure.Emote[]> {
-		return this.createRequest<{ data: { third_party_emotes: DataStructure.Emote[]; } }>('/gql', {
-			body: {
-				query: `
-					{
-						third_party_emotes(providers: [${providers.map(p => String(p))}], channel: "", global: true) {
-							${defaultEmoteQuery}
-						}
-					}
-				`,
-				variables: {}
-			}
-		}).pipe(
-			map(res => res.body.data.third_party_emotes)
+			map(res => [...res.body.data.search_emotes, ...res.body.data.third_party_emotes])
 		);
 	}
 

@@ -17,9 +17,9 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 
 	render() {
 		return (
-			<EmoteMenuButton.Styled ref={this.ref} title='7TV Emotes' className='tw-button-icon' onClick={() => this.onClick()} style={{ color: 'white' }}>
+			<EmoteMenuButton.Styled ref={this.ref} title='7TV Emotes' onClick={() => this.onClick()} style={{ color: 'white' }}>
 				<div style={{padding: '4px'}}>
-					<img height={28} src={chrome.runtime.getURL('image/7tv-nd.webp')} />
+					<img height={24} src={chrome.runtime.getURL('image/7tv-nd.webp')} />
 				</div>
 			</EmoteMenuButton.Styled>
 		);
@@ -43,6 +43,11 @@ export namespace EmoteMenuButton {
 
 	export const Styled = styled(BaseButton)`
 		margin: .5em;
-		border-radius: 4px;
+
+		&:hover {
+			border-radius: 4px;
+			background-color: var(--color-background-button-text-hover);
+			color: var(--color-fill-button-icon-hover);
+		}
 	`;
 }
