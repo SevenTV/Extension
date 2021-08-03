@@ -48,7 +48,7 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 
 		Main.ShowTooltip.next({ event: event.nativeEvent, hover, fields: {
 			name: this.props.emote.name,
-			hint: this.props.emote.owner?.display_name ?? '',
+			hint: `by ${this.props.emote.owner?.display_name ?? 'Unknown User'}`,
 			imageURL: this.props.emote.cdn('3'),
 			providerIconURL: getProviderLogo(this.props.emote.provider),
 			extra: tooltipExtra

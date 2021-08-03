@@ -312,7 +312,7 @@ export namespace EmoteStore {
 			inner.addEventListener('mouseenter', event => {
 				Main.ShowTooltip.next({ event, hover: true, fields: {
 					name: this.name,
-					hint: this.owner?.display_name ?? '',
+					hint: `by ${this.owner?.display_name ?? 'Unknown User'}`,
 					imageURL: this.cdn('3'),
 					providerIconURL: getProviderLogo(this.provider),
 					extra: tooltipExtra
