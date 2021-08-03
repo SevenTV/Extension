@@ -5,11 +5,11 @@ import { Config } from 'src/Config';
 import { broadcastExtensionMessage, ExtensionRuntimeMessage, getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
 
-const BACKOFF_MULTIPLIER = 1.47;
+const BACKOFF_MULTIPLIER = 1.3;
 export class WebSocketAPI {
 	ctx = getRunningContext();
 
-	private connectionURL = `${Config.secure ? 'wss' : 'ws'}:${Config.apiUrl}/v2/ws`;
+	private connectionURL = `${Config.secure ? 'wss' : 'ws'}:${Config.wsUrl}`;
 	private socket: WebSocket | null = null;
 	private currentBackoff = 1000;
 
@@ -77,7 +77,7 @@ export class WebSocketAPI {
 			Logger.Get().debug(`<WS> Trying to reconnect in ${(this.currentBackoff / 1000).toFixed(1)}s`);
 
 			setTimeout(() => {
-				this.currentBackoff *= BACKOFF_MULTIPLIER;
+				this.currentBackoff *= Math.random() * 0.2 + BACKOFF_MULTIPLIER;
 				this.create();
 			}, Math.min(600 * 1000, this.currentBackoff));
 		}
@@ -110,6 +110,9 @@ export class WebSocketAPI {
 				broadcastExtensionMessage('WebSocketDispatch', msg, undefined);
 				break;
 			}
+			case WebSocketAPI.Op.HEARTBEAT_ACK:
+				this.currentBackoff = 1000;
+				break;
 			default:
 				break;
 		}
