@@ -68,19 +68,19 @@ export class MessageRenderer {
 				const badgeListEl = usernameContainer?.querySelectorAll('.seventv-badge-list');
 				badgeListEl?.forEach(x => x.remove());
 
+				// Append to DOM
+				const badgeContainer = usernameContainer?.children[0]; // Twitch Badge Container
+
+				// Create an application context where 7TV badges will rneder
+				const appBagdeContainer = document.createElement('span');
+				appBagdeContainer.classList.add('seventv-badge-list');
+				badgeContainer?.insertAdjacentElement('afterend', appBagdeContainer);
+
 				for (const badgeID of badgeList) {
 					const badge = this.app.badges[badgeID];
 					if (badge === undefined) {
 						continue;
 					}
-
-					// Append to DOM
-					const badgeContainer = usernameContainer?.children[0]; // Twitch Badge Container
-
-					// Create an application context where 7TV badges will rneder
-					const appBagdeContainer = document.createElement('span');
-					appBagdeContainer.classList.add('seventv-badge-list');
-					badgeContainer?.insertAdjacentElement('afterend', appBagdeContainer);
 
 					if (!!badgeContainer) {
 						appBagdeContainer.appendChild(badge.toElement());
