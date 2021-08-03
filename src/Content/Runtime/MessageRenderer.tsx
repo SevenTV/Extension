@@ -65,7 +65,8 @@ export class MessageRenderer {
 					return undefined;
 				}
 				// Clear existing badge list
-				usernameContainer?.querySelector('.seventv-badge-list')?.remove();
+				const badgeListEl = usernameContainer?.querySelectorAll('.seventv-badge-list');
+				badgeListEl?.forEach(x => x.remove());
 
 				for (const badgeID of badgeList) {
 					const badge = this.app.badges[badgeID];
