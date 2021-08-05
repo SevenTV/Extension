@@ -3,7 +3,6 @@ import { from, Observable } from 'rxjs';
 import { map, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
-import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import request, { post } from 'superagent';
 import { version } from 'public/manifest.json';
 import { Badge } from 'src/Global/Badge';
@@ -12,7 +11,6 @@ import { EventAPI } from 'src/Global/Events/EventAPI';
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
 
-	ws = new WebSocketAPI();
 	events = new EventAPI();
 
 	constructor() {}
@@ -112,10 +110,6 @@ export class API {
 		return this.createRequest<DataStructure.Emote>(`/emotes/${emoteID}`, {}).pipe(
 			map(res => res.body)
 		);
-	}
-
-	newWebSocket(): WebSocketAPI {
-		return new WebSocketAPI();
 	}
 
 	createRequest<T>(route: string, options: Partial<API.CreateRequestOptions>): Observable<API.Response<T>> {
