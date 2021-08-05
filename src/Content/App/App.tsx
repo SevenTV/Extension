@@ -51,11 +51,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 							break;
 						}
 						const oldName = String(emote.name);
-						if (oldName === emote.name) {
-							break;
-						}
 
-						emote.setName(emote.name);
+						emote.setName(event.name);
 						set.deleteEmote(event.emote_id);
 						set.push([emote.resolve()], false);
 						this.sendMessageDown('SendSystemMessage', `${event.actor} renamed the emote "${oldName}" to "${event.name}"`);
@@ -123,12 +120,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		this.sendMessageDown('DisableEmoteSet', data.as);
 
 		const updateWS = () => {
-			api.ws.send('SUBSCRIBE', {
-				type: 1,
-				params: {
-					channel: state.channel
-				}
-			});
+			api.events.addChannel(state.channel);
 
 		};
 
