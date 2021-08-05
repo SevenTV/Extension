@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, filter, map, mergeAll, switchMap, take, tap, toArray } from 'rxjs/operators';
+import { catchError, concatAll, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -11,7 +11,6 @@ import { asapScheduler, from, of, scheduled, Subject } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
-import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Badge } from 'src/Global/Badge';
@@ -29,46 +28,45 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 		// Listen for websocket dispatches
 		// Channel Emotes Update: the current channel's emotes are updated
-		api.ws.dispatch.pipe(
-			filter(msg => msg.t === 'CHANNEL_EMOTES_UPDATE' && msg.d.channel === state.channel),
-		).subscribe({
-			next: async (msg: WebSocketAPI.Message<WebSocketAPI.MessageData.DispatchChannelEmotesUpdate>) => {
-				this.sendMessageDown('ChannelEmoteChange', msg.d);
-
+		api.events.emoteEvent.subscribe({
+			next: event => {
+				const action = event.action;
 				const set = emoteStore.sets.get(state.channel);
 				if (!set) {
 					return;
 				}
 
-				// Remove deleted emotes from set
-				if (msg.d.removed) {
-					const emote = set.getEmoteByID(msg.d.emote.id);
+				switch (action) {
+					case 'ADD':
+						this.sendMessageDown('SendSystemMessage', `${event.actor} added the emote "${event.emote.name}"`);
+						set.push([event.emote], false);
+						break;
+					case 'REMOVE':
+						this.sendMessageDown('SendSystemMessage', `${event.actor} removed the emote "${event.name}"`);
+						set.deleteEmote(event.emote_id);
+						break;
+					case 'UPDATE':
+						const emote = set.getEmoteByID(event.emote_id);
+						if (!emote) {
+							break;
+						}
+						const oldName = String(emote.name);
+						if (oldName === emote.name) {
+							break;
+						}
 
-					this.sendMessageDown('SendSystemMessage', `${msg.d.actor} removed the emote "${emote?.name}"`);
-					set.deleteEmote(msg.d.emote.id);
-				} else {
-					set.push([msg.d.emote], false);
-					this.sendMessageDown('SendSystemMessage', `${msg.d.actor} added the emote "${msg.d.emote?.name}"`);
+						emote.setName(emote.name);
+						set.deleteEmote(event.emote_id);
+						set.push([emote.resolve()], false);
+						this.sendMessageDown('SendSystemMessage', `${event.actor} renamed the emote "${oldName}" to "${event.name}"`);
+						break;
+					default:
+						break;
 				}
 
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 			}
 		});
-
-		api.ws.closed.pipe(
-			filter(c => c === true),
-			switchMap(() => api.ws.opened.pipe(filter(o => o === true), take(1)))
-		).subscribe({
-			next: () => {
-				api.ws.send('SUBSCRIBE', {
-					type: 1,
-					params: {
-						channel: state.channel
-					}
-				});
-			}
-		});
-		api.ws.create();
 
 		// Fetch Badges
 		api.GetBadges().pipe(

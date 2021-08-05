@@ -1,6 +1,6 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { map, switchMap, tap, toArray } from 'rxjs/operators';
+import { map, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
@@ -47,7 +47,6 @@ export class API {
 				}
 			}
 		}).pipe(
-			tap(x => console.log(x.body.data)),
 			map(res => [...res.body.data.user.emotes, ...res.body.data.third_party_emotes])
 		);
 	}
@@ -106,6 +105,12 @@ export class API {
 			switchMap(res => from(res.body.badges)),
 			map(b => new Badge(b)),
 			toArray()
+		);
+	}
+
+	GetEmote(emoteID: string): Observable<DataStructure.Emote> {
+		return this.createRequest<DataStructure.Emote>(`/emotes/${emoteID}`, {}).pipe(
+			map(res => res.body)
 		);
 	}
 
