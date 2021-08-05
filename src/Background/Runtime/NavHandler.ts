@@ -63,6 +63,17 @@ export class NavHandler {
 						break;
 				}
 			}
+			if (msg.tag === 'ConfigureEventAPI') {
+				const action = msg.data.do as string;
+
+				switch (action) {
+					case 'ADD_CHANNEL':
+						this.api.events.addChannel(msg.data.channel);
+						break;
+					default:
+						break;
+				}
+			}
 
 			return true;
 		});

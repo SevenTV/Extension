@@ -25,6 +25,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	constructor() {
 		app = this;
+		api.events.addChannel('anatoleam');
 
 		// Listen for websocket dispatches
 		// Channel Emotes Update: the current channel's emotes are updated
@@ -130,6 +131,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 					channel: state.channel
 				}
 			});
+
 		};
 
 		const tabCompleteDetector = new TabCompleteDetection(app as App);

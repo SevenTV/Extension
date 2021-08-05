@@ -7,11 +7,13 @@ import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import request, { post } from 'superagent';
 import { version } from 'public/manifest.json';
 import { Badge } from 'src/Global/Badge';
+import { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
 
 	ws = new WebSocketAPI();
+	events = new EventAPI();
 
 	constructor() {}
 
