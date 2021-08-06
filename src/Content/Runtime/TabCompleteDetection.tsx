@@ -37,7 +37,7 @@ export class TabCompleteDetection {
 				}
 
 				this.handleTabPress(ev, foundEmotes);
-			} else if (ev.code === 'Space' || ev.code === 'Backspace' || ev.code === 'Enter') { // Reset the cursor when the user is done typing an emote
+			} else if (resetKeycodes.includes(ev.code)) { // Reset the cursor when the user is done typing an emote
 				this.resetCursor();
 			}
 		};
@@ -106,3 +106,8 @@ export class TabCompleteDetection {
 
 const startsWith = (prefix: string, emoteName: string): boolean =>
 	emoteName.toLowerCase().startsWith(prefix.toLowerCase());
+
+const resetKeycodes = [
+	'Space', 'Backspace', 'Enter',
+	'Delete'
+];
