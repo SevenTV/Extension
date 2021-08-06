@@ -42,9 +42,9 @@ export class EventAPI {
 		const src = this.connection = new EventSource(url);
 
 		// message is received
-		src.addEventListener('message', ev => this.onMessage(ev));
+		src.addEventListener('update', ev => this.onMessage(ev as MessageEvent));
 		// connection is ready to receive messages
-		src.addEventListener('listening', ev => {
+		src.addEventListener('ready', ev => {
 			if (!(ev instanceof MessageEvent)) {
 				return undefined;
 			}
