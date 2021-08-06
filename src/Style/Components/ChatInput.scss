@@ -9,9 +9,17 @@
 		width: 100%;
 		
 		textarea {
+			opacity: 0;
 			width: 100%;
 			background-color: transparent;
 			color: currentColor;
+		}
+
+		._value {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			position: absolute;
 		}
 	}
 

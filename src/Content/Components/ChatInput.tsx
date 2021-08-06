@@ -36,13 +36,18 @@ export class ChatInput extends React.Component<ChatInput.Props, ChatInput.State>
 				}}>
 					<textarea ref={this.textArea}
 						className='seventv-overlayed-input tw-font-size-6'
+						rows={this.props.originalInput.rows}
+						cols={this.props.originalInput.cols}
 						style={{
 							paddingTop: '1rem',
 							paddingBottom: '1rem',
 							border: this.props.originalInput.style.border,
-							backgroundColor: this.props.originalInput.style.background,
+							backgroundColor: this.props.originalInput.style.backgroundColor
 						}}
 					/>
+					<span className='_value'>
+						{this.parseValue()}
+					</span>
 				</div>
 			</React.Fragment>
 		);
@@ -62,13 +67,13 @@ export class ChatInput extends React.Component<ChatInput.Props, ChatInput.State>
 		}) ?? [];
 	}
 
-	componentDidMount(): void{
+	componentDidMount(): void {
 		const input = this.props.originalInput;
 		const virtual = this.textArea.current as HTMLTextAreaElement;
 
 		// Mirror virtual input to twitch input
 		virtual.addEventListener('input', () => {
-			this.setState({ value: input.value });
+			this.setState({ value: virtual.value });
 			this.value.next(virtual.value);
 		});
 
@@ -86,6 +91,7 @@ export class ChatInput extends React.Component<ChatInput.Props, ChatInput.State>
 			ev.preventDefault();
 
 			this.send.next(virtual.value);
+			this.setState({ value: '' });
 			virtual.value = '';
 		});
 	}
