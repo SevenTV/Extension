@@ -137,7 +137,7 @@ export namespace Twitch {
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
 		export const ChatLine = '.chat-line__message';
-		export const ChatInput = '.chat-input textarea';
+		export const ChatInput = '[data-a-target="chat-input"]';
 		export const ChatInputButtonsContainer = 'div[data-test-selector="chat-input-buttons-container"]';
 		export const ChatMessageContainer = '.chat-line__message-container';
 		export const ChatUsernameContainer = '.chat-line__username-container';

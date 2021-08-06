@@ -2,6 +2,10 @@ import { App } from 'src/Content/App/App';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
+import { ChatInput } from 'src/Content/Components/ChatInput';
+import ReactDOM from 'react-dom';
+import React from 'react';
+import { tap } from 'rxjs/operators';
 
 export class TabCompleteDetection {
 	tab = {
@@ -9,13 +13,13 @@ export class TabCompleteDetection {
 		cursor: ''
 	};
 
-	private currentListener: ((this: HTMLInputElement, ev: KeyboardEvent) => any) | undefined;
+	private currentListener: ((this: HTMLTextAreaElement, ev: KeyboardEvent) => any) | undefined;
 	private emotes = [] as EmoteStore.Emote[];
 
-	constructor(public app: App) {}
+	constructor(public app: App) { }
 
-	getInput(): HTMLInputElement {
-		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
+	getInput(): HTMLTextAreaElement {
+		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLTextAreaElement;
 	}
 
 	updateEmotes(): void {
@@ -27,7 +31,7 @@ export class TabCompleteDetection {
 	 */
 	start(): void {
 		Logger.Get().info('Handling tab completion');
-		const input = this.getInput();
+		const input = this.createOverlayInput() ?? this.getInput();
 
 		const listener = this.currentListener = (ev) => {
 			if (ev.key === 'Tab') {
@@ -101,6 +105,33 @@ export class TabCompleteDetection {
 		const final = currentWord ?? '';
 		const lastOccurence = input.value.lastIndexOf(final);
 		this.app.sendMessageDown('SetChatInput', input.value.slice(0, lastOccurence) + input.value.slice(lastOccurence).replace(final, next));
+	}
+
+	/**
+	 * For the purpose of inline rendering
+	 */
+	createOverlayInput(): HTMLTextAreaElement {
+		const container = document.createElement('div');
+		container.classList.add('seventv-chat-input');
+
+		const input = this.getInput();
+		const ci = ReactDOM.render(<ChatInput emotes={this.emotes} originalInput={input} />, container) as unknown as ChatInput;
+		ci.value.pipe(
+			tap(v => this.app.sendMessageDown('SetChatInput', v))
+		).subscribe();
+
+		ci.send.subscribe({
+			next: (v) => {
+				this.app.sendMessageDown('SetChatInput', v);
+
+				const event = new CustomEvent('seventv:virtualsend', { detail: v });
+				input.dispatchEvent(event);
+			}
+		});
+
+		input.classList.add('seventv-has-hidden-input-text');
+		input.parentElement?.insertBefore(container, input);
+		return ci.textArea.current as HTMLTextAreaElement;
 	}
 }
 

@@ -1,8 +1,4 @@
 import { Twitch } from 'src/Page/Util/Twitch';
-import ReactDOM from 'react-dom';
-import React from 'react';
-import { ChatInput } from 'src/Page/Components/ChatInput';
-import { PageScript } from 'src/Page/Page';
 import { Logger } from 'src/Logger';
 
 export class TabCompletion {
@@ -13,7 +9,7 @@ export class TabCompletion {
 		entry: ''
 	};
 
-	constructor(private page: PageScript) { }
+	constructor() { }
 
 	/**
 	 * Listen to keyboard inputs
@@ -23,17 +19,16 @@ export class TabCompletion {
 		if (!input) throw Error('Chat Text Input not found!');
 
 		Logger.Get().info(`Handling tab completion`);
-	}
 
-	createOverlayInput(): void {
-		const container = document.createElement('div');
-		container.classList.add('seventv-chat-input');
+		const sendMessage = this.twitch.getChatController().props.chatConnectionAPI.sendMessage;
+		if (!sendMessage) {
+			throw new Error('can\'t send message: service unavailable');
+		}
 
-		const input = this.getInput();
-		ReactDOM.render(<ChatInput emotes={this.page.getAllEmotes()} originalInput={input} />, container);
-
-		input.classList.add('seventv-has-hidden-input-text');
-		input.parentElement?.insertBefore(container, input);
+		// Event: Virtual Input Sent
+		input.addEventListener('seventv:virtualsend', ev => {
+			sendMessage((ev as CustomEvent).detail);
+		})
 	}
 
 	getInput(): HTMLInputElement {

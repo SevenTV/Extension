@@ -10,7 +10,7 @@ export class PageScript {
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
-	tabCompletion = tabCompletion = new TabCompletion(this);
+	tabCompletion = tabCompletion = new TabCompletion();
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
