@@ -1,17 +1,17 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { map, switchMap, tap, toArray } from 'rxjs/operators';
+import { map, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
-import { WebSocketAPI } from 'src/Global/WebSocket/WebSocket';
 import request, { post } from 'superagent';
 import { version } from 'public/manifest.json';
 import { Badge } from 'src/Global/Badge';
+import { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
 
-	ws = new WebSocketAPI();
+	events = new EventAPI();
 
 	constructor() {}
 
@@ -45,7 +45,6 @@ export class API {
 				}
 			}
 		}).pipe(
-			tap(x => console.log(x.body.data)),
 			map(res => [...res.body.data.user.emotes, ...res.body.data.third_party_emotes])
 		);
 	}
@@ -107,8 +106,10 @@ export class API {
 		);
 	}
 
-	newWebSocket(): WebSocketAPI {
-		return new WebSocketAPI();
+	GetEmote(emoteID: string): Observable<DataStructure.Emote> {
+		return this.createRequest<DataStructure.Emote>(`/emotes/${emoteID}`, {}).pipe(
+			map(res => res.body)
+		);
 	}
 
 	createRequest<T>(route: string, options: Partial<API.CreateRequestOptions>): Observable<API.Response<T>> {

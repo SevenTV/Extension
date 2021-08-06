@@ -3,11 +3,12 @@ import { emitHook } from 'src/Content/Global/Hooks';
 import { WebEventListener } from 'src/Global/Decorators';
 import { Logger } from 'src/Logger';
 import { App, unloadEmoteButton } from 'src/Content/App/App';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 export class ExtensionContentScript {
 	app = new App();
+	static destroyed = new Subject<void>();
 	injected = false;
 	pageScriptLoaded = new BehaviorSubject<boolean>(false);
 
@@ -82,6 +83,8 @@ export class ExtensionContentScript {
 
 	@WebEventListener('window', 'beforeunload')
 	whenThePageUnloads(): void { // On beforeunload event, send message to background that this tab is no longer active
+		ExtensionContentScript.destroyed.next(undefined);
+		ExtensionContentScript.destroyed.complete();
 		chrome.runtime.sendMessage({
 			tag: 'Unload'
 		});

@@ -14,6 +14,7 @@ import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButto
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Badge } from 'src/Global/Badge';
+import { ExtensionContentScript } from 'src/Content/Content';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -24,6 +25,49 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	constructor() {
 		app = this;
+		api.events.addChannel('anatoleam');
+
+		// Listen for websocket dispatches
+		// Channel Emotes Update: the current channel's emotes are updated
+		api.events.emoteEvent.subscribe({
+			next: event => {
+				const action = event.action;
+				const set = emoteStore.sets.get(state.channel);
+				if (!set) {
+					return;
+				}
+
+				switch (action) {
+					case 'ADD':
+						this.sendMessageDown('SendSystemMessage', `${event.actor} added the emote "${event.emote.name}"`);
+						set.push([event.emote], false);
+						break;
+					case 'REMOVE':
+						this.sendMessageDown('SendSystemMessage', `${event.actor} removed the emote "${event.name}"`);
+						set.deleteEmote(event.emote_id);
+						break;
+					case 'UPDATE':
+						const emote = set.getEmoteByID(event.emote_id);
+						if (!emote) {
+							break;
+						}
+						const oldName = String(emote.name);
+
+						emote.setName(event.name);
+						set.deleteEmote(event.emote_id);
+						set.push([emote.resolve()], false);
+						this.sendMessageDown('SendSystemMessage', `${event.actor} renamed the emote "${oldName}" to "${event.name}"`);
+						break;
+					default:
+						break;
+				}
+
+				this.sendMessageDown('EnableEmoteSet', set.resolve());
+			}
+		});
+		ExtensionContentScript.destroyed.subscribe({
+			complete: () => api.events.removeChannel(state.channel)
+		});
 
 		// Fetch Badges
 		api.GetBadges().pipe(
@@ -88,6 +132,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 			tabCompleteDetector.updateEmotes();
 			tabCompleteDetector.start();
+			api.events.addChannel(state.channel);
 		};
 
 		const emoteGetter = [

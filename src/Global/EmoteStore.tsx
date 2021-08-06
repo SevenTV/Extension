@@ -283,6 +283,10 @@ export namespace EmoteStore {
 			}
 		}
 
+		setName(name: string): void {
+			this.name = this.data.name = name;
+		}
+
 		/**
 		 * @returns whether the emote is global
 		 */
