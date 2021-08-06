@@ -28,7 +28,7 @@ export class TabCompletion {
 		// Event: Virtual Input Sent
 		input.addEventListener('seventv:virtualsend', ev => {
 			sendMessage((ev as CustomEvent).detail);
-		})
+		});
 	}
 
 	getInput(): HTMLInputElement {
