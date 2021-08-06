@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
+import { catchError, concatAll, map, switchMap, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -119,30 +119,29 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		this.sendMessageDown('DisableEmoteSet', state.channel);
 		this.sendMessageDown('DisableEmoteSet', data.as);
 
-		const updateWS = () => {
-			api.events.addChannel(state.channel);
+		const afterLoaded = () => {
+			if (!tabCompleteDetector) {
+				tabCompleteDetector = new TabCompleteDetection(app as App);
+			} else {
+				tabCompleteDetector.stop();
+			}
 
+			tabCompleteDetector.updateEmotes();
+			tabCompleteDetector.start();
 		};
-
-		const tabCompleteDetector = new TabCompleteDetection(app as App);
-		if (Array.isArray(data.emotes) && data.emotes.length > 0) {
-			setTimeout(() => {
-				tabCompleteDetector.start();
-			}, 1000);
-		}
 
 		const emoteGetter = [
 			api.GetChannelEmotes(data.channelName, ['BTTV', 'FFZ']).pipe(catchError(_ => of([]))),
-			api.GetGlobalEmotes(['BTTV', 'FFZ']).pipe(catchError(_ => of([]))),
+			api.GetGlobalEmotes(['BTTV', 'FFZ']).pipe(catchError(_ => of([])))
 		];
 		if (data.skip_download) {
-			updateWS();
 			state.channel = data.channelName;
 
 			scheduled(emoteGetter, asapScheduler).pipe(
-				mergeAll(),
+				concatAll(),
 				toArray(),
-				map(emotes => emoteStore.enableSet(data.channelName, [...data.emotes, ...emotes[0], ...emotes[1]]))
+				map(emotes => emoteStore.enableSet(data.channelName, [...data.emotes, ...emotes[0], ...emotes[1]])),
+				tap(() => afterLoaded())
 			).subscribe({
 				error(err) {
 					Logger.Get().error(`Failed to fetch third-party emotes (${err})`);
@@ -162,9 +161,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			next: (set: EmoteStore.EmoteSet) => {
 				state.channel = data.channelName;
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
-				tabCompleteDetector.start();
-
-				updateWS();
+				afterLoaded();
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
@@ -218,6 +215,7 @@ const state = {
 
 let app: App | null = null;
 let mainComponent: MainComponent | undefined;
+let tabCompleteDetector: TabCompleteDetection | null = null;
 const api = new API();
 const emoteStore = new EmoteStore();
 const badges = [] as Badge[];
