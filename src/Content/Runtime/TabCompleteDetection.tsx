@@ -1,4 +1,5 @@
 import { App } from 'src/Content/App/App';
+import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 
@@ -8,10 +9,17 @@ export class TabCompleteDetection {
 		cursor: ''
 	};
 
+	private currentListener: ((this: HTMLInputElement, ev: KeyboardEvent) => any) | undefined;
+	private emotes = [] as EmoteStore.Emote[];
+
 	constructor(public app: App) {}
 
 	getInput(): HTMLInputElement {
 		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
+	}
+
+	updateEmotes(): void {
+		this.emotes = this.app.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ']);
 	}
 
 	/**
@@ -20,10 +28,10 @@ export class TabCompleteDetection {
 	start(): void {
 		Logger.Get().info('Handling tab completion');
 		const input = this.getInput();
-		const emotes = this.app.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ']);
-		input.addEventListener('keydown', (ev) => {
+
+		const listener = this.currentListener = (ev) => {
 			if (ev.key === 'Tab') {
-				const foundEmotes = emotes.map(e => e.name);
+				const foundEmotes = this.emotes.map(e => e.name);
 				if (foundEmotes.length === 0) {
 					return undefined;
 				}
@@ -32,9 +40,19 @@ export class TabCompleteDetection {
 			} else if (ev.code === 'Space' || ev.code === 'Backspace' || ev.code === 'Enter') { // Reset the cursor when the user is done typing an emote
 				this.resetCursor();
 			}
-		}, {
+		};
+		input.addEventListener('keydown', listener, {
 			capture: false
 		});
+	}
+
+	stop(): void {
+		const input = this.getInput();
+
+		if (typeof this.currentListener === 'function') {
+			input.removeEventListener('keydown', this.currentListener);
+		}
+		this.emotes = [];
 	}
 
 	/**
