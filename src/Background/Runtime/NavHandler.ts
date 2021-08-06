@@ -32,6 +32,9 @@ export class NavHandler {
 					case 'ADD_CHANNEL':
 						this.api.events.addChannel(msg.data.channel);
 						break;
+					case 'REMOVE_CHANNEL':
+						this.api.events.removeChannel(msg.data.channel);
+						break;
 					default:
 						break;
 				}

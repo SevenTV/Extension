@@ -90,11 +90,49 @@ export class EventAPI {
 	 */
 	addChannel(channelName: string): void {
 		if (this.ctx === 'background') {
+			// User exceeds 100 channels: we will unsubscribe from the oldest one
+			if (this.channels.size >= 100) {
+				for (const ch of this.channels) {
+					this.channels.delete(ch);
+					Logger.Get().info(`<EVENTS> Exceeded 100 channel subscriptions, unsubscribing from ${ch}`);
+					break;
+				}
+				return undefined;
+			}
+
+			// Add to list & connect
 			this.channels.add(channelName);
 			this.connect();
 		} else {
 			sendExtensionMessage('ConfigureEventAPI', {
 				do: 'ADD_CHANNEL',
+				channel: channelName
+			});
+		}
+	}
+
+	/**
+	 * Remove a channel from the observed list.
+	 *
+	 * If there are no more observed channels after this call,
+	 * the connection will be closed.
+	 *
+	 * @param channelName the channel to remove from the observed list
+	 */
+	removeChannel(channelName: string): void {
+		if (this.ctx === 'background') {
+			this.channels.delete(channelName);
+
+			// User must have at least one channel left to reconnect
+			if (this.channels.size > 0) {
+				this.connect();
+			} else if (!!this.connection) { // No channels but connection is open: close it.
+				this.connection.close();
+				Logger.Get().info('<EVENTS> User no longer on any channel, closing connection');
+			}
+		} else {
+			sendExtensionMessage('ConfigureEventAPI', {
+				do: 'REMOVE_CHANNEL',
 				channel: channelName
 			});
 		}

@@ -14,6 +14,7 @@ import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButto
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Badge } from 'src/Global/Badge';
+import { ExtensionContentScript } from 'src/Content/Content';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -63,6 +64,9 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 			}
+		});
+		ExtensionContentScript.destroyed.subscribe({
+			complete: () => api.events.removeChannel(state.channel)
 		});
 
 		// Fetch Badges
@@ -128,6 +132,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 			tabCompleteDetector.updateEmotes();
 			tabCompleteDetector.start();
+			api.events.addChannel(state.channel);
 		};
 
 		const emoteGetter = [
