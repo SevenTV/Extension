@@ -25,9 +25,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	constructor() {
 		app = this;
-		api.events.addChannel('anatoleam');
 
-		// Listen for websocket dispatches
 		// Channel Emotes Update: the current channel's emotes are updated
 		api.events.emoteEvent.subscribe({
 			next: event => {
