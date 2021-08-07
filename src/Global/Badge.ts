@@ -37,7 +37,6 @@ export class Badge {
 		img.classList.add('chat-badge');
 		img.src = this.cdn('1');
 		img.srcset = `${this.cdn('1')} 1x, ${this.cdn('2')} 2x, ${this.cdn('3')} 3x`;
-		img.style.height = 'auto';
 		button.addEventListener('mouseenter', event => {
 			Main.ShowTooltip.next({ event, hover: true, fields: {
 				name: this.name,
