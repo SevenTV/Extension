@@ -2,7 +2,7 @@
 import { emitHook } from 'src/Content/Global/Hooks';
 import { WebEventListener } from 'src/Global/Decorators';
 import { Logger } from 'src/Logger';
-import { App, unloadEmoteButton } from 'src/Content/App/App';
+import { App } from 'src/Content/App/App';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -37,7 +37,6 @@ export class ExtensionContentScript {
 					).subscribe({
 						next: () => {
 							this.app.sendMessageDown('Cease', {});
-							unloadEmoteButton();
 						}
 					});
 				}

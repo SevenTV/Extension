@@ -178,8 +178,7 @@ export namespace EmoteMenu {
 	`;
 
 	export const Search = styled.div`
-		margin: 1em;
-		margin-bottom: 1.75em;
+		background-color: var(--seventv-background-color);
 	`;
 
 	export const EmoteList = styled.div`

@@ -119,10 +119,6 @@ export class PageScript {
 
 	@PageScriptListener('InsertEmoteInChatInput')
 	whenUserInsertsEmoteFromEmoteMenu(emoteName: string): void {
-		if (stopped) {
-			return undefined;
-		}
-
 		const currentValue = tabCompletion.getInput().value ?? '';
 		const spacing = currentValue.length > 0 ? ' ' : '';
 

@@ -1,6 +1,16 @@
 @use './Components/Tooltip.scss';
 @use './Components/ChatInput.scss';
 
+$bgColor: #303030;
+$primaryColor: #0288D1;
+$accentColor: #b2ff59;
+
+:root {
+	--seventv-background-color: #{$bgColor};
+	--seventv-primary-color: #{$primaryColor};
+	--seventv-accent-color: #{$accentColor};
+}
+
 .seventv-overlay {
 	display: flex;
 	position: absolute;
@@ -34,11 +44,11 @@
 
 .seventv-emote-menu {
 	.seventv-emote-menu-header {
-		background-color: var(--color-background-body)
+		background-color: darken($color: $bgColor, $amount: 7.5);
 	}
 
 	.seventv-emote-menu-scrollable {
-		background-color: var(--color-background-base);
+		background-color: var(--seventv-background-color);
 	}
 
 	.seventv-emote-search, input {
@@ -49,7 +59,7 @@
 		border-width: 1px;
 		border-style: solid;
 		border-radius: 4px;
-		background-color: var(--color-background-base);
+		background-color: darken($color: $bgColor, $amount: 0.5);
 		padding: .5em;
 
 		&:focus {

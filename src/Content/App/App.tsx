@@ -131,6 +131,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			tabCompleteDetector.updateEmotes();
 			tabCompleteDetector.start();
 			api.events.addChannel(state.channel);
+			insertEmoteButton();
 		};
 
 		const emoteGetter = [
@@ -154,7 +155,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			return undefined;
 		}
 
-		insertEmoteButton();
 		scheduled(emoteGetter, asapScheduler).pipe(
 			concatAll(),
 			toArray(),
@@ -230,6 +230,10 @@ export const insertEmoteButton = (): void => {
 	// Add emote list button
 	const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
 	if (!!buttons && !!buttons.lastChild) {
+		if (buttons.querySelector('.seventv-emote-menu-button')) {
+			return undefined;
+		}
+
 		const last = buttons.lastChild;
 		const container = document.createElement('div');
 		container.classList.add('seventv-emote-menu-button');
@@ -239,15 +243,5 @@ export const insertEmoteButton = (): void => {
 		if (!!app) {
 			ReactDOM.render(<EmoteMenuButton main={app.mainComponent} />, container);
 		}
-	}
-};
-
-export const unloadEmoteButton = () => {
-	const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
-	if (!!buttons) {
-		const btn = buttons.querySelector('.seventv-emote-menu-button');
-		if (!btn) return undefined;
-
-		btn.remove();
 	}
 };
