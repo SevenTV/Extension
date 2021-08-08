@@ -9,6 +9,8 @@
 
 	.seventv-sm-sidebar {
 		display: flex;
+		flex-direction: column;
+		height: 100%;
 		width: 200px;
 		flex-grow: 0;
 		background-color: var(--seventv-color-background-hl0);
@@ -17,6 +19,33 @@
 			background-color: var(--seventv-color-background-1);
 			border-bottom-right-radius: 3em;
 			height: min-content;
+			width: 100px;
+		}
+
+		.seventv-sm-tabs {
+			display: flex;
+			flex-direction: column;
+			align-content: space-between;
+			height: 100%;
+
+			.seventv-sm-tablist {
+				display: flex;
+				flex-grow: 1;
+			}
+	
+			.seventv-sm-appinfo {
+				display: flex;
+				flex-direction: column;
+				flex-shrink: 1;
+				flex-wrap: wrap;
+				text-align: center;
+				justify-content: center;
+				margin-bottom: 1em;
+
+				span {
+					font-size: .95rem;
+				}
+			}
 		}
 	}
 

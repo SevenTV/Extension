@@ -1,4 +1,5 @@
 import { MainComponent } from 'src/Content/Components/MainComponent';
+import { version } from 'public/manifest.json';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/OutlinedInput';
@@ -7,6 +8,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormGroup from '@material-ui/core/FormGroup';
 import CloseIcon from '@material-ui/icons/Close';
 import React from 'react';
+import { Config } from 'src/Config';
 
 export class SettingsComponent extends React.Component<SettingsComponent.Props, SettingsComponent.State> {
 	state = {
@@ -50,16 +52,30 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		}
 	] as SettingsComponent.SettingNode[];
 
+	changeListener: Function;
+
 	constructor(props: SettingsComponent.Props) {
 		super(props);
 
 		this.retrieveValues();
+
+		// Handle config change from another location
+		// i.e a different tab, or coming from a different PC via chrome sync
+		const changeListener = this.changeListener = (changes: any) => {
+			const items = Object.create({});
+			for (const k of Object.keys(changes)) {
+				items[k] = changes[k].newValue;
+			}
+
+			this.apply(items);
+		};
+		chrome.storage.onChanged.addListener(changeListener);
 	}
 
 	render() {
 		const logoURL = chrome.runtime.getURL('image/7tv.webp');
 		if (!this.state.retrieved) {
-			return <span></span>;
+			return <span>Loading menu...</span>;
 		}
 
 		return (
@@ -68,6 +84,15 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 					{/* Logo */}
 					<div className='seventv-sm-logo'>
 						<img src={logoURL} width={96} height={96}></img>
+					</div>
+
+					{/* Tabs List */}
+					<div className='seventv-sm-tabs'>
+						<div className='seventv-sm-tablist'></div>
+						<div className='seventv-sm-appinfo'>
+							<span>Version: {version}</span>
+							<span>Server: {Config.apiUrl}</span>
+						</div>
 					</div>
 				</div>
 
@@ -137,34 +162,45 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 	retrieveValues(): void {
 		// Retrieve the full storage set
 		chrome.storage.sync.get(items => {
-			// Get all config k/v pairs
-			const keys = Object.keys(items).filter(k => k.startsWith('cfg.'));
-			if (keys.length === 0) {
+			this.apply(items);
+		});
+	}
+
+	private apply(items: { [x: string]: string; }): void {
+		// Get all config k/v pairs
+		const keys = Object.keys(items).filter(k => k.startsWith('cfg.'));
+		if (keys.length === 0) {
+			this.setState({ retrieved: true });
+		}
+
+		// Iterate through available settings and apply stored value
+		for (const sNode of this.settings) {
+			for (const k of keys) {
+				if (k.slice(4) !== sNode.id) {
+					continue;
+				}
+				const value = items[k];
+
+				sNode.value = value;
+				if (sNode.defaultValue === value) {
+					chrome.storage.sync.remove(`cfg.${sNode.id}`);
+				}
 				this.setState({ retrieved: true });
 			}
+		}
+	}
 
-			// Iterate through available settings and apply stored value
-			for (const sNode of this.settings) {
-				for (const k of keys) {
-					if (k.slice(4) !== sNode.id) {
-						continue;
-					}
-					const value = items[k];
-
-					sNode.value = value;
-					if (sNode.defaultValue === value) {
-						chrome.storage.sync.remove(`cfg.${sNode.id}`);
-					}
-					this.setState({ retrieved: true });
-				}
-			}
-		});
+	componentWillUnmount(): void {
+		if (typeof this.changeListener === 'function') {
+			chrome.storage.onChanged.removeListener(this.changeListener as any);
+		}
 	}
 }
 
 export namespace SettingsComponent {
 	export interface Props {
 		main: MainComponent;
+		configData: { [x: string]: any; };
 	}
 
 	export interface State {

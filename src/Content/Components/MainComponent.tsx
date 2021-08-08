@@ -22,6 +22,8 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		}
 	} as MainComponent.State;
 
+	private configData = {} as { [x: string]: any; };
+
 	constructor(props: MainComponent.Props) {
 		super(props);
 
@@ -31,6 +33,27 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 				defer(() => this.hideTooltip())
 			))
 		).subscribe();
+
+		// Get config value & handle changes
+		{
+			// Retrieve initial value
+			chrome.storage.sync.get(items => {
+				this.configData = items;
+			});
+
+			// Handle changes
+			chrome.storage.onChanged.addListener(changes => {
+				for (const k of Object.keys(changes)) {
+					const v = changes[k].newValue;
+					if (typeof v === 'undefined') {
+						delete this.configData[k];
+						continue;
+					}
+
+					this.configData[k] = changes[k].newValue;
+				}
+			});
+		}
 	}
 
 	render() {
@@ -55,7 +78,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 
 					{this.state.settingsMenu.open &&
 						<MainComponent.SettingsMenuWrapper>
-							<SettingsComponent main={this}></SettingsComponent>
+							<SettingsComponent configData={this.configData} main={this}></SettingsComponent>
 						</MainComponent.SettingsMenuWrapper>
 					}
 				</ThemeProvider>
@@ -64,7 +87,6 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 	}
 
 	openSettings(): void {
-		console.log('Hello settings');
 		this.setState({
 			settingsMenu: {
 				open: true
