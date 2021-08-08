@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Main } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Content/Components/MainComponent';
 import styled from 'styled-components';
 
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
@@ -81,7 +81,7 @@ export namespace TooltipComponent {
 		node: Element | null;
 	}
 
-	export interface Props extends Main.State.CurrentTooltip {
+	export interface Props extends MainComponent.State.CurrentTooltip {
 		[x: string]: any;
 	}
 

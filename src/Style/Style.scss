@@ -1,12 +1,32 @@
 @use './Components/Tooltip.scss';
 @use './Components/ChatInput.scss';
+@use './Components//Settings.scss';
 
-$bgColor: #303030;
+$bgColorDark0: #303030;
+$bgColorDark1: darken($bgColorDark0, 5);
+$bgColorDarkHighlight0: lighten($bgColorDark0, 2.5);
+$bgColorDarkTooltip: transparentize($bgColorDark0, 0.2);
+
+$bgColorLight0: #FAFAFA;
+$bgColorLight1: lighten($bgColorLight0, 5);
+$bgColorLightHighlight0: darken($bgColorLight0, 2.5);
+$bgColorLightTooltip: transparentize($bgColorLight0, 0.2);
+
 $primaryColor: #0288D1;
 $accentColor: #b2ff59;
 
-:root {
-	--seventv-background-color: #{$bgColor};
+.tw-root--theme-dark {
+	--seventv-color-background-0: #{$bgColorDark0};
+	--seventv-color-background-1: #{$bgColorDark1};
+	--seventv-color-background-hl0: #{$bgColorDarkHighlight0};
+	--seventv-color-tooltip: #{$bgColorDarkTooltip};
+	--seventv-primary-color: #{$primaryColor};
+	--seventv-accent-color: #{$accentColor};
+}
+.tw-root--theme-light {
+	--seventv-color-background-0: #{$bgColorLight0};
+	--seventv-color-background-1: #{$bgColorLight1};
+	--seventv-color-tooltip: #{$bgColorLightTooltip};
 	--seventv-primary-color: #{$primaryColor};
 	--seventv-accent-color: #{$accentColor};
 }
@@ -44,11 +64,11 @@ $accentColor: #b2ff59;
 
 .seventv-emote-menu {
 	.seventv-emote-menu-header {
-		background-color: darken($color: $bgColor, $amount: 7.5);
+		background-color: var(--seventv-color-background-1);
 	}
 
 	.seventv-emote-menu-scrollable {
-		background-color: var(--seventv-background-color);
+		background-color: var(--seventv-color-background-0);
 	}
 
 	.seventv-emote-search, input {
@@ -59,7 +79,7 @@ $accentColor: #b2ff59;
 		border-width: 1px;
 		border-style: solid;
 		border-radius: 4px;
-		background-color: darken($color: $bgColor, $amount: 0.5);
+		background-color: var(--seventv-color-background-1);
 		padding: .5em;
 
 		&:focus {

@@ -7,21 +7,25 @@ import { EmoteStore } from 'src/Global/EmoteStore';
 import { App } from 'src/Content/App/App';
 import { theme } from 'src/Global/Util';
 import styled from 'styled-components';
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { SettingsComponent } from 'src/Content/Components/Settings/SettingsComponent';
 
-export class MainComponent extends React.Component<Main.Props, Main.State> {
+export class MainComponent extends React.Component<MainComponent.Props, MainComponent.State> {
 	app: App | null = null;
 
 	state = {
 		emoteMenu: {
 			open: false
+		},
+		settingsMenu: {
+			open: true
 		}
-	} as Main.State;
+	} as MainComponent.State;
 
-	constructor(props: Main.Props) {
+	constructor(props: MainComponent.Props) {
 		super(props);
 
-		Main.ShowTooltip.pipe(
+		MainComponent.ShowTooltip.pipe(
 			switchMap(({ event, hover, fields }) => iif(() => hover,
 				this.showTooltip(event, fields),
 				defer(() => this.hideTooltip())
@@ -31,9 +35,8 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 
 	render() {
 		return (
-			<Main.Style>
-				<MuiThemeProvider theme={theme}>
-
+			<MainComponent.Style>
+				<ThemeProvider theme={theme}>
 					{this.state?.currentTooltip &&
 						<TooltipComponent
 							posX={this.state.currentTooltip.posX}
@@ -46,12 +49,28 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 						</TooltipComponent>
 					}
 
-					{this.state?.emoteMenu?.open &&
-						<EmoteMenu.WithStyles main={this} bounds={this.state.emoteMenu.bounds} />
+					{this.state.emoteMenu.open &&
+						<EmoteMenu main={this} bounds={this.state.emoteMenu.bounds} />
 					}
-				</MuiThemeProvider>
-			</Main.Style>
+
+					{this.state.settingsMenu.open &&
+						<MainComponent.SettingsMenuWrapper>
+							<SettingsComponent></SettingsComponent>
+						</MainComponent.SettingsMenuWrapper>
+					}
+				</ThemeProvider>
+			</MainComponent.Style>
 		);
+	}
+
+	openSettings(): void {
+		console.log('Hello settings');
+		this.setState({
+			settingsMenu: {
+				open: true
+			},
+			emoteMenu: { open: false }
+		});
 	}
 
 	/**
@@ -68,7 +87,7 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 		});
 	}
 
-	showTooltip(event: MouseEvent, fields?: Main.State.TooltipFields): Observable<void> {
+	showTooltip(event: MouseEvent, fields?: MainComponent.State.TooltipFields): Observable<void> {
 		return new Observable<void>(observer => {
 			this.setState({
 				currentTooltip: {
@@ -78,7 +97,7 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 				}
 			});
 
-			Main.ShowTooltip.pipe(
+			MainComponent.ShowTooltip.pipe(
 				filter(({ hover }) => hover === false),
 				take(1),
 				tap(() => this.hideTooltip())
@@ -94,7 +113,7 @@ export class MainComponent extends React.Component<Main.Props, Main.State> {
 	}
 }
 
-export namespace Main {
+export namespace MainComponent {
 	export const ShowTooltip = new Subject<{
 		event: MouseEvent;
 		hover: boolean;
@@ -118,6 +137,9 @@ export namespace Main {
 			open: boolean;
 			bounds?: DOMRect;
 		};
+		settingsMenu: {
+			open: boolean;
+		};
 	}
 	export namespace State {
 		export interface TooltipFields {
@@ -132,4 +154,13 @@ export namespace Main {
 			posY: number;
 		}
 	}
+
+	export const SettingsMenuWrapper = styled.div`
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		position: absolute;
+	`;
 }

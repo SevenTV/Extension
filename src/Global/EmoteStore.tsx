@@ -6,7 +6,7 @@ import twemoji from 'twemoji';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { getProviderLogo, getRunningContext } from 'src/Global/Util';
-import { Main } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Content/Components/MainComponent';
 import React from 'react';
 
 const TWITCH_SET_NAME = 'twitch';
@@ -321,7 +321,7 @@ export namespace EmoteStore {
 				tooltipExtra.push(<p className='is-7tv-global'>Global Emote</p>);
 			}
 			inner.addEventListener('mouseenter', event => {
-				Main.ShowTooltip.next({ event, hover: true, fields: {
+				MainComponent.ShowTooltip.next({ event, hover: true, fields: {
 					name: this.name,
 					hint: `by ${this.owner?.display_name ?? 'Unknown User'}`,
 					imageURL: this.cdn('3'),
@@ -330,7 +330,7 @@ export namespace EmoteStore {
 				}});
 			});
 			inner.addEventListener('mouseleave', event => {
-				Main.ShowTooltip.next({ event, hover: false });
+				MainComponent.ShowTooltip.next({ event, hover: false });
 			});
 
 			const img = document.createElement('img');

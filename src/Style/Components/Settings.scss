@@ -1,0 +1,49 @@
+.seventv-settings-menu {
+	width: 80vw;
+	height: 60vh;
+	pointer-events: all;
+	background-color: var(--seventv-color-background-0);
+
+	display: flex;
+	flex-direction: row;
+
+	.seventv-sm-sidebar {
+		display: flex;
+		width: 200px;
+		flex-grow: 0;
+		background-color: var(--seventv-color-background-hl0);
+
+		.seventv-sm-logo {
+			background-color: var(--seventv-color-background-1);
+			border-bottom-right-radius: 3em;
+			height: min-content;
+		}
+	}
+
+	.seventv-sm-content {
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		height: 100%;
+		width: 100%;
+
+		.seventv-sm-heading {
+			height: 48px;
+			width: 100%;
+			background-color: var(--seventv-color-background-hl0);
+
+			.seventv-sm-titlebox {
+				transform: translateX(-4em);
+
+				span {
+					font-size: 2em;
+				}
+			}
+		}
+
+		.seventv-sm-options {
+			display: flex;
+			flex-direction: column;
+		}
+	}
+}
