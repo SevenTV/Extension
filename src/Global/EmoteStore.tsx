@@ -305,6 +305,10 @@ export namespace EmoteStore {
 			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.ZERO_WIDTH);
 		}
 
+		isUnlisted(): boolean {
+			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.HIDDEN);
+		}
+
 		toElement(): HTMLSpanElement {
 			const container = document.createElement('span');
 			container.style.minWidth = `${this.width[0]}px`;
@@ -318,12 +322,21 @@ export namespace EmoteStore {
 
 			const tooltipExtra = [] as JSX.Element[];
 			if (this.isGlobal()) {
-				tooltipExtra.push(<p className='is-7tv-global'>Global Emote</p>);
+				tooltipExtra.push(<p key='global-state' className='is-7tv-global'>Global Emote</p>);
 			}
+			if (this.isZeroWidth()) {
+				tooltipExtra.push(<p key='zerowidth-state' style={{ color: '#e14bb4' }}>Zero-Width Emote</p>);
+			}
+			if (this.isUnlisted()) {
+				tooltipExtra.push(<p key='unlisted-state' style={{ color: '#f23333' }}>Unlisted Emote</p>);
+			}
+
 			inner.addEventListener('mouseenter', event => {
 				MainComponent.ShowTooltip.next({ event, hover: true, fields: {
 					name: this.name,
-					hint: `by ${this.owner?.display_name ?? 'Unknown User'}`,
+					hint: !!this.owner && this.owner.login !== '*deleteduser'
+						? `by ${this.owner.display_name ?? this.owner.login ?? 'Unknown User'}`
+						: '',
 					imageURL: this.cdn('3'),
 					providerIconURL: getProviderLogo(this.provider),
 					extra: tooltipExtra

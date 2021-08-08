@@ -6,44 +6,50 @@ import styled from 'styled-components';
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
 	unmounted = false;
 	ref = React.createRef<any>();
+	positioned = false;
+	node: Element | null = null;
 	state = {
 		refWidth: 0,
-		refHeight: 0,
-		node: null
+		refHeight: 0
 	} as TooltipComponent.State;
 
 	render() {
+		const posY = this.getPosY();
+		const posX = this.getPosX();
+
 		return (
-			<div ref={this.ref} className='seventv-emote-tooltip' style={{ position: 'relative', top: (this.getPosY() - 74), left: this.getPosX() - 74 }}>
-				{!!this.props.imageURL && <TooltipComponent.Image>
-					<img src={this.props.imageURL}></img>
-				</TooltipComponent.Image>
-				}
+			<div className='seventv-emote-tooltip-wrapper' style={{ visibility: this.positioned ? 'visible' : 'hidden', top: posY, left: posX - 74 }}>
+				<div ref={this.ref} className='seventv-emote-tooltip'>
+					{!!this.props.imageURL && <TooltipComponent.Image>
+						<img src={this.props.imageURL}></img>
+					</TooltipComponent.Image>
+					}
 
-				<TooltipComponent.Details>
-					<h3 className='item-name'> {this.props.name} </h3>
-					{!!this.props.hint ? <span className='item-hint'>{this.props.hint}</span> : ''}
+					<TooltipComponent.Details>
+						<h3 className='item-name'> {this.props.name} </h3>
+						{!!this.props.hint ? <span className='item-hint'>{this.props.hint}</span> : ''}
 
-					{...this.props.extra ?? []}
-				</TooltipComponent.Details>
+						{...this.props.extra ?? []}
+					</TooltipComponent.Details>
 
-				{!!this.props.providerIconURL &&
-				<TooltipComponent.Provider>
-					<img src={this.props.providerIconURL} />
-				</TooltipComponent.Provider>
-				}
+					{!!this.props.providerIconURL &&
+					<TooltipComponent.Provider>
+						<img src={this.props.providerIconURL} />
+					</TooltipComponent.Provider>
+					}
+				</div>
 			</div>
 		);
 	}
 
 	getPosY(): number {
-		const h = (this.state.node?.clientHeight ?? 0);
+		const h = (this.node?.scrollHeight ?? 0);
 
-		return (this.props.posY - (h / 1.35));
+		return (this.props.posY - (h + 32));
 	}
 
 	getPosX(): number {
-		const w = (this.state.node?.clientWidth ?? 0);
+		const w = (this.node?.clientWidth ?? 0);
 
 		const maxWidth = (document.getElementsByClassName('stream-chat').item(0) as HTMLDivElement)?.scrollWidth ?? window.innerWidth;
 		const mostX = this.props.posX - (window.innerWidth - maxWidth) + w;
@@ -62,15 +68,15 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 				node = ReactDOM.findDOMNode(this) as Element;
 			} catch (_) { }
 
-			this.setState({
-				node
-			});
+			this.positioned = true;
+			this.node = node;
+			this.setState({});
 		}, 0);
 	}
 
 	componentWillUnmount(): void {
 		this.unmounted = true;
-		this.state.node = null;
+		this.node = null;
 	}
 }
 
@@ -78,7 +84,6 @@ export namespace TooltipComponent {
 	export interface State {
 		refWidth: 0;
 		refHeight: 0;
-		node: Element | null;
 	}
 
 	export interface Props extends MainComponent.State.CurrentTooltip {

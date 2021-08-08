@@ -1,7 +1,7 @@
 /** 7TV Stylesheets -  Tooltip Component */
 
 .seventv-emote-tooltip {
-	position: absolute;
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	background-color: var(--seventv-color-tooltip);
@@ -14,4 +14,9 @@
 	min-height: 12em;
 
 	z-index: 99999999;
+}
+
+.seventv-emote-tooltip-wrapper {
+	position: absolute;
+	height: 0px;
 }

@@ -5,7 +5,7 @@
 $bgColorDark0: #303030;
 $bgColorDark1: darken($bgColorDark0, 5);
 $bgColorDarkHighlight0: lighten($bgColorDark0, 2.5);
-$bgColorDarkTooltip: transparentize($bgColorDark0, 0.2);
+$bgColorDarkTooltip: transparentize(darken($bgColorDark0, 10), 0.2);
 
 $bgColorLight0: #FAFAFA;
 $bgColorLight1: lighten($bgColorLight0, 5);
