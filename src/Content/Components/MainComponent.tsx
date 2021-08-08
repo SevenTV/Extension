@@ -22,7 +22,44 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		}
 	} as MainComponent.State;
 
-	private configData = {} as { [x: string]: any; };
+	private configData = new Map<string, any>();
+	settings = [
+		{
+			id: 'general.hide_unlisted_emotes',
+			label: 'Hide Unlisted Emotes',
+			hint: 'If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred',
+			type: 'checkbox',
+			defaultValue: false
+		},
+		{
+			id: 'general.minimize_tooltip_size',
+			label: 'Minimize Tooltip Size',
+			hint: 'Make the 7TV tooltips smaller',
+			type: 'checkbox',
+			defaultValue: false
+		},
+		{
+			id: 'general.display_mod_actions',
+			label: 'Show Timeouts & Bans',
+			hint: 'This setting allows non-moderators to see actions by moderators',
+			type: 'checkbox',
+			defaultValue: true
+		},
+		{
+			id: 'general.autocomplete',
+			label: 'Auto-Completion',
+			hint: 'Enable or disable 7TV emote auto-completion',
+			type: 'checkbox',
+			defaultValue: true
+		},
+		{
+			id: 'general.persistent_history',
+			label: 'Persistent Chat History',
+			hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
+			type: 'checkbox',
+			defaultValue: true
+		}
+	] as SettingsComponent.SettingNode[];
 
 	constructor(props: MainComponent.Props) {
 		super(props);
@@ -38,7 +75,11 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		{
 			// Retrieve initial value
 			chrome.storage.sync.get(items => {
-				this.configData = items;
+				for (const k of Object.keys(items)) {
+					const v = items[k];
+
+					this.configData.set(k.slice(4), v);
+				}
 			});
 
 			// Handle changes
@@ -46,11 +87,11 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 				for (const k of Object.keys(changes)) {
 					const v = changes[k].newValue;
 					if (typeof v === 'undefined') {
-						delete this.configData[k];
+						this.configData.delete(k.slice(4));
 						continue;
 					}
 
-					this.configData[k] = changes[k].newValue;
+					this.configData.set(k.slice(4), changes[k].newValue);
 				}
 			});
 		}
@@ -78,7 +119,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 
 					{this.state.settingsMenu.open &&
 						<MainComponent.SettingsMenuWrapper>
-							<SettingsComponent configData={this.configData} main={this}></SettingsComponent>
+							<SettingsComponent settings={this.settings} configData={this.configData} main={this}></SettingsComponent>
 						</MainComponent.SettingsMenuWrapper>
 					}
 				</ThemeProvider>
@@ -133,6 +174,20 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 
 		this.setState({ currentTooltip: null });
 	}
+
+	getSetting(name: string): MainComponent.SettingValue {
+		let value = this.configData.get(name);
+		if (typeof value === 'undefined') {
+			const sNode = this.settings.filter(s => s.id === name)[0];
+			if (!sNode) {
+				return new MainComponent.SettingValue(undefined);
+			}
+
+			return new MainComponent.SettingValue(sNode.defaultValue);
+		}
+
+		return value;
+	}
 }
 
 export namespace MainComponent {
@@ -185,4 +240,28 @@ export namespace MainComponent {
 		height: 100%;
 		position: absolute;
 	`;
+
+	export class SettingValue {
+		constructor(private value: any) {}
+
+		exists(): boolean {
+			return typeof this.value !== 'undefined';
+		}
+
+		asBoolean(): boolean {
+			return Boolean(this.value);
+		}
+
+		asString(): string {
+			return String(this.value);
+		}
+
+		asStringArray(): string[] {
+			return [...Array.isArray(this.value) ? this.value.map(v => String(v)) : []];
+		}
+
+		asBooleanArray(): boolean[] {
+			return [...Array.isArray(this.value) ? this.value.map(v => Boolean(v)) : []];
+		}
+	}
 }

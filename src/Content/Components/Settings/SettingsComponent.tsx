@@ -14,43 +14,6 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 	state = {
 		retrieved: false
 	} as SettingsComponent.State;
-	settings = [
-		{
-			id: 'general.hide_unlisted_emotes',
-			label: 'Hide Unlisted Emotes',
-			hint: 'If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred',
-			type: 'checkbox',
-			defaultValue: false
-		},
-		{
-			id: 'general.minimize_tooltip_size',
-			label: 'Minimize Tooltip Size',
-			hint: 'Make the 7TV tooltips smaller',
-			type: 'checkbox',
-			defaultValue: false
-		},
-		{
-			id: 'general.display_mod_actions',
-			label: 'Show Timeouts & Bans',
-			hint: 'This setting allows non-moderators to see actions by moderators',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'general.autocomplete',
-			label: 'Auto-Completion',
-			hint: 'Enable or disable 7TV emote auto-completion',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'general.persistent_history',
-			label: 'Persistent Chat History',
-			hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
-			type: 'checkbox',
-			defaultValue: true
-		}
-	] as SettingsComponent.SettingNode[];
 
 	changeListener: Function;
 
@@ -113,7 +76,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 
 						<div className='form-list'>
 							<FormGroup>
-								{this.settings.map(s => {
+								{this.props.settings.map(s => {
 									let result: JSX.Element;
 									switch (s.type) {
 										case 'checkbox':
@@ -174,7 +137,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		}
 
 		// Iterate through available settings and apply stored value
-		for (const sNode of this.settings) {
+		for (const sNode of this.props.settings) {
 			for (const k of keys) {
 				if (k.slice(4) !== sNode.id) {
 					continue;
@@ -201,6 +164,7 @@ export namespace SettingsComponent {
 	export interface Props {
 		main: MainComponent;
 		configData: { [x: string]: any; };
+		settings: SettingNode[];
 	}
 
 	export interface State {
