@@ -363,6 +363,7 @@ export namespace Twitch {
 		messageBody: string;
 		messageParts: ChatMessage.Part[];
 		messageType: number;
+		type: number;
 		reply: unknown;
 		user: ChatUser;
 
@@ -404,6 +405,15 @@ export namespace Twitch {
 		export interface AppPart {
 			type: 'text' | 'emote' | 'twitch-emote' | 'link' | 'mention';
 			content?: string | { [key: string]: any; };
+		}
+
+		export interface ModerationMessage {
+			duration: number;
+			id: string;
+			moderationType: number;
+			reason: string;
+			type: number;
+			userLogin: string;
 		}
 	}
 
