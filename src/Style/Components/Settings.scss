@@ -28,6 +28,9 @@
 		width: 100%;
 
 		.seventv-sm-heading {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
 			height: 48px;
 			width: 100%;
 			background-color: var(--seventv-color-background-hl0);
@@ -39,11 +42,19 @@
 					font-size: 2em;
 				}
 			}
+
+			.close-icon {
+				cursor: pointer;
+			}
 		}
 
 		.seventv-sm-options {
 			display: flex;
 			flex-direction: column;
+
+			.form-list {
+				padding: 1em;
+			}
 		}
 	}
 }

@@ -18,7 +18,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			open: false
 		},
 		settingsMenu: {
-			open: false
+			open: true
 		}
 	} as MainComponent.State;
 
@@ -55,7 +55,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 
 					{this.state.settingsMenu.open &&
 						<MainComponent.SettingsMenuWrapper>
-							<SettingsComponent></SettingsComponent>
+							<SettingsComponent main={this}></SettingsComponent>
 						</MainComponent.SettingsMenuWrapper>
 					}
 				</ThemeProvider>
