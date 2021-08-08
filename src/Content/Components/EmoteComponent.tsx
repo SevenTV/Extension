@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Main } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Content/Components/MainComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { getProviderLogo } from 'src/Global/Util';
 import styled from 'styled-components';
@@ -46,7 +46,7 @@ export class EmoteComponent extends React.PureComponent<EmoteComponent.Props, Em
 			tooltipExtra.push(<p key='globalstate' className='is-7tv-global'>Global Emote</p>);
 		}
 
-		Main.ShowTooltip.next({ event: event.nativeEvent, hover, fields: {
+		MainComponent.ShowTooltip.next({ event: event.nativeEvent, hover, fields: {
 			name: this.props.emote.name,
 			hint: `by ${this.props.emote.owner?.display_name ?? 'Unknown User'}`,
 			imageURL: this.props.emote.cdn('3'),

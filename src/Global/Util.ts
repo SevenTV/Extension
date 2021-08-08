@@ -1,7 +1,7 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Config } from 'src/Config';
 import Color from 'color';
-import { createMuiTheme } from '@material-ui/core';
+import { createTheme } from '@material-ui/core';
 
 export function getRunningContext(): Context {
 	try {
@@ -55,45 +55,24 @@ export const Colors = {
 	Background: Color('#303030')
 };
 
-export const theme = createMuiTheme({
+export const theme = createTheme({
 	palette: {
 		primary: {
-			main: '#4dabf5',
-			dark: '#1769aa',
-			light: '#2196f3',
-			contrastText: '#fff',
+			main: '#34a0d8',
+			light: '#29B6F6',
+			dark: '#0288D1',
+			contrastText: 'rgba(113,113,113,0.87)',
 		},
 		secondary: {
-			main: '#ffb851',
-			light: '#ffa726',
-			dark: '#b2741a'
+			main: '#f50057',
 		},
-		success: {
-			main: '#33eb91',
-			dark: '#00a152',
-			light: '#00e676'
-		},
-		error: {
-			main: '#f27573',
-			dark: '#a73a38',
-			light: '#ef5350'
+		text: {
+			primary: 'rgba(255,255,255,0.87)',
+			secondary: 'rgba(255,255,255,0.54)',
 		},
 		background: {
 			default: '#303030',
-			paper: '#303030'
 		},
-		text: {
-			primary: '#fff'
-		},
-		common: {
-			white: '#fff',
-			black: '#000'
-		},
-		info: {
-			dark: '#fff',
-			light: '#fff',
-			main: '#fff'
-		}
 	},
 });
 

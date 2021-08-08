@@ -6,14 +6,8 @@ import { getProviderLogo } from 'src/Global/Util';
 import { DataStructure } from '@typings/typings/DataStructure';
 import styled from 'styled-components';
 import BaseButton from '@material-ui/core/ButtonBase';
-import { withStyles } from '@material-ui/core';
 
 const providers = ['7TV', 'BTTV', 'FFZ'] as DataStructure.Emote.Provider[];
-const styles = () => ({
-	search: {
-		color: 'white'
-	}
-});
 
 export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State> {
 	ref: React.RefObject<HTMLDivElement>;
@@ -31,6 +25,9 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 	render(): React.ReactNode {
 		return (
 			<EmoteMenu.Styled ref={this.ref} style={{ top: this.posY, left: this.posX, maxWidth: window.innerWidth }} className='seventv-clickable-overlay-child seventv-emote-menu'>
+				<button className='seventv-settings-button' onClick={() => this.props.main.openSettings()}>
+					SETTINGS
+				</button>
 
 				{/* Provider Tabs*/}
 				<EmoteMenu.TabList className='seventv-emote-menu-header'>
@@ -123,12 +120,9 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 }
 
 export namespace EmoteMenu {
-	export const WithStyles = withStyles(styles)(EmoteMenu);
-
 	export interface Props {
 		main: MainComponent;
 		bounds?: DOMRect;
-		classes: any;
 	}
 
 	export interface State {
@@ -178,8 +172,7 @@ export namespace EmoteMenu {
 	`;
 
 	export const Search = styled.div`
-		margin: 1em;
-		margin-bottom: 1.75em;
+		background-color: var(--seventv-background-color);
 	`;
 
 	export const EmoteList = styled.div`
