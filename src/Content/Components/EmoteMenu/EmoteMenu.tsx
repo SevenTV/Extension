@@ -1,11 +1,13 @@
-import React from 'react';
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { getProviderLogo } from 'src/Global/Util';
 import { DataStructure } from '@typings/typings/DataStructure';
+import React from 'react';
 import styled from 'styled-components';
 import BaseButton from '@material-ui/core/ButtonBase';
+import Button from '@material-ui/core/Button';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 const providers = ['7TV', 'BTTV', 'FFZ'] as DataStructure.Emote.Provider[];
 
@@ -25,10 +27,6 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 	render(): React.ReactNode {
 		return (
 			<EmoteMenu.Styled ref={this.ref} style={{ top: this.posY, left: this.posX, maxWidth: window.innerWidth }} className='seventv-clickable-overlay-child seventv-emote-menu'>
-				<button className='seventv-settings-button' onClick={() => this.props.main.openSettings()}>
-					SETTINGS
-				</button>
-
 				{/* Provider Tabs*/}
 				<EmoteMenu.TabList className='seventv-emote-menu-header'>
 					{providers.map(p => (
@@ -40,6 +38,13 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 
 				{/* Scrollable Area */}
 				<EmoteMenu.Scrollable className='seventv-emote-menu-scrollable'>
+					<div className='seventv-settings-button'>
+						<Button variant='outlined' onClick={() => this.props.main.openSettings()}>
+							<SettingsIcon></SettingsIcon>
+							<span style={{ marginLeft: '.5em' }}>SETTINGS</span>
+						</Button>
+					</div>
+
 					{/* Render current emotes*/}
 					<EmoteMenu.EmoteListSection>
 						<EmoteMenu.CategoryHeader>Channel Emotes</EmoteMenu.CategoryHeader>

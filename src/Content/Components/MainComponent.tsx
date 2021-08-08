@@ -18,7 +18,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			open: false
 		},
 		settingsMenu: {
-			open: true
+			open: false
 		}
 	} as MainComponent.State;
 
@@ -146,7 +146,8 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			emoteMenu: {
 				open: typeof forceState !== 'boolean' ? !this.state?.emoteMenu.open : forceState,
 				bounds
-			}
+			},
+			settingsMenu: { open: false }
 		});
 	}
 

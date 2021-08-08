@@ -74,6 +74,18 @@ export const theme = createTheme({
 			default: '#303030',
 		},
 	},
+	components: {
+		MuiSvgIcon: {
+			defaultProps: {
+				fontSize: 'large'
+			}
+		}
+	},
+	typography: {
+		button: {
+			fontSize: 16
+		}
+	}
 });
 
 /**
