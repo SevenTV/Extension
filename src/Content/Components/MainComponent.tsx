@@ -5,7 +5,7 @@ import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
 import { EmoteMenu } from 'src/Content/Components/EmoteMenu/EmoteMenu';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { App } from 'src/Content/App/App';
-import { theme } from 'src/Global/Util';
+import { SettingValue, theme } from 'src/Global/Util';
 import styled from 'styled-components';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { SettingsComponent } from 'src/Content/Components/Settings/SettingsComponent';
@@ -75,23 +75,38 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		{
 			// Retrieve initial value
 			chrome.storage.sync.get(items => {
+				const result = Object.create({});
 				for (const k of Object.keys(items)) {
 					const v = items[k];
+					const name = k.slice(4);
 
-					this.configData.set(k.slice(4), v);
+					result[name] = v;
+					this.configData.set(name, v);
 				}
+
+				// Add default-valued settings
+				for (const sNode of this.settings) {
+					if (typeof result[sNode.id] !== 'undefined') {
+						continue;
+					}
+
+					result[sNode.id] = sNode.defaultValue;
+				}
+				this.app?.sendMessageDown('ConfigChange', result);
 			});
 
 			// Handle changes
 			chrome.storage.onChanged.addListener(changes => {
 				for (const k of Object.keys(changes)) {
 					const v = changes[k].newValue;
+					const name = k.slice(4);
 					if (typeof v === 'undefined') {
 						this.configData.delete(k.slice(4));
 						continue;
 					}
 
-					this.configData.set(k.slice(4), changes[k].newValue);
+					this.configData.set(name, changes[k].newValue);
+					this.app?.sendMessageDown('ConfigChange', { [name]: changes[k].newValue });
 				}
 			});
 		}
@@ -176,15 +191,15 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		this.setState({ currentTooltip: null });
 	}
 
-	getSetting(name: string): MainComponent.SettingValue {
+	getSetting(name: string): SettingValue {
 		let value = this.configData.get(name);
 		if (typeof value === 'undefined') {
 			const sNode = this.settings.filter(s => s.id === name)[0];
 			if (!sNode) {
-				return new MainComponent.SettingValue(undefined);
+				return new SettingValue(undefined);
 			}
 
-			return new MainComponent.SettingValue(sNode.defaultValue);
+			return new SettingValue(sNode.defaultValue);
 		}
 
 		return value;
@@ -241,28 +256,4 @@ export namespace MainComponent {
 		height: 100%;
 		position: absolute;
 	`;
-
-	export class SettingValue {
-		constructor(private value: any) {}
-
-		exists(): boolean {
-			return typeof this.value !== 'undefined';
-		}
-
-		asBoolean(): boolean {
-			return Boolean(this.value);
-		}
-
-		asString(): string {
-			return String(this.value);
-		}
-
-		asStringArray(): string[] {
-			return [...Array.isArray(this.value) ? this.value.map(v => String(v)) : []];
-		}
-
-		asBooleanArray(): boolean[] {
-			return [...Array.isArray(this.value) ? this.value.map(v => Boolean(v)) : []];
-		}
-	}
 }

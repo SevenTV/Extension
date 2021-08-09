@@ -4,6 +4,7 @@ import { Twitch } from 'src/Page/Util/Twitch';
 import { Logger } from 'src/Logger';
 import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import { SettingValue } from 'src/Global/Util';
 import 'src/Style/Style.scss';
 
 export class PageScript {
@@ -16,6 +17,8 @@ export class PageScript {
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
 
 	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
+
+	config = config;
 
 	get stopped(): boolean {
 		return stopped;
@@ -146,6 +149,13 @@ export class PageScript {
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 
+	@PageScriptListener('ConfigChange')
+	whenAppConfigChangeds(cfg: { [x: string]: any; }): void {
+		for (const k of Object.keys(cfg)) {
+			config.set(k, new SettingValue(cfg[k]));
+		}
+	}
+
 	private eIndex: {
 		[x: string]: EmoteStore.Emote;
 	} | null = null;
@@ -181,6 +191,7 @@ export class PageScript {
 let emoteStore: EmoteStore;
 let chatListener: ChatListener;
 let tabCompletion: TabCompletion;
+const config = new Map<string, SettingValue>();
 
 let page: PageScript;
 let stopped = false;

@@ -58,12 +58,30 @@ export class ChatListener {
 			msgHandler.removeMessageHandler(currentHandler);
 		}
 
+		// Add a handler for regular chat messages
 		currentHandler = msg => {
 			if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
 
 			this.onMessage(msg);
 		};
 		msgHandler.addMessageHandler(currentHandler);
+
+		// Add a handler for moderation messages
+		msgHandler.addMessageHandler(msg => {
+			if (msg.type !== 2) return undefined;
+			if (!this.page.config.get('general.display_mod_actions')?.asBoolean()) {
+				return undefined; // Don't emit a mod message, as the setting is disabled
+			}
+			const modMsg = msg as unknown as Twitch.ChatMessage.ModerationMessage;
+
+			if (modMsg.moderationType === 1) { // Timeout
+				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${modMsg.duration} seconds${!!modMsg.reason ? ` (${modMsg.reason})` : ''} by a moderator`);
+			} else if (modMsg.moderationType === 0) { // Ban
+				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned by a moderator`);
+			} else if (modMsg.moderationType === 2) { // Message deleted
+				this.sendSystemMessage(`A message from ${modMsg.userLogin} was deleted by a mmoderator (ID: ${(modMsg as any)['targetMessageID']})`);
+			}
+		});
 
 		/**
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
