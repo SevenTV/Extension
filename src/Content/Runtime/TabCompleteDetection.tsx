@@ -19,7 +19,7 @@ export class TabCompleteDetection {
 	}
 
 	updateEmotes(): void {
-		this.emotes = this.app.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ']);
+		this.emotes = this.app.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ', 'TWITCH']).sort((a, b) => a.name.localeCompare(b.name));
 	}
 
 	/**

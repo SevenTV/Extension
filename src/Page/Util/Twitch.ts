@@ -309,6 +309,7 @@ export namespace Twitch {
 		chatRoomHeader: any;
 		chatRules: string[];
 		chatView: number;
+		emotes: TwitchEmoteSet[];
 		location: {
 			hash: string;
 			pathname: string;
@@ -321,6 +322,31 @@ export namespace Twitch {
 		badgeSets: BadgeSets;
 		chatListElement: HTMLDivElement;
 	}>;
+
+	export interface TwitchEmoteSet {
+		id: string;
+		emotes: TwitchEmote[];
+		owner?: {
+			displayName: string;
+			id: string;
+			login: string;
+			profileImageURL: string;
+		};
+	}
+
+	export interface TwitchEmote {
+		id: string;
+		modifiers: any;
+		setID: string;
+		token: string;
+		type: string;
+		owner?: {
+			displayName: string;
+			id: string;
+			login: string;
+			profileImageURL: string;
+		};
+	}
 
 	export interface BadgeSets {
 		channelsBySet: Map<string, Map<string, ChatBadge>>;
