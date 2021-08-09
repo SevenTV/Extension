@@ -86,7 +86,7 @@ export class MessageTree {
 		const emote = emoteStore.getEmote(emoteID);
 
 		if (!!emote) {
-			return emote.toElement();
+			return emote.toElement(this.renderer.app.mainComponent?.getSetting('general.hide_unlisted_emotes').asBoolean());
 		}
 
 		return document.createElement('span');

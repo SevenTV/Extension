@@ -314,7 +314,7 @@ export namespace EmoteStore {
 			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.HIDDEN);
 		}
 
-		toElement(): HTMLSpanElement {
+		toElement(shouldBlurHidden = false): HTMLSpanElement {
 			const container = document.createElement('span');
 			container.style.minWidth = `${this.width[0]}px`;
 			container.style.minHeight = `${this.height[0]}px`;
@@ -334,6 +334,9 @@ export namespace EmoteStore {
 			}
 			if (this.isUnlisted()) {
 				tooltipExtra.push(<p key='unlisted-state' style={{ color: '#f23333' }}>Unlisted Emote</p>);
+				if (shouldBlurHidden) {
+					container.classList.add('seventv-emote-unlisted');
+				}
 			}
 
 			inner.addEventListener('mouseenter', event => {
