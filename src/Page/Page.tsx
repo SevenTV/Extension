@@ -129,8 +129,9 @@ export class PageScript {
 	}
 
 	@PageScriptListener('SetChatInput')
-	whenUserTabCompletesAndTheChatInputBoxShouldBeChanged(value: string): void {
-		tabCompletion.setInputValue(value);
+	whenUserTabCompletesAndTheChatInputBoxShouldBeChanged(value: { message: string, cursorPosition: number }): void {
+		tabCompletion.setInputValue(value.message);
+		tabCompletion.setInputCursorPosition(value.cursorPosition);
 	}
 
 	@PageScriptListener('SendSystemMessage')
