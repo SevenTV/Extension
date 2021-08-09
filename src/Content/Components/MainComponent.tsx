@@ -209,7 +209,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			return new SettingValue(sNode.defaultValue);
 		}
 
-		return value;
+		return new SettingValue(value);
 	}
 }
 
