@@ -57,9 +57,12 @@ $accentColor: #b2ff59;
 }
 
 .seventv-emote.seventv-zerowidth {
-	width: 0px;
+	z-index: 50;
+}
+
+.seventv-emote.seventv-next-is-zerowidth {
 	position: absolute;
-	z-index: 1;
+	width: 0px;
 }
 
 .seventv-emote.seventv-emote-unlisted {

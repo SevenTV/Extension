@@ -1,8 +1,11 @@
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
+import { EmoteStore } from 'src/Global/EmoteStore';
 import { Twitch } from 'src/Page/Util/Twitch';
 
 
 export class MessageTree {
+	previousEmote: EmoteStore.Emote | null = null;
+
 	constructor(private renderer: MessageRenderer) {
 
 	}
@@ -35,6 +38,7 @@ export class MessageTree {
 			parts.push(this.addPart(part));
 		}
 
+		this.previousEmote = null;
 		return parts;
 	}
 
@@ -86,6 +90,13 @@ export class MessageTree {
 		const emote = emoteStore.getEmote(emoteID);
 
 		if (!!emote) {
+			// If this emote is zerowidth, we must check the previous emote
+			if (emote.isZeroWidth() && !!this.previousEmote) {
+				// Previous emote should be the target for this zero-width emmote
+				// Add css class
+				this.previousEmote.element?.classList.add('seventv-next-is-zerowidth');
+			}
+			this.previousEmote = emote;
 			return emote.toElement(this.renderer.app.mainComponent?.getSetting('general.hide_unlisted_emotes').asBoolean());
 		}
 
