@@ -83,6 +83,12 @@ export class ChatListener {
 			}
 		});
 
+		// Send twitch emotes to upper layer
+		const twitchEmotes = this.twitch.getChat()?.props.emotes;
+		if (Array.isArray(twitchEmotes)) {
+			this.page.sendMessageUp('ReceiveTwitchEmotes', twitchEmotes);
+		}
+
 		/**
 		 * OBSERVE THE DOM AND GET ADDED COMPONENTS
 		 */

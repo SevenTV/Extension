@@ -19,7 +19,7 @@ export class TabCompleteDetection {
 	}
 
 	updateEmotes(): void {
-		this.emotes = this.app.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ']);
+		this.emotes = this.app.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ', 'TWITCH']).sort((a, b) => a.name.localeCompare(b.name));
 	}
 
 	/**
@@ -37,7 +37,13 @@ export class TabCompleteDetection {
 				}
 
 				this.handleTabPress(ev, foundEmotes);
-			} else if (resetKeycodes.includes(ev.code)) { // Reset the cursor when the user is done typing an emote
+			} else if (resetKeycodes.includes(ev.key)) { // Reset the cursor when the user is done typing an emote
+				// Remove the last character
+				// Unless the user is selecting many characters
+				if (this.tab.cursor.length > 0 && input.selectionStart === input.selectionEnd) {
+					this.app.sendMessageDown('SetChatInput', input.value.slice(0, input.value.length - 1));
+				}
+
 				this.resetCursor();
 			}
 		};
@@ -100,7 +106,7 @@ export class TabCompleteDetection {
 		// Request the pagescript to modify the input
 		const final = currentWord ?? '';
 		const lastOccurence = input.value.lastIndexOf(final);
-		this.app.sendMessageDown('SetChatInput', input.value.slice(0, lastOccurence) + input.value.slice(lastOccurence).replace(final, next));
+		this.app.sendMessageDown('SetChatInput', (input.value.slice(0, lastOccurence) + input.value.slice(lastOccurence).replace(final, next + ' ')).slice(0, 500));
 	}
 }
 
@@ -108,6 +114,6 @@ const startsWith = (prefix: string, emoteName: string): boolean =>
 	emoteName.toLowerCase().startsWith(prefix.toLowerCase());
 
 const resetKeycodes = [
-	'Space', 'Backspace', 'Enter',
+	' ', 'Backspace', 'Enter',
 	'Delete'
 ];

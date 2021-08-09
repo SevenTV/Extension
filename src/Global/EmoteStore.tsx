@@ -58,6 +58,11 @@ export class EmoteStore {
 		}
 
 		const set = this.sets.get(TWITCH_SET_NAME) as EmoteStore.EmoteSet;
+		const currentEmote = set.getEmoteByID(data.emoteID ?? '');
+		if (!!currentEmote) {
+			return currentEmote;
+		}
+
 		set.push([{
 			id: data.emoteID ?? '',
 			name: data.alt,

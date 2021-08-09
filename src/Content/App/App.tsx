@@ -15,6 +15,7 @@ import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Badge } from 'src/Global/Badge';
 import { ExtensionContentScript } from 'src/Content/Content';
+import { Constants } from '@typings/src/Constants';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -188,6 +189,35 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	@PageScriptListener('ScrollChat')
 	whenTheChatIsScrolledByUser() {
 		onChatScroll.next(undefined);
+	}
+
+	/**
+	 * Receive twitch emotes from the page layer and create our emote sets for them,
+	 * @param emoteSets the twitch emote sets
+	 */
+	@PageScriptListener('ReceiveTwitchEmotes')
+	whenWhenTwitchEmotesWhenEmotesTwitchOkayge(emoteSets: Twitch.TwitchEmoteSet[]): void {
+		// Iterate through sets, and start adding to our twitch set
+		const emotes = [] as DataStructure.Emote[];
+		for (const twset of emoteSets) {
+			for (const emote of twset.emotes) {
+				emotes.push({
+					id: emote.id,
+					name: emote.token,
+					visibility: 0,
+					provider: 'TWITCH',
+					status: Constants.Emotes.Status.LIVE,
+					tags: [],
+					owner: !!twset.owner ? {
+						id: twset.owner.id,
+						display_name: twset.owner.displayName,
+						login: twset.owner.login
+					} as DataStructure.TwitchUser : undefined
+				});
+			}
+		}
+
+		emoteStore.enableSet(`twitch`, emotes);
 	}
 
 	/**
