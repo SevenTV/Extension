@@ -131,7 +131,7 @@ export class TabCompleteDetection {
 		if (!next) return undefined;
 
 		// Request the pagescript to modify the input
-		const firstMessageHalf = inputText.substring(0, startIndex) + next + " ";
+		const firstMessageHalf = inputText.substring(0, startIndex) + next + ' ';
 		const newMessage = (firstMessageHalf + inputText.substring(cursorPosition)).slice(0, 500);
 		const newCursorPosition = firstMessageHalf.length;
 
