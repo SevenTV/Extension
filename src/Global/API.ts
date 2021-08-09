@@ -1,6 +1,6 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { map, switchMap, toArray } from 'rxjs/operators';
+import { map, switchMap, tap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import request, { post } from 'superagent';
@@ -45,7 +45,7 @@ export class API {
 				}
 			}
 		}).pipe(
-			map(res => [...res.body.data.user.emotes, ...res.body.data.third_party_emotes])
+			map(res => [...res.body.data.user?.emotes ?? [], ...res.body.data.third_party_emotes])
 		);
 	}
 
