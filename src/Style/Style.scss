@@ -2,12 +2,12 @@
 @use './Components/ChatInput.scss';
 @use './Components/Settings.scss';
 
-$bgColorDark0: #303030;
+$bgColorDark0: rgb(50, 50, 50);
 $bgColorDark1: darken($bgColorDark0, 5);
 $bgColorDarkHighlight0: lighten($bgColorDark0, 2.5);
-$bgColorDarkTooltip: transparentize(darken($bgColorDark0, 10), 0.2);
+$bgColorDarkTooltip: transparentize(darken($bgColorDark0, 10), 0.25);
 
-$bgColorLight0: #FAFAFA;
+$bgColorLight0: rgb(225, 225, 225);
 $bgColorLight1: lighten($bgColorLight0, 5);
 $bgColorLightHighlight0: darken($bgColorLight0, 2.5);
 $bgColorLightTooltip: transparentize($bgColorLight0, 0.2);

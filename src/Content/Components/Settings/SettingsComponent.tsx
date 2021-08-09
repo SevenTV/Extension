@@ -81,7 +81,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 									switch (s.type) {
 										case 'checkbox':
 											result =
-												<FormControlLabel label={s.label} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em' } }} control={
+												<FormControlLabel label={s.label} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} control={
 													<Checkbox
 														checked={(s.value ?? s.defaultValue) as boolean}
 														onChange={ev => this.handleCheckboxChange(s, ev)}

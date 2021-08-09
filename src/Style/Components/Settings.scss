@@ -1,5 +1,4 @@
 $borderRadius: 8px;
-$bg1: rgb(50, 50, 50);
 
 .seventv-settings-menu {
 	width: 80vw;
@@ -8,9 +7,9 @@ $bg1: rgb(50, 50, 50);
 	border-radius: $borderRadius;
 	max-width: 96em;
 
-	background-color: $bg1;
+	background-color: var(--seventv-color-background-0);
 	&.seventv-sm-backdrop-blur {
-		background-color: transparentize($bg1, 0.25);
+		background-color: var(--seventv-color-tooltip);
 		backdrop-filter: blur(10px);
 	}
 
@@ -23,11 +22,11 @@ $bg1: rgb(50, 50, 50);
 		height: 100%;
 		width: 200px;
 		flex-grow: 0;
-		background-color: rgb(25, 25, 25);
+		background-color: var(--seventv-color-background-1);
 		border-bottom-left-radius: $borderRadius;
 
 		.seventv-sm-logo {
-			background-color: var(--seventv-color-background-1);
+			background-color: var(--seventv-color-background-0);
 			border-bottom-right-radius: 3em;
 			height: min-content;
 			width: 100px;
@@ -73,7 +72,7 @@ $bg1: rgb(50, 50, 50);
 			align-items: center;
 			height: 48px;
 			width: 100%;
-			background-color: rgb(25, 25, 25, 1);
+			background-color: var(--seventv-color-background-1);
 			backdrop-filter: blur(10px);
 			border-top-right-radius: $borderRadius;
 

@@ -25,6 +25,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 	}
 
 	render(): React.ReactNode {
+		const channelEmotes = this.emotes.getAllEmotes([this.state.provider]).filter(e => !e.isGlobal());
 		return (
 			<EmoteMenu.Styled ref={this.ref} style={{ top: this.posY, left: this.posX, maxWidth: window.innerWidth }} className='seventv-clickable-overlay-child seventv-emote-menu'>
 				{/* Provider Tabs*/}
@@ -50,11 +51,17 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 						<EmoteMenu.CategoryHeader>Channel Emotes</EmoteMenu.CategoryHeader>
 					</EmoteMenu.EmoteListSection>
 					<EmoteMenu.EmoteList>
-						{this.emotes.getAllEmotes([this.state.provider]).filter(e => !e.isGlobal() && e.name.toLowerCase().includes(this.state.search)).map((e, i) => (
+						{channelEmotes.filter(e => e.name.toLowerCase().includes(this.state.search)).map((e, i) => (
 							<span key={`${i}-${e.id}`} onClick={() => this.onInsertEmote(e)}>
 								<EmoteComponent emote={e}></EmoteComponent>
 							</span>
 						))}
+
+						{channelEmotes.length === 0 &&
+							<span style={{ color: 'gray' }}>
+								There are no {this.state.provider} emotes in this channel
+							</span>
+						}
 					</EmoteMenu.EmoteList>
 
 					<EmoteMenu.EmoteListSection>
@@ -142,8 +149,8 @@ export namespace EmoteMenu {
 	export const Scrollable = styled.div`
 		padding-top: 1em;
 		border-radius: 6px;
-		width: 320px;
-		height: 400px;
+		width: 340px;
+		height: 480px;
 		overflow: auto;
 	`;
 
