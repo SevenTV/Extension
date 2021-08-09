@@ -96,7 +96,7 @@ export class TabCompleteDetection {
 		let startIndex = 0;
 		for (let i = cursorPosition - 1; i >= 0; i--) {
 			const currentChar = inputText.charAt(i);
-			if (currentChar == " ") {
+			if (currentChar == ' ') {
 				startIndex = i + 1;
 				break;
 			}
