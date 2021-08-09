@@ -255,6 +255,7 @@ export namespace EmoteStore {
 		owner: Partial<DataStructure.TwitchUser> | null = null;
 		provider: DataStructure.Emote.Provider = '7TV';
 		urls = [] as [string, string][];
+		element: HTMLSpanElement | null = null;
 
 		constructor(private data: DataStructure.Emote) {
 			this.id = data.id ?? '';
@@ -362,7 +363,7 @@ export namespace EmoteStore {
 
 			inner.appendChild(img);
 			container.appendChild(inner);
-			return container;
+			return this.element = container;
 		}
 
 		resolve(): DataStructure.Emote {
