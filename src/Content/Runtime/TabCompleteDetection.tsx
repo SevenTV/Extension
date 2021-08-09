@@ -6,10 +6,13 @@ import { Twitch } from 'src/Page/Util/Twitch';
 export class TabCompleteDetection {
 	tab = {
 		index: 0,
-		cursor: ''
+		cursor: '',
+		expectedValue: '',
+		expectedCursorLocation: 0
 	};
 
-	private currentListener: ((this: HTMLInputElement, ev: KeyboardEvent) => any) | undefined;
+	private keyListener: ((this: HTMLInputElement, ev: KeyboardEvent) => any) | undefined;
+	private finalizeListener: ((this: HTMLInputElement, ev: Event) => any) | undefined;
 	private emotes = [] as EmoteStore.Emote[];
 
 	constructor(public app: App) {}
@@ -29,35 +32,43 @@ export class TabCompleteDetection {
 		Logger.Get().info('Handling tab completion');
 		const input = this.getInput();
 
-		const listener = this.currentListener = (ev) => {
+		this.keyListener = (ev) => {
 			if (ev.key === 'Tab') {
 				const foundEmotes = this.emotes.map(e => e.name);
 				if (foundEmotes.length === 0) {
 					return undefined;
 				}
 
-				this.handleTabPress(ev, foundEmotes);
-			} else if (resetKeycodes.includes(ev.key)) { // Reset the cursor when the user is done typing an emote
-				// Remove the last character
-				// Unless the user is selecting many characters
-				if (this.tab.cursor.length > 0 && input.selectionStart === input.selectionEnd) {
-					this.app.sendMessageDown('SetChatInput', input.value.slice(0, input.value.length - 1));
-				}
+				const input = ev.target as HTMLInputElement;
 
-				this.resetCursor();
+				if (input.value != this.tab.expectedValue) this.resetCursor();
+				else if (input.selectionStart != this.tab.expectedCursorLocation) this.resetCursor();
+
+				this.handleTabPress(ev, foundEmotes);
 			}
 		};
-		input.addEventListener('keydown', listener, {
+		input.addEventListener('keydown', this.keyListener, {
 			capture: false
 		});
+
+		this.finalizeListener = () => this.resetCursor();
+		input.addEventListener('change', this.finalizeListener, {
+			capture: false
+		});
+
 	}
 
 	stop(): void {
 		const input = this.getInput();
 
-		if (typeof this.currentListener === 'function') {
-			input.removeEventListener('keydown', this.currentListener);
+		if (typeof this.keyListener === 'function') {
+			input.removeEventListener('keydown', this.keyListener);
 		}
+
+		if (typeof this.finalizeListener === 'function') {
+			input.removeEventListener('change', this.finalizeListener);
+		}
+
 		this.emotes = [];
 	}
 
@@ -67,6 +78,8 @@ export class TabCompleteDetection {
 	resetCursor(): void {
 		this.tab.cursor = '';
 		this.tab.index = 0;
+		this.tab.expectedValue = '';
+		this.tab.expectedCursorLocation = 0;
 	}
 
 	/**
@@ -76,9 +89,22 @@ export class TabCompleteDetection {
 	 * @param emotes an array of emote name strings
 	 */
 	private handleTabPress(ev: KeyboardEvent, emotes: string[]): void {
-		const input = this.getInput();
-		const cursorValue = (this.tab.cursor || input.value).match(/\b(\w+)\W*$/)?.[0]; // The current value of the cursor, or the input if no cursor is set
-		const currentWord = input.value.match(/\b(\w+)\W*$/)?.[0]; // The latest word typed by the user
+		const input = ev.target as HTMLInputElement;
+		const inputText = input.value;
+		const cursorPosition = input.selectionStart || 0;
+
+		let startIndex = 0;
+		for (let i = cursorPosition - 1; i >= 0; i--) {
+			const currentChar = inputText.charAt(i);
+			if (currentChar == " ") {
+				startIndex = i + 1;
+				break;
+			}
+		}
+
+		let currentWord = inputText.substring(startIndex, cursorPosition);
+
+		const cursorValue = this.tab.cursor || currentWord; // The current value of the cursor, or the input if no cursor is set
 		if (!cursorValue) return undefined;
 
 		// Find emotes matching the cursor
@@ -104,16 +130,16 @@ export class TabCompleteDetection {
 		if (!next) return undefined;
 
 		// Request the pagescript to modify the input
-		const final = currentWord ?? '';
-		const lastOccurence = input.value.lastIndexOf(final);
-		this.app.sendMessageDown('SetChatInput', (input.value.slice(0, lastOccurence) + input.value.slice(lastOccurence).replace(final, next + ' ')).slice(0, 500));
+		const firstMessageHalf = inputText.substring(0, startIndex) + next;
+		const newMessage = (firstMessageHalf + inputText.substring(cursorPosition)).slice(0, 500);
+		const newCursorPosition = firstMessageHalf.length;
+
+		this.tab.expectedValue = newMessage;
+		this.tab.expectedCursorLocation = newCursorPosition;
+
+		this.app.sendMessageDown('SetChatInput', {message: newMessage, cursorPosition: newCursorPosition});
 	}
 }
 
 const startsWith = (prefix: string, emoteName: string): boolean =>
 	emoteName.toLowerCase().startsWith(prefix.toLowerCase());
-
-const resetKeycodes = [
-	' ', 'Backspace', 'Enter',
-	'Delete'
-];

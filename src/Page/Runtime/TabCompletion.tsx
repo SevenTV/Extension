@@ -54,4 +54,9 @@ export class TabCompletion {
 			}
 		}
 	}
+
+	setInputCursorPosition(position: number) {
+		const el = document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
+		el.setSelectionRange(position, position);
+	}
 }
