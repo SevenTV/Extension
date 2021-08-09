@@ -329,6 +329,9 @@ export namespace EmoteStore {
 			}
 			if (this.isUnlisted()) {
 				tooltipExtra.push(<p key='unlisted-state' style={{ color: '#f23333' }}>Unlisted Emote</p>);
+				if (shouldBlurHidden) {
+					container.classList.add('seventv-emote-unlisted');
+				}
 			}
 
 			inner.addEventListener('mouseenter', event => {
@@ -351,9 +354,6 @@ export namespace EmoteStore {
 			img.classList.add('chat-image');
 			img.classList.add('chat-line__message--emote');
 			img.src = this.cdn('1');
-			if (shouldBlurHidden && this.isUnlisted()) {
-				img.style.filter = 'blur(12px)';
-			}
 
 			inner.appendChild(img);
 			container.appendChild(inner);
