@@ -58,6 +58,13 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
 			type: 'checkbox',
 			defaultValue: true
+		},
+		{
+			id: 'ui.transparency',
+			label: 'UI Transparency',
+			hint: 'Toggle the transparency / backdrop blur ',
+			type: 'checkbox',
+			defaultValue: true
 		}
 	] as SettingsComponent.SettingNode[];
 

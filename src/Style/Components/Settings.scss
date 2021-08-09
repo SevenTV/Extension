@@ -1,8 +1,18 @@
+$borderRadius: 8px;
+$bg1: rgb(50, 50, 50);
+
 .seventv-settings-menu {
 	width: 80vw;
 	height: 60vh;
 	pointer-events: all;
-	background-color: var(--seventv-color-background-0);
+	border-radius: $borderRadius;
+	max-width: 96em;
+
+	background-color: $bg1;
+	&.seventv-sm-backdrop-blur {
+		background-color: transparentize($bg1, 0.25);
+		backdrop-filter: blur(10px);
+	}
 
 	display: flex;
 	flex-direction: row;
@@ -13,7 +23,8 @@
 		height: 100%;
 		width: 200px;
 		flex-grow: 0;
-		background-color: var(--seventv-color-background-hl0);
+		background-color: rgb(25, 25, 25);
+		border-bottom-left-radius: $borderRadius;
 
 		.seventv-sm-logo {
 			background-color: var(--seventv-color-background-1);
@@ -62,12 +73,15 @@
 			align-items: center;
 			height: 48px;
 			width: 100%;
-			background-color: var(--seventv-color-background-hl0);
+			background-color: rgb(25, 25, 25, 1);
+			backdrop-filter: blur(10px);
+			border-top-right-radius: $borderRadius;
 
 			.seventv-sm-titlebox {
-				transform: translateX(-4em);
+				display: flex;
 
 				span {
+					margin-left: 1em;
 					font-size: 2em;
 				}
 			}

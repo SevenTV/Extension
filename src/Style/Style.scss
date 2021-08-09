@@ -1,6 +1,6 @@
 @use './Components/Tooltip.scss';
 @use './Components/ChatInput.scss';
-@use './Components//Settings.scss';
+@use './Components/Settings.scss';
 
 $bgColorDark0: #303030;
 $bgColorDark1: darken($bgColorDark0, 5);
