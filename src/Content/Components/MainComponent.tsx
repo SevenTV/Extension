@@ -81,7 +81,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		// Get config value & handle changes
 		{
 			// Retrieve initial value
-			chrome.storage.sync.get(items => {
+			chrome.storage.local.get(items => {
 				const result = Object.create({});
 				for (const k of Object.keys(items)) {
 					const v = items[k];
