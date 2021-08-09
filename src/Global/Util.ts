@@ -113,3 +113,27 @@ export function getProviderLogo(provider: DataStructure.Emote.Provider): string 
 
 	return value;
 }
+
+export class SettingValue {
+	constructor(private value: any) {}
+
+	exists(): boolean {
+		return typeof this.value !== 'undefined';
+	}
+
+	asBoolean(): boolean {
+		return Boolean(this.value);
+	}
+
+	asString(): string {
+		return String(this.value);
+	}
+
+	asStringArray(): string[] {
+		return [...Array.isArray(this.value) ? this.value.map(v => String(v)) : []];
+	}
+
+	asBooleanArray(): boolean[] {
+		return [...Array.isArray(this.value) ? this.value.map(v => Boolean(v)) : []];
+	}
+}
