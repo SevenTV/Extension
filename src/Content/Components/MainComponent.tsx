@@ -18,7 +18,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			open: false
 		},
 		settingsMenu: {
-			open: true
+			open: false
 		}
 	} as MainComponent.State;
 
