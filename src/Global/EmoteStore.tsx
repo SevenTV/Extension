@@ -309,7 +309,7 @@ export namespace EmoteStore {
 			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.HIDDEN);
 		}
 
-		toElement(): HTMLSpanElement {
+		toElement(shouldBlurHidden = false): HTMLSpanElement {
 			const container = document.createElement('span');
 			container.style.minWidth = `${this.width[0]}px`;
 			container.style.minHeight = `${this.height[0]}px`;
@@ -351,6 +351,9 @@ export namespace EmoteStore {
 			img.classList.add('chat-image');
 			img.classList.add('chat-line__message--emote');
 			img.src = this.cdn('1');
+			if (shouldBlurHidden && this.isUnlisted()) {
+				img.style.filter = 'blur(12px)';
+			}
 
 			inner.appendChild(img);
 			container.appendChild(inner);
