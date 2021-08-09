@@ -23,7 +23,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		this.retrieveValues();
 
 		// Handle config change from another location
-		// i.e a different tab, or coming from a different PC via chrome sync
+		// i.e a different tab
 		const changeListener = this.changeListener = (changes: any) => {
 			const items = Object.create({});
 			for (const k of Object.keys(changes)) {
@@ -112,7 +112,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		const checked = ev.target.checked;
 
 		sNode.value = checked;
-		chrome.storage.sync.set({
+		chrome.storage.local.set({
 			[`cfg.${sNode.id}`]: checked
 		});
 
@@ -124,7 +124,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 	 */
 	retrieveValues(): void {
 		// Retrieve the full storage set
-		chrome.storage.sync.get(items => {
+		chrome.storage.local.get(items => {
 			this.apply(items);
 		});
 	}
@@ -146,7 +146,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 
 				sNode.value = value;
 				if (sNode.defaultValue === value) {
-					chrome.storage.sync.remove(`cfg.${sNode.id}`);
+					chrome.storage.local.remove(`cfg.${sNode.id}`);
 				}
 				this.setState({ retrieved: true });
 			}
