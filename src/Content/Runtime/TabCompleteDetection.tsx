@@ -93,10 +93,11 @@ export class TabCompleteDetection {
 		const inputText = input.value;
 		const cursorPosition = input.selectionStart || 0;
 
+		let searchStart = cursorPosition - 1;
 		let startIndex = 0;
-		for (let i = cursorPosition - 1; i >= 0; i--) {
+		for (let i = searchStart; i >= 0; i--) { // Search backwards until we find a space
 			const currentChar = inputText.charAt(i);
-			if (currentChar == ' ') {
+			if (currentChar == ' ' && i != searchStart) { // If the first character we hit is a space, skip it
 				startIndex = i + 1;
 				break;
 			}
@@ -130,7 +131,7 @@ export class TabCompleteDetection {
 		if (!next) return undefined;
 
 		// Request the pagescript to modify the input
-		const firstMessageHalf = inputText.substring(0, startIndex) + next;
+		const firstMessageHalf = inputText.substring(0, startIndex) + next + " ";
 		const newMessage = (firstMessageHalf + inputText.substring(cursorPosition)).slice(0, 500);
 		const newCursorPosition = firstMessageHalf.length;
 
