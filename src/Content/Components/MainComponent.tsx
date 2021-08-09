@@ -18,7 +18,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			open: false
 		},
 		settingsMenu: {
-			open: false
+			open: true
 		}
 	} as MainComponent.State;
 
@@ -56,6 +56,13 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			id: 'general.persistent_history',
 			label: 'Persistent Chat History',
 			hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
+			type: 'checkbox',
+			defaultValue: true
+		},
+		{
+			id: 'ui.transparency',
+			label: 'UI Transparency',
+			hint: 'Toggle the transparency / backdrop blur ',
 			type: 'checkbox',
 			defaultValue: true
 		}
