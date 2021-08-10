@@ -1,99 +1,115 @@
 import { Subject } from 'rxjs';
 import { getRunningContext, SettingValue } from 'src/Global/Util';
 
+declare var browser: any;
 class Settings {
 	ctx = getRunningContext();
 	change = new Subject<{ [x: string]: any }>();
 
 	raw = {} as { [x: string]: any };
 	data = new Map<string, any>();
-	nodes = [
-		{
-			id: 'general.hide_unlisted_emotes',
-			label: 'Hide Unlisted Emotes',
-			hint: 'If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred',
-			type: 'checkbox',
-			defaultValue: false
-		},
-		{
-			id: 'general.display_mod_actions',
-			label: 'Show Timeouts & Bans',
-			hint: 'This setting allows non-moderators to see actions by moderators',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'general.autocomplete',
-			label: 'Auto-Completion',
-			hint: 'Enable or disable 7TV emote auto-completion',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'general.persistent_history',
-			label: 'Persistent Chat History',
-			hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'ui.transparency',
-			label: 'UI Transparency',
-			hint: 'Toggle the transparency / backdrop blur ',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'ui.minimize_tooltip_size',
-			label: 'Minimize Tooltip Size',
-			hint: 'Make the 7TV tooltips smaller',
-			type: 'checkbox',
-			defaultValue: false
-		}
-	] as SettingNode[];
+	nodes = [] as SettingNode[];
 
 	constructor() {
 		if (this.ctx === 'content') {
-			// Get config value & handle changes
-			// Retrieve initial value
-			chrome.storage.local.get(items => {
-				const result = Object.create({});
-				for (const k of Object.keys(items)) {
-					const v = items[k];
-					const name = k.slice(4);
+			try {
+				// Get config value & handle changes
+				// Retrieve initial value
+				chrome.storage.local.get(items => {
+					const result = Object.create({});
+					for (const k of Object.keys(items)) {
+						const v = items[k];
+						const name = k.slice(4);
 
-					result[name] = v;
-					this.data.set(name, v);
-				}
-
-				// Add default-valued settings
-				for (const sNode of this.nodes) {
-					if (typeof result[sNode.id] !== 'undefined') {
-						continue;
+						result[name] = v;
+						this.data.set(name, v);
 					}
 
-					result[sNode.id] = sNode.defaultValue;
-				}
+					// Add default-valued settings
+					for (const sNode of this.nodes) {
+						if (typeof result[sNode.id] !== 'undefined') {
+							continue;
+						}
 
-				this.raw = result;
-				this.change.next(result);
-			});
-
-			// Handle changes
-			chrome.storage.onChanged.addListener(changes => {
-				for (const k of Object.keys(changes)) {
-					const v = changes[k].newValue;
-					const name = k.slice(4);
-					if (typeof v === 'undefined') {
-						this.data.delete(k.slice(4));
-						continue;
+						result[sNode.id] = sNode.defaultValue;
 					}
 
-					this.raw[name] = changes[k].newValue;
-					this.data.set(name, changes[k].newValue);
-					this.change.next({ [name]: changes[k].newValue });
+					this.raw = result;
+					this.change.next(result);
+				});
+
+				// Handle changes
+				chrome.storage.onChanged.addListener(changes => {
+					for (const k of Object.keys(changes)) {
+						const v = changes[k].newValue;
+						const name = k.slice(4);
+						if (typeof v === 'undefined') {
+							this.data.delete(k.slice(4));
+							continue;
+						}
+
+						this.raw[name] = changes[k].newValue;
+						this.data.set(name, changes[k].newValue);
+						this.change.next({ [name]: changes[k].newValue });
+					}
+				});
+			} catch (err) {
+
+			}
+
+			// Check if the browser is firefox
+			// This is used to disable some settings that are not available on that browser
+			let isFirefox = false;
+			try {
+				isFirefox = !!browser;
+			} catch (_) {
+
+			}
+			this.nodes.push(
+				{
+					id: 'general.hide_unlisted_emotes',
+					label: 'Hide Unlisted Emotes',
+					hint: 'If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred',
+					type: 'checkbox',
+					defaultValue: false
+				},
+				{
+					id: 'general.display_mod_actions',
+					label: 'Show Timeouts & Bans',
+					hint: 'This setting allows non-moderators to see actions by moderators',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
+					id: 'general.autocomplete',
+					label: 'Auto-Completion',
+					hint: 'Enable or disable 7TV emote auto-completion',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
+					id: 'general.persistent_history',
+					label: 'Persistent Chat History',
+					hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
+					id: 'ui.transparency',
+					label: 'UI Transparency',
+					hint: 'Toggle the transparency / backdrop blur' + (isFirefox ? ` (Unavailable on Firefox) ` : ''),
+					type: 'checkbox',
+					defaultValue: isFirefox ? false : true,
+					disabledIf: () => isFirefox
+				},
+				{
+					id: 'ui.minimize_tooltip_size',
+					label: 'Minimize Tooltip Size',
+					hint: 'Make the 7TV tooltips smaller',
+					type: 'checkbox',
+					defaultValue: false
 				}
-			});
+			);
 		}
 	}
 
@@ -120,6 +136,7 @@ export interface SettingNode {
 
 	value?: boolean | string | object;
 	defaultValue?: boolean | string | object;
+	disabledIf?: () => boolean;
 }
 export namespace SettingNode {
 	export type Type = 'checkbox';

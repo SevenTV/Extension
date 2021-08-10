@@ -72,7 +72,7 @@ export const theme = createTheme({
 		},
 		background: {
 			default: '#303030',
-		},
+		}
 	},
 	components: {
 		MuiSvgIcon: {

@@ -78,6 +78,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 						<div className='form-list'>
 							<FormGroup>
 								{this.props.settings.map(s => {
+									const isDisabled = typeof s.disabledIf === 'function' ? s.disabledIf() : false;
 									let result: JSX.Element;
 									switch (s.type) {
 										case 'checkbox':
@@ -96,7 +97,9 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 											break;
 									}
 
-									return <FormControl key={`formcontrol-${s.id}`} id={s.id}>
+									return <FormControl disabled={isDisabled} sx={{
+										'.Mui-disabled': { color: 'red' }
+									}} key={`formcontrol-${s.id}`} id={s.id}>
 										{result}
 										<FormHelperText style={{ fontSize: '0.75em' }}> {s.hint} </FormHelperText>
 									</FormControl>;
