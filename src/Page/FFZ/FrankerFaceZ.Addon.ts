@@ -1,6 +1,7 @@
 import { Config } from 'src/Config';
 import { version } from 'public/manifest.json';
 import { DataStructure } from '@typings/typings/DataStructure';
+import { EventAPI } from 'src/Global/Events/EventAPI';
 
 class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	constructor(...args: any[]) {
@@ -216,28 +217,45 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		}
 	}
 
-	handleChannelEmoteUpdate(data: any) {
+	handleChannelEmoteUpdate(event: EventAPI.EmoteEventUpdate) {
+		const removed = event.action === 'REMOVE';
+		console.log('FFZ Event', event);
 		if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
 			for (const chat of this.siteChat.ChatService.instances) {
-				if (chat.props.channelLogin == data.channel) {
+				if (chat.props.channelLogin == event.channel) {
+					let message = `[7TV-FFZ] ${event.actor} `;
+					switch (event.action) {
+						case 'ADD':
+							message += `added the emote`;
+							break;
+						case 'REMOVE':
+							message += `removed the emote`;
+							break;
+						case 'UPDATE':
+							message += `renamed the emote`;
+							break;
+						default:
+							message += `performed '${event.action}' on the emote`;
+							break;
+					}
 					chat.addMessage({
 						type: this.siteChat.chat_types.Notice,
-						message: `[7TV] ${data.actor} ${data.removed ? 'removed' : 'added'} the emote "${data.emote.name}"`
+						message: `${message} "${event.name}"`
 					});
 				}
 			}
 		}
 
 		for (const channel of this.chat.iterateRooms()) {
-			if (channel.login == data.channel) {
+			console.log('Compare', channel.login, event.channel);
+			if (channel.login == event.channel) {
 				const emoteSet = this.getChannelSet(channel);
 				if (emoteSet) {
 					const emotes = emoteSet.emotes || {};
-					if (data.removed) {
-						delete emotes[data.emote.id];
-					}
-					else {
-						emotes[data.emote.id] = this.convertEmote(data.emote);
+					if (removed) {
+						delete emotes[event.emote_id];
+					} else {
+						emotes[event.emote_id] = this.convertEmote(event.emote);
 					}
 					this.addChannelSet(channel, Object.values(emotes));
 				}

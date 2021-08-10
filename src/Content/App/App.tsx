@@ -64,6 +64,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 				tabCompleteDetector?.updateEmotes();
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
+				this.sendMessageDown('ChannelEmoteChange', event);
 			}
 		});
 		ExtensionContentScript.destroyed.subscribe({
