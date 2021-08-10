@@ -1,15 +1,14 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "7TV",
 	"description": "A third party emote extension for Twitch",
 	"version": "1.6.0",
-	"page_action": {
+	"action": {
 		"default_icon": "icon128.png"
 	},
 	"background": {
-		"scripts": [
-			"background.js"
-		]
+		"service_worker": "background.js"
+
 	},
 	"content_scripts": [
 		{
@@ -19,14 +18,21 @@
 		}
 	],
 	"web_accessible_resources": [
-		"page.js",
-		"ffz_hook.js",
-		"ffz_addon.js",
-		"styles/Style.css",
-		"image/*.webp"
+		{
+			"resources": [
+				"page.js",
+				"ffz_hook.js",
+				"ffz_addon.js",
+				"styles/Style.css",
+				"image/*.webp"
+			],
+			"matches": ["<all_urls>"]
+		}
+	],
+	"host_permissions": [
+		"*://*.twitch.tv/*"
 	],
 	"permissions": [
-		"*://*.twitch.tv/*",
 		"storage"
 	],
 	"icons": {
