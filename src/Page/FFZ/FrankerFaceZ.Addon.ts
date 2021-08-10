@@ -218,10 +218,20 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	handleChannelEmoteUpdate(event: EventAPI.EmoteEventUpdate) {
-		const removed = event.action === 'REMOVE';
-		if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
-			for (const chat of this.siteChat.ChatService.instances) {
-				if (chat.props.channelLogin == event.channel) {
+		for (const channel of this.chat.iterateRooms()) {
+			if (channel.login == event.channel) {
+				const emoteSet = this.getChannelSet(channel);
+				if (emoteSet) {
+					const emotes = emoteSet.emotes || {};
+					if (event.action === 'REMOVE') {
+						delete emotes[event.emote_id];
+					} else {
+						emotes[event.emote_id] = this.convertEmote({ ...event.emote, id: event.emote_id });
+					}
+					this.addChannelSet(channel, Object.values(emotes));
+				}
+
+				if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
 					let message = `[7TV-FFZ] ${event.actor} `;
 					switch (event.action) {
 						case 'ADD':
@@ -237,25 +247,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 							message += `performed '${event.action}' on the emote`;
 							break;
 					}
-					chat.addMessage({
-						type: this.siteChat.chat_types.Notice,
-						message: `${message} "${event.name}"`
-					});
-				}
-			}
-		}
-
-		for (const channel of this.chat.iterateRooms()) {
-			if (channel.login == event.channel) {
-				const emoteSet = this.getChannelSet(channel);
-				if (emoteSet) {
-					const emotes = emoteSet.emotes || {};
-					if (removed) {
-						delete emotes[event.emote_id];
-					} else {
-						emotes[event.emote_id] = this.convertEmote({ ...event.emote, id: event.emote_id });
-					}
-					this.addChannelSet(channel, Object.values(emotes));
+					this.siteChat.addNotice(channel.login, `${message} "${event.name}"`);
 				}
 			}
 		}
