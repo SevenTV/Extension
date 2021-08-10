@@ -42,7 +42,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		}
 
 		return (
-			<div className={`seventv-settings-menu ${this.props.main.getSetting('ui.transparency') ? 'seventv-sm-backdrop-blur' : ''}`}>
+			<div className={`seventv-settings-menu ${this.props.main.getSetting('ui.transparency').asBoolean() ? 'seventv-sm-backdrop-blur' : ''}`}>
 				<div className='seventv-sm-sidebar'>
 					{/* Logo */}
 					<div className='seventv-sm-logo'>

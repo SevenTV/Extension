@@ -34,6 +34,11 @@ export class TabCompleteDetection {
 
 		this.keyListener = (ev) => {
 			if (ev.key === 'Tab') {
+				// Option is enabled?
+				if (!this.app.mainComponent?.getSetting('general.autocomplete').asBoolean()) {
+					return undefined;
+				}
+
 				const foundEmotes = this.emotes.map(e => e.name);
 				if (foundEmotes.length === 0) {
 					return undefined;
