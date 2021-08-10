@@ -16,6 +16,7 @@ import { DataStructure } from '@typings/typings/DataStructure';
 import { Badge } from 'src/Global/Badge';
 import { ExtensionContentScript } from 'src/Content/Content';
 import { Constants } from '@typings/src/Constants';
+import { settings } from 'src/Content/Runtime/Settings';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -91,6 +92,11 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			toArray(),
 			tap(badges => Logger.Get().info(`Loaded ${badges.length} badges`))
 		).subscribe();
+
+		// Handle config changes
+		settings.change.subscribe({
+			next: change => this.sendMessageDown('ConfigChange', change)
+		});
 	}
 
 	onInjected(): void {
@@ -106,6 +112,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 		target?.firstChild?.appendChild(app);
 
+		this.sendMessageDown('ConfigChange', settings.raw);
 		emitHook('onAppLoaded');
 	}
 

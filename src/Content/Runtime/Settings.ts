@@ -5,6 +5,7 @@ class Settings {
 	ctx = getRunningContext();
 	change = new Subject<{ [x: string]: any }>();
 
+	raw = {} as { [x: string]: any };
 	data = new Map<string, any>();
 	nodes = [
 		{
@@ -73,6 +74,8 @@ class Settings {
 
 					result[sNode.id] = sNode.defaultValue;
 				}
+
+				this.raw = result;
 				this.change.next(result);
 			});
 
@@ -86,6 +89,7 @@ class Settings {
 						continue;
 					}
 
+					this.raw[name] = changes[k].newValue;
 					this.data.set(name, changes[k].newValue);
 					this.change.next({ [name]: changes[k].newValue });
 				}
