@@ -79,7 +79,7 @@ export class ChatListener {
 			} else if (modMsg.moderationType === 0) { // Ban
 				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned by a moderator`);
 			} else if (modMsg.moderationType === 2) { // Message deleted
-				this.sendSystemMessage(`A message from ${modMsg.userLogin} was deleted by a mmoderator (ID: ${(modMsg as any)['targetMessageID']})`);
+				this.sendSystemMessage(`A message from ${modMsg.userLogin} was deleted by a moderator`);
 			}
 		});
 

@@ -88,13 +88,6 @@ class Settings {
 					defaultValue: true
 				},
 				{
-					id: 'general.persistent_history',
-					label: 'Persistent Chat History',
-					hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
-					type: 'checkbox',
-					defaultValue: true
-				},
-				{
 					id: 'ui.transparency',
 					label: 'UI Transparency',
 					hint: 'Toggle the transparency / backdrop blur' + (isFirefox ? ` (Unavailable on Firefox) ` : ''),
