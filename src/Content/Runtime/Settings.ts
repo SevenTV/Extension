@@ -1,7 +1,8 @@
 import { Subject } from 'rxjs';
-import { SettingValue } from 'src/Global/Util';
+import { getRunningContext, SettingValue } from 'src/Global/Util';
 
 class Settings {
+	ctx = getRunningContext();
 	change = new Subject<{ [x: string]: any }>();
 
 	data = new Map<string, any>();
@@ -51,43 +52,45 @@ class Settings {
 	] as SettingNode[];
 
 	constructor() {
-		// Get config value & handle changes
-		// Retrieve initial value
-		chrome.storage.local.get(items => {
-			const result = Object.create({});
-			for (const k of Object.keys(items)) {
-				const v = items[k];
-				const name = k.slice(4);
+		if (this.ctx === 'content') {
+			// Get config value & handle changes
+			// Retrieve initial value
+			chrome.storage.local.get(items => {
+				const result = Object.create({});
+				for (const k of Object.keys(items)) {
+					const v = items[k];
+					const name = k.slice(4);
 
-				result[name] = v;
-				this.data.set(name, v);
-			}
-
-			// Add default-valued settings
-			for (const sNode of this.nodes) {
-				if (typeof result[sNode.id] !== 'undefined') {
-					continue;
+					result[name] = v;
+					this.data.set(name, v);
 				}
 
-				result[sNode.id] = sNode.defaultValue;
-			}
-			this.change.next(result);
-		});
+				// Add default-valued settings
+				for (const sNode of this.nodes) {
+					if (typeof result[sNode.id] !== 'undefined') {
+						continue;
+					}
 
-		// Handle changes
-		chrome.storage.onChanged.addListener(changes => {
-			for (const k of Object.keys(changes)) {
-				const v = changes[k].newValue;
-				const name = k.slice(4);
-				if (typeof v === 'undefined') {
-					this.data.delete(k.slice(4));
-					continue;
+					result[sNode.id] = sNode.defaultValue;
 				}
+				this.change.next(result);
+			});
 
-				this.data.set(name, changes[k].newValue);
-				this.change.next({ [name]: changes[k].newValue });
-			}
-		});
+			// Handle changes
+			chrome.storage.onChanged.addListener(changes => {
+				for (const k of Object.keys(changes)) {
+					const v = changes[k].newValue;
+					const name = k.slice(4);
+					if (typeof v === 'undefined') {
+						this.data.delete(k.slice(4));
+						continue;
+					}
+
+					this.data.set(name, changes[k].newValue);
+					this.change.next({ [name]: changes[k].newValue });
+				}
+			});
+		}
 	}
 
 	get(name: string): SettingValue {
