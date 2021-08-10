@@ -69,6 +69,10 @@ $accentColor: #b2ff59;
 	filter: blur(8px);
 }
 
+.seventv-emote {
+	image-rendering: crisp-edges;
+}
+
 .seventv-emote-menu {
 	.seventv-emote-menu-header {
 		background-color: var(--seventv-color-background-1);
