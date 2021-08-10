@@ -1,4 +1,5 @@
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
+import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Twitch } from 'src/Page/Util/Twitch';
 
@@ -97,7 +98,7 @@ export class MessageTree {
 				this.previousEmote.element?.classList.add('seventv-next-is-zerowidth');
 			}
 			this.previousEmote = emote;
-			return emote.toElement(this.renderer.app.mainComponent?.getSetting('general.hide_unlisted_emotes').asBoolean());
+			return emote.toElement(settings.get('general.hide_unlisted_emotes').asBoolean());
 		}
 
 		return document.createElement('span');

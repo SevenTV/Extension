@@ -9,6 +9,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import CloseIcon from '@material-ui/icons/Close';
 import React from 'react';
 import { Config } from 'src/Config';
+import { SettingNode, settings } from 'src/Content/Runtime/Settings';
 
 export class SettingsComponent extends React.Component<SettingsComponent.Props, SettingsComponent.State> {
 	state = {
@@ -42,7 +43,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		}
 
 		return (
-			<div className={`seventv-settings-menu ${this.props.main.getSetting('ui.transparency').asBoolean() ? 'seventv-sm-backdrop-blur' : ''}`}>
+			<div className={`seventv-settings-menu ${settings.get('ui.transparency').asBoolean() ? 'seventv-sm-backdrop-blur' : ''}`}>
 				<div className='seventv-sm-sidebar'>
 					{/* Logo */}
 					<div className='seventv-sm-logo'>
@@ -108,7 +109,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		);
 	}
 
-	handleCheckboxChange(sNode: SettingsComponent.SettingNode, ev: React.ChangeEvent<HTMLInputElement>): void {
+	handleCheckboxChange(sNode: SettingNode, ev: React.ChangeEvent<HTMLInputElement>): void {
 		const checked = ev.target.checked;
 
 		sNode.value = checked;
@@ -169,18 +170,5 @@ export namespace SettingsComponent {
 
 	export interface State {
 		retrieved: boolean;
-	}
-
-	export interface SettingNode {
-		id: string;
-		label: string;
-		hint?: string;
-		type: SettingNode.Type;
-
-		value?: boolean | string | object;
-		defaultValue?: boolean | string | object;
-	}
-	export namespace SettingNode {
-		export type Type = 'checkbox';
 	}
 }
