@@ -16,7 +16,7 @@ export class TabCompleteDetection {
 	private finalizeListener: ((this: HTMLInputElement, ev: Event) => any) | undefined;
 	private emotes = [] as EmoteStore.Emote[];
 
-	constructor(public app: App) {}
+	constructor(public app: App) { }
 
 	getInput(): HTMLInputElement {
 		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
@@ -54,7 +54,7 @@ export class TabCompleteDetection {
 			}
 		};
 		input.addEventListener('keydown', this.keyListener, {
-			capture: false
+			capture: true
 		});
 
 		this.finalizeListener = () => this.resetCursor();
@@ -144,7 +144,10 @@ export class TabCompleteDetection {
 		this.tab.expectedValue = newMessage;
 		this.tab.expectedCursorLocation = newCursorPosition;
 
-		this.app.sendMessageDown('SetChatInput', {message: newMessage, cursorPosition: newCursorPosition});
+		// Delay the input patch by a tick in order to override BTTV
+		setTimeout(() => {
+			this.app.sendMessageDown('SetChatInput', { message: newMessage, cursorPosition: newCursorPosition });
+		}, 0);
 	}
 }
 
