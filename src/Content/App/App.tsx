@@ -39,7 +39,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				switch (action) {
 					case 'ADD':
 						this.sendMessageDown('SendSystemMessage', `${event.actor} added the emote "${event.emote.name}"`);
-						set.push([event.emote], false);
+						set.push([{ ...event.emote, id: event.emote_id }], false);
 						break;
 					case 'REMOVE':
 						this.sendMessageDown('SendSystemMessage', `${event.actor} removed the emote "${event.name}"`);
@@ -61,6 +61,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 						break;
 				}
 
+				tabCompleteDetector?.updateEmotes();
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 			}
 		});
@@ -217,6 +218,10 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			}
 		}
 
+		// Delete the twitch set if it already existed then recreate it
+		if (emoteStore.sets.has('twitch')) {
+			emoteStore.sets.delete('twitch');
+		}
 		emoteStore.enableSet(`twitch`, emotes);
 	}
 
