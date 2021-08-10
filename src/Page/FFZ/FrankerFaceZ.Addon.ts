@@ -37,7 +37,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		this.settings.add('addon.7tv_emotes.update_messages', {
 			default: true,
 			ui: {
-				path: 'Add-Ons > 7TV Emotes >> Socket',
+				path: 'Add-Ons > 7TV Emotes >> Events',
 				title: 'Emote update messages',
 				description: 'Show messages in chat when emotes are updated in the current channel.',
 				component: 'setting-check-box',
@@ -219,7 +219,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 	handleChannelEmoteUpdate(event: EventAPI.EmoteEventUpdate) {
 		const removed = event.action === 'REMOVE';
-		console.log('FFZ Event', event);
 		if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
 			for (const chat of this.siteChat.ChatService.instances) {
 				if (chat.props.channelLogin == event.channel) {
@@ -247,7 +246,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		}
 
 		for (const channel of this.chat.iterateRooms()) {
-			console.log('Compare', channel.login, event.channel);
 			if (channel.login == event.channel) {
 				const emoteSet = this.getChannelSet(channel);
 				if (emoteSet) {
@@ -255,7 +253,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 					if (removed) {
 						delete emotes[event.emote_id];
 					} else {
-						emotes[event.emote_id] = this.convertEmote(event.emote);
+						emotes[event.emote_id] = this.convertEmote({ ...event.emote, id: event.emote_id });
 					}
 					this.addChannelSet(channel, Object.values(emotes));
 				}
