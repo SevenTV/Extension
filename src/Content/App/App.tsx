@@ -7,7 +7,7 @@ import { emitHook } from 'src/Content/Global/Hooks';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { API } from 'src/Global/API';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { asapScheduler, from, of, scheduled, Subject } from 'rxjs';
+import { asapScheduler, from, iif, of, scheduled, Subject, throwError } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
@@ -168,6 +168,10 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			concatAll(),
 			toArray(),
 			map(a => a.reduce((a, b) => a.concat(b as any))),
+			switchMap(e => iif(() => e.length === 0,
+				throwError(Error(`7TV failed to load (perhaps service is down?)`)),
+				of(e)
+			)),
 			map(e => emoteStore.enableSet(data.channelName, e)),
 		).subscribe({
 			next: (set: EmoteStore.EmoteSet) => {
@@ -177,6 +181,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			},
 			error(err) {
 				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
+				app?.sendMessageDown('SendSystemMessage', `Error: ${err.message}`);
 			}
 		});
 	}
