@@ -1,6 +1,7 @@
 import { Config } from 'src/Config';
 import { version } from 'public/manifest.json';
 import { DataStructure } from '@typings/typings/DataStructure';
+import { EventAPI } from 'src/Global/Events/EventAPI';
 
 class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	constructor(...args: any[]) {
@@ -36,7 +37,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		this.settings.add('addon.7tv_emotes.update_messages', {
 			default: true,
 			ui: {
-				path: 'Add-Ons > 7TV Emotes >> Socket',
+				path: 'Add-Ons > 7TV Emotes >> Events',
 				title: 'Emote update messages',
 				description: 'Show messages in chat when emotes are updated in the current channel.',
 				component: 'setting-check-box',
@@ -216,30 +217,37 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		}
 	}
 
-	handleChannelEmoteUpdate(data: any) {
-		if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
-			for (const chat of this.siteChat.ChatService.instances) {
-				if (chat.props.channelLogin == data.channel) {
-					chat.addMessage({
-						type: this.siteChat.chat_types.Notice,
-						message: `[7TV] ${data.actor} ${data.removed ? 'removed' : 'added'} the emote "${data.emote.name}"`
-					});
-				}
-			}
-		}
-
+	handleChannelEmoteUpdate(event: EventAPI.EmoteEventUpdate) {
 		for (const channel of this.chat.iterateRooms()) {
-			if (channel.login == data.channel) {
+			if (channel.login == event.channel) {
 				const emoteSet = this.getChannelSet(channel);
 				if (emoteSet) {
 					const emotes = emoteSet.emotes || {};
-					if (data.removed) {
-						delete emotes[data.emote.id];
-					}
-					else {
-						emotes[data.emote.id] = this.convertEmote(data.emote);
+					if (event.action === 'REMOVE') {
+						delete emotes[event.emote_id];
+					} else {
+						emotes[event.emote_id] = this.convertEmote({ ...event.emote, id: event.emote_id });
 					}
 					this.addChannelSet(channel, Object.values(emotes));
+				}
+
+				if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
+					let message = `[7TV-FFZ] ${event.actor} `;
+					switch (event.action) {
+						case 'ADD':
+							message += `added the emote`;
+							break;
+						case 'REMOVE':
+							message += `removed the emote`;
+							break;
+						case 'UPDATE':
+							message += `renamed the emote`;
+							break;
+						default:
+							message += `performed '${event.action}' on the emote`;
+							break;
+					}
+					this.siteChat.addNotice(channel.login, `${message} "${event.name}"`);
 				}
 			}
 		}

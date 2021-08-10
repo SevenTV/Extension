@@ -121,6 +121,7 @@ export class TabCompleteDetection {
 		// Prevent things from happening with the input beyond this point
 		if (entries.length > 0) {
 			ev.preventDefault();
+			ev.stopImmediatePropagation();
 			ev.stopPropagation();
 		}
 

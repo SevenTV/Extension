@@ -34,18 +34,6 @@ export class PageScript {
 	 */
 	constructor() {
 		this.handleChannelSwitch();
-
-		const scroller = this.twitch.getChatScroller();
-		if (!!scroller) {
-			const x = scroller.onScroll;
-			scroller.onScroll = e => {
-				this.sendMessageUp('ScrollChat', e);
-
-				if (typeof x === 'function') {
-					x(e);
-				}
-			};
-		}
 	}
 
 	/**
@@ -72,12 +60,7 @@ export class PageScript {
 		let channelName = this.getCurrentChannelFromURL(); // Set current channel
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
-		const interval = setInterval(() => {
-			if (stopped) {
-				clearInterval(interval);
-				return undefined;
-			}
-
+		setInterval(() => {
 			channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
@@ -146,7 +129,6 @@ export class PageScript {
 	@PageScriptListener('Cease')
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
 		stopped = true;
-		chatListener.kill();
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 

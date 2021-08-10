@@ -60,6 +60,7 @@ export class ChatListener {
 
 		// Add a handler for regular chat messages
 		currentHandler = msg => {
+			if (this.page.stopped) return undefined;
 			if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
 
 			this.onMessage(msg);
