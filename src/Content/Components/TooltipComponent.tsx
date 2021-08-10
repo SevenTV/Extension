@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { MainComponent } from 'src/Content/Components/MainComponent';
+import { settings } from 'src/Content/Runtime/Settings';
 import styled from 'styled-components';
 
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
@@ -17,16 +18,22 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		const posY = this.getPosY();
 		const posX = this.getPosX();
 
+		const isSmall = settings.get('ui.minimize_tooltip_size').asBoolean();
 		return (
 			<div className='seventv-emote-tooltip-wrapper' style={{ visibility: this.positioned ? 'visible' : 'hidden', top: posY, left: posX - 74 }}>
 				<div ref={this.ref} className='seventv-emote-tooltip'>
 					{!!this.props.imageURL && <TooltipComponent.Image>
-						<img src={this.props.imageURL}></img>
+						<img src={this.props.imageURL} style={{
+							transform: isSmall ? 'scale(0.75)' : undefined
+						}}></img>
 					</TooltipComponent.Image>
 					}
 
 					<TooltipComponent.Details>
-						<h3 className='item-name'> {this.props.name} </h3>
+						<h3 className='item-name' style={{
+							fontSize: isSmall ? '1em' : undefined,
+							fontWeight: isSmall ? 'bold' : undefined
+						}}> {this.props.name} </h3>
 						{!!this.props.hint ? <span className='item-hint'>{this.props.hint}</span> : ''}
 
 						{...this.props.extra ?? []}
