@@ -5,10 +5,11 @@ import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
 import { EmoteMenu } from 'src/Content/Components/EmoteMenu/EmoteMenu';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { App } from 'src/Content/App/App';
-import { SettingValue, theme } from 'src/Global/Util';
+import { theme } from 'src/Global/Util';
 import styled from 'styled-components';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { SettingsComponent } from 'src/Content/Components/Settings/SettingsComponent';
+import { settings } from 'src/Content/Runtime/Settings';
 
 export class MainComponent extends React.Component<MainComponent.Props, MainComponent.State> {
 	app: App | null = null;
@@ -22,52 +23,6 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		}
 	} as MainComponent.State;
 
-	private configData = new Map<string, any>();
-	settings = [
-		{
-			id: 'general.hide_unlisted_emotes',
-			label: 'Hide Unlisted Emotes',
-			hint: 'If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred',
-			type: 'checkbox',
-			defaultValue: false
-		},
-		{
-			id: 'general.minimize_tooltip_size',
-			label: 'Minimize Tooltip Size',
-			hint: 'Make the 7TV tooltips smaller',
-			type: 'checkbox',
-			defaultValue: false
-		},
-		{
-			id: 'general.display_mod_actions',
-			label: 'Show Timeouts & Bans',
-			hint: 'This setting allows non-moderators to see actions by moderators',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'general.autocomplete',
-			label: 'Auto-Completion',
-			hint: 'Enable or disable 7TV emote auto-completion',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'general.persistent_history',
-			label: 'Persistent Chat History',
-			hint: 'If enabled, your 100 most recent chat messages will persist in history (up-down arrow navigation)',
-			type: 'checkbox',
-			defaultValue: true
-		},
-		{
-			id: 'ui.transparency',
-			label: 'UI Transparency',
-			hint: 'Toggle the transparency / backdrop blur ',
-			type: 'checkbox',
-			defaultValue: true
-		}
-	] as SettingsComponent.SettingNode[];
-
 	constructor(props: MainComponent.Props) {
 		super(props);
 
@@ -77,46 +32,6 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 				defer(() => this.hideTooltip())
 			))
 		).subscribe();
-
-		// Get config value & handle changes
-		{
-			// Retrieve initial value
-			chrome.storage.local.get(items => {
-				const result = Object.create({});
-				for (const k of Object.keys(items)) {
-					const v = items[k];
-					const name = k.slice(4);
-
-					result[name] = v;
-					this.configData.set(name, v);
-				}
-
-				// Add default-valued settings
-				for (const sNode of this.settings) {
-					if (typeof result[sNode.id] !== 'undefined') {
-						continue;
-					}
-
-					result[sNode.id] = sNode.defaultValue;
-				}
-				this.app?.sendMessageDown('ConfigChange', result);
-			});
-
-			// Handle changes
-			chrome.storage.onChanged.addListener(changes => {
-				for (const k of Object.keys(changes)) {
-					const v = changes[k].newValue;
-					const name = k.slice(4);
-					if (typeof v === 'undefined') {
-						this.configData.delete(k.slice(4));
-						continue;
-					}
-
-					this.configData.set(name, changes[k].newValue);
-					this.app?.sendMessageDown('ConfigChange', { [name]: changes[k].newValue });
-				}
-			});
-		}
 	}
 
 	render() {
@@ -141,7 +56,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 
 					{this.state.settingsMenu.open &&
 						<MainComponent.SettingsMenuWrapper>
-							<SettingsComponent settings={this.settings} configData={this.configData} main={this}></SettingsComponent>
+							<SettingsComponent settings={settings.nodes} configData={settings.data} main={this}></SettingsComponent>
 						</MainComponent.SettingsMenuWrapper>
 					}
 				</ThemeProvider>
@@ -196,20 +111,6 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		if (!this.state.currentTooltip) return undefined;
 
 		this.setState({ currentTooltip: null });
-	}
-
-	getSetting(name: string): SettingValue {
-		let value = this.configData.get(name);
-		if (typeof value === 'undefined') {
-			const sNode = this.settings.filter(s => s.id === name)[0];
-			if (!sNode) {
-				return new SettingValue(undefined);
-			}
-
-			return new SettingValue(sNode.defaultValue);
-		}
-
-		return new SettingValue(value);
 	}
 }
 

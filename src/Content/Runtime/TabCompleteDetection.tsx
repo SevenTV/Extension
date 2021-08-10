@@ -1,4 +1,5 @@
 import { App } from 'src/Content/App/App';
+import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
@@ -35,7 +36,7 @@ export class TabCompleteDetection {
 		this.keyListener = (ev) => {
 			if (ev.key === 'Tab') {
 				// Option is enabled?
-				if (!this.app.mainComponent?.getSetting('general.autocomplete').asBoolean()) {
+				if (!settings.get('general.autocomplete').asBoolean()) {
 					return undefined;
 				}
 
