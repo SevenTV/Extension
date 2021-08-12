@@ -152,9 +152,9 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 				if (sNode.defaultValue === value) {
 					chrome.storage.local.remove(`cfg.${sNode.id}`);
 				}
-				this.setState({ retrieved: true });
 			}
 		}
+		this.setState({ retrieved: true });
 	}
 
 	componentWillUnmount(): void {
