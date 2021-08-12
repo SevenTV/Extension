@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, map, switchMap, tap, toArray } from 'rxjs/operators';
+import { catchError, concatAll, filter, map, switchMap, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -29,7 +29,9 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		app = this;
 
 		// Channel Emotes Update: the current channel's emotes are updated
-		api.events.emoteEvent.subscribe({
+		api.events.emoteEvent.pipe(
+			filter(event => event.channel === state.channel)
+		).subscribe({
 			next: event => {
 				const action = event.action;
 				const set = emoteStore.sets.get(state.channel);
