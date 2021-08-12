@@ -131,6 +131,11 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		this.sendMessageDown('DisableEmoteSet', state.channel);
 		this.sendMessageDown('DisableEmoteSet', data.as);
 
+		// Remove current channel from event subscriptions
+		if (state.channel.length > 0) {
+			api.events.removeChannel(state.channel);
+		}
+
 		const afterLoaded = () => {
 			if (!tabCompleteDetector) {
 				tabCompleteDetector = new TabCompleteDetection(app as App);
