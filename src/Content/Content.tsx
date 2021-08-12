@@ -36,7 +36,7 @@ export class ExtensionContentScript {
 						filter(r => r === true)
 					).subscribe({
 						next: () => {
-							this.app.sendMessageDown('Cease', {});
+							this.app.sendMessageDown('FFZ:Hook', {});
 						}
 					});
 				}

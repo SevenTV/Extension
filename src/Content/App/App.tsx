@@ -246,6 +246,18 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	}
 
 	/**
+	 * FFZ is detected
+	 */
+	@PageScriptListener('FFZ:Loaded')
+	whenFFZIsDetectedWeMustSetAVariableToTrueBecauseWeNeedToDoThisForReasonsYouWouldntEvenBelieveClickToFindOut(): void {
+		settings.state.hasFFZ = true;
+
+		if (!settings.get('general.prefer_ffz').asBoolean()) {
+			this.sendMessageDown('FFZ:Takeover', '');
+		}
+	}
+
+	/**
 	 * Synchronize the emote sets with the pagescript
 	 */
 	sync(): void {

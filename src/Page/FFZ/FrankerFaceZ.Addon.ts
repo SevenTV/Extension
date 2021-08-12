@@ -2,8 +2,11 @@ import { Config } from 'src/Config';
 import { version } from 'public/manifest.json';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { EventAPI } from 'src/Global/Events/EventAPI';
+import { Logger } from 'src/Logger';
 
 class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
+	wontRenderChat = false;
+
 	constructor(...args: any[]) {
 		super(...args);
 
@@ -51,9 +54,20 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			const data = JSON.parse(((event as CustomEvent).detail));
 			this.handleChannelEmoteUpdate(data);
 		});
+
+		window.addEventListener('7TV#FFZ:Takeover', () => {
+			this.wontRenderChat = true;
+			Logger.Get().debug('<FFZ> Stepping down as chat renderer');
+		});
+
+		this.sendMessageUp('FFZ:Loaded', '');
 	}
 
 	async onEnable() {
+		if (this.wontRenderChat) {
+			return true;
+		}
+
 		this.chat.context.on('changed:addon.7tv_emotes.global_emotes', () => this.updateGlobalEmotes());
 		this.chat.context.on('changed:addon.7tv_emotes.channel_emotes', () => this.updateChannels());
 

@@ -306,6 +306,8 @@ export namespace Twitch {
 		channelDisplayName: string;
 		channelID: string;
 		channelLogin: string;
+		currentUserDisplayName: string;
+		currentUserLogin: string;
 		chatRoomHeader: any;
 		chatRules: string[];
 		chatView: number;

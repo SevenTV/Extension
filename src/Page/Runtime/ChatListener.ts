@@ -34,7 +34,7 @@ export class ChatListener {
 
 				if (!!x && typeof x === 'function') {
 					try {
-						x(a, b); // Pass the execution on
+						x.apply(this, [a, b]); // Pass the execution on
 					} catch (_) {	}
 					// FFZ will not be happy with this for some reason
 					// Their error doesn't appear to have adverse effects on the chat experience so we ignore it Okayge
@@ -60,7 +60,7 @@ export class ChatListener {
 
 		// Add a handler for regular chat messages
 		currentHandler = msg => {
-			if (this.page.stopped) return undefined;
+			if (this.page.ffzMode) return undefined;
 			if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
 
 			this.onMessage(msg);
@@ -99,7 +99,7 @@ export class ChatListener {
 			// tap(line => this.badgeManager.patchChatLine(line)),
 
 			// Render 7TV emotes
-			tap(line => line.component.props.message.seventv.patcher?.render(line)),
+			tap(line => line.component.props.message.seventv?.patcher?.render(line)),
 		).subscribe();
 	}
 

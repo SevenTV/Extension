@@ -8,7 +8,7 @@ import { SettingValue } from 'src/Global/Util';
 import 'src/Style/Style.scss';
 
 export class PageScript {
-	twitch = new Twitch();
+	twitch = twitch;
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
 	tabCompletion = tabCompletion = new TabCompletion(this);
@@ -20,8 +20,8 @@ export class PageScript {
 
 	config = config;
 
-	get stopped(): boolean {
-		return stopped;
+	get ffzMode(): boolean {
+		return ffzMode;
 	}
 
 	/**
@@ -79,10 +79,6 @@ export class PageScript {
 
 	@PageScriptListener('EnableEmoteSet')
 	whenEmoteSetIsAdded(data: EmoteStore.EmoteSet.Resolved): void {
-		if (stopped) {
-			return undefined;
-		}
-
 		const set = emoteStore.enableSet(data.name, data.emotes);
 
 		if (!page.currentChannelSet) {
@@ -96,10 +92,6 @@ export class PageScript {
 
 	@PageScriptListener('DisableEmoteSet')
 	whenEmoteSetIsRemoved(name: string): void {
-		if (stopped) {
-			return undefined;
-		}
-
 		emoteStore.disableSet(name);
 	}
 
@@ -122,10 +114,20 @@ export class PageScript {
 		chatListener.sendSystemMessage(message);
 	}
 
-	@PageScriptListener('Cease')
+	@PageScriptListener('FFZ:Hook')
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
-		stopped = true;
-		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
+		if (config.get('general.prefer_ffz')?.asBoolean() === false) {
+			Logger.Get().info(`Hello FrankerFaceZ -- integrating, but ${twitch.getChat()?.props.currentUserDisplayName ?? 'the user'} prefers me :)`);
+
+			// Destroy FFZ Room:
+			(twitch.getChat() as any)?._ffz_room?.destroy();
+		} else {
+			ffzMode = true;
+			Logger.Get().info('Hello FrankerFaceZ -- passing chat rendering over');
+		}
+
+		// Notify the contentscript that FFZ is on the user's browser
+		this.sendMessageUp('FFZ:Detected', {});
 	}
 
 	@PageScriptListener('ConfigChange')
@@ -170,10 +172,11 @@ export class PageScript {
 let emoteStore: EmoteStore;
 let chatListener: ChatListener;
 let tabCompletion: TabCompletion;
+const twitch = new Twitch();
 const config = new Map<string, SettingValue>();
 
 let page: PageScript;
-let stopped = false;
+let ffzMode = false;
 (() => {
 	const { } = page = new PageScript();
 })();

@@ -10,6 +10,10 @@ class Settings {
 	data = new Map<string, any>();
 	nodes = [] as SettingNode[];
 
+	state = {
+		hasFFZ: false
+	};
+
 	constructor() {
 		if (this.ctx === 'content') {
 			try {
@@ -93,7 +97,7 @@ class Settings {
 					hint: 'Toggle the transparency / backdrop blur' + (isFirefox ? ` (Unavailable on Firefox) ` : ''),
 					type: 'checkbox',
 					defaultValue: isFirefox ? false : true,
-					disabledIf: () => isFirefox
+					hideIf: () => isFirefox
 				},
 				{
 					id: 'ui.minimize_tooltip_size',
@@ -101,6 +105,14 @@ class Settings {
 					hint: 'Make the 7TV tooltips smaller',
 					type: 'checkbox',
 					defaultValue: false
+				},
+				{
+					id: 'general.prefer_ffz',
+					label: 'Prefer FrankerFaceZ for chat rendering',
+					hint: 'Select whether you\'d like 7TV or FrankerFaceZ to render emotes',
+					type: 'checkbox',
+					defaultValue: true,
+					hideIf: () => !this.state.hasFFZ
 				}
 			);
 		}
@@ -129,7 +141,7 @@ export interface SettingNode {
 
 	value?: boolean | string | object;
 	defaultValue?: boolean | string | object;
-	disabledIf?: () => boolean;
+	hideIf?: () => boolean;
 }
 export namespace SettingNode {
 	export type Type = 'checkbox';
