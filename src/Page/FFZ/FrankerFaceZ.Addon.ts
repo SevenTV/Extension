@@ -225,8 +225,8 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 					const emotes = emoteSet.emotes || {};
 					if (event.action === 'REMOVE') {
 						delete emotes[event.emote_id];
-					} else {
-						emotes[event.emote_id] = this.convertEmote({ ...event.emote, id: event.emote_id });
+					} else if (event.action === 'ADD' || event.action === 'UPDATE') {
+						emotes[event.emote_id] = this.convertEmote({ ...event.emote, id: event.emote_id, name: event.name });
 					}
 					this.addChannelSet(channel, Object.values(emotes));
 				}
