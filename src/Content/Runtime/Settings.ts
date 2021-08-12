@@ -109,10 +109,11 @@ class Settings {
 				{
 					id: 'general.prefer_ffz',
 					label: 'Prefer FrankerFaceZ for chat rendering',
-					hint: 'Select whether you\'d like 7TV or FrankerFaceZ to render emotes',
+					hint: 'Select whether you\'d like 7TV or FrankerFaceZ to render emotes (Refresh required on change)',
 					type: 'checkbox',
 					defaultValue: true,
-					hideIf: () => !this.state.hasFFZ
+					hideIf: () => !this.state.hasFFZ,
+					tag: { name: 'Turning this off is experimental', color: 'red' }
 				}
 			);
 		}
@@ -142,6 +143,10 @@ export interface SettingNode {
 	value?: boolean | string | object;
 	defaultValue?: boolean | string | object;
 	hideIf?: () => boolean;
+	tag?: {
+		name: string;
+		color: string;
+	};
 }
 export namespace SettingNode {
 	export type Type = 'checkbox';

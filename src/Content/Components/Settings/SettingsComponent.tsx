@@ -100,7 +100,10 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 										'.Mui-disabled': { color: 'red' }
 									}} key={`formcontrol-${s.id}`} id={s.id}>
 										{result}
-										<FormHelperText style={{ fontSize: '0.75em' }}> {s.hint} </FormHelperText>
+										<FormHelperText style={{ fontSize: '0.75em' }}>
+											{s.hint}
+											{!!s.tag && <span style={{ color: s.tag.color, marginLeft: '1em', fontWeight: 'bold' }}>{s.tag.name}</span>}
+										</FormHelperText>
 									</FormControl>;
 								})}
 							</FormGroup>
