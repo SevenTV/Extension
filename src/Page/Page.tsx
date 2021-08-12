@@ -119,10 +119,6 @@ export class PageScript {
 
 	@PageScriptListener('SendSystemMessage')
 	whenUpperLayerSendsSystemMessage(message: string): void {
-		if (stopped) {
-			return undefined;
-		}
-
 		chatListener.sendSystemMessage(message);
 	}
 
