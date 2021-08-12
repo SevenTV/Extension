@@ -69,6 +69,8 @@ export class EmoteStore {
 			provider: 'TWITCH',
 			visibility: 0,
 			mime: '',
+			width: [28, 56, 112, 112],
+			height: [28, 56, 112, 112],
 			status: Constants.Emotes.Status.LIVE,
 			tags: []
 		}], false);
@@ -317,14 +319,14 @@ export namespace EmoteStore {
 
 		toElement(shouldBlurHidden = false): HTMLSpanElement {
 			const container = document.createElement('span');
-			container.style.minWidth = `${this.width[0]}px`;
-			container.style.minHeight = `${this.height[0]}px`;
 			container.classList.add('seventv-emote');
 			if (this.isZeroWidth()) {
 				container.classList.add('seventv-zerowidth');
 			}
 
 			const inner = document.createElement('span');
+			inner.style.minWidth = `${this.width[0]}px`;
+			inner.style.minHeight = `${this.height[0]}px`;
 
 			const tooltipExtra = [] as JSX.Element[];
 			if (this.isGlobal()) {
