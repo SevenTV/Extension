@@ -61,8 +61,10 @@ $accentColor: #b2ff59;
 }
 
 .seventv-emote.seventv-next-is-zerowidth {
-	position: absolute;
-	width: 0px;
+	span {
+		position: absolute;
+		width: 0px;
+	}
 }
 
 .seventv-emote.seventv-emote-unlisted {

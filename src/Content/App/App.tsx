@@ -222,6 +222,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 					provider: 'TWITCH',
 					status: Constants.Emotes.Status.LIVE,
 					tags: [],
+					width: [28, 56, 112, 112],
+					height: [28, 56, 112, 112],
 					owner: !!twset.owner ? {
 						id: twset.owner.id,
 						display_name: twset.owner.displayName,

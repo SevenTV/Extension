@@ -43,7 +43,7 @@ export class MessageTree {
 		return parts;
 	}
 
-	addPart(part: Part): HTMLElement{
+	addPart(part: Part): HTMLElement {
 		let jsx: HTMLElement;
 
 		switch (part.type) {
@@ -91,14 +91,11 @@ export class MessageTree {
 		const emote = emoteStore.getEmote(emoteID);
 
 		if (!!emote) {
-			// If this emote is zerowidth, we must check the previous emote
-			if (emote.isZeroWidth() && !!this.previousEmote) {
-				// Previous emote should be the target for this zero-width emmote
-				// Add css class
-				this.previousEmote.element?.classList.add('seventv-next-is-zerowidth');
-			}
+			const emoteElement = emote.toElement(settings.get('general.hide_unlisted_emotes').asBoolean());
+			this.considerZeroWidth(emote);
 			this.previousEmote = emote;
-			return emote.toElement(settings.get('general.hide_unlisted_emotes').asBoolean());
+
+			return emoteElement;
 		}
 
 		return document.createElement('span');
@@ -107,9 +104,25 @@ export class MessageTree {
 	private addTwitchEmotePart(part: Part): HTMLElement {
 		const emoteStore = this.renderer.app.emotes;
 		const data = part.content as Twitch.ChatMessage.EmoteRef;
-		const emote = emoteStore.fromTwitchEmote(data);
+		const emote = this.previousEmote = emoteStore.fromTwitchEmote(data);
+		const emoteElement = emote.toElement();
+		this.considerZeroWidth(emote);
 
-		return emote.toElement();
+		return emoteElement;
+	}
+
+	private considerZeroWidth(emote: EmoteStore.Emote): void {
+		// If this emote is zerowidth, we must check the previous emote
+		if (emote.isZeroWidth() && !!this.previousEmote) {
+			// Previous emote should be the target for this zero-width emmote
+			// Add css class
+			this.previousEmote.element?.classList.add('seventv-next-is-zerowidth');
+
+			console.log(emote.element, this.previousEmote.element);
+			if (!!emote.element && !!this.previousEmote.element?.style.minWidth) {
+				emote.element.style.minWidth = this.previousEmote.element?.style.minWidth;
+			}
+		}
 	}
 
 	private addMentionPart(part: Part): HTMLSpanElement {
