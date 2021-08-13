@@ -16,6 +16,8 @@ export class InputManager {
 		entry: ''
 	};
 	lastMessage = '';
+	history = [''] as string[];
+	historyPos = 0;
 	ctrl = false;
 
 	constructor(private page: PageScript) { }
@@ -50,7 +52,11 @@ export class InputManager {
 		let listener: (ev: KeyboardEvent) => any;
 		input.addEventListener('keydown', listener = (ev) => {
 			const target = ev.target as HTMLInputElement;
-			const value = target.value ?? '';
+			const value = (target.value ?? '');
+			const normalizedValue = [...value]
+				.filter(char => char.charCodeAt(0) !== unicodeTag0.charCodeAt(0))
+				.join('').trim();
+			this.history[0] = normalizedValue;
 
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
@@ -69,7 +75,7 @@ export class InputManager {
 						// Append or remove the unicode tag
 						value = endChar === ' ' + unicodeTag0
 							? value.slice(0, value.length - 2)
-							: value += ' ' + unicodeTag0;
+							: value + (' ' + unicodeTag0);
 
 						// Patch the input value
 						this.setInputValue(this.lastMessage = value);
@@ -80,6 +86,10 @@ export class InputManager {
 						setTimeout(() => restart(), 25);
 					}
 					this.lastMessage = value;
+					this.historyPos = 0;
+					if (this.history[1] !== normalizedValue) {
+						this.history = ['', normalizedValue, ...new Set(this.history.slice(1))];
+					}
 				}
 
 				if (this.ctrl) {
@@ -90,6 +100,22 @@ export class InputManager {
 						input.removeAttribute('disabled');
 						input.focus();
 					}, (this.page.isActorModerator || this.page.isActorVIP) ? 100 : 1100); // Control cooldown depending on whether user is mod/vip or pleb
+				}
+			} else if (ev.key === 'ArrowUp' && target.selectionStart === 0) { // Handle up-arrow (navigate back in history)
+				this.historyPos++;
+				const newVal = this.history[this.historyPos - 1];
+				if (typeof newVal === 'undefined') {
+					this.historyPos--;
+				} else {
+					this.setInputValue(newVal);
+				}
+			} else if (ev.key === 'ArrowDown' && target.selectionEnd === value.length) { // Handle down-arrow (navigate forward in history)
+				this.historyPos--;
+				const newVal = this.history[this.historyPos + 1];
+				if (typeof newVal === 'undefined') {
+					this.historyPos++;
+				} else {
+					this.setInputValue(newVal);
 				}
 			}
 		});
