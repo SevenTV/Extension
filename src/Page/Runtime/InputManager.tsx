@@ -5,7 +5,8 @@ import { ChatInput } from 'src/Page/Components/ChatInput';
 import { PageScript } from 'src/Page/Page';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
-import { noop } from 'rxjs';
+import { fromEvent } from 'rxjs';
+import { filter, mergeMap, take, tap } from 'rxjs/operators';
 
 export class InputManager {
 	private twitch = new Twitch();
@@ -15,6 +16,7 @@ export class InputManager {
 		entry: ''
 	};
 	lastMessage = '';
+	ctrl = false;
 
 	constructor(private page: PageScript) { }
 
@@ -27,12 +29,25 @@ export class InputManager {
 
 		Logger.Get().info(`Managing chat input`);
 
+		// Handle send
 		this.waitForNextSend(input);
+
+		// Determine state of control press
+		fromEvent<KeyboardEvent>(document, 'keydown').pipe(
+			filter(ev => ev.key === 'Control'), // User presses control
+			tap(() => this.ctrl = true), // Store the state
+
+			// Listen for end of press
+			mergeMap(() => fromEvent<KeyboardEvent>(document, 'keyup').pipe(
+				filter(ev => ev.key === 'Control'),
+				take(1)
+			)), // And set the ctrl state to false
+			tap(() => this.ctrl = false),
+		).subscribe();
 	}
 
-	waitForNextSend(input: HTMLInputElement, ctrl = false): void {
+	waitForNextSend(input: HTMLInputElement): void {
 		let listener: (ev: KeyboardEvent) => any;
-		let releaseCtrl: (ev: KeyboardEvent) => any;
 		input.addEventListener('keydown', listener = (ev) => {
 			const target = ev.target as HTMLInputElement;
 			const value = target.value ?? '';
@@ -41,6 +56,9 @@ export class InputManager {
 			if (ev.key === 'Enter') {
 				if (this.page.config.get('general.allow_send_twice')?.asBoolean()) {
 					let value = target.value;
+					if (value === '') {
+						return undefined;
+					}
 
 					const endChar = value.charAt(value.length -1);
 					// If message is duplicate we must edit the input value with a unicode tag
@@ -49,9 +67,9 @@ export class InputManager {
 						ev.stopPropagation();
 
 						// Append or remove the unicode tag
-						value = endChar === unicodeTag0
-							? value.slice(0, value.length - 1)
-							: value += unicodeTag0;
+						value = endChar === ' ' + unicodeTag0
+							? value.slice(0, value.length - 2)
+							: value += ' ' + unicodeTag0;
 
 						// Patch the input value
 						this.setInputValue(this.lastMessage = value);
@@ -59,30 +77,25 @@ export class InputManager {
 						// Resume the event
 						input.removeEventListener('keydown', listener);
 						setTimeout(() => target.dispatchEvent(ev), 0);
-						setTimeout(() => restart(), 100);
+						setTimeout(() => restart(), 25);
 					}
 					this.lastMessage = value;
 				}
 
-				if (ctrl) {
+				if (this.ctrl) {
 					// Temporarily lock the input
 					input.setAttribute('disabled', 'true');
 					setTimeout(() => this.setInputValue(value), 25);
 					setTimeout(() => {
 						input.removeAttribute('disabled');
 						input.focus();
-					}, (this.page.isActorModerator || this.page.isActorVIP) ? 150 : 1100);
+					}, (this.page.isActorModerator || this.page.isActorVIP) ? 100 : 1100); // Control cooldown depending on whether user is mod/vip or pleb
 				}
-			} else if (ev.key === 'Control') {
-				// Handle Ctrl+Enter (detect control key being held)
-				ctrl = true;
 			}
 		});
-		input.addEventListener('keyup', releaseCtrl = ev => ev.key === 'Control' ? ctrl = false : noop());
 
 		const restart = () => {
-			this.waitForNextSend(this.getInput(), ctrl);
-			input.removeEventListener('keyup', releaseCtrl);
+			this.waitForNextSend(input);
 		};
 	}
 

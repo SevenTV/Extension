@@ -76,7 +76,7 @@ class Settings {
 				{
 					id: 'general.allow_send_twice',
 					label: 'Allow sending the same message twice',
-					hint: 'Bypass the "message is identical" notice by automatically appending an extra space at the end of your duplicate messages',
+					hint: 'Bypass the "message is identical" notice by automatically appending an extra space at the end of your duplicate messages. This also allows you to hold Ctrl+Enter to rapid-fire send the same message.',
 					type: 'checkbox',
 					defaultValue: false
 				},
