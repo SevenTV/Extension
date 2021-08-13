@@ -81,7 +81,7 @@ export class InputManager {
 		input.addEventListener('keyup', releaseCtrl = ev => ev.key === 'Control' ? ctrl = false : noop());
 
 		const restart = () => {
-			this.waitForNextSend(input, ctrl);
+			this.waitForNextSend(this.getInput(), ctrl);
 			input.removeEventListener('keyup', releaseCtrl);
 		};
 	}

@@ -70,6 +70,7 @@ export class PageScript {
 				this.currentChannelSet = null;
 				this.isActorVIP = controller.props.isCurrentUserVIP;
 				this.isActorModerator = controller.props.isCurrentUserModerator;
+				inputManager.listen();
 				switched(this.currentChannel = channelName, controller.props.channelLogin);
 			}
 		}, 500);
@@ -92,7 +93,6 @@ export class PageScript {
 		if (!page.currentChannelSet) {
 			chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
 			chatListener.listen();
-			inputManager.listen();
 		}
 		page.currentChannelSet = set;
 		page.eIndex = null;
