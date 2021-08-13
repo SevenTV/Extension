@@ -51,10 +51,15 @@ export class PageScript {
 		}
 		if (this.currentChannel != '') throw new Error('Already listening for channel switches');
 
-		const switched = (ch: string, as: string) => this.sendMessageUp('SwitchChannel', { channelName: ch, as });
+		const switched = (ch: string, as: string) => {
+			this.sendMessageUp('SwitchChannel', { channelName: ch, as });
+			this.isActorVIP = controller.props.isCurrentUserVIP;
+			this.isActorModerator = controller.props.isCurrentUserModerator;
+			inputManager.listen();
+		};
 
 		// Get chat service
-		const controller = this.twitch.getChatController();
+		let controller = this.twitch.getChatController();
 		if (!controller) {
 			setTimeout(() => this.handleChannelSwitch(), 1000);
 			return undefined;
@@ -66,11 +71,9 @@ export class PageScript {
 			channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
+				controller = this.twitch.getChatController();
 				this.eIndex = null;
 				this.currentChannelSet = null;
-				this.isActorVIP = controller.props.isCurrentUserVIP;
-				this.isActorModerator = controller.props.isCurrentUserModerator;
-				inputManager.listen();
 				switched(this.currentChannel = channelName, controller.props.channelLogin);
 			}
 		}, 500);

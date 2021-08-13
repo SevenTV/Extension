@@ -5,8 +5,8 @@ import { ChatInput } from 'src/Page/Components/ChatInput';
 import { PageScript } from 'src/Page/Page';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
-import { fromEvent } from 'rxjs';
-import { filter, mergeMap, take, tap } from 'rxjs/operators';
+import { fromEvent, Subject } from 'rxjs';
+import { filter, mergeMap, take, takeUntil, tap } from 'rxjs/operators';
 
 export class InputManager {
 	private twitch = new Twitch();
@@ -20,6 +20,8 @@ export class InputManager {
 	historyPos = 0;
 	ctrl = false;
 
+	restart = new Subject<void>();
+
 	constructor(private page: PageScript) { }
 
 	/**
@@ -28,6 +30,7 @@ export class InputManager {
 	listen(): void {
 		const input = this.getInput();
 		if (!input) throw Error('Chat Text Input not found!');
+		this.restart.next(undefined);
 
 		Logger.Get().info(`Managing chat input`);
 
@@ -36,6 +39,7 @@ export class InputManager {
 
 		// Determine state of control press
 		fromEvent<KeyboardEvent>(document, 'keydown').pipe(
+			takeUntil(this.restart),
 			filter(ev => ev.key === 'Control'), // User presses control
 			tap(() => this.ctrl = true), // Store the state
 
@@ -123,6 +127,8 @@ export class InputManager {
 		const restart = () => {
 			this.waitForNextSend(input);
 		};
+		// Handle input handler restart
+		this.restart.pipe(tap(() => input.removeEventListener('keydown', listener))).subscribe();
 	}
 
 	createOverlayInput(): void {
