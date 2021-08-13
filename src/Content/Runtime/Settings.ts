@@ -74,6 +74,13 @@ class Settings {
 					defaultValue: false
 				},
 				{
+					id: 'general.allow_send_twice',
+					label: 'Allow sending the same message twice',
+					hint: 'Bypass the "message is identical" notice by automatically appending an extra space at the end of your duplicate messages',
+					type: 'checkbox',
+					defaultValue: false
+				},
+				{
 					id: 'general.display_mod_actions',
 					label: 'Show Timeouts & Bans',
 					hint: 'This setting allows non-moderators to see actions by moderators',

@@ -1,5 +1,5 @@
 import { ChatListener } from 'src/Page/Runtime/ChatListener';
-import { TabCompletion } from 'src/Page/Runtime/TabCompletion';
+import { InputManager } from 'src/Page/Runtime/InputManager';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { Logger } from 'src/Logger';
 import { PageScriptListener } from 'src/Global/Decorators';
@@ -11,7 +11,7 @@ export class PageScript {
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
-	tabCompletion = tabCompletion = new TabCompletion(this);
+	inputManager = inputManager = new InputManager(this);
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
@@ -88,7 +88,7 @@ export class PageScript {
 		if (!page.currentChannelSet) {
 			chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
 			chatListener.listen();
-			tabCompletion.listen();
+			inputManager.listen();
 		}
 		page.currentChannelSet = set;
 		page.eIndex = null;
@@ -105,16 +105,16 @@ export class PageScript {
 
 	@PageScriptListener('InsertEmoteInChatInput')
 	whenUserInsertsEmoteFromEmoteMenu(emoteName: string): void {
-		const currentValue = tabCompletion.getInput().value ?? '';
+		const currentValue = inputManager.getInput().value ?? '';
 		const spacing = currentValue.length > 0 ? ' ' : '';
 
-		tabCompletion.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);
+		inputManager.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);
 	}
 
 	@PageScriptListener('SetChatInput')
 	whenUserTabCompletesAndTheChatInputBoxShouldBeChanged(value: { message: string, cursorPosition: number }): void {
-		tabCompletion.setInputValue(value.message);
-		tabCompletion.setInputCursorPosition(value.cursorPosition);
+		inputManager.setInputValue(value.message);
+		inputManager.setInputCursorPosition(value.cursorPosition);
 	}
 
 	@PageScriptListener('SendSystemMessage')
@@ -169,7 +169,7 @@ export class PageScript {
 
 let emoteStore: EmoteStore;
 let chatListener: ChatListener;
-let tabCompletion: TabCompletion;
+let inputManager: InputManager;
 const config = new Map<string, SettingValue>();
 
 let page: PageScript;
