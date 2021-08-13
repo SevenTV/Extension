@@ -5,6 +5,7 @@ import { ChatInput } from 'src/Page/Components/ChatInput';
 import { PageScript } from 'src/Page/Page';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
+import { noop } from 'rxjs';
 
 export class InputManager {
 	private twitch = new Twitch();
@@ -29,42 +30,60 @@ export class InputManager {
 		this.waitForNextSend(input);
 	}
 
-	waitForNextSend(input: HTMLInputElement): void {
+	waitForNextSend(input: HTMLInputElement, ctrl = false): void {
 		let listener: (ev: KeyboardEvent) => any;
+		let releaseCtrl: (ev: KeyboardEvent) => any;
 		input.addEventListener('keydown', listener = (ev) => {
-			if (!this.page.config.get('general.allow_send_twice')?.asBoolean()) {
-				return undefined;
-			}
-
 			const target = ev.target as HTMLInputElement;
+			const value = target.value ?? '';
 
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
-				console.log('Send:', target.value);
-				ev.preventDefault(); // For now cancel & stop the propgagation
-				ev.stopPropagation();
+				if (this.page.config.get('general.allow_send_twice')?.asBoolean()) {
+					let value = target.value;
 
-				// We must edit the message with a unicode tag
-				let value = target.value;
+					const endChar = value.charAt(value.length -1);
+					// If message is duplicate we must edit the input value with a unicode tag
+					if (this.lastMessage === target.value) {
+						ev.preventDefault(); // For now cancel & stop the propgagation
+						ev.stopPropagation();
 
-				const endChar = value.charAt(value.length -1);
-				if (this.lastMessage === target.value) {
-					value = endChar === unicodeTag0
-						? value.slice(0, value.length - 1)
-						: value += unicodeTag0;
+						// Append or remove the unicode tag
+						value = endChar === unicodeTag0
+							? value.slice(0, value.length - 1)
+							: value += unicodeTag0;
 
-					this.setInputValue(value);
+						// Patch the input value
+						this.setInputValue(this.lastMessage = value);
+
+						// Resume the event
+						input.removeEventListener('keydown', listener);
+						setTimeout(() => target.dispatchEvent(ev), 0);
+						setTimeout(() => restart(), 100);
+					}
+					this.lastMessage = value;
 				}
-				this.lastMessage = value;
 
-				// Resume the event
-				input.removeEventListener('keydown', listener);
-				setTimeout(() => target.dispatchEvent(ev), 0);
-				setTimeout(() => restart(), 100);
+				if (ctrl) {
+					// Temporarily lock the input
+					input.setAttribute('disabled', 'true');
+					setTimeout(() => this.setInputValue(value), 25);
+					setTimeout(() => {
+						input.removeAttribute('disabled');
+						input.focus();
+					}, (this.page.isActorModerator || this.page.isActorVIP) ? 150 : 1100);
+				}
+			} else if (ev.key === 'Control') {
+				// Handle Ctrl+Enter (detect control key being held)
+				ctrl = true;
 			}
 		});
+		input.addEventListener('keyup', releaseCtrl = ev => ev.key === 'Control' ? ctrl = false : noop());
 
-		const restart = () => this.waitForNextSend(input);
+		const restart = () => {
+			this.waitForNextSend(input, ctrl);
+			input.removeEventListener('keyup', releaseCtrl);
+		};
 	}
 
 	createOverlayInput(): void {

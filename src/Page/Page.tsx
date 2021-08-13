@@ -15,6 +15,8 @@ export class PageScript {
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
+	isActorModerator = false;
+	isActorVIP = false;
 
 	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
 
@@ -52,8 +54,8 @@ export class PageScript {
 		const switched = (ch: string, as: string) => this.sendMessageUp('SwitchChannel', { channelName: ch, as });
 
 		// Get chat service
-		const service = this.twitch.getChatService() ?? this.twitch.getChatController();
-		if (!service) {
+		const controller = this.twitch.getChatController();
+		if (!controller) {
 			setTimeout(() => this.handleChannelSwitch(), 1000);
 			return undefined;
 		}
@@ -66,7 +68,9 @@ export class PageScript {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
 				this.eIndex = null;
 				this.currentChannelSet = null;
-				switched(this.currentChannel = channelName, service.props.currentUserLogin ?? service.props.channelLogin);
+				this.isActorVIP = controller.props.isCurrentUserVIP;
+				this.isActorModerator = controller.props.isCurrentUserModerator;
+				switched(this.currentChannel = channelName, controller.props.channelLogin);
 			}
 		}, 500);
 
