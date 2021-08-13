@@ -106,18 +106,19 @@ export class InputManager {
 					}, (this.page.isActorModerator || this.page.isActorVIP) ? 100 : 1100); // Control cooldown depending on whether user is mod/vip or pleb
 				}
 			} else if (ev.key === 'ArrowUp' && target.selectionStart === 0) { // Handle up-arrow (navigate back in history)
-				this.historyPos++;
-				const newVal = this.history[this.historyPos - 1];
+				const newVal = this.history.slice(1)[this.historyPos];
 				if (typeof newVal === 'undefined') {
 					this.historyPos--;
 				} else {
+					this.historyPos++;
 					this.setInputValue(newVal);
 				}
 			} else if (ev.key === 'ArrowDown' && target.selectionEnd === value.length) { // Handle down-arrow (navigate forward in history)
 				this.historyPos--;
-				const newVal = this.history[this.historyPos + 1];
+				const newVal = this.history.slice(1)[this.historyPos];
 				if (typeof newVal === 'undefined') {
 					this.historyPos++;
+					this.setInputValue('');
 				} else {
 					this.setInputValue(newVal);
 				}
