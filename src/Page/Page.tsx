@@ -1,5 +1,5 @@
 import { ChatListener } from 'src/Page/Runtime/ChatListener';
-import { TabCompletion } from 'src/Page/Runtime/TabCompletion';
+import { InputManager } from 'src/Page/Runtime/InputManager';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { Logger } from 'src/Logger';
 import { PageScriptListener } from 'src/Global/Decorators';
@@ -11,10 +11,12 @@ export class PageScript {
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
-	tabCompletion = tabCompletion = new TabCompletion(this);
+	inputManager = inputManager = new InputManager(this);
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
+	isActorModerator = false;
+	isActorVIP = false;
 
 	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
 
@@ -49,11 +51,16 @@ export class PageScript {
 		}
 		if (this.currentChannel != '') throw new Error('Already listening for channel switches');
 
-		const switched = (ch: string, as: string) => this.sendMessageUp('SwitchChannel', { channelName: ch, as });
+		const switched = (ch: string, as: string) => {
+			this.sendMessageUp('SwitchChannel', { channelName: ch, as });
+			this.isActorVIP = controller.props.isCurrentUserVIP;
+			this.isActorModerator = controller.props.isCurrentUserModerator;
+			inputManager.listen();
+		};
 
 		// Get chat service
-		const service = this.twitch.getChatService() ?? this.twitch.getChatController();
-		if (!service) {
+		let controller = this.twitch.getChatController();
+		if (!controller) {
 			setTimeout(() => this.handleChannelSwitch(), 1000);
 			return undefined;
 		}
@@ -64,9 +71,10 @@ export class PageScript {
 			channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
+				controller = this.twitch.getChatController();
 				this.eIndex = null;
 				this.currentChannelSet = null;
-				switched(this.currentChannel = channelName, service.props.currentUserLogin ?? service.props.channelLogin);
+				switched(this.currentChannel = channelName, controller.props.channelLogin);
 			}
 		}, 500);
 
@@ -88,7 +96,6 @@ export class PageScript {
 		if (!page.currentChannelSet) {
 			chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
 			chatListener.listen();
-			tabCompletion.listen();
 		}
 		page.currentChannelSet = set;
 		page.eIndex = null;
@@ -105,16 +112,16 @@ export class PageScript {
 
 	@PageScriptListener('InsertEmoteInChatInput')
 	whenUserInsertsEmoteFromEmoteMenu(emoteName: string): void {
-		const currentValue = tabCompletion.getInput().value ?? '';
+		const currentValue = inputManager.getInput().value ?? '';
 		const spacing = currentValue.length > 0 ? ' ' : '';
 
-		tabCompletion.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);
+		inputManager.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);
 	}
 
 	@PageScriptListener('SetChatInput')
 	whenUserTabCompletesAndTheChatInputBoxShouldBeChanged(value: { message: string, cursorPosition: number }): void {
-		tabCompletion.setInputValue(value.message);
-		tabCompletion.setInputCursorPosition(value.cursorPosition);
+		inputManager.setInputValue(value.message);
+		inputManager.setInputCursorPosition(value.cursorPosition);
 	}
 
 	@PageScriptListener('SendSystemMessage')
@@ -169,7 +176,7 @@ export class PageScript {
 
 let emoteStore: EmoteStore;
 let chatListener: ChatListener;
-let tabCompletion: TabCompletion;
+let inputManager: InputManager;
 const config = new Map<string, SettingValue>();
 
 let page: PageScript;

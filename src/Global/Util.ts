@@ -137,3 +137,6 @@ export class SettingValue {
 		return [...Array.isArray(this.value) ? this.value.map(v => Boolean(v)) : []];
 	}
 }
+
+export const unicodeTag0 = '\u{E0000}';
+export const unicodeTag7 = '\u{E0007}';

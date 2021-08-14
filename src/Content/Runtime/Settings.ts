@@ -74,6 +74,13 @@ class Settings {
 					defaultValue: false
 				},
 				{
+					id: 'general.allow_send_twice',
+					label: 'Allow sending the same message twice',
+					hint: 'Bypass the "message is identical" notice by automatically appending an extra space at the end of your duplicate messages. This also allows you to hold Ctrl+Enter to rapid-fire send the same message.',
+					type: 'checkbox',
+					defaultValue: false
+				},
+				{
 					id: 'general.display_mod_actions',
 					label: 'Show Timeouts & Bans',
 					hint: 'This setting allows non-moderators to see actions by moderators',
@@ -84,6 +91,13 @@ class Settings {
 					id: 'general.autocomplete',
 					label: 'Auto-Completion',
 					hint: 'Enable or disable 7TV emote auto-completion',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
+					id: 'general.history_navigation',
+					label: 'History Navigation',
+					hint: 'Allow the usage of up/down arrows to get previously sent messages back in the chat input box',
 					type: 'checkbox',
 					defaultValue: true
 				},
