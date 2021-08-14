@@ -149,7 +149,7 @@ export class PageScript {
 	getAllEmotes(): EmoteStore.Emote[] {
 		const emotes = [] as EmoteStore.Emote[];
 		for (const set of emoteStore.sets.values()) {
-			emotes.push(...set.getEmotes());
+			emotes.push(...set.getEmotes().sort((a, b) => a.weight - b.weight));
 		}
 
 		return emotes;

@@ -259,6 +259,8 @@ export namespace EmoteStore {
 		urls = [] as [string, string][];
 		element: HTMLSpanElement | null = null;
 
+		weight = 0;
+
 		constructor(private data: DataStructure.Emote) {
 			this.id = data.id ?? '';
 			this.name = data.name ?? '';
@@ -273,6 +275,7 @@ export namespace EmoteStore {
 			if (Array.isArray(data.urls)) {
 				this.urls = data.urls;
 			}
+			this.defineWeight();
 		}
 
 		/**
@@ -293,6 +296,24 @@ export namespace EmoteStore {
 
 		setName(name: string): void {
 			this.name = this.data.name = name;
+		}
+
+		/**
+		 * Define the wseight of the emote according to its global state and provider
+		 */
+		private defineWeight(): number {
+			if (this.isGlobal()) {
+				this.weight = 0.5;
+			} else {
+				this.weight = 1;
+				if (this.provider === '7TV') {
+					this.weight += 0.5;
+				} else if (this.provider === 'TWITCH') {
+					this.weight += 1;
+				}
+			}
+
+			return this.weight;
 		}
 
 		/**
