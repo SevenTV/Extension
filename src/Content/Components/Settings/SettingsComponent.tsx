@@ -1,10 +1,10 @@
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { version } from 'public/manifest.json';
-import CloseIcon from '@material-ui/icons/Close';
-import React from 'react';
 import { Config } from 'src/Config';
 import { SettingNode, settings } from 'src/Content/Runtime/Settings';
 import { SettingsForm } from 'src/Content/Components/Settings/SettingsForm';
+import CloseIcon from '@material-ui/icons/Close';
+import React from 'react';
 
 export class SettingsComponent extends React.Component<SettingsComponent.Props, SettingsComponent.State> {
 	state = {
@@ -48,6 +48,17 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 					{/* Tabs List */}
 					<div className='seventv-sm-tabs'>
 						<div className='seventv-sm-tablist'></div>
+						<div className='seventv-sm-socials'>
+							<span>Join The Community</span>
+
+							<div className='seventv-sm-social-list'>
+								{this.socials.map(soc =>
+									<div key={`social-${soc.label}`} className='seventv-sm-social-icon' onClick={() => window.open(soc.clickURL, '_blank')}>
+										<img src={chrome.runtime.getURL(soc.imageURL)}></img>
+									</div>
+								)}
+							</div>
+						</div>
 						<div className='seventv-sm-appinfo'>
 							<span>Version: {version}</span>
 							<span>Server: {Config.apiUrl}</span>
@@ -119,6 +130,19 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 			chrome.storage.onChanged.removeListener(this.changeListener as any);
 		}
 	}
+
+	socials = [
+		{
+			label: 'Discord',
+			clickURL: `https://discord.gg/${Config.social.discordInviteID}`,
+			imageURL: `image/icon/discord.webp`
+		},
+		{
+			label: 'Twitter',
+			clickURL: `https://twitter.com/${Config.social.twitterHandle}`,
+			imageURL: 'image/icon/twitter.webp'
+		}
+	] as SettingsComponent.SocialIcon[];
 }
 
 export namespace SettingsComponent {
@@ -130,5 +154,11 @@ export namespace SettingsComponent {
 
 	export interface State {
 		retrieved: boolean;
+	}
+
+	export interface SocialIcon {
+		label: string;
+		clickURL: string;
+		imageURL: string;
 	}
 }
