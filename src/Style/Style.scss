@@ -75,7 +75,8 @@ $accentColor: #b2ff59;
 	image-rendering: crisp-edges;
 
 	img {
-		min-height: 3rem;
+		max-height: 3rem;
+		max-width: 9rem;
 	}
 }
 
