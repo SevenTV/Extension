@@ -42,6 +42,37 @@ $borderRadius: 8px;
 				display: flex;
 				flex-grow: 1;
 			}
+
+			.seventv-sm-socials {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				margin-left: 1em;
+				margin-right: 1em;
+				margin-bottom: 3em;
+
+				span {
+					text-align: center;
+					margin-bottom: 1em;
+				}
+
+				.seventv-sm-social-list {
+					display: flex;
+					align-items: center;
+					justify-content: space-around;
+				}
+				.seventv-sm-social-icon {
+					display: block;
+					padding-right: 1em;
+					padding-left: 1em;
+					cursor: pointer;
+
+					img {
+						width: 4rem;
+						height: 4rem;
+					}
+				}
+			}
 	
 			.seventv-sm-appinfo {
 				display: flex;
@@ -81,7 +112,7 @@ $borderRadius: 8px;
 				display: flex;
 
 				span {
-					margin-left: 1em;
+					margin-left: .1em;
 					font-size: 2em;
 				}
 			}

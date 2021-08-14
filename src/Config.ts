@@ -18,5 +18,10 @@ const byEnv = () => ({
 }[__ENVIRONMENT__]);
 
 export const Config = {
-	...byEnv()
+	...byEnv(),
+
+	social: {
+		discordInviteID: 'RKUDDZk4Zy',
+		twitterHandle: 'Official_7TV'
+	}
 };
