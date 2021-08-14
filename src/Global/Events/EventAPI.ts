@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { Config } from 'src/Config';
 import { broadcastExtensionMessage, ExtensionRuntimeMessage, getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
+import { version } from 'public/manifest.json';
 
 
 export class EventAPI {
@@ -33,6 +34,7 @@ export class EventAPI {
 		// Format query with channel list
 		const query = new URLSearchParams();
 		query.set('channel', this.getChannelList());
+		query.set('agent', `webext:${version}`);
 		// Create connect URL
 		const url = `${Config.secure ? 'https' : 'http'}:${Config.eventsUrl}/channel-emotes?${query.toString()}`;
 		if (!!this.connection) {
