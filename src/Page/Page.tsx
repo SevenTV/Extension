@@ -22,8 +22,8 @@ export class PageScript {
 
 	config = config;
 
-	get stopped(): boolean {
-		return stopped;
+	get ffzMode(): boolean {
+		return ffzMode;
 	}
 
 	/**
@@ -87,10 +87,6 @@ export class PageScript {
 
 	@PageScriptListener('EnableEmoteSet')
 	whenEmoteSetIsAdded(data: EmoteStore.EmoteSet.Resolved): void {
-		if (stopped) {
-			return undefined;
-		}
-
 		const set = emoteStore.enableSet(data.name, data.emotes);
 
 		if (!page.currentChannelSet) {
@@ -103,10 +99,6 @@ export class PageScript {
 
 	@PageScriptListener('DisableEmoteSet')
 	whenEmoteSetIsRemoved(name: string): void {
-		if (stopped) {
-			return undefined;
-		}
-
 		emoteStore.disableSet(name);
 	}
 
@@ -131,7 +123,7 @@ export class PageScript {
 
 	@PageScriptListener('Cease')
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
-		stopped = true;
+		ffzMode = true;
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 
@@ -180,7 +172,7 @@ let inputManager: InputManager;
 const config = new Map<string, SettingValue>();
 
 let page: PageScript;
-let stopped = false;
+let ffzMode = false;
 (() => {
 	const { } = page = new PageScript();
 })();
