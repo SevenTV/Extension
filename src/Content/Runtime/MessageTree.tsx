@@ -118,7 +118,6 @@ export class MessageTree {
 			// Add css class
 			this.previousEmote.element?.classList.add('seventv-next-is-zerowidth');
 
-			console.log(emote.element, this.previousEmote.element);
 			if (!!emote.element && !!this.previousEmote.element?.style.minWidth) {
 				emote.element.style.minWidth = this.previousEmote.element?.style.minWidth;
 			}

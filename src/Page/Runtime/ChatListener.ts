@@ -26,28 +26,30 @@ export class ChatListener {
 		const listener = this; // Get class context to pass it into the function
 		const x = this.twitch.getChatController().componentDidUpdate; // Get current componentDidUpdate()
 
-		const controller = this.twitch.getChatController();
-		if (!!controller) {
-			controller.componentDidUpdate = function(a, b) {
-				Logger.Get().debug(`Twitch chat rerender detected, rendering 7TV emotes`);
-				listener.rerenderAll(listener.twitch.getChatLines()); // Rerender all existing chat lines
+		if (!this.page.ffzMode) {
+			const controller = this.twitch.getChatController();
+			if (!!controller) {
+				controller.componentDidUpdate = function (a, b) {
+					Logger.Get().debug(`Twitch chat rerender detected, rendering 7TV emotes`);
+					listener.rerenderAll(listener.twitch.getChatLines()); // Rerender all existing chat lines
 
-				if (!!x && typeof x === 'function') {
-					try {
-						x(a, b); // Pass the execution on
-					} catch (_) {	}
-					// FFZ will not be happy with this for some reason
-					// Their error doesn't appear to have adverse effects on the chat experience so we ignore it Okayge
-				}
-			};
-		}
+					if (!!x && typeof x === 'function') {
+						try {
+							x(a, b); // Pass the execution on
+						} catch (_) { }
+						// FFZ will not be happy with this for some reason
+						// Their error doesn't appear to have adverse effects on the chat experience so we ignore it Okayge
+					}
+				};
 
-		// Handle kill
-		this.killed.subscribe({
-			next: () => {
-				controller.componentDidUpdate = x;
+				// Handle kill
+				this.killed.subscribe({
+					next: () => {
+						controller.componentDidUpdate = x;
+					}
+				});
 			}
-		});
+		}
 	}
 
 	listen(): void {
@@ -60,7 +62,7 @@ export class ChatListener {
 
 		// Add a handler for regular chat messages
 		currentHandler = msg => {
-			if (this.page.stopped) return undefined;
+			if (this.page.ffzMode) return undefined;
 			if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
 
 			this.onMessage(msg);

@@ -87,6 +87,15 @@ export class Twitch {
 		return node?.stateNode;
 	}
 
+	getChatInput(): Twitch.ChatInputComponent {
+		const node = this.findReactChildren(
+			this.getReactInstance(document.querySelector('.chat-input__textarea')),
+			n => !!Object.keys(n.stateNode?.props).filter(k => n.stateNode?.props[k] === 'test')
+		);
+
+		return node?.stateNode;
+	}
+
 	getEmotePicker(): Twitch.AnyPureComponent {
 		const node = this.findReactParents(
 			this.getReactInstance(document.querySelector('[data-a-target=emote-picker]')),
@@ -230,6 +239,11 @@ export namespace Twitch {
 		channelLogin: string;
 		channelID: string;
 	}> & {
+		client: {
+			connection: {
+				ws: WebSocket;
+			};
+		};
 		service: {
 			client: {
 				events: {
@@ -282,6 +296,7 @@ export namespace Twitch {
 		userLogin: string | undefined;
 	}> & {
 		pushMessage: (msg: { id: string; msgid: string; channel: string; type: number; message: any; }) => void;
+		sendMessage: (msg: string, n: any) => void;
 	};
 
 	export type ChatScrollerComponent = React.PureComponent<{}> & {
@@ -321,6 +336,15 @@ export namespace Twitch {
 	}, {
 		badgeSets: BadgeSets;
 		chatListElement: HTMLDivElement;
+	}>;
+
+	export type ChatInputComponent = React.Component<{
+		channelID: string;
+		channelLogin: string;
+		setInputValue: (v: string) => void;
+		onFocus: (v: any) => void;
+		onKeyDown: (v: any) => void;
+		onValueUpdate: (v: any) => void;
 	}>;
 
 	export interface TwitchEmoteSet {
