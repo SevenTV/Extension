@@ -362,6 +362,7 @@ export namespace EmoteStore {
 			img.classList.add('chat-image');
 			img.classList.add('chat-line__message--emote');
 			img.src = this.cdn('1');
+			img.srcset = `${this.cdn('1')} 1x, ${this.cdn('2')} 2x, ${this.cdn('4')} 4x`;
 
 			inner.appendChild(img);
 			container.appendChild(inner);
