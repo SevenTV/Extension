@@ -1,15 +1,10 @@
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { version } from 'public/manifest.json';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Input from '@material-ui/core/OutlinedInput';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormGroup from '@material-ui/core/FormGroup';
 import CloseIcon from '@material-ui/icons/Close';
 import React from 'react';
 import { Config } from 'src/Config';
 import { SettingNode, settings } from 'src/Content/Runtime/Settings';
+import { SettingsForm } from 'src/Content/Components/Settings/SettingsForm';
 
 export class SettingsComponent extends React.Component<SettingsComponent.Props, SettingsComponent.State> {
 	state = {
@@ -75,52 +70,14 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 					<div className='seventv-sm-options'>
 						<span></span>
 
+						{/** Render the form */}
 						<div className='form-list'>
-							<FormGroup>
-								{this.props.settings.map(s => {
-									const isDisabled = typeof s.disabledIf === 'function' ? s.disabledIf() : false;
-									let result: JSX.Element;
-									switch (s.type) {
-										case 'checkbox':
-											result =
-												<FormControlLabel label={s.label} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} control={
-													<Checkbox
-														checked={(s.value ?? s.defaultValue) as boolean}
-														onChange={ev => this.handleCheckboxChange(s, ev)}
-														sx={{ '& .MuiSvgIcon-root': { fontSize: 24 } }} />
-												}></FormControlLabel>;
-											break;
-
-										default:
-											result =
-												<Input placeholder='Generic Input'></Input>;
-											break;
-									}
-
-									return <FormControl disabled={isDisabled} sx={{
-										'.Mui-disabled': { color: 'red' }
-									}} key={`formcontrol-${s.id}`} id={s.id}>
-										{result}
-										<FormHelperText style={{ fontSize: '0.75em' }}> {s.hint} </FormHelperText>
-									</FormControl>;
-								})}
-							</FormGroup>
+							<SettingsForm settings={this.props.settings}></SettingsForm>
 						</div>
 					</div>
 				</div>
 			</div>
 		);
-	}
-
-	handleCheckboxChange(sNode: SettingNode, ev: React.ChangeEvent<HTMLInputElement>): void {
-		const checked = ev.target.checked;
-
-		sNode.value = checked;
-		chrome.storage.local.set({
-			[`cfg.${sNode.id}`]: checked
-		});
-
-		this.setState({});
 	}
 
 	/**
