@@ -73,6 +73,10 @@ $accentColor: #b2ff59;
 
 .seventv-emote {
 	image-rendering: crisp-edges;
+
+	img {
+		min-height: 3rem;
+	}
 }
 
 .seventv-emote-menu {
