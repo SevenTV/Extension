@@ -143,6 +143,7 @@ export class Twitch {
 export namespace Twitch {
 	export namespace Selectors {
 		export const ROOT = '#root div';
+		export const NAV = '[data-a-target="top-nav-container"]';
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
 		export const ChatLine = '.chat-line__message';

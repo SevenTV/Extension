@@ -17,7 +17,7 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 
 	render() {
 		return (
-			<EmoteMenuButton.Styled ref={this.ref} title='7TV Emotes' onClick={() => this.onClick()} style={{ color: 'white' }}>
+			<EmoteMenuButton.Styled ref={this.ref} title='7TV' onClick={() => this.onClick()} style={{ color: 'white' }}>
 				<div style={{padding: '4px'}}>
 					<img height={24} src={chrome.runtime.getURL('image/7tv-nd.webp')} />
 				</div>
@@ -29,9 +29,14 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 	 * Called when the user clicks the button
 	 */
 	private onClick(): void {
-		const bounds = this.ref.current?.getBoundingClientRect();
-		Logger.Get().info(`EmoteMenuButton, action=onClick, bounds=(x: ${bounds?.x}, y: ${bounds?.y})`);
+		if (this.props.toSettings) {
+			Logger.Get().debug('EmoteMenuButton, action=onClick, to settings');
+			this.props.main?.openSettings();
+			return undefined;
+		}
 
+		const bounds = this.ref.current?.getBoundingClientRect();
+		Logger.Get().debug(`EmoteMenuButton, action=onClick, bounds=(x: ${bounds?.x}, y: ${bounds?.y})`);
 		this.props.main?.toggleEmoteMenu(bounds);
 	}
 }
@@ -39,6 +44,7 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 export namespace EmoteMenuButton {
 	export interface Props {
 		main: MainComponent | null;
+		toSettings?: boolean;
 	}
 
 	export const Styled = styled(BaseButton)`

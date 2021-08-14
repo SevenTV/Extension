@@ -10,13 +10,13 @@ import { EmoteStore } from 'src/Global/EmoteStore';
 import { asapScheduler, from, iif, of, scheduled, Subject, throwError } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
-import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Badge } from 'src/Global/Badge';
 import { ExtensionContentScript } from 'src/Content/Content';
 import { Constants } from '@typings/src/Constants';
 import { settings } from 'src/Content/Runtime/Settings';
+import { EmbeddedUI } from 'src/Content/Runtime/EmbeddedUI';
 
 @Child
 export class App implements Child.OnInjected, Child.OnAppLoaded {
@@ -24,6 +24,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 	emoteStore = emoteStore;
 	badges = badges;
 	badgeMap = badgeMap;
+	embeddedUI: EmbeddedUI | null = null;
 
 	constructor() {
 		app = this;
@@ -112,6 +113,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		const target = document.getElementById('root');
 		this.mainComponent = mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} />, app) as unknown as MainComponent;
 		this.mainComponent.app = this;
+		this.embeddedUI = embeddedUI = new EmbeddedUI(this);
 
 		target?.firstChild?.appendChild(app);
 
@@ -148,7 +150,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			tabCompleteDetector.updateEmotes();
 			tabCompleteDetector.start();
 			api.events.addChannel(state.channel);
-			insertEmoteButton();
+			embeddedUI?.embedChatButton();
 		};
 
 		const emoteGetter = [
@@ -277,29 +279,10 @@ const state = {
 let app: App | null = null;
 let mainComponent: MainComponent | undefined;
 let tabCompleteDetector: TabCompleteDetection | null = null;
+let embeddedUI: EmbeddedUI | null = null;
 const api = new API();
 const emoteStore = new EmoteStore();
 const badges = [] as Badge[];
 const badgeMap = new Map<number, number[]>();
 export const onMessageUnrender = new Subject<string>();
 export const onChatScroll = new Subject<void>();
-
-export const insertEmoteButton = (): void => {
-	// Add emote list button
-	const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
-	if (!!buttons && !!buttons.lastChild) {
-		if (buttons.querySelector('.seventv-emote-menu-button')) {
-			return undefined;
-		}
-
-		const last = buttons.lastChild;
-		const container = document.createElement('div');
-		container.classList.add('seventv-emote-menu-button');
-
-		last.insertBefore(container, last.lastChild ?? null);
-
-		if (!!app) {
-			ReactDOM.render(<EmoteMenuButton main={app.mainComponent} />, container);
-		}
-	}
-};
