@@ -200,6 +200,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 		renderer.renderMessageTree();
 		renderer.insert();
+		tabCompleteDetector?.addChatter(data.msg.user.displayName ?? data.msg.user.userDisplayName);
 	}
 
 	@PageScriptListener('UnrenderChatLine')

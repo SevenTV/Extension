@@ -4,6 +4,7 @@ import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 
+const MAX_CHATTERS = 250;
 export class TabCompleteDetection {
 	tab = {
 		index: 0,
@@ -15,6 +16,7 @@ export class TabCompleteDetection {
 	private keyListener: ((this: HTMLInputElement, ev: KeyboardEvent) => any) | undefined;
 	private finalizeListener: ((this: HTMLInputElement, ev: Event) => any) | undefined;
 	private emotes = [] as EmoteStore.Emote[];
+	private chatters = [] as string[];
 
 	constructor(public app: App) { }
 
@@ -22,8 +24,37 @@ export class TabCompleteDetection {
 		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
 	}
 
+	/**
+	 * @returns a list of values that could be auto-completed
+	 */
+	getAllCompletables(): string[] {
+		const result = [] as string[];
+		result.push(...this.emotes.map(e => e.name));
+		if (settings.get('general.autocomplete_chatters').asBoolean()) {
+			result.push(...this.chatters);
+		}
+
+		return result;
+	}
+
 	updateEmotes(): void {
 		this.emotes = this.app.emoteStore.getAllEmotes(['7TV', 'BTTV', 'FFZ', 'TWITCH']).sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	/**
+	 * Add a chatter to the list of active chatters, making them tab-completable
+	 *
+	 * @param displayName the chatter's display name that will be used for tab completion
+	 */
+	addChatter(displayName: string): void {
+		if (this.chatters.indexOf(displayName) !== -1) { // Skip if the chatter is already known
+			return undefined;
+		}
+
+		this.chatters.unshift(displayName);
+		if (this.chatters.length > MAX_CHATTERS) {
+			this.chatters.pop();
+		}
 	}
 
 	/**
@@ -40,8 +71,8 @@ export class TabCompleteDetection {
 					return undefined;
 				}
 
-				const foundEmotes = this.emotes.map(e => e.name);
-				if (foundEmotes.length === 0) {
+				const tabValues = this.getAllCompletables();
+				if (tabValues.length === 0) {
 					return undefined;
 				}
 
@@ -50,7 +81,7 @@ export class TabCompleteDetection {
 				if (input.value != this.tab.expectedValue) this.resetCursor();
 				else if (input.selectionStart != this.tab.expectedCursorLocation) this.resetCursor();
 
-				this.handleTabPress(ev, foundEmotes);
+				this.handleTabPress(ev, tabValues);
 			}
 		};
 		input.addEventListener('keydown', this.keyListener, {
