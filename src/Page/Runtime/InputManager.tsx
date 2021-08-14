@@ -19,6 +19,7 @@ export class InputManager {
 	history = [''] as string[];
 	historyPos = 0;
 	ctrl = false;
+	noticedAboutAllowSendTwice = false;
 
 	restart = new Subject<void>();
 
@@ -91,7 +92,14 @@ export class InputManager {
 						setTimeout(() => restart(), 25);
 					}
 					this.lastMessage = value;
+				} else { // Notify the user they could enable the setting to send duplicate messages
+					if (this.lastMessage === target.value && !this.noticedAboutAllowSendTwice) {
+						this.noticedAboutAllowSendTwice = true;
+						this.page.chatListener.sendSystemMessage('Enable the setting "Allow sending the same message twice" in the 7TV settings menu to bypass the duplicate message restriction');
+					}
+					this.lastMessage = value;
 				}
+
 				// Save messages to history?
 				if (historyEnabled) {
 					this.historyPos = 0;
