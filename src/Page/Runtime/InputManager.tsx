@@ -55,6 +55,7 @@ export class InputManager {
 	waitForNextSend(input: HTMLInputElement): void {
 		let listener: (ev: KeyboardEvent) => any;
 		input.addEventListener('keydown', listener = (ev) => {
+			const historyEnabled = this.page.config.get('general.history_navigation')?.asBoolean();
 			const target = ev.target as HTMLInputElement;
 			const value = (target.value ?? '');
 			const normalizedValue = [...value]
@@ -70,7 +71,7 @@ export class InputManager {
 						return undefined;
 					}
 
-					const endChar = value.charAt(value.length -1);
+					const endChar = value.charAt(value.length - 1);
 					// If message is duplicate we must edit the input value with a unicode tag
 					if (this.lastMessage === target.value) {
 						ev.preventDefault(); // For now cancel & stop the propgagation
@@ -90,6 +91,9 @@ export class InputManager {
 						setTimeout(() => restart(), 25);
 					}
 					this.lastMessage = value;
+				}
+				// Save messages to history?
+				if (historyEnabled) {
 					this.historyPos = 0;
 					if (this.history[1] !== normalizedValue) {
 						this.history = ['', normalizedValue, ...new Set(this.history.slice(1))];
@@ -105,22 +109,24 @@ export class InputManager {
 						input.focus();
 					}, (this.page.isActorModerator || this.page.isActorVIP) ? 100 : 1100); // Control cooldown depending on whether user is mod/vip or pleb
 				}
-			} else if (ev.key === 'ArrowUp' && target.selectionStart === 0) { // Handle up-arrow (navigate back in history)
-				const newVal = this.history.slice(1)[this.historyPos];
-				if (typeof newVal === 'undefined') {
+			}
+			if (historyEnabled) {
+				if (ev.key === 'ArrowUp' && target.selectionStart === 0) { // Handle up-arrow (navigate back in history)
+					const newVal = this.history.slice(1)[this.historyPos];
+					if (typeof newVal === 'undefined') {
+						this.historyPos--;
+					} else {
+						this.historyPos++;
+						this.setInputValue(newVal);
+					}
+				} else if (ev.key === 'ArrowDown' && target.selectionEnd === value.length) { // Handle down-arrow (navigate forward in history)
 					this.historyPos--;
-				} else {
-					this.historyPos++;
-					this.setInputValue(newVal);
-				}
-			} else if (ev.key === 'ArrowDown' && target.selectionEnd === value.length) { // Handle down-arrow (navigate forward in history)
-				this.historyPos--;
-				const newVal = this.history.slice(1)[this.historyPos];
-				if (typeof newVal === 'undefined') {
-					this.historyPos++;
-					this.setInputValue('');
-				} else {
-					this.setInputValue(newVal);
+					const newVal = this.history.slice(1)[this.historyPos];
+					if (typeof newVal === 'undefined') {
+						this.historyPos++;
+					} else {
+						this.setInputValue(newVal);
+					}
 				}
 			}
 		});

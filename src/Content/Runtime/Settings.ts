@@ -95,6 +95,13 @@ class Settings {
 					defaultValue: true
 				},
 				{
+					id: 'general.history_navigation',
+					label: 'History Navigation',
+					hint: 'Allow the usage of up/down arrows to get previously sent messages back in the chat input box',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
 					id: 'ui.transparency',
 					label: 'UI Transparency',
 					hint: 'Toggle the transparency / backdrop blur' + (isFirefox ? ` (Unavailable on Firefox) ` : ''),
