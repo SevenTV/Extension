@@ -5,8 +5,8 @@ import { ChatInput } from 'src/Page/Components/ChatInput';
 import { PageScript } from 'src/Page/Page';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
-import { fromEvent, Subject } from 'rxjs';
-import { filter, mergeMap, take, takeUntil, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export class InputManager {
 	private twitch = new Twitch();
@@ -18,7 +18,6 @@ export class InputManager {
 	lastMessage = '';
 	history = [''] as string[];
 	historyPos = 0;
-	ctrl = false;
 	noticedAboutAllowSendTwice = false;
 
 	restart = new Subject<void>();
@@ -37,20 +36,6 @@ export class InputManager {
 
 		// Handle send
 		this.waitForNextSend(input);
-
-		// Determine state of control press
-		fromEvent<KeyboardEvent>(document, 'keydown').pipe(
-			takeUntil(this.restart),
-			filter(ev => ev.key === 'Control'), // User presses control
-			tap(() => this.ctrl = true), // Store the state
-
-			// Listen for end of press
-			mergeMap(() => fromEvent<KeyboardEvent>(document, 'keyup').pipe(
-				filter(ev => ev.key === 'Control'),
-				take(1)
-			)), // And set the ctrl state to false
-			tap(() => this.ctrl = false),
-		).subscribe();
 	}
 
 	waitForNextSend(input: HTMLInputElement): void {
@@ -108,7 +93,7 @@ export class InputManager {
 					}
 				}
 
-				if (this.ctrl) {
+				if (ev.ctrlKey) {
 					// Temporarily lock the input
 					input.setAttribute('disabled', 'true');
 					setTimeout(() => this.setInputValue(value), 25);

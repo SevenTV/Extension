@@ -53,8 +53,10 @@ export class PageScript {
 
 		const switched = (ch: string, as: string) => {
 			this.sendMessageUp('SwitchChannel', { channelName: ch, as });
-			this.isActorVIP = controller.props.isCurrentUserVIP;
-			this.isActorModerator = controller.props.isCurrentUserModerator;
+			setTimeout(() => {
+				this.isActorVIP = controller.props.isCurrentUserVIP;
+				this.isActorModerator = controller.props.isCurrentUserModerator;
+			}, 2500);
 			inputManager.listen();
 		};
 
