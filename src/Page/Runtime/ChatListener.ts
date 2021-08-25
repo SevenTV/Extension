@@ -25,20 +25,25 @@ export class ChatListener {
 		// Detect rerenders
 		const listener = this; // Get class context to pass it into the function
 		const x = this.twitch.getChatController().componentDidUpdate; // Get current componentDidUpdate()
+		const isFFZ = this.page.ffzMode;
 
 		if (!this.page.ffzMode) {
 			const controller = this.twitch.getChatController();
 			if (!!controller) {
 				controller.componentDidUpdate = function (a, b) {
+					if (isFFZ) {
+						return;
+					}
+
 					Logger.Get().debug(`Twitch chat rerender detected, rendering 7TV emotes`);
 					listener.rerenderAll(listener.twitch.getChatLines()); // Rerender all existing chat lines
 
 					if (!!x && typeof x === 'function') {
 						try {
-							x(a, b); // Pass the execution on
-						} catch (_) { }
-						// FFZ will not be happy with this for some reason
-						// Their error doesn't appear to have adverse effects on the chat experience so we ignore it Okayge
+							x.apply(this, [a, b]); // Pass the execution on
+						} catch (err) {
+							console.error(err);
+						}
 					}
 				};
 

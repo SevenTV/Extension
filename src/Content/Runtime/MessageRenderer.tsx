@@ -30,7 +30,6 @@ export class MessageRenderer {
 		});
 
 		const container = el.querySelector('.chat-line__no-background') ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
-		el.querySelector('.message')?.remove();
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-message-context');
 		newContext.style.position = 'relative';
