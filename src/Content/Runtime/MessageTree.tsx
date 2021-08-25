@@ -77,6 +77,10 @@ export class MessageTree {
 
 	private addTextPart(part: Part): HTMLSpanElement {
 		const span = document.createElement('span');
+		span.classList.add('seventv-text-fragment');
+		if (part.content === ' ') {
+			span.classList.add('seventv-text-empty');
+		}
 		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
 
 		span.style.color = color;
