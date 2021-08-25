@@ -18,7 +18,6 @@ export class MessagePatcher {
 
 		// Find all emotes across the message parts
 		for (const part of this.msg.messageParts) {
-
 			// Handle link / mention
 			if (part.type === 4) { // Is mention
 				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });
@@ -86,7 +85,6 @@ export class MessagePatcher {
 		for (const oldFrag of oldFragments) {
 			oldFrag.setAttribute('superceded', '');
 			oldFrag.style.display = 'none';
-			oldFrag.remove();
 		}
 
 		// Render 7TV third party stuff (and idk...)
