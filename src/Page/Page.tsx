@@ -92,7 +92,6 @@ export class PageScript {
 		const set = emoteStore.enableSet(data.name, data.emotes);
 
 		if (!page.currentChannelSet) {
-			chatListener.sendSystemMessage(`Enabled set '${set.name}' (${set.size} emotes)`);
 			chatListener.listen();
 		}
 		page.currentChannelSet = set;

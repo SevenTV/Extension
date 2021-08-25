@@ -230,25 +230,6 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 					}
 					this.addChannelSet(channel, Object.values(emotes));
 				}
-
-				if (this.chat.context.get('addon.7tv_emotes.update_messages')) {
-					let message = `[7TV-FFZ] ${event.actor} `;
-					switch (event.action) {
-						case 'ADD':
-							message += `added the emote`;
-							break;
-						case 'REMOVE':
-							message += `removed the emote`;
-							break;
-						case 'UPDATE':
-							message += `renamed the emote`;
-							break;
-						default:
-							message += `performed '${event.action}' on the emote`;
-							break;
-					}
-					this.siteChat.addNotice(channel.login, `${message} "${event.name}"`);
-				}
 			}
 		}
 	}
