@@ -55,6 +55,18 @@ $accentColor: #b2ff59;
 	height: 19.5px !important;
 }
 
+.seventv-message-context > :first-child {
+	margin-right: 0.25em;
+}
+
+.seventv-text-fragment + .seventv-emote {
+	margin-right: 0.25em;
+}
+
+.seventv-emote + .seventv-text-fragment:not(.seventv-text-empty) {
+	margin-right: 0.25em;
+}
+
 .seventv-mention {
 	font-weight: bold;
 }
