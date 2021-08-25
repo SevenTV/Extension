@@ -451,6 +451,10 @@ export namespace Twitch {
 				};
 				themed: boolean;
 			};
+
+			// Only exists if cheermote
+			cheerAmount?: number;
+			cheerColor?: string;
 		}
 
 		export interface AppPart {

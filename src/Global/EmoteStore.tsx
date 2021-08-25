@@ -57,9 +57,19 @@ export class EmoteStore {
 			this.sets.set(TWITCH_SET_NAME, new EmoteStore.EmoteSet(TWITCH_SET_NAME));
 		}
 
+		const urls = [
+			['1', data.images?.dark['1x'] ?? ''],
+			['2', data.images?.dark['2x'] ?? ''],
+			['3', data.images?.dark['4x'] ?? ''],
+			['4', data.images?.dark['4x'] ?? '']
+		] as [string, string][];
 		const set = this.sets.get(TWITCH_SET_NAME) as EmoteStore.EmoteSet;
 		const currentEmote = set.getEmoteByID(data.emoteID ?? '');
 		if (!!currentEmote) {
+			if (currentEmote.urls.length === 0) {
+				currentEmote.urls.push(...urls);
+			}
+
 			return currentEmote;
 		}
 
@@ -69,6 +79,7 @@ export class EmoteStore {
 			provider: 'TWITCH',
 			visibility: 0,
 			mime: '',
+			urls: urls,
 			width: [28, 56, 112, 112],
 			height: [28, 56, 112, 112],
 			status: Constants.Emotes.Status.LIVE,
@@ -286,11 +297,17 @@ export namespace EmoteStore {
 		cdn(size: '1' | '2' | '3' | '4'): string {
 			const url = this.urls.filter(([s]) => s === size)?.[0] ?? this.urls[this.urls.length - 1];
 
+			// Return from urls if available
+			if (url.length === 2) {
+				return url[1];
+			}
+
+			// Otherwise fallback on hardcoded provider CDNs
 			switch (this.provider) {
 				case 'TWITCH':
 					return `https://static-cdn.jtvnw.net/emoticons/v2/${this.id}/default/dark/${size}.0`;
 				default:
-					return url[1];
+					return '';
 			}
 		}
 

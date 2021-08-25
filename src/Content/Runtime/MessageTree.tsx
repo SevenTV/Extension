@@ -106,6 +106,15 @@ export class MessageTree {
 		const data = part.content as Twitch.ChatMessage.EmoteRef;
 		const emote = this.previousEmote = emoteStore.fromTwitchEmote(data);
 		const emoteElement = emote.toElement();
+
+		// For cheer emotes, display the amount
+		if (typeof data.cheerAmount === 'number' && data.cheerAmount > 0) {
+			const cheerText = document.createElement('span');
+			cheerText.style.color = data.cheerColor ?? '';
+			cheerText.innerText = String(data.cheerAmount);
+			emoteElement.firstChild?.appendChild(cheerText);
+		}
+
 		this.considerZeroWidth(emote);
 
 		return emoteElement;
