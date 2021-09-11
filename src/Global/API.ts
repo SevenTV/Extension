@@ -116,6 +116,8 @@ export class API {
 			status: 3,
 			tags: [],
 			provider: 'FFZ',
+			width: [emote.width],
+			height: [emote.height],
 			visibility: global ? DataStructure.Emote.Visibility.GLOBAL : 0,
 			urls: [
 				['1', emote.urls['1']],
@@ -137,6 +139,8 @@ export class API {
 			name: emote.code,
 			status: 3,
 			tags: [],
+			width: [28],
+			height: [28],
 			provider: 'BTTV',
 			visibility: (global ? DataStructure.Emote.Visibility.GLOBAL : 0) | (API.BTTV.ZeroWidth.includes(emote.code) ? DataStructure.Emote.Visibility.ZERO_WIDTH : 0),
 			urls: [
