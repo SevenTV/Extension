@@ -1,6 +1,6 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { map, switchMap, toArray } from 'rxjs/operators';
+import { map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import request, { post } from 'superagent';
@@ -10,6 +10,8 @@ import { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
+	private BASE_URL_FFZ = 'https://api.frankerfacez.com/v1';
+	private BASE_URL_BTTV = 'https://api.betterttv.net/3';
 
 	events = new EventAPI();
 
@@ -18,34 +20,13 @@ export class API {
 	/**
 	 * Get the channel emotes of a channel
 	 *
-	 * @param channelName the channel's name
+	 * @param channelID the channel's name
 	 * @param providers a list of providers from which to get emotes
 	 * @returns an array of emotes
 	 */
-	GetChannelEmotes(channelName: string, providers: API.EmoteProviderList): Observable<DataStructure.Emote[]> {
-		return this.createRequest<{ data: { user: DataStructure.TwitchUser; third_party_emotes: DataStructure.Emote[]; } }>('/gql', {
-			body: {
-				query: `
-					query GetChannelEmotes($channel: String!, $providers: [Provider!]!) {
-						user(id: $channel) {
-							emotes {
-								${defaultEmoteQuery}
-							}
-						}
-
-						third_party_emotes(providers: $providers, channel: $channel, global: false) {
-							${defaultEmoteQuery}
-						}
-					}
-				`,
-				variables: {
-					providers: providers.map(p => String(p)),
-					channel: channelName,
-					global: false
-				}
-			}
-		}).pipe(
-			map(res => [...res.body.data.user?.emotes ?? [], ...res.body.data.third_party_emotes])
+	GetChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
+		return this.createRequest<DataStructure.Emote[]>(`/users/${channelID}/emotes`, { method: 'GET' }).pipe(
+			map(res => res.body ?? [])
 		);
 	}
 
@@ -72,29 +53,9 @@ export class API {
 	 * @param providers a list of providers from which to retrieve global emotes
 	 * @returns an array of emotes
 	 */
-	GetGlobalEmotes(providers: API.EmoteProviderList): Observable<DataStructure.Emote[]> {
-		return this.createRequest<{ data: { search_emotes: DataStructure.Emote[]; third_party_emotes: DataStructure.Emote[]; } }>('/gql', {
-			body: {
-				query: `
-					query GetGlobalEmotes($query: String!, $globalState: String!, $limit: Int, $pageSize: Int, $providers: [Provider!]!) {
-						search_emotes(query: $query, globalState: $globalState, limit: $limit, pageSize: $pageSize) {
-							${defaultEmoteQuery}
-						}
-
-						third_party_emotes(providers: $providers, channel: "", global: true) {
-							${defaultEmoteQuery}
-						}
-					}
-				`,
-				variables: {
-					query: '',
-					globalState: 'only', global: true,
-					limit: 150, pageSize: 150,
-					providers
-				}
-			}
-		}).pipe(
-			map(res => [...res.body.data.search_emotes, ...res.body.data.third_party_emotes])
+	GetGlobalEmotes(): Observable<DataStructure.Emote[]> {
+		return this.createRequest<DataStructure.Emote[]>('/emotes/global', { method: 'GET' }).pipe(
+			map(res => res.body)
 		);
 	}
 
@@ -112,15 +73,99 @@ export class API {
 		);
 	}
 
+	GetFrankerFaceZChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.FFZ.RoomResponse>(`/room/id/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
+			map(res => res.body?.sets ? Object.keys(res.body.sets).map(k => res.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
+			mergeAll(),
+			map(emote => this.transformFFZ(emote)),
+			toArray()
+		);
+	}
+
+	GetFrankerFaceZGlobalEmotes(): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.FFZ.RoomResponse>(`/set/global`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
+			map(res => Object.keys(res.body.sets).map(k => res.body.sets[k].emoticons).reduce((a, b) => [...a, ...b])),
+			mergeAll(),
+			map(emote => this.transformFFZ(emote, true)),
+			toArray()
+		);
+	}
+
+	GetBTTVChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.BTTV.UserResponse>(`/cached/users/twitch/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
+			map(res => [...res.body?.channelEmotes ?? [], ...res.body?.sharedEmotes ?? []]),
+			mergeAll(),
+			map(emote => this.transformBTTV(emote)),
+			toArray()
+		);
+	}
+
+	GetBTTVGlobalEmotes(): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.BTTV.Emote[]>('/cached/emotes/global', { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
+			map(res => res.body),
+			mergeAll(),
+			map(emote => this.transformBTTV(emote, true)),
+			toArray()
+		);
+	}
+
+	private transformFFZ(emote: API.FFZ.Emote, global = false): DataStructure.Emote {
+		return {
+			id: String(emote.id),
+			name: emote.name,
+			status: 3,
+			tags: [],
+			provider: 'FFZ',
+			width: [emote.width],
+			height: [emote.height],
+			visibility: global ? DataStructure.Emote.Visibility.GLOBAL : 0,
+			urls: [
+				['1', emote.urls['1']],
+				['2', emote.urls['2']],
+				['3', emote.urls['4']],
+				['4', emote.urls['4']],
+			],
+			owner: emote.owner ? {
+				id: emote.id,
+				login: emote.owner?.name,
+				display_name: emote.owner?.display_name
+			} as unknown as DataStructure.TwitchUser : null
+		} as DataStructure.Emote;
+	}
+
+	private transformBTTV(emote: API.BTTV.Emote, global = false): DataStructure.Emote {
+		return {
+			id: emote.id,
+			name: emote.code,
+			status: 3,
+			tags: [],
+			width: [28],
+			height: [28],
+			provider: 'BTTV',
+			visibility: (global ? DataStructure.Emote.Visibility.GLOBAL : 0) | (API.BTTV.ZeroWidth.includes(emote.code) ? DataStructure.Emote.Visibility.ZERO_WIDTH : 0),
+			urls: [
+				['1', `https://cdn.betterttv.net/emote/${emote.id}/1x`],
+				['2', `https://cdn.betterttv.net/emote/${emote.id}/2x`],
+				['3', `https://cdn.betterttv.net/emote/${emote.id}/3x`],
+				['4', `https://cdn.betterttv.net/emote/${emote.id}/3x`],
+			],
+			owner: emote.user ? {
+				id: emote.user.id,
+				login: emote.user.name,
+				display_name: emote.user.displayName
+			} as unknown as DataStructure.TwitchUser : null
+		} as DataStructure.Emote;
+	}
+
 	createRequest<T>(route: string, options: Partial<API.CreateRequestOptions>): Observable<API.Response<T>> {
 		return new Observable<API.Response<T>>(observer => {
 			const ctx = getRunningContext();
 
 			if (ctx === 'background') {
-				const uri = this.BASE_URL + route;
+				const uri = (options.baseUrl ? options.baseUrl : this.BASE_URL) + route;
 
 				from(request(options.method || 'POST', uri).set(
-					'X-SevenTV-Platform', 'Web',
+					'X-SevenTV-Platform', 'WebExtension',
 				).set(
 					'X-SevenTV-Version', version
 				).send(options.body ?? {})).subscribe({
@@ -146,6 +191,7 @@ export namespace API {
 	export interface CreateRequestOptions {
 		headers: { [key: string]: string };
 		auth: boolean;
+		baseUrl?: string;
 		body?: any;
 		tabId: string;
 		method?: string;
@@ -166,6 +212,57 @@ export namespace API {
 	/** List of foreign emote providers  */
 	export type EmoteProvider = 'BTTV' | 'FFZ';
 	export type EmoteProviderList = [EmoteProvider?, EmoteProvider?];
+	export namespace FFZ {
+		export interface RoomResponse {
+			sets: { [key: string]: {
+				emoticons: FFZ.Emote[];
+			}};
+		}
+
+		export interface Emote {
+			id: number;
+			name: string;
+			height: number;
+			width: number;
+			public: boolean;
+			hidden: boolean;
+			owner: {
+				_id: number;
+				name: string;
+				display_name: string;
+			} | null;
+			urls: {
+				'1': string;
+				'2': string;
+				'4': string;
+			};
+		}
+	}
+
+	export namespace BTTV {
+		export interface UserResponse {
+			channelEmotes: BTTV.Emote[];
+			sharedEmotes: BTTV.Emote[];
+		}
+
+		export interface Emote {
+			id: string;
+			code: string;
+			imageType: string;
+			user: {
+				id: string;
+				name: string;
+				displayName: string;
+				providerId: string;
+			} | null;
+			userId: string;
+		}
+
+		export const ZeroWidth = [
+			'SoSnowy', 'IceCold', 'SantaHat', 'TopHat',
+			'ReinDeer', 'CandyCane', 'cvMask', 'cvHazmat',
+		];
+	}
 }
 
 const defaultEmoteQuery = `

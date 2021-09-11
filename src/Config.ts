@@ -15,7 +15,7 @@ const byEnv = () => ({
 		cdnUrl: '//cdn.7tv.app',
 		secure: false
 	}
-}[__ENVIRONMENT__]);
+}['production']);
 
 export const Config = {
 	...byEnv(),

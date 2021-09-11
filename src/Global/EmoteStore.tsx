@@ -298,7 +298,7 @@ export namespace EmoteStore {
 			const url = this.urls.filter(([s]) => s === size)?.[0] ?? this.urls[this.urls.length - 1];
 
 			// Return from urls if available
-			if (url.length === 2) {
+			if (url?.length === 2) {
 				return url[1];
 			}
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, filter, map, switchMap, tap, toArray } from 'rxjs/operators';
+import { catchError, concatAll, filter, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { API } from 'src/Global/API';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { asapScheduler, from, iif, of, scheduled, Subject, throwError } from 'rxjs';
+import { asapScheduler, defer, from, iif, of, scheduled, Subject, throwError } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
@@ -125,7 +125,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	@PageScriptListener('SwitchChannel')
 	whenTheChannelSwitches(data: {
-		channelName: string; as: string;
+		channelID: string; as: string;
 		skip_download: boolean;
 		emotes: DataStructure.Emote[];
 	}): void {
@@ -154,16 +154,28 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		};
 
 		const emoteGetter = [
-			api.GetChannelEmotes(data.channelName, ['BTTV', 'FFZ']).pipe(catchError(_ => of([]))),
-			api.GetGlobalEmotes(['BTTV', 'FFZ']).pipe(catchError(_ => of([])))
+			api.GetChannelEmotes(data.channelID).pipe(catchError(_ => of([]))),
+			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
+			api.GetFrankerFaceZChannelEmotes(data.channelID).pipe(
+				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load FrankerFaceZ channel emotes: ${err.message}`)))
+			),
+			api.GetFrankerFaceZGlobalEmotes().pipe(
+				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load FrankerFaceZ global emotes: ${err.message}`)))
+			),
+			api.GetBTTVChannelEmotes(data.channelID).pipe(
+				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load BetterTTV channel emotes: ${err.message}`)))
+			),
+			api.GetBTTVGlobalEmotes().pipe(
+				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load BetterTTV global emotes: ${err.message}`)))
+			)
 		];
 		if (data.skip_download) {
-			state.channel = data.channelName;
+			state.channel = data.channelID;
 
 			scheduled(emoteGetter, asapScheduler).pipe(
 				concatAll(),
 				toArray(),
-				map(emotes => emoteStore.enableSet(data.channelName, [...data.emotes, ...emotes[0], ...emotes[1]])),
+				map(emotes => emoteStore.enableSet(data.channelID, [...data.emotes, ...emotes[0], ...emotes[1]])),
 				tap(() => afterLoaded())
 			).subscribe({
 				error(err) {
@@ -175,17 +187,17 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		}
 
 		scheduled(emoteGetter, asapScheduler).pipe(
-			concatAll(),
+			mergeAll(),
 			toArray(),
 			map(a => a.reduce((a, b) => a.concat(b as any))),
 			switchMap(e => iif(() => e.length === 0,
 				throwError(Error(`7TV failed to load (perhaps service is down?)`)),
 				of(e)
 			)),
-			map(e => emoteStore.enableSet(data.channelName, e)),
+			map(e => emoteStore.enableSet(data.channelID, e)),
 		).subscribe({
 			next: (set: EmoteStore.EmoteSet) => {
-				state.channel = data.channelName;
+				state.channel = data.channelID;
 				this.sendMessageDown('EnableEmoteSet', set.resolve());
 				afterLoaded();
 			},
