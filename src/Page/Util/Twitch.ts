@@ -62,7 +62,7 @@ export class Twitch {
 		const node = this.findReactParents(
 			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ChatContainer)[0]),
 			n => n.stateNode?.props.messageHandlerAPI && n.stateNode?.props.chatConnectionAPI,
-			1000
+			100
 		);
 
 		return node?.stateNode;
