@@ -52,37 +52,51 @@ export class PageScript {
 		if (this.currentChannel != '') throw new Error('Already listening for channel switches');
 
 		const switched = (id: string, login: string, as: string) => {
-			this.sendMessageUp('SwitchChannel', { channelID: String(id), channelLogin: login, as });
+			this.sendMessageUp('SwitchChannel', { channelID: id, channelLogin: login, as });
 			setTimeout(() => {
 				this.isActorVIP = controller.props.isCurrentUserVIP;
 				this.isActorModerator = controller.props.isCurrentUserModerator;
 			}, 2500);
 			inputManager.listen();
 		};
+
+		// Get chat service
 		let controller = this.twitch.getChatController();
+		let channelName = controller?.props.channelLogin; // Set current channel
+		let channelID = controller?.props.channelID;
+		if (!channelName || !channelID) {
+			setTimeout(() => this.handleChannelSwitch(), 1000);
+			return undefined;
+		}
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
-		setInterval(() => {
+		setInterval(async () => {
 			let channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
-				// Get chat service
-				let channelName = controller?.props.channelLogin; // Set current channel
-				let channelID = controller?.props.channelID;
-				if (!channelName || !channelID) {
-					setTimeout(() => this.handleChannelSwitch(), 1000);
-					return undefined;
-				}
-
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
-				controller = this.twitch.getChatController();
+				controller = await this.awaitChatController();
 				this.eIndex = null;
 				this.currentChannelSet = null;
 				this.currentChannel = channelName;
+				channelName = controller.props.channelLogin;
+				channelID = controller.props.channelID;
 				switched(channelID, channelName, controller.props.userID ?? '');
 			}
 		}, 500);
 
 		this.chatListener.start();
+	}
+
+	async awaitChatController(): Promise<Twitch.ChatControllerComponent> {
+		return new Promise(resolve => {
+			const i = setInterval(() => {
+				const c = this.twitch.getChatController();
+				if (c && c.props?.channelID && c.props?.channelLogin) {
+					clearInterval(i);
+					resolve(c);
+				}
+			}, 500);
+		});
 	}
 
 	getCurrentChannelFromURL(): string {
