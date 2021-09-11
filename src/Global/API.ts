@@ -75,7 +75,7 @@ export class API {
 
 	GetFrankerFaceZChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.FFZ.RoomResponse>(`/room/id/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
-			map(res => Object.keys(res.body.sets).map(k => res.body.sets[k].emoticons).reduce((a, b) => [...a, ...b])),
+			map(res => res.body?.sets ? Object.keys(res.body.sets).map(k => res.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
 			mergeAll(),
 			map(emote => this.transformFFZ(emote)),
 			toArray()
