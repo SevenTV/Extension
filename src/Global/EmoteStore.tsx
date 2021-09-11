@@ -273,17 +273,17 @@ export namespace EmoteStore {
 		weight = 0;
 
 		constructor(private data: DataStructure.Emote) {
-			this.id = data.id ?? '';
-			this.name = data.name ?? '';
-			this.mime = data.mime ?? '';
-			this.visibility = data.visibility ?? 0;
-			this.provider = data.provider ?? '7TV';
-			this.width = data.width ?? [];
-			this.height = data.height ?? [];
+			this.id = data?.id ?? '';
+			this.name = data?.name ?? '';
+			this.mime = data?.mime ?? '';
+			this.visibility = data?.visibility ?? 0;
+			this.provider = data?.provider ?? '7TV';
+			this.width = data?.width ?? [];
+			this.height = data?.height ?? [];
 			if (!!data.owner) {
-				this.owner = data.owner;
+				this.owner = data?.owner;
 			}
-			if (Array.isArray(data.urls)) {
+			if (Array.isArray(data?.urls)) {
 				this.urls = data.urls;
 			}
 			this.defineWeight();

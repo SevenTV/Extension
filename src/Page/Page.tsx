@@ -6,12 +6,14 @@ import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { SettingValue } from 'src/Global/Util';
 import 'src/Style/Style.scss';
+import { AvatarManager } from 'src/Page/Runtime/Avatars';
 
 export class PageScript {
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
 	inputManager = inputManager = new InputManager(this);
+	avatarManager = new AvatarManager();
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
@@ -36,6 +38,8 @@ export class PageScript {
 	 */
 	constructor() {
 		this.handleChannelSwitch();
+
+		this.avatarManager.check();
 	}
 
 	/**
@@ -53,6 +57,7 @@ export class PageScript {
 
 		const switched = (id: string, login: string, as: string) => {
 			this.sendMessageUp('SwitchChannel', { channelID: id, channelLogin: login, as });
+			this.avatarManager.check();
 			setTimeout(() => {
 				this.isActorVIP = controller.props.isCurrentUserVIP;
 				this.isActorModerator = controller.props.isCurrentUserModerator;

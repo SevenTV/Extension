@@ -14,19 +14,3 @@ export const Background = {
 	NavHandler: new NavHandler(),
 	Messaging: new BackgroundMessaging()
 };
-
-// Handle animated avatars
-(() => {
-	chrome.webRequest.onBeforeRequest.addListener(
-	d => {
-		// testing.
-		console.log(d);
-
-		return {
-			redirectUrl: 'https://cdn.7tv.app/emote/603c89cbbb69c00014bed23e/4x'
-		};
-	},
-	{ urls: ['*://static-cdn.jtvnw.net/jtv_user_pictures/*'], types: ['image'] },
-	['blocking']
-	);
-})();
