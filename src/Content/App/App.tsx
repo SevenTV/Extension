@@ -154,8 +154,8 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		};
 
 		const emoteGetter = [
-			api.GetChannelEmotes(data.channelName, ['BTTV', 'FFZ']).pipe(catchError(_ => of([]))),
-			api.GetGlobalEmotes(['BTTV', 'FFZ']).pipe(catchError(_ => of([])))
+			api.GetChannelEmotes(data.channelName).pipe(catchError(_ => of([]))),
+			api.GetGlobalEmotes().pipe(catchError(_ => of([])))
 		];
 		if (data.skip_download) {
 			state.channel = data.channelName;
