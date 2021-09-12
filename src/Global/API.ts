@@ -75,7 +75,7 @@ export class API {
 
 	GetFrankerFaceZChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.FFZ.RoomResponse>(`/room/id/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
-			map(res => res.body?.sets ? Object.keys(res.body.sets).map(k => res.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
+			map(res => res?.body?.sets ? Object.keys(res?.body.sets).map(k => res?.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
 			mergeAll(),
 			filter(emote => !!emote),
 			map(emote => this.transformFFZ(emote)),
@@ -85,7 +85,7 @@ export class API {
 
 	GetFrankerFaceZGlobalEmotes(): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.FFZ.RoomResponse>(`/set/global`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
-			map(res => Object.keys(res.body.sets).map(k => res.body.sets[k].emoticons).reduce((a, b) => [...a, ...b])),
+			map(res => Object.keys(res?.body.sets).map(k => res?.body.sets[k].emoticons).reduce((a, b) => [...a, ...b])),
 			mergeAll(),
 			map(emote => this.transformFFZ(emote, true)),
 			toArray()
@@ -94,7 +94,7 @@ export class API {
 
 	GetBTTVChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.BTTV.UserResponse>(`/cached/users/twitch/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
-			map(res => [...res.body?.channelEmotes ?? [], ...res.body?.sharedEmotes ?? []]),
+			map(res => [...res?.body?.channelEmotes ?? [], ...res?.body?.sharedEmotes ?? []]),
 			mergeAll(),
 			map(emote => this.transformBTTV(emote)),
 			toArray()
@@ -103,7 +103,7 @@ export class API {
 
 	GetBTTVGlobalEmotes(): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.BTTV.Emote[]>('/cached/emotes/global', { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
-			map(res => res.body),
+			map(res => res?.body),
 			mergeAll(),
 			map(emote => this.transformBTTV(emote, true)),
 			toArray()
