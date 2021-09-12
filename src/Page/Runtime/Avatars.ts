@@ -1,5 +1,5 @@
-import { from, of, timer } from 'rxjs';
-import { catchError, filter, map, mergeMap, take, tap } from 'rxjs/operators';
+import { from, fromEvent, of, timer } from 'rxjs';
+import { catchError, filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { get } from 'superagent';
 
@@ -13,11 +13,13 @@ export class AvatarManager {
 	cache = new Map<string, string>();
 
 	constructor() {
-		// Detect sidebar changes
-		this.sidebarObserver.observe(this.sidebarElement, {
-			childList: true,
-			subtree: true
-		});
+		if (!!this.sidebarElement) {
+			// Detect sidebar changes
+			this.sidebarObserver.observe(this.sidebarElement, {
+				childList: true,
+				subtree: true
+			});
+		}
 
 		// Detect location changes
 		let currentLocation = document.location.href;
@@ -32,6 +34,11 @@ export class AvatarManager {
 				tap(() => this.check())
 			).subscribe();
 		}, 200);
+
+		// Check on clicks
+		fromEvent(document, 'click').pipe(
+			switchMap(() => timer(0, 300).pipe(take(5)))
+		).subscribe({ next: () => this.check() });
 	}
 
 	check(scope?: HTMLElement): void {
@@ -53,9 +60,12 @@ export class AvatarManager {
 				: of(this.cache.get(id))
 			).pipe(map(url => ({ url: url, img, id }))), 5),
 			map(({ url, img, id }) => {
+				const currentURL = img.src;
 				img.src = url;
 				if (!url.startsWith('https://static-cdn.jtvnw.net')) {
 					img.srcset = '';
+					img.setAttribute('src-original', currentURL);
+					img.setAttribute('seventv-custom', '');
 				}
 
 				this.cache.set(id, url);
