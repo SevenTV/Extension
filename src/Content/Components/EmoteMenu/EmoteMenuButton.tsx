@@ -17,7 +17,7 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 
 	render() {
 		return (
-			<EmoteMenuButton.Styled ref={this.ref} title='7TV' onClick={() => this.onClick()} style={{ color: 'white' }}>
+			<EmoteMenuButton.Styled ref={this.ref} title='7TV' onClick={ev => this.onClick(ev)} style={{ color: 'white' }}>
 				<div style={{padding: '4px'}}>
 					<img height={24} src={chrome.runtime.getURL('image/7tv-nd.webp')} />
 				</div>
@@ -28,7 +28,8 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 	/**
 	 * Called when the user clicks the button
 	 */
-	private onClick(): void {
+	private onClick(ev: React.MouseEvent): void {
+		ev.stopPropagation();
 		if (this.props.toSettings) {
 			Logger.Get().debug('EmoteMenuButton, action=onClick, to settings');
 			this.props.main?.openSettings();
