@@ -10,12 +10,12 @@ export class Badge {
 	urls: [string, string][];
 
 	constructor(private data: Badge.Data) {
-		this.id = this.data.id ?? '';
-		this.name = data.name ?? '';
-		this.tooltip = data.tooltip ?? '';
-		this.misc = data.misc || false;
-		this.users = Array.isArray(data.users) ? data.users : [];
-		this.urls = Array.isArray(data.urls) ? data.urls : [];
+		this.id = this.data?.id ?? '';
+		this.name = data?.name ?? '';
+		this.tooltip = data?.tooltip ?? '';
+		this.misc = data?.misc || false;
+		this.users = Array.isArray(data?.users) ? data.users : [];
+		this.urls = Array.isArray(data?.urls) ? data.urls : [];
 	}
 
 	/**

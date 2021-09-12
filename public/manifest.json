@@ -28,7 +28,10 @@
 	"permissions": [
 		"*://*.twitch.tv/*",
 		"*://api.frankerfacez.com/*",
-		"storage"
+		"*://static-cdn.jtvnw.net/*",
+		"storage",
+		"webRequest",
+		"webRequestBlocking"
 	],
 	"icons": {
 		"16": "icon16.png",

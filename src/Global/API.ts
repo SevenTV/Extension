@@ -1,6 +1,6 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { map, mergeAll, switchMap, toArray } from 'rxjs/operators';
+import { filter, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import request, { post } from 'superagent';
@@ -77,6 +77,7 @@ export class API {
 		return this.createRequest<API.FFZ.RoomResponse>(`/room/id/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
 			map(res => res.body?.sets ? Object.keys(res.body.sets).map(k => res.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
 			mergeAll(),
+			filter(emote => !!emote),
 			map(emote => this.transformFFZ(emote)),
 			toArray()
 		);
@@ -125,8 +126,8 @@ export class API {
 				['3', emote.urls['4']],
 				['4', emote.urls['4']],
 			],
-			owner: emote.owner ? {
-				id: emote.id,
+			owner: emote?.owner ? {
+				id: emote?.id,
 				login: emote.owner?.name,
 				display_name: emote.owner?.display_name
 			} as unknown as DataStructure.TwitchUser : null
