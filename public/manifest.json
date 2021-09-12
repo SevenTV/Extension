@@ -19,7 +19,7 @@
 		}
 	],
 	"web_accessible_resources": [
-		"page.js",
+		"twitch.js",
 		"ffz_hook.js",
 		"ffz_addon.js",
 		"styles/Style.css",

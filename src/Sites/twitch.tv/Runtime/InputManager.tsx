@@ -1,8 +1,8 @@
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import ReactDOM from 'react-dom';
 import React from 'react';
-import { ChatInput } from 'src/Page/Components/ChatInput';
-import { PageScript } from 'src/Page/Page';
+import { ChatInput } from 'src/Sites/twitch.tv/Components/ChatInput';
+import { PageScript } from 'src/Sites/twitch.tv/twitch';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
 import { Subject } from 'rxjs';

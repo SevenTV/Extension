@@ -1,7 +1,7 @@
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 
 export class MessageTree {

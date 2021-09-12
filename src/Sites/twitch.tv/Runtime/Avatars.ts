@@ -1,7 +1,7 @@
 import { from, fromEvent, of, timer } from 'rxjs';
 import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
-import { PageScript } from 'src/Page/Page';
+import { PageScript } from 'src/Sites/twitch.tv/twitch';
 import { get } from 'superagent';
 
 const ppEndpoint = 'https://static-cdn.jtvnw.net/jtv_user_pictures/';

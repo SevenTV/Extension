@@ -1,9 +1,9 @@
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
-import { PageScript } from 'src/Page/Page';
-import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { PageScript } from 'src/Sites/twitch.tv/twitch';
+import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
 export class ChatListener {

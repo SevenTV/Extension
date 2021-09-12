@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MessagePatcher } from 'src/Page/Util/MessagePatcher';
+import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 
 export class Twitch {
 	findReactParents(node: any, predicate: Twitch.FindReactInstancePredicate, maxDepth = 15, depth = 0): Twitch.AnyPureComponent | null {

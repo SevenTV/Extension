@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { App } from 'src/Content/App/App';
 import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 export class EmbeddedUI {
 	/**

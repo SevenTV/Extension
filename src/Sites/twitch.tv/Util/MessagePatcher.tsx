@@ -1,5 +1,5 @@
-import { PageScript } from 'src/Page/Page';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { PageScript } from 'src/Sites/twitch.tv/twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 export class MessagePatcher {
 	constructor(

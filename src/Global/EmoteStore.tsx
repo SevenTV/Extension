@@ -4,7 +4,7 @@ import { DataStructure } from '@typings/typings/DataStructure';
 import EmojiData from 'src/Content/Util/Emoji.json';
 import twemoji from 'twemoji';
 import { Logger } from 'src/Logger';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { getProviderLogo, getRunningContext } from 'src/Global/Util';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import React from 'react';

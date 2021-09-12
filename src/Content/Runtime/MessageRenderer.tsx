@@ -1,4 +1,4 @@
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { App } from 'src/Content/App/App';
 import { MessageTree } from 'src/Content/Runtime/MessageTree';
 import twemoji from 'twemoji';

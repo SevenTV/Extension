@@ -9,7 +9,7 @@ import { API } from 'src/Global/API';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { asapScheduler, from, iif, of, scheduled, Subject, throwError } from 'rxjs';
 import { Logger } from 'src/Logger';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Badge } from 'src/Global/Badge';

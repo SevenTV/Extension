@@ -1,12 +1,12 @@
-import { ChatListener } from 'src/Page/Runtime/ChatListener';
-import { InputManager } from 'src/Page/Runtime/InputManager';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { ChatListener } from 'src/Sites/twitch.tv/Runtime/ChatListener';
+import { InputManager } from 'src/Sites/twitch.tv/Runtime/InputManager';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { Logger } from 'src/Logger';
 import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { SettingValue } from 'src/Global/Util';
 import 'src/Style/Style.scss';
-import { AvatarManager } from 'src/Page/Runtime/Avatars';
+import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
 
 export class PageScript {
 	twitch = new Twitch();

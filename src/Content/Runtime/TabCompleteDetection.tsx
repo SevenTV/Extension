@@ -2,7 +2,7 @@ import { App } from 'src/Content/App/App';
 import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 const MAX_CHATTERS = 250;
 export class TabCompleteDetection {
