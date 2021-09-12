@@ -6,12 +6,13 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const config = {
   mode: 'production',
   entry: {
-    content: path.join(__dirname, 'src/Content/Content.tsx'),
-    background: path.join(__dirname, 'src/Background/Background.tsx'),
-    page: path.join(__dirname, 'src/Page/Page.tsx'),
+		content: path.join(__dirname, 'src/Content/Content.tsx'),
+		background: path.join(__dirname, 'src/Background/Background.tsx'),
+		twitch: path.join(__dirname, 'src/Sites/twitch.tv/twitch.tsx'),
+		youtube: path.join(__dirname, 'src/Sites/youtube.com/youtube.tsx'),
 
-		ffz_addon: path.join(__dirname, 'src/Page/FFZ/FrankerFaceZ.Addon.ts'),
-		ffz_hook: path.join(__dirname, 'src/Page/FFZ/FrankerFaceZ.Hook.ts'),
+		ffz_addon: path.join(__dirname, 'src/Sites/twitch.tv/FFZ/FrankerFaceZ.Addon.ts'),
+		ffz_hook: path.join(__dirname, 'src/Sites/twitch.tv/FFZ/FrankerFaceZ.Hook.ts'),
   },
   output: { path: path.join(__dirname, 'dist'), filename: '[name].js' },
   module: {

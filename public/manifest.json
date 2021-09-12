@@ -20,6 +20,7 @@
 	],
 	"web_accessible_resources": [
 		"twitch.js",
+		"youtube.js",
 		"ffz_hook.js",
 		"ffz_addon.js",
 		"styles/Style.css",
