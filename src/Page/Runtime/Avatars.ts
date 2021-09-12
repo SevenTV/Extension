@@ -43,6 +43,7 @@ export class AvatarManager {
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
 
 		from(tags).pipe(
+			filter(img => img.src.startsWith(ppEndpoint)),
 			map(img => ({ img, id: img.src.slice(ppEndpoint.length) ?? '' })),
 			filter(({ id }) => id !== ''),
 			mergeMap(({ img, id }) => (!this.cache.has(id)
