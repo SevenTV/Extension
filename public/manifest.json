@@ -13,8 +13,9 @@
 	},
 	"content_scripts": [
 		{
-			"matches": ["*://*.twitch.tv/*"],
+			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"],
 			"js": ["content.js"],
+			"all_frames": true,
 			"runAt": "document_start"
 		}
 	],
@@ -28,6 +29,7 @@
 	],
 	"permissions": [
 		"*://*.twitch.tv/*",
+		"*://*youtube.com/*",
 		"*://api.frankerfacez.com/*",
 		"storage"
 	],
