@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "7TV",
 	"description": "7TV is an emote service and extension for Twitch",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"page_action": {
 		"default_icon": "icon128.png"
 	},
@@ -28,10 +28,7 @@
 	"permissions": [
 		"*://*.twitch.tv/*",
 		"*://api.frankerfacez.com/*",
-		"*://static-cdn.jtvnw.net/*",
-		"storage",
-		"webRequest",
-		"webRequestBlocking"
+		"storage"
 	],
 	"icons": {
 		"16": "icon16.png",
