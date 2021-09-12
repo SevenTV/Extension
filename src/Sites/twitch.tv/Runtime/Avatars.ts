@@ -1,7 +1,7 @@
 import { from, fromEvent, of, timer } from 'rxjs';
 import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
-import { PageScript } from 'src/Sites/twitch.tv/twitch';
+import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { get } from 'superagent';
 
 const ppEndpoint = 'https://static-cdn.jtvnw.net/jtv_user_pictures/';
@@ -14,7 +14,7 @@ export class AvatarManager {
 	sidebarObserver = new MutationObserver(() => this.check());
 	hashMap = new Map<string, string>();
 
-	constructor(private page: PageScript) {
+	constructor(private page: TwitchPageScript) {
 		if (!!this.sidebarElement) {
 			// Detect sidebar changes
 			this.sidebarObserver.observe(this.sidebarElement, {

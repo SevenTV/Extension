@@ -13,7 +13,11 @@ export class ExtensionContentScript {
 	pageScriptLoaded = new BehaviorSubject<boolean>(false);
 
 	constructor() {
-		this.inject();
+		if (document.domain === 'www.youtube.com') {
+			this.inject('youtube');
+		} else {
+			this.inject('twitch');
+		}
 
 		// Load FFZ Add-on in place of 7TV?
 		{
@@ -54,7 +58,7 @@ export class ExtensionContentScript {
 		}
 	}
 
-	private inject(): void {
+	private inject(platform: 'twitch' | 'youtube'): void {
 		if (this.injected) {
 			return;
 		}
@@ -68,9 +72,9 @@ export class ExtensionContentScript {
 		style.setAttribute('charset', 'utf-8');
 		style.setAttribute('content', 'text/html');
 		style.setAttribute('http-equiv', 'content-type');
-		script.src = chrome.runtime.getURL('page.js');
+		script.src = chrome.runtime.getURL(`${platform}.js`);
 		script.onload = () => {
-			Logger.Get().info('Injected into Twitch');
+			Logger.Get().info(`Injected into ${platform}`);
 
 			this.pageScriptLoaded.next(true);
 			emitHook('onInjected');

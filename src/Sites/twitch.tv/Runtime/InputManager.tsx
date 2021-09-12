@@ -2,7 +2,7 @@ import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { ChatInput } from 'src/Sites/twitch.tv/Components/ChatInput';
-import { PageScript } from 'src/Sites/twitch.tv/twitch';
+import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
 import { Subject } from 'rxjs';
@@ -22,7 +22,7 @@ export class InputManager {
 
 	restart = new Subject<void>();
 
-	constructor(private page: PageScript) { }
+	constructor(private page: TwitchPageScript) { }
 
 	/**
 	 * Listen to keyboard inputs

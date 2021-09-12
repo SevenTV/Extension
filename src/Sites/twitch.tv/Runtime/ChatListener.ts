@@ -1,7 +1,7 @@
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
-import { PageScript } from 'src/Sites/twitch.tv/twitch';
+import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
@@ -17,7 +17,7 @@ export class ChatListener {
 
 	private killed = new Subject<void>();
 
-	constructor(private page: PageScript) {
+	constructor(private page: TwitchPageScript) {
 		(window as any).twitch = this.twitch;
 	}
 

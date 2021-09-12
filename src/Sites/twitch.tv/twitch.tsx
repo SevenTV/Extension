@@ -8,7 +8,7 @@ import { SettingValue } from 'src/Global/Util';
 import 'src/Style/Style.scss';
 import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
 
-export class PageScript {
+export class TwitchPageScript {
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
@@ -201,8 +201,8 @@ let inputManager: InputManager;
 let avatarManager: AvatarManager;
 const config = new Map<string, SettingValue>();
 
-let page: PageScript;
+let page: TwitchPageScript;
 let ffzMode = false;
 (() => {
-	const { } = page = new PageScript();
+	const { } = page = new TwitchPageScript();
 })();

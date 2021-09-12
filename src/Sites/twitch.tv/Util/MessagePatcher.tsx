@@ -1,9 +1,9 @@
-import { PageScript } from 'src/Sites/twitch.tv/twitch';
+import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 export class MessagePatcher {
 	constructor(
-		private page: PageScript,
+		private page: TwitchPageScript,
 		private msg: Twitch.ChatMessage
 	) { }
 
