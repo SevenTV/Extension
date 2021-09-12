@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { catchError, concatAll, filter, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
+import { catchError, filter, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
 import { MainComponent } from 'src/Content/Components/MainComponent';
 import { Child, PageScriptListener } from 'src/Global/Decorators';
 import { emitHook } from 'src/Content/Global/Hooks';
@@ -125,7 +125,9 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 
 	@PageScriptListener('SwitchChannel')
 	whenTheChannelSwitches(data: {
-		channelID: string; as: string;
+		channelID: string;
+		channelLogin: string;
+		as: string;
 		skip_download: boolean;
 		emotes: DataStructure.Emote[];
 	}): void {
@@ -136,7 +138,7 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 		this.sendMessageDown('DisableEmoteSet', data.as);
 
 		// Remove current channel from event subscriptions
-		if (state.channel.length > 0) {
+		if (state.channel?.length > 0) {
 			api.events.removeChannel(state.channel);
 		}
 
@@ -181,22 +183,6 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 				))
 			)
 		];
-		if (data.skip_download) {
-			state.channel = data.channelID;
-
-			scheduled(emoteGetter, asapScheduler).pipe(
-				concatAll(),
-				toArray(),
-				map(emotes => emoteStore.enableSet(data.channelID, [...data.emotes, ...emotes[0], ...emotes[1]])),
-				tap(() => afterLoaded())
-			).subscribe({
-				error(err) {
-					Logger.Get().error(`Failed to fetch third-party emotes (${err})`);
-				}
-			});
-
-			return undefined;
-		}
 
 		scheduled(emoteGetter, asapScheduler).pipe(
 			mergeAll(),

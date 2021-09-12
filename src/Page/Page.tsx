@@ -78,14 +78,17 @@ export class PageScript {
 		setInterval(async () => {
 			let channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
+				this.currentChannel = channelName;
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
 				controller = await this.awaitChatController();
 				this.eIndex = null;
 				this.currentChannelSet = null;
-				this.currentChannel = channelName;
 				channelName = controller.props.channelLogin;
 				channelID = controller.props.channelID;
-				switched(channelID, channelName, controller.props.userID ?? '');
+
+				if (channelName && channelID) {
+					switched(channelID, channelName, controller.props.userID ?? '');
+				}
 			}
 		}, 500);
 
@@ -96,7 +99,7 @@ export class PageScript {
 		return new Promise(resolve => {
 			const i = setInterval(() => {
 				const c = this.twitch.getChatController();
-				if (c && c.props?.channelID && c.props?.channelLogin) {
+				if (c && (c.props?.channelID && c.props?.channelLogin)) {
 					clearInterval(i);
 					resolve(c);
 				}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { defer, iif, Observable, Subject } from 'rxjs';
 import { filter, switchMap, take, tap } from 'rxjs/operators';
 import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
@@ -22,6 +22,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 			open: false
 		}
 	} as MainComponent.State;
+	emoteMenuRef = createRef<HTMLDivElement>();
 
 	constructor(props: MainComponent.Props) {
 		super(props);
@@ -32,6 +33,15 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 				defer(() => this.hideTooltip())
 			))
 		).subscribe();
+
+		document.addEventListener('click', ev => this.onMainClick(ev), { passive: true });
+	}
+
+	onMainClick(ev: MouseEvent): void {
+		const isOutside = !this.emoteMenuRef.current?.contains(ev.target as HTMLDivElement);
+		if (isOutside && this.state.emoteMenu.open) {
+			this.toggleEmoteMenu(undefined, false);
+		}
 	}
 
 	render() {
@@ -51,7 +61,9 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 					}
 
 					{this.state.emoteMenu.open &&
-						<EmoteMenu main={this} bounds={this.state.emoteMenu.bounds} />
+						<div ref={this.emoteMenuRef}>
+							<EmoteMenu main={this} bounds={this.state.emoteMenu.bounds} />
+						</div>
 					}
 
 					{this.state.settingsMenu.open &&

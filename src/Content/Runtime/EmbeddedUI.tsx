@@ -50,6 +50,9 @@ export class EmbeddedUI {
 
 			ReactDOM.render(<EmoteMenuButton toSettings={true} main={this.app.mainComponent} />, container);
 			buttons.insertBefore(container, buttons.lastChild?.previousSibling ?? buttons);
+			if (!!container.firstElementChild) {
+				(container.firstElementChild as HTMLDivElement).style.width = '2.5em';
+			}
 		}
 	}
 }
