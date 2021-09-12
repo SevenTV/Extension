@@ -1,17 +1,18 @@
 import { from, fromEvent, of, timer } from 'rxjs';
-import { catchError, filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { PageScript } from 'src/Page/Page';
 import { get } from 'superagent';
 
 const ppEndpoint = 'https://static-cdn.jtvnw.net/jtv_user_pictures/';
+const avatarSizeRegex = /([0-9]{2,3})x([0-9]{2,3})/;
 
 export class AvatarManager {
 	checking = false;
 	observing = false;
 	sidebarElement = document.querySelector('[data-test-selector="side-nav"]') as HTMLElement;
 	sidebarObserver = new MutationObserver(() => this.check());
-	cache = new Map<string, string>();
+	hashMap = new Map<string, string>();
 
 	constructor(private page: PageScript) {
 		if (!!this.sidebarElement) {
@@ -40,6 +41,16 @@ export class AvatarManager {
 		fromEvent(document, 'click').pipe(
 			switchMap(() => timer(0, 300).pipe(take(5)))
 		).subscribe({ next: () => this.check() });
+
+		// Get avatar map
+		get(`${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2/cosmetics/avatars`)
+			.send()
+			.then(res => {
+				console.log(res.body);
+				for (const k of Object.keys(res.body)) {
+					this.hashMap.set(k, res.body[k]);
+				}
+			}).catch(err => console.error(err));
 	}
 
 	/**
@@ -60,32 +71,35 @@ export class AvatarManager {
 
 		from(tags).pipe(
 			filter(img => img.src.startsWith(ppEndpoint)),
-			map(img => ({ img, id: img.src.slice(ppEndpoint.length) ?? '' })),
-			filter(({ id }) => id !== ''),
-			mergeMap(({ img, id }) => (!this.cache.has(id)
-				? from(
-					get(`${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2/cosmetics/avatar-map/twitch?url=${img.src}`)
-				).pipe(map(res => res.body.url))
-				: of(this.cache.get(id))
-			).pipe(map(url => ({ url: url, img, id }))), 5),
-			filter(({ url, img }) => url !== img.src),
-			map(({ url, img, id }) => {
+			switchMap(img => from(this.hashURL(img.src.replace(avatarSizeRegex, '300x300'))).pipe(map(hash => ({ hash, img })))),
+			map(({ hash, img }) => {
+				const url = this.hashMap.get(hash);
+				if (!url) {
+					return undefined;
+				}
+
 				const srcOG = img.src;
 				const srcsetOG = img.src;
 				img.src = url;
-				if (!url.startsWith('https://static-cdn.jtvnw.net')) {
-					img.srcset = `${url} 1x`;
-					img.setAttribute('src-original', srcOG);
-					img.setAttribute('srcset-original', srcsetOG);
-					img.setAttribute('seventv-custom', '');
-				}
-
-				this.cache.set(id, url);
+				img.srcset = `${url} 1x`;
+				img.setAttribute('src-original', srcOG);
+				img.setAttribute('srcset-original', srcsetOG);
+				img.setAttribute('seventv-custom', '');
 			}),
 			catchError(() => of())
 		).subscribe({
 			complete: () => this.checking = false
 		});
+	}
+
+	private async hashURL(url: string): Promise<string> {
+		const encoder = new TextEncoder();
+		const data = encoder.encode(url);
+		const buf = await crypto.subtle.digest('SHA-256', data);
+		const arr = Array.from(new Uint8Array(buf));
+		const hex = arr.map(b => b.toString(16).padStart(2, '0')).join('');
+
+		return hex;
 	}
 
 	/**
