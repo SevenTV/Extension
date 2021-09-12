@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { MainComponent } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Sites/app/MainComponent';
 import { settings } from 'src/Content/Runtime/Settings';
 import styled from 'styled-components';
 

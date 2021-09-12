@@ -3,8 +3,9 @@
 import React from 'react';
 import BaseButton from '@material-ui/core/ButtonBase';
 import styled from 'styled-components';
-import { MainComponent } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Sites/app/MainComponent';
 import { Logger } from 'src/Logger';
+import { assetStore } from 'src/Sites/app/SiteApp';
 
 export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 	ref: React.RefObject<HTMLButtonElement>;
@@ -19,7 +20,7 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 		return (
 			<EmoteMenuButton.Styled ref={this.ref} title='7TV' onClick={ev => this.onClick(ev)} style={{ color: 'white' }}>
 				<div style={{padding: '4px'}}>
-					<img height={24} src={chrome.runtime.getURL('image/7tv-nd.webp')} />
+					<img height={24} src={assetStore.get('7tv-nd.webp')} />
 				</div>
 			</EmoteMenuButton.Styled>
 		);

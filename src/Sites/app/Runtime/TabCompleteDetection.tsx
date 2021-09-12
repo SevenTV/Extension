@@ -1,7 +1,7 @@
-import { App } from 'src/Content/App/App';
 import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
+import { SiteApp } from 'src/Sites/app/SiteApp';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 const MAX_CHATTERS = 250;
@@ -18,7 +18,7 @@ export class TabCompleteDetection {
 	private emotes = [] as EmoteStore.Emote[];
 	private chatters = [] as string[];
 
-	constructor(public app: App) { }
+	constructor(public app: SiteApp) { }
 
 	getInput(): HTMLInputElement {
 		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
@@ -178,7 +178,7 @@ export class TabCompleteDetection {
 
 		// Delay the input patch by a tick in order to override BTTV
 		setTimeout(() => {
-			this.app.sendMessageDown('SetChatInput', { message: newMessage, cursorPosition: newCursorPosition });
+			// this.app.sendMessageDown('SetChatInput', { message: newMessage, cursorPosition: newCursorPosition });
 		}, 0);
 	}
 }

@@ -6,7 +6,7 @@ import twemoji from 'twemoji';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { getProviderLogo, getRunningContext } from 'src/Global/Util';
-import { MainComponent } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Sites/app/MainComponent';
 import React from 'react';
 
 const TWITCH_SET_NAME = 'twitch';

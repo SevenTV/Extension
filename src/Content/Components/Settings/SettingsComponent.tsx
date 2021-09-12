@@ -1,4 +1,4 @@
-import { MainComponent } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Sites/app/MainComponent';
 import { version } from 'public/manifest.json';
 import { Config } from 'src/Config';
 import { SettingNode, settings } from 'src/Content/Runtime/Settings';

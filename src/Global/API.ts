@@ -3,7 +3,7 @@ import { from, Observable } from 'rxjs';
 import { filter, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
-import request, { post } from 'superagent';
+import request from 'superagent';
 import { version } from 'public/manifest.json';
 import { Badge } from 'src/Global/Badge';
 import { EventAPI } from 'src/Global/Events/EventAPI';
@@ -162,14 +162,19 @@ export class API {
 		return new Observable<API.Response<T>>(observer => {
 			const ctx = getRunningContext();
 
-			if (ctx === 'background') {
+			if (ctx === 'background' || ctx === 'page') {
 				const uri = (options.baseUrl ? options.baseUrl : this.BASE_URL) + route;
 
-				from(request(options.method || 'POST', uri).set(
-					'X-SevenTV-Platform', 'WebExtension',
-				).set(
-					'X-SevenTV-Version', version
-				).send(options.body ?? {})).subscribe({
+				const req = request(options.method || 'POST', uri);
+				if (!options.baseUrl) {
+					req.set(
+						'X-SevenTV-Platform', 'WebExtension',
+					).set(
+						'X-SevenTV-Version', version
+					).send(options.body ?? {});
+				}
+
+				from(req).subscribe({
 					error(err) { observer.error(new API.ErrorResponse(err.status, err)); },
 					next(res) { observer.next({ status: res.status, body: res.body, headers: res.headers }); },
 					complete() { observer.complete(); }
@@ -183,7 +188,6 @@ export class API {
 					observer.complete();
 				});
 			}
-			from(post(''));
 		});
 	}
 }

@@ -13,7 +13,7 @@ export class ExtensionContentScript {
 	pageScriptLoaded = new BehaviorSubject<boolean>(false);
 
 	constructor() {
-		if (document.domain === 'www.youtube.com') {
+		if (document.domain.match(/.*(youtube.com)/)) {
 			this.inject('youtube');
 		} else {
 			this.inject('twitch');
@@ -76,6 +76,7 @@ export class ExtensionContentScript {
 		script.onload = () => {
 			Logger.Get().info(`Injected into ${platform}`);
 
+			this.app.generateAssetMap();
 			this.pageScriptLoaded.next(true);
 			emitHook('onInjected');
 		};

@@ -1,3 +1,4 @@
+import { MessageRenderer } from 'src/Sites/app/Runtime/MessageRenderer';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
@@ -95,9 +96,13 @@ export class MessagePatcher {
 		const data = JSON.stringify({
 			msg: this.msg,
 			elementId: line.element.id
-		}); // Rendering the message body moves on Content.MessageRenderer from now on
+		});
 		window.dispatchEvent(new CustomEvent('7TV#RenderChatLine', { detail: data } ));
-	} // [i] This is done on the content script, because Twitch will maintain references to our React components and cause a memory leak!
+		const renderer = new MessageRenderer(this.page.site, this.msg, line.element.id);
+
+		renderer.renderMessageTree();
+		renderer.insert();
+	}
 
 	/**
 	 * Get a Regular Expression matching a list of emotes

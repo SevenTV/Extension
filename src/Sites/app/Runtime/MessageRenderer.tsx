@@ -1,12 +1,12 @@
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
-import { App } from 'src/Content/App/App';
-import { MessageTree } from 'src/Content/Runtime/MessageTree';
+import { MessageTree } from 'src/Sites/app/Runtime/MessageTree';
 import twemoji from 'twemoji';
+import { SiteApp } from 'src/Sites/app/SiteApp';
 
 export class MessageRenderer {
 	private parts = [] as HTMLElement[];
 	constructor(
-		public app: App,
+		public app: SiteApp,
 		public msg: Twitch.ChatMessage,
 		public elementId: string
 	) { }
@@ -46,7 +46,7 @@ export class MessageRenderer {
 				});
 				const emojis = span.querySelectorAll('img');
 				for (const emoji of Array.from(emojis)) {
-					const emoteji = this.app.emotes.fromEmoji(emoji);
+					const emoteji = this.app.emoteStore.fromEmoji(emoji);
 					emoji.title = emoteji.name;
 					emoji.width = 19.5;
 					emoji.height = 19.5;

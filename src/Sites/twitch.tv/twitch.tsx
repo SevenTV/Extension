@@ -7,8 +7,10 @@ import { EmoteStore } from 'src/Global/EmoteStore';
 import { SettingValue } from 'src/Global/Util';
 import 'src/Style/Style.scss';
 import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
+import { SiteApp } from 'src/Sites/app/SiteApp';
 
 export class TwitchPageScript {
+	site = new SiteApp();
 	twitch = new Twitch();
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
@@ -38,7 +40,6 @@ export class TwitchPageScript {
 	 */
 	constructor() {
 		this.handleChannelSwitch();
-
 		this.avatarManager.check();
 	}
 
@@ -56,7 +57,7 @@ export class TwitchPageScript {
 		if (this.currentChannel != '') throw new Error('Already listening for channel switches');
 
 		const switched = (id: string, login: string, as: string) => {
-			this.sendMessageUp('SwitchChannel', { channelID: id, channelLogin: login, as });
+			this.site.switchChannel({ channelID: id, channelName: login, as });
 			this.avatarManager.check();
 			setTimeout(() => {
 				this.isActorVIP = controller.props.isCurrentUserVIP;

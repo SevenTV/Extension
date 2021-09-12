@@ -2,17 +2,17 @@ import React, { createRef } from 'react';
 import { defer, iif, Observable, Subject } from 'rxjs';
 import { filter, switchMap, take, tap } from 'rxjs/operators';
 import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
-import { EmoteMenu } from 'src/Content/Components/EmoteMenu/EmoteMenu';
+import { EmoteMenu } from 'src/Sites/app/EmoteMenu/EmoteMenu';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { App } from 'src/Content/App/App';
 import { theme } from 'src/Global/Util';
 import styled from 'styled-components';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { SettingsComponent } from 'src/Content/Components/Settings/SettingsComponent';
 import { settings } from 'src/Content/Runtime/Settings';
+import { SiteApp } from 'src/Sites/app/SiteApp';
 
 export class MainComponent extends React.Component<MainComponent.Props, MainComponent.State> {
-	app: App | null = null;
+	app: SiteApp | null = null;
 
 	state = {
 		emoteMenu: {

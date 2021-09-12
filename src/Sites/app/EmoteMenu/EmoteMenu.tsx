@@ -1,5 +1,5 @@
 import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
-import { MainComponent } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Sites/app/MainComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { getProviderLogo } from 'src/Global/Util';
 import { DataStructure } from '@typings/typings/DataStructure';
@@ -109,8 +109,8 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 		});
 	}
 
-	onInsertEmote(emote: EmoteStore.Emote): void {
-		this.props.main.app?.sendMessageDown('InsertEmoteInChatInput', emote.name);
+	onInsertEmote(_: EmoteStore.Emote): void {
+		// this.props.main.app?.sendMessageDown('InsertEmoteInChatInput', emote.name);
 	}
 
 	selectProvider(provider: DataStructure.Emote.Provider): void {

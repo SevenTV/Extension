@@ -1,6 +1,6 @@
-import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import { MessageRenderer } from 'src/Sites/app/Runtime/MessageRenderer';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 
@@ -90,7 +90,7 @@ export class MessageTree {
 	}
 
 	private addCustomEmotePart(part: Part): HTMLElement {
-		const emoteStore = this.renderer.app.emotes;
+		const emoteStore = this.renderer.app.emoteStore;
 		const emoteID = part.content as string;
 		const emote = emoteStore.getEmote(emoteID);
 
@@ -106,7 +106,7 @@ export class MessageTree {
 	}
 
 	private addTwitchEmotePart(part: Part): HTMLElement {
-		const emoteStore = this.renderer.app.emotes;
+		const emoteStore = this.renderer.app.emoteStore;
 		const data = part.content as Twitch.ChatMessage.EmoteRef;
 		const emote = this.previousEmote = emoteStore.fromTwitchEmote(data);
 		const emoteElement = emote.toElement();

@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { App } from 'src/Content/App/App';
-import { EmoteMenuButton } from 'src/Content/Components/EmoteMenu/EmoteMenuButton';
+import { EmoteMenuButton } from 'src/Sites/app/EmoteMenu/EmoteMenuButton';
+import { SiteApp } from 'src/Sites/app/SiteApp';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 export class EmbeddedUI {
 	/**
 	 * Embedded UI manages user interface components embedded on the site
 	 */
-	constructor(private app: App) {
+	constructor(private app: SiteApp) {
 		this.embedNavButton();
 	}
 
