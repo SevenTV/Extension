@@ -102,6 +102,13 @@ class Settings {
 					defaultValue: true
 				},
 				{
+					id: 'general.app_avatars',
+					label: 'Animated Avatars',
+					hint: 'Display custom 7TV avatars which may be animated',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
 					id: 'general.history_navigation',
 					label: 'History Navigation',
 					hint: 'Allow the usage of up/down arrows to get previously sent messages back in the chat input box',

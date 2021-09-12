@@ -7,7 +7,7 @@ import { emitHook } from 'src/Content/Global/Hooks';
 import { MessageRenderer } from 'src/Content/Runtime/MessageRenderer';
 import { API } from 'src/Global/API';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { asapScheduler, defer, from, iif, of, scheduled, Subject, throwError } from 'rxjs';
+import { asapScheduler, from, iif, of, scheduled, Subject, throwError } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { Twitch } from 'src/Page/Util/Twitch';
 import { TabCompleteDetection } from 'src/Content/Runtime/TabCompleteDetection';
@@ -157,16 +157,28 @@ export class App implements Child.OnInjected, Child.OnAppLoaded {
 			api.GetChannelEmotes(data.channelID).pipe(catchError(_ => of([]))),
 			api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
 			api.GetFrankerFaceZChannelEmotes(data.channelID).pipe(
-				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load FrankerFaceZ channel emotes: ${err.message}`)))
+				catchError(err => of([]).pipe(
+					tap(() => app?.sendMessageDown('SendSystemMessage', `Failed to load FrankeraceZ channel emotes: ${err.message}`)),
+					tap(() => console.error(err))
+				))
 			),
 			api.GetFrankerFaceZGlobalEmotes().pipe(
-				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load FrankerFaceZ global emotes: ${err.message}`)))
+				catchError(err => of([]).pipe(
+					tap(() => app?.sendMessageDown('SendSystemMessage', `Failed to load FrankerFaceZ global emotes: ${err.message}`)),
+					tap(() => console.error(err))
+				))
 			),
 			api.GetBTTVChannelEmotes(data.channelID).pipe(
-				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load BetterTTV channel emotes: ${err.message}`)))
+				catchError(err => of([]).pipe(
+					tap(() => app?.sendMessageDown('SendSystemMessage', `Failed to load BetterTTV channel emotes: ${err.message}`)),
+					tap(() => console.error(err))
+				))
 			),
 			api.GetBTTVGlobalEmotes().pipe(
-				catchError(err => defer(() => app?.sendMessageDown('SendSystemMessage', `Failed to load BetterTTV global emotes: ${err.message}`)))
+				catchError(err => of([]).pipe(
+					tap(() => app?.sendMessageDown('SendSystemMessage', `Failed to load BetterTTV global emotes: ${err.message}`)),
+					tap(() => console.error(err))
+				))
 			)
 		];
 		if (data.skip_download) {

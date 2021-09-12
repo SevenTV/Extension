@@ -13,7 +13,7 @@ export class PageScript {
 	emoteStore = emoteStore = new EmoteStore();
 	chatListener = chatListener = new ChatListener(this);
 	inputManager = inputManager = new InputManager(this);
-	avatarManager = new AvatarManager();
+	avatarManager = avatarManager = new AvatarManager(this);
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
@@ -154,6 +154,10 @@ export class PageScript {
 		for (const k of Object.keys(cfg)) {
 			config.set(k, new SettingValue(cfg[k]));
 		}
+
+		if (!config.get('general.app_avatars')?.asBoolean()) {
+			avatarManager.revert();
+		}
 	}
 
 	private eIndex: {
@@ -191,6 +195,7 @@ export class PageScript {
 let emoteStore: EmoteStore;
 let chatListener: ChatListener;
 let inputManager: InputManager;
+let avatarManager: AvatarManager;
 const config = new Map<string, SettingValue>();
 
 let page: PageScript;
