@@ -59,10 +59,14 @@ jobs:
     needs: [pack]
 
     steps:
-      - name: Download Artifacvt
+      - name: Download Artifact (Chromium)
         uses: actions/download-artifact@v2
         with:
-          name: build-output
+          name: ext-chromium
+      - name: Download Artifact (Firefox)
+        uses: actions/download-artifact@v2
+        with:
+          name: ext-firefox
 
       - name: Create Release
         id: create_release
