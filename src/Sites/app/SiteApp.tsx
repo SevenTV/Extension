@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { asapScheduler, from, iif, Observable, of, scheduled, throwError } from 'rxjs';
-import { catchError, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
+import { asapScheduler, asyncScheduler, from, iif, Observable, of, scheduled, throwError } from 'rxjs';
+import { catchError, delay, map, mergeAll, retry, switchMap, tap, toArray } from 'rxjs/operators';
 import { API } from 'src/Global/API';
 import { Badge } from 'src/Global/Badge';
 import { PageScriptListener } from 'src/Global/Decorators';
@@ -58,6 +58,38 @@ export class SiteApp {
 			toArray(),
 			tap(badges => Logger.Get().info(`Loaded ${badges.length} badges`))
 		).subscribe();
+
+		this.fetchGlobalEmotes().pipe(
+			catchError(() => of([]).pipe(
+				delay(5000)
+			)),
+			retry(5)
+		).subscribe();
+	}
+
+	fetchGlobalEmotes(): Observable<EmoteStore.EmoteSet> {
+		return scheduled([
+			this.api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
+			this.api.GetFrankerFaceZGlobalEmotes().pipe(
+				catchError(err => of([]).pipe(
+					tap(() => console.error(err))
+				))
+			),
+			this.api.GetBTTVGlobalEmotes().pipe(
+				catchError(err => of([]).pipe(
+					tap(() => console.error(err))
+				))
+			)
+		], asyncScheduler).pipe(
+			mergeAll(),
+			toArray(),
+			map(a => a.reduce((a, b) => a.concat(b as any))),
+			switchMap(e => iif(() => e.length === 0,
+				throwError(Error(`7TV failed to load (perhaps service is down?)`)),
+				of(e)
+			)),
+			map(e => this.emoteStore.enableSet('GLOBAL', e)),
+		);
 	}
 
 	switchChannel(data: {
@@ -76,13 +108,7 @@ export class SiteApp {
 
 		const emoteGetter = [
 			this.api.GetChannelEmotes(data.channelID).pipe(catchError(_ => of([]))),
-			this.api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
 			this.api.GetFrankerFaceZChannelEmotes(data.channelID).pipe(
-				catchError(err => of([]).pipe(
-					tap(() => console.error(err))
-				))
-			),
-			this.api.GetFrankerFaceZGlobalEmotes().pipe(
 				catchError(err => of([]).pipe(
 					tap(() => console.error(err))
 				))
@@ -90,11 +116,6 @@ export class SiteApp {
 			this.api.GetBTTVChannelEmotes(data.channelID).pipe(
 				catchError(err => of([]).pipe(
 					tap(() => console.error('BTTV Channel Emotes Error', err))
-				))
-			),
-			this.api.GetBTTVGlobalEmotes().pipe(
-				catchError(err => of([]).pipe(
-					tap(() => console.error(err))
 				))
 			)
 		];

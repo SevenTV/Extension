@@ -30,9 +30,10 @@ export class ChatObserver {
 	}
 
 	handleNewChatMessage(el: YouTube.MessageElement): void{
-		const tok = new Tokenizer(el);
+		const tok = new Tokenizer(this.page, el);
 		if (tok.validate()) {
-
+			const newBody = tok.generateTree();
+			tok.contentMessage?.replaceWith(newBody);
 		}
 	}
 }

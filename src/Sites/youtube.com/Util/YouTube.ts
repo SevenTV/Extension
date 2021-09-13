@@ -46,17 +46,11 @@ export namespace YouTube {
 				}
 			}[];
 
+			seventv: AppToken[];
 			message: {
 				runs: {
 					text?: string;
-					emoji?: {
-						emojiId: string;
-						image: {
-							thumbnails: {
-								url: string;
-							}[];
-						}
-					};
+					emoji?: Emoji;
 				}[];
 			};
 			timestampUsec: string;
@@ -72,5 +66,24 @@ export namespace YouTube {
 		showBar: boolean;
 		showOriginal: boolean;
 		timestampString: string;
+	}
+
+	export interface Emoji {
+		emojiId: string;
+		image: {
+			thumbnails: {
+				url: string;
+				width: number;
+				height: number;
+			}[];
+		};
+		isCustomEmoji: boolean;
+		searchTerms?: string[];
+		shortcuts?: string[];
+	}
+
+	export interface AppToken {
+		text: string;
+		emoteID?: string;
 	}
 }

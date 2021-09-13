@@ -43,14 +43,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ext-chromium
-          path: dist/release-chromium.zip
+          path: dist/chromium/release-chromium.zip
           retention-days: 60
 
       - name: Upload Artifact (Firefox)
         uses: actions/upload-artifact@v2
         with:
           name: ext-firefox
-          path: dist/release-firefox.zip
+          path: dist/firefox/release-firefox.zip
           retention-days: 60
 
   release:

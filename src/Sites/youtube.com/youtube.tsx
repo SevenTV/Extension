@@ -1,11 +1,12 @@
 import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import { SiteApp } from 'src/Sites/app/SiteApp';
 import { ChatObserver } from 'src/Sites/youtube.com/Runtime/ChatObserver';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
 
 export class YouTubePageScript {
+	site = new SiteApp();
 	youtube = (window as any).yt7 = new YouTube();
-	emoteStore = emoteStore = new EmoteStore();
 	chatObserver = new ChatObserver(this);
 
 	constructor() {
@@ -24,17 +25,15 @@ export class YouTubePageScript {
 	handleNavigationChange(): void {
 		// Try to find the chat
 		const chatContainer = this.youtube.getChatContainer();
-		console.log('chat container', chatContainer);
 
 		if (!!chatContainer) {
-			this.sendMessageUp('YouTubeNeedsEmotes', {});
 			this.chatObserver.listen();
 		}
 	}
 
 	@PageScriptListener('EnableEmoteSet')
 	onEmoteSet(data: EmoteStore.EmoteSet.Resolved): void {
-		emoteStore.enableSet(data.name, data.emotes);
+		this.site.emoteStore.enableSet(data.name, data.emotes);
 
 		page.eIndex = null;
 	}
@@ -53,7 +52,7 @@ export class YouTubePageScript {
 
 	getAllEmotes(): EmoteStore.Emote[] {
 		const emotes = [] as EmoteStore.Emote[];
-		for (const set of emoteStore.sets.values()) {
+		for (const set of this.site.emoteStore.sets.values()) {
 			emotes.push(...set.getEmotes().sort((a, b) => a.weight - b.weight));
 		}
 
@@ -72,8 +71,6 @@ export class YouTubePageScript {
 }
 
 let page: YouTubePageScript;
-let emoteStore: EmoteStore;
 (() => {
 	const { } = page = new YouTubePageScript();
 })();
-console.log('YT', page);

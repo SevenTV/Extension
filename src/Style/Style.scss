@@ -55,6 +55,18 @@ $accentColor: #b2ff59;
 	height: 19.5px !important;
 }
 
+.seventv-yt.with-seventv {
+	display: flex;
+	align-items: center;
+}
+.seventv-message-context.seventv-yt {
+	display: inline-flex;
+	align-items: center;
+}
+.seventv-yt.seventv-message-fragment {
+	text-align: center;
+}
+
 .seventv-message-context > :first-child {
 	margin-right: 0.25em;
 }
