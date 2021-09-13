@@ -1,4 +1,4 @@
-import { MessageRenderer } from 'src/Sites/app/Runtime/MessageRenderer';
+import { MessageRenderer } from 'src/Sites/twitch.tv/Components/MessageRenderer';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 

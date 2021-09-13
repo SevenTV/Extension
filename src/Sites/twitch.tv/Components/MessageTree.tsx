@@ -1,6 +1,6 @@
 import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { MessageRenderer } from 'src/Sites/app/Runtime/MessageRenderer';
+import { MessageRenderer } from 'src/Sites/twitch.tv/Components/MessageRenderer';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 

@@ -1,7 +1,7 @@
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
-import { MessageTree } from 'src/Sites/app/Runtime/MessageTree';
 import twemoji from 'twemoji';
 import { SiteApp } from 'src/Sites/app/SiteApp';
+import { MessageTree } from 'src/Sites/twitch.tv/Components/MessageTree';
 
 export class MessageRenderer {
 	private parts = [] as HTMLElement[];
