@@ -15,7 +15,7 @@ $bgColorLightTooltip: transparentize($bgColorLight0, 0.2);
 $primaryColor: #0288D1;
 $accentColor: #b2ff59;
 
-.tw-root--theme-dark {
+.tw-root--theme-dark, div[id="contents"] {
 	--seventv-color-background-0: #{$bgColorDark0};
 	--seventv-color-background-1: #{$bgColorDark1};
 	--seventv-color-background-hl0: #{$bgColorDarkHighlight0};

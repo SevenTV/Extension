@@ -37,6 +37,12 @@ export class TwitchPageScript {
 	constructor() {
 		this.handleChannelSwitch();
 		this.avatarManager.check();
+
+		// Create Overlay
+		const overlayContainer = document.getElementById('root');
+		if (!!overlayContainer) {
+			this.site.createOverlay(overlayContainer);
+		}
 	}
 
 	/**

@@ -20,6 +20,12 @@ export class YouTubePageScript {
 		setTimeout(() => {
 			this.handleNavigationChange();
 		}, 1000);
+
+		// Create Overlay
+		const overlayContainer = document.getElementById('contents');
+		if (!!overlayContainer) {
+			this.site.createOverlay(overlayContainer);
+		}
 	}
 
 	handleNavigationChange(): void {

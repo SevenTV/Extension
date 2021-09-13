@@ -24,18 +24,6 @@ export class SiteApp {
 	config = config;
 
 	constructor() {
-		// Once the extension injected itself into Twitch
-		const app = document.createElement('div');
-		app.classList.add('seventv-overlay');
-		app.style.position = 'absolute';
-		app.id = 'seventv';
-
-		const target = document.getElementById('root');
-		target?.firstChild?.appendChild(app);
-
-		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={this.emoteStore} />, app) as unknown as MainComponent;
-		this.mainComponent.app = this;
-
 		// Fetch Badges
 		this.api.GetBadges().pipe(
 			switchMap(badges => from(badges)),
@@ -135,6 +123,20 @@ export class SiteApp {
 				afterLoaded();
 			})
 		);
+	}
+
+	createOverlay(container: HTMLElement): void {		// Once the extension injected itself into Twitch
+		const app = document.createElement('div');
+		app.classList.add('seventv-overlay');
+		app.style.position = 'absolute';
+		app.id = 'seventv';
+
+		const target = container;
+		target?.firstChild?.appendChild(app);
+
+		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={this.emoteStore} />, app) as unknown as MainComponent;
+		this.mainComponent.app = this;
+		console.log(container, this.mainComponent);
 	}
 
 	@PageScriptListener('OnAssets')
