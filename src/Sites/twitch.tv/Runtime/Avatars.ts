@@ -1,10 +1,9 @@
-import { from, fromEvent, of, timer } from 'rxjs';
-import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { from, fromEvent, timer } from 'rxjs';
+import { filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { get } from 'superagent';
 
-const ppEndpoint = 'https://static-cdn.jtvnw.net/jtv_user_pictures/';
 const avatarSizeRegex = /([0-9]{2,3})x([0-9]{2,3})/;
 
 export class AvatarManager {
@@ -46,10 +45,10 @@ export class AvatarManager {
 		get(`${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2/cosmetics/avatars`)
 			.send()
 			.then(res => {
-				console.log(res.body);
 				for (const k of Object.keys(res.body)) {
 					this.hashMap.set(k, res.body[k]);
 				}
+				this.check();
 			}).catch(err => console.error(err));
 	}
 
@@ -67,17 +66,20 @@ export class AvatarManager {
 		}
 		this.checking = true;
 
+		// Find avatar image tags
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
-
 		from(tags).pipe(
-			filter(img => img.src.startsWith(ppEndpoint)),
-			switchMap(img => from(this.hashURL(img.src.replace(avatarSizeRegex, '300x300'))).pipe(map(hash => ({ hash, img })))),
+			filter(img => !img.hasAttribute('seventv-custom')), // Only match images that haven't already been customized
+			// Override the sizing factor to "300x300" in order to create a consistent hash
+			mergeMap(img => from(this.hashURL(img.src.replace(avatarSizeRegex, '300x300'))).pipe(map(hash => ({ hash, img }))), 10),
 			map(({ hash, img }) => {
+				// Try to find a hash for this image
 				const url = this.hashMap.get(hash);
-				if (!url) {
+				if (!url) { // No hash means profile picture isn't custom
 					return undefined;
 				}
 
+				// Update the image.
 				const srcOG = img.src;
 				const srcsetOG = img.src;
 				img.src = url;
@@ -85,13 +87,19 @@ export class AvatarManager {
 				img.setAttribute('src-original', srcOG);
 				img.setAttribute('srcset-original', srcsetOG);
 				img.setAttribute('seventv-custom', '');
-			}),
-			catchError(() => of())
+			})
 		).subscribe({
-			complete: () => this.checking = false
+			complete: () => this.checking = false,
+			error: err => console.error('could not update avatars', err)
 		});
 	}
 
+	/**
+	 * Create a sha-256 hash of the avatar URL
+	 *
+	 * This is matched against a server-side generated hash to
+	 * efficiently recognize which profile pictures are custom
+	 */
 	private async hashURL(url: string): Promise<string> {
 		const encoder = new TextEncoder();
 		const data = encoder.encode(url);
