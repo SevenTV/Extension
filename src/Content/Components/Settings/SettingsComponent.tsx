@@ -1,5 +1,5 @@
 import { MainComponent } from 'src/Sites/app/MainComponent';
-import { version } from 'public/manifest.json';
+import { version } from 'public/manifest.v3.json';
 import { Config } from 'src/Config';
 import { SettingNode, settings } from 'src/Content/Runtime/Settings';
 import { SettingsForm } from 'src/Content/Components/Settings/SettingsForm';

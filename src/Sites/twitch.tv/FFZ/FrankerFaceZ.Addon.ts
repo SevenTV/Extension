@@ -1,5 +1,5 @@
 import { Config } from 'src/Config';
-import { version } from 'public/manifest.json';
+import { version } from 'public/manifest.v3.json';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { EventAPI } from 'src/Global/Events/EventAPI';
 

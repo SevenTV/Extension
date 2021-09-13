@@ -23,23 +23,35 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Lint & Build
+      - name: Lint
         run: |
           npm install
           npm run lint
-          npm run build-production
 
-      - name: ZIP Release
+      - name: Build
+        run: |
+          npm run build-prod-chromium
+          npm run build-prod-firefox
+
+      - name: ZIP Releases
         run: |
           apt-get update && apt-get install -y zip
-          cd dist/ && zip -r release.zip .
+          cd dist/chromium/ && zip -r release-chromium.zip . && cd ../../
+          cd dist/firefox/ && zip -r release-firefox.zip .
 
-      - name: Upload Artifact
+      - name: Upload Artifact (Chromium)
         uses: actions/upload-artifact@v2
         with:
-          name: build-output
-          path: dist/release.zip
-          retention-days: 3
+          name: ext-chromium
+          path: dist/release-chromium.zip
+          retention-days: 60
+
+      - name: Upload Artifact (Firefox)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ext-firefox
+          path: dist/release-firefox.zip
+          retention-days: 60
 
   release:
     name: Publish Build Artifact to Release
@@ -63,12 +75,22 @@ jobs:
           draft: true
           prerelease: false
 
-      - name: Upload Release Asset
+      - name: Upload Release Asset (Chromium)
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url }}
-          asset_path: ./release.zip
-          asset_name: 7tv-${{ github.event.inputs.tagName }}-chromium-firefox.zip
+          asset_path: ./release-chromium.zip
+          asset_name: 7tv-${{ github.event.inputs.tagName }}-chromium.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset (Firefox)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url }}
+          asset_path: ./release-firefox.zip
+          asset_name: 7tv-${{ github.event.inputs.tagName }}-firefox.zip
           asset_content_type: application/zip

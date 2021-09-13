@@ -7,7 +7,8 @@
     "start": "webpack --watch",
     "lint": "tslint -p tsconfig.json",
     "build": "webpack",
-    "build-production": "webpack --config webpack.prod.config.js",
+    "build-prod-chromium": "webpack --config webpack.prod.config.js --env=MANIFEST_VERSION=3 --env=DIST=dist/chromium",
+    "build-prod-firefox": "webpack --config webpack.prod.config.js --env=MANIFEST_VERSION=2 --env=DIST=dist/firefox",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

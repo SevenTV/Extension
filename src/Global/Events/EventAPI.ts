@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { Config } from 'src/Config';
 import { broadcastExtensionMessage, ExtensionRuntimeMessage, getRunningContext } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
-import { version } from 'public/manifest.json';
+import { version } from 'public/manifest.v3.json';
 
 
 export class EventAPI {

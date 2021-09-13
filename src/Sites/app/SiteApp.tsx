@@ -69,15 +69,9 @@ export class SiteApp {
 		this.emoteStore.disableSet(data.as);
 		this.mainComponent?.toggleEmoteMenu(undefined, false);
 
-		// Remove current channel from event subscriptions
-		if (this.currentChannel?.length > 0) {
-			this.api.events.removeChannel(this.currentChannel);
-		}
-
 		const afterLoaded = () => {
 			this.tabCompleteDetector.updateEmotes();
 			this.tabCompleteDetector.start();
-			this.api.events.addChannel(this.currentChannel);
 		};
 
 		const emoteGetter = [

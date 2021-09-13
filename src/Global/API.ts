@@ -4,16 +4,13 @@ import { filter, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import request from 'superagent';
-import { version } from 'public/manifest.json';
+import { version } from 'public/manifest.v3.json';
 import { Badge } from 'src/Global/Badge';
-import { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
 	private BASE_URL_FFZ = 'https://api.frankerfacez.com/v1';
 	private BASE_URL_BTTV = 'https://api.betterttv.net/3';
-
-	events = new EventAPI();
 
 	constructor() {}
 
