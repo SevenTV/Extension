@@ -29,8 +29,7 @@
 	],
 	"permissions": [
 		"*://*.twitch.tv/*",
-		"*://*youtube.com/*",
-		"*://api.frankerfacez.com/*",
+		"*://*.youtube.com/*",
 		"storage"
 	],
 	"icons": {
