@@ -76,7 +76,7 @@ export class ExtensionContentScript {
 		script.onload = () => {
 			Logger.Get().info(`Injected into ${platform}`);
 
-			this.app.generateAssetMap();
+			this.app.passExtensionData();
 			this.pageScriptLoaded.next(true);
 			emitHook('onInjected');
 		};

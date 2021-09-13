@@ -10,11 +10,13 @@ export class App {
 		});
 	}
 
-	generateAssetMap(): void {
+	passExtensionData(): void {
 		const map = [
+			['7tv.webp', chrome.runtime.getURL('image/7tv.webp')],
 			['7tv-nd.webp', chrome.runtime.getURL('image/7tv-nd.webp')]
 		] as [string, string][];
 
+		this.sendMessageDown('ConfigChange', settings.raw);
 		this.sendMessageDown('OnAssets', map);
 	}
 

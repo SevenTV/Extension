@@ -93,11 +93,7 @@ export class MessagePatcher {
 		line.element.id = `7TV#msg:${this.msg.id}`; // Give an ID to the message element
 		line.element.setAttribute('seventv-id', this.msg.id);
 		this.msg.seventv.patcher = null;
-		const data = JSON.stringify({
-			msg: this.msg,
-			elementId: line.element.id
-		});
-		window.dispatchEvent(new CustomEvent('7TV#RenderChatLine', { detail: data } ));
+
 		const renderer = new MessageRenderer(this.page.site, this.msg, line.element.id);
 
 		renderer.renderMessageTree();

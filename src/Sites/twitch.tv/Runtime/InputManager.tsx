@@ -6,7 +6,7 @@ import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
 import { Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 export class InputManager {
 	private twitch = new Twitch();
@@ -36,12 +36,16 @@ export class InputManager {
 
 		// Handle send
 		this.waitForNextSend(input);
+
+		this.page.site.tabCompleteDetector.inputValue.pipe(
+			map(change => this.setInputValue(change.message))
+		).subscribe();
 	}
 
 	waitForNextSend(input: HTMLInputElement): void {
 		let listener: (ev: KeyboardEvent) => any;
 		input.addEventListener('keydown', listener = (ev) => {
-			const historyEnabled = this.page.config.get('general.history_navigation')?.asBoolean();
+			const historyEnabled = this.page.site.config.get('general.history_navigation')?.asBoolean();
 			const target = ev.target as HTMLInputElement;
 			const value = (target.value ?? '');
 			const normalizedValue = [...value]
@@ -51,7 +55,7 @@ export class InputManager {
 
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
-				if (this.page.config.get('general.allow_send_twice')?.asBoolean()) {
+				if (this.page.site.config.get('general.allow_send_twice')?.asBoolean()) {
 					let value = target.value;
 					if (value === '') {
 						return undefined;

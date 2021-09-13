@@ -1,4 +1,4 @@
-import { settings } from 'src/Content/Runtime/Settings';
+import { Subject } from 'rxjs';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
 import { SiteApp } from 'src/Sites/app/SiteApp';
@@ -6,6 +6,7 @@ import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 const MAX_CHATTERS = 250;
 export class TabCompleteDetection {
+	inputValue = new Subject<TabCompleteDetection.InputChange>();
 	tab = {
 		index: 0,
 		cursor: '',
@@ -30,7 +31,7 @@ export class TabCompleteDetection {
 	getAllCompletables(): string[] {
 		const result = [] as string[];
 		result.push(...this.emotes.map(e => e.name));
-		if (settings.get('general.autocomplete_chatters').asBoolean()) {
+		if (this.app.config.get('general.autocomplete_chatters')?.asBoolean()) {
 			result.push(...this.chatters);
 		}
 
@@ -67,7 +68,7 @@ export class TabCompleteDetection {
 		this.keyListener = (ev) => {
 			if (ev.key === 'Tab') {
 				// Option is enabled?
-				if (!settings.get('general.autocomplete').asBoolean()) {
+				if (!this.app.config.get('general.autocomplete')?.asBoolean()) {
 					return undefined;
 				}
 
@@ -178,8 +179,15 @@ export class TabCompleteDetection {
 
 		// Delay the input patch by a tick in order to override BTTV
 		setTimeout(() => {
-			// this.app.sendMessageDown('SetChatInput', { message: newMessage, cursorPosition: newCursorPosition });
+			this.inputValue.next({ message: newMessage, cursorPosition: newCursorPosition });
 		}, 0);
+	}
+}
+
+export namespace TabCompleteDetection {
+	export interface InputChange {
+		message: string;
+		cursorPosition: number;
 	}
 }
 

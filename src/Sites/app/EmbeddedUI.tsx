@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { EmoteMenuButton } from 'src/Sites/app/EmoteMenu/EmoteMenuButton';
-import { SiteApp } from 'src/Sites/app/SiteApp';
+import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 export class EmbeddedUI {
@@ -44,7 +44,7 @@ export class EmbeddedUI {
 			const container = document.createElement('div');
 			container.classList.add('Layout-sc-nxg1ff-0');
 			const icon = document.createElement('img');
-			icon.src = chrome.runtime.getURL('image/7tv.webp');
+			icon.src = assetStore.get('7tv.webp') ?? '';
 			icon.style.width = '2.5rem';
 			icon.style.height = '2.5rem';
 

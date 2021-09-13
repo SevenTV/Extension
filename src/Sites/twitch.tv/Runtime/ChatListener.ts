@@ -6,7 +6,7 @@ import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
-export class ChatListener {
+export class TwitchChatListener {
 	/** Create a Twitch instance bound to this listener */
 	private twitch = this.page.twitch;
 
@@ -77,7 +77,7 @@ export class ChatListener {
 		// Add a handler for moderation messages
 		msgHandler.addMessageHandler(msg => {
 			if (msg.type !== 2) return undefined;
-			if (!this.page.config.get('general.display_mod_actions')?.asBoolean()) {
+			if (!this.page.site.config.get('general.display_mod_actions')?.asBoolean()) {
 				return undefined; // Don't emit a mod message, as the setting is disabled
 			}
 			const modMsg = msg as unknown as Twitch.ChatMessage.ModerationMessage;

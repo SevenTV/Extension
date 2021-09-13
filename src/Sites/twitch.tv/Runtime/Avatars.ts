@@ -59,7 +59,7 @@ export class AvatarManager {
 	 * @param scope an optional html element to scope the check to
 	 */
 	check(scope?: HTMLElement): void {
-		if (!this.page.config.get('general.app_avatars')?.asBoolean()) {
+		if (!this.page.site.config.get('general.app_avatars')?.asBoolean()) {
 			return undefined;
 		}
 		if (this.checking) {

@@ -1,10 +1,9 @@
-import { ChatListener } from 'src/Sites/twitch.tv/Runtime/ChatListener';
+import { TwitchChatListener } from 'src/Sites/twitch.tv/Runtime/ChatListener';
 import { InputManager } from 'src/Sites/twitch.tv/Runtime/InputManager';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { Logger } from 'src/Logger';
 import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
-import { SettingValue } from 'src/Global/Util';
 import 'src/Style/Style.scss';
 import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
 import { SiteApp } from 'src/Sites/app/SiteApp';
@@ -12,10 +11,9 @@ import { SiteApp } from 'src/Sites/app/SiteApp';
 export class TwitchPageScript {
 	site = new SiteApp();
 	twitch = new Twitch();
-	emoteStore = emoteStore = new EmoteStore();
-	chatListener = chatListener = new ChatListener(this);
+	chatListener = chatListener = new TwitchChatListener(this);
 	inputManager = inputManager = new InputManager(this);
-	avatarManager = avatarManager = new AvatarManager(this);
+	avatarManager = new AvatarManager(this);
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
@@ -23,8 +21,6 @@ export class TwitchPageScript {
 	isActorVIP = false;
 
 	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
-
-	config = config;
 
 	get ffzMode(): boolean {
 		return ffzMode;
@@ -57,13 +53,16 @@ export class TwitchPageScript {
 		if (this.currentChannel != '') throw new Error('Already listening for channel switches');
 
 		const switched = (id: string, login: string, as: string) => {
-			this.site.switchChannel({ channelID: id, channelName: login, as });
-			this.avatarManager.check();
-			setTimeout(() => {
-				this.isActorVIP = controller.props.isCurrentUserVIP;
-				this.isActorModerator = controller.props.isCurrentUserModerator;
-			}, 2500);
-			inputManager.listen();
+			this.site.switchChannel({ channelID: id, channelName: login, as })
+				.toPromise()
+				.finally(() => {
+					this.eIndex = null;
+					this.avatarManager.check();
+					this.chatListener.listen();
+					inputManager.listen();
+					this.isActorVIP = controller.props.isCurrentUserVIP;
+					this.isActorModerator = controller.props.isCurrentUserModerator;
+				});
 		};
 
 		// Get chat service
@@ -82,7 +81,6 @@ export class TwitchPageScript {
 				this.currentChannel = channelName;
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
 				controller = await this.awaitChatController();
-				this.eIndex = null;
 				this.currentChannelSet = null;
 				channelName = controller.props.channelLogin;
 				channelID = controller.props.channelID;
@@ -108,24 +106,12 @@ export class TwitchPageScript {
 		});
 	}
 
+	get emoteStore() {
+		return this.site.emoteStore;
+	}
+
 	getCurrentChannelFromURL(): string {
 		return window.location.href.match(this.channelRegex)?.[3] ?? '';
-	}
-
-	@PageScriptListener('EnableEmoteSet')
-	whenEmoteSetIsAdded(data: EmoteStore.EmoteSet.Resolved): void {
-		const set = emoteStore.enableSet(data.name, data.emotes);
-
-		if (!page.currentChannelSet) {
-			chatListener.listen();
-		}
-		page.currentChannelSet = set;
-		page.eIndex = null;
-	}
-
-	@PageScriptListener('DisableEmoteSet')
-	whenEmoteSetIsRemoved(name: string): void {
-		emoteStore.disableSet(name);
 	}
 
 	@PageScriptListener('InsertEmoteInChatInput')
@@ -153,17 +139,6 @@ export class TwitchPageScript {
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 
-	@PageScriptListener('ConfigChange')
-	whenAppConfigChangeds(cfg: { [x: string]: any; }): void {
-		for (const k of Object.keys(cfg)) {
-			config.set(k, new SettingValue(cfg[k]));
-		}
-
-		if (!config.get('general.app_avatars')?.asBoolean()) {
-			avatarManager.revert();
-		}
-	}
-
 	private eIndex: {
 		[x: string]: EmoteStore.Emote;
 	} | null = null;
@@ -178,7 +153,7 @@ export class TwitchPageScript {
 
 	getAllEmotes(): EmoteStore.Emote[] {
 		const emotes = [] as EmoteStore.Emote[];
-		for (const set of emoteStore.sets.values()) {
+		for (const set of this.emoteStore.sets.values()) {
 			emotes.push(...set.getEmotes().sort((a, b) => a.weight - b.weight));
 		}
 
@@ -196,14 +171,10 @@ export class TwitchPageScript {
 	}
 }
 
-let emoteStore: EmoteStore;
-let chatListener: ChatListener;
+let chatListener: TwitchChatListener;
 let inputManager: InputManager;
-let avatarManager: AvatarManager;
-const config = new Map<string, SettingValue>();
 
-let page: TwitchPageScript;
 let ffzMode = false;
 (() => {
-	const { } = page = new TwitchPageScript();
+	const { } = new TwitchPageScript();
 })();

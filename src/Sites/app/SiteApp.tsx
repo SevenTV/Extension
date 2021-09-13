@@ -1,14 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { asapScheduler, from, iif, of, scheduled, throwError } from 'rxjs';
+import { asapScheduler, from, iif, Observable, of, scheduled, throwError } from 'rxjs';
 import { catchError, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
 import { API } from 'src/Global/API';
 import { Badge } from 'src/Global/Badge';
 import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import { SettingValue } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
 import { EmbeddedUI } from 'src/Sites/app/EmbeddedUI';
 import { MainComponent } from 'src/Sites/app/MainComponent';
+import { TabCompleteDetection } from 'src/Sites/app/Runtime/TabCompleteDetection';
 
 export class SiteApp {
 	api = new API();
@@ -18,6 +20,8 @@ export class SiteApp {
 	badges = [] as Badge[];
 	badgeMap = new Map<number, number[]>();
 	currentChannel = '';
+	tabCompleteDetector = new TabCompleteDetection(this);
+	config = config;
 
 	constructor() {
 		// Once the extension injected itself into Twitch
@@ -60,7 +64,7 @@ export class SiteApp {
 		channelID: string;
 		channelName: string;
 		as: string;
-	}): void {
+	}): Observable<EmoteStore.EmoteSet> {
 		this.emoteStore.disableSet(this.currentChannel);
 		this.emoteStore.disableSet(data.as);
 		this.mainComponent?.toggleEmoteMenu(undefined, false);
@@ -71,16 +75,8 @@ export class SiteApp {
 		}
 
 		const afterLoaded = () => {
-			/*
-			if (!tabCompleteDetector) {
-				tabCompleteDetector = new TabCompleteDetection(app as App);
-			} else {
-				tabCompleteDetector.stop();
-			}
-
-			tabCompleteDetector.updateEmotes();
-			tabCompleteDetector.start();
-			*/
+			this.tabCompleteDetector.updateEmotes();
+			this.tabCompleteDetector.start();
 			this.api.events.addChannel(this.currentChannel);
 		};
 
@@ -109,7 +105,7 @@ export class SiteApp {
 			)
 		];
 
-		scheduled(emoteGetter, asapScheduler).pipe(
+		return scheduled(emoteGetter, asapScheduler).pipe(
 			mergeAll(),
 			toArray(),
 			map(a => a.reduce((a, b) => a.concat(b as any))),
@@ -118,22 +114,26 @@ export class SiteApp {
 				of(e)
 			)),
 			map(e => this.emoteStore.enableSet(data.channelID, e)),
-		).subscribe({
-			next: (_: EmoteStore.EmoteSet) => {
+			tap(() => {
 				this.embeddedUI.embedChatButton();
 				this.currentChannel = data.channelID;
 				afterLoaded();
-			},
-			error(err) {
-				Logger.Get().error(`Failed to fetch current channel's emote set (${err}), the extension will be disabled`);
-			}
-		});
+			})
+		);
 	}
 
 	@PageScriptListener('OnAssets')
 	onExtensionAssets(assetMap: [string, string][]) {
 		assetStore = new Map(assetMap);
 	}
+
+	@PageScriptListener('ConfigChange')
+	whenAppConfigChangeds(cfg: { [x: string]: any; }): void {
+		for (const k of Object.keys(cfg)) {
+			config.set(k, new SettingValue(cfg[k]));
+		}
+	}
 }
 
 export let assetStore = new Map<string, string>();
+const config = new Map<string, SettingValue>();
