@@ -6,7 +6,8 @@ export class YouTube {
 	}
 
 	getChatItemsContainer(): YouTube.MessageElement | null {
-		const el = this.getChatContainer()?.querySelector<YouTube.MessageElement>(YouTube.Selectors.ChatItems);
+		const frameWindow = (window.frames as any)['chatframe'].contentWindow as Window;
+		const el = (frameWindow?.document ?? this.getChatContainer())?.querySelector<YouTube.MessageElement>(YouTube.Selectors.ChatItems);
 
 		return el ?? null;
 	}
@@ -15,7 +16,7 @@ export class YouTube {
 export namespace YouTube {
 	export namespace Selectors {
 		export const ChatContainer = 'yt-live-chat-item-list-renderer';
-		export const ChatItems = 'div#items';
+		export const ChatItems = 'div#items.yt-live-chat-item-list-renderer';
 	}
 
 	export interface MessageElement extends HTMLDivElement {

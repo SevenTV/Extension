@@ -70,12 +70,12 @@ export class API {
 		);
 	}
 
-	GetFrankerFaceZChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
-		return this.createRequest<API.FFZ.RoomResponse>(`/room/id/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
-			map(res => res?.body?.sets ? Object.keys(res?.body.sets).map(k => res?.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
+	GetFrankerFaceZChannelEmotes(channelID: string, platform: 'twitch' | 'youtube' = 'twitch'): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.BTTV.Emote[]>(`/cached/frankerfacez/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
+			map(res => res.body),
 			mergeAll(),
 			filter(emote => !!emote),
-			map(emote => this.transformFFZ(emote)),
+			map(emote => this.transformBTTV(emote)),
 			toArray()
 		);
 	}
@@ -89,8 +89,8 @@ export class API {
 		);
 	}
 
-	GetBTTVChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
-		return this.createRequest<API.BTTV.UserResponse>(`/cached/users/twitch/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
+	GetBTTVChannelEmotes(channelID: string, platform: 'twitch' | 'youtube' = 'twitch'): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.BTTV.UserResponse>(`/cached/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
 			map(res => [...res?.body?.channelEmotes ?? [], ...res?.body?.sharedEmotes ?? []]),
 			mergeAll(),
 			map(emote => this.transformBTTV(emote)),
@@ -142,10 +142,10 @@ export class API {
 			provider: 'BTTV',
 			visibility: (global ? DataStructure.Emote.Visibility.GLOBAL : 0) | (API.BTTV.ZeroWidth.includes(emote.code) ? DataStructure.Emote.Visibility.ZERO_WIDTH : 0),
 			urls: [
-				['1', `https://cdn.betterttv.net/emote/${emote.id}/1x`],
-				['2', `https://cdn.betterttv.net/emote/${emote.id}/2x`],
-				['3', `https://cdn.betterttv.net/emote/${emote.id}/3x`],
-				['4', `https://cdn.betterttv.net/emote/${emote.id}/3x`],
+				['1', emote.images?.['1x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/1x`],
+				['2', emote.images?.['2x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/2x`],
+				['3', emote.images?.['4x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/3x`],
+				['4', emote.images?.['4x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/3x`],
 			],
 			owner: emote.user ? {
 				id: emote.user.id,
@@ -251,6 +251,11 @@ export namespace API {
 			id: string;
 			code: string;
 			imageType: string;
+			images?: {
+				'1x': string;
+				'2x': string;
+				'4x': string;
+			};
 			user: {
 				id: string;
 				name: string;

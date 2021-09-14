@@ -101,7 +101,6 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 	}
 
 	showTooltip(event: MouseEvent, fields?: MainComponent.State.TooltipFields): Observable<void> {
-		console.log('yo', event, fields);
 		return new Observable<void>(observer => {
 			this.setState({
 				currentTooltip: {

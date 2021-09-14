@@ -27,13 +27,23 @@ export class ChatObserver {
 		});
 
 		observer.observe(items, { childList: true });
+	}
+
+	rerenderAll(): void {
+		const items = this.page.youtube.getChatItemsContainer();
+		if (!items) {
+			Logger.Get().warn('ChatItems Not Found');
+			return undefined;
+		}
+
 		for (const n of items.children) {
 			this.handleNewChatMessage(n as YouTube.MessageElement);
 		}
 	}
 
 	handleNewChatMessage(el: YouTube.MessageElement): void {
-		el.classList.add('with-seventv', 'seventv-yt');
+		el.classList.add('seventv-yt');
+
 		const tok = new Tokenizer(this.page, el);
 		if (tok.validate()) {
 			const newBody = tok.generateTree();

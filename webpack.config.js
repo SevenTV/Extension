@@ -4,7 +4,6 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const { DefinePlugin } = require('webpack');
 
 module.exports = env => {
-	console.log('buildenv', env);
 	return {
 		mode: 'development',
 		devtool: 'cheap-module-source-map',

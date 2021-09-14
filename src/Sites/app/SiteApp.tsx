@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { asapScheduler, asyncScheduler, from, iif, Observable, of, scheduled, throwError } from 'rxjs';
-import { catchError, delay, map, mergeAll, retry, switchMap, tap, toArray } from 'rxjs/operators';
+import { asapScheduler, from, iif, Observable, of, scheduled, throwError } from 'rxjs';
+import { catchError, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
 import { API } from 'src/Global/API';
 import { Badge } from 'src/Global/Badge';
 import { PageScriptListener } from 'src/Global/Decorators';
@@ -15,7 +15,7 @@ import { TabCompleteDetection } from 'src/Sites/app/Runtime/TabCompleteDetection
 export class SiteApp {
 	api = new API();
 	mainComponent: MainComponent | null = null;
-	emoteStore = new EmoteStore();
+	emoteStore = emoteStore;
 	embeddedUI = new EmbeddedUI(this);
 	badges = [] as Badge[];
 	badgeMap = new Map<number, number[]>();
@@ -46,65 +46,41 @@ export class SiteApp {
 			toArray(),
 			tap(badges => Logger.Get().info(`Loaded ${badges.length} badges`))
 		).subscribe();
-
-		this.fetchGlobalEmotes().pipe(
-			catchError(() => of([]).pipe(
-				delay(5000)
-			)),
-			retry(5)
-		).subscribe();
-	}
-
-	fetchGlobalEmotes(): Observable<EmoteStore.EmoteSet> {
-		return scheduled([
-			this.api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
-			this.api.GetFrankerFaceZGlobalEmotes().pipe(
-				catchError(err => of([]).pipe(
-					tap(() => console.error(err))
-				))
-			),
-			this.api.GetBTTVGlobalEmotes().pipe(
-				catchError(err => of([]).pipe(
-					tap(() => console.error(err))
-				))
-			)
-		], asyncScheduler).pipe(
-			mergeAll(),
-			toArray(),
-			map(a => a.reduce((a, b) => a.concat(b as any))),
-			switchMap(e => iif(() => e.length === 0,
-				throwError(Error(`7TV failed to load (perhaps service is down?)`)),
-				of(e)
-			)),
-			map(e => this.emoteStore.enableSet('GLOBAL', e)),
-		);
 	}
 
 	switchChannel(data: {
 		channelID: string;
-		channelName: string;
-		as: string;
+		platform?: 'twitch' | 'youtube';
+		channelName?: string;
+		as?: string;
 	}): Observable<EmoteStore.EmoteSet> {
+		if (data.channelID == '') {
+			throw new Error('channelID cannot be empty');
+		}
+
 		this.emoteStore.disableSet(this.currentChannel);
-		this.emoteStore.disableSet(data.as);
+		if (!!data.as) this.emoteStore.disableSet(data.as);
 		this.mainComponent?.toggleEmoteMenu(undefined, false);
 
 		const afterLoaded = () => {
-			this.tabCompleteDetector.updateEmotes();
-			this.tabCompleteDetector.start();
+			// this.tabCompleteDetector.updateEmotes();
+			// this.tabCompleteDetector.start();
 		};
 
 		const emoteGetter = [
-			this.api.GetChannelEmotes(data.channelID).pipe(catchError(_ => of([]))),
-			this.api.GetFrankerFaceZChannelEmotes(data.channelID).pipe(
-				catchError(err => of([]).pipe(
-					tap(() => console.error(err))
-				))
+			this.api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
+			this.api.GetFrankerFaceZGlobalEmotes().pipe(
+				catchError(() => of([]))
 			),
-			this.api.GetBTTVChannelEmotes(data.channelID).pipe(
-				catchError(err => of([]).pipe(
-					tap(() => console.error('BTTV Channel Emotes Error', err))
-				))
+			this.api.GetBTTVGlobalEmotes().pipe(
+				catchError(() => of([]))
+			),
+			this.api.GetChannelEmotes(data.channelID).pipe(catchError(_ => of([]))),
+			this.api.GetFrankerFaceZChannelEmotes(data.channelID, data.platform).pipe(
+				catchError(() => of([]))
+			),
+			this.api.GetBTTVChannelEmotes(data.channelID, data.platform).pipe(
+				catchError(() => of([]))
 			)
 		];
 
@@ -116,8 +92,9 @@ export class SiteApp {
 				throwError(Error(`7TV failed to load (perhaps service is down?)`)),
 				of(e)
 			)),
-			map(e => this.emoteStore.enableSet(data.channelID, e)),
-			tap(() => {
+			map(e => emoteStore.enableSet(data.channelID, e)),
+			tap(_ => {
+				this.eIndex = null;
 				this.embeddedUI.embedChatButton();
 				this.currentChannel = data.channelID;
 				afterLoaded();
@@ -131,12 +108,30 @@ export class SiteApp {
 		app.style.position = 'absolute';
 		app.id = 'seventv';
 
-		const target = container;
-		target?.firstChild?.appendChild(app);
-
-		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={this.emoteStore} />, app) as unknown as MainComponent;
+		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} />, app) as unknown as MainComponent;
 		this.mainComponent.app = this;
-		console.log(container, this.mainComponent);
+		container.appendChild(app);
+	}
+
+	public eIndex: {
+		[x: string]: EmoteStore.Emote;
+	} | null = null;
+	getEmoteIndex() {
+		if (!!this.eIndex) {
+			return this.eIndex;
+		}
+
+		const emotes = this.getAllEmotes();
+		return emotes.length > 0 ? this.eIndex = emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b })) : {};
+	}
+
+	getAllEmotes(): EmoteStore.Emote[] {
+		const emotes = [] as EmoteStore.Emote[];
+		for (const set of emoteStore.sets.values()) {
+			emotes.push(...set.getEmotes().sort((a, b) => a.weight - b.weight));
+		}
+
+		return emotes;
 	}
 
 	@PageScriptListener('OnAssets')
@@ -152,5 +147,6 @@ export class SiteApp {
 	}
 }
 
+export const emoteStore = new EmoteStore();
 export let assetStore = new Map<string, string>();
 const config = new Map<string, SettingValue>();

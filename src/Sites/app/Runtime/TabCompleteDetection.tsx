@@ -64,6 +64,9 @@ export class TabCompleteDetection {
 	start(): void {
 		Logger.Get().info('Handling tab completion');
 		const input = this.getInput();
+		if (!input) {
+			return undefined;
+		}
 
 		this.keyListener = (ev) => {
 			if (ev.key === 'Tab') {
