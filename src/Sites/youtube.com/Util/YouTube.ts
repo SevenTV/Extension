@@ -6,10 +6,14 @@ export class YouTube {
 	}
 
 	getChatItemsContainer(): YouTube.MessageElement | null {
-		const frameWindow = (window.frames as any)['chatframe'].contentWindow as Window;
-		const el = (frameWindow?.document ?? this.getChatContainer())?.querySelector<YouTube.MessageElement>(YouTube.Selectors.ChatItems);
+		const frame = this.getChatFrame();
+		const el = (frame?.document ?? this.getChatContainer())?.querySelector<YouTube.MessageElement>(YouTube.Selectors.ChatItems);
 
 		return el ?? null;
+	}
+
+	getChatFrame(): Window | null {
+		return (window.frames as any)['chatframe']?.contentWindow as Window ?? null;
 	}
 }
 

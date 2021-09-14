@@ -6,12 +6,13 @@
 	flex-direction: column;
 	background-color: var(--seventv-color-tooltip);
 	border-radius: 6px;
+	padding: 0.5em;
 
 	width: fit-content;
 	height: fit-content;
-	min-width: 12em;
+	min-width: 8em;
 	max-width: max-content;
-	min-height: 12em;
+	min-height: 8em;
 
 	z-index: 99999999;
 }

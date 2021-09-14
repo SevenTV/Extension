@@ -29,12 +29,6 @@ export class YouTubePageScript {
 		setTimeout(() => {
 			this.handleNavigationChange(document.location.href);
 		}, 1000);
-
-		// Create Overlay
-		const overlayContainer = document.querySelector('div[id="columns"].ytd-watch-flexy') as HTMLElement ?? document.getElementById('contents') ?? document.getElementById('content');
-		if (!!overlayContainer) {
-			this.site.createOverlay(overlayContainer);
-		}
 	}
 
 	handleNavigationChange(url: string): void {
@@ -63,8 +57,23 @@ export class YouTubePageScript {
 					this.site.eIndex = null;
 					this.chatObserver.rerenderAll();
 					this.chatObserver.listen();
+					this.setupOverlay();
 				})
 			).subscribe();
+		}
+	}
+
+	setupOverlay(): void {
+		if (!!document.querySelector('.seventv-overlay')) {
+			return undefined;
+		}
+		// Create Overlay
+		const overlayContainer =
+			this.youtube.getChatFrame()?.document?.body?.querySelector('yt-live-chat-app') as HTMLElement ??
+			document.getElementById('body-container') ??
+			document.getElementById('content');
+		if (!!overlayContainer) {
+			this.site.createOverlay(overlayContainer);
 		}
 	}
 

@@ -15,7 +15,12 @@ $bgColorLightTooltip: transparentize($bgColorLight0, 0.2);
 $primaryColor: #0288D1;
 $accentColor: #b2ff59;
 
-.tw-root--theme-dark, ytd-app, div[id="contents"], div[id="content"] {
+.tw-root--theme-dark,
+ytd-app,
+yt-live-chat-app,
+div[id="contents"],
+div[id="content"]
+{
 	--seventv-text-color: white;
 	--seventv-color-background-0: #{$bgColorDark0};
 	--seventv-color-background-1: #{$bgColorDark1};
@@ -37,7 +42,6 @@ $accentColor: #b2ff59;
 	display: flex;
 	position: absolute;
 	background-color: transparent;
-	z-index: 99999999;
 	color: var(--seventv-text-color);
 
 	pointer-events: none;
