@@ -130,4 +130,27 @@ export namespace YouTube {
 		width?: number;
 		height?: number;
 	}
+
+	export interface VideoDetails {
+		allowRatings: boolean;
+		author: string;
+		averageRating: number;
+		channelId: string;
+		isCrawlable: boolean;
+		isLive: boolean;
+		isLiveContent: boolean;
+		isLiveDvrEnabled: boolean;
+		isLowLatencyLiveStream: boolean;
+		isOwnerViewing: boolean;
+		isPrivate: boolean;
+		isUnpluggedCorpus: boolean;
+		keywords: string[];
+		latencyClass: string;
+		shortDescription: string;
+		thumbnail: { thumbnails: Thumbnail[] };
+		title: string;
+		videoId: string;
+		viewCount: string;
+
+	}
 }

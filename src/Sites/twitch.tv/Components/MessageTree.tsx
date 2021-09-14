@@ -84,7 +84,7 @@ export class MessageTree {
 		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
 
 		span.style.color = color;
-		span.style.wordBreak = 'break-all';
+		span.style.wordBreak = 'break-word';
 		span.innerText = part.content as string;
 		return span;
 	}

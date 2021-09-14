@@ -16,8 +16,6 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 	constructor(props: SettingsComponent.Props) {
 		super(props);
 
-		this.retrieveValues();
-
 		// Handle config change from another location
 		// i.e a different tab
 		const changeListener = this.changeListener = (changes: any) => {
@@ -89,16 +87,6 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 				</div>
 			</div>
 		);
-	}
-
-	/**
-	 * Retrieve the stored config values and apply them to the UI
-	 */
-	retrieveValues(): void {
-		// Retrieve the full storage set
-		chrome.storage.local.get(items => {
-			this.apply(items);
-		});
 	}
 
 	private apply(items: { [x: string]: string; }): void {

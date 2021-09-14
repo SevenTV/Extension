@@ -1,5 +1,5 @@
-import { Subject, timer } from 'rxjs';
-import { filter, map, skip, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { iif, interval, of, Subject, timer } from 'rxjs';
+import { filter, map, mapTo, switchMap, take, takeUntil } from 'rxjs/operators';
 import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import { ChatObserver } from 'src/Sites/youtube.com/Runtime/ChatObserver';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
@@ -18,56 +18,77 @@ export class YouTubePageScript {
 	chatObserver = new ChatObserver(this);
 	navChange = new Subject<string>();
 
-	constructor() {
-		let currentLocation = document.location.href;
-		setInterval(() => {
-			if (currentLocation !== document.location.href) {
-				currentLocation = document.location.href;
-				this.handleNavigationChange(currentLocation);
-			}
-		}, 500);
+	chatPageRegex = /(https:\/\/[a-z]*.youtu(be)?.(com|be)\/)(?:(watch|video|live_chat)).*/;
 
-		setTimeout(() => {
-			this.handleNavigationChange(document.location.href);
-		}, 1000);
+	constructor() {
+		// Begin listening to youtube navigation events
+		window.addEventListener('yt-navigate-finish', ev => {
+			const detail = (ev as CustomEvent<YouTubePageScript.NavigationFinishEventDetail>).detail;
+			const channelID = detail.response.playerResponse?.videoDetails?.channelId;
+			if (!channelID) {
+				return undefined;
+			}
+
+			this.handleNavigationChange(detail.response.url, channelID);
+		});
+
+		this.handleNavigationChange(document.location.href);
 	}
 
-	handleNavigationChange(url: string): void {
+	/**
+	 * Handle a change in navigation
+	 *
+	 * This will attempt to find the current channel ID, and then
+	 * try to find an active live chat. If one is found, emotes will be activated
+	 */
+	handleNavigationChange(url: string, presetChannelId?: string): void {
 		this.navChange.next(url);
 
 		// Find the current channel
 		if (!!window.yt) {
-			const found = new Subject<boolean>();
-			timer(0, 1100).pipe(
-				takeUntil(found),
-				takeUntil(this.navChange.pipe(skip(1))),
-				map(() =>
-					window.yt?.config_?.CHANNEL_ID ??
-					window.ytplayer?.bootstrapPlayerResponse?.videoDetails?.channelId ??
-					window.ytInitialData?.metadata?.channelMetadataRenderer?.externalId ??
-					window.ytInitialPlayerResponse?.videoDetails?.channelId ??
-					this.getCurrentChannelID()
-				),
-				take(10),
-				filter(v => typeof v === 'string' && v !== ''),
-				take(1),
-				switchMap(channelID => this.site.switchChannel({ channelID: channelID, platform: 'youtube' })),
-				tap(() => {
-					found.next(true);
-					found.complete();
-					this.site.eIndex = null;
-					this.chatObserver.rerenderAll();
-					this.chatObserver.listen();
-					this.setupOverlay();
-					this.site.embeddedUI.embedChatButton((
-						document.querySelector('div#picker-buttons.yt-live-chat-message-input-renderer')?.parentElement ??
-						this.youtube.getChatFrame()?.querySelector('div#message-buttons')?.parentElement
-					) as HTMLElement);
-				})
-			).subscribe();
+			const load = () => {
+				this.site.eIndex = null;
+				this.chatObserver.rerenderAll();
+				this.chatObserver.listen();
+				this.setupOverlay();
+				this.site.embeddedUI.embedChatButton((
+					document.querySelector('div#picker-buttons.yt-live-chat-message-input-renderer')?.parentElement ??
+					this.youtube.getChatFrame()?.querySelector('div#message-buttons')?.parentElement
+				) as HTMLElement);
+			};
+
+			iif(
+				() => typeof presetChannelId === 'string' && presetChannelId !== '',
+				of(presetChannelId),
+				timer(0, 1100).pipe(
+					takeUntil(this.navChange.pipe(filter(s => s !== url))),
+					map(() => presetChannelId ??
+						window.yt?.config_?.CHANNEL_ID ??
+						window.ytplayer?.bootstrapPlayerResponse?.videoDetails?.channelId ??
+						window.ytInitialData?.metadata?.channelMetadataRenderer?.externalId ??
+						window.ytInitialPlayerResponse?.videoDetails?.channelId ??
+						this.scrapeChannelID()
+					),
+					take(10),
+					filter(v => typeof v === 'string' && v !== ''),
+					take(1)
+				)
+			).pipe(
+				switchMap(channelID => interval(500).pipe(
+					map(() => document.querySelector<HTMLElement>('yt-live-chat-renderer')),
+					map(node => !node ? this.youtube.getChatFrame()?.querySelector<HTMLElement>('yt-live-chat-renderer') : node),
+					filter(node => !!node),
+					take(1),
+					mapTo(channelID)
+				)),
+				switchMap(channelID => this.site.switchChannel({ channelID: channelID, platform: 'youtube' }))
+			).subscribe({ next: () => load() });
 		}
 	}
 
+	/**
+	 * Set up the 7TV UI Overlay
+	 */
 	setupOverlay(): void {
 		const chatFrame = this.youtube.getChatFrame();
 		if (!document.querySelector('.seventv-overlay')) {
@@ -98,7 +119,11 @@ export class YouTubePageScript {
 		}
 	}
 
-	getCurrentChannelID(): string {
+	/**
+	 * Scrape the channel ID from the message input
+	 * This is a last resort in case it couldn't be found from navigation or yt internal variables
+	 */
+	private scrapeChannelID(): string {
 		const inputRenderer = (document.getElementsByTagName('yt-live-chat-renderer')[0] as HTMLElement & { __data: any; });
 		let user: YouTubePageScript.InternalUserData | null = null;
 		try {
@@ -135,6 +160,16 @@ export namespace YouTubePageScript {
 		authorName: { simpleText: string };
 		authorPhoto: {
 			thumbnails: { url: string; width: number; height: number; }[]
+		};
+	}
+
+	export interface NavigationFinishEventDetail {
+		pageType: string;
+		response: {
+			playerResponse: {
+				videoDetails: YouTube.VideoDetails;
+			};
+			url: string;
 		};
 	}
 }
