@@ -43,7 +43,7 @@ The browser extension is currently available on Chromium-based browsers (Google 
 
 #### Mozilla Firefox (Manual Install)
 
-1. Download the latest build from the [releases page]()
+1. Download the latest build from the [releases page](https://github.com/SevenTV/SevenTV/releases)
 1. Unzip the archive into a new folder
 1. Go to the URL [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox) in the browser
 1. Click the button "Load Temporary Add-on..."
