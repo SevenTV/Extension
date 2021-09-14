@@ -5,7 +5,6 @@ import { YouTubePageScript } from 'src/Sites/youtube.com/youtube';
 export class Tokenizer {
 	content: HTMLDivElement | null = null;
 	contentMessage: HTMLSpanElement | null = null;
-	eIndex = this.page.getEmoteIndex();
 
 	constructor(
 		private page: YouTubePageScript,
@@ -16,6 +15,9 @@ export class Tokenizer {
 		return this.element.__data;
 	}
 
+	/**
+	 * Validate that the given element is a valid message
+	 */
 	validate(): boolean {
 		this.content = this.element.querySelector<HTMLDivElement>('div#content') ?? null;
 		this.contentMessage = this.content?.querySelector<HTMLSpanElement>('span#message') ?? null;
@@ -23,12 +25,13 @@ export class Tokenizer {
 		return !!this.content && !!this.contentMessage;
 	}
 
+	/**
+	 *  Generate a new message body tree containing modified text and emotes
+	 */
 	generateTree(): HTMLSpanElement {
 		this.element.__data.data.seventv = [];
-
-		this.content?.classList.add('with-seventv', 'seventv-yt');
 		const newContext = document.createElement('span');
-		newContext.classList.add('seventv-message-context', 'seventv-yt');
+		newContext.classList.add('seventv-yt-message-content');
 
 		for (let i = 0; i < this.element.__data.data.message.runs.length; i++) {
 			const part = this.element.__data.data.message.runs[i];
@@ -39,7 +42,8 @@ export class Tokenizer {
 				for (let s of part.text.split(' ')) {
 					const ok = this.addEmotePart(newContext, s);
 					if (!ok) {
-						this.addTextPart(newContext, s);
+						this.addTextPart(newContext, ' ');
+						this.addTextPart(newContext, s + ' ');
 					}
 				}
 			}
@@ -48,27 +52,37 @@ export class Tokenizer {
 		return newContext;
 	}
 
+	/**
+	 * Append a text part to the new message context
+	 */
 	addTextPart(ctx: HTMLSpanElement, text: string): void {
 		const span = document.createElement('span');
-		span.classList.add('seventv-text-fragment', 'seventv-yt');
-
-		span.style.wordWrap = 'break-word';
 		span.innerText = text;
-		span.querySelectorAll('br').forEach(e => e.remove());
+		if (span.innerText === ' ') {
+			span.style.width = '0.25rem';
+		}
+
 		ctx.appendChild(span);
 	}
 
+	/**
+	 * Apppend an emoji to the new message context
+	 */
 	addEmojiPart(ctx: HTMLSpanElement, emoji: YouTube.Emoji): void {
 		const img = document.createElement('img');
-		img.className = 'emoji yt-formatted-string style-scope yt-live-chat-text-message-renderer';
 		img.src = emoji.image?.thumbnails?.[0]?.url ?? '';
 		img.alt = emoji.searchTerms?.[0] ?? 'ytemoji';
+		img.width = 19.5;
+		img.height = 19.5;
 
 		ctx.appendChild(img);
 	}
 
+	/**
+	 * Apppend an emote to the new message context
+	 */
 	addEmotePart(ctx: HTMLSpanElement, emoteName: string): boolean {
-		const emote = this.eIndex[emoteName];
+		const emote = this.page.site.getEmoteIndex()?.[emoteName];
 
 		if (!!emote) {
 			const emoteElement = emote.toElement(this.page.site.config.get('general.hide_unlisted_emotes')?.asBoolean());

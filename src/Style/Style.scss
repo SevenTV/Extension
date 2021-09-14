@@ -15,7 +15,8 @@ $bgColorLightTooltip: transparentize($bgColorLight0, 0.2);
 $primaryColor: #0288D1;
 $accentColor: #b2ff59;
 
-.tw-root--theme-dark, div[id="contents"] {
+.tw-root--theme-dark, ytd-app, div[id="contents"], div[id="content"] {
+	--seventv-text-color: white;
 	--seventv-color-background-0: #{$bgColorDark0};
 	--seventv-color-background-1: #{$bgColorDark1};
 	--seventv-color-background-hl0: #{$bgColorDarkHighlight0};
@@ -24,6 +25,7 @@ $accentColor: #b2ff59;
 	--seventv-accent-color: #{$accentColor};
 }
 .tw-root--theme-light {
+	--seventv-text-color: white;
 	--seventv-color-background-0: #{$bgColorLight0};
 	--seventv-color-background-1: #{$bgColorLight1};
 	--seventv-color-tooltip: #{$bgColorLightTooltip};
@@ -35,11 +37,21 @@ $accentColor: #b2ff59;
 	display: flex;
 	position: absolute;
 	background-color: transparent;
+	z-index: 99999999;
+	color: var(--seventv-text-color);
 
 	pointer-events: none;
 
 	.seventv-clickable-overlay-child {
 		pointer-events: all;
+	}
+}
+
+.seventv-yt {
+	.seventv-emote {
+		margin: -0.5rem 0;
+		position: relative;
+		vertical-align: middle;
 	}
 }
 
@@ -53,18 +65,6 @@ $accentColor: #b2ff59;
 
 .emoji {
 	height: 19.5px !important;
-}
-
-.seventv-yt.with-seventv {
-	display: flex;
-	align-items: center;
-}
-.seventv-message-context.seventv-yt {
-	display: inline-flex;
-	align-items: center;
-}
-.seventv-yt.seventv-message-fragment {
-	text-align: center;
 }
 
 .seventv-message-context > :first-child {

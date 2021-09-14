@@ -176,6 +176,7 @@ export class EmoteStore {
 			result.push(set.resolve());
 		}
 
+		Logger.Get().debug(`Disabled emote set: ${name}`);
 		return result;
 	}
 }
@@ -218,7 +219,11 @@ export namespace EmoteStore {
 		}
 
 		getEmotes(): Emote[] {
-			return Array.from(this.emotes.values());
+			const emotes = [] as Emote[];
+			for (const [_, emote] of this.emotes) {
+				emotes.push(emote);
+			}
+			return emotes;
 		}
 
 		getEmoteByID(id: string): Emote | null {
