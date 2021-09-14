@@ -7,6 +7,7 @@ import { EmoteStore } from 'src/Global/EmoteStore';
 import 'src/Style/Style.scss';
 import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
 import { SiteApp } from 'src/Sites/app/SiteApp';
+import { map } from 'rxjs/operators';
 
 export class TwitchPageScript {
 	site = new SiteApp();
@@ -44,6 +45,12 @@ export class TwitchPageScript {
 			this.site.createOverlay(overlayContainer);
 			setTimeout(() => this.site.embeddedUI.embedNavButton(document.querySelector(Twitch.Selectors.NAV) as HTMLElement), 500);
 		}
+		this.site.menuPickEmote.pipe(
+			map(emote => {
+				const value = this.inputManager.getInput()?.value ?? '';
+				this.inputManager.setInputValue(`${value} ${emote.name} `);
+			})
+		).subscribe();
 	}
 
 	/**

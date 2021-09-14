@@ -100,8 +100,8 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 		});
 	}
 
-	onInsertEmote(_: EmoteStore.Emote): void {
-		// this.props.main.app?.sendMessageDown('InsertEmoteInChatInput', emote.name);
+	onInsertEmote(emote: EmoteStore.Emote): void {
+		this.props.main.app?.menuPickEmote.next(emote);
 	}
 
 	selectProvider(provider: DataStructure.Emote.Provider): void {

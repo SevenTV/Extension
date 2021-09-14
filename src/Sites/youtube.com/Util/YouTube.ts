@@ -16,8 +16,8 @@ export class YouTube {
 		return (window.frames as any)['chatframe']?.contentDocument as Document ?? null;
 	}
 
-	getChatInput(): YouTube.InputElement | null {
-		return document.querySelector<YouTube.InputElement>('yt-live-chat-text-input-field-renderer#input.yt-live-chat-message-input-renderer');
+	getChatInput(frame?: Document): YouTube.InputElement | null {
+		return (frame ?? document).querySelector<YouTube.InputElement>('yt-live-chat-text-input-field-renderer#input.yt-live-chat-message-input-renderer');
 	}
 }
 
@@ -33,6 +33,7 @@ export namespace YouTube {
 
 	export interface InputElement extends HTMLDivElement {
 		__data: InputData;
+		liveChatRichMessageInput: InputData['liveChatRichMessageInput'];
 	}
 
 	/** YouTube Message Data */

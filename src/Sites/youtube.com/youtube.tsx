@@ -18,8 +18,6 @@ export class YouTubePageScript {
 	chatObserver = new ChatObserver(this);
 	navChange = new Subject<string>();
 
-	chatPageRegex = /(https:\/\/[a-z]*.youtu(be)?.(com|be)\/)(?:(watch|video|live_chat)).*/;
-
 	constructor() {
 		// Begin listening to youtube navigation events
 		window.addEventListener('yt-navigate-finish', ev => {
@@ -33,6 +31,28 @@ export class YouTubePageScript {
 		});
 
 		this.handleNavigationChange(document.location.href);
+
+		this.site.menuPickEmote.pipe(
+			map(emote => {
+				const input = this.youtube.getChatInput();
+				if (!input) {
+					return undefined;
+				}
+				if (!input.liveChatRichMessageInput?.textSegments) {
+					input.liveChatRichMessageInput = { textSegments: [] };
+				}
+
+				input.__data.isInputValid = true;
+				input.liveChatRichMessageInput.textSegments.push({ text: emote.name });
+				const inputTextField = input.querySelector('#input');
+				if (!!inputTextField) {
+					inputTextField.textContent += emote.name + ' ';
+				}
+				if (!input.hasAttribute('has-text')) {
+					input.setAttribute('has-text', '');
+				}
+			})
+		).subscribe();
 	}
 
 	/**

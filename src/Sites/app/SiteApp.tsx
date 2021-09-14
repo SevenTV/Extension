@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { asapScheduler, from, iif, Observable, of, scheduled, throwError } from 'rxjs';
+import { asapScheduler, from, iif, Observable, of, scheduled, Subject, throwError } from 'rxjs';
 import { catchError, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
 import { API } from 'src/Global/API';
 import { Badge } from 'src/Global/Badge';
@@ -22,6 +22,8 @@ export class SiteApp {
 	currentChannel = '';
 	tabCompleteDetector = new TabCompleteDetection(this);
 	config = config;
+
+	menuPickEmote = new Subject<EmoteStore.Emote>();
 
 	constructor() {
 		// Fetch Badges
