@@ -1,8 +1,6 @@
 
 
 import React from 'react';
-import BaseButton from '@material-ui/core/ButtonBase';
-import styled from 'styled-components';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { Logger } from 'src/Logger';
 import { assetStore } from 'src/Sites/app/SiteApp';
@@ -18,11 +16,9 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 
 	render() {
 		return (
-			<EmoteMenuButton.Styled ref={this.ref} title='7TV' onClick={ev => this.onClick(ev)} style={{ color: 'white' }}>
-				<div style={{padding: '4px'}}>
-					<img height={24} src={assetStore.get('7tv-nd.webp')} />
-				</div>
-			</EmoteMenuButton.Styled>
+			<button ref={this.ref} title='7TV' onClick={ev => this.onClick(ev)} style={{ color: 'white' }}>
+				<img height={24} src={assetStore.get('7tv-nd.webp')} />
+			</button>
 		);
 	}
 
@@ -48,14 +44,4 @@ export namespace EmoteMenuButton {
 		main: MainComponent | null;
 		toSettings?: boolean;
 	}
-
-	export const Styled = styled(BaseButton)`
-		margin: .5em;
-
-		&:hover {
-			border-radius: 4px;
-			background-color: var(--color-background-button-text-hover);
-			color: var(--color-fill-button-icon-hover);
-		}
-	`;
 }

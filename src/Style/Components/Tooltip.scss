@@ -10,9 +10,9 @@
 
 	width: fit-content;
 	height: fit-content;
-	min-width: 8em;
+	min-width: 12em;
 	max-width: max-content;
-	min-height: 8em;
+	min-height: 12em;
 
 	z-index: 99999999;
 }
@@ -20,4 +20,52 @@
 .seventv-emote-tooltip-wrapper {
 	position: absolute;
 	height: 0px;
+}
+
+.seventv-tooltip-details {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 1em;
+	padding-right: 3em;
+	max-width: 270px;
+
+	.emote-name {
+		width: 100%;
+		margin-bottom: 1px;
+		word-wrap: break-word;
+		color: currentColor;
+	}
+
+	.emote-submitter {
+		font-size: .85em;
+	}
+
+	.is-7tv-emote {
+		font-size: 1.6em;
+	}
+
+	.is-7tv-global {
+		width: 100%;
+		color: #b2ff59;
+	}
+}
+
+.seventv-tooltip-provider {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	margin: .4em;
+	padding-left: 32px;
+
+	img {
+		max-width: 28px;
+	}
+}
+
+.seventv-tooltip-image {
+	margin: 1em;
+
+	display: flex;
+	justify-content: center;
 }

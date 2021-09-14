@@ -46,7 +46,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 
 	render() {
 		return (
-			<MainComponent.Style>
+			<MainComponent.Style className='seventv-overlay-main'>
 				<ThemeProvider theme={theme}>
 					{this.state?.currentTooltip &&
 						<TooltipComponent
@@ -61,7 +61,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 					}
 
 					{this.state.emoteMenu.open &&
-						<div ref={this.emoteMenuRef}>
+						<div ref={this.emoteMenuRef} style={{ transform: `translateX(${this.props.emoteMenuOffset}px)` }}>
 							<EmoteMenu main={this} bounds={this.state.emoteMenu.bounds} />
 						</div>
 					}
@@ -134,14 +134,12 @@ export namespace MainComponent {
 	}>();
 
 	export const Style = styled.div`
-		width: 100vw;
-		height: 100vh;
-		background-color: transparent;
-		z-index: 99999999;
+
 	`;
 
 	export interface Props {
 		emoteStore: EmoteStore;
+		emoteMenuOffset?: number;
 	}
 
 	export interface State {

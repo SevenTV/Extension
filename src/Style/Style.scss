@@ -1,6 +1,7 @@
 @use './Components/Tooltip.scss';
 @use './Components/ChatInput.scss';
 @use './Components/Settings.scss';
+@use './Components/EmoteMenu.scss';
 
 $bgColorDark0: rgb(50, 50, 50);
 $bgColorDark1: darken($bgColorDark0, 5);
@@ -48,6 +49,12 @@ div[id="content"]
 
 	.seventv-clickable-overlay-child {
 		pointer-events: all;
+	}
+	.seventv-overlay-main {
+		width: 100vw;
+		height: 100vh;
+		background-color: transparent;
+		z-index: 99999999;
 	}
 }
 
@@ -102,30 +109,26 @@ div[id="content"]
 	filter: blur(8px);
 }
 
-.seventv-emote-menu {
-	.seventv-emote-menu-header {
-		background-color: var(--seventv-color-background-1);
-	}
+.seventv-emote-menu-button {
+	cursor: pointer !important;
+	display: flex;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
 
-	.seventv-emote-menu-scrollable {
-		background-color: var(--seventv-color-background-0);
-	}
-
-	.seventv-emote-search, input {
-		width: 100%;
-		height: 3em;
-		color: white;
-		border-color: white;
-		border-width: 1px;
-		border-style: solid;
+	&:hover {
 		border-radius: 4px;
-		background-color: var(--seventv-color-background-1);
-		padding: .5em;
+		background-color: var(--color-background-button-text-hover);
+		color: var(--color-fill-button-icon-hover);
+	}
 
-		&:focus {
-			outline: none !important;
-			border: 1px solid rgb(0, 195, 255) ;
-			box-shadow: 0 0 10px rgb(0, 195, 255) !important;
+	button {
+		border: 0;
+		background: transparent;
+
+		&:hover {
+			background-color: var(--color-background-button-text-hover);
+			color: var(--color-fill-button-icon-hover);
 		}
 	}
 }

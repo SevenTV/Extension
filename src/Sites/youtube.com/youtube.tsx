@@ -1,8 +1,9 @@
 import { Subject, timer } from 'rxjs';
 import { filter, map, skip, switchMap, take, takeUntil, tap } from 'rxjs/operators';
-import { SiteApp } from 'src/Sites/app/SiteApp';
+import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import { ChatObserver } from 'src/Sites/youtube.com/Runtime/ChatObserver';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
+import { get } from 'superagent';
 
 declare const window: Window & {
 	yt: any;
@@ -37,7 +38,7 @@ export class YouTubePageScript {
 		// Find the current channel
 		if (!!window.yt) {
 			const found = new Subject<boolean>();
-			timer(0, 500).pipe(
+			timer(0, 1100).pipe(
 				takeUntil(found),
 				takeUntil(this.navChange.pipe(skip(1))),
 				map(() =>
@@ -58,22 +59,42 @@ export class YouTubePageScript {
 					this.chatObserver.rerenderAll();
 					this.chatObserver.listen();
 					this.setupOverlay();
+					this.site.embeddedUI.embedChatButton((
+						document.querySelector('div#picker-buttons.yt-live-chat-message-input-renderer')?.parentElement ??
+						this.youtube.getChatFrame()?.querySelector('div#message-buttons')?.parentElement
+					) as HTMLElement);
 				})
 			).subscribe();
 		}
 	}
 
 	setupOverlay(): void {
-		if (!!document.querySelector('.seventv-overlay')) {
-			return undefined;
+		const chatFrame = this.youtube.getChatFrame();
+		if (!document.querySelector('.seventv-overlay')) {
+			// Create Overlay
+			const overlayContainer =
+				chatFrame?.body?.querySelector('yt-live-chat-app')?.querySelector('yt-live-chat-renderer') as HTMLElement ??
+				document.getElementById('body-container') ??
+				document.getElementById('contents');
+			if (!!overlayContainer) {
+				this.site.createOverlay(overlayContainer, -80);
+			}
 		}
-		// Create Overlay
-		const overlayContainer =
-			this.youtube.getChatFrame()?.document?.body?.querySelector('yt-live-chat-app') as HTMLElement ??
-			document.getElementById('body-container') ??
-			document.getElementById('content');
-		if (!!overlayContainer) {
-			this.site.createOverlay(overlayContainer);
+
+		// Append stylesheets to the chat iframe
+		if (!!chatFrame) {
+			(async () => {
+				const fdoc = chatFrame;
+				const stylesUrl = assetStore.get('stylesheet');
+				const style = chatFrame.createElement('style');
+
+				const s = await get(stylesUrl ?? '').send();
+				const txt = document.createTextNode(s.text);
+				style.appendChild(txt);
+
+				fdoc.body?.appendChild(style);
+				fdoc.head?.appendChild(style);
+			})();
 		}
 	}
 

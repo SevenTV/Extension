@@ -17,44 +17,43 @@ export class ExtensionContentScript {
 			this.inject('youtube');
 		} else {
 			this.inject('twitch');
-		}
+			// Load FFZ Add-on in place of 7TV?
+			{
+				const inject = (scriptName: string, id?: string) => {
+					const script = document.createElement('script');
+					script.src = chrome.runtime.getURL(scriptName);
+					if (typeof id === 'string') {
+						script.id = id;
+					}
+					document.head.appendChild(script);
+				};
 
-		// Load FFZ Add-on in place of 7TV?
-		{
-			const inject = (scriptName: string, id?: string) => {
-				const script = document.createElement('script');
-				script.src = chrome.runtime.getURL(scriptName);
-				if (typeof id === 'string') {
-					script.id = id;
-				}
-				document.head.appendChild(script);
-			};
+				let injected = false;
+				const attemptLoad = () => {
+					if (!injected) {
+						inject('ffz_addon.js', 'ffz-addon-seventv-emotes');
 
-			let injected = false;
-			const attemptLoad = () => {
-				if (!injected) {
-					inject('ffz_addon.js', 'ffz-addon-seventv-emotes');
+						Logger.Get().info(`FrankerFaceZ Detected -- unloading 7TV PageScript and loading as an FFZ Add-On`);
+						this.pageScriptLoaded.pipe(
+							filter(r => r === true)
+						).subscribe({
+							next: () => {
+								this.app.sendMessageDown('Cease', {});
+							}
+						});
+					}
+				};
 
-					Logger.Get().info(`FrankerFaceZ Detected -- unloading 7TV PageScript and loading as an FFZ Add-On`);
-					this.pageScriptLoaded.pipe(
-						filter(r => r === true)
-					).subscribe({
-						next: () => {
-							this.app.sendMessageDown('Cease', {});
-						}
-					});
-				}
-			};
+				window.addEventListener('message', function (event: any) {
+					if (event.data !== 'FFZ_HOOK::FFZ_ADDONS_READY') {
+						return undefined;
+					}
 
-			window.addEventListener('message', function (event: any) {
-				if (event.data !== 'FFZ_HOOK::FFZ_ADDONS_READY') {
-					return undefined;
-				}
+					attemptLoad();
+				});
 
-				attemptLoad();
-			});
-
-			inject('ffz_hook.js');
+				inject('ffz_hook.js');
+			}
 		}
 	}
 
@@ -95,9 +94,9 @@ export class ExtensionContentScript {
 	}
 }
 
-export namespace ExtensionContentScript {}
+export namespace ExtensionContentScript { }
 
 // Bootstrap app
 (() => {
-	const {} = new ExtensionContentScript();
+	const { } = new ExtensionContentScript();
 })();

@@ -15,7 +15,6 @@
 		{
 			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"],
 			"js": ["content.js"],
-			"all_frames": true,
 			"runAt": "document_start"
 		}
 	],

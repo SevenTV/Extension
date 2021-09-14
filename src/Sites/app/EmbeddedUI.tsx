@@ -15,9 +15,9 @@ export class EmbeddedUI {
 	/**
 	 * Add a button below the chat input box
 	 */
-	embedChatButton(): void {
+	embedChatButton(parent: HTMLElement): void {
 		// Add emote list button
-		const buttons = document.querySelector(Twitch.Selectors.ChatInputButtonsContainer);
+		const buttons = parent;
 		if (!!buttons && !!buttons.lastChild) {
 			if (buttons.querySelector('.seventv-emote-menu-button')) {
 				return undefined;

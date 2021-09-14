@@ -7,13 +7,17 @@ export class YouTube {
 
 	getChatItemsContainer(): YouTube.MessageElement | null {
 		const frame = this.getChatFrame();
-		const el = (frame?.document ?? this.getChatContainer())?.querySelector<YouTube.MessageElement>(YouTube.Selectors.ChatItems);
+		const el = (frame ?? this.getChatContainer())?.querySelector<YouTube.MessageElement>(YouTube.Selectors.ChatItems);
 
 		return el ?? null;
 	}
 
-	getChatFrame(): Window | null {
-		return (window.frames as any)['chatframe']?.contentWindow as Window ?? null;
+	getChatFrame(): Document | null {
+		return (window.frames as any)['chatframe']?.contentDocument as Document ?? null;
+	}
+
+	getChatInput(): YouTube.InputElement | null {
+		return document.querySelector<YouTube.InputElement>('yt-live-chat-text-input-field-renderer#input.yt-live-chat-message-input-renderer');
 	}
 }
 
@@ -25,6 +29,10 @@ export namespace YouTube {
 
 	export interface MessageElement extends HTMLDivElement {
 		__data: MessageData;
+	}
+
+	export interface InputElement extends HTMLDivElement {
+		__data: InputData;
 	}
 
 	/** YouTube Message Data */
@@ -90,5 +98,36 @@ export namespace YouTube {
 	export interface AppToken {
 		text: string;
 		emoteID?: string;
+	}
+
+	export interface InputData {
+		characterCount: number;
+		data: {
+			emojiCharacterCount: number;
+			maxCharacterLimit: number;
+		};
+		disabled: boolean;
+		focused: boolean;
+		hasText: boolean;
+		inputTabIndex: number;
+		isInputValid: boolean;
+		isValidWithNoInputText: boolean;
+		liveChatRichMessageInput: {
+			textSegments: { text: string; }[];
+		};
+		maxCharacterLimit: number;
+		suggestions: {
+			alt: string;
+			emoji: boolean;
+			image: {
+				thumbnails: Thumbnail[];
+			}
+		}[];
+	}
+
+	export interface Thumbnail {
+		url: string;
+		width?: number;
+		height?: number;
 	}
 }

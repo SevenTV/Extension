@@ -1,0 +1,80 @@
+.seventv-emote-menu {	
+	position: absolute;
+
+	.seventv-emote-menu-header {
+		background-color: var(--seventv-color-background-1);
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		border-radius: 4px;
+	}
+	.seventv-emote-menu-scrollable {
+		background-color: var(--seventv-color-background-0);
+		padding-top: 1em;
+		border-radius: 6px;
+		width: 300px;
+		height: 300px;
+		overflow: auto;
+	}
+	.seventv-emote-menu-tab {
+		display: flex;
+		justify-content: center;
+		flex-grow: 1;
+		min-height: 3em;
+
+		&.selected {
+			border-bottom: 1px solid white !important;
+		}
+	}
+	.seventv-emote-menu-emote-list-section {
+		margin-top: 1em;
+		margin-left: 1em;
+	}
+	.seventv-emote-menu-category-header {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+		font-size: 1.65rem;
+
+		border-style: solid;
+		border-bottom-width: 1px;
+		border-color: white;
+	}
+	.seventv-emote-menu-emote-list {
+		display: flex;
+		flex-wrap: wrap;
+
+		margin-top: 1em;
+		margin-right: .25em;
+		margin-left: 1.25em;
+		margin-bottom: 1em;
+
+		span {
+			margin-right: .2em;
+			margin-left: .2em;
+			margin-top: .1em;
+			margin-bottom: .1em;
+		}
+	}
+	.seventv-emote-menu-search {
+		background-color: var(--seventv-background-color);
+
+		input {
+			width: 100%;
+			height: 3em;
+			color: white;
+			border-color: white;
+			border-width: 1px;
+			border-style: solid;
+			border-radius: 4px;
+			background-color: var(--seventv-color-background-1);
+			padding: .5em;
+	
+			&:focus {
+				outline: none !important;
+				border: 1px solid rgb(0, 195, 255) ;
+				box-shadow: 0 0 10px rgb(0, 195, 255) !important;
+			}
+		}
+	}
+}

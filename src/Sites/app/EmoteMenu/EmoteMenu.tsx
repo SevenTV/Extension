@@ -6,8 +6,6 @@ import { DataStructure } from '@typings/typings/DataStructure';
 import React from 'react';
 import styled from 'styled-components';
 import BaseButton from '@material-ui/core/ButtonBase';
-import Button from '@material-ui/core/Button';
-import SettingsIcon from '@material-ui/icons/Settings';
 
 const providers = ['7TV', 'BTTV', 'FFZ'] as DataStructure.Emote.Provider[];
 
@@ -31,7 +29,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 				{/* Provider Tabs*/}
 				<EmoteMenu.TabList className='seventv-emote-menu-header'>
 					{providers.map(p => (
-						<EmoteMenu.Tab className={this.state.provider === p ? 'selected' : ''} onClick={() => this.selectProvider(p)} key={`provider-${p}`}>
+						<EmoteMenu.Tab className={`seventv-emote-menu-tab ${this.state.provider === p ? 'selected' : ''}`} onClick={() => this.selectProvider(p)} key={`provider-${p}`}>
 							<img src={getProviderLogo(p)} />
 						</EmoteMenu.Tab>
 					))}
@@ -39,18 +37,11 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 
 				{/* Scrollable Area */}
 				<EmoteMenu.Scrollable className='seventv-emote-menu-scrollable'>
-					<div className='seventv-settings-button'>
-						<Button variant='outlined' onClick={() => this.props.main.openSettings()}>
-							<SettingsIcon></SettingsIcon>
-							<span style={{ marginLeft: '.5em' }}>SETTINGS</span>
-						</Button>
-					</div>
-
 					{/* Render current emotes*/}
-					<EmoteMenu.EmoteListSection>
-						<EmoteMenu.CategoryHeader>Channel Emotes</EmoteMenu.CategoryHeader>
+					<EmoteMenu.EmoteListSection className='seventv-emote-menu-emote-list-section'>
+						<EmoteMenu.CategoryHeader className='seventv-emote-menu-category-header'>Channel Emotes</EmoteMenu.CategoryHeader>
 					</EmoteMenu.EmoteListSection>
-					<EmoteMenu.EmoteList>
+					<EmoteMenu.EmoteList className='seventv-emote-menu-emote-list'>
 						{channelEmotes.filter(e => e.name.toLowerCase().includes(this.state.search)).map((e, i) => (
 							<span key={`${i}-${e.id}`} onClick={() => this.onInsertEmote(e)}>
 								<EmoteComponent emote={e}></EmoteComponent>
@@ -64,10 +55,10 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 						}
 					</EmoteMenu.EmoteList>
 
-					<EmoteMenu.EmoteListSection>
-						<EmoteMenu.CategoryHeader>Global Emotes</EmoteMenu.CategoryHeader>
+					<EmoteMenu.EmoteListSection className='seventv-emote-menu-emote-list-section'>
+						<EmoteMenu.CategoryHeader className='seventv-emote-menu-category-header'>Global Emotes</EmoteMenu.CategoryHeader>
 					</EmoteMenu.EmoteListSection>
-					<EmoteMenu.EmoteList>
+					<EmoteMenu.EmoteList className='seventv-emote-menu-emote-list'>
 						{this.emotes.getAllEmotes([this.state.provider]).filter(e => e.isGlobal() && e.name.toLowerCase().includes(this.state.search)).map((e, i) => (
 							<span key={`${i}-${e.id}`} onClick={() => this.onInsertEmote(e)}>
 								<EmoteComponent emote={e}></EmoteComponent>
@@ -78,8 +69,8 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 				</EmoteMenu.Scrollable>
 
 				{/** Search Bar */}
-				<EmoteMenu.Search>
-					<input className='seventv-emote-search' placeholder='Search Emotes...' onChange={ev => this.onSearchChange(ev)}>
+				<EmoteMenu.Search className='seventv-emote-menu-search'>
+					<input placeholder='Search Emotes...' onChange={ev => this.onSearchChange(ev)}>
 
 					</input>
 				</EmoteMenu.Search>
@@ -143,69 +134,32 @@ export namespace EmoteMenu {
 	}
 
 	export const Styled = styled.div`
-		position: absolute;
+
 	`;
 
 	export const Scrollable = styled.div`
-		padding-top: 1em;
-		border-radius: 6px;
-		width: 340px;
-		height: 480px;
-		overflow: auto;
+
 	`;
 
 	export const TabList = styled.div`
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		border-radius: 4px;
+
 	`;
 
 	export const Tab = styled(BaseButton)`
-		display: flex;
-		justify-content: center;
-		flex-grow: 1;
-		min-height: 3em;
 
-		&.selected {
-			border-bottom: 1px solid white !important;
-		}
 	`;
 
 	export const CategoryHeader = styled.span`
-		display: flex;
-		width: 100%;
-		justify-content: center;
-		font-size: 1.65rem;
 
-		border-style: solid;
-		border-bottom-width: 1px;
-		border-color: white;
 	`;
 
 	export const Search = styled.div`
-		background-color: var(--seventv-background-color);
 	`;
 
 	export const EmoteList = styled.div`
-		display: flex;
-		flex-wrap: wrap;
-		padding: .25e;
 
-		margin-top: 1em;
-		margin-right: .25em;
-		margin-left: 1.25em;
-		margin-bottom: 1em;
-
-		span {
-			margin-right: .2em;
-			margin-left: .2em;
-			margin-top: .1em;
-			margin-bottom: .1em;
-		}
 	`;
 	export const EmoteListSection = styled.section`
-		margin-top: 1m;
-		margin-left: 1em;
+
 	`;
 }

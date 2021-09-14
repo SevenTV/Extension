@@ -65,6 +65,10 @@ export class TwitchPageScript {
 					this.eIndex = null;
 					this.avatarManager.check();
 					this.chatListener.listen();
+
+					this.site.tabCompleteDetector.updateEmotes();
+					this.site.tabCompleteDetector.start();
+					this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
 					inputManager.listen();
 					this.isActorVIP = controller.props.isCurrentUserVIP;
 					this.isActorModerator = controller.props.isCurrentUserModerator;

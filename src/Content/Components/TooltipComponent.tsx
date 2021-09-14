@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { settings } from 'src/Content/Runtime/Settings';
-import styled from 'styled-components';
-
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
 	unmounted = false;
 	ref = React.createRef<any>();
@@ -22,14 +20,14 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		return (
 			<div className='seventv-emote-tooltip-wrapper' style={{ visibility: this.positioned ? 'visible' : 'hidden', top: posY, left: posX - 74 }}>
 				<div ref={this.ref} className='seventv-emote-tooltip'>
-					{!!this.props.imageURL && <TooltipComponent.Image>
+					{!!this.props.imageURL && <div className='seventv-tooltip-image'>
 						<img src={this.props.imageURL} style={{
 							transform: isSmall ? 'scale(0.75)' : undefined
 						}}></img>
-					</TooltipComponent.Image>
+					</div>
 					}
 
-					<TooltipComponent.Details>
+					<div className='seventv-tooltip-details'>
 						<h3 className='item-name' style={{
 							fontSize: isSmall ? '1em' : undefined,
 							fontWeight: isSmall ? 'bold' : undefined
@@ -37,12 +35,12 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 						{!!this.props.hint ? <span className='item-hint'>{this.props.hint}</span> : ''}
 
 						{...this.props.extra ?? []}
-					</TooltipComponent.Details>
+					</div>
 
 					{!!this.props.providerIconURL &&
-					<TooltipComponent.Provider>
+					<div className='seventv-tooltip-provider'>
 						<img src={this.props.providerIconURL} />
-					</TooltipComponent.Provider>
+					</div>
 					}
 				</div>
 			</div>
@@ -96,56 +94,4 @@ export namespace TooltipComponent {
 	export interface Props extends MainComponent.State.CurrentTooltip {
 		[x: string]: any;
 	}
-
-	export const EmoteTitle = styled.h3`
-		padding: .5em;
-	`;
-
-	export const Image = styled.div`
-		margin: 1em;
-
-		display: flex;
-		justify-content: center;
-	`;
-
-	export const Details = styled.div`
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		padding: 1em;
-		padding-right: 3em;
-		max-width: 270px;
-
-		.emote-name {
-			width: 100%;
-			margin-bottom: 1px;
-			word-wrap: break-word;
-			color: currentColor;
-		}
-
-		.emote-submitter {
-			font-size: .85em;
-		}
-
-		.is-7tv-emote {
-			font-size: 1.6em;
-		}
-
-		.is-7tv-global {
-			width: 100%;
-			color: #b2ff59;
-		}
-	`;
-
-	export const Provider = styled.div`
-		position: absolute;
-		bottom: 0;
-		right: 0;
-		margin: .4em;
-		padding-left: 32px;
-
-		img {
-			max-width: 28px;
-		}
-	`;
 }

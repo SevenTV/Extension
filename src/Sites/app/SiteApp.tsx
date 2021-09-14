@@ -62,11 +62,6 @@ export class SiteApp {
 		if (!!data.as) this.emoteStore.disableSet(data.as);
 		this.mainComponent?.toggleEmoteMenu(undefined, false);
 
-		const afterLoaded = () => {
-			// this.tabCompleteDetector.updateEmotes();
-			// this.tabCompleteDetector.start();
-		};
-
 		const emoteGetter = [
 			this.api.GetGlobalEmotes().pipe(catchError(_ => of([]))),
 			this.api.GetFrankerFaceZGlobalEmotes().pipe(
@@ -95,20 +90,18 @@ export class SiteApp {
 			map(e => emoteStore.enableSet(data.channelID, e)),
 			tap(_ => {
 				this.eIndex = null;
-				this.embeddedUI.embedChatButton();
 				this.currentChannel = data.channelID;
-				afterLoaded();
 			})
 		);
 	}
 
-	createOverlay(container: HTMLElement): void {		// Once the extension injected itself into Twitch
+	createOverlay(container: HTMLElement, emoteMenuOffset = 0): void {		// Once the extension injected itself into Twitch
 		const app = document.createElement('div');
 		app.classList.add('seventv-overlay');
 		app.style.position = 'absolute';
 		app.id = 'seventv';
 
-		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} />, app) as unknown as MainComponent;
+		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} emoteMenuOffset={emoteMenuOffset} />, app) as unknown as MainComponent;
 		this.mainComponent.app = this;
 		container.appendChild(app);
 	}
