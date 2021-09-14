@@ -2,15 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { EmoteMenuButton } from 'src/Sites/app/EmoteMenu/EmoteMenuButton';
 import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
-import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 export class EmbeddedUI {
 	/**
 	 * Embedded UI manages user interface components embedded on the site
 	 */
-	constructor(private app: SiteApp) {
-		this.embedNavButton();
-	}
+	constructor(private app: SiteApp) {}
 
 	/**
 	 * Add a button below the chat input box
@@ -36,9 +33,8 @@ export class EmbeddedUI {
 	/**
 	 * Add a button on the navigation bar
 	 */
-	embedNavButton(): void {
-		const nav = document.querySelector(Twitch.Selectors.NAV);
-		const buttons = nav?.firstChild?.lastChild;
+	embedNavButton(parent: HTMLElement): void {
+		const buttons = parent?.firstChild?.lastChild;
 
 		if (!!buttons) {
 			const container = document.createElement('div');

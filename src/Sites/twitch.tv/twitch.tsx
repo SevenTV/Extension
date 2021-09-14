@@ -42,6 +42,7 @@ export class TwitchPageScript {
 		const overlayContainer = document.getElementById('root');
 		if (!!overlayContainer) {
 			this.site.createOverlay(overlayContainer);
+			setTimeout(() => this.site.embeddedUI.embedNavButton(document.querySelector(Twitch.Selectors.NAV) as HTMLElement), 500);
 		}
 	}
 
