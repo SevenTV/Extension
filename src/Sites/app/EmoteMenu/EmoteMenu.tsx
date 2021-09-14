@@ -1,4 +1,4 @@
-import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
+import { EmoteComponent } from 'src/Sites/app/EmoteMenu/EmoteComponent';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { getProviderLogo } from 'src/Global/Util';

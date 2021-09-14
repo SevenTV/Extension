@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmoteComponent } from 'src/Content/Components/EmoteComponent';
+import { EmoteComponent } from 'src/Sites/app/EmoteMenu/EmoteComponent';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 

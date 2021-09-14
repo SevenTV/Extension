@@ -1,7 +1,7 @@
 import React, { createRef } from 'react';
 import { defer, iif, Observable, Subject } from 'rxjs';
 import { filter, switchMap, take, tap } from 'rxjs/operators';
-import { TooltipComponent } from 'src/Content/Components/TooltipComponent';
+import { TooltipComponent } from 'src/Sites/app/TooltipComponent';
 import { EmoteMenu } from 'src/Sites/app/EmoteMenu/EmoteMenu';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { theme } from 'src/Global/Util';
