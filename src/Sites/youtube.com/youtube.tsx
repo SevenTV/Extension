@@ -1,5 +1,5 @@
-import { iif, interval, of, Subject, timer } from 'rxjs';
-import { filter, map, mapTo, switchMap, take, takeUntil } from 'rxjs/operators';
+import { asyncScheduler, fromEvent, iif, interval, of, scheduled, Subject, timer } from 'rxjs';
+import { filter, map, mapTo, mergeAll, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import { ChatObserver } from 'src/Sites/youtube.com/Runtime/ChatObserver';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
@@ -17,9 +17,9 @@ export class YouTubePageScript {
 	youtube = (window as any).yt7 = new YouTube();
 	chatObserver = new ChatObserver(this);
 	navChange = new Subject<string>();
+	isTheaterMode = false;
 
 	constructor() {
-		document.body.classList.add('seventv-yt-theater-mode');
 		// Begin listening to youtube navigation events
 		window.addEventListener('yt-navigate-finish', ev => {
 			const detail = (ev as CustomEvent<YouTubePageScript.NavigationFinishEventDetail>).detail;
@@ -76,6 +76,7 @@ export class YouTubePageScript {
 					document.querySelector('div#picker-buttons.yt-live-chat-message-input-renderer')?.parentElement ??
 					this.youtube.getChatFrame()?.querySelector('div#message-buttons')?.parentElement
 				) as HTMLElement);
+				this.addTheaterModeButton();
 			};
 
 			iif(
@@ -95,13 +96,19 @@ export class YouTubePageScript {
 					take(1)
 				)
 			).pipe(
+				// Channel ID found: poll for the YT live chat renderer
 				switchMap(channelID => interval(500).pipe(
+					take(10),
 					map(() => document.querySelector<HTMLElement>('yt-live-chat-renderer')),
 					map(node => !node ? this.youtube.getChatFrame()?.querySelector<HTMLElement>('yt-live-chat-renderer') : node),
+					// If the node wasn't found, try to automatically open the chat
+					tap(node => !node ? document.querySelector<HTMLButtonElement>('[id="show-hide-button"] tp-yt-paper-button')?.click() : node),
 					filter(node => !!node),
 					take(1),
 					mapTo(channelID)
 				)),
+
+				// Activate emotes on the channel
 				switchMap(channelID => this.site.switchChannel({ channelID: channelID, platform: 'youtube' }))
 			).subscribe({ next: () => load() });
 		}
@@ -162,6 +169,62 @@ export class YouTubePageScript {
 		} catch (_) {}
 
 		return user?.authorExternalChannelId ?? '';
+	}
+
+	/**
+	 * Add a button to toggle the True Theater Mode
+	 */
+	addTheaterModeButton(): void {
+		const controls = document.querySelector('.ytp-right-controls');
+		if (!controls) return undefined;
+		if (controls.querySelector('.seventv-yt-theater-mode-button')) {
+			return undefined;
+		}
+
+		const container = document.createElement('div');
+		container.style.display = 'inline-block';
+		container.style.width = '24px';
+
+		const btn = document.createElement('button');
+		btn.classList.add('seventv-yt-theater-mode-button', 'ytp-button', 'ytp-size-button');
+		btn.setAttribute('title', '[7TV] True Theater Mode');
+		btn.setAttribute('aria-label', '[7TV] True Theater Mode');
+		container.appendChild(btn);
+		const icon = document.createElement('img');
+		icon.style.maxWidth = '24px';
+		icon.style.maxHeight = '18px';
+		icon.style.marginBottom = '0.9em';
+		icon.src = assetStore.get('theater-mode.webp') ?? '';
+
+		btn.appendChild(icon);
+		controls.insertBefore(container, controls.lastChild);
+
+		scheduled([
+			fromEvent(container, 'click').pipe(
+				map(() => this.toggleTheaterMode())
+			),
+			fromEvent(document, 'keyup').pipe(
+				map(ev => ev as KeyboardEvent),
+				filter(ev => this.isTheaterMode && ev.code === 'Escape'),
+				map(() => this.toggleTheaterMode())
+			)
+		], asyncScheduler).pipe(
+			mergeAll()
+		).subscribe();
+	}
+
+	/**
+	 * Toggle the true theater mode
+	 */
+	toggleTheaterMode(): void {
+		const className = 'seventv-yt-theater-mode';
+		const isTheaterMode = document.body.classList.contains(className);
+		this.isTheaterMode = !isTheaterMode;
+		if (isTheaterMode) {
+			document.body.classList.remove(className);
+		} else {
+			document.body.classList.add(className);
+		}
 	}
 
 	/**

@@ -39,13 +39,17 @@
 						width: 100% !important;
 						left: 0 !important;
 					}
+
+					.ytp-chrome-controls, .ytp-left-controls, .ytp-load-progress {
+						width: 100% !important;
+					}
 				}
 			}
 		}
 
 		[id="secondary"] {
 			padding: 0 !important;
-			width: 140px !important;
+			width: 340px !important;
 		}
 	}
 
