@@ -182,8 +182,7 @@ export class YouTubePageScript {
 		}
 
 		const container = document.createElement('div');
-		container.style.display = 'inline-block';
-		container.style.width = '24px';
+		container.classList.add('seventv-yt-theater-mode-button-container');
 
 		const btn = document.createElement('button');
 		btn.classList.add('seventv-yt-theater-mode-button', 'ytp-button', 'ytp-size-button');
@@ -191,9 +190,6 @@ export class YouTubePageScript {
 		btn.setAttribute('aria-label', '[7TV] True Theater Mode');
 		container.appendChild(btn);
 		const icon = document.createElement('img');
-		icon.style.maxWidth = '24px';
-		icon.style.maxHeight = '18px';
-		icon.style.marginBottom = '0.9em';
 		icon.src = assetStore.get('theater-mode.webp') ?? '';
 
 		btn.appendChild(icon);
