@@ -7,7 +7,7 @@ import { EmoteStore } from 'src/Global/EmoteStore';
 import { theme } from 'src/Global/Util';
 import styled from 'styled-components';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { SettingsComponent } from 'src/Content/Components/Settings/SettingsComponent';
+import { SettingsComponent } from 'src/Sites/app/Settings/SettingsComponent';
 import { settings } from 'src/Content/Runtime/Settings';
 import { SiteApp } from 'src/Sites/app/SiteApp';
 

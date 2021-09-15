@@ -2,7 +2,8 @@ import { MainComponent } from 'src/Sites/app/MainComponent';
 import { version } from 'public/manifest.v3.json';
 import { Config } from 'src/Config';
 import { SettingNode, settings } from 'src/Content/Runtime/Settings';
-import { SettingsForm } from 'src/Content/Components/Settings/SettingsForm';
+import { SettingsForm } from 'src/Sites/app/Settings/SettingsForm';
+import { assetStore } from 'src/Sites/app/SiteApp';
 import CloseIcon from '@material-ui/icons/Close';
 import React from 'react';
 
@@ -11,26 +12,12 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		retrieved: false
 	} as SettingsComponent.State;
 
-	changeListener: Function;
-
 	constructor(props: SettingsComponent.Props) {
 		super(props);
-
-		// Handle config change from another location
-		// i.e a different tab
-		const changeListener = this.changeListener = (changes: any) => {
-			const items = Object.create({});
-			for (const k of Object.keys(changes)) {
-				items[k] = changes[k].newValue;
-			}
-
-			this.apply(items);
-		};
-		chrome.storage.onChanged.addListener(changeListener);
 	}
 
 	render() {
-		const logoURL = chrome.runtime.getURL('image/7tv.webp');
+		const logoURL = assetStore.get('7tv.webp');
 		if (!this.state.retrieved) {
 			return <span>Loading menu...</span>;
 		}
@@ -89,46 +76,16 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		);
 	}
 
-	private apply(items: { [x: string]: string; }): void {
-		// Get all config k/v pairs
-		const keys = Object.keys(items).filter(k => k.startsWith('cfg.'));
-		if (keys.length === 0) {
-			this.setState({ retrieved: true });
-		}
-
-		// Iterate through available settings and apply stored value
-		for (const sNode of this.props.settings) {
-			for (const k of keys) {
-				if (k.slice(4) !== sNode.id) {
-					continue;
-				}
-				const value = items[k];
-
-				sNode.value = value;
-				if (sNode.defaultValue === value) {
-					chrome.storage.local.remove(`cfg.${sNode.id}`);
-				}
-			}
-		}
-		this.setState({ retrieved: true });
-	}
-
-	componentWillUnmount(): void {
-		if (typeof this.changeListener === 'function') {
-			chrome.storage.onChanged.removeListener(this.changeListener as any);
-		}
-	}
-
 	socials = [
 		{
 			label: 'Discord',
 			clickURL: `https://discord.gg/${Config.social.discordInviteID}`,
-			imageURL: `image/icon/discord.webp`
+			imageURL: assetStore.get('discord.web')
 		},
 		{
 			label: 'Twitter',
 			clickURL: `https://twitter.com/${Config.social.twitterHandle}`,
-			imageURL: 'image/icon/twitter.webp'
+			imageURL: assetStore.get('twitter.web')
 		}
 	] as SettingsComponent.SocialIcon[];
 }

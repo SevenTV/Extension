@@ -147,6 +147,32 @@ class Settings {
 
 		return new SettingValue(value);
 	}
+
+	/*
+	private apply(items: { [x: string]: string; }): void {
+		// Get all config k/v pairs
+		const keys = Object.keys(items).filter(k => k.startsWith('cfg.'));
+		if (keys.length === 0) {
+			this.setState({ retrieved: true });
+		}
+
+		// Iterate through available settings and apply stored value
+		for (const sNode of this.props.settings) {
+			for (const k of keys) {
+				if (k.slice(4) !== sNode.id) {
+					continue;
+				}
+				const value = items[k];
+
+				sNode.value = value;
+				if (sNode.defaultValue === value) {
+					chrome.storage.local.remove(`cfg.${sNode.id}`);
+				}
+			}
+		}
+		this.setState({ retrieved: true });
+	}
+	*/
 }
 
 export interface SettingNode {
