@@ -1,6 +1,9 @@
+import { Constants } from '@typings/src/Constants';
+import { DataStructure } from '@typings/typings/DataStructure';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
+import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
@@ -94,7 +97,7 @@ export class TwitchChatListener {
 		// Send twitch emotes to upper layer
 		const twitchEmotes = this.twitch.getChat()?.props.emotes;
 		if (Array.isArray(twitchEmotes)) {
-			this.page.sendMessageUp('ReceiveTwitchEmotes', twitchEmotes);
+			this.insertTwitchGlobalEmotesToSet(twitchEmotes);
 		}
 
 		/**
@@ -200,6 +203,36 @@ export class TwitchChatListener {
 				childList: true
 			});
 		});
+	}
+
+	insertTwitchGlobalEmotesToSet(emoteSets: Twitch.TwitchEmoteSet[]): void {
+		// Iterate through sets, and start adding to our twitch set
+		const emotes = [] as DataStructure.Emote[];
+		for (const twset of emoteSets) {
+			for (const emote of twset.emotes) {
+				emotes.push({
+					id: emote.id,
+					name: emote.token,
+					visibility: 0,
+					provider: 'TWITCH',
+					status: Constants.Emotes.Status.LIVE,
+					tags: [],
+					width: [28, 56, 112, 112],
+					height: [28, 56, 112, 112],
+					owner: !!twset.owner ? {
+						id: twset.owner.id,
+						display_name: twset.owner.displayName,
+						login: twset.owner.login
+					} as DataStructure.TwitchUser : undefined
+				});
+			}
+		}
+
+		// Delete the twitch set if it already existed then recreate it
+		if (emoteStore.sets.has('twitch')) {
+			emoteStore.sets.delete('twitch');
+		}
+		emoteStore.enableSet(`twitch`, emotes);
 	}
 
 	kill(): void {
