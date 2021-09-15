@@ -2,7 +2,6 @@ import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
 import { filter, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
-import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
 import request from 'superagent';
 import { version } from 'public/manifest.v3.json';
 import { Badge } from 'src/Global/Badge';
@@ -12,7 +11,7 @@ export class API {
 	private BASE_URL_FFZ = 'https://api.frankerfacez.com/v1';
 	private BASE_URL_BTTV = 'https://api.betterttv.net/3';
 
-	constructor() {}
+	constructor() { }
 
 	/**
 	 * Get the channel emotes of a channel
@@ -157,34 +156,22 @@ export class API {
 
 	createRequest<T>(route: string, options: Partial<API.CreateRequestOptions>): Observable<API.Response<T>> {
 		return new Observable<API.Response<T>>(observer => {
-			const ctx = getRunningContext();
+			const uri = (options.baseUrl ? options.baseUrl : this.BASE_URL) + route;
 
-			if (ctx === 'background' || ctx === 'page') {
-				const uri = (options.baseUrl ? options.baseUrl : this.BASE_URL) + route;
-
-				const req = request(options.method || 'POST', uri);
-				if (!options.baseUrl) {
-					req.set(
-						'X-SevenTV-Platform', 'WebExtension',
-					).set(
-						'X-SevenTV-Version', version
-					).send(options.body ?? {});
-				}
-
-				from(req).subscribe({
-					error(err) { observer.error(new API.ErrorResponse(err.status, err)); },
-					next(res) { observer.next({ status: res.status, body: res.body, headers: res.headers }); },
-					complete() { observer.complete(); }
-				});
-			} else if (ctx === 'content') {
-				sendExtensionMessage('APIRequest', {
-					route,
-					options
-				}, (res: API.Response<T>) => {
-					observer.next(res);
-					observer.complete();
-				});
+			const req = request(options.method || 'POST', uri);
+			if (!options.baseUrl) {
+				req.set(
+					'X-SevenTV-Platform', 'WebExtension',
+				).set(
+					'X-SevenTV-Version', version
+				).send(options.body ?? {});
 			}
+
+			from(req).subscribe({
+				error(err) { observer.error(new API.ErrorResponse(err.status, err)); },
+				next(res) { observer.next({ status: res.status, body: res.body, headers: res.headers }); },
+				complete() { observer.complete(); }
+			});
 		});
 	}
 }
@@ -216,9 +203,11 @@ export namespace API {
 	export type EmoteProviderList = [EmoteProvider?, EmoteProvider?];
 	export namespace FFZ {
 		export interface RoomResponse {
-			sets: { [key: string]: {
-				emoticons: FFZ.Emote[];
-			}};
+			sets: {
+				[key: string]: {
+					emoticons: FFZ.Emote[];
+				}
+			};
 		}
 
 		export interface Emote {
