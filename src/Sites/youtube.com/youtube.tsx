@@ -19,6 +19,7 @@ export class YouTubePageScript {
 	navChange = new Subject<string>();
 
 	constructor() {
+		document.body.classList.add('seventv-yt-theater-mode');
 		// Begin listening to youtube navigation events
 		window.addEventListener('yt-navigate-finish', ev => {
 			const detail = (ev as CustomEvent<YouTubePageScript.NavigationFinishEventDetail>).detail;
