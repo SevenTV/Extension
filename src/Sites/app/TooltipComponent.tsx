@@ -18,7 +18,9 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 
 		const isSmall = settings.get('ui.minimize_tooltip_size').asBoolean();
 		return (
-			<div className='seventv-emote-tooltip-wrapper' style={{ visibility: this.positioned ? 'visible' : 'hidden', top: posY, left: posX - 74 }}>
+			<div className={`seventv-emote-tooltip-wrapper ${isSmall ? 'seventv-tooltip-small' : ''}`}
+				style={{ visibility: this.positioned ? 'visible' : 'hidden', top: posY, left: posX - 74 }}
+			>
 				<div ref={this.ref} className='seventv-emote-tooltip'>
 					{!!this.props.imageURL && <div className='seventv-tooltip-image'>
 						<img src={this.props.imageURL} style={{
@@ -28,10 +30,7 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 					}
 
 					<div className='seventv-tooltip-details'>
-						<h3 className='item-name' style={{
-							fontSize: isSmall ? '1em' : undefined,
-							fontWeight: isSmall ? 'bold' : undefined
-						}}> {this.props.name} </h3>
+						<h3 className='item-name'> {this.props.name} </h3>
 						{!!this.props.hint ? <span className='item-hint'>{this.props.hint}</span> : ''}
 
 						{...this.props.extra ?? []}
