@@ -16,6 +16,7 @@ export class App {
 			['7tv-nd.webp', chrome.runtime.getURL('image/7tv-nd.webp')],
 			['twitter.webp', chrome.runtime.getURL('image/icon/twitter.webp')],
 			['discord.webp', chrome.runtime.getURL('image/icon/discord.webp')],
+			['theater-mode.webp', chrome.runtime.getURL('image/icon/theater-mode.webp')],
 			['stylesheet', chrome.runtime.getURL('styles/Style.css')]
 		] as [string, string][];
 

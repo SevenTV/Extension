@@ -1,0 +1,79 @@
+.seventv-yt-theater-mode {
+	[id="columns"] {
+		display: flex !important;
+		max-width: none !important;
+		margin: 0 !important;
+		justify-content: space-between !important;
+		width: 100% !important;
+
+		[id="primary"] {
+			padding: 0 !important;
+			margin: 0 !important;
+			display: flex !important;
+			width: 100vw !important;
+			height: 100vh !important;
+			max-width: none !important;
+
+			[id="primary-inner"] {
+				width: 100% !important;
+				height: 100% !important;
+
+				[id="player"] {
+					width: 100% !important;
+					height: 100% !important;
+					max-width: none !important;
+
+					[id="player-container-outer"] {
+						width: 100% !important;
+						height: 100% !important;
+						max-width: none !important;
+						margin: 0 !important;
+					}
+
+					.html5-video-container, video {
+						width: 100% !important;
+						height: 100% !important;
+					}
+
+					.ytp-chrome-bottom, .ytp-chapter-hover-container {
+						width: 100% !important;
+						left: 0 !important;
+					}
+
+					.ytp-chrome-controls, .ytp-left-controls, .ytp-load-progress {
+						width: 100% !important;
+					}
+				}
+			}
+		}
+
+		[id="secondary"] {
+			padding: 0 !important;
+			width: 340px !important;
+		}
+	}
+
+	ytd-page-manager[id="page-manager"] {
+		margin: 0 !important;
+	}
+
+	[id="player-container"] {
+		height: 100vh !important;
+	}
+
+	ytd-live-chat-frame {
+		height: 100vh !important;
+		padding: 0 !important;
+	}
+
+	[id="info"], [id="meta"], [id="comments"], [id="related"], [id="masthead-container"] {
+		display: none !important;
+	}
+
+	video.video-stream.html5-main-video {
+		width: 1328px;
+		height: 969px;
+		background-color: black;
+	}
+
+}

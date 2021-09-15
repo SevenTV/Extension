@@ -2,6 +2,7 @@
 @use './Components/ChatInput.scss';
 @use './Components/Settings.scss';
 @use './Components/EmoteMenu.scss';
+@use './Components/YouTube/TheaterMode.scss';
 
 $bgColorDark0: rgb(50, 50, 50);
 $bgColorDark1: darken($bgColorDark0, 5);
