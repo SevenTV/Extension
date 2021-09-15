@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { asapScheduler, from, iif, Observable, of, scheduled, Subject, throwError } from 'rxjs';
 import { catchError, map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
+import { SettingNode } from 'src/Content/Runtime/Settings';
 import { API } from 'src/Global/API';
 import { Badge } from 'src/Global/Badge';
 import { PageScriptListener } from 'src/Global/Decorators';
@@ -134,6 +135,11 @@ export class SiteApp {
 		assetStore = new Map(assetMap);
 	}
 
+	@PageScriptListener('ConfigNodes')
+	whenConfigNodes(nodes: SettingNode[]): void {
+		settingNodes = nodes;
+	}
+
 	@PageScriptListener('ConfigChange')
 	whenAppConfigChangeds(cfg: { [x: string]: any; }): void {
 		for (const k of Object.keys(cfg)) {
@@ -144,4 +150,5 @@ export class SiteApp {
 
 export const emoteStore = new EmoteStore();
 export let assetStore = new Map<string, string>();
+export let settingNodes = [] as SettingNode[];
 const config = new Map<string, SettingValue>();

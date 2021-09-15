@@ -9,7 +9,7 @@ import React from 'react';
 
 export class SettingsComponent extends React.Component<SettingsComponent.Props, SettingsComponent.State> {
 	state = {
-		retrieved: false
+		retrieved: true
 	} as SettingsComponent.State;
 
 	constructor(props: SettingsComponent.Props) {
@@ -39,7 +39,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 							<div className='seventv-sm-social-list'>
 								{this.socials.map(soc =>
 									<div key={`social-${soc.label}`} className='seventv-sm-social-icon' onClick={() => window.open(soc.clickURL, '_blank')}>
-										<img src={chrome.runtime.getURL(soc.imageURL)}></img>
+										<img src={soc.imageURL}></img>
 									</div>
 								)}
 							</div>
@@ -80,12 +80,12 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 		{
 			label: 'Discord',
 			clickURL: `https://discord.gg/${Config.social.discordInviteID}`,
-			imageURL: assetStore.get('discord.web')
+			imageURL: assetStore.get('discord.webp')
 		},
 		{
 			label: 'Twitter',
 			clickURL: `https://twitter.com/${Config.social.twitterHandle}`,
-			imageURL: assetStore.get('twitter.web')
+			imageURL: assetStore.get('twitter.webp')
 		}
 	] as SettingsComponent.SocialIcon[];
 }

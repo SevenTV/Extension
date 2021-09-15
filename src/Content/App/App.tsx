@@ -20,6 +20,7 @@ export class App {
 			['stylesheet', chrome.runtime.getURL('styles/Style.css')]
 		] as [string, string][];
 
+		this.sendMessageDown('ConfigNodes', settings.nodes);
 		this.sendMessageDown('ConfigChange', settings.raw);
 		this.sendMessageDown('OnAssets', map);
 	}

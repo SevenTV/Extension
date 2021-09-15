@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { SettingsComponent } from 'src/Sites/app/Settings/SettingsComponent';
 import { settings } from 'src/Content/Runtime/Settings';
-import { SiteApp } from 'src/Sites/app/SiteApp';
+import { settingNodes, SiteApp } from 'src/Sites/app/SiteApp';
 
 export class MainComponent extends React.Component<MainComponent.Props, MainComponent.State> {
 	app: SiteApp | null = null;
@@ -68,7 +68,7 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 
 					{this.state.settingsMenu.open &&
 						<MainComponent.SettingsMenuWrapper>
-							<SettingsComponent settings={settings.nodes} configData={settings.data} main={this}></SettingsComponent>
+							<SettingsComponent settings={settingNodes} configData={settings.data} main={this}></SettingsComponent>
 						</MainComponent.SettingsMenuWrapper>
 					}
 				</ThemeProvider>
