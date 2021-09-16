@@ -26,9 +26,11 @@
 		"styles/Style.css",
 		"image/*.webp"
 	],
+	"optional_permissions": [
+		"*://*.youtube.com/*"
+	],
 	"permissions": [
 		"*://*.twitch.tv/*",
-		"*://*.youtube.com/*",
 		"storage"
 	],
 	"icons": {
