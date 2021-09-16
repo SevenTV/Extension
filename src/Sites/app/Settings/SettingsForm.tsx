@@ -6,6 +6,8 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormGroup from '@material-ui/core/FormGroup';
 import { SettingNode } from 'src/Content/Runtime/Settings';
+import { MainComponent } from 'src/Sites/app/MainComponent';
+import { SettingValue } from 'src/Global/Util';
 
 export class SettingsForm extends React.Component<SettingsForm.Props> {
 	render() {
@@ -19,7 +21,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 							result =
 								<FormControlLabel label={s.label} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} control={
 									<Checkbox
-										checked={(s.value ?? s.defaultValue) as boolean}
+										checked={(this.props.main.app?.config.get(s.id)?.asBoolean() ?? s.defaultValue) as boolean}
 										onChange={ev => this.handleCheckboxChange(s, ev)}
 										sx={{ '& .MuiSvgIcon-root': { fontSize: 24 } }} />
 								}></FormControlLabel>;
@@ -46,9 +48,8 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 		const checked = ev.target.checked;
 
 		sNode.value = checked;
-		chrome.storage.local.set({
-			[`cfg.${sNode.id}`]: checked
-		});
+		this.props.main.app?.config.set(sNode.id, new SettingValue(checked));
+		this.props.main.app?.sendMessageUp('SetConfigNode', { key: `cfg.${sNode.id}`, value: checked });
 
 		this.setState({});
 	}
@@ -56,6 +57,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 
 export namespace SettingsForm {
 	export interface Props {
+		main: MainComponent;
 		settings: SettingNode[];
 	}
 }

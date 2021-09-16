@@ -68,7 +68,7 @@ export class SettingsComponent extends React.Component<SettingsComponent.Props, 
 
 						{/** Render the form */}
 						<div className='form-list'>
-							<SettingsForm settings={this.props.settings}></SettingsForm>
+							<SettingsForm main={this.props.main} settings={this.props.settings}></SettingsForm>
 						</div>
 					</div>
 				</div>

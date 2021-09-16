@@ -146,6 +146,16 @@ export class SiteApp {
 			config.set(k, new SettingValue(cfg[k]));
 		}
 	}
+
+	/**
+	 * Send a message to the content script layer
+	 *
+	 * @param tag the event tag
+	 * @param data the event data
+	 */
+	sendMessageUp(tag: string, data: any): void {
+		window.dispatchEvent(new CustomEvent(`7TV#${tag}`, { detail: JSON.stringify(data) }));
+	}
 }
 
 export const emoteStore = new EmoteStore();

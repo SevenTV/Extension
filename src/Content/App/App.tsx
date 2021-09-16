@@ -25,10 +25,13 @@ export class App {
 		this.sendMessageDown('OnAssets', map);
 	}
 
-	@PageScriptListener('OpenConfigMenu')
-	whenOpenTheConfigMenu(): void {
-		const overlay = document.querySelector('.seventv-overlay');
-		console.log('open overlay', overlay);
+	@PageScriptListener('SetConfigNode')
+	whenConfigNodeIsChanged(data: { key: string; value: string; }): void {
+		if (!data.key.startsWith('cfg.')) {
+			return undefined;
+		}
+
+		settings.apply({ [data.key]: data.value });
 	}
 
 	/**

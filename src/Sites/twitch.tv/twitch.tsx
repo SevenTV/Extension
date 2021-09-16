@@ -178,21 +178,20 @@ export class TwitchPageScript {
 		return emotes;
 	}
 
-	/**
-	 * Send a message to the content script layer
-	 *
-	 * @param tag the event tag
-	 * @param data the event data
-	 */
-	sendMessageUp(tag: string, data: any): void {
-		window.dispatchEvent(new CustomEvent(`7TV#${tag}`, { detail: JSON.stringify(data) }));
+	@PageScriptListener('ConfigChange')
+	whenAppConfigChangeds(cfg: { [x: string]: any; }): void {
+		if (cfg['general.app_avatars'] === false) {
+			page?.avatarManager.revert();
+		}
 	}
+
 }
 
+let page: TwitchPageScript;
 let chatListener: TwitchChatListener;
 let inputManager: InputManager;
 
 let ffzMode = false;
 (() => {
-	const { } = new TwitchPageScript();
+	page = new TwitchPageScript();
 })();
