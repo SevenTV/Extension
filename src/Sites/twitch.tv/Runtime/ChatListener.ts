@@ -1,7 +1,7 @@
 import { Constants } from '@typings/src/Constants';
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
@@ -39,7 +39,7 @@ export class TwitchChatListener {
 					}
 
 					Logger.Get().debug(`Twitch chat rerender detected, rendering 7TV emotes`);
-					listener.rerenderAll(listener.twitch.getChatLines()); // Rerender all existing chat lines
+					setTimeout(() => listener.rerenderAll(listener.twitch.getChatLines()), 1000); // Rerender all existing chat lines
 
 					if (!!x && typeof x === 'function') {
 						try {
@@ -105,9 +105,7 @@ export class TwitchChatListener {
 		 */
 		this.observeDOM().pipe(
 			takeUntil(this.killed),
-			// Patch with badges LUL
-			// tap(line => this.badgeManager.patchChatLine(line)),
-
+			filter(line => !!line.component && !!line.component.props.message?.seventv),
 			// Render 7TV emotes
 			tap(line => line.component.props.message.seventv.patcher?.render(line)),
 		).subscribe();
@@ -119,11 +117,11 @@ export class TwitchChatListener {
 	private rerenderAll(lines: Twitch.ChatLineAndComponent[]): void {
 		for (const line of lines) {
 			if (!line.component?.props) continue;
-			this.onMessage(line.component.props.message);
+			this.onMessage(line.component.props.message, line);
 		}
 	}
 
-	private onMessage(msg: Twitch.ChatMessage): void {
+	private onMessage(msg: Twitch.ChatMessage, renderAs: Twitch.ChatLineAndComponent | null = null): void {
 		/**
 		 * Push new messages as "pending" while we are waiting for Twitch to create the component
 		 * We can edit the message in the meantime
@@ -148,6 +146,9 @@ export class TwitchChatListener {
 		this.linesRendered++;
 		if (this.linesRendered === 1) {
 			setTimeout(() => this.onMessage(msg), 100);
+		}
+		if (!!renderAs) {
+			patcher.render(renderAs);
 		}
 	}
 
@@ -174,12 +175,17 @@ export class TwitchChatListener {
 		return new Observable<Twitch.ChatLineAndComponent>(observer => {
 			Logger.Get().info('Creating MutationObserver');
 
-			const mutationObserver = new MutationObserver(_ => {
-				const lines = this.twitch.getChatLines(Array.from(this.pendingMessages.values()));
-				for (const line of lines) {
-					this.pendingMessages.delete(line.component?.props?.message.id);
+			const mutationObserver = new MutationObserver(mutations => {
+				for (const m of mutations) {
+					for (const n of m.addedNodes) {
+						const r = this.twitch.getChatLine(n as HTMLElement);
 
-					observer.next(line);
+						observer.next({
+							element: n as HTMLDivElement,
+							component: r.component as Twitch.ChatLineComponent,
+							inst: r.instance
+						});
+					}
 				}
 			});
 
