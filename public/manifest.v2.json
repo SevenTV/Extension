@@ -13,9 +13,8 @@
 	},
 	"content_scripts": [
 		{
-			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"],
-			"js": ["content.js"],
-			"runAt": "document_start"
+			"matches": ["*://*.twitch.tv/*"],
+			"js": ["content.js"]
 		}
 	],
 	"web_accessible_resources": [

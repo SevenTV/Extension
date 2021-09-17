@@ -23,3 +23,25 @@ chrome.runtime.onInstalled.addListener(() => {
 		});
 	});
 });
+
+const activeTabs = new Map<number, chrome.tabs.Tab>();
+
+chrome.tabs.onUpdated.addListener((tabId, i, t) => {
+	if (!i.status || !t.url) {
+		return undefined;
+	}
+	activeTabs.set(tabId, t);
+
+	const loc = new URL(t.url);
+	if (ytHostnameRegex.test(loc.host)) {
+		chrome.tabs.executeScript(tabId, {
+			file: 'content.js'
+		});
+	}
+});
+
+chrome.tabs.onRemoved.addListener(tabId => {
+	activeTabs.delete(tabId);
+});
+
+const ytHostnameRegex = /([a-z0-9]+[.])*youtube[.]com/;
