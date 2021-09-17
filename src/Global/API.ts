@@ -2,9 +2,9 @@ import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
 import { filter, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
-import request from 'superagent';
 import { version } from 'public/manifest.v3.json';
 import { Badge } from 'src/Global/Badge';
+import request from 'superagent';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
@@ -69,12 +69,12 @@ export class API {
 		);
 	}
 
-	GetFrankerFaceZChannelEmotes(channelID: string, platform: 'twitch' | 'youtube' = 'twitch'): Observable<DataStructure.Emote[]> {
+	GetFrankerFaceZChannelEmotes(channelID: string, platform: API.Platform = 'twitch'): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.BTTV.Emote[]>(`/cached/frankerfacez/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
 			map(res => res.body),
 			mergeAll(),
 			filter(emote => !!emote),
-			map(emote => this.transformBTTV(emote)),
+			map(emote => this.transformBTTV(emote, false, true)),
 			toArray()
 		);
 	}
@@ -88,7 +88,7 @@ export class API {
 		);
 	}
 
-	GetBTTVChannelEmotes(channelID: string, platform: 'twitch' | 'youtube' = 'twitch'): Observable<DataStructure.Emote[]> {
+	GetBTTVChannelEmotes(channelID: string, platform: API.Platform = 'twitch'): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.BTTV.UserResponse>(`/cached/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
 			map(res => [...res?.body?.channelEmotes ?? [], ...res?.body?.sharedEmotes ?? []]),
 			mergeAll(),
@@ -130,7 +130,7 @@ export class API {
 		} as DataStructure.Emote;
 	}
 
-	private transformBTTV(emote: API.BTTV.Emote, global = false): DataStructure.Emote {
+	private transformBTTV(emote: API.BTTV.Emote, global = false, isFFZ = false): DataStructure.Emote {
 		return {
 			id: emote.id,
 			name: emote.code,
@@ -138,7 +138,7 @@ export class API {
 			tags: [],
 			width: [28],
 			height: [28],
-			provider: 'BTTV',
+			provider: !isFFZ ? 'BTTV' : 'FFZ',
 			visibility: (global ? DataStructure.Emote.Visibility.GLOBAL : 0) | (API.BTTV.ZeroWidth.includes(emote.code) ? DataStructure.Emote.Visibility.ZERO_WIDTH : 0),
 			urls: [
 				['1', emote.images?.['1x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/1x`],
@@ -259,6 +259,8 @@ export namespace API {
 			'ReinDeer', 'CandyCane', 'cvMask', 'cvHazmat',
 		];
 	}
+
+	export type Platform = 'twitch' | 'youtube';
 }
 
 const defaultEmoteQuery = `
