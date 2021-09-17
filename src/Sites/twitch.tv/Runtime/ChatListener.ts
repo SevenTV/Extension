@@ -174,21 +174,8 @@ export class TwitchChatListener {
 		return new Observable<Twitch.ChatLineAndComponent>(observer => {
 			Logger.Get().info('Creating MutationObserver');
 
-			const mutationObserver = new MutationObserver((records) => {
+			const mutationObserver = new MutationObserver(_ => {
 				const lines = this.twitch.getChatLines(Array.from(this.pendingMessages.values()));
-
-				// Check for removed nodes
-				const removals = records.map(r => r.removedNodes);
-				for (const removedNodes of removals) {
-					removedNodes.forEach(n => {
-						const el = n as HTMLDivElement;
-						if (!el.classList.contains(Twitch.Selectors.ChatLine.slice(1))) return undefined;
-
-						// Send message to content script notifying it to unrender the body of deleted messages
-						this.page.sendMessageUp('UnrenderChatLine', { id: el.getAttribute('seventv-id') });
-					});
-				}
-
 				for (const line of lines) {
 					this.pendingMessages.delete(line.component?.props?.message.id);
 
