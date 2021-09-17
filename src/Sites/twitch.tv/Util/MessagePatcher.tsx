@@ -15,7 +15,6 @@ export class MessagePatcher {
 		// Begin iterating through message parts
 		// Daily Quest: find 7TV emotes ZULUL
 		const eIndex = this.page.getEmoteIndex();
-		const eNames = Object.keys(eIndex);
 
 		// Find all emotes across the message parts
 		for (const part of this.msg.messageParts) {
@@ -40,7 +39,7 @@ export class MessagePatcher {
 			if (typeof text !== 'string') continue;
 
 			// Check if part contains one or more 7TV emotes?
-			const matches = MessagePatcher.getRegexp(eNames);
+			const matches = this.page.emoteRegex as RegExp;
 
 			// Apply matches to message parts
 			const foundEmotes = text.match(matches)

@@ -8,6 +8,7 @@ import 'src/Style/Style.scss';
 import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
 import { SiteApp } from 'src/Sites/app/SiteApp';
 import { map } from 'rxjs/operators';
+import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 
 export class TwitchPageScript {
 	site = new SiteApp();
@@ -22,6 +23,7 @@ export class TwitchPageScript {
 	isActorVIP = false;
 
 	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
+	emoteRegex = /$^/;
 
 	get ffzMode(): boolean {
 		return ffzMode;
@@ -166,7 +168,9 @@ export class TwitchPageScript {
 		}
 
 		const emotes = this.getAllEmotes();
-		return emotes.length > 0 ? this.eIndex = emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b })) : {};
+		const ind = emotes.length > 0 ? this.eIndex = emotes.map(e => ({ [e.name]: e })).reduce((a, b) => ({ ...a, ...b })) : {};
+		this.emoteRegex = MessagePatcher.getRegexp(Object.keys(ind));
+		return ind;
 	}
 
 	getAllEmotes(): EmoteStore.Emote[] {
