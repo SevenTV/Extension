@@ -82,6 +82,9 @@ export class MessageTree {
 			span.classList.add('seventv-text-empty');
 		}
 		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
+		if (part.content?.toLowerCase().includes(this.msg.seventv?.currentUserLogin)) {
+			this.renderer.element?.classList.add('seventv-message-mentioned');
+		}
 
 		span.style.color = color;
 		span.style.wordBreak = 'break-word';
@@ -141,6 +144,9 @@ export class MessageTree {
 		const span = document.createElement('span');
 		span.classList.add('seventv-mention');
 		span.innerHTML = `@${part.content}`;
+		if (!!part.content && part.content?.toLowerCase() === this.msg.seventv?.currentUserLogin) {
+			this.renderer.element?.classList.add('seventv-message-mentioned');
+		}
 
 		return span;
 	}
