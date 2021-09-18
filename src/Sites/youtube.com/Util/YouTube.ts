@@ -2,7 +2,7 @@
 
 export class YouTube {
 	getChatContainer(): HTMLDivElement | null {
-		return document.querySelector<HTMLDivElement>(YouTube.Selectors.ChatContainer) ?? null;
+		return (this.getChatFrame() ?? document).querySelector<HTMLDivElement>(YouTube.Selectors.ChatContainer) ?? null;
 	}
 
 	getChatItemsContainer(): YouTube.MessageElement | null {

@@ -72,10 +72,7 @@ export class YouTubePageScript {
 				this.chatObserver.rerenderAll();
 				this.chatObserver.listen();
 				this.setupOverlay();
-				this.site.embeddedUI.embedChatButton((
-					document.querySelector('div#picker-buttons.yt-live-chat-message-input-renderer')?.parentElement ??
-					this.youtube.getChatFrame()?.querySelector('div#message-buttons')?.parentElement
-				) as HTMLElement);
+				this.insertEmoteMenuButton();
 				this.addTheaterModeButton();
 			};
 
@@ -143,6 +140,16 @@ export class YouTubePageScript {
 				fdoc.head?.appendChild(style);
 			})();
 		}
+	}
+
+	/**
+	 * Add the emote menu button to the chat
+	 */
+	insertEmoteMenuButton(): void {
+		this.site.embeddedUI.embedChatButton((
+			document.querySelector('div#picker-buttons.yt-live-chat-message-input-renderer')?.parentElement ??
+			this.youtube.getChatFrame()?.querySelector('div#message-buttons')?.parentElement
+		) as HTMLElement);
 	}
 
 	/**
