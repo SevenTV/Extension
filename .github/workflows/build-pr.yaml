@@ -19,20 +19,32 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Lint & Build
+      - name: Lint
         run: |
           npm install
           npm run lint
-          npm run build-production
 
-      - name: ZIP Release
+      - name: Build
+        run: |
+          npm run build-prod-chromium
+          npm run build-prod-firefox
+
+      - name: ZIP Releases
         run: |
           apt-get update && apt-get install -y zip
-          cd dist/ && zip -r release.zip .
+          cd dist/chromium/ && zip -r release-chromium.zip . && cd ../../
+          cd dist/firefox/ && zip -r release-firefox.zip .
 
-      - name: Upload Artifact
+      - name: Upload Artifact (Chromium)
         uses: actions/upload-artifact@v2
         with:
-          name: pr-${{ github.sha }}-chromium-firefox.zip
-          path: dist/release.zip
-          retention-days: 90
+          name: ext-chromium
+          path: dist/chromium/release-chromium.zip
+          retention-days: 60
+
+      - name: Upload Artifact (Firefox)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ext-firefox
+          path: dist/firefox/release-firefox.zip
+          retention-days: 60

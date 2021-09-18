@@ -1,4 +1,4 @@
-import { MainComponent } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Sites/app/MainComponent';
 
 
 export class Badge {

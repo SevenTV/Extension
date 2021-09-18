@@ -1,9 +1,9 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Subject } from 'rxjs';
 import { Config } from 'src/Config';
-import { broadcastExtensionMessage, ExtensionRuntimeMessage, getRunningContext, sendExtensionMessage } from 'src/Global/Util';
+import { broadcastExtensionMessage, ExtensionRuntimeMessage, getRunningContext } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
-import { version } from 'public/manifest.json';
+import { version } from 'public/manifest.v3.json';
 
 
 export class EventAPI {
@@ -76,7 +76,7 @@ export class EventAPI {
 		try {
 			data = JSON.parse(ev.data);
 		} catch (err) {
-			Logger.Get().error('<EVENTS> Parse on message failed', err.message);
+			Logger.Get().error('<EVENTS> Parse on message failed', (err as any).message);
 		}
 		if (!data) {
 			return undefined;
@@ -105,11 +105,6 @@ export class EventAPI {
 			// Add to list & connect
 			this.channels.add(channelName);
 			this.connect();
-		} else {
-			sendExtensionMessage('ConfigureEventAPI', {
-				do: 'ADD_CHANNEL',
-				channel: channelName
-			});
 		}
 	}
 
@@ -132,11 +127,6 @@ export class EventAPI {
 				this.connection.close();
 				Logger.Get().info('<EVENTS> User no longer on any channel, closing connection');
 			}
-		} else {
-			sendExtensionMessage('ConfigureEventAPI', {
-				do: 'REMOVE_CHANNEL',
-				channel: channelName
-			});
 		}
 	}
 }

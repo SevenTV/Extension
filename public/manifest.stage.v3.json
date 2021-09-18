@@ -1,0 +1,48 @@
+{
+	"manifest_version": 3,
+	"name": "7TV (Stage)",
+	"description": "7TV is an emote service and extension for Twitch and YouTube -- STAGE BUILD",
+	"version": "2.0.0",
+	"version_name": "2.0.0 STAGE",
+	"action": {
+		"page_action": {
+			"default_icon": "icon128-stage.png"
+		}
+	}
+	,
+	"background": {
+		"service_worker": "background.js",
+		"type": "module"
+	},
+	"content_scripts": [
+		{
+			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"],
+			"js": ["content.js"],
+			"runAt": "document_start"
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"twitch.js",
+				"youtube.js",
+				"ffz_hook.js",
+				"ffz_addon.js",
+				"styles/Style.css",
+				"image/*.webp"
+			],
+			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"]
+		}
+	],
+	"permissions": [
+		"storage"
+	],
+	"host_permissions": [
+		"*://*.twitch.tv/*"
+	],
+	"icons": {
+		"16": "icon16-stage.png",
+		"48": "icon48-stage.png",
+		"128": "icon128-stage.png"
+	}
+}

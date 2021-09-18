@@ -1,0 +1,47 @@
+{
+	"manifest_version": 3,
+	"name": "7TV",
+	"description": "7TV is an emote service and extension for Twitch and YouTube",
+	"version": "2.0.0",
+	"action": {
+		"page_action": {
+			"default_icon": "icon128.png"
+		}
+	}
+	,
+	"background": {
+		"service_worker": "background.js",
+		"type": "module"
+	},
+	"content_scripts": [
+		{
+			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"],
+			"js": ["content.js"],
+			"runAt": "document_start"
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"twitch.js",
+				"youtube.js",
+				"ffz_hook.js",
+				"ffz_addon.js",
+				"styles/Style.css",
+				"image/*.webp"
+			],
+			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"]
+		}
+	],
+	"permissions": [
+		"storage"
+	],
+	"host_permissions": [
+		"*://*.twitch.tv/*"
+	],
+	"icons": {
+		"16": "icon16.png",
+		"48": "icon48.png",
+		"128": "icon128.png"
+	}
+}

@@ -4,9 +4,9 @@ import { DataStructure } from '@typings/typings/DataStructure';
 import EmojiData from 'src/Content/Util/Emoji.json';
 import twemoji from 'twemoji';
 import { Logger } from 'src/Logger';
-import { Twitch } from 'src/Page/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { getProviderLogo, getRunningContext } from 'src/Global/Util';
-import { MainComponent } from 'src/Content/Components/MainComponent';
+import { MainComponent } from 'src/Sites/app/MainComponent';
 import React from 'react';
 
 const TWITCH_SET_NAME = 'twitch';
@@ -176,6 +176,7 @@ export class EmoteStore {
 			result.push(set.resolve());
 		}
 
+		Logger.Get().debug(`Disabled emote set: ${name}`);
 		return result;
 	}
 }
@@ -218,7 +219,11 @@ export namespace EmoteStore {
 		}
 
 		getEmotes(): Emote[] {
-			return Array.from(this.emotes.values());
+			const emotes = [] as Emote[];
+			for (const [_, emote] of this.emotes) {
+				emotes.push(emote);
+			}
+			return emotes;
 		}
 
 		getEmoteByID(id: string): Emote | null {

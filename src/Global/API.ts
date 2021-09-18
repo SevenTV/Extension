@@ -2,20 +2,16 @@ import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
 import { filter, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
-import { getRunningContext, sendExtensionMessage } from 'src/Global/Util';
-import request, { post } from 'superagent';
-import { version } from 'public/manifest.json';
+import { version } from 'public/manifest.v3.json';
 import { Badge } from 'src/Global/Badge';
-import { EventAPI } from 'src/Global/Events/EventAPI';
+import request from 'superagent';
 
 export class API {
 	private BASE_URL = `${Config.secure ? 'https' : 'http'}:${Config.apiUrl}/v2`;
 	private BASE_URL_FFZ = 'https://api.frankerfacez.com/v1';
 	private BASE_URL_BTTV = 'https://api.betterttv.net/3';
 
-	events = new EventAPI();
-
-	constructor() {}
+	constructor() { }
 
 	/**
 	 * Get the channel emotes of a channel
@@ -73,12 +69,12 @@ export class API {
 		);
 	}
 
-	GetFrankerFaceZChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
-		return this.createRequest<API.FFZ.RoomResponse>(`/room/id/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
-			map(res => res?.body?.sets ? Object.keys(res?.body.sets).map(k => res?.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
+	GetFrankerFaceZChannelEmotes(channelID: string, platform: API.Platform = 'twitch'): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.BTTV.Emote[]>(`/cached/frankerfacez/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
+			map(res => res.body),
 			mergeAll(),
 			filter(emote => !!emote),
-			map(emote => this.transformFFZ(emote)),
+			map(emote => this.transformBTTV(emote, false, true)),
 			toArray()
 		);
 	}
@@ -92,8 +88,8 @@ export class API {
 		);
 	}
 
-	GetBTTVChannelEmotes(channelID: string): Observable<DataStructure.Emote[]> {
-		return this.createRequest<API.BTTV.UserResponse>(`/cached/users/twitch/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
+	GetBTTVChannelEmotes(channelID: string, platform: API.Platform = 'twitch'): Observable<DataStructure.Emote[]> {
+		return this.createRequest<API.BTTV.UserResponse>(`/cached/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
 			map(res => [...res?.body?.channelEmotes ?? [], ...res?.body?.sharedEmotes ?? []]),
 			mergeAll(),
 			map(emote => this.transformBTTV(emote)),
@@ -134,7 +130,7 @@ export class API {
 		} as DataStructure.Emote;
 	}
 
-	private transformBTTV(emote: API.BTTV.Emote, global = false): DataStructure.Emote {
+	private transformBTTV(emote: API.BTTV.Emote, global = false, isFFZ = false): DataStructure.Emote {
 		return {
 			id: emote.id,
 			name: emote.code,
@@ -142,13 +138,13 @@ export class API {
 			tags: [],
 			width: [28],
 			height: [28],
-			provider: 'BTTV',
+			provider: !isFFZ ? 'BTTV' : 'FFZ',
 			visibility: (global ? DataStructure.Emote.Visibility.GLOBAL : 0) | (API.BTTV.ZeroWidth.includes(emote.code) ? DataStructure.Emote.Visibility.ZERO_WIDTH : 0),
 			urls: [
-				['1', `https://cdn.betterttv.net/emote/${emote.id}/1x`],
-				['2', `https://cdn.betterttv.net/emote/${emote.id}/2x`],
-				['3', `https://cdn.betterttv.net/emote/${emote.id}/3x`],
-				['4', `https://cdn.betterttv.net/emote/${emote.id}/3x`],
+				['1', emote.images?.['1x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/1x`],
+				['2', emote.images?.['2x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/2x`],
+				['3', emote.images?.['4x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/3x`],
+				['4', emote.images?.['4x'] ?? `https://cdn.betterttv.net/emote/${emote.id}/3x`],
 			],
 			owner: emote.user ? {
 				id: emote.user.id,
@@ -160,30 +156,22 @@ export class API {
 
 	createRequest<T>(route: string, options: Partial<API.CreateRequestOptions>): Observable<API.Response<T>> {
 		return new Observable<API.Response<T>>(observer => {
-			const ctx = getRunningContext();
+			const uri = (options.baseUrl ? options.baseUrl : this.BASE_URL) + route;
 
-			if (ctx === 'background') {
-				const uri = (options.baseUrl ? options.baseUrl : this.BASE_URL) + route;
-
-				from(request(options.method || 'POST', uri).set(
+			const req = request(options.method || 'POST', uri);
+			if (!options.baseUrl) {
+				req.set(
 					'X-SevenTV-Platform', 'WebExtension',
 				).set(
 					'X-SevenTV-Version', version
-				).send(options.body ?? {})).subscribe({
-					error(err) { observer.error(new API.ErrorResponse(err.status, err)); },
-					next(res) { observer.next({ status: res.status, body: res.body, headers: res.headers }); },
-					complete() { observer.complete(); }
-				});
-			} else if (ctx === 'content') {
-				sendExtensionMessage('APIRequest', {
-					route,
-					options
-				}, (res: API.Response<T>) => {
-					observer.next(res);
-					observer.complete();
-				});
+				).send(options.body ?? {});
 			}
-			from(post(''));
+
+			from(req).subscribe({
+				error(err) { observer.error(new API.ErrorResponse(err.status, err)); },
+				next(res) { observer.next({ status: res.status, body: res.body, headers: res.headers }); },
+				complete() { observer.complete(); }
+			});
 		});
 	}
 }
@@ -215,9 +203,11 @@ export namespace API {
 	export type EmoteProviderList = [EmoteProvider?, EmoteProvider?];
 	export namespace FFZ {
 		export interface RoomResponse {
-			sets: { [key: string]: {
-				emoticons: FFZ.Emote[];
-			}};
+			sets: {
+				[key: string]: {
+					emoticons: FFZ.Emote[];
+				}
+			};
 		}
 
 		export interface Emote {
@@ -250,6 +240,11 @@ export namespace API {
 			id: string;
 			code: string;
 			imageType: string;
+			images?: {
+				'1x': string;
+				'2x': string;
+				'4x': string;
+			};
 			user: {
 				id: string;
 				name: string;
@@ -264,6 +259,8 @@ export namespace API {
 			'ReinDeer', 'CandyCane', 'cvMask', 'cvHazmat',
 		];
 	}
+
+	export type Platform = 'twitch' | 'youtube';
 }
 
 const defaultEmoteQuery = `
