@@ -52,6 +52,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 		this.props.main.app?.sendMessageUp('SetConfigNode', { key: `cfg.${sNode.id}`, value: checked });
 
 		this.setState({});
+		this.props.main.setState({});
 	}
 }
 

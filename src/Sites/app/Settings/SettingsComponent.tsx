@@ -1,29 +1,26 @@
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { version } from 'public/manifest.v3.json';
 import { Config } from 'src/Config';
-import { SettingNode, settings } from 'src/Content/Runtime/Settings';
+import { SettingNode } from 'src/Content/Runtime/Settings';
 import { SettingsForm } from 'src/Sites/app/Settings/SettingsForm';
-import { assetStore } from 'src/Sites/app/SiteApp';
+import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import CloseIcon from '@material-ui/icons/Close';
 import React from 'react';
 
-export class SettingsComponent extends React.Component<SettingsComponent.Props, SettingsComponent.State> {
-	state = {
-		retrieved: true
-	} as SettingsComponent.State;
-
+export class SettingsComponent extends React.Component<SettingsComponent.Props> {
 	constructor(props: SettingsComponent.Props) {
 		super(props);
 	}
 
+	get site(): SiteApp {
+		return this.props.main.app as SiteApp;
+	}
+
 	render() {
 		const logoURL = assetStore.get('7tv.webp');
-		if (!this.state.retrieved) {
-			return <span>Loading menu...</span>;
-		}
 
 		return (
-			<div className={`seventv-settings-menu ${settings.get('ui.transparency').asBoolean() ? 'seventv-sm-backdrop-blur' : ''}`}>
+			<div className={`seventv-settings-menu ${this.site.config.get('ui.transparency')?.asBoolean() ? 'seventv-sm-backdrop-blur' : ''}`}>
 				<div className='seventv-sm-sidebar'>
 					{/* Logo */}
 					<div className='seventv-sm-logo'>
@@ -95,10 +92,6 @@ export namespace SettingsComponent {
 		main: MainComponent;
 		configData: { [x: string]: any; };
 		settings: SettingNode[];
-	}
-
-	export interface State {
-		retrieved: boolean;
 	}
 
 	export interface SocialIcon {
