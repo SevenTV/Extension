@@ -5,22 +5,22 @@ import { MessageTree } from 'src/Sites/twitch.tv/Components/MessageTree';
 
 export class MessageRenderer {
 	private parts = [] as HTMLElement[];
+	element: HTMLElement | null = null;
+
 	constructor(
 		public app: SiteApp,
 		public msg: Twitch.ChatMessage,
 		public elementId: string
-	) { }
+	) {
+		this.element = document.getElementById(elementId);
+	}
 
 	getChatContainer() {
 		return document.querySelector(Twitch.Selectors.ChatScrollableContainer);
 	}
 
-	getElement(): HTMLDivElement | null {
-		return document.getElementById(this.elementId) as HTMLDivElement;
-	}
-
 	insert(): void {
-		const el = this.getElement();
+		const el = this.element;
 		if (!el) return undefined;
 
 		// Delete previous message context if it exists

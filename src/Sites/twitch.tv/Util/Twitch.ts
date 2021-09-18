@@ -199,6 +199,7 @@ export namespace Twitch {
 		confirmModerationAction: Function;
 		currentUserDisplayName: string;
 		currentUserID: string;
+		currentUserLogin: string;
 		deletedCount: number | undefined;
 		deletedMessageDisplay: string;
 		hasReply: string | undefined;
@@ -409,6 +410,8 @@ export namespace Twitch {
 			parts: ChatMessage.AppPart[];
 			badges?: ChatBadge[];
 			is_slash_me?: boolean;
+			currenUserID?: string;
+			currentUserLogin?: string;
 		};
 		message: string;
 		messageBody: string;

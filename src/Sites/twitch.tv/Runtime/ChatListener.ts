@@ -107,7 +107,11 @@ export class TwitchChatListener {
 			takeUntil(this.killed),
 			filter(line => !!line.component && !!line.component.props.message?.seventv),
 			// Render 7TV emotes
-			tap(line => line.component.props.message.seventv.patcher?.render(line)),
+			tap(line => {
+				line.component.props.message.seventv.currenUserID = line.component.props.currentUserID;
+				line.component.props.message.seventv.currentUserLogin = line.component.props.currentUserLogin;
+				line.component.props.message.seventv.patcher?.render(line);
+			}),
 		).subscribe();
 	}
 

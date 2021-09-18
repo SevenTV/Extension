@@ -141,6 +141,9 @@ export class MessageTree {
 		const span = document.createElement('span');
 		span.classList.add('seventv-mention');
 		span.innerHTML = `@${part.content}`;
+		if (!!part.content && part.content?.toLowerCase() === this.msg.seventv?.currentUserLogin) {
+			this.renderer.element?.classList.add('seventv-message-mentioned');
+		}
 
 		return span;
 	}
