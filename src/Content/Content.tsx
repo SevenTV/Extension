@@ -61,6 +61,9 @@ export class ExtensionContentScript {
 		if (this.injected) {
 			return;
 		}
+		if (!!document.querySelector('script#seventv')) {
+			return;
+		}
 
 		this.injected = true;
 		const script = document.createElement('script');
@@ -72,6 +75,7 @@ export class ExtensionContentScript {
 		style.setAttribute('content', 'text/html');
 		style.setAttribute('http-equiv', 'content-type');
 		script.src = chrome.runtime.getURL(`${platform}.js`);
+		script.id = 'seventv';
 		script.onload = () => {
 			Logger.Get().info(`Injected into ${platform}`);
 

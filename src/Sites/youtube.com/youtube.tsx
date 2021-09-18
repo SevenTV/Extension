@@ -1,5 +1,5 @@
 import { asyncScheduler, fromEvent, iif, interval, of, scheduled, Subject, timer } from 'rxjs';
-import { filter, map, mapTo, mergeAll, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { filter, map, mapTo, mergeAll, switchMap, take, takeUntil } from 'rxjs/operators';
 import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import { ChatObserver } from 'src/Sites/youtube.com/Runtime/ChatObserver';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
@@ -101,8 +101,6 @@ export class YouTubePageScript {
 					take(10),
 					map(() => document.querySelector<HTMLElement>('yt-live-chat-renderer')),
 					map(node => !node ? this.youtube.getChatFrame()?.querySelector<HTMLElement>('yt-live-chat-renderer') : node),
-					// If the node wasn't found, try to automatically open the chat
-					tap(node => !node ? document.querySelector<HTMLButtonElement>('[id="show-hide-button"] tp-yt-paper-button')?.click() : node),
 					filter(node => !!node),
 					take(1),
 					mapTo(channelID)

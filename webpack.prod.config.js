@@ -70,6 +70,7 @@ module.exports = env => {
 				patterns: [
 					{ from: 'public/icon', to: '.', },
 					{ from: 'public/image', to: 'image/' },
+					{ from: 'public/yt_upgrade', to: 'yt_upgrade/' },
 					{
 						from: `public/manifest${env.STAGE ? '.stage' : ''}.v${env.MANIFEST_VERSION === '3' ? '3' : '2'}.json`,
 						to: 'manifest.json'

@@ -1,0 +1,106 @@
+<html>
+	<head>
+		<title>7TV Web Extension | YouTube</title>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:ital@0;1&amp;family=Ubuntu&amp;display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@100;600;900&amp;display=swap" rel="stylesheet">
+
+		<script src="yt_upgrade.js" type="text/javascript"></script>
+
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				color: white;
+				font-family: "Roboto", sans-serif;
+			}
+
+			.seventv-yt-upgrade {
+				display: flex;
+				height: 100%;
+				width: 100%;
+				flex-direction: column;
+				background-color: #303030;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.seventv-yt-upgrade-logo {
+				margin-bottom: 2em;
+				border-radius: 0.5em;
+				background-image: url('yt_upgrade.webp');
+				width: 500px;
+				height: 234px;
+			}
+			.seventv-yt-upgrade-logo img {
+				border-radius: 0.5em;
+			}
+
+			.seventv-yt-upgrade-heading {
+				padding-right: 1em;
+				padding-left: 1em;
+				background-color: rgb(30, 30, 30);
+				border-color: black;
+				border-style: solid;
+				border-width: 0;
+				border-radius: 0.8em;
+				border-bottom-width: 2px;
+
+			}
+
+			.seventv-yt-upgrade-cta {
+				font-size: 1.5em;
+				text-align: center;
+				max-width: 24em;
+			}
+
+			.seventv-yt-upgrade-interact {
+				cursor: pointer;
+				font: inherit;
+				float: right;
+				color: white;
+				transition: background-color 200ms ease;
+				background-color: #0288D1;
+				border: 0.1em solid #252525;
+				padding: 1em;
+				border-radius: 0.25em;
+				text-align: center;
+
+			}
+			.seventv-yt-upgrade-interact span {
+				font-size: 1.25em;
+				margin-left: 0.3em;
+				color: currentColor;
+			}
+			.seventv-yt-upgrade-interact:hover {
+				background-color: #49ace1;
+			}
+			.seventv-yt-upgrade-interact:focus {
+				background-color: #00659b;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="seventv-yt-upgrade">
+			<div class="seventv-yt-upgrade-logo"></div>
+
+			<div class="seventv-yt-upgrade-heading">
+				<h1>7TV IS NOW ON YOUTUBE!</h1>
+			</div>
+
+			<div class="seventv-yt-upgrade-cta">
+				<p>
+					We've just added support for emotes in YouTube livestreams & premieres,
+					alongside an all-new "True Theater Mode" view featuring a full-width player with chat on the side.
+				</p>
+			</div>
+
+			<div>
+				<button class="seventv-yt-upgrade-interact" id="interact">
+					<span>ENABLE 7TV ON YOUTUBE</span>
+				</button>
+			</div>
+		</div>
+	</body>
+</html>

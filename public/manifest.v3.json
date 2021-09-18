@@ -37,8 +37,7 @@
 		"storage"
 	],
 	"host_permissions": [
-		"*://*.twitch.tv/*",
-		"*://*.youtube.com/*"
+		"*://*.twitch.tv/*"
 	],
 	"icons": {
 		"16": "icon16.png",

@@ -6,7 +6,7 @@
 	flex-direction: column;
 	background-color: var(--seventv-color-tooltip);
 	border-radius: 6px;
-	padding: 0.25em;
+	padding: 0.1em;
 
 	width: fit-content;
 	height: fit-content;
@@ -69,7 +69,8 @@
 	justify-content: center;
 
 	img {
-		width: 100%;
+		max-width: 228px;
+		max-height: 76px;
 	}
 }
 
