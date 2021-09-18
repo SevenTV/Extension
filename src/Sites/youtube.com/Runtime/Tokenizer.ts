@@ -1,3 +1,4 @@
+import { EmoteStore } from 'src/Global/EmoteStore';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
 import { YouTubePageScript } from 'src/Sites/youtube.com/youtube';
 
@@ -5,6 +6,7 @@ import { YouTubePageScript } from 'src/Sites/youtube.com/youtube';
 export class Tokenizer {
 	content: HTMLDivElement | null = null;
 	contentMessage: HTMLSpanElement | null = null;
+	previousEmote: EmoteStore.Emote | null = null;
 
 	constructor(
 		private page: YouTubePageScript,
@@ -87,8 +89,23 @@ export class Tokenizer {
 		if (!!emote) {
 			const emoteElement = emote.toElement(this.page.site.config.get('general.hide_unlisted_emotes')?.asBoolean());
 			ctx.appendChild(emoteElement);
+			this.considerZeroWidth(emote);
+			this.previousEmote = emote;
 			return true;
 		}
 		return false;
+	}
+
+	private considerZeroWidth(emote: EmoteStore.Emote): void {
+		// If this emote is zerowidth, we must check the previous emote
+		if (emote.isZeroWidth() && !!this.previousEmote) {
+			// Previous emote should be the target for this zero-width emmote
+			// Add css class
+			this.previousEmote.element?.classList.add('seventv-next-is-zerowidth');
+
+			if (!!emote.element && !!this.previousEmote.element?.style.minWidth) {
+				emote.element.style.minWidth = this.previousEmote.element?.style.minWidth;
+			}
+		}
 	}
 }
