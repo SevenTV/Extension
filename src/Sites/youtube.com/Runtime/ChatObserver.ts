@@ -20,13 +20,30 @@ export class ChatObserver {
 
 		const observer = new MutationObserver(mutations => {
 			for (const m of mutations) {
+				// Render new messages
 				for (const n of m.addedNodes) {
 					this.handleNewChatMessage(n as YouTube.MessageElement);
 				}
 			}
 		});
 
-		observer.observe(items, { childList: true });
+		observer.observe(items, { childList: true, attributes: true });
+
+		const container = this.page.youtube.getChatContainer();
+		container?.setAttribute('seventv-loaded', '');
+		const rerenderObserver = new MutationObserver(mutations => {
+			for (const m of mutations) {
+				// If target lost the seventv-loaded attr, this means we should restart
+				if (m.oldValue === 'yt-live-chat-renderer') {
+					observer.disconnect();
+					rerenderObserver.disconnect();
+					this.listen();
+					this.rerenderAll();
+					this.page.insertEmoteMenuButton();
+				}
+			}
+		});
+		rerenderObserver.observe(container as Node, { attributes: true, attributeOldValue: true, childList: true });
 	}
 
 	rerenderAll(): void {
