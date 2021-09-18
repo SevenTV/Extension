@@ -162,3 +162,5 @@ export const emoteStore = new EmoteStore();
 export let assetStore = new Map<string, string>();
 export let settingNodes = [] as SettingNode[];
 const config = new Map<string, SettingValue>();
+export const configMap = config;
+

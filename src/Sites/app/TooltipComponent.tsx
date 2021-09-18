@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { MainComponent } from 'src/Sites/app/MainComponent';
-import { settings } from 'src/Content/Runtime/Settings';
+import { configMap } from 'src/Sites/app/SiteApp';
+
 export class TooltipComponent extends React.Component<TooltipComponent.Props, TooltipComponent.State> {
 	unmounted = false;
 	ref = React.createRef<any>();
@@ -16,7 +17,7 @@ export class TooltipComponent extends React.Component<TooltipComponent.Props, To
 		const posY = this.getPosY();
 		const posX = this.getPosX();
 
-		const isSmall = settings.get('ui.minimize_tooltip_size').asBoolean();
+		const isSmall = configMap.get('ui.minimize_tooltip_size')?.asBoolean();
 		return (
 			<div className={`seventv-emote-tooltip-wrapper ${isSmall ? 'seventv-tooltip-small' : ''}`}
 				style={{ visibility: this.positioned ? 'visible' : 'hidden', top: posY, left: posX - 74 }}

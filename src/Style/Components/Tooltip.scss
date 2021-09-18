@@ -31,6 +31,7 @@
 	max-width: 270px;
 
 	.item-name {
+		font-size: 1.25em;
 		margin-bottom: 1px;
 		word-wrap: break-word;
 		color: currentColor;
@@ -75,13 +76,22 @@
 }
 
 .seventv-tooltip-small {
-	min-height: 0;
+	.seventv-emote-tooltip {
+		min-height: 0;
+		min-width: 0;
+	}
 
+	.seventv-emote-tooltip {
+		padding-right: 0;
+	}
 	.seventv-tooltip-details .item-name {
 		font-size: 1em;
 	}
 
-	img {
-		display: none;
+	.seventv-tooltip-image {
+		margin: 0 !important;
+		img {
+			display: none;
+		}
 	}
 }
