@@ -1,7 +1,7 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Subject } from 'rxjs';
 import { Config } from 'src/Config';
-import { broadcastExtensionMessage, ExtensionRuntimeMessage, getRunningContext } from 'src/Global/Util';
+import { getRunningContext } from 'src/Global/Util';
 import { Logger } from 'src/Logger';
 import { version } from 'public/manifest.v3.json';
 
@@ -13,15 +13,7 @@ export class EventAPI {
 
 	emoteEvent = new Subject<EventAPI.EmoteEventUpdate>();
 
-	constructor() {
-		if (this.ctx === 'content') {
-			chrome.runtime.onMessage.addListener((msg: ExtensionRuntimeMessage) => {
-				if (msg.tag === 'EventAPI:Message/ChannelEmotes') {
-					this.emoteEvent.next(msg.data);
-				}
-			});
-		}
-	}
+	constructor() {}
 
 	/**
 	 * Create a connection to the Event API
@@ -82,7 +74,7 @@ export class EventAPI {
 			return undefined;
 		}
 
-		broadcastExtensionMessage('EventAPI:Message/ChannelEmotes', data, undefined);
+		this.emoteEvent.next(data);
 	}
 
 	/**
@@ -105,6 +97,7 @@ export class EventAPI {
 			// Add to list & connect
 			this.channels.add(channelName);
 			this.connect();
+			Logger.Get().info(`<EVENTS> Added channel: ${channelName}`);
 		}
 	}
 
@@ -119,6 +112,7 @@ export class EventAPI {
 	removeChannel(channelName: string): void {
 		if (this.ctx === 'background') {
 			this.channels.delete(channelName);
+			Logger.Get().info(`<EVENTS> Removed channel: ${channelName}`);
 
 			// User must have at least one channel left to reconnect
 			if (this.channels.size > 0) {

@@ -9,6 +9,7 @@ import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
 import { SiteApp } from 'src/Sites/app/SiteApp';
 import { map } from 'rxjs/operators';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
+import type { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class TwitchPageScript {
 	site = new SiteApp();
@@ -82,6 +83,7 @@ export class TwitchPageScript {
 					inputManager.listen();
 					this.isActorVIP = controller.props.isCurrentUserVIP;
 					this.isActorModerator = controller.props.isCurrentUserModerator;
+					this.site.sendMessageUp('EventAPI:AddChannel', login);
 				});
 		};
 
@@ -98,9 +100,13 @@ export class TwitchPageScript {
 		setInterval(async () => {
 			let channelName = this.getCurrentChannelFromURL();
 			if (channelName !== this.currentChannel) {
-				this.currentChannel = channelName;
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
+				this.currentChannel = channelName;
 				controller = await this.awaitChatController();
+
+				// Unsubscribe from events in previous channel
+				this.site.sendMessageUp('EventAPI:RemoveChannel', {});
+
 				this.currentChannelSet = null;
 				channelName = controller.props.channelLogin;
 				channelID = controller.props.channelID;
@@ -187,6 +193,45 @@ export class TwitchPageScript {
 		if (cfg['general.app_avatars'] === false) {
 			page?.avatarManager.revert();
 		}
+	}
+
+	@PageScriptListener('ChannelEmoteUpdate')
+	whenEventAPISendsAnEventAboutChannelEmotesChanging(event: EventAPI.EmoteEventUpdate): void {
+		const action = event.action;
+		const set = page.site.emoteStore.sets.get(page.site.currentChannel);
+		if (!set) {
+			return;
+		}
+		if (event.channel !== page.currentChannel) {
+			return;
+		}
+
+		switch (action) {
+			case 'ADD':
+				page.chatListener.sendSystemMessage(`${event.actor} added the emote "${event.emote.name}"`);
+				set.push([{ ...event.emote, id: event.emote_id }], false);
+				break;
+			case 'REMOVE':
+				page.chatListener.sendSystemMessage(`${event.actor} removed the emote "${event.name}"`);
+				set.deleteEmote(event.emote_id);
+				break;
+			case 'UPDATE':
+				const emote = set.getEmoteByID(event.emote_id);
+				if (!emote) {
+					break;
+				}
+				const oldName = String(emote.name);
+
+				emote.setName(event.name);
+				set.deleteEmote(event.emote_id);
+				set.push([emote.resolve()], false);
+				page.chatListener.sendSystemMessage(`${event.actor} renamed the emote "${oldName}" to "${event.name}"`);
+				break;
+			default:
+				break;
+		}
+
+		page.site.tabCompleteDetector?.updateEmotes();
 	}
 
 }
