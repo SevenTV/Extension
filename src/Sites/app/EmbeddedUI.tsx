@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { EmoteMenuButton } from 'src/Sites/app/EmoteMenu/EmoteMenuButton';
-import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
+import { SiteApp } from 'src/Sites/app/SiteApp';
 
 export class EmbeddedUI {
 	/**
@@ -16,13 +16,13 @@ export class EmbeddedUI {
 		// Add emote list button
 		const buttons = parent;
 		if (!!buttons && !!buttons.lastChild) {
-			if (buttons.querySelector('.seventv-emote-menu-button')) {
+			if (buttons.querySelector('.seventv-menu-button')) {
 				return undefined;
 			}
 
 			const last = buttons.lastChild;
 			const container = document.createElement('div');
-			container.classList.add('seventv-emote-menu-button');
+			container.classList.add('seventv-menu-button');
 
 			last.insertBefore(container, last.lastChild ?? null);
 
@@ -36,13 +36,11 @@ export class EmbeddedUI {
 	embedNavButton(parent: HTMLElement): void {
 		const buttons = parent?.firstChild?.lastChild;
 
-		if (!!buttons) {
+		if (!!buttons) {			
 			const container = document.createElement('div');
-			container.classList.add('Layout-sc-nxg1ff-0');
-			const icon = document.createElement('img');
-			icon.src = assetStore.get('7tv.webp') ?? '';
-			icon.style.width = '2.5rem';
-			icon.style.height = '2.5rem';
+			container.classList.add('seventv-menu-button');
+			container.style.marginLeft = '0.5rem';
+			container.style.marginRight = '0.5rem';
 
 			ReactDOM.render(<EmoteMenuButton toSettings={true} main={this.app.mainComponent} />, container);
 			buttons.insertBefore(container, buttons.lastChild?.previousSibling ?? buttons);
