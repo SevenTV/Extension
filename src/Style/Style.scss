@@ -118,8 +118,8 @@ div[id="content"]
 	cursor: pointer !important;
 	display: flex;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
+	width: var(--button-size-default);
+	height: var(--button-size-default);
 
 	&:hover {
 		border-radius: 4px;
