@@ -36,7 +36,7 @@ export class EmbeddedUI {
 	embedNavButton(parent: HTMLElement): void {
 		const buttons = parent?.firstChild?.lastChild;
 
-		if (!!buttons) {			
+		if (!!buttons) {
 			const container = document.createElement('div');
 			container.classList.add('seventv-menu-button');
 			container.style.marginLeft = '0.5rem';
