@@ -114,12 +114,12 @@ div[id="content"]
 	filter: blur(8px);
 }
 
-.seventv-emote-menu-button {
+.seventv-menu-button {
 	cursor: pointer !important;
 	display: flex;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
+	width: var(--button-size-default);
+	height: var(--button-size-default);
 
 	&:hover {
 		border-radius: 4px;
@@ -130,6 +130,9 @@ div[id="content"]
 	button {
 		border: 0;
 		background: transparent;
+		width: var(--button-size-default);
+		height: var(--button-size-default);
+		text-align: center;
 
 		&:hover {
 			color: var(--color-fill-button-icon-hover);
