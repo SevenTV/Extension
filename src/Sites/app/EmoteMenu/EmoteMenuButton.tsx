@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { Logger } from 'src/Logger';
@@ -16,9 +14,14 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 
 	render() {
 		return (
-			<button ref={this.ref} title='7TV' onClick={ev => this.onClick(ev)} style={{ color: 'white' }}>
-				<img height={24} src={assetStore.get('7tv-nd.webp')} />
-			</button>
+			<div>
+				<button ref={this.ref} onClick={ev => this.onClick(ev)}>
+					<img height={24} src={assetStore.get('7tv-nd.webp')} />
+				</button>
+				<span className={this.props.toSettings? "tooltip-under" : "tooltip-over"}>
+					{this.props.toSettings? "7TV Settings" : "7TV Emotes"}
+				</span>
+			</div>
 		);
 	}
 

@@ -120,16 +120,77 @@ div[id="content"]
 	justify-content: center;
 	width: var(--button-size-default);
 	height: var(--button-size-default);
+	position: relative;
+
+	%tooltip {
+		background-color: white;
+		color: #000;
+		text-align: center;		
+		padding: 2px 0;
+		border-radius: 4px;
+		font-weight: 600;
+		
+		position: absolute;
+		width: 7em;
+		left: 50%;
+		margin-left: -3.5em;
+	
+		visibility: hidden;
+		opacity: 0;
+		transition:opacity 0.1s ease-in 0.2s;
+	
+		&:after {
+			content: "";
+			position: absolute;
+			left: 50%;
+			margin-left: -5px;
+			border-width: 5px;
+			border-style: solid;
+			pointer-events: none;
+		}
+	}
+
+	.tooltip-under {
+		@extend %tooltip;
+		top: 135%;
+
+		&:after {
+			bottom: 100%;
+			border-color: transparent transparent white transparent;
+		}
+	}
+
+	.tooltip-over {
+		@extend %tooltip;
+		bottom: 135%;
+
+		&:after {
+			top: 100%;
+			border-color: white transparent transparent transparent;
+		}
+	}
+
 
 	&:hover {
 		border-radius: 4px;
 		background-color: var(--color-background-button-text-hover);
 		color: var(--color-fill-button-icon-hover);
+
+		.tooltip-under {
+			visibility: visible;
+			opacity: 1;
+		  }
+		
+		.tooltip-over {
+			visibility: visible;
+			opacity: 1;
+		}
 	}
 
 	button {
 		border: 0;
 		background: transparent;
+		color: white;
 		width: var(--button-size-default);
 		height: var(--button-size-default);
 		text-align: center;
