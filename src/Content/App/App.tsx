@@ -22,6 +22,7 @@ export class App {
 		const map = [
 			['7tv.webp', chrome.runtime.getURL('image/7tv.webp')],
 			['7tv-nd.webp', chrome.runtime.getURL('image/7tv-nd.webp')],
+			['7tv-bl.webp', chrome.runtime.getURL('image/7tv-bl.webp')],
 			['twitter.webp', chrome.runtime.getURL('image/icon/twitter.webp')],
 			['discord.webp', chrome.runtime.getURL('image/icon/discord.webp')],
 			['theater-mode.webp', chrome.runtime.getURL('image/icon/theater-mode.webp')],
