@@ -123,8 +123,8 @@ div[id="content"]
 	position: relative;
 
 	%tooltip {
-		background-color: white;
-		color: #000;
+		background-color: var(--color-text-base);
+		color: var(--color-text-tooltip);
 		text-align: center;		
 		padding: 2px 0;
 		border-radius: 4px;
@@ -157,7 +157,7 @@ div[id="content"]
 
 		&:after {
 			bottom: 100%;
-			border-color: transparent transparent white transparent;
+			border-color: transparent transparent var(--color-text-base) transparent;
 		}
 	}
 
@@ -167,10 +167,11 @@ div[id="content"]
 
 		&:after {
 			top: 100%;
-			border-color: white transparent transparent transparent;
+			border-color: var(--color-text-base) transparent transparent transparent;
 		}
 	}
-  
+
+
 	&:hover {
 		border-radius: 4px;
 		background-color: var(--color-background-button-text-hover);
