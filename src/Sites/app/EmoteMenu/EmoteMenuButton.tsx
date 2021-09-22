@@ -36,4 +36,4 @@ export namespace EmoteMenuButton {
 		main: MainComponent | null;
 		toSettings?: boolean;
 	}
-}	
+}
