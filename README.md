@@ -1,5 +1,5 @@
 # SevenTV
-A third-party emote extension for Twitch
+A third-party emote extension for Twitch and YouTube
 
 ### Features
 
@@ -13,7 +13,7 @@ A third-party emote extension for Twitch
 
 ### Yeah but this is a third party thing and idk
 
-7TV is a less opinionated emote extension for Twitch, offering more creative freedom for emote artists and many extra features. This project was originally started as a personal work experience project, as a reaction to the unfair removal of certain emotes by the developers of other extensions but has since become a fully maintained service.
+7TV is a less opinionated emote extension for Twitch and Youtube, offering more creative freedom for emote artists and many extra features. This project was originally started as a personal work experience project, as a reaction to the unfair removal of certain emotes by the developers of other extensions but has since become a fully maintained service.
 
 Currently this project is made up of 3 components
 
@@ -68,4 +68,3 @@ Pre-requisites:
 
 * Self-hosted servers
 * More features beyond just chat emotes
-* Support other streaming platforms such as a YouTube
