@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { EmoteMenuButton } from 'src/Sites/app/EmoteMenu/EmoteMenuButton';
-import { SiteApp } from 'src/Sites/app/SiteApp';
+import { SiteApp, configMap } from 'src/Sites/app/SiteApp';
+
 
 export class EmbeddedUI {
 	/**
@@ -16,7 +17,7 @@ export class EmbeddedUI {
 		// Add emote list button
 		const buttons = parent;
 		if (!!buttons && !!buttons.lastChild) {
-			if (buttons.querySelector('.seventv-menu-button')) {
+			if (buttons.querySelector('.seventv-menu-button') || configMap.get('ui.hide_emote_menu')?.asBoolean()) {
 				return undefined;
 			}
 
