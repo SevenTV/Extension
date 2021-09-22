@@ -18,7 +18,7 @@ export class EmbeddedUI {
 		const buttons = parent;
 		if (!!buttons && !!buttons.lastChild) {
 			const existing = buttons.querySelector('.seventv-menu-button');
-			const enabled = configMap.get('ui.hide_emote_menu')?.asBoolean()
+			const enabled = configMap.get('ui.hide_emote_menu')?.asBoolean();
 
 			if ( existing && enabled ){
 				buttons.lastChild.removeChild(existing);
