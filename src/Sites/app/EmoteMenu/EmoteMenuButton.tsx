@@ -16,7 +16,7 @@ export class EmoteMenuButton extends React.Component<EmoteMenuButton.Props> {
 		return (
 			<div>
 				<button ref={this.ref} onClick={ev => this.onClick(ev)}>
-					<img height={20} src={assetStore.get('7tv-bl.webp')} />
+					<div className="logo" style={{ WebkitMaskImage: 'url(' + assetStore.get('7tv.webp') + ')'}}/>
 				</button>
 				<span className={this.props.toSettings? 'tooltip-under' : 'tooltip-over'}>
 					{this.props.toSettings? '7TV Settings' : '7TV Emotes'}

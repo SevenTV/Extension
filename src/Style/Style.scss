@@ -30,7 +30,6 @@ div[id="content"]
 	--seventv-color-tooltip: #{$bgColorDarkTooltip};
 	--seventv-primary-color: #{$primaryColor};
 	--seventv-accent-color: #{$accentColor};
-	--seventv-inversion: invert(100%);
 }
 .tw-root--theme-light {
 	--seventv-text-color: black;
@@ -39,7 +38,6 @@ div[id="content"]
 	--seventv-color-tooltip: #{$bgColorLightTooltip};
 	--seventv-primary-color: #{$primaryColor};
 	--seventv-accent-color: #{$accentColor};
-	--seventv-inversion: invert(0%);
 }
 
 .seventv-overlay {
@@ -179,15 +177,10 @@ div[id="content"]
 		background-color: var(--color-background-button-text-hover);
 		color: var(--color-fill-button-icon-hover);
 
-		.tooltip-under {
+		%tooltip {
 			visibility: visible;
 			opacity: 1;
 		  }
-		
-		.tooltip-over {
-			visibility: visible;
-			opacity: 1;
-		}
 	}
 
 	button {
@@ -196,16 +189,19 @@ div[id="content"]
 		color: white;
 		width: var(--button-size-default);
 		height: var(--button-size-default);
-		text-align: center;
 
 		&:hover {
 			color: var(--color-fill-button-icon-hover);
 		}
 	}
 
-	img {
-		filter: var(--seventv-inversion);
-		-webkit-filter: var(--seventv-inversion);
+	.logo {
+		background-color: var(--color-fill-button-icon);
+  		width: 2rem;
+  		height: 2rem;
+		margin-left: 0.5rem;
+		mask-size: contain;
+  		-webkit-mask-size: contain;
 	}
 }
 
