@@ -19,7 +19,7 @@ export function EmoteMenuButton({ main, toSettings }: EmoteMenuButton.Props): JS
 		main?.toggleEmoteMenu(bounds);
 	};
 
-	const logo = assetStore.get('7tv.webp')
+	const logo = assetStore.get('7tv.webp');
 
 	return (
 			<div>
