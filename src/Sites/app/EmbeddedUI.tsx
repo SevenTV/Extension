@@ -15,7 +15,6 @@ export class EmbeddedUI {
 	/**
 	 * Add a button below the chat input box
 	 */
-	
 	embedChatButton(parent: HTMLElement): void {
 		// Add emote list button
 		const buttons = parent;
