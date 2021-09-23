@@ -45,7 +45,7 @@ export class EmbeddedUI {
 
 	refresh(parent: HTMLElement): void {
 		if ( this.initialized ) {
-			this.embedChatButton(parent)
+			this.embedChatButton(parent);
 		}
 	}
 
