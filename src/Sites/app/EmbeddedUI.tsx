@@ -44,7 +44,9 @@ export class EmbeddedUI {
 	}
 
 	refresh(parent: HTMLElement): void {
-		this.initialized ? this.embedChatButton(parent) : undefined ;
+		if ( this.initialized ) {
+			this.embedChatButton(parent)
+		}
 	}
 
 	/**
