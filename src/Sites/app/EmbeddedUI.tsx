@@ -10,12 +10,17 @@ export class EmbeddedUI {
 	 */
 	constructor(private app: SiteApp) {}
 
+	initialized = false;
+
 	/**
 	 * Add a button below the chat input box
 	 */
+	
 	embedChatButton(parent: HTMLElement): void {
 		// Add emote list button
 		const buttons = parent;
+		this.initialized = true;
+
 		if (!!buttons && !!buttons.lastChild) {
 			const existing = buttons.querySelector('.seventv-menu-button');
 			const enabled = configMap.get('ui.hide_emote_menu')?.asBoolean();
@@ -37,6 +42,10 @@ export class EmbeddedUI {
 
 			ReactDOM.render(<EmoteMenuButton main={this.app.mainComponent} />, container);
 		}
+	}
+
+	refresh(parent: HTMLElement): void {
+		this.initialized ? this.embedChatButton(parent) : undefined ;
 	}
 
 	/**

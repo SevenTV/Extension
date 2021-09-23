@@ -19,12 +19,10 @@ export function EmoteMenuButton({ main, toSettings }: EmoteMenuButton.Props): JS
 		main?.toggleEmoteMenu(bounds);
 	};
 
-	const logo = assetStore.get('7tv.webp');
-
 	return (
 			<div>
 				<button ref={buttonRef} onClick={onClick}>
-					<div className='logo' style={{ WebkitMaskImage: `url(${logo})`}}/>
+					<div className='logo' style={{ WebkitMaskImage: `url(${ assetStore.get('7tv.webp') })`}}/>
 				</button>
 				<span className={toSettings ? 'tooltip-under' : 'tooltip-over'}>
 					{toSettings ? '7TV Settings' : '7TV Emotes'}

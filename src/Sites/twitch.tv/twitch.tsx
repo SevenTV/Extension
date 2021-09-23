@@ -193,7 +193,7 @@ export class TwitchPageScript {
 		if (cfg['general.app_avatars'] === false) {
 			page?.avatarManager.revert();
 		}
-		page?.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
+		page?.site.embeddedUI.refresh(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
 	}
 
 	@PageScriptListener('ChannelEmoteUpdate')
