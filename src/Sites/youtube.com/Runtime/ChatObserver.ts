@@ -68,29 +68,32 @@ export class ChatObserver {
 			tok.contentMessage?.replaceWith(newBody);
 
 			if ( !this.page.site.config.get('yt.random_color')?.asBoolean()) {
-				var name = tok.content?.querySelector<HTMLDivElement>('span#author-name');
+				const name = tok.content?.querySelector<HTMLDivElement>('span#author-name');
 
 				if ( name ) {
 					name.style.color = this.stringToColour(name.innerText) + 'C0';
-					name.style.textShadow = '0 0 var(--yt-live-chat-secondary-text-color)'
-				} 
+					name.style.textShadow = '0 0 var(--yt-live-chat-secondary-text-color)';
+				}
 			}
 
-			!this.page.site.config.get('yt.hide_profile_pictures')?.asBoolean() && el.querySelector<HTMLDivElement>('yt-img-shadow#author-photo')?.remove();
+			if ( this.page.site.config.get('yt.hide_profile_pictures')?.asBoolean() ) {
+				el.querySelector<HTMLDivElement>('yt-img-shadow#author-photo')?.remove();
+			}
 		}
 	}
 
 	stringToColour(str : string): string {
-		var hash = 0;
-		for (var i = 0; i < str.length; i++) {
-		  hash = str.charCodeAt(i) + ((hash << 5) - hash);
+		let hash = 0;
+		for (let i = 0; i < str.length; i++) {
+			hash = str.charCodeAt(i) + ((hash << 5) - hash);
 		}
-		var colour = '#';
-		for (var i = 0; i < 3; i++) {
-		  var value = ((hash >> (i * 8)) & 0xFF);
-		  colour += ('00' + value.toString(16)).substr(-2);
+
+		let colour = '#';
+		for (let i = 0; i < 3; i++) {
+			let value = ((hash >> (i * 8)) & 0xFF);
+			colour += ('00' + value.toString(16)).substr(-2);
 		}
-		Logger.Get().info(colour)
+
 		return colour;
 	}
 }
