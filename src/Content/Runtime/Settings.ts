@@ -129,6 +129,20 @@ class Settings {
 					hint: 'Make the 7TV tooltips smaller',
 					type: 'checkbox',
 					defaultValue: false
+				},
+				{
+					id: 'yt.hide_profile_picture',
+					label: 'Hide profile pictures',
+					hint: 'Hides the profile pictures in the youtube live chat',
+					type: 'checkbox',
+					defaultValue: false
+				},
+				{
+					id: 'yt.random_color',
+					label: 'Give users random color',
+					hint: 'Gives users in the youtube live chat random colors',
+					type: 'checkbox',
+					defaultValue: false
 				}
 			);
 		}
