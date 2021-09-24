@@ -71,6 +71,7 @@ export class ChatObserver {
 				const name = tok.content?.querySelector<HTMLDivElement>('span#author-name');
 
 				if ( name ) {
+					name.style.filter = 'saturate(2)';
 					name.style.color = this.stringToColour(name.innerText) + 'C0';
 					name.style.textShadow = '0 0 var(--yt-live-chat-secondary-text-color)';
 				}
