@@ -8,6 +8,14 @@ export class App {
 		settings.change.subscribe({
 			next: change => this.sendMessageDown('ConfigChange', change)
 		});
+
+		chrome.runtime.onMessage.addListener(({ name, event }) => {
+			if (name !== 'EVENTAPI:EMOTE_EVENT') {
+				return undefined;
+			}
+
+			this.sendMessageDown('ChannelEmoteUpdate', event);
+		});
 	}
 
 	passExtensionData(): void {
@@ -32,6 +40,16 @@ export class App {
 		}
 
 		settings.apply({ [data.key]: data.value });
+	}
+
+	@PageScriptListener('EventAPI:AddChannel')
+	addChannelToEventAPISubscriptions(channelName: string): void {
+		chrome.runtime.sendMessage({ name: 'EVENTAPI:ADD_CHANNEL', channelName });
+	}
+
+	@PageScriptListener('EventAPI:RemoveChannel')
+	removehannelFromEventAPISubscriptions(): void {
+		chrome.runtime.sendMessage({ name: 'EVENTAPI:REMOVE_CHANNEL' });
 	}
 
 	/**
