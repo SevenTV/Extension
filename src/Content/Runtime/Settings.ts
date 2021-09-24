@@ -131,7 +131,7 @@ class Settings {
 					defaultValue: false
 				},
 				{
-					id: 'yt.hide_profile_picture',
+					id: 'yt.hide_picture',
 					label: 'Hide profile pictures',
 					hint: 'Hides the profile pictures in the youtube live chat',
 					type: 'checkbox',

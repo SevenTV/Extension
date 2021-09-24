@@ -67,7 +67,7 @@ export class ChatObserver {
 			const newBody = tok.generateTree();
 			tok.contentMessage?.replaceWith(newBody);
 
-			if ( !this.page.site.config.get('yt.random_color')?.asBoolean()) {
+			if ( this.page.site.config.get('yt.random_color')?.asBoolean()) {
 				const name = tok.content?.querySelector<HTMLDivElement>('span#author-name');
 
 				if ( name ) {
@@ -76,7 +76,7 @@ export class ChatObserver {
 				}
 			}
 
-			if ( this.page.site.config.get('yt.hide_profile_pictures')?.asBoolean() ) {
+			if ( this.page.site.config.get('yt.hide_picture')?.asBoolean() ) {
 				el.querySelector<HTMLDivElement>('yt-img-shadow#author-photo')?.remove();
 			}
 		}
