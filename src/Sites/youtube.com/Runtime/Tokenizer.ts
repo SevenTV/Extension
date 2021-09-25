@@ -52,7 +52,7 @@ export class Tokenizer {
 						}
 					}
 				}
-			} 
+			}
 		}
 
 		return newContext;
@@ -76,7 +76,6 @@ export class Tokenizer {
 	 */
 	addMentionPart(ctx: HTMLSpanElement, text: string, me: string): boolean {
 		if (text == me){
-					
 			const span = document.createElement('span');
 			span.innerText = text;
 			span.style.background = 'var(--yt-live-chat-mention-background-color)';
