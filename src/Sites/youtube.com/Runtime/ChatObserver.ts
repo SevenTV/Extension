@@ -77,9 +77,7 @@ export class ChatObserver {
 				}
 			}
 
-			if ( this.page.site.config.get('yt.hide_picture')?.asBoolean() ) {
-				el.querySelector<HTMLDivElement>('yt-img-shadow#author-photo')?.remove();
-			}
+		el.querySelector<HTMLDivElement>('yt-img-shadow#author-photo')!.style.display = this.page.site.config.get('yt.hide_picture')?.asBoolean() ? 'none' : 'inherit';
 		}
 	}
 
