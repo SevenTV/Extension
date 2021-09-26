@@ -21,22 +21,17 @@ export class EmbeddedUI {
 		this.initialized = true;
 
 		if (!!buttons && !!buttons.lastChild) {
-			const existing = buttons.querySelector('.seventv-menu-button');
-			const enabled = configMap.get('ui.hide_emote_menu')?.asBoolean();
-
-			if ( existing && enabled ){
-				buttons.lastChild.removeChild(existing);
-				return undefined;
-			}
-
-			if ( existing || enabled ){
+			const existing = buttons.querySelector<HTMLElement>('.seventv-menu-button');
+			
+			if ( !!existing ){
+				existing.style.display = configMap.get('ui.hide_emote_menu')?.asBoolean() ? 'none' : 'inherit';
 				return undefined;
 			}
 
 			const last = buttons.lastChild;
 			const container = document.createElement('div');
 			container.classList.add('seventv-menu-button');
-
+			container.style.display = configMap.get('ui.hide_emote_menu')?.asBoolean() ? 'none' : 'inherit';
 			last.insertBefore(container, last.lastChild ?? null);
 
 			ReactDOM.render(<EmoteMenuButton main={this.app.mainComponent} />, container);
