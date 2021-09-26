@@ -22,7 +22,6 @@ export class EmbeddedUI {
 
 		if (!!buttons && !!buttons.lastChild) {
 			const existing = buttons.querySelector<HTMLElement>('.seventv-menu-button');
-			
 			if ( !!existing ){
 				existing.style.display = configMap.get('ui.hide_emote_menu')?.asBoolean() ? 'none' : 'inherit';
 				return undefined;
