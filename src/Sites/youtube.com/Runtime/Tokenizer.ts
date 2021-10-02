@@ -34,7 +34,7 @@ export class Tokenizer {
 		this.element.__data.data.seventv = [];
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-yt-message-content');
-		const me = this.element.querySelector('.mention')?.textContent ?? '';
+		const me = this.element.querySelector('.mention')?.textContent ?? null;
 
 		for (let i = 0; i < this.element.__data.data.message.runs.length; i++) {
 			const part = this.element.__data.data.message.runs[i];
@@ -45,8 +45,11 @@ export class Tokenizer {
 				for (let s of part.text.split(' ')) {
 					const isEmote = this.addEmotePart(newContext, s);
 					if (!isEmote) {
-						const isMention = this.addMentionPart(newContext, s, me);
-						if (!isMention) {
+						if (s === me) {
+							this.addTextPart(newContext, ' ');
+							this.addMentionPart(newContext, s);
+						}
+						else {
 							this.addTextPart(newContext, ' ');
 							this.addTextPart(newContext, s + ' ');
 						}
@@ -74,18 +77,14 @@ export class Tokenizer {
 	/**
 	 * Append a mention part to the new message context
 	 */
-	addMentionPart(ctx: HTMLSpanElement, text: string, me: string): boolean {
-		if (text == me){
-			const span = document.createElement('span');
-			span.innerText = text;
-			span.style.background = 'var(--yt-live-chat-mention-background-color)';
-			span.style.padding = '2px 4px';
-			span.style.borderRadius = '2px';
+	addMentionPart(ctx: HTMLSpanElement, text: string) {
+		const span = document.createElement('span');
+		span.innerText = text;
+		span.style.background = 'var(--yt-live-chat-mention-background-color)';
+		span.style.padding = '2px 4px';
+		span.style.borderRadius = '2px';
 
-			ctx.appendChild(span);
-			return true;
-		}
-		return false;
+		ctx.appendChild(span);
 	}
 
 	/**
