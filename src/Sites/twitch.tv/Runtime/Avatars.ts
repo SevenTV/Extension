@@ -53,7 +53,7 @@ export class AvatarManager {
 	}
 
 	/**
-	 * Check  profile pictureimage tags on the page and replace them with custom avatars
+	 * Check profile pictureimage tags on the page and replace them with custom avatars
 	 *
 	 * @param scope an optional html element to scope the check to
 	 */
@@ -78,6 +78,20 @@ export class AvatarManager {
 				if (!url) { // No hash means profile picture isn't custom
 					return undefined;
 				}
+
+				// Capture first frame as static image for hover
+				// TODO: if (this.page.site.config.get('general.app_avatars_hover')?.asBoolean()) {
+					const canvas = document.createElement('canvas');
+					canvas.setAttribute('style', 'border-radius: 9000px; position: absolute; top: 0; left: 0');
+					const ctx = canvas.getContext('2d');
+	
+					img.onload = (event) => {
+						canvas.width = img.width;
+						canvas.height = img.height;
+						ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
+						img.parentNode?.appendChild(canvas);
+					}				
+				//}
 
 				// Update the image.
 				const srcOG = img.src;
