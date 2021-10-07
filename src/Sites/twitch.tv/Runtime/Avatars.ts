@@ -90,6 +90,7 @@ export class AvatarManager {
 						canvas.height = img.height;
 						ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
 						img.parentNode?.appendChild(canvas);
+						img.style.visibility = "hidden";
 					}				
 				//}
 
