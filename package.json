@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "webpack --watch",
+    "start-prod": "webpack --watch --config webpack.prod.config.js --env=MANIFEST_VERSION=2",
     "lint": "tslint -p tsconfig.json",
     "build": "webpack",
     "build-prod-chromium": "webpack --config webpack.prod.config.js --env=MANIFEST_VERSION=2 --env=DIST=dist/chromium",
