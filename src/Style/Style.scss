@@ -76,7 +76,7 @@ div[id="content"]
 }
 
 .emoji {
-	height: 19.5px !important;
+	height: 1.95em !important;
 }
 
 .seventv-message-context > :first-child {
@@ -111,7 +111,7 @@ div[id="content"]
 }
 
 .seventv-emote.seventv-emote-unlisted {
-	filter: blur(8px);
+	filter: blur(0.8rem);
 }
 
 .seventv-menu-button {
@@ -122,7 +122,7 @@ div[id="content"]
 	height: var(--button-size-default);
 
 	&:hover {
-		border-radius: 4px;
+		border-radius: 0.4rem;
 		background-color: var(--color-background-button-text-hover);
 		color: var(--color-fill-button-icon-hover);
 	}
@@ -142,6 +142,6 @@ div[id="content"]
 
 .seventv-badge-list {
 	img {
-		height: 18px;
+		height: 1.8rem;
 	}
 }
