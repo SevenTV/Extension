@@ -82,15 +82,60 @@ export class AvatarManager {
 				// Capture first frame as static image for hover
 				// TODO: if (this.page.site.config.get('general.app_avatars_hover')?.asBoolean()) {
 					const canvas = document.createElement('canvas');
-					canvas.setAttribute('style', 'border-radius: 9000px; position: absolute; top: 0; left: 0');
+
+					// We need a wrapping div because :hover on a canvas is absolutely disgusting
+					const canvasWrapper = document.createElement('div');
+
+					// Apply style like Twitch avatars
+					canvas.classList.add('seventv-static-emote');
+					canvasWrapper.classList.add('seventv-static-emote');
+
 					const ctx = canvas.getContext('2d');
 	
+					// Hover functionality to swap the static with the GIF
+
+					function mouseOver() {						
+						canvas.style.visibility = 'hidden';
+						img.setAttribute('style', 'display: unset !important');
+						
+						// Workaround to start GIF from the beginning
+						if(url) {
+							img.src = "";
+							img.src = url;
+						}
+					}
+					
+					function mouseOut() {
+						canvas.style.visibility = 'visible';
+						img.setAttribute('style', 'display: none !important');
+					}
+
+					canvasWrapper.addEventListener('mouseover', mouseOver);
+					canvasWrapper.addEventListener('mouseout', mouseOut);
+
+
+					let hasLoadedBefore = false;
+
 					img.onload = (event) => {
+						if(hasLoadedBefore) {
+							return; // Prevent redrawing canvas after first load
+						}
+						hasLoadedBefore = true;
+
 						canvas.width = img.width;
+						canvasWrapper.style.height = `${img.width}px`;
+
 						canvas.height = img.height;
+						canvasWrapper.style.width = `${img.height}px`;
+
 						ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
-						img.parentNode?.appendChild(canvas);
-						img.style.visibility = "hidden";
+
+						// Insert into DOM
+						img.parentElement?.appendChild(canvasWrapper);
+						canvasWrapper.appendChild(canvas);
+
+						// Replace GIF with static
+						img.setAttribute('style', 'display: none !important');
 					}				
 				//}
 
