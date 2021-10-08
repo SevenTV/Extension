@@ -111,8 +111,10 @@ export class AvatarManager {
 					return undefined;
 				}
 
-				// Capture first frame as static image for hover
-				this.attachStaticCanvas(img, url, avatarSetting);
+				if(!img.parentElement?.parentElement?.classList.contains('viewer-card-drag-cancel')) {
+					// Capture first frame as static image for hover
+					this.attachStaticCanvas(img, url, avatarSetting);
+				}
 
 				// Update the image.
 				const srcOG = img.src;
@@ -178,7 +180,7 @@ export class AvatarManager {
 
 			ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
 
-			// Insert into DOM
+			// Insert static into DOM
 			img.after(canvasWrapper);
 			canvasWrapper.appendChild(canvas);
 
