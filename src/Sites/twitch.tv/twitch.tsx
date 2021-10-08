@@ -190,8 +190,12 @@ export class TwitchPageScript {
 
 	@PageScriptListener('ConfigChange')
 	whenAppConfigChangeds(cfg: { [x: string]: any; }): void {
-		if (cfg['general.app_avatars'] === false) {
-			page?.avatarManager.revert();
+		switch(cfg['general.app_avatars']) {
+			case 'disabled':
+				page?.avatarManager.revert();
+				break;
+			default:
+				page?.avatarManager.check();
 		}
 	}
 

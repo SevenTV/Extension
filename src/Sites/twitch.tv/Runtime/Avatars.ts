@@ -58,7 +58,7 @@ export class AvatarManager {
 	 * @param scope an optional html element to scope the check to
 	 */
 	check(scope?: HTMLElement): void {
-		if (!this.page.site.config.get('general.app_avatars')?.asBoolean()) {
+		if (!['enabled', 'hover'].includes(this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled')) {
 			return undefined;
 		}
 		if (this.checking) {
@@ -80,7 +80,7 @@ export class AvatarManager {
 				}
 
 				// Capture first frame as static image for hover
-				// TODO: if (this.page.site.config.get('general.app_avatars_hover')?.asBoolean()) {
+				if (this.page.site.config.get('general.app_avatars')?.asString() !== 'enabled') {
 					const canvas = document.createElement('canvas');
 
 					// We need a wrapping div because :hover on a canvas is absolutely disgusting
@@ -131,13 +131,13 @@ export class AvatarManager {
 						ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
 
 						// Insert into DOM
-						img.parentElement?.appendChild(canvasWrapper);
+						img.after(canvasWrapper);
 						canvasWrapper.appendChild(canvas);
 
 						// Replace GIF with static
 						img.setAttribute('style', 'display: none !important');
 					}				
-				//}
+				}
 
 				// Update the image.
 				const srcOG = img.src;
@@ -182,6 +182,11 @@ export class AvatarManager {
 			tag.removeAttribute('seventv-custom');
 			tag.removeAttribute('src-original');
 			tag.removeAttribute('srcset-original');
+		}
+
+		const canvasList = document.querySelectorAll<HTMLImageElement>('div.seventv-static-emote');
+		for (const canvas of canvasList) {
+			canvas.remove();
 		}
 	}
 }

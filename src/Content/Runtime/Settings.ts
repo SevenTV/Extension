@@ -105,8 +105,9 @@ class Settings {
 					id: 'general.app_avatars',
 					label: 'Animated Avatars',
 					hint: 'Display custom 7TV avatars which may be animated',
-					type: 'checkbox',
-					defaultValue: true
+					type: 'select',
+					options: ['enabled', 'hover', 'disabled'],
+					defaultValue: 'enabled'
 				},
 				{
 					id: 'general.history_navigation',
@@ -175,13 +176,14 @@ export interface SettingNode {
 	label: string;
 	hint?: string;
 	type: SettingNode.Type;
+	options?: string[];
 
 	value?: boolean | string | object;
 	defaultValue?: boolean | string | object;
 	disabledIf?: () => boolean;
 }
 export namespace SettingNode {
-	export type Type = 'checkbox';
+	export type Type = 'select' | 'checkbox';
 }
 
 export const settings = new Settings();
