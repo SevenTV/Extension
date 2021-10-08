@@ -143,27 +143,6 @@ export class AvatarManager {
 
 		const ctx = canvas.getContext('2d');
 
-		// Hover functionality to swap the static with the GIF
-		function mouseOver() {
-			canvas.style.visibility = 'hidden';
-			img.setAttribute('style', 'display: unset !important');
-
-			// Workaround to start GIF from the beginning
-			if (url) {
-				img.src = "";
-				img.src = url;
-			}
-		}
-
-		function mouseOut() {
-			canvas.style.visibility = 'visible';
-			img.setAttribute('style', 'display: none !important');
-		}
-
-		canvasWrapper.addEventListener('mouseover', mouseOver);
-		canvasWrapper.addEventListener('mouseout', mouseOut);
-
-
 		let hasLoadedBefore = false;
 
 		img.onload = (event) => {
@@ -191,7 +170,47 @@ export class AvatarManager {
 				canvas.style.visibility = 'hidden';
 			}
 
+			// Hover functionality to swap the static with the GIF
+			function onMouseEnter() {
+				canvas.style.visibility = 'hidden';
+				img.setAttribute('style', 'display: unset !important');
+
+				// Workaround to start GIF from the beginning
+				if (url) {
+					img.src = "";
+					img.src = url;
+				}
+			}
+
+			function onMouseLeave() {
+				canvas.style.visibility = 'visible';
+				img.setAttribute('style', 'display: none !important');
+			}
+
+			const hoverElement = this.getHoverElement(canvasWrapper); 
+
+			hoverElement.addEventListener('mouseenter', onMouseEnter);
+			hoverElement.addEventListener('mouseleave', onMouseLeave);
 		};
+	}
+
+	private getHoverElement(element: HTMLDivElement): Element {
+		let parent = element.parentElement;
+		for (let i = 0; i < 12; i++) {
+			if(!parent) {
+				return element;
+			} else if (parent.classList.contains('side-nav-card')) {
+				console.log(`side-nav-card: ${parent}`);
+				return parent;
+			} else if (parent.classList.contains('channel-info-content')) {
+				console.log(`channel-info-content: ${parent}`);
+				return parent.firstElementChild ?? element;
+			}
+
+			parent = parent.parentElement;
+		}
+
+		return element;
 	}
 
 	/**
