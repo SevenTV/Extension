@@ -1,4 +1,5 @@
 .seventv-yt-theater-mode {
+	overflow-y: clip;
 	[id="columns"] {
 		display: flex !important;
 		max-width: none !important;
@@ -9,10 +10,12 @@
 		[id="primary"] {
 			padding: 0 !important;
 			margin: 0 !important;
-			display: flex !important;
-			width: 100vw !important;
 			height: 100vh !important;
 			max-width: none !important;
+			width: calc(100vh - var(--ytd-watch-flexy-sidebar-width));
+			resize: horizontal;
+			overflow-x: hidden;
+			flex: none !important;
 
 			[id="primary-inner"] {
 				width: 100% !important;
@@ -49,7 +52,27 @@
 
 		[id="secondary"] {
 			padding: 0 !important;
-			width: 340px !important;
+			display: flex !important;
+			width: 100% !important;
+
+			[id="secondary-inner"] {
+				width: 100% !important;
+
+				[id="show-hide-button"] {
+					&::before {
+						content: '';
+						color: var(--yt-live-chat-secondary-text-color);
+						pointer-events: none;
+						position: absolute;
+						height: 2em;
+						width: 1.5em;
+						left: -0.3em;
+						bottom: 0.3em;
+						background-image: radial-gradient(circle, var(--yt-live-chat-secondary-text-color) 0.25em, transparent 0.25em);
+						background-size: 100% 33.33%;
+						}
+				}
+			}
 		}
 	}
 
@@ -64,6 +87,7 @@
 	ytd-live-chat-frame {
 		height: 100vh !important;
 		padding: 0 !important;
+		margin-bottom: 0 !important;
 	}
 
 	[id="info"], [id="meta"], [id="comments"], [id="related"], [id="masthead-container"] {
