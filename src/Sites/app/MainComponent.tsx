@@ -76,10 +76,10 @@ export class MainComponent extends React.Component<MainComponent.Props, MainComp
 		);
 	}
 
-	openSettings(): void {
+	openSettings(forceState?: boolean): void {
 		this.setState({
 			settingsMenu: {
-				open: true
+				open: typeof forceState !== 'boolean' ? !this.state?.settingsMenu.open : forceState
 			},
 			emoteMenu: { open: false }
 		});
