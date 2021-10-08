@@ -5,7 +5,7 @@
 	display: flex;
 	flex-direction: column;
 	background-color: var(--seventv-color-tooltip);
-	border-radius: 6px;
+	border-radius: 0.6rem;
 	padding: 0.1em;
 
 	width: fit-content;
@@ -28,11 +28,11 @@
 	justify-content: center;
 	padding: 1em;
 	padding-right: 3em;
-	max-width: 270px;
+	max-width: 27rem;
 
 	.item-name {
 		font-size: 1.25em;
-		margin-bottom: 1px;
+		margin-bottom: 0.1rem;
 		word-wrap: break-word;
 		color: currentColor;
 	}
@@ -56,10 +56,10 @@
 	bottom: 0;
 	right: 0;
 	margin: .4em;
-	padding-left: 32px;
+	padding-left: 3.2rem;
 
 	img {
-		max-width: 28px;
+		max-width: 2.8rem;
 	}
 }
 
@@ -70,8 +70,8 @@
 	justify-content: center;
 
 	img {
-		max-width: 228px;
-		max-height: 76px;
+		max-width: 22.8rem;
+		max-height: 7.6rem;
 	}
 }
 

@@ -6,24 +6,25 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
-		border-radius: 4px;
+		border-radius: 0.4rem;
 	}
 	.seventv-emote-menu-scrollable {
 		background-color: var(--seventv-color-background-0);
 		padding-top: 1em;
-		border-radius: 6px;
-		width: 300px;
-		height: 300px;
+		border-radius: 0.6rem;
+		width: 30rem;
+		height: 30rem;
 		overflow: auto;
 	}
 	.seventv-emote-menu-tab {
+		background-color: var(--seventv-color-background-1);
 		display: flex;
 		justify-content: center;
 		flex-grow: 1;
 		min-height: 3em;
 
 		&.selected {
-			border-bottom: 1px solid white !important;
+			border-bottom: 0.1rem solid white !important;
 		}
 	}
 	.seventv-emote-menu-emote-list-section {
@@ -37,7 +38,7 @@
 		font-size: 1.65rem;
 
 		border-style: solid;
-		border-bottom-width: 1px;
+		border-bottom-width: 0.1rem;
 		border-color: white;
 	}
 	.seventv-emote-menu-emote-list {
@@ -60,20 +61,20 @@
 		background-color: var(--seventv-background-color);
 
 		input {
-			width: 100%;
+			width: 95%;
 			height: 3em;
 			color: white;
 			border-color: white;
-			border-width: 1px;
+			border-width: 0.1rem;
 			border-style: solid;
-			border-radius: 4px;
+			border-radius: 0.4rem;
 			background-color: var(--seventv-color-background-1);
 			padding: .5em;
 	
 			&:focus {
 				outline: none !important;
-				border: 1px solid rgb(0, 195, 255) ;
-				box-shadow: 0 0 10px rgb(0, 195, 255) !important;
+				border: 0.1rem solid rgb(0, 195, 255) ;
+				box-shadow: 0 0 1rem rgb(0, 195, 255) !important;
 			}
 		}
 	}
