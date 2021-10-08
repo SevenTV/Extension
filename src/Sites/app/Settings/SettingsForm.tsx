@@ -31,12 +31,11 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 
 						case 'select':
 							result =
-							<FormControlLabel label={s.label} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} control={
-									<RadioGroup onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
-										{s.options?.map((option) => <FormControlLabel style={{textTransform:'capitalize'}} value={option} key={option} control={<Radio />} label={option} /> )}
+								<FormControlLabel labelPlacement='end' label={s.label} sx={{ '.MuiFormControlLabel-label': { order: 1, fontSize: '1em', color: 'currentcolor' } }} control={
+									<RadioGroup style={{ order: 2 }} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} row onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
+											{s.options?.map((option) => <FormControlLabel style={{textTransform:'capitalize'}} value={option} key={option} control={<Radio />} label={option} /> )}
 									</RadioGroup>
-							}></FormControlLabel>
-	
+								}></FormControlLabel>									
 							break;
 
 						default:
@@ -45,7 +44,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 							break;
 					}
 
-					return <FormControl disabled={isDisabled} sx={{
+					return <FormControl disabled={isDisabled} component='fieldset' sx={{
 						'.Mui-disabled': { color: 'red' }
 					}} key={`formcontrol-${s.id}`} id={s.id}>
 						{result}
