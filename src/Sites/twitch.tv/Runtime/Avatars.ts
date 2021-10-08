@@ -53,14 +53,11 @@ export class AvatarManager {
 	}
 
 	/**
-	 * Check profile pictureimage tags on the page and replace them with custom avatars
+	 * Check profile picture image tags on the page and replace them with custom avatars
 	 *
 	 * @param scope an optional html element to scope the check to
 	 */
 	check(scope?: HTMLElement): void {
-		// TODO: Apply hover to card element in parents (search recursively with max depth 5-6) (look for data-test-selector !== "")
-		// TODO: Always play in user card
-		// TODO: Define hovers depending on section		
 
 		// Find avatar image tags
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
@@ -111,9 +108,10 @@ export class AvatarManager {
 					return undefined;
 				}
 
-				if(!img.parentElement?.parentElement?.classList.contains('viewer-card-drag-cancel')) {
-					// Capture first frame as static image for hover
-					this.attachStaticCanvas(img, url, avatarSetting);
+				// Skip if avatar is in user card
+				if(!img.parentElement?.parentElement?.classList.contains('viewer-card-drag-cancel') && avatarSetting === 'hover') {
+					// Enable hover functionality
+					this.enableAnimateOnHover(img, url);
 				}
 
 				// Update the image.
@@ -131,7 +129,14 @@ export class AvatarManager {
 		});
 	}
 
-	private attachStaticCanvas(img: HTMLImageElement, url: string | undefined, avatarSetting: string) {
+	/**
+	 * Make an avatar animated on hover instead of always-on. 
+	 * Attaches a static frame of the avatar to the DOM on a canvas.
+	 * 
+	 * @param img Avatar to enable hover functionality for
+	 * @param url Source URL of the avatar
+	 */
+	private enableAnimateOnHover(img: HTMLImageElement, url: string | undefined) {
 		const canvas = document.createElement('canvas');
 
 		// We need a wrapping div as backup because :hover on a canvas is absolutely disgusting
@@ -163,14 +168,10 @@ export class AvatarManager {
 			img.after(canvasWrapper);
 			canvasWrapper.appendChild(canvas);
 
-			if (avatarSetting === 'hover') {
-				// Replace GIF with static
-				img.setAttribute('style', 'display: none !important');
-			} else {
-				canvas.style.visibility = 'hidden';
-			}
+			// Replace GIF with static
+			img.setAttribute('style', 'display: none !important');
 
-			// Hover functionality to swap the static with the GIF
+			// Define hover events that swap the static with the GIF
 			function onMouseEnter() {
 				canvas.style.visibility = 'hidden';
 				img.setAttribute('style', 'display: unset !important');
@@ -187,6 +188,7 @@ export class AvatarManager {
 				img.setAttribute('style', 'display: none !important');
 			}
 
+			// Attach events to a suitable element
 			const hoverElement = this.getHoverElement(canvasWrapper); 
 
 			hoverElement.addEventListener('mouseenter', onMouseEnter);
@@ -194,23 +196,33 @@ export class AvatarManager {
 		};
 	}
 
-	private getHoverElement(element: HTMLDivElement): Element {
-		let parent = element.parentElement;
+	/**
+	 * Recursively search for a suitable parent element to 
+	 * attach hover events to, to trigger an animated avatar. 
+	 * 
+	 * @param canvasWrapper Canvas that belongs to the avatar
+	 * 
+	 * @returns the current Element if it has of the given 
+	 * classes or the original canvasWrapper if nothing was found
+	 */
+	private getHoverElement(canvasWrapper: HTMLDivElement): Element {
+		let parent = canvasWrapper.parentElement;
+
 		for (let i = 0; i < 12; i++) {
 			if(!parent) {
-				return element;
+				return canvasWrapper;
 			} else if (parent.classList.contains('side-nav-card')) {
-				console.log(`side-nav-card: ${parent}`);
+				// Navigation sidebar
 				return parent;
 			} else if (parent.classList.contains('channel-info-content')) {
-				console.log(`channel-info-content: ${parent}`);
-				return parent.firstElementChild ?? element;
+				// Infobox on a streamer's channel site below the stream
+				return parent.firstElementChild ?? canvasWrapper;
 			}
 
 			parent = parent.parentElement;
 		}
 
-		return element;
+		return canvasWrapper;
 	}
 
 	/**
