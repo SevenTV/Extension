@@ -58,18 +58,32 @@ export class AvatarManager {
 	 * @param scope an optional html element to scope the check to
 	 */
 	check(scope?: HTMLElement): void {
-		if (!['enabled', 'hover'].includes(this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled')) {
+		// Find avatar image tags
+		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
+		switch(this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled') {
+			case 'enabled':
+				for (const tag of tags) {
+					tag.setAttribute('style', 'display: unset !important');
+				}
+
+				const canvasList = document.querySelectorAll<HTMLImageElement>('div.seventv-static-emote');
+				for (const canvas of canvasList) {
+					canvas.remove();
+				}
+				break;
+			case 'hover':
+				break;
+			default:
 			return undefined;
 		}
+		
 		if (this.checking) {
 			return undefined;
 		}
 		this.checking = true;
 
-		// Find avatar image tags
-		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
 		from(tags).pipe(
-			filter(img => !img.hasAttribute('seventv-custom')), // Only match images that haven't already been customized
+			filter((img) => !img.hasAttribute('seventv-custom')), // Only match images that haven't already been customized
 			// Override the sizing factor to "300x300" in order to create a consistent hash
 			mergeMap(img => from(this.hashURL(img.src.replace(avatarSizeRegex, '300x300'))).pipe(map(hash => ({ hash, img }))), 10),
 			map(({ hash, img }) => {
@@ -80,7 +94,7 @@ export class AvatarManager {
 				}
 
 				// Capture first frame as static image for hover
-				if (this.page.site.config.get('general.app_avatars')?.asString() !== 'enabled') {
+				if (this.page.site.config.get('general.app_avatars')?.asString() === 'hover') {
 					const canvas = document.createElement('canvas');
 
 					// We need a wrapping div because :hover on a canvas is absolutely disgusting
@@ -182,6 +196,7 @@ export class AvatarManager {
 			tag.removeAttribute('seventv-custom');
 			tag.removeAttribute('src-original');
 			tag.removeAttribute('srcset-original');
+			tag.setAttribute('style', 'display: unset !important');
 		}
 
 		const canvasList = document.querySelectorAll<HTMLImageElement>('div.seventv-static-emote');
