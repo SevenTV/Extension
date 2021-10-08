@@ -66,8 +66,11 @@ export class AvatarManager {
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
 		const canvasList = document.querySelectorAll<HTMLElement>('.seventv-static-emote');
 
-		switch(this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled') {
+		const avatarSetting = this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled'
+
+		switch(avatarSetting) {
 			case 'enabled':
+				// In case setting was set to 'hover' before
 				for (const tag of tags) {
 					tag.setAttribute('style', 'display: unset !important');
 				}
@@ -77,6 +80,7 @@ export class AvatarManager {
 				}
 				break;
 			case 'hover':
+				// In case setting was set to 'enabled' before
 				for (const tag of tags) {
 					if (tag.dataset.seventvCustom) {
 						tag.setAttribute('style', 'display: none !important');
@@ -88,7 +92,7 @@ export class AvatarManager {
 				}
 				break;
 			default:
-			return undefined;
+				return undefined;
 		}
 		
 		if (this.checking) {
@@ -108,67 +112,7 @@ export class AvatarManager {
 				}
 
 				// Capture first frame as static image for hover
-					const canvas = document.createElement('canvas');
-
-					// We need a wrapping div because :hover on a canvas is absolutely disgusting
-					const canvasWrapper = document.createElement('div');
-
-					// Apply style like Twitch avatars
-					canvas.classList.add('seventv-static-emote');
-					canvasWrapper.classList.add('seventv-static-emote');
-
-					const ctx = canvas.getContext('2d');
-	
-					// Hover functionality to swap the static with the GIF
-
-					function mouseOver() {						
-						canvas.style.visibility = 'hidden';
-						img.setAttribute('style', 'display: unset !important');
-						
-						// Workaround to start GIF from the beginning
-						if(url) {
-							img.src = "";
-							img.src = url;
-						}
-					}
-					
-					function mouseOut() {
-						canvas.style.visibility = 'visible';
-						img.setAttribute('style', 'display: none !important');
-					}
-
-					canvasWrapper.addEventListener('mouseover', mouseOver);
-					canvasWrapper.addEventListener('mouseout', mouseOut);
-
-
-					let hasLoadedBefore = false;
-
-					img.onload = (event) => {
-						if(hasLoadedBefore) {
-							return; // Prevent redrawing canvas after first load
-						}
-						hasLoadedBefore = true;
-
-						canvas.width = img.width;
-						canvasWrapper.style.height = `${img.width}px`;
-
-						canvas.height = img.height;
-						canvasWrapper.style.width = `${img.height}px`;
-
-						ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
-
-						// Insert into DOM
-						img.after(canvasWrapper);
-						canvasWrapper.appendChild(canvas);
-
-						if (this.page.site.config.get('general.app_avatars')?.asString() === 'hover') {
-							// Replace GIF with static
-							img.setAttribute('style', 'display: none !important');
-						} else {
-							canvas.style.visibility = 'hidden';
-						}
-
-					}
+				this.attachStaticCanvas(img, url, avatarSetting);
 
 				// Update the image.
 				const srcOG = img.src;
@@ -183,6 +127,69 @@ export class AvatarManager {
 			complete: () => this.checking = false,
 			error: err => console.error('could not update avatars', err)
 		});
+	}
+
+	private attachStaticCanvas(img: HTMLImageElement, url: string | undefined, avatarSetting: string) {
+		const canvas = document.createElement('canvas');
+
+		// We need a wrapping div as backup because :hover on a canvas is absolutely disgusting
+		const canvasWrapper = document.createElement('div');
+
+		// Apply circular border like Twitch avatars
+		canvas.classList.add('seventv-static-emote');
+		canvasWrapper.classList.add('seventv-static-emote');
+
+		const ctx = canvas.getContext('2d');
+
+		// Hover functionality to swap the static with the GIF
+		function mouseOver() {
+			canvas.style.visibility = 'hidden';
+			img.setAttribute('style', 'display: unset !important');
+
+			// Workaround to start GIF from the beginning
+			if (url) {
+				img.src = "";
+				img.src = url;
+			}
+		}
+
+		function mouseOut() {
+			canvas.style.visibility = 'visible';
+			img.setAttribute('style', 'display: none !important');
+		}
+
+		canvasWrapper.addEventListener('mouseover', mouseOver);
+		canvasWrapper.addEventListener('mouseout', mouseOut);
+
+
+		let hasLoadedBefore = false;
+
+		img.onload = (event) => {
+			if (hasLoadedBefore) {
+				return; // Prevent redrawing canvas after first load
+			}
+			hasLoadedBefore = true;
+
+			canvas.width = img.width;
+			canvasWrapper.style.height = `${img.width}px`;
+
+			canvas.height = img.height;
+			canvasWrapper.style.width = `${img.height}px`;
+
+			ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
+
+			// Insert into DOM
+			img.after(canvasWrapper);
+			canvasWrapper.appendChild(canvas);
+
+			if (avatarSetting === 'hover') {
+				// Replace GIF with static
+				img.setAttribute('style', 'display: none !important');
+			} else {
+				canvas.style.visibility = 'hidden';
+			}
+
+		};
 	}
 
 	/**
