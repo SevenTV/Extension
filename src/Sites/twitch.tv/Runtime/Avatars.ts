@@ -64,7 +64,7 @@ export class AvatarManager {
 
 		// Find avatar image tags
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
-		const canvasList = document.querySelectorAll<HTMLImageElement>('div.seventv-static-emote');
+		const canvasList = document.querySelectorAll<HTMLElement>('.seventv-static-emote');
 
 		switch(this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled') {
 			case 'enabled':
@@ -77,6 +77,12 @@ export class AvatarManager {
 				}
 				break;
 			case 'hover':
+				for (const tag of tags) {
+					if (tag.dataset.seventvCustom) {
+						tag.setAttribute('style', 'display: none !important');
+					}
+				}
+
 				for (const canvas of canvasList) {
 					canvas.style.visibility = 'visible';
 				}
@@ -102,7 +108,6 @@ export class AvatarManager {
 				}
 
 				// Capture first frame as static image for hover
-				if (this.page.site.config.get('general.app_avatars')?.asString() === 'hover') {
 					const canvas = document.createElement('canvas');
 
 					// We need a wrapping div because :hover on a canvas is absolutely disgusting
@@ -156,10 +161,14 @@ export class AvatarManager {
 						img.after(canvasWrapper);
 						canvasWrapper.appendChild(canvas);
 
-						// Replace GIF with static
-						img.setAttribute('style', 'display: none !important');
-					}				
-				}
+						if (this.page.site.config.get('general.app_avatars')?.asString() === 'hover') {
+							// Replace GIF with static
+							img.setAttribute('style', 'display: none !important');
+						} else {
+							canvas.style.visibility = 'hidden';
+						}
+
+					}
 
 				// Update the image.
 				const srcOG = img.src;
