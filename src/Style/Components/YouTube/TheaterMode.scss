@@ -14,7 +14,7 @@
 			max-width: none !important;
 			width: calc(100vh - var(--ytd-watch-flexy-sidebar-width));
 			resize: horizontal;
-			overflow-x: hidden;
+			overflow: hidden;
 			flex: none !important;
 
 			[id="primary-inner"] {
@@ -70,7 +70,7 @@
 						bottom: 0.3em;
 						background-image: radial-gradient(circle, var(--yt-live-chat-secondary-text-color) 0.25em, transparent 0.25em);
 						background-size: 100% 33.33%;
-						}
+					}
 				}
 			}
 		}
