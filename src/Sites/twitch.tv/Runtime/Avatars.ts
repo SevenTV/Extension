@@ -58,20 +58,28 @@ export class AvatarManager {
 	 * @param scope an optional html element to scope the check to
 	 */
 	check(scope?: HTMLElement): void {
+		// TODO: Apply hover to card element in parents (search recursively with max depth 5-6) (look for data-test-selector !== "")
+		// TODO: Always play in user card
+		// TODO: Define hovers depending on section		
+
 		// Find avatar image tags
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
+		const canvasList = document.querySelectorAll<HTMLImageElement>('div.seventv-static-emote');
+
 		switch(this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled') {
 			case 'enabled':
 				for (const tag of tags) {
 					tag.setAttribute('style', 'display: unset !important');
 				}
 
-				const canvasList = document.querySelectorAll<HTMLImageElement>('div.seventv-static-emote');
 				for (const canvas of canvasList) {
-					canvas.remove();
+					canvas.style.visibility = 'hidden';
 				}
 				break;
 			case 'hover':
+				for (const canvas of canvasList) {
+					canvas.style.visibility = 'visible';
+				}
 				break;
 			default:
 			return undefined;
