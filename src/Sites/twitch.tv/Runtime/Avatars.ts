@@ -79,7 +79,7 @@ export class AvatarManager {
 			case 'hover':
 				// In case setting was set to 'enabled' before
 				for (const tag of tags) {
-					if (tag.dataset.seventvCustom) {
+					if (tag.dataset.seventvCustom && tag.style.display !== 'none') {
 						tag.setAttribute('style', 'display: none !important');
 					}
 				}
@@ -175,15 +175,15 @@ export class AvatarManager {
 			function onMouseEnter() {
 				canvas.style.visibility = 'hidden';
 				img.setAttribute('style', 'display: unset !important');
+			}
 
+			function onMouseLeave() {
 				// Workaround to start GIF from the beginning
 				if (url) {
 					img.src = '';
 					img.src = url;
 				}
-			}
 
-			function onMouseLeave() {
 				canvas.style.visibility = 'visible';
 				img.setAttribute('style', 'display: none !important');
 			}
@@ -191,8 +191,12 @@ export class AvatarManager {
 			// Attach events to a suitable element
 			const hoverElement = this.getHoverElement(canvasWrapper);
 
-			hoverElement.addEventListener('mouseenter', onMouseEnter);
-			hoverElement.addEventListener('mouseleave', onMouseLeave);
+			if(!hoverElement.getAttribute('seventv-hover')) {
+				console.log('applying hover event');
+				hoverElement.addEventListener('mouseenter', onMouseEnter);
+				hoverElement.addEventListener('mouseleave', onMouseLeave);
+				hoverElement.setAttribute('seventv-hover', 'true');
+			}
 		};
 	}
 
