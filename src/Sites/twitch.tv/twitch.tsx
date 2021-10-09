@@ -197,6 +197,7 @@ export class TwitchPageScript {
 			default:
 				page?.avatarManager.check();
 		}
+		page?.site.embeddedUI.refresh(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
 	}
 
 	@PageScriptListener('ChannelEmoteUpdate')

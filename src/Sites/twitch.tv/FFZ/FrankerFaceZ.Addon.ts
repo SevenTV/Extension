@@ -51,6 +51,8 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			const data = JSON.parse(((event as CustomEvent).detail));
 			this.handleChannelEmoteUpdate(data);
 		});
+
+		this.enableAddon('ffzap-bttv');
 	}
 
 	async onEnable() {
@@ -237,11 +239,23 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	sendMessageUp(tag: string, data: any): void {
 		window.dispatchEvent(new CustomEvent(`7TV#${tag}`, { detail: JSON.stringify(data) }));
 	}
+
+	async enableAddon(id: string) {
+		let addons = await this.resolve('addons');
+		await addons.loadAddon(id);
+		addons.enableAddon(id, false);
+
+		let addonModule = await this.resolve(`addon.${id}`);
+		addonModule.external = true;
+
+		let addonManifest = addons.getAddon(id);
+		addonManifest.description = `Enabled externally by 7TV\n\n(${addonManifest.description})`;
+	}
 }
 
 SevenTVEmotes.register({
 	'id': '7tv-emotes',
-	'name': '7TV Emotes',
+	'name': '7TV',
 	'author': '7TV',
 	'description': '7TV FrankerFaceZ compatibility Add-On',
 	'version': version,

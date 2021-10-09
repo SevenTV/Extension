@@ -20,7 +20,7 @@ $borderRadius: 8px;
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		width: 200px;
+		width: 20rem;
 		flex-grow: 0;
 		background-color: var(--seventv-color-background-1);
 		border-bottom-left-radius: $borderRadius;
@@ -29,7 +29,7 @@ $borderRadius: 8px;
 			background-color: var(--seventv-color-background-0);
 			border-bottom-right-radius: 3em;
 			height: min-content;
-			width: 100px;
+			width: 10rem;
 		}
 
 		.seventv-sm-tabs {
@@ -101,10 +101,10 @@ $borderRadius: 8px;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			height: 48px;
+			height: 4.8rem;
 			width: 100%;
 			background-color: var(--seventv-color-background-1);
-			backdrop-filter: blur(10px);
+			backdrop-filter: blur(1rem);
 			border-top-right-radius: $borderRadius;
 
 			.seventv-sm-titlebox {
