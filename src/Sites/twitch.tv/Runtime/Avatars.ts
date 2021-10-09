@@ -211,14 +211,16 @@ export class AvatarManager {
 		for (let i = 0; i < 12; i++) {
 			if(!parent) {
 				return canvasWrapper;
+			} else if (parent.tagName.toLowerCase() === 'article') {
+				// Stream preview in game category
+				return parent;
 			} else if (parent.classList.contains('side-nav-card')) {
 				// Navigation sidebar
 				return parent;
 			} else if (parent.classList.contains('home-header-sticky')) {
-				// Navigation sidebar
+				// Offline channel view
 				return parent;
 			} else if (parent.classList.contains('channel-info-content')) {
-				console.log('channel-info-content');
 				// Infobox on a streamer's channel site below the stream
 				return parent.firstElementChild ?? canvasWrapper;
 			}
