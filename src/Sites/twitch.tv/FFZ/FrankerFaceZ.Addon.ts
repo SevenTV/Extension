@@ -255,7 +255,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 
 SevenTVEmotes.register({
 	'id': '7tv-emotes',
-	'name': '7TV Emotes',
+	'name': '7TV',
 	'author': '7TV',
 	'description': '7TV FrankerFaceZ compatibility Add-On',
 	'version': version,
