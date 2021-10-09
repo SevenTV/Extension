@@ -52,7 +52,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			this.handleChannelEmoteUpdate(data);
 		});
 
-		this.enableAddon("ffzap-bttv");
+		this.enableAddon('ffzap-bttv');
 	}
 
 	async onEnable() {
@@ -241,7 +241,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 	}
 
 	async enableAddon(id: string) {
-		let addons = await this.resolve("addons");
+		let addons = await this.resolve('addons');
 		await addons.loadAddon(id);
 		addons.enableAddon(id, false);
 
