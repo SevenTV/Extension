@@ -214,7 +214,11 @@ export class AvatarManager {
 			} else if (parent.classList.contains('side-nav-card')) {
 				// Navigation sidebar
 				return parent;
+			} else if (parent.classList.contains('home-header-sticky')) {
+				// Navigation sidebar
+				return parent;
 			} else if (parent.classList.contains('channel-info-content')) {
+				console.log('channel-info-content');
 				// Infobox on a streamer's channel site below the stream
 				return parent.firstElementChild ?? canvasWrapper;
 			}
