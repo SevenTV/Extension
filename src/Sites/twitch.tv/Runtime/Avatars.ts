@@ -63,7 +63,7 @@ export class AvatarManager {
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
 		const canvasList = document.querySelectorAll<HTMLElement>('.seventv-static-emote');
 
-		const avatarSetting = this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled'
+		const avatarSetting = this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled';
 
 		switch(avatarSetting) {
 			case 'enabled':
@@ -91,7 +91,7 @@ export class AvatarManager {
 			default:
 				return undefined;
 		}
-		
+
 		if (this.checking) {
 			return undefined;
 		}
@@ -130,9 +130,9 @@ export class AvatarManager {
 	}
 
 	/**
-	 * Make an avatar animated on hover instead of always-on. 
+	 * Make an avatar animated on hover instead of always-on.
 	 * Attaches a static frame of the avatar to the DOM on a canvas.
-	 * 
+	 *
 	 * @param img Avatar to enable hover functionality for
 	 * @param url Source URL of the avatar
 	 */
@@ -178,7 +178,7 @@ export class AvatarManager {
 
 				// Workaround to start GIF from the beginning
 				if (url) {
-					img.src = "";
+					img.src = '';
 					img.src = url;
 				}
 			}
@@ -189,7 +189,7 @@ export class AvatarManager {
 			}
 
 			// Attach events to a suitable element
-			const hoverElement = this.getHoverElement(canvasWrapper); 
+			const hoverElement = this.getHoverElement(canvasWrapper);
 
 			hoverElement.addEventListener('mouseenter', onMouseEnter);
 			hoverElement.addEventListener('mouseleave', onMouseLeave);
@@ -197,12 +197,12 @@ export class AvatarManager {
 	}
 
 	/**
-	 * Recursively search for a suitable parent element to 
-	 * attach hover events to, to trigger an animated avatar. 
-	 * 
+	 * Recursively search for a suitable parent element to
+	 * attach hover events to, to trigger an animated avatar.
+	 *
 	 * @param canvasWrapper Canvas that belongs to the avatar
-	 * 
-	 * @returns the current Element if it has of the given 
+	 *
+	 * @returns the current Element if it has of the given
 	 * classes or the original canvasWrapper if nothing was found
 	 */
 	private getHoverElement(canvasWrapper: HTMLDivElement): Element {

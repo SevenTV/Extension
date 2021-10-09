@@ -25,9 +25,9 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 										checked={(this.props.main.app?.config.get(s.id)?.asBoolean() ?? s.defaultValue) as boolean}
 										onChange={ev => this.handleCheckboxChange(s, ev)}
 										sx={{ '& .MuiSvgIcon-root': { fontSize: 24 } }} />
-								}></FormControlLabel>
+								}></FormControlLabel>;
 							break;
-							
+
 
 						case 'select':
 							result =
@@ -35,7 +35,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 									<RadioGroup style={{ order: 2 }} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} row onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
 											{s.options?.map((option) => <FormControlLabel style={{textTransform:'capitalize'}} value={option} key={option} control={<Radio />} label={option} /> )}
 									</RadioGroup>
-								}></FormControlLabel>									
+								}></FormControlLabel>;
 							break;
 
 						default:
