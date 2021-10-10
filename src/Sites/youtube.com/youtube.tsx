@@ -4,6 +4,9 @@ import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import { ChatObserver } from 'src/Sites/youtube.com/Runtime/ChatObserver';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
 import { get } from 'superagent';
+import { Divisor } from 'src/Sites/youtube.com/Util/Divisor';
+import ReactDOM from 'react-dom';
+import React from 'react';
 
 declare const window: Window & {
 	yt: any;
@@ -221,10 +224,27 @@ export class YouTubePageScript {
 		const className = 'seventv-yt-theater-mode';
 		const isTheaterMode = document.body.classList.contains(className);
 		this.isTheaterMode = !isTheaterMode;
+
+		const chat = document.querySelector('div[id=secondary]') as HTMLElement;
+
 		if (isTheaterMode) {
 			document.body.classList.remove(className);
+
+			document.querySelector('.seventv-divisor')?.remove();
+			chat!.style.width = 'var(--ytd-watch-flexy-sidebar-width)';
+
 		} else {
 			document.body.classList.add(className);
+
+			const container = document.createElement('div');
+			container.classList.add('seventv-divisor');
+
+			const changeWidth = (e: number) => {
+				chat!.style.width = `${window.innerWidth - e}px`;
+			};
+
+			chat?.parentNode?.insertBefore(container, chat);
+			ReactDOM.render(<Divisor callback={changeWidth}/>, container);
 		}
 	}
 }

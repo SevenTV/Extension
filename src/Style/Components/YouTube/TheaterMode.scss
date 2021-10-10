@@ -1,4 +1,5 @@
 .seventv-yt-theater-mode {
+	overflow: hidden !important;
 	[id="columns"] {
 		display: flex !important;
 		max-width: 100% !important;
@@ -12,6 +13,7 @@
 			display: flex !important;
 			width: 100vw !important;
 			height: 100vh !important;
+			min-width: 0 !important;
 			max-width: none !important;
 
 			[id="primary-inner"] {
@@ -47,8 +49,23 @@
 			}
 		}
 
+		.seventv-divisor {
+			position: relative;
+			height: 100vh;
+			width: 0px;
+
+			div {
+				height: 100vh;
+				cursor: col-resize;
+				position: absolute;
+				z-index: 9999;
+			}
+		}
+
 		[id="secondary"] {
 			padding: 0 !important;
+			min-width: 0 !important;
+			width: var(--ytd-watch-flexy-sidebar-width);
 		}
 	}
 
