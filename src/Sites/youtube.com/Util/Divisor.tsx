@@ -11,9 +11,9 @@ export function Divisor({callback}: Divisor.callback): JSX.Element {
 
 	return (
 		<div
-			onPointerDown={	() 					=> { setTracking(true); setBorder(30); 	}}
-			onPointerUp={	() 					=> { setTracking(false); setBorder(1); 	}}
-			onPointerMove={	(e: PointerEvent) 	=> { if (tracking) { update(e); } 		}}
+			onPointerDown={	() => { setTracking(true); setBorder(30); }}
+			onPointerUp={ () => { setTracking(false); setBorder(1); }}
+			onPointerMove={	(e: PointerEvent) => { if (tracking) { update(e); } }}
 
 			// This is so the mouse stays over the div more consistent
 			style={{
