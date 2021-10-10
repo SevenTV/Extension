@@ -8,7 +8,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import { SettingNode } from 'src/Content/Runtime/Settings';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { SettingValue } from 'src/Global/Util';
-import { SelectChangeEvent, RadioGroup, Radio } from '@material-ui/core';
+import { SelectChangeEvent, RadioGroup, Radio, FormLabel } from '@material-ui/core';
 
 export class SettingsForm extends React.Component<SettingsForm.Props> {
 	render() {
@@ -24,18 +24,19 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 									<Checkbox
 										checked={(this.props.main.app?.config.get(s.id)?.asBoolean() ?? s.defaultValue) as boolean}
 										onChange={ev => this.handleCheckboxChange(s, ev)}
-										sx={{ '& .MuiSvgIcon-root': { fontSize: 24 } }} />
+										sx={{ '& .MuiSvgIcon-root': { fontSize: 24, marginLeft: '14px' } }} />
 								}></FormControlLabel>;
 							break;
 
 
 						case 'select':
 							result =
-								<FormControlLabel labelPlacement='end' label={s.label} sx={{ '.MuiFormControlLabel-label': { order: 1, fontSize: '1em', color: 'currentcolor' } }} control={
-									<RadioGroup style={{ order: 2 }} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} row onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
+								<div>
+									<FormLabel component='legend' style={{ fontSize: '1em', color: 'white', margin: '14px 0 0 14px'}}>{s.label}</FormLabel>
+									<RadioGroup  style={{ marginLeft: '14px'}} name='Test' sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
 											{s.options?.map((option) => <FormControlLabel style={{textTransform:'capitalize'}} value={option} key={option} control={<Radio />} label={option} /> )}
 									</RadioGroup>
-								}></FormControlLabel>;
+								</div>;
 							break;
 
 						default:
