@@ -114,6 +114,13 @@ div[id="content"]
 	filter: blur(0.8rem);
 }
 
+.seventv-static-emote {
+	border-radius: 9000px; 
+	position: absolute;
+	top: 0; 
+	left: 0;
+}
+
 .seventv-menu-button {
 	cursor: pointer !important;
 	display: flex;

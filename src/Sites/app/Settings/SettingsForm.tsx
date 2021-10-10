@@ -8,6 +8,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import { SettingNode } from 'src/Content/Runtime/Settings';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { SettingValue } from 'src/Global/Util';
+import { SelectChangeEvent, RadioGroup, Radio, FormLabel } from '@material-ui/core';
 
 export class SettingsForm extends React.Component<SettingsForm.Props> {
 	render() {
@@ -23,8 +24,19 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 									<Checkbox
 										checked={(this.props.main.app?.config.get(s.id)?.asBoolean() ?? s.defaultValue) as boolean}
 										onChange={ev => this.handleCheckboxChange(s, ev)}
-										sx={{ '& .MuiSvgIcon-root': { fontSize: 24 } }} />
+										sx={{ '& .MuiSvgIcon-root': { fontSize: 24, marginLeft: '14px' } }} />
 								}></FormControlLabel>;
+							break;
+
+
+						case 'select':
+							result =
+								<div>
+									<FormLabel component='legend' style={{ fontSize: '1em', color: 'white', margin: '14px 0 0 14px'}}>{s.label}</FormLabel>
+									<RadioGroup  style={{ marginLeft: '14px'}} name='Test' sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
+											{s.options?.map((option) => <FormControlLabel style={{textTransform:'capitalize'}} value={option} key={option} control={<Radio />} label={option} /> )}
+									</RadioGroup>
+								</div>;
 							break;
 
 						default:
@@ -33,7 +45,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 							break;
 					}
 
-					return <FormControl disabled={isDisabled} sx={{
+					return <FormControl disabled={isDisabled} component='fieldset' sx={{
 						'.Mui-disabled': { color: 'red' }
 					}} key={`formcontrol-${s.id}`} id={s.id}>
 						{result}
@@ -50,6 +62,17 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 		sNode.value = checked;
 		this.props.main.app?.config.set(sNode.id, new SettingValue(checked));
 		this.props.main.app?.sendMessageUp('SetConfigNode', { key: `cfg.${sNode.id}`, value: checked });
+
+		this.setState({});
+		this.props.main.setState({});
+	}
+
+	handleSelectChange(sNode: SettingNode, ev: SelectChangeEvent): void {
+		const value = ev.target.value;
+
+		sNode.value = value;
+		this.props.main.app?.config.set(sNode.id, new SettingValue(value));
+		this.props.main.app?.sendMessageUp('SetConfigNode', { key: `cfg.${sNode.id}`, value: value });
 
 		this.setState({});
 		this.props.main.setState({});
