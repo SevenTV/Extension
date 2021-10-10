@@ -224,18 +224,27 @@ export class YouTubePageScript {
 		const className = 'seventv-yt-theater-mode';
 		const isTheaterMode = document.body.classList.contains(className);
 		this.isTheaterMode = !isTheaterMode;
+
+		const chat = document.querySelector('div[id=secondary]') as HTMLElement;
+
 		if (isTheaterMode) {
 			document.body.classList.remove(className);
-			(document.querySelector('div[id=secondary]') as HTMLElement)!.style.width = 'var(--ytd-watch-flexy-sidebar-width)';
-			document.querySelector('.seventv-divisor')?.parentNode?.removeChild(document.querySelector('.seventv-divisor')!);
+
+			document.querySelector('.seventv-divisor')?.remove();
+			chat!.style.width = 'var(--ytd-watch-flexy-sidebar-width)';
 
 		} else {
 			document.body.classList.add(className);
-			const chat = document.querySelector('div[id=secondary]') as HTMLElement;
+
 			const container = document.createElement('div');
 			container.classList.add('seventv-divisor');
+
+			const changeWidth = (e: number) => {
+				chat!.style.width = `${window.innerWidth - e}px`;
+			};
+
 			chat?.parentNode?.insertBefore(container, chat);
-			ReactDOM.render(<Divisor/>, container);
+			ReactDOM.render(<Divisor callback={changeWidth}/>, container);
 		}
 	}
 }

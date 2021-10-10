@@ -6,8 +6,7 @@
 		margin: 0 !important;
 		justify-content: space-between !important;
 		width: 100% !important;
-		overflow-x: hidden !important;
-		position: relative !important;
+		overflow: hidden !important;
 
 		[id="primary"] {
 			padding: 0 !important;
@@ -51,17 +50,14 @@
 		}
 
 		.seventv-divisor {
-			width: 1em;
-			position: absolute;
-			height: 100%;
-			left: calc(100vw - var(--ytd-watch-flexy-sidebar-width));
-			margin-left: -0.5em;
+			position: relative;
+			height: 100vh;
+			width: 0px;
 
 			div {
-				height: 100%;
-				width: 100%;
-				position: relative;
+				height: 100vh;
 				cursor: col-resize;
+				position: absolute;
 				z-index: 9999;
 			}
 		}
@@ -90,7 +86,6 @@
 	ytd-live-chat-frame {
 		height: 100vh !important;
 		padding: 0 !important;
-		margin-bottom: 0 !important;
 	}
 
 	[id="info"], [id="meta"], [id="comments"], [id="related"], [id="masthead-container"] {
