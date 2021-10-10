@@ -1,29 +1,44 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export function Divisor(): JSX.Element {
-
-	const [clicked, setClick] = useState(false);
-
 	const divisor = document.querySelector('.seventv-divisor') as HTMLElement;
 	const chatbox = document.querySelector('div[id=secondary]') as HTMLElement;
 
-	const move = (e: any) => {
-		if ( e.pageX > 0 && e.pageX < e.view.innerWidth) {
-			if (clicked) {
-				divisor!.style.left = `${e.pageX}px`;
-				chatbox!.style.width = `calc(100vw - ${e.pageX}px)`;
-			}
+	let width = 400;
+
+	const move = (e: PointerEvent) => {
+
+		if ( e.x > 0  && e.x < window.innerWidth ) {
+
+			width = (window.innerWidth - e.x);
+
+			divisor!.style.left = `${e.x}px`;
+			chatbox!.style.width = `${width}px`;
 		}
 	};
 
+	const removeHandle = () => {
+		divisor.style.width= '1em';
+		divisor.style.marginLeft = '-0.5em';
+		window.removeEventListener('pointermove', move);
+		window.removeEventListener('pointerup', removeHandle);
+	};
+
+	const addHandle = () => {
+		divisor.style.width = '30em';
+		divisor.style.marginLeft = '-15em';
+		window.addEventListener('pointermove', move);
+		window.addEventListener('pointerup', removeHandle);
+	};
+
+	window.onresize = () => {
+		divisor!.style.left = `${
+			window.innerWidth - width
+		}px`;
+	};
+
 	return (
-		<div id='outer' onPointerMove={move}>
-			<div
-				id='inner'
-				onPointerDown={() => {setClick(true);}}
-				onPointerUp={() => {setClick(false);}}
-			/>
-		</div>
+		<div onPointerDown={addHandle} />
 	);
 }
 

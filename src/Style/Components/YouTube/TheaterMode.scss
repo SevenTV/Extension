@@ -51,33 +51,25 @@
 		}
 
 		.seventv-divisor {
-			width: 20em;
+			width: 1em;
 			position: absolute;
-			height: 90%;
-			left: calc(100vw - 400px);
-			z-index: 9998;
-			top: 5%;
-			transform: translateX(-10em);
+			height: 100%;
+			left: calc(100vw - var(--ytd-watch-flexy-sidebar-width));
+			margin-left: -0.5em;
 
 			div {
 				height: 100%;
-				div {
-					height: 100%;
-					width: 1em;
-					left: 9.5em;
-					display: block;
-					text-decoration: none;
-					position: relative;
-					cursor: col-resize;
-					z-index: 9999;
-				}
+				width: 100%;
+				position: relative;
+				cursor: col-resize;
+				z-index: 9999;
 			}
 		}
 
 		[id="secondary"] {
 			padding: 0 !important;
 			min-width: 0 !important;
-			width: 400px;
+			width: var(--ytd-watch-flexy-sidebar-width);
 		}
 	}
 
