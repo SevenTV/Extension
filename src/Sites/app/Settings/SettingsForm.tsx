@@ -37,7 +37,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 						'.Mui-disabled': { color: 'red' }
 					}} key={`formcontrol-${s.id}`} id={s.id}>
 						{result}
-						<FormHelperText style={{ fontSize: '0.75em' }}> {s.hint} </FormHelperText>
+						<FormHelperText style={{ fontSize: '0.75em', color: 'currentcolor', opacity: '0.60' }}> {s.hint} </FormHelperText>
 					</FormControl>;
 				})}
 			</FormGroup>

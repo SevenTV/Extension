@@ -129,7 +129,15 @@ class Settings {
 					hint: 'Make the 7TV tooltips smaller',
 					type: 'checkbox',
 					defaultValue: false
+				},
+				{
+					id: 'ui.hide_emote_menu',
+					label: 'Hide the 7TV emote menu',
+					hint: 'If checked, the 7TV emote menu located under the chat box will not be visible',
+					type: 'checkbox',
+					defaultValue: false
 				}
+
 			);
 		}
 	}

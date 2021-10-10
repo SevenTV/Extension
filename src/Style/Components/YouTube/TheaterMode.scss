@@ -2,7 +2,7 @@
 	overflow-y: clip;
 	[id="columns"] {
 		display: flex !important;
-		max-width: none !important;
+		max-width: 100% !important;
 		margin: 0 !important;
 		justify-content: space-between !important;
 		width: 100% !important;
@@ -88,6 +88,12 @@
 		height: 100vh !important;
 	}
 
+	[id="contents"] {
+		.seventv-overlay .seventv-clickable-overlay-child {
+			left: 9.5rem !important;
+		}
+	}
+
 	ytd-live-chat-frame {
 		height: 100vh !important;
 		padding: 0 !important;
@@ -103,17 +109,18 @@
 		height: 969px;
 		background-color: black;
 	}
+
 }
 
 .seventv-yt-theater-mode-button-container {
 	display: inline-block;
-	width: 24px;
-	margin-right: 0.5em;
-	margin-left: 0.5em;
+	width: 2.4rem;
+	margin-right: 0.5rem;
+	margin-left: 0.5rem;
 
 	img {
-		width: 24px;
-		height: 18px;
-		margin-bottom: 0.9em;
+		width: 2.4rem;
+		height: 1.8rem;
+		margin-bottom: 1.5rem;
 	}
 }
