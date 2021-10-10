@@ -52,6 +52,11 @@ export class AvatarManager {
 			}).catch(err => console.error(err));
 	}
 
+	/**
+	 * Hides avatar static or GIF depending on the configuration to be in-line with the new setting
+	 *
+	 * @param newConfig represents the new setting for animated avatars
+	 */
 	resetAfterConfigChange(newConfig: string): void {
 		const tags = document.querySelectorAll<HTMLImageElement>('img.tw-image-avatar[seventv-custom]');
 		const canvasList = document.querySelectorAll<HTMLElement>('.seventv-static-emote');
@@ -240,7 +245,7 @@ export class AvatarManager {
 				// Infobox on a streamer's channel site below the stream
 				return parent.firstElementChild ?? canvasWrapper;
 			} else if (parent.classList.contains('search-result-card__img-wrapper')) {
-				// Infobox on a streamer's channel site below the stream
+				// Channel search results
 				return parent.parentElement ?? canvasWrapper;
 			}
 
