@@ -52,6 +52,34 @@ export class AvatarManager {
 			}).catch(err => console.error(err));
 	}
 
+	resetAfterConfigChange(newConfig: string): void {
+		const tags = document.querySelectorAll<HTMLImageElement>('img.tw-image-avatar[seventv-custom]');
+		const canvasList = document.querySelectorAll<HTMLElement>('.seventv-static-emote');
+
+		switch (newConfig) {
+			case 'enabled':
+				// In case setting was set to 'hover' before
+				for (const tag of tags) {
+					tag.setAttribute('style', 'display: unset !important');
+				}
+				for (const canvas of canvasList) {
+					canvas.style.visibility = 'hidden';
+				}
+				break;
+			case 'hover':
+				// In case setting was set to 'enabled' before
+				for (const tag of tags) {
+					tag.setAttribute('style', 'display: none !important');
+				}
+				for (const canvas of canvasList) {
+					canvas.style.visibility = 'visible';
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
 	/**
 	 * Check profile picture image tags on the page and replace them with custom avatars
 	 *
@@ -61,47 +89,26 @@ export class AvatarManager {
 
 		// Find avatar image tags
 		const tags = (scope ?? document).querySelectorAll<HTMLImageElement>(`img.tw-image-avatar`);
-		const canvasList = document.querySelectorAll<HTMLElement>('.seventv-static-emote');
 
 		const avatarSetting = this.page.site.config.get('general.app_avatars')?.asString() ?? 'enabled';
 
-		switch(avatarSetting) {
-			case 'enabled':
-				// In case setting was set to 'hover' before
-				for (const tag of tags) {
-					tag.setAttribute('style', 'display: unset !important');
-				}
-
-				for (const canvas of canvasList) {
-					canvas.style.visibility = 'hidden';
-				}
-				break;
-			case 'hover':
-				// In case setting was set to 'enabled' before
-				for (const tag of tags) {
-					if (tag.dataset.seventvCustom && tag.style.display !== 'none') {
-						tag.setAttribute('style', 'display: none !important');
-					}
-				}
-
-				for (const canvas of canvasList) {
-					canvas.style.visibility = 'visible';
-				}
-				break;
-			default:
-				return undefined;
-		}
-
-		if (this.checking) {
+		if (this.checking || avatarSetting === 'disabled') {
 			return undefined;
 		}
 		this.checking = true;
 
 		from(tags).pipe(
-			filter((img) => !img.hasAttribute('seventv-custom')), // Only match images that haven't already been customized
+			filter((img) => {
+				if(avatarSetting === 'hover') {
+					return !img.hasAttribute('seventv-custom') || (img.parentElement?.childElementCount ?? 0) < 2;
+				} else {
+					return !img.hasAttribute('seventv-custom');
+				}
+			}), // Only match images that haven't already been customized
 			// Override the sizing factor to "300x300" in order to create a consistent hash
 			mergeMap(img => from(this.hashURL(img.src.replace(avatarSizeRegex, '300x300'))).pipe(map(hash => ({ hash, img }))), 10),
 			map(({ hash, img }) => {
+
 				// Try to find a hash for this image
 				const url = this.hashMap.get(hash);
 				if (!url) { // No hash means profile picture isn't custom
@@ -109,9 +116,9 @@ export class AvatarManager {
 				}
 
 				// Skip if avatar is in user card
-				if(!img.parentElement?.parentElement?.classList.contains('viewer-card-drag-cancel') && avatarSetting === 'hover') {
+				if(!img.parentElement?.parentElement?.classList.contains('viewer-card-drag-cancel')) {
 					// Enable hover functionality
-					this.enableAnimateOnHover(img, url);
+					this.enableAnimateOnHover(img, url, avatarSetting);
 				}
 
 				// Update the image.
@@ -136,7 +143,7 @@ export class AvatarManager {
 	 * @param img Avatar to enable hover functionality for
 	 * @param url Source URL of the avatar
 	 */
-	private enableAnimateOnHover(img: HTMLImageElement, url: string | undefined) {
+	private enableAnimateOnHover(img: HTMLImageElement, url: string | undefined, setting: string) {
 		const canvas = document.createElement('canvas');
 
 		// We need a wrapping div as backup because :hover on a canvas is absolutely disgusting
@@ -164,39 +171,44 @@ export class AvatarManager {
 
 			ctx?.drawImage((event.target as any), 0, 0, img.width, img.height);
 
+			// Replace GIF with static
+			if (setting === 'hover') {
+				img.setAttribute('style', 'display: none !important');
+			} else {
+				canvas.style.visibility = 'hidden';
+			}
+
 			// Insert static into DOM
 			img.after(canvasWrapper);
 			canvasWrapper.appendChild(canvas);
 
-			// Replace GIF with static
-			img.setAttribute('style', 'display: none !important');
-
 			// Define hover events that swap the static with the GIF
-			function onMouseEnter() {
-				canvas.style.visibility = 'hidden';
-				img.setAttribute('style', 'display: unset !important');
-			}
-
-			function onMouseLeave() {
-				// Workaround to start GIF from the beginning
-				if (url) {
-					img.src = '';
-					img.src = url;
+			const onMouseEnter = () => {
+				if(this.page.site.config.get('general.app_avatars')?.asString() === 'hover') {
+					canvas.style.visibility = 'hidden';
+					img.setAttribute('style', 'display: unset !important');
 				}
+			};
 
-				canvas.style.visibility = 'visible';
-				img.setAttribute('style', 'display: none !important');
-			}
+			const onMouseLeave = () => {
+				if(this.page.site.config.get('general.app_avatars')?.asString() === 'hover') {
+					// Workaround to start GIF from the beginning
+					if (url) {
+						img.src = '';
+						img.src = url;
+					}
+
+					canvas.style.visibility = 'visible';
+					img.setAttribute('style', 'display: none !important');
+				}
+			};
 
 			// Attach events to a suitable element
 			const hoverElement = this.getHoverElement(canvasWrapper);
 
-			if(!hoverElement.getAttribute('seventv-hover')) {
-				console.log('applying hover event');
-				hoverElement.addEventListener('mouseenter', onMouseEnter);
-				hoverElement.addEventListener('mouseleave', onMouseLeave);
-				hoverElement.setAttribute('seventv-hover', 'true');
-			}
+			hoverElement.addEventListener('mouseenter', onMouseEnter);
+			hoverElement.addEventListener('mouseleave', onMouseLeave);
+			hoverElement.setAttribute('seventv-hover', '');
 		};
 	}
 

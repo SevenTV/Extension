@@ -195,6 +195,7 @@ export class TwitchPageScript {
 				page?.avatarManager.revert();
 				break;
 			default:
+				page?.avatarManager.resetAfterConfigChange(cfg['general.app_avatars']);
 				page?.avatarManager.check();
 		}
 		page?.site.embeddedUI.refresh(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
