@@ -4,9 +4,9 @@ import { assetStore, SiteApp } from 'src/Sites/app/SiteApp';
 import { ChatObserver } from 'src/Sites/youtube.com/Runtime/ChatObserver';
 import { YouTube } from 'src/Sites/youtube.com/Util/YouTube';
 import { get } from 'superagent';
-import { Divisor } from 'src/Sites/youtube.com/Util/Divisor'
+import { Divisor } from 'src/Sites/youtube.com/Util/Divisor';
 import ReactDOM from 'react-dom';
-import React from 'react'
+import React from 'react';
 
 declare const window: Window & {
 	yt: any;
@@ -226,15 +226,15 @@ export class YouTubePageScript {
 		this.isTheaterMode = !isTheaterMode;
 		if (isTheaterMode) {
 			document.body.classList.remove(className);
-			(document.querySelector('div[id=secondary]') as HTMLElement)!.style.width = "var(--ytd-watch-flexy-sidebar-width)";
-			document.querySelector('.seventv-divisor')?.parentNode?.removeChild(document.querySelector('.seventv-divisor')!)
-			
+			(document.querySelector('div[id=secondary]') as HTMLElement)!.style.width = 'var(--ytd-watch-flexy-sidebar-width)';
+			document.querySelector('.seventv-divisor')?.parentNode?.removeChild(document.querySelector('.seventv-divisor')!);
+
 		} else {
 			document.body.classList.add(className);
-			const chat = document.querySelector('div[id=secondary]') as HTMLElement
-			const container = document.createElement('div')
-			container.classList.add('seventv-divisor')
-			chat?.parentNode?.insertBefore(container, chat)
+			const chat = document.querySelector('div[id=secondary]') as HTMLElement;
+			const container = document.createElement('div');
+			container.classList.add('seventv-divisor');
+			chat?.parentNode?.insertBefore(container, chat);
 			ReactDOM.render(<Divisor/>, container);
 		}
 	}

@@ -12,9 +12,10 @@
 		[id="primary"] {
 			padding: 0 !important;
 			margin: 0 !important;
+			display: flex !important;
 			height: 100vh !important;
 			min-width: 0 !important;
-			max-width: 100vw !important;
+			max-width: none !important;
 
 			[id="primary-inner"] {
 				width: 100% !important;
