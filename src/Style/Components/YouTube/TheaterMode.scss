@@ -1,17 +1,17 @@
 .seventv-yt-theater-mode {
-	overflow-y: clip;
+	overflow: hidden !important;
 	[id="columns"] {
 		display: flex !important;
 		max-width: 100% !important;
 		margin: 0 !important;
 		justify-content: space-between !important;
 		width: 100% !important;
-		overflow: hidden !important;
 
 		[id="primary"] {
 			padding: 0 !important;
 			margin: 0 !important;
 			display: flex !important;
+			width: 100vw !important;
 			height: 100vh !important;
 			min-width: 0 !important;
 			max-width: none !important;
