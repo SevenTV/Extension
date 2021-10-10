@@ -239,6 +239,9 @@ export class AvatarManager {
 			} else if (parent.classList.contains('channel-info-content')) {
 				// Infobox on a streamer's channel site below the stream
 				return parent.firstElementChild ?? canvasWrapper;
+			} else if (parent.classList.contains('search-result-card__img-wrapper')) {
+				// Infobox on a streamer's channel site below the stream
+				return parent.parentElement ?? canvasWrapper;
 			}
 
 			parent = parent.parentElement;
