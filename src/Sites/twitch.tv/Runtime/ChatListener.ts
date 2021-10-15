@@ -7,6 +7,7 @@ import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
+import { insertSlider } from 'src/Sites/twitch.tv/Components/BanSliderRenderer'
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
 export class TwitchChatListener {
@@ -132,6 +133,8 @@ export class TwitchChatListener {
 		 */
 		this.pendingMessages.add(msg.id);
 
+		console.log('nam')
+
 		// Push emotes to seventv.emotes property
 		const patcher = new MessagePatcher(this.page, msg);
 		msg.seventv = {
@@ -182,6 +185,8 @@ export class TwitchChatListener {
 				for (const m of mutations) {
 					for (const n of m.addedNodes) {
 						const r = this.twitch.getChatLine(n as HTMLElement);
+						
+						insertSlider(n as HTMLElement);
 
 						observer.next({
 							element: n as HTMLDivElement,
