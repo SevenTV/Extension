@@ -1,40 +1,62 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BanSlider } from 'src/Sites/twitch.tv/Components/BanSlider'
+import 'src/Sites/twitch.tv/Util/Twitch';
+import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
+import { configMap } from 'src/Sites/app/SiteApp';
 
-export function insertSlider(parent: HTMLElement): void {
+export function insertSlider(parent: HTMLElement, component: Twitch.ChatLineComponent, controller: Twitch.ChatControllerComponent): void {
+
+    const msg = component.props.message
+
+    const settingEnabled = configMap.get('ui.show_moderation_slider')?.asBoolean()
+    const isMessage = ( msg.messageType === 0 || msg.messageType === 1 )
+    const target = msg.user.displayName
+    const isTargetMod = ( msg.user.userType === 'mod' || msg.user.displayName.toLowerCase() == component.props.channelLogin.toLowerCase())
+    console.log('type:', msg.user.userType)
+
+    const isMod = component.props.isCurrentUserModerator
+
+    const buildCommand = (action: string): string => {
+
+        switch (action) {
+            case 'Unban': { 
+                return `/unban ${target}`;
+            }
+            case 'Delete': {
+                return `/delete ${msg.id}`;
+            }
+            case 'Ban': {
+                return `/ban ${target}`;
+            }
+            default: {
+                return `/timeout ${target} ${action}`
+            }
+        }
+    }
+
+    const handleRelease = (action: string): void => {
+
+        parent.style.transition = '0.2s linear'
+        setTimeout(() => {
+            parent.style.transition = ''
+        }, 200)
+
+        const cmd = buildCommand(action)
+        console.log(cmd)
+        controller.sendMessage( cmd, undefined )
+    }
     
-    if ( parent.classList.contains('chat-line__message') ) {
+    if (settingEnabled && isMod && !isTargetMod && isMessage) {
+
         const container = document.createElement('span');
         container.classList.add('seventv-ban-slider');
         parent.insertBefore(container, parent.firstChild);
-        
-        parent.style.transform = `translateX(0px)`
-
-        const translate = (pos: number): void => {
-            parent.style.transform = `translateX(${pos}px)`
-
-            if (pos != 0) {
-                parent.style.boxShadow = `inset 0 0.1em 0.2em black`
-            } else {
-                parent.style.boxShadow = ''
-            }
-        }
-
-        const printAction = (action: string): void => {
-            parent.style.transition = '0.2s linear'
-            parent.style.boxShadow = ''
-            parent.style.transform = `translateX(0px)`
-            console.log(action)
-            setTimeout(() => {
-                parent.style.transition = ''
-            }, 200)
-            
-            
-        }
 
         parent.parentElement!.style.overflow = 'hidden'
 
-        ReactDOM.render(<BanSlider onUpdate={translate} onRelease={printAction}/>, container);
+        ReactDOM.render(<BanSlider onRelease={handleRelease} parent={parent}/>, container);
     }    
 }
+
+

@@ -138,6 +138,14 @@ class Settings {
 					type: 'checkbox',
 					defaultValue: false
 				}
+				,
+				{
+					id: 'ui.show_moderation_slider',
+					label: 'Show moderation slider',
+					hint: 'If checked, the moderation slider will be visible in channels you moderate',
+					type: 'checkbox',
+					defaultValue: true
+				}
 
 			);
 		}

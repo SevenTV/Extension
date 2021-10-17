@@ -1,14 +1,12 @@
 import React, { PointerEvent, useState } from 'react';
+import { assetStore } from 'src/Sites/app/SiteApp';
 
-const minVal = 20.0;
-const delVal = 40.0;
-const maxVal = 200.0;
+const minVal = 40.0;
+const delVal = 80.0;
+const maxVal = 300.0;
 const maxSeconds = 1209600.0;
 
 const numberToTime = (val: number): string => {
-
-    
-
     if ( val < 60 ) {
         return ( `${Math.round(val)} seconds` )
     } else if ( val < 60*60 ) {
@@ -20,68 +18,79 @@ const numberToTime = (val: number): string => {
     }
 }
 
-const calculateAction = ( pos: number ): string => {
-    if (pos < -40) {
-        return('Unban')
-    } else if ( pos < minVal ) {
-        return('')
-    } else if ( pos < delVal ) {
-        return(
-            'Delete'
-        )
-    } else if ( pos < maxVal ) {
-        return(
-            `${Math.pow((pos - delVal)/(maxVal - delVal), 7)*maxSeconds + 1}`
-        )
-    } else {
-        return(
-            'Permanent'
-        )
-    }
-}
 
-export function BanSlider({ onUpdate, onRelease}: BanSlider.callback): JSX.Element {
+
+export function BanSlider({onRelease, parent}: BanSlider.props): JSX.Element {
 
 	const [tracking, setTracking] = useState(false);
     const [pos, setPos] = useState(0);
     const [initial, setInitial] = useState(0);
     const [tDur, settDur] = useState('0s');
     const [color, setColor] = useState('#000000')
+    const [action, setAction] = useState('');
+    const [vis, setVisibility] = useState(false)
 
-    const calculateColor = (pos: number): void => {
-        if ( pos < minVal ) {
+    const calculateAction = ( pos: number ): string | null => {
+        if (pos < -40) {
+            setAction( 'Unban' )
+            setVisibility( true )
+            return( 'Unban' )
+        } else if ( pos < minVal ) {
+            setAction( '' )
+            setVisibility( false )
             setColor('var(--color-border-input)')
+            return( null )
         } else if ( pos < delVal ) {
-            setColor('#8feb34')
+            setAction( 'Delete' )
+            setVisibility( false )
+            setColor('#ffd726')
+            return( 'Delete' )
         } else if ( pos < maxVal ) {
+            const time = Math.pow((pos + 0.25*maxVal - delVal)/(1.25*maxVal - delVal), 10)*maxSeconds;
+
+            setAction( numberToTime(time) );
+            setVisibility( false )
             setColor('#c98b18')
+            return( String(Math.round(time)) )
         } else {
+            setAction( 'Ban' )
+            setVisibility( false )
             setColor('#c40000')
+            return('Ban')
         }
+    }
+
+    const translate = (pos: number): void => {
+        parent.style.transform = `translateX(${pos}px)`
+        parent.style.boxShadow = (pos != 0) ? `inset 0 0.1em 0.2em black` : ''
     }
 
 	const update = (e: PointerEvent): void => {
 
-        const calcPos = Math.max(Math.min(e.pageX - initial, 200), -50);
+        const calcPos = Math.max(Math.min(e.pageX - initial, maxVal), -50);
 
 		setPos(calcPos);
-        onUpdate(calcPos);
+        calculateAction(calcPos)
 
-        calculateColor(calcPos)
+        translate(calcPos)
+        
 	};
 
     const handleRelease = (e: PointerEvent): void => {
         setTracking(false);
 
         const action = calculateAction(pos)
+        if (!!action) {
+            onRelease(action)
+        }
 
-        console.log(numberToTime(20))
-
-        onRelease(action)
         settDur('0.2s')
         setTimeout(() => {settDur('0s');}, 250)
+
         setPos(0);
-        onUpdate(0);
+        translate(0);
+        setVisibility( false );
+
         (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     }
 
@@ -108,24 +117,31 @@ export function BanSlider({ onUpdate, onRelease}: BanSlider.callback): JSX.Eleme
                         textIndent: `calc(1rem + ${pos/20}px)`
                     }}
                 >
-                    {calculateAction(pos)}
+                    {action}
                 </span>
             </div>
-            <div className='grabbable-outer'>
-                <div className='grabbable-inner'
-                    onPointerDown={ handleDown }
-                    onPointerUp={ handleRelease }
-                    onPointerMove={	(e: PointerEvent) => { if (tracking) { update(e); } }}
+            <div className='grabbable-outer'
+                onPointerDown={ handleDown }
+                onPointerUp={ handleRelease }
+                onPointerMove={	(e: PointerEvent) => { if (tracking) { update(e); }} }
                 >
+                <div className='grabbable-inner'>
+                    <div className='dots'/>
                 </div>
+            </div>
+            <div className='unban-icon'
+                style={{
+                    opacity: vis ? 1 : 0
+                }}>
+                <img src={assetStore.get('undo.webp')}/>
             </div>
         </div>
 	);
 }
 
 export namespace BanSlider {
-    export interface callback {
-		onUpdate: (x: number) => void;
+    export interface props {
         onRelease: (x: string) => void;
+        parent: HTMLElement;
 	}
 }

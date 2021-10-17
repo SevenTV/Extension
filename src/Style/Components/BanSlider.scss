@@ -33,13 +33,35 @@
             height: 100%;
             display: flex;
             width: 2rem;
+            pointer-events: all;
+            cursor: grab;
             .grabbable-inner {
-                z-index: 1;
-                justify-content: center;
+                border: 0.1rem outset var(--color-border-input);
+                margin: 0.4rem;
+                width: 100%;
+                display: inline-flex;
                 align-items: center;
+                .dots {
+                    background-image: radial-gradient(circle, var(--color-border-input) 0.25rem, transparent 0.25rem);
+				    background-size: 100% 33.33%;
+                    height: 1.8rem;
+                    width: 1rem;
+                }
+            }
+        }
+        .unban-icon {
+            display: inline-flex;
+            position: absolute;
+            align-items: center;
+            opacity: 0;
+            top: 0;
+            right: -40px;
+            width: 30px;
+            height: 100%;
+            transition: opacity 0.2s ease;
+            .img {
                 height: 100%;
                 width: 100%;
-                pointer-events: all;
             }
         }
     }   

@@ -62,7 +62,8 @@ export class TwitchChatListener {
 
 	listen(): void {
 		Logger.Get().info('Listening for chat messages');
-		const msgHandler = this.twitch.getChatController().props.messageHandlerAPI;
+		const controller = this.twitch.getChatController()
+		const msgHandler = controller.props.messageHandlerAPI;
 		if (!!currentHandler) {
 			Logger.Get().info('Unloading previous handler');
 			msgHandler.removeMessageHandler(currentHandler);
@@ -105,6 +106,12 @@ export class TwitchChatListener {
 		 */
 		this.observeDOM().pipe(
 			takeUntil(this.killed),
+			tap(line => {
+				if ( !!line.component && !!line.component.props.message ) {
+					insertSlider( line.element, line.component, controller );
+				}
+				
+			}),
 			filter(line => !!line.component && !!line.component.props.message?.seventv),
 			// Render 7TV emotes
 			tap(line => {
@@ -132,8 +139,6 @@ export class TwitchChatListener {
 		 * @see observeDOM()
 		 */
 		this.pendingMessages.add(msg.id);
-
-		console.log('nam')
 
 		// Push emotes to seventv.emotes property
 		const patcher = new MessagePatcher(this.page, msg);
@@ -185,8 +190,6 @@ export class TwitchChatListener {
 				for (const m of mutations) {
 					for (const n of m.addedNodes) {
 						const r = this.twitch.getChatLine(n as HTMLElement);
-						
-						insertSlider(n as HTMLElement);
 
 						observer.next({
 							element: n as HTMLDivElement,
