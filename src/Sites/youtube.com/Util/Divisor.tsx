@@ -10,9 +10,9 @@ export function Divisor({callback}: Divisor.callback): JSX.Element {
 
 	return (
 		<div
-			onPointerDown={	(e: PointerEvent) => { setTracking(true); (e.target as HTMLElement).setPointerCapture(e.pointerId)}}
-			onPointerUp={ (e:PointerEvent) => { setTracking(false); (e.target as HTMLElement).releasePointerCapture(e.pointerId)}}
-			onPointerMove={	(e: PointerEvent) => { if (tracking) { update(e); } }}
+			onPointerDown={	(e: PointerEvent) => { setTracking(true);	(e.target as HTMLElement).setPointerCapture(e.pointerId);		}}
+			onPointerUp={	(e: PointerEvent) => { setTracking(false);	(e.target as HTMLElement).releasePointerCapture(e.pointerId);	}}
+			onPointerMove={	(e: PointerEvent) => { if (tracking) { update(e); }}}
 		/>
 	);
 }
