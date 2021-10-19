@@ -6,6 +6,7 @@
 		margin: 0 !important;
 		justify-content: space-between !important;
 		width: 100% !important;
+		overflow: hidden !important;
 
 		[id="primary"] {
 			padding: 0 !important;
@@ -53,10 +54,11 @@
 		.seventv-divisor {
 			position: relative;
 			height: 100vh;
-			width: 0px;
+			width: 1em;
 
 			div {
 				height: 100vh;
+				width: 1em;
 				cursor: col-resize;
 				position: absolute;
 				z-index: 9999;
