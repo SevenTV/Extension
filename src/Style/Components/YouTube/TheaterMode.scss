@@ -54,11 +54,12 @@
 		.seventv-divisor {
 			position: relative;
 			height: 100vh;
-			width: 1em;
+			width: 0;
 
 			div {
 				height: 100vh;
 				width: 1em;
+				margin-left: -0.5em;
 				cursor: col-resize;
 				position: absolute;
 				z-index: 9999;
