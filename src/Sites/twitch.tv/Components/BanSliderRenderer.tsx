@@ -48,12 +48,15 @@ export function insertSlider(parent: HTMLElement, component: Twitch.ChatLineComp
     }
     
     if (settingEnabled && isMod && !isTargetMod && isMessage) {
-
+        if ( !parent.classList.contains('chat-line__message') ) {
+            console.warn('Embedded on non message')
+        }
         const container = document.createElement('span');
         container.classList.add('seventv-ban-slider');
         parent.insertBefore(container, parent.firstChild);
 
         parent.parentElement!.style.overflow = 'hidden'
+        parent.style.transform = 'translateX(0px)'
 
         ReactDOM.render(<BanSlider onRelease={handleRelease} parent={parent}/>, container);
     }    

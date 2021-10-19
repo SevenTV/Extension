@@ -36,13 +36,14 @@
             pointer-events: all;
             cursor: grab;
             .grabbable-inner {
-                border: 0.1rem outset var(--color-border-input);
+                border: 0.05rem outset var(--color-border-input);
+                border-radius: 0.2rem;
                 margin: 0.4rem;
                 width: 100%;
                 display: inline-flex;
                 align-items: center;
                 .dots {
-                    background-image: radial-gradient(circle, var(--color-border-input) 0.25rem, transparent 0.25rem);
+                    background-image: radial-gradient(circle, var(--color-border-input) 0.1rem, transparent 0.2rem);
 				    background-size: 100% 33.33%;
                     height: 1.8rem;
                     width: 1rem;
