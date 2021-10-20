@@ -7,7 +7,6 @@ import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
-import { insertSlider } from 'src/Sites/twitch.tv/Components/BanSliderRenderer'
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
 export class TwitchChatListener {
@@ -108,7 +107,7 @@ export class TwitchChatListener {
 			takeUntil(this.killed),
 			tap(line => {
 				if ( !!line.component && !!line.component.props.message ) {
-					insertSlider( line.element, line.component, controller );
+					this.page.banSliderManager.considerSlider( line );
 				}
 				
 			}),

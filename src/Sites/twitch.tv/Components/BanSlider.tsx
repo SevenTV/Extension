@@ -18,106 +18,85 @@ const numberToTime = (val: number): string => {
     }
 }
 
+class sliderData {
+    command = ''
+    text = ''
+    time = 0
+    unbanVis = 0
+    color = 'var(--color-background-body)'
+    pos = '0px'
 
+    constructor(pos: number) {
+        this.pos = `${pos}px`
 
-export function BanSlider({onRelease, parent}: BanSlider.props): JSX.Element {
-
-	const [tracking, setTracking] = useState(false);
-    const [pos, setPos] = useState(0);
-    const [initial, setInitial] = useState(0);
-    const [tDur, settDur] = useState('0s');
-    const [color, setColor] = useState('#000000')
-    const [action, setAction] = useState('');
-    const [vis, setVisibility] = useState(false)
-
-    const calculateAction = ( pos: number ): string | null => {
         if (pos < -40) {
-            setAction( 'Unban' )
-            setVisibility( true )
-            return( 'Unban' )
+            this.command = '/unban {user}'
+            this.unbanVis = 1
         } else if ( pos < minVal ) {
-            setAction( '' )
-            setVisibility( false )
-            setColor('var(--color-border-input)')
-            return( null )
+            return
         } else if ( pos < delVal ) {
-            setAction( 'Delete' )
-            setVisibility( false )
-            setColor('#ffd726')
-            return( 'Delete' )
+            this.command = '/delete {id}'
+            this.text = 'Delete'
+            this.color = '#FFFF00'
         } else if ( pos < maxVal ) {
             const time = Math.pow((pos + 0.25*maxVal - delVal)/(1.25*maxVal - delVal), 10)*maxSeconds;
 
-            setAction( numberToTime(time) );
-            setVisibility( false )
-            setColor('#c98b18')
-            return( String(Math.round(time)) )
+            this.command = `/timeout {user} ${Math.round(time)}`
+            this.text = String(numberToTime(time))
+            this.color = '#FFA500'
         } else {
-            setAction( 'Ban' )
-            setVisibility( false )
-            setColor('#c40000')
-            return('Ban')
+            this.command = '/ban {user}'
+            this.text = 'Ban'
+            this.color = '#C40000'
         }
     }
+}
 
-    const translate = (pos: number): void => {
-        parent.style.transform = `translateX(${pos}px)`
-        parent.style.boxShadow = (pos != 0) ? `inset 0 0.1em 0.2em black` : ''
-    }
+export function BanSlider({onRelease}: BanSlider.props): JSX.Element {
 
-	const update = (e: PointerEvent): void => {
+    const [data, setData] = useState(new sliderData(0));
+    const [tracking, setTracking] = useState(false);
+    const [initial, setInitial] = useState(0)
 
-        const calcPos = Math.max(Math.min(e.pageX - initial, maxVal), -50);
-
-		setPos(calcPos);
-        calculateAction(calcPos)
-
-        translate(calcPos)
+    const handleDown = 	(e: PointerEvent) => { 
+        setInitial(e.pageX); 
+        setTracking(true);
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
         
-	};
+    }
 
     const handleRelease = (e: PointerEvent): void => {
-        setTracking(false);
+        setTracking(false)
 
-        const action = calculateAction(pos)
-        if (!!action) {
-            onRelease(action)
-        }
+        if ( !!data.command ) { onRelease(data) }
 
-        settDur('0.2s')
-        setTimeout(() => {settDur('0s');}, 250)
-
-        setPos(0);
-        translate(0);
-        setVisibility( false );
+        e.pageX = initial
+        update(e);
 
         (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     }
 
-    const handleDown = 	(e: PointerEvent) => { 
-        setInitial(e.pageX); 
-        setTracking(true); 
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    }
+	const update = (e: PointerEvent): void => {
+        e.preventDefault()
+
+        const calcPos = Math.max(Math.min(e.pageX - initial, maxVal), -50);
+        
+        setData(new sliderData(calcPos));
+        (e.target as HTMLElement).offsetParent!.parentElement!.style.transform = `translateX(${calcPos}px)`
+
+	}
 
 	return (
         <div className='outer'>
             <div 
                 className='behind'
                 style={{
-                    width: `${pos}px`,
-                    transform: `translateX(-${pos}px)`,
-                    boxShadow: `inset ${pos/20}px 0.5em 1em black`,
-                    transitionDuration: tDur,
-                    backgroundColor: color
-                }}
-            >
-                <span className='text' 
-                    style={{
-                        textIndent: `calc(1rem + ${pos/20}px)`
-                    }}
-                >
-                    {action}
+                    backgroundColor: data.color,
+                    width: data.pos,
+                    transform: `translateX(-${data.pos})`
+                }}>
+                <span className='text'>
+                    {data.text}
                 </span>
             </div>
             <div className='grabbable-outer'
@@ -131,7 +110,7 @@ export function BanSlider({onRelease, parent}: BanSlider.props): JSX.Element {
             </div>
             <div className='unban-icon'
                 style={{
-                    opacity: vis ? 1 : 0
+                    opacity: data.unbanVis
                 }}>
                 <img src={assetStore.get('undo.webp')}/>
             </div>
@@ -141,7 +120,6 @@ export function BanSlider({onRelease, parent}: BanSlider.props): JSX.Element {
 
 export namespace BanSlider {
     export interface props {
-        onRelease: (x: string) => void;
-        parent: HTMLElement;
+        onRelease: (x: sliderData) => void;
 	}
 }
