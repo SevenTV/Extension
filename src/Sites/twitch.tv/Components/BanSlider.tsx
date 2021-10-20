@@ -24,7 +24,7 @@ class sliderData {
 	text = '';
 	time = 0;
 	unbanVis = 0;
-	color = 'var(--color-background-body)';
+	color = '';
 	pos = '0px';
 
 	constructor(pos: number) {
