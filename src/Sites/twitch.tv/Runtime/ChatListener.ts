@@ -61,8 +61,7 @@ export class TwitchChatListener {
 
 	listen(): void {
 		Logger.Get().info('Listening for chat messages');
-		const controller = this.twitch.getChatController();
-		const msgHandler = controller.props.messageHandlerAPI;
+		const msgHandler = this.twitch.getChatController().props.messageHandlerAPI;
 		if (!!currentHandler) {
 			Logger.Get().info('Unloading previous handler');
 			msgHandler.removeMessageHandler(currentHandler);
