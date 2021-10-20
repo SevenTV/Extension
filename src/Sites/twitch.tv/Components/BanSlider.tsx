@@ -121,4 +121,4 @@ export namespace BanSlider {
 	export interface props {
 		onRelease: (x: sliderData) => void;
 	}
-} 
+}
