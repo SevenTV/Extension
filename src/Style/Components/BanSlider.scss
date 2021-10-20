@@ -89,13 +89,14 @@
                 align-items: center;
                 opacity: 0;
                 top: 0;
-                right: -40px;
-                width: 30px;
+                right: -5rem;
                 height: 100%;
                 transition: opacity 0.2s ease;
-                .img {
-                    height: 100%;
-                    width: 100%;
+                svg {
+                    color: green;
+                    padding: 0.5rem;
+                    height: 5rem;
+                    width: 5rem;
                 }
             }
         }   

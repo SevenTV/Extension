@@ -55,7 +55,7 @@ export class BanSliderManager {
 		const msg = line.component.props.message;
 
 		const isMessage = ( msg.messageType === 1 || msg.messageType === 0 );
-		const isTargetMod = ( msg.user.userType === 'mod' || msg.user.displayName == this.page.currentChannel);
+		const isTargetMod = ( msg.user.userType === 'mod' || msg.user.userLogin == this.page.currentChannel);
 		const isMod = this.page.isActorModerator;
 
 		const handleRelease = (data: any): void => {

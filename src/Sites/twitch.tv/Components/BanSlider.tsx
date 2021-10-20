@@ -1,5 +1,6 @@
 import React, { PointerEvent, useState } from 'react';
-import { assetStore } from 'src/Sites/app/SiteApp';
+import { Restore } from '@material-ui/icons';
+import { SvgIcon } from '@material-ui/core';
 
 const minVal = 40.0;
 const delVal = 80.0;
@@ -110,7 +111,7 @@ export function BanSlider({onRelease}: BanSlider.props): JSX.Element {
 				style={{
 					opacity: data.unbanVis
 					}}>
-				<img src={assetStore.get('undo.webp')}/>
+				<SvgIcon component={Restore} />
 			</div>
 		</div>
 	);
@@ -120,4 +121,4 @@ export namespace BanSlider {
 	export interface props {
 		onRelease: (x: sliderData) => void;
 	}
-}
+} 
