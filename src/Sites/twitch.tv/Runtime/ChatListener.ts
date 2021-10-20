@@ -61,7 +61,7 @@ export class TwitchChatListener {
 
 	listen(): void {
 		Logger.Get().info('Listening for chat messages');
-		const controller = this.twitch.getChatController()
+		const controller = this.twitch.getChatController();
 		const msgHandler = controller.props.messageHandlerAPI;
 		if (!!currentHandler) {
 			Logger.Get().info('Unloading previous handler');
@@ -109,7 +109,6 @@ export class TwitchChatListener {
 				if ( !!line.component && !!line.component.props.message ) {
 					this.page.banSliderManager.considerSlider( line );
 				}
-				
 			}),
 			filter(line => !!line.component && !!line.component.props.message?.seventv),
 			// Render 7TV emotes
