@@ -36,7 +36,7 @@ export class BanSliderManager {
 			this.chatContainer?.classList.add('seventv-ban-slider-container');
 			const lines = this.page.twitch.getChatLines();
 			for ( const line of lines ) {
-				if ( !!line.component && !!line.component.props.message ) {
+				if ( !!line.component && !!line.component.props?.message ) {
 					this.considerSlider(line);
 				}
 			}
