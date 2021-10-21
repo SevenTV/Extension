@@ -17,15 +17,36 @@
         }
     }
 
-    .ffz-notice-line, .user-notice-line, .first-message-highlight-line {
+    %special-message {
         @extend .chat-line__message;
         border-left: none !important;
         padding-left: calc(1rem + 4px) !important;
+    }
+
+    .ffz-notice-line {
+        @extend %special-message;
         .grabbable-inner {
-            background-color: var(--ffz-channel-color, var(--color-border-quote));
+            background-color: var(--ffz-channel-color) !important;
         }
-        .chat-line__message {
-            position: none;
+    }
+
+    .user-notice-line {
+        @extend %special-message;
+        .grabbable-inner {
+            background-color:  var(--color-border-quote);
+        }
+    }
+
+    .first-message-highlight-line {
+        @extend %special-message;
+        .user-notice-line {
+            padding-left: 0 !important;
+        }
+        .seventv-ban-slider {
+            background-color: var(--color-background-alt)  !important;
+            .grabbable-inner {
+                background-color: rgb(255, 117, 230);
+            }
         }
     }
 
