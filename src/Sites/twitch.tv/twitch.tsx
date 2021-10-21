@@ -77,6 +77,7 @@ export class TwitchPageScript {
 				.finally(() => {
 					this.eIndex = null;
 					this.avatarManager.check();
+					this.isActorModerator = controller.props.isCurrentUserModerator;
 					this.banSliderManager.initialize();
 					this.chatListener.listen();
 
@@ -85,7 +86,6 @@ export class TwitchPageScript {
 					this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
 					inputManager.listen();
 					this.isActorVIP = controller.props.isCurrentUserVIP;
-					this.isActorModerator = controller.props.isCurrentUserModerator;
 					this.site.sendMessageUp('EventAPI:AddChannel', login);
 				});
 		};

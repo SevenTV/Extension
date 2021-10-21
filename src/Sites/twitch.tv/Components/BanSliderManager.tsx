@@ -19,7 +19,6 @@ export class BanSliderManager {
 
 	initialize(): void {
 		this.initialized = true;
-		this.isEnabled = configMap.get('ui.show_moderation_slider')?.asBoolean();
 		this.controller = this.page.twitch.getChatController();
 		this.chatContainer = document.querySelector(Twitch.Selectors.ChatContainer) as HTMLElement;
 		this.check();
@@ -36,9 +35,7 @@ export class BanSliderManager {
 			this.chatContainer?.classList.add('seventv-ban-slider-container');
 			const lines = this.page.twitch.getChatLines();
 			for ( const line of lines ) {
-				if ( !!line.component && !!line.component.props?.message ) {
-					this.considerSlider(line);
-				}
+				this.considerSlider(line);
 			}
 		} else {
 			this.chatContainer?.classList.remove('seventv-ban-slider-container');
@@ -49,13 +46,36 @@ export class BanSliderManager {
 		}
 	}
 
+	//This is the best i could do to get things working with ffz and both from the observer and getChatLines
+	checkLine(line: Twitch.ChatLineAndComponent): Twitch.ChatLineAndComponent | null{
+
+		//Gets the component for the inline chat element when coming from observer
+		if (!!!line.component?.props?.message) {
+			line.component = this.page.twitch.getChatLine(line.element.querySelector('.chat-line__message') as HTMLElement).component as Twitch.ChatLineComponent;
+		}
+
+		//Checks if the element is a child of the scrollable area
+		if (!line.element.parentElement?.classList.contains('chat-scrollable-area__message-container')) {
+			line.element = line.element.offsetParent as HTMLDivElement;
+		}
+
+		//Gets the correct component when ffz messes with internal states
+		if (!!!line.component?.props?.message) {
+			line.component = this.page.twitch.getChatLine(line.element).component as Twitch.ChatLineComponent;
+		}
+
+		return line.component?.props?.message ? line : null;
+	}
+
 	considerSlider(line: Twitch.ChatLineAndComponent): void {
-		this.isEnabled = configMap.get('ui.show_moderation_slider')?.asBoolean();
+
+		line = this.checkLine(line)!;
+		if ( !line ) { return; }
 
 		const msg = line.component.props.message;
 
 		const isMessage = ( msg.messageType === 1 || msg.messageType === 0 );
-		const isTargetMod = ( msg.user.userType === 'mod' || msg.user.userLogin == this.page.currentChannel);
+		const isTargetMod = ( msg.badges?.moderator || msg.badges?.staff || msg.badges?.broadcaster );
 		const isMod = this.page.isActorModerator;
 
 		const handleRelease = (data: any): void => {

@@ -17,12 +17,15 @@
         }
     }
 
-    .ffz-notice-line {
+    .ffz-notice-line, .user-notice-line, .first-message-highlight-line {
         @extend .chat-line__message;
         border-left: none !important;
-        padding-left: 2rem !important;
+        padding-left: calc(1rem + 4px) !important;
         .grabbable-inner {
-            background-color: var(--ffz-channel-color);
+            background-color: var(--ffz-channel-color, var(--color-border-quote));
+        }
+        .chat-line__message {
+            position: none;
         }
     }
 
@@ -92,10 +95,11 @@
                 height: 100%;
                 transition: opacity 0.2s ease;
                 svg {
-                    color: green;
+                    color: #00ad03;
                     padding: 0.5rem;
                     height: 5rem;
                     width: 5rem;
+                    filter: drop-shadow(0.2rem 0.4rem 0.2rem black);
                 }
             }
         }   

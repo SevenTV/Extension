@@ -60,6 +60,8 @@ export function BanSlider({onRelease}: BanSlider.props): JSX.Element {
 	const [initial, setInitial] = useState(0);
 
 	const handleDown = 	(e: PointerEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
 		setInitial(e.pageX);
 		setTracking(true);
 		(e.target as HTMLElement).setPointerCapture(e.pointerId);

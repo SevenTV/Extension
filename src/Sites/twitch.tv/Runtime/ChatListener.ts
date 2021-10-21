@@ -105,9 +105,7 @@ export class TwitchChatListener {
 		this.observeDOM().pipe(
 			takeUntil(this.killed),
 			tap(line => {
-				if ( !!line.component && !!line.component.props.message ) {
 					this.page.banSliderManager.considerSlider( line );
-				}
 			}),
 			filter(line => !!line.component && !!line.component.props.message?.seventv),
 			// Render 7TV emotes
