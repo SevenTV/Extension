@@ -68,28 +68,27 @@ export class BanSliderManager {
 	}
 
 	considerSlider(line: Twitch.ChatLineAndComponent): void {
+		if ( this.page.isActorModerator && this.isEnabled ) {
+			if ((line = this.checkLine(line)!) !== null) {
+				const msg = line.component.props.message;
 
-		line = this.checkLine(line)!;
-		if ( !line ) { return; }
+				const isMessage = ( msg.messageType === 1 || msg.messageType === 0 );
+				const isTargetMod = ( msg.badges?.moderator || msg.badges?.staff || msg.badges?.broadcaster );
 
-		const msg = line.component.props.message;
+				const handleRelease = (data: any): void => {
+					const message: string = data.command.replace('{user}', msg.user.userLogin).replace('{id}', msg.id);
+					this.controller?.sendMessage( message, undefined );
+				};
 
-		const isMessage = ( msg.messageType === 1 || msg.messageType === 0 );
-		const isTargetMod = ( msg.badges?.moderator || msg.badges?.staff || msg.badges?.broadcaster );
-		const isMod = this.page.isActorModerator;
+				if (isMessage && !isTargetMod) {
 
-		const handleRelease = (data: any): void => {
-			const message: string = data.command.replace('{user}', msg.user.userLogin).replace('{id}', msg.id);
-			this.controller?.sendMessage( message, undefined );
-		};
+					const container = document.createElement('span');
+					container.classList.add('seventv-ban-slider');
+					line.element.insertBefore(container, line.element.firstChild);
 
-		if (isMod && isMessage && this.isEnabled && !isTargetMod) {
-
-			const container = document.createElement('span');
-			container.classList.add('seventv-ban-slider');
-			line.element.insertBefore(container, line.element.firstChild);
-
-			ReactDOM.render(<BanSlider onRelease={handleRelease}/>, container);
+					ReactDOM.render(<BanSlider onRelease={handleRelease}/>, container);
+				}
+			}
 		}
 	}
 }
