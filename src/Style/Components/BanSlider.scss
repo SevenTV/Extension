@@ -5,7 +5,8 @@
         
     }
 
-    .chat-line__message {  
+    .chat-line__message {
+        position: relative;
     
         &:not(:active) {
             transition: transform 0.2s ease;
@@ -20,7 +21,6 @@
         @extend .chat-line__message;
         border-left: none !important;
         padding-left: 2rem !important;
-        position: relative;
         .grabbable-inner {
             background-color: var(--ffz-channel-color);
         }
