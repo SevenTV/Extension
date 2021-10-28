@@ -7,13 +7,11 @@
 
     .chat-line__message {
         position: relative;
-    
-        &:not(:active) {
-            transition: transform 0.2s ease;
-        }
+        transition: transform 0.2s ease;
 
         &:active  {
             box-shadow: 0 0.1rem 0.2rem black;
+            transition: none !important;
         }
     }
 

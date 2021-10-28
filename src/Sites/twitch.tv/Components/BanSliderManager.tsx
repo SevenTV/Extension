@@ -92,8 +92,3 @@ export class BanSliderManager {
 		}
 	}
 }
-
-
-
-
-
