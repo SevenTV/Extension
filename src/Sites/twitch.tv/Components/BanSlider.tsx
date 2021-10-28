@@ -100,6 +100,7 @@ export function BanSlider({onRelease}: BanSlider.props): JSX.Element {
 				</span>
 			</div>
 			<div className='grabbable-outer'
+				title='7TV Moderation slider'
 				onPointerDown={ handleDown }
 				onPointerUp={ handleRelease }
 				onPointerMove={	(e: PointerEvent) => { if (tracking) { update(e); }} }
