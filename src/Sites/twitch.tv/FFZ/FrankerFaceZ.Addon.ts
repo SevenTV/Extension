@@ -47,7 +47,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		this.enable();
 
 		// Handle WzbSocket Messages
-		window.addEventListener('7TV#ChannelEmoteChange', (event) => {
+		window.addEventListener('7TV#ChannelEmoteUpdate', (event) => {
 			const data = JSON.parse(((event as CustomEvent).detail));
 			this.handleChannelEmoteUpdate(data);
 		});
