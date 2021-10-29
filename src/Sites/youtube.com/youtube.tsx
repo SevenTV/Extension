@@ -47,14 +47,16 @@ export class YouTubePageScript {
 				}
 
 				input.__data.isInputValid = true;
-				input.liveChatRichMessageInput.textSegments.push({ text: emote.name });
+				input.liveChatRichMessageInput.textSegments.push({ text: emote.name + ' '});
 				const inputTextField = input.querySelector('#input');
 				if (!!inputTextField) {
-					inputTextField.textContent += emote.name + ' ';
+					// \xA0 is a non breaking space
+					inputTextField.textContent += emote.name + '\xA0';
 				}
 				if (!input.hasAttribute('has-text')) {
 					input.setAttribute('has-text', '');
 				}
+				input.onInputChange_();
 			})
 		).subscribe();
 	}
