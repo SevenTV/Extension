@@ -39,6 +39,13 @@ export namespace YouTube {
 	/** YouTube Message Data */
 	export interface MessageData {
 		id: string;
+		authorBadges: {
+			liveChatAuthorBadgeRenderer: {
+				icon: {
+					iconType: string;
+				}
+			}
+		}[];
 		data: {
 			authorName: {
 				simpleText: string;
