@@ -1,0 +1,126 @@
+.seventv-ban-slider-container {
+    
+    .chat-scrollable-area__message-container {
+        overflow: hidden !important;
+        
+    }
+
+    .chat-line__message {
+        position: relative;
+        transition: transform 0.2s ease;
+
+        &:active  {
+            box-shadow: 0 0.1rem 0.2rem black;
+            transition: none !important;
+        }
+    }
+
+    %special-message {
+        @extend .chat-line__message;
+        border-left: none !important;
+        padding-left: calc(1rem + 4px) !important;
+    }
+
+    .ffz-notice-line {
+        @extend %special-message;
+        .grabbable-inner {
+            background-color: var(--ffz-channel-color) !important;
+        }
+    }
+
+    .user-notice-line {
+        @extend %special-message;
+        .grabbable-inner {
+            background-color:  var(--color-border-quote);
+        }
+    }
+
+    .first-message-highlight-line {
+        @extend %special-message;
+        .user-notice-line {
+            padding-left: 0 !important;
+        }
+        .seventv-ban-slider {
+            background-color: var(--color-background-alt)  !important;
+            .grabbable-inner {
+                background-color: rgb(255, 117, 230);
+            }
+        }
+    }
+
+    .seventv-ban-slider {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+        user-select: none;
+    
+        .outer {
+            height: 100%;
+            .behind {
+                position: absolute;
+                height: 100%;
+                width: 0;
+                min-width: 0;
+                box-shadow: inset 0.1em 0.1em 0.4em black;
+                display: flex;
+                align-items: center;
+                overflow: hidden;
+                .text {
+                    position: relative;
+                    white-space: nowrap;
+                    width: 100%;
+                    text-align: center;
+                    text-shadow:
+                        0.1em 0 .2rem var(--color-background-body),
+                        0 0.1em .2rem var(--color-background-body),
+                        -0.1em 0 .2rem var(--color-background-body),
+                        0 -0.1em .2rem var(--color-background-body);
+                }
+            }
+    
+            .grabbable-outer {
+                height: 100%;
+                display: inline-flex;
+                width: 2rem;
+                pointer-events: all;
+                cursor: grab;
+    
+                .grabbable-inner {
+                    border: 0.1rem outset var(--color-border-input);
+                    border-radius: 0 0.3rem 0.3rem 0;
+                    margin: 0.5rem 0 0.5rem 0;
+                    display: inline-flex;
+                    align-items: center;
+                    border-left: none;
+                    box-shadow: 0 0 0.4rem black;
+                    .dots {
+                        background-image: radial-gradient(circle, var(--color-border-input) 0.1rem, transparent 0.2rem);
+                        background-size: 100% 33.33%;
+                        height: 1.4rem;
+                        width: 0.6rem;
+                    }
+                }
+            }
+            .unban-icon {
+                display: inline-flex;
+                position: absolute;
+                align-items: center;
+                opacity: 0;
+                top: 0;
+                right: -5rem;
+                height: 100%;
+                transition: opacity 0.2s ease;
+                svg {
+                    color: #00ad03;
+                    padding: 0.5rem;
+                    height: 5rem;
+                    width: 5rem;
+                    filter: drop-shadow(0.2rem 0.4rem 0.2rem black);
+                }
+            }
+        }   
+    }
+}
