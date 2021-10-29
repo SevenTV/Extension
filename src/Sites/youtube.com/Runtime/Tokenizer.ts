@@ -48,8 +48,8 @@ export class Tokenizer {
 						if (!isMod || !this.addHyperlinkPart(newContext, s)){
 							this.addTextPart(newContext, ' ');
 							s === me
-								?this.addMentionPart(newContext, s) 
-								:this.addTextPart(newContext, s + ' '); 
+								?this.addMentionPart(newContext, s)
+								:this.addTextPart(newContext, s + ' ');
 						}
 					}
 				}
@@ -78,16 +78,16 @@ export class Tokenizer {
 	addHyperlinkPart(ctx: HTMLSpanElement, text: string): boolean {
 		const a = document.createElement('a');
 		a.innerText = text;
-		a.className = 'yt-simple-endpoint style-scope yt-live-chat-text-message-renderer'
+		a.className = 'yt-simple-endpoint style-scope yt-live-chat-text-message-renderer';
 		a.href = text;
 
 		if (a.host && a.host != window.location.host) {
 			ctx.appendChild(a);
-			return true
+			return true;
 		}
-		return false
+		return false;
 	}
-	
+
 	/**
 	 * Append a mention part to the new message context
 	 */
