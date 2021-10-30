@@ -20,7 +20,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 					switch (s.type) {
 						case 'checkbox':
 							result =
-								<FormControlLabel label={s.label} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} control={
+								<FormControlLabel label={s.label} sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' }, '.MuiButtonBase-root': { color: 'currentcolor' } }} control={
 									<Checkbox
 										checked={(this.props.main.app?.config.get(s.id)?.asBoolean() ?? s.defaultValue) as boolean}
 										onChange={ev => this.handleCheckboxChange(s, ev)}
@@ -32,8 +32,8 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 						case 'select':
 							result =
 								<div>
-									<FormLabel component='legend' style={{ fontSize: '1em', color: 'white', margin: '14px 0 0 14px'}}>{s.label}</FormLabel>
-									<RadioGroup  style={{ marginLeft: '14px'}} name='Test' sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' } }} onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
+									<FormLabel component='legend' style={{ fontSize: '1em', color: 'currentcolor', margin: '14px 0 0 14px'}}>{s.label}</FormLabel>
+									<RadioGroup style={{ marginLeft: '14px'}} name='Test' sx={{ '.MuiFormControlLabel-label': { fontSize: '1em', color: 'currentcolor' }, '.MuiButtonBase-root': { color: 'currentcolor' } }} onChange={ev => this.handleSelectChange(s, ev)} value={(this.props.main.app?.config.get(s.id)?.asString() ?? s.defaultValue) as string}>
 											{s.options?.map((option) => <FormControlLabel style={{textTransform:'capitalize'}} value={option} key={option} control={<Radio />} label={option} /> )}
 									</RadioGroup>
 								</div>;
