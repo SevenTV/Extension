@@ -85,10 +85,10 @@ export class BanSliderManager {
 					const container = document.createElement('span');
 					container.classList.add('seventv-ban-slider');
 					line.element.insertBefore(container, line.element.firstChild);
-					const old_mount = line.component.componentWillUnmount
+					const old_mount = line.component.componentWillUnmount;
 
 					ReactDOM.render(<BanSlider onRelease={handleRelease}/>, container);
-					line.component.componentWillUnmount = ( old_mount 
+					line.component.componentWillUnmount = ( old_mount
 						? (...args) => {
 							ReactDOM.unmountComponentAtNode(container);
 							return old_mount.apply(line.component, ...args);
