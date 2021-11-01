@@ -163,22 +163,27 @@ export class YouTubePageScript {
 	 */
 	private scrapeChannelID(): string {
 		const inputRenderer = (document.getElementsByTagName('yt-live-chat-renderer')[0] as HTMLElement & { __data: any; });
-		let user: YouTubePageScript.InternalUserData | null = null;
+		let channelID = '';
 		try {
-			user = inputRenderer.__data.data
+			channelID = inputRenderer
+				.__data
+				.data
 				.actionPanel
 				.liveChatMessageInputRenderer
 				.sendButton
 				.buttonRenderer
 				.serviceEndpoint
 				.sendLiveChatMessageEndpoint
-				.actions[0]
-				.addLiveChatTextMessageFromTemplateAction
-				.template
-				.liveChatTextMessageRenderer;
+				.params;
+
+			//Copied from bttv
+			channelID = atob(decodeURIComponent(atob(channelID)))
+			.split(`*'\n\u0018`)[1]
+			.split('\u0012\u000b')[0];
+
 		} catch (_) {}
 
-		return user?.authorExternalChannelId ?? '';
+		return channelID ?? '';
 	}
 
 	/**
