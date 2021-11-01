@@ -34,6 +34,7 @@ export namespace YouTube {
 	export interface InputElement extends HTMLDivElement {
 		__data: InputData;
 		liveChatRichMessageInput: InputData['liveChatRichMessageInput'];
+		onInputChange_: () => void;
 	}
 
 	/** YouTube Message Data */

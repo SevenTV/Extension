@@ -47,14 +47,16 @@ export class YouTubePageScript {
 				}
 
 				input.__data.isInputValid = true;
-				input.liveChatRichMessageInput.textSegments.push({ text: emote.name });
+				input.liveChatRichMessageInput.textSegments.push({ text: emote.name + ' '});
 				const inputTextField = input.querySelector('#input');
 				if (!!inputTextField) {
-					inputTextField.textContent += emote.name + ' ';
+					// \xA0 is a non breaking space
+					inputTextField.textContent += emote.name + '\xA0';
 				}
 				if (!input.hasAttribute('has-text')) {
 					input.setAttribute('has-text', '');
 				}
+				input.onInputChange_();
 			})
 		).subscribe();
 	}
@@ -161,22 +163,26 @@ export class YouTubePageScript {
 	 */
 	private scrapeChannelID(): string {
 		const inputRenderer = (document.getElementsByTagName('yt-live-chat-renderer')[0] as HTMLElement & { __data: any; });
-		let user: YouTubePageScript.InternalUserData | null = null;
+		let channelID = '';
 		try {
-			user = inputRenderer.__data.data
+			channelID = inputRenderer
+				.__data
+				.data
 				.actionPanel
 				.liveChatMessageInputRenderer
 				.sendButton
 				.buttonRenderer
 				.serviceEndpoint
 				.sendLiveChatMessageEndpoint
-				.actions[0]
-				.addLiveChatTextMessageFromTemplateAction
-				.template
-				.liveChatTextMessageRenderer;
+				.params;
+
+			channelID = atob(decodeURIComponent(atob(channelID)))
+			.split(`*'\n\u0018`)[1]
+			.split('\u0012\u000b')[0];
+
 		} catch (_) {}
 
-		return user?.authorExternalChannelId ?? '';
+		return channelID ?? '';
 	}
 
 	/**
@@ -225,12 +231,12 @@ export class YouTubePageScript {
 		const isTheaterMode = document.body.classList.contains(className);
 		this.isTheaterMode = !isTheaterMode;
 
-		const chat = document.querySelector('div[id=secondary]') as HTMLElement;
+		const chat = document.querySelector('.ytd-watch-flexy#secondary') as HTMLElement;
 
 		if (isTheaterMode) {
 			document.body.classList.remove(className);
 
-			document.querySelector('.seventv-divisor')?.remove();
+			ReactDOM.unmountComponentAtNode(document.querySelector('.seventv-divisor')!);
 			chat!.style.width = 'var(--ytd-watch-flexy-sidebar-width)';
 
 		} else {

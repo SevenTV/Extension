@@ -6,6 +6,7 @@ import { PageScriptListener } from 'src/Global/Decorators';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import 'src/Style/Style.scss';
 import { AvatarManager } from 'src/Sites/twitch.tv/Runtime/Avatars';
+import { BanSliderManager } from 'src/Sites/twitch.tv/Components/BanSliderManager';
 import { SiteApp } from 'src/Sites/app/SiteApp';
 import { map } from 'rxjs/operators';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
@@ -17,6 +18,7 @@ export class TwitchPageScript {
 	chatListener = chatListener = new TwitchChatListener(this);
 	inputManager = inputManager = new InputManager(this);
 	avatarManager = new AvatarManager(this);
+	banSliderManager = new BanSliderManager(this);
 
 	currentChannel = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
@@ -75,6 +77,8 @@ export class TwitchPageScript {
 				.finally(() => {
 					this.eIndex = null;
 					this.avatarManager.check();
+					this.isActorModerator = controller.props.isCurrentUserModerator;
+					this.banSliderManager.initialize();
 					this.chatListener.listen();
 
 					this.site.tabCompleteDetector.updateEmotes();
@@ -82,7 +86,6 @@ export class TwitchPageScript {
 					this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
 					inputManager.listen();
 					this.isActorVIP = controller.props.isCurrentUserVIP;
-					this.isActorModerator = controller.props.isCurrentUserModerator;
 					this.site.sendMessageUp('EventAPI:AddChannel', login);
 				});
 		};
@@ -199,6 +202,12 @@ export class TwitchPageScript {
 				page?.avatarManager.check();
 		}
 		page?.site.embeddedUI.refresh(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
+		switch(cfg['ui.show_moderation_slider']) {
+			case undefined:
+				break;
+			default:
+				page?.banSliderManager.check();
+		}
 	}
 
 	@PageScriptListener('ChannelEmoteUpdate')
@@ -237,6 +246,7 @@ export class TwitchPageScript {
 				break;
 		}
 
+		page.eIndex = null;
 		page.site.tabCompleteDetector?.updateEmotes();
 	}
 

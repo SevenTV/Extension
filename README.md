@@ -1,25 +1,20 @@
 # SevenTV
-A third-party emote extension for Twitch and YouTube
+An emote extension for Twitch and YouTube
 
 ### Features
 
 * 200 free emote slots per channel
 * Support for wide emotes, animated emotes and animated wide emotes
 * Greater creative support for emote artists
+* Better customization with features such as emote aliases
 * WEBP Compression (Super-light file sizes!)
 * Less opinionated, free and open-source
 * Adding or removing emotes in chat updates instantly for everyone
 * Integrates and supports other popular emote extensions
 
-### Yeah but this is a third party thing and idk
+### What is 7TV?
 
-7TV is a less opinionated emote extension for Twitch and Youtube, offering more creative freedom for emote artists and many extra features. This project was originally started as a personal work experience project, as a reaction to the unfair removal of certain emotes by the developers of other extensions but has since become a fully maintained service.
-
-Currently this project is made up of 3 components
-
-1. An API/Server to deliver service
-1. A browser extension to view emotes
-1. A [web app](https://7tv.app/) to manage emotes
+7TV is a less opinionated emote extension for Twitch and YouTube, offering more creative freedom for emote artists and many extra features.
 
 ### Installation (Browser Extension)
 
@@ -54,17 +49,16 @@ The browser extension is currently available on Chromium-based browsers (Google 
 
 Download the [Chatterino7 fork](https://github.com/SevenTV/chatterino7). 7TV is not a part of the official Chatterino2 release at this time.
 
+### Contributing
+
+You can contribute to this repository by cloning and making a pull request.
+
 ### Building
 
 Pre-requisites:
 - NPM / Node.JS installed
 
 1. Clone this repo with submodule: `git clone git@github.com:SevenTV/SevenTV.git --recursive`
-1. Run `npm install`
-1. Build the project using `npm run build` or `npm run build-production`
-1. Built files will be in the `dist/` folder
-
-### Future plans
-
-* Self-hosted servers
-* More features beyond just chat emotes
+2. Run `yarn`
+3. Build the project using `yarn build` (dev) or `yarn build-prod-chromium` / `yarn build-prod-firefox` (prod)
+4. Built files will be in the `dist/` folder
