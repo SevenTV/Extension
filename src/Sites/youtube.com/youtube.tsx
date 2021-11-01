@@ -176,7 +176,6 @@ export class YouTubePageScript {
 				.sendLiveChatMessageEndpoint
 				.params;
 
-			//Copied from bttv
 			channelID = atob(decodeURIComponent(atob(channelID)))
 			.split(`*'\n\u0018`)[1]
 			.split('\u0012\u000b')[0];
