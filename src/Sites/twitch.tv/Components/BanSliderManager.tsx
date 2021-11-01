@@ -41,7 +41,7 @@ export class BanSliderManager {
 			this.chatContainer?.classList.remove('seventv-ban-slider-container');
 			const allExisting = document.querySelectorAll('.seventv-ban-slider');
 			for ( const slider of allExisting ) {
-				slider.remove();
+				ReactDOM.unmountComponentAtNode(slider);
 			}
 		}
 	}
@@ -85,8 +85,18 @@ export class BanSliderManager {
 					const container = document.createElement('span');
 					container.classList.add('seventv-ban-slider');
 					line.element.insertBefore(container, line.element.firstChild);
+					const old_mount = line.component.componentWillUnmount;
 
 					ReactDOM.render(<BanSlider onRelease={handleRelease}/>, container);
+					line.component.componentWillUnmount = ( old_mount
+						? (...args) => {
+							ReactDOM.unmountComponentAtNode(container);
+							return old_mount.apply(line.component, ...args);
+						}
+						: () => {
+							ReactDOM.unmountComponentAtNode(container);
+						}
+					);
 				}
 			}
 		}
