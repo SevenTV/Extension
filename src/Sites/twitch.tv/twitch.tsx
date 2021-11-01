@@ -246,6 +246,7 @@ export class TwitchPageScript {
 				break;
 		}
 
+		page.eIndex = null;
 		page.site.tabCompleteDetector?.updateEmotes();
 	}
 
