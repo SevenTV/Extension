@@ -6,4 +6,4 @@
 - Twitch: Emote events should now reflect in chat immediately again
 - YouTube: Fixed an issue where clicking an emote in the menu did not allow sending the message
 - YouTube: Hyperlinks should now be clickable again
-- YouTube: Fixed an issue where channel emotes were showing as the current user in popout mode
+- YouTube: Fixed an issue where channel emotes were showing as the current user in popout mode (#177)
