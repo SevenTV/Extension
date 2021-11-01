@@ -227,12 +227,12 @@ export class YouTubePageScript {
 		const isTheaterMode = document.body.classList.contains(className);
 		this.isTheaterMode = !isTheaterMode;
 
-		const chat = document.querySelector('div[id=secondary]') as HTMLElement;
+		const chat = document.querySelector('.ytd-watch-flexy#secondary') as HTMLElement;
 
 		if (isTheaterMode) {
 			document.body.classList.remove(className);
 
-			document.querySelector('.seventv-divisor')?.remove();
+			ReactDOM.unmountComponentAtNode(document.querySelector('.seventv-divisor')!);
 			chat!.style.width = 'var(--ytd-watch-flexy-sidebar-width)';
 
 		} else {
