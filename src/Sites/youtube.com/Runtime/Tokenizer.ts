@@ -80,6 +80,7 @@ export class Tokenizer {
 		a.innerText = text;
 		a.className = 'yt-simple-endpoint style-scope yt-live-chat-text-message-renderer';
 		a.href = text;
+		a.target = '_blank';
 
 		if (a.host && a.host != window.location.host) {
 			ctx.appendChild(a);
