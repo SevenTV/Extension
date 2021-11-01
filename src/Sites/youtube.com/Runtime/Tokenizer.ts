@@ -35,6 +35,7 @@ export class Tokenizer {
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-yt-message-content');
 		const me = this.element.querySelector('.mention')?.textContent ?? null;
+		const isMod = this.element.__data.authorBadges.some(x => ['MODERATOR', 'OWNER'].includes(x.liveChatAuthorBadgeRenderer.icon.iconType));
 
 		for (let i = 0; i < this.element.__data.data.message.runs.length; i++) {
 			const part = this.element.__data.data.message.runs[i];
@@ -43,15 +44,12 @@ export class Tokenizer {
 				this.addEmojiPart(newContext, part.emoji);
 			} else if (!!part.text) {
 				for (let s of part.text.split(' ')) {
-					const isEmote = this.addEmotePart(newContext, s);
-					if (!isEmote) {
-						if (s === me) {
+					if (!this.addEmotePart(newContext, s)){
+						if (!isMod || !this.addHyperlinkPart(newContext, s)){
 							this.addTextPart(newContext, ' ');
-							this.addMentionPart(newContext, s);
-						}
-						else {
-							this.addTextPart(newContext, ' ');
-							this.addTextPart(newContext, s + ' ');
+							s === me
+								?this.addMentionPart(newContext, s)
+								:this.addTextPart(newContext, s + ' ');
 						}
 					}
 				}
@@ -72,6 +70,23 @@ export class Tokenizer {
 		}
 
 		ctx.appendChild(span);
+	}
+
+	/**
+	 * Append a text part to the new message context
+	 */
+	addHyperlinkPart(ctx: HTMLSpanElement, text: string): boolean {
+		const a = document.createElement('a');
+		a.innerText = text;
+		a.className = 'yt-simple-endpoint style-scope yt-live-chat-text-message-renderer';
+		a.href = text;
+		a.target = '_blank';
+
+		if (a.host && a.host != window.location.host) {
+			ctx.appendChild(a);
+			return true;
+		}
+		return false;
 	}
 
 	/**
