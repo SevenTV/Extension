@@ -35,7 +35,7 @@ export class Tokenizer {
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-yt-message-content');
 		const me = this.element.querySelector('.mention')?.textContent ?? null;
-		const isMod = this.element.__data.authorBadges.some(x => ['MODERATOR', 'OWNER'].includes(x.liveChatAuthorBadgeRenderer.icon.iconType));
+		const isMod = this.element.__data.authorBadges.some(x => ['MODERATOR', 'OWNER'].includes(x.liveChatAuthorBadgeRenderer?.icon?.iconType));
 
 		for (let i = 0; i < this.element.__data.data.message.runs.length; i++) {
 			const part = this.element.__data.data.message.runs[i];
