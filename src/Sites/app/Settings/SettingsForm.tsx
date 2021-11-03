@@ -5,10 +5,12 @@ import Input from '@material-ui/core/OutlinedInput';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormGroup from '@material-ui/core/FormGroup';
+import FormLabel from '@material-ui/core/FormLabel';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Radio from '@material-ui/core/Radio';
 import { SettingNode } from 'src/Content/Runtime/Settings';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import { SettingValue } from 'src/Global/Util';
-import { SelectChangeEvent, RadioGroup, Radio, FormLabel } from '@material-ui/core';
 
 export class SettingsForm extends React.Component<SettingsForm.Props> {
 	render() {
@@ -67,7 +69,7 @@ export class SettingsForm extends React.Component<SettingsForm.Props> {
 		this.props.main.setState({});
 	}
 
-	handleSelectChange(sNode: SettingNode, ev: SelectChangeEvent): void {
+	handleSelectChange(sNode: SettingNode, ev: any): void {
 		const value = ev.target.value;
 
 		sNode.value = value;

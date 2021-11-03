@@ -1,7 +1,7 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { Config } from 'src/Config';
 import Color from 'color';
-import { createTheme } from '@material-ui/core';
+import createTheme from '@material-ui/core/styles/createTheme';
 
 export function getRunningContext(): Context {
 	try {
