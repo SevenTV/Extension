@@ -73,6 +73,7 @@ export namespace YouTube {
 				runs: {
 					text?: string;
 					emoji?: Emoji;
+					navigationEndpoint?: NavigationEndpoint
 				}[];
 			};
 			timestampUsec: string;
@@ -102,6 +103,12 @@ export namespace YouTube {
 		isCustomEmoji: boolean;
 		searchTerms?: string[];
 		shortcuts?: string[];
+	}
+
+	export interface NavigationEndpoint {
+		urlEndpoint: {
+			url: string;
+		};
 	}
 
 	export interface AppToken {
