@@ -49,8 +49,8 @@ export class Tokenizer {
 					if (!this.addEmotePart(newContext, s)){
 						this.addTextPart(newContext, ' ');
 						s === me
-							?this.addMentionPart(newContext, s)
-							:this.addTextPart(newContext, s + ' ');
+							? this.addMentionPart(newContext, s)
+							: this.addTextPart(newContext, s + ' ');
 					}
 				}
 			}
