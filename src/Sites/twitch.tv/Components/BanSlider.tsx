@@ -1,6 +1,6 @@
 import React, { PointerEvent, useState } from 'react';
-import { Restore } from '@material-ui/icons';
-import { SvgIcon } from '@material-ui/core';
+import Restore from '@material-ui/icons/Restore';
+import SvgIcon from '@material-ui/core/SvgIcon';
 
 const minVal = 40.0;
 const delVal = 80.0;
