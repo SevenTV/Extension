@@ -35,22 +35,22 @@ export class Tokenizer {
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-yt-message-content');
 		const me = this.element.querySelector('.mention')?.textContent ?? null;
-		const isMod = this.element.__data.authorBadges.some(x => ['MODERATOR', 'OWNER'].includes(x.liveChatAuthorBadgeRenderer?.icon?.iconType));
 
 		for (let i = 0; i < this.element.__data.data.message.runs.length; i++) {
 			const part = this.element.__data.data.message.runs[i];
 
 			if (!!part.emoji) {
 				this.addEmojiPart(newContext, part.emoji);
+			} else if (!!part.navigationEndpoint && !!part.text) {
+				this.addTextPart(newContext, ' ');
+				this.addHyperlinkPart(newContext, part.text, part.navigationEndpoint);
 			} else if (!!part.text) {
 				for (let s of part.text.split(' ')) {
 					if (!this.addEmotePart(newContext, s)){
-						if (!isMod || !this.addHyperlinkPart(newContext, s)){
-							this.addTextPart(newContext, ' ');
-							s === me
-								?this.addMentionPart(newContext, s)
-								:this.addTextPart(newContext, s + ' ');
-						}
+						this.addTextPart(newContext, ' ');
+						s === me
+							? this.addMentionPart(newContext, s)
+							: this.addTextPart(newContext, s + ' ');
 					}
 				}
 			}
@@ -75,18 +75,13 @@ export class Tokenizer {
 	/**
 	 * Append a text part to the new message context
 	 */
-	addHyperlinkPart(ctx: HTMLSpanElement, text: string): boolean {
+	addHyperlinkPart(ctx: HTMLSpanElement, text: string, data: YouTube.NavigationEndpoint): void {
 		const a = document.createElement('a');
 		a.innerText = text;
 		a.className = 'yt-simple-endpoint style-scope yt-live-chat-text-message-renderer';
-		a.href = text;
+		a.href = data.urlEndpoint.url;
 		a.target = '_blank';
-
-		if (a.host && a.host != window.location.host) {
-			ctx.appendChild(a);
-			return true;
-		}
-		return false;
+		ctx.appendChild(a);
 	}
 
 	/**

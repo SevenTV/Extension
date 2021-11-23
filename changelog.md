@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.0.3
+
+- YouTube: Fixed an issue where long links would not work correctly (#181)
+
 ### Version 2.0.2
 
 - Twitch: Added a Moderation Slider tool (#170)
