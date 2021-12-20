@@ -20,12 +20,8 @@ const eventAPI = new EventAPI();
 					return undefined;
 				}
 
-				chrome.windows.create({
-					url: 'yt_upgrade/yt_upgrade.html',
-					width: 800,
-					height: 700,
-					focused: true,
-					type: 'popup'
+				chrome.tabs.create({
+					url: 'yt_upgrade/yt_upgrade.html'
 				}, () => {
 					chrome.storage.local.set({ yt_permissions_requested: true });
 				});
