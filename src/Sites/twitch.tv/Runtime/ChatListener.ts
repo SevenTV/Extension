@@ -110,6 +110,16 @@ export class TwitchChatListener {
 			filter(line => !!line.component && !!line.component.props.message?.seventv),
 			// Render 7TV emotes
 			tap(line => {
+				const user = line.component.props.message.user;
+				const userID = parseInt(user.userID);
+				// Add paint?
+				if (!!user && this.page.site.paintMap.has(userID)) {
+					const paintID = this.page.site.paintMap.get(userID);
+					if (typeof paintID === 'number') {
+						line.element.querySelector('[data-a-target="chat-message-username"]')?.setAttribute('data-seventv-paint', paintID.toString());
+					}
+				}
+
 				line.component.props.message.seventv.currenUserID = line.component.props.currentUserID;
 				line.component.props.message.seventv.currentUserLogin = line.component.props.currentUserLogin;
 				line.component.props.message.seventv.patcher?.render(line);
