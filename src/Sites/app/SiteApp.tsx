@@ -133,10 +133,7 @@ export class SiteApp {
 		container.appendChild(app);
 	}
 
-	/**
-	 * Insert paint styles into our global stylesheet
-	 */
-	buildCosmeticPaintStyles(): void {
+	getAppStylesheet(): CSSStyleSheet | null {
 		const stylesheetURL = assetStore.get('stylesheet');
 		let stylesheet: CSSStyleSheet | null = null;
 
@@ -151,6 +148,17 @@ export class SiteApp {
 		}
 		if (!stylesheet) {
 			Logger.Get().warn('Could not find 7TV global stylesheet');
+			return null;
+		}
+		return stylesheet;
+	}
+
+	/**
+	 * Insert paint styles into our global stylesheet
+	 */
+	buildCosmeticPaintStyles(): void {
+		const stylesheet = this.getAppStylesheet();
+		if (!stylesheet) {
 			return undefined;
 		}
 
@@ -191,7 +199,7 @@ export class SiteApp {
 
 			// Insert new css rule for the paint
 			stylesheet.insertRule(`
-				[data-seventv-paint="${i}"] {
+				body:not(.seventv-no-paints) [data-seventv-paint="${i}"] {
 					filter: ${dropShadow ? `drop-shadow(${dropShadow.join(' ')})` : 'inherit'};
 					background-clip: text !important;
 					background-size: cover !important;
