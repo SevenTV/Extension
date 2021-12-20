@@ -107,14 +107,16 @@ export class TwitchChatListener {
 			tap(line => {
 					this.page.banSliderManager.considerSlider( line );
 			}),
-			filter(line => !!line.component && !!line.component.props.message?.seventv),
+			filter(line => !!line.component),
 			// Render 7TV emotes
 			tap(line => {
 				this.renderPaintOnNametag(line);
 
-				line.component.props.message.seventv.currenUserID = line.component.props.currentUserID;
-				line.component.props.message.seventv.currentUserLogin = line.component.props.currentUserLogin;
-				line.component.props.message.seventv.patcher?.render(line);
+				if (!!line.component.props.message?.seventv) {
+					line.component.props.message.seventv.currenUserID = line.component.props.currentUserID;
+					line.component.props.message.seventv.currentUserLogin = line.component.props.currentUserLogin;
+					line.component.props.message.seventv.patcher?.render(line);
+				}
 			}),
 		).subscribe();
 	}
@@ -134,13 +136,16 @@ export class TwitchChatListener {
 	 * Patch a chat line with a nametag paint when applicable
 	 */
 	renderPaintOnNametag(line: Twitch.ChatLineAndComponent): void {
+		if (!line.component.props || !line.component.props.message) {
+			return undefined;
+		}
 		const user = line.component.props.message.user;
 		const userID = parseInt(user.userID);
 		// Add paint?
 		if (!!user && this.page.site.paintMap.has(userID)) {
 			const paintID = this.page.site.paintMap.get(userID);
 			if (typeof paintID === 'number') {
-				line.element.querySelector('[data-a-target="chat-message-username"]')?.setAttribute('data-seventv-paint', paintID.toString());
+				line.element.querySelector('[data-a-target="chat-message-username"], .chat-author__display-name')?.setAttribute('data-seventv-paint', paintID.toString());
 			}
 		}
 	}
