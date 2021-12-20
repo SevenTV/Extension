@@ -110,6 +110,13 @@ class Settings {
 					defaultValue: 'enabled'
 				},
 				{
+					id: 'general.paints',
+					label: 'Nametag Paints',
+					hint: 'Display custom paints and effects on usernames in chat',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
 					id: 'general.history_navigation',
 					label: 'History Navigation',
 					hint: 'Allow the usage of up/down arrows to get previously sent messages back in the chat input box',

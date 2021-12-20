@@ -1,7 +1,8 @@
 # 7TV Web Extension - Changelog
 
-### Version 2.0.3
+### Version 2.1.0
 
+- Added new cosmetic feature: Paints
 - YouTube: Fixed an issue where long links would not work correctly (#181)
 
 ### Version 2.0.2
