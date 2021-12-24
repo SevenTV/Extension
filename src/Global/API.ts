@@ -268,7 +268,7 @@ export namespace API {
 		name: string;
 		users: string[];
 		function: string;
-		color: number;
+		color: number | null;
 		stops: Paint.Step[];
 		repeat: boolean;
 		angle: number;

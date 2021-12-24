@@ -2,6 +2,7 @@
 
 ### Version 2.1.1
 
+- Paints with transparency can now blend in with the original chat user color
 - Fixed paints on firefox
 
 ### Version 2.1.0
