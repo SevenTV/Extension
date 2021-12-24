@@ -135,14 +135,14 @@ export class SiteApp {
 
 	getAppStylesheet(): CSSStyleSheet | null {
 		const stylesheetURL = assetStore.get('stylesheet');
-		
+
 		// Firefox fix - Create new stylesheet
 		if (stylesheetURL?.startsWith('moz')) {
 			const style = document.createElement('style');
 			style.title = '7TV Paints';
 			style.appendChild(document.createTextNode(''));
 			document.head.appendChild(style);
-			
+
 			return style.sheet;
 		}
 
