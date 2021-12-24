@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.1.1
+
+- Fixed paints on firefox
+
 ### Version 2.1.0
 
 - Added new cosmetic feature: Paints
