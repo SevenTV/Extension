@@ -138,11 +138,11 @@ export class SiteApp {
 		
 		// Firefox fix - Create new stylesheet
 		if (stylesheetURL?.startsWith('moz')) {
-			var style = document.createElement("style");
-			style.title = '7TV Paints'
-			style.appendChild(document.createTextNode(""));
+			const style = document.createElement('style');
+			style.title = '7TV Paints';
+			style.appendChild(document.createTextNode(''));
 			document.head.appendChild(style);
-
+			
 			return style.sheet;
 		}
 
