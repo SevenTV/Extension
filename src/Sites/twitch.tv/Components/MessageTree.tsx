@@ -78,8 +78,12 @@ export class MessageTree {
 	private addTextPart(part: Part): HTMLSpanElement {
 		const span = document.createElement('span');
 		span.classList.add('seventv-text-fragment');
-		if (part.content === ' ') {
+		if (part.content === ' ' || part.content === '') {
+			part.content = '';
 			span.classList.add('seventv-text-empty');
+		}
+		else {
+			this.previousEmote = null;
 		}
 		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
 		if (part.content?.toLowerCase().includes(this.msg.seventv?.currentUserLogin)) {
@@ -97,15 +101,25 @@ export class MessageTree {
 		const emoteID = part.content as string;
 		const emote = emoteStore.getEmote(emoteID);
 
-		if (!!emote) {
-			const emoteElement = emote.toElement(settings.get('general.hide_unlisted_emotes').asBoolean());
-			this.considerZeroWidth(emote);
-			this.previousEmote = emote;
-
-			return emoteElement;
+		if (!emote) {
+			return document.createElement('span');
 		}
 
-		return document.createElement('span');
+		if (emote.isModifier()) {
+			const modifier = emote.getModifier();
+
+			if (this.previousEmote) {
+				this.previousEmote.element?.classList.add(`seventv-modifier-${modifier}`);
+			}
+
+			return document.createElement('span');
+		}
+
+		const emoteElement = emote.toElement(settings.get('general.hide_unlisted_emotes').asBoolean());
+		this.considerZeroWidth(emote);
+		this.previousEmote = emote;
+
+		return emoteElement;
 	}
 
 	private addTwitchEmotePart(part: Part): HTMLElement {
@@ -147,6 +161,7 @@ export class MessageTree {
 		if (!!part.content && part.content?.toLowerCase() === this.msg.seventv?.currentUserLogin) {
 			this.renderer.element?.classList.add('seventv-message-mentioned');
 		}
+		this.previousEmote = null;
 
 		return span;
 	}
@@ -157,6 +172,8 @@ export class MessageTree {
 		link.innerHTML = data.displayText;
 		link.href = data.url;
 		link.target = '_blank';
+
+		this.previousEmote = null;
 
 		return link;
 	}

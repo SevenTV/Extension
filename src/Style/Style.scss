@@ -4,6 +4,7 @@
 @use './Components/EmoteMenu.scss';
 @use './Components/BanSlider.scss';
 @use './Components/YouTube/TheaterMode.scss';
+@use './Components/EmoteModifiers.scss';
 
 $bgColorDark0: rgb(50, 50, 50);
 $bgColorDark1: darken($bgColorDark0, 5);
@@ -105,6 +106,9 @@ div[id="content"]
 }
 
 .seventv-emote.seventv-next-is-zerowidth {
+	// Aligns the zerowidth with the image instead of being shifted 0.25em
+	margin-right: 0 !important;
+
 	span {
 		position: absolute;
 		width: 0px;

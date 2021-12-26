@@ -11,6 +11,14 @@ import React from 'react';
 
 const TWITCH_SET_NAME = 'twitch';
 const EMOJI_SET_NAME = 'emoji';
+
+// Hardcoded modifiers for the time being (?)
+const MODIFIERS = new Map<string, string>([
+	['61c7c7850bf63003719400d0', 'rotate'],
+	['61c7c8130bf63003719400dc', 'greyscale'],
+	['61c7c7d1ef5a587a07459a9f', 'squish']
+]);
+
 export class EmoteStore {
 	ctx = getRunningContext();
 
@@ -358,6 +366,15 @@ export namespace EmoteStore {
 
 		isUnlisted(): boolean {
 			return BitField.HasBits(this.visibility, DataStructure.Emote.Visibility.HIDDEN);
+		}
+
+		// include this in bitfield?
+		isModifier(): boolean {
+			return MODIFIERS.has(this.id);
+		}
+
+		getModifier(): string {
+			return MODIFIERS.get(this.id)!;
 		}
 
 		toElement(shouldBlurHidden = false): HTMLSpanElement {

@@ -1,0 +1,26 @@
+@keyframes rotation {
+    0%   {transform: rotate(0deg)}
+    100% {transform: rotate(360deg)}
+}
+
+.seventv-modifier-rotate {
+    img {
+        animation-name: rotation;
+        animation-duration: 4s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+        animation-direction: reverse;
+    }
+}
+
+.seventv-modifier-greyscale {
+    img {
+        filter: grayscale(1);
+    }
+}
+
+.seventv-modifier-squish {
+    img {
+        transform: scaleY(0.5);
+    }
+}
