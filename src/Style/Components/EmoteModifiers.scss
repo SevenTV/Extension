@@ -21,6 +21,39 @@
 
 .seventv-modifier-squish {
     img {
-        transform: scaleY(0.5);
+        transform: scaleY(0.25);
     }
+}
+
+.seventv-modifier-hflip {
+    img {
+        transform: scaleX(-1);
+    }
+}
+
+.seventv-modifier-vflip {
+    img {
+        transform: scaleY(-1);
+    }
+}
+
+// FFZ support 
+
+// Rotate
+.chat-image[data-modifiers~="61c7c7850bf63003719400d0"] {
+    animation-name: rotation;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-direction: reverse;
+}
+
+// Greyscale
+.chat-image[data-modifiers~="61c7c8130bf63003719400dc"] {
+    filter: grayscale(1);
+}
+
+// Squish
+.chat-image[data-modifiers~="61c7c7d1ef5a587a07459a9f"] {
+    transform: scaleY(0.25);
 }
