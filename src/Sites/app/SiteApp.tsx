@@ -127,7 +127,7 @@ export class SiteApp {
 		app.classList.add('seventv-overlay');
 		app.style.position = 'absolute';
 		app.id = 'seventv';
-		
+
 		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} emoteMenuOffset={emoteMenuOffset} />, app) as unknown as MainComponent;
 		this.mainComponent.app = this;
 		container.appendChild(app);
