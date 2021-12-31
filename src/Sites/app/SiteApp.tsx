@@ -128,12 +128,6 @@ export class SiteApp {
 		app.style.position = 'absolute';
 		app.id = 'seventv';
 
-		// If Twitch chat is embedded into twitch pages outside of https://www.twitch.tv or https://twitch.tv (i.e. https://player.twitch.tv or https://help.twitch.tv),
-		// the seventv-overlay will be generated both inside and outside the embedded Twitch chat.
-		// To fix, the div must be hidden outside of the iframe - otherwise chat will be disabled for broadcasters and moderators.
-		if(!location.href.match(`https:\/\/(www.)?twitch.tv\/`))
-			app.style.display = 'none';
-
 		this.mainComponent = ReactDOM.render(<MainComponent emoteStore={emoteStore} emoteMenuOffset={emoteMenuOffset} />, app) as unknown as MainComponent;
 		this.mainComponent.app = this;
 		container.appendChild(app);
