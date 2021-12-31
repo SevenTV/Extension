@@ -129,7 +129,7 @@ export class MessageTree {
 		const data = part.content as Twitch.ChatMessage.EmoteRef;
 		const emote = this.previousEmote = emoteStore.fromTwitchEmote(data);
 		const emoteElement = emote.toElement();
-
+		emoteElement.classList.add('twitch-emote');
 		emoteElement.onclick = this.getOnClick(data);
 
 		// For cheer emotes, display the amount
