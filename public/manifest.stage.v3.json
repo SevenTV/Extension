@@ -18,8 +18,8 @@
 		{
 			"matches": ["*://*.twitch.tv/*", "*://*.youtube.com/*"],
 			"js": ["content.js"],
-			"runAt": "document_start",
-			"all_frames":true
+			"all_frames":true,
+			"runAt": "document_start"
 		}
 	],
 	"web_accessible_resources": [
