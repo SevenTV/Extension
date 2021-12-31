@@ -41,6 +41,8 @@ export class TwitchPageScript {
 	 * cause major memory leak problems.
 	 */
 	constructor() {
+		if (!window.location.href.match(this.channelRegex)) return;
+
 		this.handleChannelSwitch();
 		this.avatarManager.check();
 
