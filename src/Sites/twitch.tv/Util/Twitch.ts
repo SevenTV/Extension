@@ -138,6 +138,17 @@ export class Twitch {
 
 		return lines as Twitch.ChatLineAndComponent[];
 	}
+
+	getEmoteCardOpener(): Twitch.EmoteCardOpener {
+		const inst = document.querySelector(Twitch.Selectors.ChatContainer);
+
+		// This has to walk deep FeelsDankMan
+		const opener = this.findReactParents(
+			this.getReactInstance(inst),
+			n => n.stateNode.onShowEmoteCard, 200 );
+
+		return opener?.stateNode;
+	}
 }
 
 export namespace Twitch {
@@ -349,6 +360,10 @@ export namespace Twitch {
 		onValueUpdate: (v: any) => void;
 	}>;
 
+	export interface EmoteCardOpener {
+		onShowEmoteCard: (v: any) => void;
+	}
+
 	export interface TwitchEmoteSet {
 		id: string;
 		emotes: TwitchEmote[];
@@ -434,6 +449,7 @@ export namespace Twitch {
 		ffz_emotes: any;
 		emotes?: any;
 		_ffz_checked?: boolean;
+		opener?: Twitch.EmoteCardOpener;
 
 	}
 	export namespace ChatMessage {

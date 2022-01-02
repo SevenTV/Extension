@@ -26,6 +26,22 @@ export class MessageTree {
 	getWords(): string[] {
 		return this.msg.seventv.words;
 	}
+	getOnClick(emote: Twitch.ChatMessage.EmoteRef): (e: Event) => void {
+		return (e: Event): void => {
+			const opener = (new Twitch).getEmoteCardOpener();
+			const rect = (e.target as HTMLElement).getBoundingClientRect();
+
+			// channelID and channelLogin can be included here.
+			// Although i don't know if it changes anything.
+			opener.onShowEmoteCard({
+				emoteID: emote.emoteID,
+				emoteCode: emote.alt,
+				sourceID: 'chat',
+				initialTopOffset: rect.bottom,
+				initialBottomOffset: rect.top
+			});
+		};
+	}
 
 	/**
 	 * Fill the message tree with content defined by the tokenizer
@@ -113,6 +129,8 @@ export class MessageTree {
 		const data = part.content as Twitch.ChatMessage.EmoteRef;
 		const emote = this.previousEmote = emoteStore.fromTwitchEmote(data);
 		const emoteElement = emote.toElement();
+		emoteElement.classList.add('twitch-emote');
+		emoteElement.onclick = this.getOnClick(data);
 
 		// For cheer emotes, display the amount
 		if (typeof data.cheerAmount === 'number' && data.cheerAmount > 0) {

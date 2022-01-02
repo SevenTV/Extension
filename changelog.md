@@ -3,6 +3,7 @@
 ### Version 2.1.2
 
 - Twitch: Enabled 7TV for embedded versions of Twitch chat using the Twitch API (https://dev.twitch.tv/docs/embed/chat)
+- Clicking a twitch emote now opens the emote card.
 
 ### Version 2.1.1
 
