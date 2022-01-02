@@ -1,6 +1,6 @@
 import { DataStructure } from '@typings/typings/DataStructure';
 import { from, Observable } from 'rxjs';
-import { filter, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
+import { filter, map, mergeAll, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { version } from 'public/manifest.v3.json';
 import { Badge } from 'src/Global/Badge';
@@ -55,11 +55,12 @@ export class API {
 		);
 	}
 
-	GetBadges(): Observable<Badge[]> {
-		return this.createRequest<{ badges: Badge.Data[] }>('/badges?user_identifier=twitch_id', { method: 'GET' }).pipe(
-			switchMap(res => from(res.body.badges)),
-			map(b => new Badge(b)),
-			toArray()
+	GetCosmetics(): Observable<{ badges: Badge[]; paints: API.Paint[]; }> {
+		return this.createRequest<{ badges: Badge.Data[]; paints: API.Paint[]; }>('/cosmetics?user_identifier=twitch_id', { method: 'GET' }).pipe(
+			map(res => ({
+				badges: res.body.badges.map(b => new Badge(b)),
+				paints: res.body.paints
+			}))
 		);
 	}
 
@@ -261,6 +262,46 @@ export namespace API {
 	}
 
 	export type Platform = 'twitch' | 'youtube';
+
+	export interface Paint {
+		id: string;
+		name: string;
+		users: string[];
+		function: string;
+		color: number | null;
+		stops: Paint.Step[];
+		repeat: boolean;
+		angle: number;
+		shape?: string;
+		image_url?: string;
+		drop_shadow: Paint.Shadow;
+		animation: Paint.Animation;
+	}
+	export namespace Paint {
+		export interface Step {
+			at: number;
+			color: number;
+		}
+
+		export interface Shadow {
+			x_offset: number;
+			y_offset: number;
+			radius: number;
+			color: number;
+		}
+
+		export interface Animation {
+			speed: number;
+			keyframes: Paint.Animation.Keyframe[];
+		}
+		export namespace Animation {
+			export interface Keyframe {
+				at: number;
+				x: number;
+				y: number;
+			}
+		}
+	}
 }
 
 const defaultEmoteQuery = `

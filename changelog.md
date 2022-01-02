@@ -1,7 +1,18 @@
 # 7TV Web Extension - Changelog
 
-### Version 2.0.3
+### Version 2.1.2
 
+- Clicking a twitch emote now opens the emote card.
+- Fixed an issue with some paint styles.
+
+### Version 2.1.1
+
+- Paints with transparency can now blend in with the original chat user color
+- Fixed paints on firefox
+
+### Version 2.1.0
+
+- Added new cosmetic feature: Paints
 - YouTube: Fixed an issue where long links would not work correctly (#181)
 
 ### Version 2.0.2

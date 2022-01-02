@@ -208,6 +208,13 @@ export class TwitchPageScript {
 			default:
 				page?.banSliderManager.check();
 		}
+		switch(cfg['general.paints']) {
+			case false:
+				document.body.classList.add('seventv-no-paints');
+				break;
+			case true:
+				document.body.classList.remove('seventv-no-paints');
+		}
 	}
 
 	@PageScriptListener('ChannelEmoteUpdate')
