@@ -3,6 +3,7 @@
 ### Version 2.1.2
 
 - Clicking a twitch emote now opens the emote card.
+- Fixed an issue with some paint styles.
 
 ### Version 2.1.1
 

@@ -211,7 +211,7 @@ export class SiteApp {
 			// Insert new css rule for the paint
 			stylesheet.insertRule(`
 				body:not(.seventv-no-paints) [data-seventv-paint="${i}"] {
-					${paint.color === null ? '' : `color: ${decimalColorToRGBA(paint.color)}`}
+					${paint.color === null ? '' : `color: ${decimalColorToRGBA(paint.color)};`}
 					filter: ${dropShadow ? `drop-shadow(${dropShadow.join(' ')})` : 'inherit'};
 					background-clip: text !important;
 					background-size: cover !important;
