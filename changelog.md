@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.1.2
+
+- Twitch: Enabled 7TV for embedded versions of Twitch chat using the Twitch API (https://dev.twitch.tv/docs/embed/chat)
+
 ### Version 2.1.1
 
 - Paints with transparency can now blend in with the original chat user color
