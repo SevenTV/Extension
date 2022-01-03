@@ -6,11 +6,11 @@
 
 .seventv-modifier-poof {
     img {
-			position: relative;
-			animation-name: poof;
-			animation-duration: 2s;
-			animation-iteration-count: infinite;
-			animation-timing-function: ease-in;
+	position: relative;
+	animation-name: poof;
+	animation-duration: 2s;
+	animation-iteration-count: infinite;
+	animation-timing-function: ease-in;
     }
 }
 
@@ -24,12 +24,12 @@
 
 .seventv-modifier-arrive {
     img {
-			position: relative;
-			transform-origin: bottom right;
-			animation-name: arrive;
-			animation-duration: 3s;
-			animation-iteration-count: infinite;
-			animation-timing-function: ease-out;
+	position: relative;
+	transform-origin: bottom right;
+	animation-name: arrive;
+	animation-duration: 3s;
+	animation-iteration-count: infinite;
+	animation-timing-function: ease-out;
     }
 }
 
@@ -43,13 +43,13 @@
 
 .seventv-modifier-leave {
     img {
-			position: relative;
-			transform-origin: bottom right;
-			animation-name: arrive;
-			animation-duration: 3s;
-			animation-iteration-count: infinite;
-			animation-timing-function: ease-out;
-            animation-direction: reverse;
+	position: relative;
+	transform-origin: bottom right;
+	animation-name: leave;
+	animation-duration: 3s;
+	animation-iteration-count: infinite;
+	animation-timing-function: ease-out;
+        animation-direction: reverse;
 	}
 }
 
@@ -62,11 +62,11 @@
 
 .seventv-modifier-spiny {
     img {
-			position: relative;
-			animation-name: spin;
-			animation-duration: 1s;
-			animation-iteration-count: infinite;
-			animation-timing-function: linear;
+	position: relative;
+	animation-name: spin;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
     }
 }
 
@@ -79,11 +79,11 @@
 
 .seventv-modifier-spintoodank {
     img {
-			position: relative;
-			animation-name: spin;
-			animation-duration: 1s;
-			animation-iteration-count: infinite;
-			animation-timing-function: linear;
+	position: relative;
+	animation-name: spintoodank;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
     }
 }
 
