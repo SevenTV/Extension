@@ -15,7 +15,8 @@
 	"content_scripts": [
 		{
 			"matches": ["*://*.twitch.tv/*"],
-			"js": ["content.js"]
+			"js": ["content.js"],
+			"all_frames":true
 		}
 	],
 	"web_accessible_resources": [
