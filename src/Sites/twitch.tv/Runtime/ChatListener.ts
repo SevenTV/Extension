@@ -13,9 +13,6 @@ export class TwitchChatListener {
 	/** Create a Twitch instance bound to this listener */
 	private twitch = this.page.twitch;
 
-	/** A list of message IDs which have been received but not yet rendered on screen */
-	private pendingMessages = new Set<string>();
-
 	linesRendered = 0;
 
 	private killed = new Subject<void>();
@@ -25,41 +22,33 @@ export class TwitchChatListener {
 	}
 
 	start(): void {
+		if (this.page.ffzMode) return;
+
 		// Detect rerenders
 		const listener = this; // Get class context to pass it into the function
-		const x = this.twitch.getChatController().componentDidUpdate; // Get current componentDidUpdate()
+		const controller = this.twitch.getChatController();
+		const old = controller.componentDidUpdate; // Get current componentDidUpdate()
 
-		if (!this.page.ffzMode) {
-			const controller = this.twitch.getChatController();
-			if (!!controller) {
-				controller.componentDidUpdate = function (a, b) {
-					if (listener.page.ffzMode) {
-						return;
-					}
+		controller.componentDidUpdate = function (...args) {
+			old?.apply(this, args);
 
-					Logger.Get().debug(`Twitch chat rerender detected, rendering 7TV emotes`);
-					setTimeout(() => listener.rerenderAll(listener.twitch.getChatLines()), 1000); // Rerender all existing chat lines
+			if (listener.page.ffzMode) return;
 
-					if (!!x && typeof x === 'function') {
-						try {
-							x.apply(this, [a, b]); // Pass the execution on
-						} catch (err) {
-							console.error(err);
-						}
-					}
-				};
+			Logger.Get().debug(`Twitch chat rerender detected, rendering 7TV emotes`);
 
-				// Handle kill
-				this.killed.subscribe({
-					next: () => {
-						controller.componentDidUpdate = x;
-					}
-				});
+			listener.rerenderAll(listener.twitch.getChatLines());
+		};
+
+		// Handle kill
+		this.killed.subscribe({
+			next: () => {
+				controller.componentDidUpdate = old;
 			}
-		}
+		});
 	}
 
 	listen(): void {
+		this.rerenderAll(this.twitch.getChatLines());
 		Logger.Get().info('Listening for chat messages');
 		const msgHandler = this.twitch.getChatController().props.messageHandlerAPI;
 		if (!!currentHandler) {
@@ -105,7 +94,7 @@ export class TwitchChatListener {
 		this.observeDOM().pipe(
 			takeUntil(this.killed),
 			tap(line => {
-					this.page.banSliderManager.considerSlider( line );
+					this.page.banSliderManager.considerSlider(line);
 			}),
 			filter(line => !!line.component),
 			// Render 7TV emotes
@@ -121,15 +110,41 @@ export class TwitchChatListener {
 		).subscribe();
 	}
 
+	private async waitForEmotesToLoad(): Promise<void> {
+		return new Promise<void>(resolve => {
+			let i: any;
+			const t = setTimeout(()=> {
+				Logger.Get().warn('Could not load any emotes for channel after 10 seconds');
+				resolve();
+				clearInterval(i);
+			}, 10000);
+
+			i = setInterval(()=> {
+				// Should probably have a better check than this for when we should re-render
+				if (this.page.emoteStore.sets.size == 0) return;
+				resolve();
+				clearInterval(i);
+				clearTimeout(t);
+			}, 500);
+		});
+	}
+
 	/**
 	 * Re-render messages with 7TV
 	 */
 	private rerenderAll(lines: Twitch.ChatLineAndComponent[]): void {
-		for (const line of lines) {
-			if (!line.component?.props) continue;
-			this.onMessage(line.component.props.message, line);
-			this.renderPaintOnNametag(line);
-		}
+		this.waitForEmotesToLoad()
+			.then(()=>{
+				if (this.page.ffzMode) return;
+
+				for (const line of lines) {
+					if (!line.component?.props || line.element?.id.includes('7TV')) continue;
+
+					// Wait till the message part has been rendered to make pain more consisten on historical messages
+					this.onMessage(line.component.props.message, line);
+					this.renderPaintOnNametag(line);
+				}
+			});
 	}
 
 	/**
@@ -156,10 +171,10 @@ export class TwitchChatListener {
 		 * We can edit the message in the meantime
 		 * @see observeDOM()
 		 */
-		this.pendingMessages.add(msg.id);
 
 		// Push emotes to seventv.emotes property
 		const patcher = new MessagePatcher(this.page, msg);
+
 		msg.seventv = {
 			patcher,
 			parts: [],
@@ -172,13 +187,7 @@ export class TwitchChatListener {
 		// This detects/matches 7TV emotes as text and adds it to a seventv namespace within the message
 		patcher.tokenize();
 
-		this.linesRendered++;
-		if (this.linesRendered === 1) {
-			setTimeout(() => this.onMessage(msg), 100);
-		}
-		if (!!renderAs) {
-			patcher.render(renderAs);
-		}
+		if (!!renderAs) patcher.render(renderAs);
 	}
 
 	sendSystemMessage(msg: string): void {
