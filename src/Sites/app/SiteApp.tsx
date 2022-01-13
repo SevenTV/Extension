@@ -202,17 +202,22 @@ export class SiteApp {
 				}
 			}
 			// Handle drop shadow
-			const dropShadow = [] as string[];
-			if (paint.drop_shadow) {
-				const { x_offset, y_offset, color, radius } = paint.drop_shadow;
-				dropShadow.push(`${x_offset}px`, `${y_offset}px`, `${radius}px`, decimalColorToRGBA(color));
+			const dropShadows = [] as string[][];
+			if (Array.isArray(paint.drop_shadows) && paint.drop_shadows.length > 0) {
+				for (const shadow of paint.drop_shadows) {
+					const { x_offset, y_offset, color, radius } = shadow;
+					dropShadows.push([`${x_offset}px`, `${y_offset}px`, `${radius}px`, decimalColorToRGBA(color)]);
+				}
 			}
 
 			// Insert new css rule for the paint
 			stylesheet.insertRule(`
 				body:not(.seventv-no-paints) [data-seventv-paint="${i}"] {
 					${paint.color === null ? '' : `color: ${decimalColorToRGBA(paint.color)};`}
-					filter: ${dropShadow ? `drop-shadow(${dropShadow.join(' ')})` : 'inherit'};
+					filter: ${dropShadows.length > 0
+						? dropShadows.map(v => `drop-shadow(${v.join(' ')})`).join(' ')
+						: 'inherit'
+					};
 					background-image: ${funcName}(${args.join(', ')});
 				}
 			`.replace(/(\r\n|\n|\r)/gm, ''), stylesheet.cssRules.length);
