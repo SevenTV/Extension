@@ -13,8 +13,6 @@ export class TwitchChatListener {
 	/** Create a Twitch instance bound to this listener */
 	private twitch = this.page.twitch;
 
-	linesRendered = 0;
-
 	private killed = new Subject<void>();
 
 	constructor(private page: TwitchPageScript) {
