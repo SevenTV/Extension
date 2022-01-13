@@ -5,6 +5,7 @@
 - Twitch: Enabled 7TV for embedded versions of Twitch chat using the Twitch API (https://dev.twitch.tv/docs/embed/chat)
 - Clicking a twitch emote now opens the emote card.
 - Fixed an issue with some paint styles.
+- Paints now cover both ascii and non ascii names.
 
 ### Version 2.1.1
 

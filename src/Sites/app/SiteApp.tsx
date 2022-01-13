@@ -213,12 +213,7 @@ export class SiteApp {
 				body:not(.seventv-no-paints) [data-seventv-paint="${i}"] {
 					${paint.color === null ? '' : `color: ${decimalColorToRGBA(paint.color)};`}
 					filter: ${dropShadow ? `drop-shadow(${dropShadow.join(' ')})` : 'inherit'};
-					background-clip: text !important;
-					background-size: cover !important;
-					-webkit-background-clip: text !important;
-					-webkit-text-fill-color: transparent;
 					background-image: ${funcName}(${args.join(', ')});
-					background-color: currentColor;
 				}
 			`.replace(/(\r\n|\n|\r)/gm, ''), stylesheet.cssRules.length);
 

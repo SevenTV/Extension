@@ -222,3 +222,17 @@ div[id="content"]
 		height: 1.8rem;
 	}
 }
+
+// Base paint style
+
+body:not(.seventv-no-paints) [data-seventv-paint] {
+	background-clip: text !important;
+	background-size: cover !important;
+	-webkit-background-clip: text !important;
+	-webkit-text-fill-color: transparent;
+	background-color: currentColor;
+
+	.chat-author__intl-login {
+		opacity: unset !important;
+	}
+}
