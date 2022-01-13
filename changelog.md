@@ -2,11 +2,10 @@
 
 ### Version 2.1.2
 
-- Twitch: Enabled 7TV for embedded versions of Twitch chat using the Twitch API (https://dev.twitch.tv/docs/embed/chat)
-- Twitch: Added colon-completion (:)
-- Clicking a twitch emote now opens the emote card.
-- Fixed an issue with some paint styles.
-- Paints now cover both ascii and non ascii names.
+- Twitch: Added support for 7TV in embeds
+- Twitch: Added colon-completion (use : to get a list of emotes matching your input)
+- Nametag Paints now support multiple drop shadows, transparency blending and cover international names
+- Clicking a twitch emote now opens the emote card
 
 ### Version 2.1.1
 

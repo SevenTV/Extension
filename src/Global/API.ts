@@ -274,7 +274,7 @@ export namespace API {
 		angle: number;
 		shape?: string;
 		image_url?: string;
-		drop_shadow: Paint.Shadow;
+		drop_shadows: Paint.Shadow[];
 		animation: Paint.Animation;
 	}
 	export namespace Paint {
