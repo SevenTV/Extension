@@ -145,7 +145,7 @@ export class TwitchChatListener {
 		if (!!user && this.page.site.paintMap.has(userID)) {
 			const paintID = this.page.site.paintMap.get(userID);
 			if (typeof paintID === 'number') {
-				line.element.querySelector('[data-a-target="chat-message-username"], .chat-author__display-name')?.setAttribute('data-seventv-paint', paintID.toString());
+				line.element.querySelector('[data-a-target="chat-message-username"], .chat-author__display-name')?.parentElement?.setAttribute('data-seventv-paint', paintID.toString());
 			}
 		}
 	}
