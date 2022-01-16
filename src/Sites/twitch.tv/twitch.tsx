@@ -206,7 +206,7 @@ export class TwitchPageScript {
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
 		ffzMode = true;
 
-		let sets = this.twitch.getAutocompleteHandler()?.providers[0].props.emotes;
+		let sets = this.twitch?.getAutocompleteHandler()?.providers[0].props.emotes;
 		if (sets) sets = sets.filter(s=>s.__typename !== 'SeventvEmoteSet');
 
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
