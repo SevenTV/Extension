@@ -145,8 +145,14 @@ export class TwitchPageScript {
 	insertEmotesIntoAutocomplete() {
 		if (this.ffzMode) return;
 
-		const emoteProvider = this.twitch.getAutocompleteHandler().providers[0];
 		const store = this.emoteStore;
+		const emoteProvider = this.twitch.getAutocompleteHandler().providers[0];
+
+		// Wait 500ms if twitch has not inserted its emotes.
+		if (emoteProvider.props.emotes.length == 0) {
+			setTimeout(this.insertEmotesIntoAutocomplete, 500);
+			return;
+		}
 
 		const x = emoteProvider.renderEmoteSuggestion;
 		emoteProvider.renderEmoteSuggestion = function(e: Twitch.TwitchEmote) {
@@ -171,10 +177,6 @@ export class TwitchPageScript {
 			id: '-1',
 			__typename: 'SeventvEmoteSet'
 		});
-
-
-
-
 	}
 
 	getCurrentChannelFromURL(): string {
