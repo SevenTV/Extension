@@ -14,7 +14,6 @@ import type { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class TwitchPageScript {
 	site = new SiteApp();
-	twitch = new Twitch();
 	chatListener = chatListener = new TwitchChatListener(this);
 	inputManager = inputManager = new InputManager(this);
 	avatarManager = new AvatarManager(this);
@@ -30,6 +29,9 @@ export class TwitchPageScript {
 
 	get ffzMode(): boolean {
 		return ffzMode;
+	}
+	get twitch(): Twitch {
+		return twitch;
 	}
 
 	/**
@@ -206,7 +208,7 @@ export class TwitchPageScript {
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
 		ffzMode = true;
 
-		let sets = this.twitch?.getAutocompleteHandler()?.providers[0].props.emotes;
+		let sets = twitch?.getAutocompleteHandler()?.providers[0].props.emotes;
 		if (sets) sets = sets.filter(s=>s.__typename !== 'SeventvEmoteSet');
 
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
@@ -306,7 +308,7 @@ export class TwitchPageScript {
 let page: TwitchPageScript;
 let chatListener: TwitchChatListener;
 let inputManager: InputManager;
-
+let twitch = new Twitch();
 let ffzMode = false;
 (() => {
 	page = new TwitchPageScript();
