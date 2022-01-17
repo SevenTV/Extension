@@ -14,7 +14,6 @@ import type { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class TwitchPageScript {
 	site = new SiteApp();
-	twitch = new Twitch();
 	chatListener = chatListener = new TwitchChatListener(this);
 	inputManager = inputManager = new InputManager(this);
 	avatarManager = new AvatarManager(this);
@@ -30,6 +29,9 @@ export class TwitchPageScript {
 
 	get ffzMode(): boolean {
 		return ffzMode;
+	}
+	get twitch(): Twitch {
+		return twitch;
 	}
 
 	/**
@@ -145,8 +147,14 @@ export class TwitchPageScript {
 	insertEmotesIntoAutocomplete() {
 		if (this.ffzMode) return;
 
-		const emoteProvider = this.twitch.getAutocompleteHandler().providers[0];
 		const store = this.emoteStore;
+		const emoteProvider = this.twitch.getAutocompleteHandler().providers[0];
+
+		// Wait 500ms if twitch has not inserted its emotes.
+		if (emoteProvider.props.emotes.length == 0) {
+			setTimeout(this.insertEmotesIntoAutocomplete, 500);
+			return;
+		}
 
 		const x = emoteProvider.renderEmoteSuggestion;
 		emoteProvider.renderEmoteSuggestion = function(e: Twitch.TwitchEmote) {
@@ -171,10 +179,6 @@ export class TwitchPageScript {
 			id: '-1',
 			__typename: 'SeventvEmoteSet'
 		});
-
-
-
-
 	}
 
 	getCurrentChannelFromURL(): string {
@@ -204,7 +208,7 @@ export class TwitchPageScript {
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
 		ffzMode = true;
 
-		let sets = this.twitch.getAutocompleteHandler()?.providers[0].props.emotes;
+		let sets = twitch?.getAutocompleteHandler()?.providers[0].props.emotes;
 		if (sets) sets = sets.filter(s=>s.__typename !== 'SeventvEmoteSet');
 
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
@@ -304,7 +308,7 @@ export class TwitchPageScript {
 let page: TwitchPageScript;
 let chatListener: TwitchChatListener;
 let inputManager: InputManager;
-
+let twitch = new Twitch();
 let ffzMode = false;
 (() => {
 	page = new TwitchPageScript();

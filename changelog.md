@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.1.3
+
+- Twitch: Fixed some errors with the colon-complete (#201)
+
 ### Version 2.1.2
 
 - Twitch: Added support for 7TV in embeds
