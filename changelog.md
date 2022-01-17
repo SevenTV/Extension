@@ -2,7 +2,8 @@
 
 ### Version 2.1.3
 
-- Twitch: Fixed some errors with the colon-complete (#201)
+- Twitch: Fixed an issue preventing the extension from loading properly (#193)
+- Twitch: Fixed some errors with colon-completion (#201)
 
 ### Version 2.1.2
 
