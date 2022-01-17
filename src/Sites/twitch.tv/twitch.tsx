@@ -34,17 +34,7 @@ export class TwitchPageScript {
 		return twitch;
 	}
 
-	/**
-	 * The PageScript is the lower layer of the extension, it nests itself directly into the page
-	 * in order to gain access to Twitch's react instance and components.
-	 *
-	 * The purpose of PageScript is primarily to relay info and events back to the content script,
-	 * no rendering should be done at this layer as it may conflict with Twitch itself, and can easily
-	 * cause major memory leak problems.
-	 */
 	constructor() {
-		if (!window.location.href.match(this.channelRegex)) return;
-
 		this.handleChannelSwitch();
 		this.avatarManager.check();
 
