@@ -117,6 +117,13 @@ class Settings {
 					defaultValue: true
 				},
 				{
+					id: 'general.emote_click',
+					label: 'Click emote to use',
+					hint: 'Click on any emote in chat to automatically input it in your chat draft',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
 					id: 'general.history_navigation',
 					label: 'History Navigation',
 					hint: 'Allow the usage of up/down arrows to get previously sent messages back in the chat input box',

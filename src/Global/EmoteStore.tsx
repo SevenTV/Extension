@@ -9,6 +9,7 @@ import { getProviderLogo, getRunningContext } from 'src/Global/Util';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import React from 'react';
 import { menuEmoteSubject } from 'src/Sites/app/SiteApp';
+import { settings } from 'src/Content/Runtime/Settings';
 
 const TWITCH_SET_NAME = 'twitch';
 const EMOJI_SET_NAME = 'emoji';
@@ -402,6 +403,7 @@ export namespace EmoteStore {
 			});
 
 			inner.addEventListener('mousedown', _ => {
+				if(!settings.get('general.emote_click').asBoolean()) return;
 				// Use menu emote subject to inject emote when clicked
 				menuEmoteSubject.next(this);
 			});
