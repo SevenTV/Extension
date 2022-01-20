@@ -364,6 +364,7 @@ export namespace Twitch {
 		onChange: (v: any) => void;
 		onKeyDown: (v: any) => void;
 		onValueUpdate: (v: any) => void;
+		value: string;
 	}>;
 
 	export type ChatAutocompleteComponent = {
