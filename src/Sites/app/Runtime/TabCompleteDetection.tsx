@@ -139,7 +139,8 @@ export class TabCompleteDetection {
 	 */
 	private handleTabPress(ev: KeyboardEvent, emotes: string[]): void {
 		const input = ev.target as HTMLInputElement;
-		const inputText = input.value ?? input.textContent;
+		// Twitch inserts a special character in front of emotes
+		const inputText = (input.value ?? input.textContent).replace(/﻿/g, '');
 		const cursorPosition = input.selectionStart ?? (window as any).twitch?.getChatInput()?.selectionStart ?? 0;
 
 		let searchStart = cursorPosition - 1;
