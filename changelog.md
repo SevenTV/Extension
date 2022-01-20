@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.1.4
+
+- Twitch: Improvements to initial load of chat
+
 ### Version 2.1.3
 
 - Twitch: Fixed an issue preventing the extension from loading properly (#202)
