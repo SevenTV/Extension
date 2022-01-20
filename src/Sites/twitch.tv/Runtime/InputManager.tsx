@@ -111,7 +111,7 @@ export class InputManager {
 				}
 			}
 			if (historyEnabled) {
-				if (ev.key === 'ArrowUp' && this.twitch.getChatInput()?.selectionStart === 0) { // Handle up-arrow (navigate back in history)
+				if (ev.key === 'ArrowUp' && (target.selectionStart ?? this.twitch.getChatInput().selectionStart) === 0) { // Handle up-arrow (navigate back in history)
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {
 						this.historyPos--;
@@ -119,7 +119,7 @@ export class InputManager {
 						this.historyPos++;
 						this.setInputValue(newVal);
 					}
-				} else if (ev.key === 'ArrowDown' && this.twitch.getChatInput().selectionStart === value.length) { // Handle down-arrow (navigate forward in history)
+				} else if (ev.key === 'ArrowDown' && (target.selectionEnd ?? this.twitch.getChatInput().selectionStart) === value.length) { // Handle down-arrow (navigate forward in history)
 					this.historyPos--;
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {
@@ -150,12 +150,13 @@ export class InputManager {
 	}
 
 	getInput(): HTMLInputElement {
-		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
+		return (document.querySelector('.chat-input textarea')
+			??  document.querySelector(Twitch.Selectors.ChatInput)) as HTMLInputElement;
 	}
 
 	setInputValue(value: string): void {
 		const el = document.querySelector('.chat-input textarea') as HTMLInputElement;
-		if (el && el.value) {
+		if (el && typeof el.value != undefined) {
 			el.value = value;
 			el.dispatchEvent(new Event('input', { bubbles: true }));
 
