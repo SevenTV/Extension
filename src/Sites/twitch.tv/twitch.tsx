@@ -14,7 +14,6 @@ import type { EventAPI } from 'src/Global/Events/EventAPI';
 
 export class TwitchPageScript {
 	site = new SiteApp();
-	twitch = new Twitch();
 	chatListener = chatListener = new TwitchChatListener(this);
 	inputManager = inputManager = new InputManager(this);
 	avatarManager = new AvatarManager(this);
@@ -31,18 +30,11 @@ export class TwitchPageScript {
 	get ffzMode(): boolean {
 		return ffzMode;
 	}
+	get twitch(): Twitch {
+		return twitch;
+	}
 
-	/**
-	 * The PageScript is the lower layer of the extension, it nests itself directly into the page
-	 * in order to gain access to Twitch's react instance and components.
-	 *
-	 * The purpose of PageScript is primarily to relay info and events back to the content script,
-	 * no rendering should be done at this layer as it may conflict with Twitch itself, and can easily
-	 * cause major memory leak problems.
-	 */
 	constructor() {
-		if (!window.location.href.match(this.channelRegex)) return;
-
 		this.handleChannelSwitch();
 		this.avatarManager.check();
 
@@ -89,6 +81,7 @@ export class TwitchPageScript {
 					inputManager.listen();
 					this.isActorVIP = controller.props.isCurrentUserVIP;
 					this.site.sendMessageUp('EventAPI:AddChannel', login);
+					this.insertEmotesIntoAutocomplete();
 				});
 		};
 
@@ -141,6 +134,43 @@ export class TwitchPageScript {
 		return this.site.emoteStore;
 	}
 
+	insertEmotesIntoAutocomplete() {
+		if (this.ffzMode) return;
+
+		const store = this.emoteStore;
+		const emoteProvider = this.twitch.getAutocompleteHandler().providers[0];
+
+		// Wait 500ms if twitch has not inserted its emotes.
+		if (emoteProvider.props.emotes.length == 0) {
+			setTimeout(this.insertEmotesIntoAutocomplete, 500);
+			return;
+		}
+
+		const x = emoteProvider.renderEmoteSuggestion;
+		emoteProvider.renderEmoteSuggestion = function(e: Twitch.TwitchEmote) {
+			if (e.__typename === 'SeventvEmote') {
+				e.srcSet = store.getEmote(e.id)?.urls.reduce((prev, current) =>
+					`${prev} ${current[1]} ${current[0]}x,`
+				, '');
+			}
+			return x.call(this, e);
+		};
+
+		emoteProvider.props.emotes.push({
+			emotes: this.emoteStore.getAllEmotes(['7TV', 'BTTV', 'EMOJI', 'FFZ']).map(emote => {
+				return {
+					id: emote.id.toString(),
+					setID: '-1',
+					token: emote.name,
+					type: emote.provider,
+					__typename: 'SeventvEmote'
+				};
+			}),
+			id: '-1',
+			__typename: 'SeventvEmoteSet'
+		});
+	}
+
 	getCurrentChannelFromURL(): string {
 		return window.location.href.match(this.channelRegex)?.[3] ?? '';
 	}
@@ -167,6 +197,10 @@ export class TwitchPageScript {
 	@PageScriptListener('Cease')
 	whenUpperLayerRequestsThePageScriptStopsSendingChatLinesUpstream(): void {
 		ffzMode = true;
+
+		let sets = twitch?.getAutocompleteHandler()?.providers[0].props.emotes;
+		if (sets) sets = sets.filter(s=>s.__typename !== 'SeventvEmoteSet');
+
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 
@@ -264,7 +298,7 @@ export class TwitchPageScript {
 let page: TwitchPageScript;
 let chatListener: TwitchChatListener;
 let inputManager: InputManager;
-
+let twitch = new Twitch();
 let ffzMode = false;
 (() => {
 	page = new TwitchPageScript();

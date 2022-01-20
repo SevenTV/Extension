@@ -1,10 +1,16 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.1.3
+
+- Twitch: Fixed an issue preventing the extension from loading properly (#202)
+- Twitch: Fixed some errors with colon-completion (#201)
+
 ### Version 2.1.2
 
-- Twitch: Enabled 7TV for embedded versions of Twitch chat using the Twitch API (https://dev.twitch.tv/docs/embed/chat)
-- Clicking a twitch emote now opens the emote card.
-- Fixed an issue with some paint styles.
+- Twitch: Added support for 7TV in embeds
+- Twitch: Added colon-completion (use : to get a list of emotes matching your input)
+- Nametag Paints now support multiple drop shadows, transparency blending and cover international names
+- Clicking a twitch emote now opens the emote card
 
 ### Version 2.1.1
 

@@ -157,8 +157,15 @@ export class TwitchChatListener {
 		// Add paint?
 		if (!!user && this.page.site.paintMap.has(userID)) {
 			const paintID = this.page.site.paintMap.get(userID);
-			if (typeof paintID === 'number') {
-				line.element.querySelector('[data-a-target="chat-message-username"], .chat-author__display-name')?.setAttribute('data-seventv-paint', paintID.toString());
+			if (typeof paintID !== 'number') {
+				return undefined;
+			}
+			const paint = this.page.site.paints[paintID];
+			const username = line.element.querySelector<HTMLSpanElement>('[data-a-target="chat-message-username"], .chat-line__username');
+			username?.setAttribute('data-seventv-paint', paintID.toString());
+
+			if (!paint.color && username) {
+				username.style.color = line.component.props.message.user.color;
 			}
 		}
 	}
