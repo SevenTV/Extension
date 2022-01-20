@@ -102,6 +102,13 @@ class Settings {
 					defaultValue: true
 				},
 				{
+					id: 'general.emote_click',
+					label: 'Click emote to use',
+					hint: 'Click on any emote in chat to automatically input it in your chat draft',
+					type: 'checkbox',
+					defaultValue: true
+				},
+				{
 					id: 'general.app_avatars',
 					label: 'Animated Avatars',
 					hint: 'Display custom 7TV avatars which may be animated',
@@ -113,13 +120,6 @@ class Settings {
 					id: 'general.paints',
 					label: 'Nametag Paints',
 					hint: 'Display custom paints and effects on usernames in chat',
-					type: 'checkbox',
-					defaultValue: true
-				},
-				{
-					id: 'general.emote_click',
-					label: 'Click emote to use',
-					hint: 'Click on any emote in chat to automatically input it in your chat draft',
 					type: 'checkbox',
 					defaultValue: true
 				},
