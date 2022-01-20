@@ -88,17 +88,13 @@ export class Twitch {
 	}
 
 	getChatInput(): Twitch.ChatInputComponent {
-		const node = this.findReactChildren(
-			this.getReactInstance(document.querySelector('.chat-input__textarea')),
-			n => !!Object.keys(n.stateNode?.props).filter(k => n.stateNode?.props[k] === 'test')
-		);
 
-		return node?.stateNode;
+		return this.getAutocompleteHandler()?.componentRef;
 	}
 
 	getAutocompleteHandler(): Twitch.ChatAutocompleteComponent {
-		const node = this.findReactParents(
-			this.getReactInstance(document.querySelector('textarea[data-a-target=chat-input]')),
+		const node = this.findReactChildren(
+			this.getReactInstance(document.querySelector('.chat-input__textarea')),
 			n => n.stateNode.providers
 		);
 
@@ -167,7 +163,7 @@ export namespace Twitch {
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
 		export const ChatLine = '.chat-line__message';
-		export const ChatInput = '.chat-input textarea';
+		export const ChatInput = '.chat-input__textarea';
 		export const ChatInputButtonsContainer = 'div[data-test-selector="chat-input-buttons-container"]';
 		export const ChatMessageContainer = '.chat-line__message-container';
 		export const ChatUsernameContainer = '.chat-line__username-container';
@@ -365,11 +361,13 @@ export namespace Twitch {
 		channelLogin: string;
 		setInputValue: (v: string) => void;
 		onFocus: (v: any) => void;
+		onChange: (v: any) => void;
 		onKeyDown: (v: any) => void;
 		onValueUpdate: (v: any) => void;
 	}>;
 
 	export type ChatAutocompleteComponent = {
+		componentRef: Twitch.ChatInputComponent;
 		getMatches: (v: string) => TwitchEmote[]
 		props: {
 			channelID: string;

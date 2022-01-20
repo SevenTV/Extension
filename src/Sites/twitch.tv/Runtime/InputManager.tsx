@@ -28,18 +28,19 @@ export class InputManager {
 	 * Listen to keyboard inputs
 	 */
 	listen(): void {
-		const input = this.getInput();
-		if (!input) throw Error('Chat Text Input not found!');
+		this.page.site.tabCompleteDetector.inputValue.pipe(
+			map(change => this.setInputValue(change.message))
+		).subscribe();
 		this.restart.next(undefined);
+
+		const input = this.getInput();
+		if (!input) return;
 
 		Logger.Get().info(`Managing chat input`);
 
 		// Handle send
 		this.waitForNextSend(input);
 
-		this.page.site.tabCompleteDetector.inputValue.pipe(
-			map(change => this.setInputValue(change.message))
-		).subscribe();
 	}
 
 	waitForNextSend(input: HTMLInputElement): void {
@@ -151,22 +152,27 @@ export class InputManager {
 	}
 
 	setInputValue(value: string): void {
-		const el = document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
-		el.value = value;
-		el.dispatchEvent(new Event('input', { bubbles: true }));
+		const el = document.querySelector('.chat-input textarea') as HTMLInputElement;
+		if (el && el.value) {
+			el.value = value;
+			el.dispatchEvent(new Event('input', { bubbles: true }));
 
-		const inst = this.twitch.getReactInstance(el) as Twitch.TwitchPureComponent;
+			const inst = this.twitch.getReactInstance(el) as Twitch.TwitchPureComponent;
 
-		if (inst) {
-			const props = inst.memoizedProps;
-			if (props && props.onChange) {
-				props.onChange({ target: el });
+			if (inst) {
+				const props = inst.memoizedProps;
+				if (props && props.onChange) {
+					props.onChange({ target: el });
+				}
 			}
+		} else {
+			const el = this.twitch.getChatInput()?.props;
+			el.onChange({target: {value: value}});
 		}
 	}
 
 	setInputCursorPosition(position: number) {
-		const el = document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
+		const el = document.querySelector('.chat-input textarea') as HTMLInputElement ?? this.twitch.getChatInput();
 		el.setSelectionRange(position, position);
 	}
 }

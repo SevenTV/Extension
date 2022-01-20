@@ -35,6 +35,7 @@ export class TwitchPageScript {
 	}
 
 	constructor() {
+		(window as any).seventv = this;
 		this.handleChannelSwitch();
 		this.avatarManager.check();
 
