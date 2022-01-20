@@ -16,7 +16,6 @@ import { TabCompleteDetection } from 'src/Sites/app/Runtime/TabCompleteDetection
 export class SiteApp {
 	api = new API();
 	mainComponent: MainComponent | null = null;
-	emoteStore = emoteStore;
 	embeddedUI = new EmbeddedUI(this);
 	badges = [] as Badge[];
 	paints = [] as API.Paint[];
@@ -26,7 +25,8 @@ export class SiteApp {
 	tabCompleteDetector = new TabCompleteDetection(this);
 	config = config;
 
-	menuPickEmote = new Subject<EmoteStore.Emote>();
+	menuPickEmote = menuEmoteSubject;
+	emoteStore = emoteStore;
 
 	constructor() {
 		// Fetch Badges
@@ -274,6 +274,9 @@ export class SiteApp {
 		window.dispatchEvent(new CustomEvent(`7TV#${tag}`, { detail: JSON.stringify(data) }));
 	}
 }
+
+// init subject outside of SiteApp, to use in Emote instances.
+export const menuEmoteSubject = new Subject<EmoteStore.Emote>();
 
 export const emoteStore = new EmoteStore();
 export let assetStore = new Map<string, string>();

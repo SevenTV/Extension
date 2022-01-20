@@ -8,6 +8,7 @@ import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { getProviderLogo, getRunningContext } from 'src/Global/Util';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import React from 'react';
+import { menuEmoteSubject } from 'src/Sites/app/SiteApp';
 
 const TWITCH_SET_NAME = 'twitch';
 const EMOJI_SET_NAME = 'emoji';
@@ -398,6 +399,11 @@ export namespace EmoteStore {
 			});
 			inner.addEventListener('mouseleave', event => {
 				MainComponent.ShowTooltip.next({ event, hover: false });
+			});
+
+			inner.addEventListener('mousedown', _ => {
+				// Use menu emote subject to inject emote when clicked
+				menuEmoteSubject.next(this);
 			});
 
 			const img = document.createElement('img');
