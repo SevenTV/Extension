@@ -29,7 +29,10 @@ export class InputManager {
 	 */
 	listen(): void {
 		this.page.site.tabCompleteDetector.inputValue.pipe(
-			map(change => this.setInputValue(change.message))
+			map(change => {
+				this.setInputValue(change.message);
+				this.setInputCursorPosition(change.cursorPosition);
+			})
 		).subscribe();
 		this.restart.next(undefined);
 
@@ -48,7 +51,7 @@ export class InputManager {
 		input.addEventListener('keydown', listener = (ev) => {
 			const historyEnabled = this.page.site.config.get('general.history_navigation')?.asBoolean();
 			const target = ev.target as HTMLInputElement;
-			const value = (target.value ?? '');
+			let value = (target.value ?? this.twitch.getChatInput()?.props.value ?? '');
 			const normalizedValue = [...value]
 				.filter(char => char.charCodeAt(0) !== unicodeTag0.charCodeAt(0))
 				.join('').trim();
@@ -57,7 +60,6 @@ export class InputManager {
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
 				if (this.page.site.config.get('general.allow_send_twice')?.asBoolean()) {
-					let value = target.value;
 					if (value === '') {
 						return undefined;
 					}
@@ -109,7 +111,7 @@ export class InputManager {
 				}
 			}
 			if (historyEnabled) {
-				if (ev.key === 'ArrowUp' && target.selectionStart === 0) { // Handle up-arrow (navigate back in history)
+				if (ev.key === 'ArrowUp' && this.twitch.getChatInput()?.selectionStart === 0) { // Handle up-arrow (navigate back in history)
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {
 						this.historyPos--;
@@ -117,7 +119,7 @@ export class InputManager {
 						this.historyPos++;
 						this.setInputValue(newVal);
 					}
-				} else if (ev.key === 'ArrowDown' && target.selectionEnd === value.length) { // Handle down-arrow (navigate forward in history)
+				} else if (ev.key === 'ArrowDown' && this.twitch.getChatInput().selectionStart === value.length) { // Handle down-arrow (navigate forward in history)
 					this.historyPos--;
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {

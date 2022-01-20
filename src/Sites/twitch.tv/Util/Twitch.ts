@@ -365,7 +365,7 @@ export namespace Twitch {
 		onKeyDown: (v: any) => void;
 		onValueUpdate: (v: any) => void;
 		value: string;
-	}>;
+	}> & { selectionStart: number };
 
 	export type ChatAutocompleteComponent = {
 		componentRef: Twitch.ChatInputComponent;
