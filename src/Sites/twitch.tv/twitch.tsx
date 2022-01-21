@@ -35,6 +35,7 @@ export class TwitchPageScript {
 	}
 
 	constructor() {
+		(window as any).seventv = this;
 		this.handleChannelSwitch();
 		this.avatarManager.check();
 
@@ -46,7 +47,7 @@ export class TwitchPageScript {
 		}
 		this.site.draftPlaceEmote.pipe(
 			map(emote => {
-				const value = this.inputManager.getInput()?.value ?? '';
+				const value = this.inputManager.getInput()?.value ?? this.twitch.getChatInput()?.props.value ?? '';
 				this.inputManager.setInputValue(`${value} ${emote.name} `);
 			})
 		).subscribe();
@@ -177,7 +178,7 @@ export class TwitchPageScript {
 
 	@PageScriptListener('InsertEmoteInChatInput')
 	whenUserInsertsEmoteFromEmoteMenu(emoteName: string): void {
-		const currentValue = inputManager.getInput().value ?? '';
+		const currentValue = inputManager.getInput().value ?? this.twitch.getChatInput().props.value ?? '';
 		const spacing = currentValue.length > 0 ? ' ' : '';
 
 		inputManager.setInputValue(currentValue + `${spacing}${emoteName}${spacing}`);

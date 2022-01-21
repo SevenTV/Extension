@@ -81,9 +81,17 @@ export class TabCompleteDetection {
 				}
 
 				const input = ev.target as HTMLInputElement;
+				let value = input.value;
+				let selectionStart = input.selectionStart;
 
-				if (input.value != this.tab.expectedValue) this.resetCursor();
-				else if (input.selectionStart != this.tab.expectedCursorLocation) this.resetCursor();
+				if (!value) {
+					const el = (window as any).twitch.getChatInput();
+					value = el.props.value;
+					selectionStart = el.selectionStart;
+				}
+
+				if (value != this.tab.expectedValue) this.resetCursor();
+				else if (selectionStart != this.tab.expectedCursorLocation) this.resetCursor();
 
 				this.handleTabPress(ev, tabValues);
 			}
@@ -131,8 +139,9 @@ export class TabCompleteDetection {
 	 */
 	private handleTabPress(ev: KeyboardEvent, emotes: string[]): void {
 		const input = ev.target as HTMLInputElement;
-		const inputText = input.value;
-		const cursorPosition = input.selectionStart || 0;
+		// Twitch inserts a special character in front of emotes
+		const inputText = (input.value ?? input.textContent).replace(/﻿/g, '');
+		const cursorPosition = input.selectionStart ?? (window as any).twitch?.getChatInput()?.selectionStart ?? 0;
 
 		let searchStart = cursorPosition - 1;
 		let startIndex = 0;
