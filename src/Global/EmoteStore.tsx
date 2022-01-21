@@ -402,10 +402,8 @@ export namespace EmoteStore {
 			});
 
 			inner.addEventListener('mousedown', (ev) => {
-
 				if(configMap.get('general.emote_click')?.asBoolean() && ev.shiftKey) chatDraftSubject.next(this);
 				else return;
-				
 			});
 
 			const img = document.createElement('img');
