@@ -28,18 +28,22 @@ export class InputManager {
 	 * Listen to keyboard inputs
 	 */
 	listen(): void {
-		const input = this.getInput();
-		if (!input) throw Error('Chat Text Input not found!');
+		this.page.site.tabCompleteDetector.inputValue.pipe(
+			map(change => {
+				this.setInputValue(change.message);
+				this.setInputCursorPosition(change.cursorPosition);
+			})
+		).subscribe();
 		this.restart.next(undefined);
+
+		const input = this.getInput();
+		if (!input) return;
 
 		Logger.Get().info(`Managing chat input`);
 
 		// Handle send
 		this.waitForNextSend(input);
 
-		this.page.site.tabCompleteDetector.inputValue.pipe(
-			map(change => this.setInputValue(change.message))
-		).subscribe();
 	}
 
 	waitForNextSend(input: HTMLInputElement): void {
@@ -47,7 +51,7 @@ export class InputManager {
 		input.addEventListener('keydown', listener = (ev) => {
 			const historyEnabled = this.page.site.config.get('general.history_navigation')?.asBoolean();
 			const target = ev.target as HTMLInputElement;
-			const value = (target.value ?? '');
+			let value = (target.value ?? this.twitch.getChatInput()?.props.value ?? '');
 			const normalizedValue = [...value]
 				.filter(char => char.charCodeAt(0) !== unicodeTag0.charCodeAt(0))
 				.join('').trim();
@@ -56,7 +60,6 @@ export class InputManager {
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
 				if (this.page.site.config.get('general.allow_send_twice')?.asBoolean()) {
-					let value = target.value;
 					if (value === '') {
 						return undefined;
 					}
@@ -108,7 +111,7 @@ export class InputManager {
 				}
 			}
 			if (historyEnabled) {
-				if (ev.key === 'ArrowUp' && target.selectionStart === 0) { // Handle up-arrow (navigate back in history)
+				if (ev.key === 'ArrowUp' && (target.selectionStart ?? this.twitch.getChatInput().selectionStart) === 0) { // Handle up-arrow (navigate back in history)
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {
 						this.historyPos--;
@@ -116,7 +119,7 @@ export class InputManager {
 						this.historyPos++;
 						this.setInputValue(newVal);
 					}
-				} else if (ev.key === 'ArrowDown' && target.selectionEnd === value.length) { // Handle down-arrow (navigate forward in history)
+				} else if (ev.key === 'ArrowDown' && (target.selectionEnd ?? this.twitch.getChatInput().selectionStart) === value.length) { // Handle down-arrow (navigate forward in history)
 					this.historyPos--;
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {
@@ -147,26 +150,32 @@ export class InputManager {
 	}
 
 	getInput(): HTMLInputElement {
-		return document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
+		return (document.querySelector('.chat-input textarea')
+			??  document.querySelector(Twitch.Selectors.ChatInput)) as HTMLInputElement;
 	}
 
 	setInputValue(value: string): void {
-		const el = document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
-		el.value = value;
-		el.dispatchEvent(new Event('input', { bubbles: true }));
+		const el = document.querySelector('.chat-input textarea') as HTMLInputElement;
+		if (el && typeof el.value != undefined) {
+			el.value = value;
+			el.dispatchEvent(new Event('input', { bubbles: true }));
 
-		const inst = this.twitch.getReactInstance(el) as Twitch.TwitchPureComponent;
+			const inst = this.twitch.getReactInstance(el) as Twitch.TwitchPureComponent;
 
-		if (inst) {
-			const props = inst.memoizedProps;
-			if (props && props.onChange) {
-				props.onChange({ target: el });
+			if (inst) {
+				const props = inst.memoizedProps;
+				if (props && props.onChange) {
+					props.onChange({ target: el });
+				}
 			}
+		} else {
+			const el = this.twitch.getChatInput()?.props;
+			el.onChange({target: {value: value}});
 		}
 	}
 
 	setInputCursorPosition(position: number) {
-		const el = document.querySelector(Twitch.Selectors.ChatInput) as HTMLInputElement;
+		const el = document.querySelector('.chat-input textarea') as HTMLInputElement ?? this.twitch.getChatInput();
 		el.setSelectionRange(position, position);
 	}
 }
