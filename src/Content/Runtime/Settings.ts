@@ -106,7 +106,7 @@ class Settings {
 					label: 'Click emote to use',
 					hint: 'Click on any emote in chat to automatically input it in your chat draft',
 					type: 'checkbox',
-					defaultValue: true
+					defaultValue: false
 				},
 				{
 					id: 'general.app_avatars',
