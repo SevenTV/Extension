@@ -2,7 +2,7 @@
 
 ### Version 2.1.4
 
-- Twitch: Added support for twitch's new chatbox update
+- Twitch: Fixed tab-completion for Twitch's chat input update
 
 ### Version 2.1.3
 
