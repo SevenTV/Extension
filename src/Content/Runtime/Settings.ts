@@ -106,7 +106,7 @@ class Settings {
 					label: 'Shift-Click emote to draft',
 					hint: 'Shift + Click on any emote in chat to automatically input it into your chat draft',
 					type: 'checkbox',
-					defaultValue: false
+					defaultValue: true
 				},
 				{
 					id: 'general.app_avatars',
