@@ -1,5 +1,6 @@
 import { settings } from 'src/Content/Runtime/Settings';
 import { EmoteStore } from 'src/Global/EmoteStore';
+import { configMap } from 'src/Sites/app/SiteApp';
 import { MessageRenderer } from 'src/Sites/twitch.tv/Components/MessageRenderer';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
@@ -27,7 +28,11 @@ export class MessageTree {
 		return this.msg.seventv.words;
 	}
 	getOnClick(emote: Twitch.ChatMessage.EmoteRef): (e: Event) => void {
+
 		return (e: Event): void => {
+
+			if(configMap.get('general.emote_click')?.asBoolean()) return;
+
 			const opener = (new Twitch).getEmoteCardOpener();
 			const rect = (e.target as HTMLElement).getBoundingClientRect();
 
