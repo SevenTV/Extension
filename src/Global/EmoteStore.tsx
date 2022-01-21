@@ -401,7 +401,7 @@ export namespace EmoteStore {
 				MainComponent.ShowTooltip.next({ event, hover: false });
 			});
 
-			inner.addEventListener('mousedown', e => {
+			inner.addEventListener('mousedown', () => {
 				if(!configMap.get('general.emote_click')?.asBoolean()) return;
 				// Use menu emote subject to inject emote when clicked
 				menuEmoteSubject.next(this);
