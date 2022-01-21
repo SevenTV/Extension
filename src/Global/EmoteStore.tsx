@@ -401,10 +401,11 @@ export namespace EmoteStore {
 				MainComponent.ShowTooltip.next({ event, hover: false });
 			});
 
-			inner.addEventListener('mousedown', () => {
-				if(!configMap.get('general.emote_click')?.asBoolean()) return;
-				// Use menu emote subject to inject emote when clicked
-				chatDraftSubject.next(this);
+			inner.addEventListener('mousedown', (ev) => {
+
+				if(configMap.get('general.emote_click')?.asBoolean() && ev.shiftKey) chatDraftSubject.next(this);
+				else return;
+				
 			});
 
 			const img = document.createElement('img');

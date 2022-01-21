@@ -27,11 +27,11 @@ export class MessageTree {
 	getWords(): string[] {
 		return this.msg.seventv.words;
 	}
-	getOnClick(emote: Twitch.ChatMessage.EmoteRef): (e: Event) => void {
+	getOnClick(emote: Twitch.ChatMessage.EmoteRef): (e: MouseEvent) => void {
 
-		return (e: Event): void => {
+		return (e: MouseEvent): void => {
 
-			if(configMap.get('general.emote_click')?.asBoolean()) return;
+			if(e.shiftKey && configMap.get('general.emote_click')?.asBoolean()) return;
 
 			const opener = (new Twitch).getEmoteCardOpener();
 			const rect = (e.target as HTMLElement).getBoundingClientRect();
