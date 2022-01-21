@@ -44,7 +44,7 @@ export class TwitchPageScript {
 			this.site.createOverlay(overlayContainer);
 			setTimeout(() => this.site.embeddedUI.embedNavButton(document.querySelector(Twitch.Selectors.NAV) as HTMLElement), 500);
 		}
-		this.site.menuPickEmote.pipe(
+		this.site.draftPlaceEmote.pipe(
 			map(emote => {
 				const value = this.inputManager.getInput()?.value ?? '';
 				this.inputManager.setInputValue(`${value} ${emote.name} `);

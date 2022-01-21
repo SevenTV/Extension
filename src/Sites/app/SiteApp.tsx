@@ -25,7 +25,7 @@ export class SiteApp {
 	tabCompleteDetector = new TabCompleteDetection(this);
 	config = config;
 
-	menuPickEmote = menuEmoteSubject;
+	draftPlaceEmote = chatDraftSubject;
 	emoteStore = emoteStore;
 
 	constructor() {
@@ -276,7 +276,7 @@ export class SiteApp {
 }
 
 // init subject outside of SiteApp, to use in Emote instances.
-export const menuEmoteSubject = new Subject<EmoteStore.Emote>();
+export const chatDraftSubject = new Subject<EmoteStore.Emote>();
 
 export const emoteStore = new EmoteStore();
 export let assetStore = new Map<string, string>();

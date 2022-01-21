@@ -8,7 +8,7 @@ import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { getProviderLogo, getRunningContext } from 'src/Global/Util';
 import { MainComponent } from 'src/Sites/app/MainComponent';
 import React from 'react';
-import { menuEmoteSubject, configMap } from 'src/Sites/app/SiteApp';
+import { chatDraftSubject, configMap } from 'src/Sites/app/SiteApp';
 
 const TWITCH_SET_NAME = 'twitch';
 const EMOJI_SET_NAME = 'emoji';
@@ -404,7 +404,7 @@ export namespace EmoteStore {
 			inner.addEventListener('mousedown', () => {
 				if(!configMap.get('general.emote_click')?.asBoolean()) return;
 				// Use menu emote subject to inject emote when clicked
-				menuEmoteSubject.next(this);
+				chatDraftSubject.next(this);
 			});
 
 			const img = document.createElement('img');

@@ -101,7 +101,7 @@ export class EmoteMenu extends React.Component<EmoteMenu.Props, EmoteMenu.State>
 	}
 
 	onInsertEmote(emote: EmoteStore.Emote): void {
-		this.props.main.app?.menuPickEmote.next(emote);
+		this.props.main.app?.draftPlaceEmote.next(emote);
 	}
 
 	selectProvider(provider: DataStructure.Emote.Provider): void {

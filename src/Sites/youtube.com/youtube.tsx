@@ -36,7 +36,7 @@ export class YouTubePageScript {
 
 		this.handleNavigationChange(document.location.href);
 
-		this.site.menuPickEmote.pipe(
+		this.site.draftPlaceEmote.pipe(
 			map(emote => {
 				const input = this.youtube.getChatInput(this.youtube.getChatFrame() ?? undefined);
 				if (!input) {
