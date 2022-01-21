@@ -103,7 +103,7 @@ class Settings {
 				},
 				{
 					id: 'general.emote_click',
-					label: 'Click emote to use',
+					label: 'Click emote to draft',
 					hint: 'Click on any emote in chat to automatically input it in your chat draft',
 					type: 'checkbox',
 					defaultValue: false
