@@ -7,7 +7,7 @@ import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
-import humanizeDuration from 'humanize-duration';
+import { intervalToDuration, formatDuration } from 'date-fns';
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
 export class TwitchChatListener {
@@ -86,7 +86,7 @@ export class TwitchChatListener {
 			const modMsg = msg as unknown as Twitch.ChatMessage.ModerationMessage;
 
 			if (modMsg.moderationType === 1) { // Timeout
-				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${humanizeDuration(modMsg.duration * 1_000)}${!!modMsg.reason ? ` (${modMsg.reason})` : ''} by a moderator`);
+				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${formatDuration(intervalToDuration({start: 0, end: modMsg.duration * 1_000}))}${!!modMsg.reason ? ` (${modMsg.reason})` : ''} by a moderator`);
 			} else if (modMsg.moderationType === 0) { // Ban
 				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned by a moderator`);
 			} else if (modMsg.moderationType === 2) { // Message deleted
