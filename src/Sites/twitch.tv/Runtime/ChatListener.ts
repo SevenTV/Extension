@@ -86,7 +86,8 @@ export class TwitchChatListener {
 			const modMsg = msg as unknown as Twitch.ChatMessage.ModerationMessage;
 
 			if (modMsg.moderationType === 1) { // Timeout
-				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${formatDuration(intervalToDuration({start: 0, end: modMsg.duration * 1_000}))}${!!modMsg.reason ? ` (${modMsg.reason})` : ''} by a moderator`);
+				const humanizedInterval = formatDuration(intervalToDuration({start: 0, end: modMsg.duration * 1000}));
+				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${humanizedInterval}${!!modMsg.reason ? ` (${modMsg.reason})` : ''} by a moderator`);
 			} else if (modMsg.moderationType === 0) { // Ban
 				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned by a moderator`);
 			} else if (modMsg.moderationType === 2) { // Message deleted
