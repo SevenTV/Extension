@@ -7,7 +7,7 @@ import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
-import humanizeDuration from "humanize-duration";
+import humanizeDuration from 'humanize-duration';
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
 export class TwitchChatListener {
