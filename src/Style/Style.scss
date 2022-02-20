@@ -76,6 +76,11 @@ div[id="content"]
 	height: 1.95em !important;
 }
 
+// Move the YouTube Slowmode countdown back over the Send button
+.yt-live-chat-message-input-renderer#countdown {
+	left: -73px;
+}
+
 .seventv-message-context > :first-child {
 	margin-right: 0.25em;
 }
