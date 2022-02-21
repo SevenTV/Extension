@@ -192,6 +192,11 @@ export class TabCompleteDetection {
 		}, 0);
 	}
 
+	/**
+	 * Removes event listeners from the currentInput.
+	 * Finds and sets the new currentInput by querying the DOM.
+	 * Adds event listeners to the new currentInput.
+	 */
 	private updateInput():void{
 		if(this.currentInput){
 			this.removeInputEventInputListeners(this.currentInput);
@@ -203,6 +208,11 @@ export class TabCompleteDetection {
 		}
 	}
 
+	/**
+	 * Removes keyListener and finalizeListener from the given input.
+	 *
+	 * @param input the input to remove listeners from
+	 */
 	private removeInputEventInputListeners(input:HTMLInputElement):void{
 		if (typeof this.keyListener === 'function') {
 			input.removeEventListener('keydown', this.keyListener);
@@ -213,6 +223,11 @@ export class TabCompleteDetection {
 		}
 	}
 
+	/**
+	 * Adds keyListener and finalizeListener to the given input.
+	 *
+	 * @param input the input to add listeners to
+	 */
 	private addInputEventInputListeners(input:HTMLInputElement):void{
 		if(this.keyListener){
 			input.addEventListener('keydown', this.keyListener, {
