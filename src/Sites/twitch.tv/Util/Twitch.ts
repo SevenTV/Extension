@@ -164,6 +164,7 @@ export namespace Twitch {
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
 		export const ChatLine = '.chat-line__message';
 		export const ChatInput = '.chat-input__textarea';
+		export const ChatRoomContent = '.chat-room__content';
 		export const ChatInputButtonsContainer = 'div[data-test-selector="chat-input-buttons-container"]';
 		export const ChatMessageContainer = '.chat-line__message-container';
 		export const ChatUsernameContainer = '.chat-line__username-container';

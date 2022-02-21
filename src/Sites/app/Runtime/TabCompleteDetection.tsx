@@ -18,6 +18,7 @@ export class TabCompleteDetection {
 	private finalizeListener: ((this: HTMLInputElement, ev: Event) => any) | undefined;
 	private emotes = [] as EmoteStore.Emote[];
 	private chatters = [] as string[];
+	private currentInput?:HTMLInputElement;
 
 	constructor(public app: SiteApp) { }
 
@@ -63,11 +64,6 @@ export class TabCompleteDetection {
 	 */
 	start(): void {
 		Logger.Get().info('Handling tab completion');
-		const input = this.getInput();
-		if (!input) {
-			return undefined;
-		}
-
 		this.keyListener = (ev) => {
 			if (ev.key === 'Tab') {
 				// Option is enabled?
@@ -96,15 +92,16 @@ export class TabCompleteDetection {
 				this.handleTabPress(ev, tabValues);
 			}
 		};
-		input.addEventListener('keydown', this.keyListener, {
-			capture: true
-		});
-
 		this.finalizeListener = () => this.resetCursor();
-		input.addEventListener('change', this.finalizeListener, {
-			capture: false
-		});
+		let chatRoomContent = document.querySelector(Twitch.Selectors.ChatRoomContent);
 
+		if(chatRoomContent) {
+			const observer = new MutationObserver(() => {
+				this.updateInput();
+			});
+			observer.observe(chatRoomContent, {subtree: false, childList: true});
+		}
+		this.updateInput();
 	}
 
 	stop(): void {
@@ -193,6 +190,41 @@ export class TabCompleteDetection {
 		setTimeout(() => {
 			this.inputValue.next({ message: newMessage, cursorPosition: newCursorPosition });
 		}, 0);
+	}
+
+	private updateInput():void{
+		if(this.currentInput){
+			this.removeInputEventInputListeners(this.currentInput);
+		}
+		this.currentInput = this.getInput();
+
+		if (this.currentInput) {
+			this.addInputEventInputListeners(this.currentInput);
+		}
+	}
+
+	private removeInputEventInputListeners(input:HTMLInputElement):void{
+		if (typeof this.keyListener === 'function') {
+			input.removeEventListener('keydown', this.keyListener);
+		}
+
+		if (typeof this.finalizeListener === 'function') {
+			input.removeEventListener('change', this.finalizeListener);
+		}
+	}
+
+	private addInputEventInputListeners(input:HTMLInputElement):void{
+		if(this.keyListener){
+			input.addEventListener('keydown', this.keyListener, {
+				capture: true
+			});
+		}
+
+		if(this.finalizeListener){
+			input.addEventListener('change', this.finalizeListener, {
+				capture: false
+			});
+		}
 	}
 }
 
