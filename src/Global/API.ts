@@ -82,7 +82,7 @@ export class API {
 
 	GetFrankerFaceZGlobalEmotes(): Observable<DataStructure.Emote[]> {
 		return this.createRequest<API.FFZ.RoomResponse>(`/set/global`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
-			map(res => Object.keys(res?.body.sets).map(k => res?.body.sets[k].emoticons).reduce((a, b) => [...a, ...b])),
+			map(res => Object.values(res?.body.default_sets).map(k => res?.body.sets[k].emoticons).reduce((a, b) => [...a, ...b])),
 			mergeAll(),
 			map(emote => this.transformFFZ(emote, true)),
 			toArray()
