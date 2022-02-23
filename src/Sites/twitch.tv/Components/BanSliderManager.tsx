@@ -84,6 +84,7 @@ export class BanSliderManager {
 
 					const container = document.createElement('span');
 					container.classList.add('seventv-ban-slider');
+					line.element.style.position = 'relative';
 					line.element.insertBefore(container, line.element.firstChild);
 					const old_mount = line.component.componentWillUnmount;
 
