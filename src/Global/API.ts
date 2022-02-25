@@ -204,6 +204,7 @@ export namespace API {
 	export type EmoteProviderList = [EmoteProvider?, EmoteProvider?];
 	export namespace FFZ {
 		export interface RoomResponse {
+			default_sets: string[],
 			sets: {
 				[key: string]: {
 					emoticons: FFZ.Emote[];
