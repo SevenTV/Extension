@@ -1,9 +1,10 @@
-import {Observable, Subject, Subscription, timer} from 'rxjs';
+import { Subject } from 'rxjs';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
 import { SiteApp } from 'src/Sites/app/SiteApp';
-import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
-import {distinctUntilChanged, map} from 'rxjs/operators';
+import { Twitch} from 'src/Sites/twitch.tv/Util/Twitch';
+import ChatComponentProps = Twitch.ChatComponentProps;
+import ChatComponentState = Twitch.ChatComponentState;
 
 const MAX_CHATTERS = 250;
 export class TabCompleteDetection {
@@ -20,7 +21,7 @@ export class TabCompleteDetection {
 	private emotes = [] as EmoteStore.Emote[];
 	private chatters = [] as string[];
 	private currentInput?:HTMLInputElement;
-	private banStatusSubscribption?:Subscription;
+	private originalChatComponentDidUpdate?:(previousProps: ChatComponentProps, previousState:ChatComponentState, snapshot:any) => void;
 
 	constructor(public app: SiteApp) { }
 
@@ -95,9 +96,7 @@ export class TabCompleteDetection {
 			}
 		};
 		this.finalizeListener = () => this.resetCursor();
-		this.banStatusSubscribption = this.banStatusObservable().subscribe(() => {
-			this.updateInput();
-		});
+		this.startListeningForBanStatusChanges();
 		this.updateInput();
 	}
 
@@ -113,11 +112,7 @@ export class TabCompleteDetection {
 		}
 
 		this.emotes = [];
-
-		if(this.banStatusSubscribption){
-			this.banStatusSubscribption.unsubscribe();
-			this.banStatusSubscribption = undefined;
-		}
+		this.stopListeningForBanStatusChanges();
 	}
 
 	/**
@@ -245,19 +240,33 @@ export class TabCompleteDetection {
 	}
 
 	/**
-	 * Returns an observable that emits a boolean representing if the current user is banned.
-	 * This method only checks/emits ban state changes every second.
+	 * Listen for chat component updates to the current user's ban status, and update the input on ban status updates.
 	 */
-	private banStatusObservable():Observable<boolean>{
+	private startListeningForBanStatusChanges():void{
 		let chat = (window as any).twitch.getChat();
+		this.originalChatComponentDidUpdate = chat.componentDidUpdate;
+		chat.componentDidUpdate = (previousProps: ChatComponentProps, previousState:ChatComponentState, snapshot:any) => {
+			if(previousProps.currentUserBannedStatusData?.channel?.self?.banStatus != chat.props.currentUserBannedStatusData?.channel?.self?.banStatus){
+				setTimeout(() => this.updateInput(), 0);
 
-		return timer(0, 1000).pipe(
-			map(() => {
-				let banExpiresInMs = chat.props.currentUserBannedStatusData?.channel?.self?.banStatus?.expiresInMs;
-				return banExpiresInMs && banExpiresInMs > 0;
-			}),
-			distinctUntilChanged()
-		);
+				if (!!this.originalChatComponentDidUpdate && typeof this.originalChatComponentDidUpdate === 'function') {
+					try {
+						this.originalChatComponentDidUpdate.apply(chat, [previousProps, previousState, snapshot]);
+					} catch (err) {
+						console.error(err);
+					}
+				}
+			}
+		};
+	}
+
+	/**
+	 * Stop listening for chat component updates to the current user's ban status.
+	 */
+	private stopListeningForBanStatusChanges():void{
+		if(this.originalChatComponentDidUpdate){
+			(window as any).twitch.getChat().componentDidUpdate = this.originalChatComponentDidUpdate;
+		}
 	}
 }
 

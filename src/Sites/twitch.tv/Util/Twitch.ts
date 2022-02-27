@@ -322,19 +322,19 @@ export namespace Twitch {
 		onScroll: (e: Event) => void;
 	};
 
-	export type ChatComponent = React.PureComponent<{
+	export interface ChatComponentProps {
 		authToken: string;
 		bitsConfig: {
 			getImage: (n: any, i: any, a: any, r: any, s: any) => any;
 			indexedActions: { [key: string]: {
-				id: string;
-				prefix: string;
-				type: string;
-				campaign: string | null;
-				tiers: { id: string; bits: number; canShowInBitsCard: boolean; __typename: string; };
-				template: string;
-				__typename: string;
-			}}
+					id: string;
+					prefix: string;
+					type: string;
+					campaign: string | null;
+					tiers: { id: string; bits: number; canShowInBitsCard: boolean; __typename: string; };
+					template: string;
+					__typename: string;
+				}}
 		};
 		bitsEnabled: boolean;
 		channelDisplayName: string;
@@ -364,11 +364,15 @@ export namespace Twitch {
 					}
 				}
 			}
-		}
-	}, {
+		};
+	}
+
+	export interface ChatComponentState {
 		badgeSets: BadgeSets;
 		chatListElement: HTMLDivElement;
-	}>;
+	}
+
+	export type ChatComponent = React.PureComponent<ChatComponentProps, ChatComponentState>;
 
 	export type ChatInputComponent = React.Component<{
 		channelID: string;
