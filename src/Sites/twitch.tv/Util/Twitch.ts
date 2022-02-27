@@ -352,6 +352,19 @@ export namespace Twitch {
 		};
 		userBadges: { [key: string]: ('1' | '0') };
 		userID: string;
+		currentUserBannedStatusData?: {
+			channel?: {
+				id?: string;
+				self?: {
+					banStatus?: {
+						expiresAt?: string;
+						expiresInMs?: number;
+						isPermanent?: boolean;
+						reason?: string
+					}
+				}
+			}
+		}
 	}, {
 		badgeSets: BadgeSets;
 		chatListElement: HTMLDivElement;

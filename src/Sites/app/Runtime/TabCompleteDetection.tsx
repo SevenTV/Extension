@@ -1,8 +1,9 @@
-import { Subject } from 'rxjs';
+import {Observable, Subject, Subscription, timer} from 'rxjs';
 import { EmoteStore } from 'src/Global/EmoteStore';
 import { Logger } from 'src/Logger';
 import { SiteApp } from 'src/Sites/app/SiteApp';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
+import {distinctUntilChanged, map} from 'rxjs/operators';
 
 const MAX_CHATTERS = 250;
 export class TabCompleteDetection {
@@ -19,6 +20,7 @@ export class TabCompleteDetection {
 	private emotes = [] as EmoteStore.Emote[];
 	private chatters = [] as string[];
 	private currentInput?:HTMLInputElement;
+	private banStatusSubscribption?:Subscription;
 
 	constructor(public app: SiteApp) { }
 
@@ -93,14 +95,9 @@ export class TabCompleteDetection {
 			}
 		};
 		this.finalizeListener = () => this.resetCursor();
-		let chatRoomContent = document.querySelector(Twitch.Selectors.ChatRoomContent);
-
-		if(chatRoomContent) {
-			const observer = new MutationObserver(() => {
-				this.updateInput();
-			});
-			observer.observe(chatRoomContent, {subtree: false, childList: true});
-		}
+		this.banStatusSubscribption = this.banStatusObservable().subscribe(() => {
+			this.updateInput();
+		});
 		this.updateInput();
 	}
 
@@ -116,6 +113,11 @@ export class TabCompleteDetection {
 		}
 
 		this.emotes = [];
+
+		if(this.banStatusSubscribption){
+			this.banStatusSubscribption.unsubscribe();
+			this.banStatusSubscribption = undefined;
+		}
 	}
 
 	/**
@@ -240,6 +242,22 @@ export class TabCompleteDetection {
 				capture: false
 			});
 		}
+	}
+
+	/**
+	 * Returns an observable that emits a boolean representing if the current user is banned.
+	 * This method only checks/emits ban state changes every second.
+	 */
+	private banStatusObservable():Observable<boolean>{
+		let chat = (window as any).twitch.getChat();
+
+		return timer(0, 1000).pipe(
+			map(() => {
+				let banExpiresInMs = chat.props.currentUserBannedStatusData?.channel?.self?.banStatus?.expiresInMs;
+				return banExpiresInMs && banExpiresInMs > 0;
+			}),
+			distinctUntilChanged()
+		);
 	}
 }
 
