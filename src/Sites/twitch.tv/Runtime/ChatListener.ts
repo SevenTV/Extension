@@ -1,6 +1,6 @@
 import { Constants } from '@typings/src/Constants';
 import { DataStructure } from '@typings/typings/DataStructure';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { emoteStore } from 'src/Sites/app/SiteApp';
@@ -8,21 +8,18 @@ import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { intervalToDuration, formatDuration } from 'date-fns';
+import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
-export class TwitchChatListener {
-	/** Create a Twitch instance bound to this listener */
-	private twitch = this.page.twitch;
+export class TwitchChatListener extends BaseTwitchChatListener {
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
 	private pendingMessages = new Set<string>();
 
 	linesRendered = 0;
 
-	private killed = new Subject<void>();
-
-	constructor(private page: TwitchPageScript) {
-		(window as any).twitch = this.twitch;
+	constructor(page: TwitchPageScript) {
+		super(page);
 	}
 
 	start(): void {
@@ -264,10 +261,5 @@ export class TwitchChatListener {
 			emoteStore.sets.delete('twitch');
 		}
 		emoteStore.enableSet(`twitch`, emotes);
-	}
-
-	kill(): void {
-		this.killed.next(undefined);
-		this.killed.complete();
 	}
 }

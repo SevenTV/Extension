@@ -9,7 +9,7 @@ export class MessageRenderer {
 
 	constructor(
 		public app: SiteApp,
-		public msg: Twitch.ChatMessage,
+		public msg: Twitch.ChatMessage | Twitch.VideoChatComment,
 		public elementId: string
 	) {
 		this.element = document.getElementById(elementId);
@@ -55,7 +55,7 @@ export class MessageRenderer {
 		});
 
 		// Render user badges
-		const authorID = this.msg.user?.userID;
+		const authorID = (this.msg as Twitch.ChatMessage).user?.userID ?? (this.msg as Twitch.VideoChatComment)?.commenter;
 		if (typeof authorID === 'string') {
 			(() => {
 				const usernameContainer = container.querySelector(Twitch.Selectors.ChatUsernameContainer); // Chat Line - Username Container

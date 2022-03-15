@@ -11,12 +11,15 @@ export class MessageTree {
 
 	}
 
-	get msg(): Twitch.ChatMessage {
+	get msg(): Twitch.ChatMessage | Twitch.VideoChatComment {
 		return this.renderer.msg;
 	}
 
 	getMessageColor(): string {
-		return this.msg.seventv.is_slash_me ? this.msg.user.color : '';
+		return this.msg.seventv.is_slash_me
+			? (this.msg as Twitch.ChatMessage)?.user.color
+				?? (this.msg as Twitch.VideoChatComment)?.message.userColor
+			: '';
 	}
 
 	getParts(): Part[] {
@@ -97,7 +100,7 @@ export class MessageTree {
 		if (part.content === ' ') {
 			span.classList.add('seventv-text-empty');
 		}
-		const color = this.msg.seventv.is_slash_me ? this.msg.user.color : '';
+		const color = this.getMessageColor();
 		if (part.content?.toLowerCase().includes(this.msg.seventv?.currentUserLogin)) {
 			this.renderer.element?.classList.add('seventv-message-mentioned');
 		}

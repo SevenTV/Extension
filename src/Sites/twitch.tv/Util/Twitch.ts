@@ -68,6 +68,27 @@ export class Twitch {
 		return node?.stateNode;
 	}
 
+	/**
+	 * Gets the channel's id and display name for a video.
+	 * Note: VOD and clips do not have the channel name in
+	 * the URL nor do they contain a chat controller with the info.
+	 */
+	getVideoChannel(): Twitch.VideoChannelComponent {
+		const node = this.findReactParents(
+			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.VideoChatContainer)[0]),
+			n => n.stateNode?.props.channelID && n.stateNode?.props.displayName,
+			100
+		);
+
+		// Kinda hacky? However, display names are merely
+		// case variations of the pure lowercase channel logins.
+		if (node?.stateNode?.props) {
+			node.stateNode.props.channelLogin = node.stateNode.props.displayName.toLowerCase();
+		}
+
+		return node?.stateNode;
+	}
+
 	getChatScroller(): Twitch.ChatScrollerComponent {
 		const node = this.findReactParents(
 			this.getReactInstance(document.querySelector('.scrollable-area')),
@@ -82,6 +103,19 @@ export class Twitch {
 		const node = this.findReactParents(
 			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ChatContainer)[0]),
 			n => n.stateNode?.props.onSendMessage
+		);
+
+		return node?.stateNode;
+	}
+
+	/**
+	 * Gets info for the VOD or clip, including the video id, playback location, and current messages/comments.
+	 */
+	getVideoChat(): Twitch.VideoChatComponent {
+		const node = this.findReactParents(
+			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.VideoChatContainer)[0]),
+			n => n.stateNode?.props.comments && n.stateNode?.props.onCreate,
+			5
 		);
 
 		return node?.stateNode;
@@ -144,6 +178,33 @@ export class Twitch {
 		return lines as Twitch.ChatLineAndComponent[];
 	}
 
+	getVideoChatMessage(element: HTMLElement): Twitch.GetChatLineResult {
+		const inst = this.getReactInstance(element);
+
+		return {
+			component: inst?.child?.stateNode,
+			instance: inst as Twitch.TwitchPureComponent
+		}
+	}
+
+	/**
+	 * Get VOD and clip messages as their elements and react components.
+	 */
+	getVideoMessages(): Twitch.VideoMessageAndComponent[] {
+		const messages = Array.from(document.querySelectorAll<HTMLElement>(Twitch.Selectors.VideoChatMessage))
+			.map(element => {
+				const message = this.getVideoChatMessage(element);
+
+				return {
+					element,
+					component: message.component,
+					inst: message.instance
+				}
+			});
+
+		return messages as Twitch.VideoMessageAndComponent[];
+	}
+
 	getEmoteCardOpener(): Twitch.EmoteCardOpener {
 		const inst = document.querySelector(Twitch.Selectors.ChatContainer);
 
@@ -161,8 +222,10 @@ export namespace Twitch {
 		export const ROOT = '#root div';
 		export const NAV = '[data-a-target="top-nav-container"]';
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
+		export const VideoChatContainer = 'div.video-chat.va-vod-chat';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
 		export const ChatLine = '.chat-line__message';
+		export const VideoChatMessage = '.vod-message > div:not(.vod-message__header)';
 		export const ChatInput = '.chat-input__textarea';
 		export const ChatInputButtonsContainer = 'div[data-test-selector="chat-input-buttons-container"]';
 		export const ChatMessageContainer = '.chat-line__message-container';
@@ -242,6 +305,19 @@ export namespace Twitch {
 		useHighContrastColors: boolean;
 	}>;
 
+	export interface VideoMessageAndComponent {
+		element: HTMLDivElement;
+		inst: TwitchPureComponent;
+		component: VideoMessageComponent;
+	}
+	export type VideoMessageComponent = React.PureComponent<{
+		badgeSets: BadgeSets;
+		context: VideoChatCommentContext;
+		currentUser: { id: string }
+		isCurrentUserModerator: boolean;
+		isExpandedLayout: boolean;
+	}>;
+
 	export type RouterComponent = React.PureComponent<{
 		isExact: boolean;
 		params: {
@@ -317,24 +393,19 @@ export namespace Twitch {
 		sendMessage: (msg: string, n: any) => void;
 	};
 
+	export type VideoChannelComponent = React.PureComponent<{
+		channelID: string;
+		displayName: string;
+		channelLogin: string;
+	}>;
+
 	export type ChatScrollerComponent = React.PureComponent<{}> & {
 		onScroll: (e: Event) => void;
 	};
 
 	export type ChatComponent = React.PureComponent<{
 		authToken: string;
-		bitsConfig: {
-			getImage: (n: any, i: any, a: any, r: any, s: any) => any;
-			indexedActions: { [key: string]: {
-				id: string;
-				prefix: string;
-				type: string;
-				campaign: string | null;
-				tiers: { id: string; bits: number; canShowInBitsCard: boolean; __typename: string; };
-				template: string;
-				__typename: string;
-			}}
-		};
+		bitsConfig: BitsConfig;
 		bitsEnabled: boolean;
 		channelDisplayName: string;
 		channelID: string;
@@ -354,6 +425,19 @@ export namespace Twitch {
 	}, {
 		badgeSets: BadgeSets;
 		chatListElement: HTMLDivElement;
+	}>;
+
+	export type VideoChatComponent = React.PureComponent<{
+		bitsConfig: BitsConfig;
+		blockedUsers: {
+			[key: string]: boolean
+		};
+		comments: VideoChatCommentContext[];
+		currentVideoTime: number;
+		onBanUser: (n: any) => void;
+		onCreate: (n: any) => void;
+		onDeleteComment: (n: any) => void;
+		videoID: string;
 	}>;
 
 	export type ChatInputComponent = React.Component<{
@@ -422,6 +506,19 @@ export namespace Twitch {
 		'Dark'
 	}
 
+	export interface BitsConfig {
+		getImage: (n: any, i: any, a: any, r: any, s: any) => any;
+		indexedActions: { [key: string]: {
+			id: string;
+			prefix: string;
+			type: string;
+			campaign: string | null;
+			tiers: { id: string; bits: number; canShowInBitsCard: boolean; __typename: string; };
+			template: string;
+			__typename: string;
+		}}
+	};
+
 	export interface EmoteCardOpener {
 		onShowEmoteCard: (v: any) => void;
 	}
@@ -475,6 +572,57 @@ export namespace Twitch {
 		__typename: string;
 	}
 
+	export interface SevenTV {
+		patcher: MessagePatcher | null;
+		words: string[];
+		parts: ChatMessage.AppPart[];
+		badges?: ChatBadge[];
+		is_slash_me?: boolean;
+		currenUserID?: string;
+		currentUserLogin?: string;
+	}
+
+	export interface VideoChatComment {
+		channelId: string;
+		commenter: string;
+		contentId: string;
+		contentOffset: number;
+		contentType: string;
+		createdAt: Date;
+		id: string;
+		message: {
+			id: string;
+			isAction: boolean;
+			tokens: ChatMessage.Part[];
+			userColor: string;
+			userNoticeParams: {};
+		};
+		seventv: SevenTV;
+		moreReplies: boolean;
+		parentId: string;
+		source: string;
+		state: string;
+		userBadges: {
+			[key: string]: string
+		};
+	}
+
+	export interface VideoChatCommentContext {
+		author: {
+			bio: string;
+			createdAt: Date;
+			displayName: string;
+			id: string;
+			logo: URL;
+			name: string;
+			type: string;
+			updatedAt: Date;
+		};
+		comment: VideoChatComment;
+		lastUpdated: Date;
+		replies: [];
+	}
+
 	export interface ChatMessage {
 		badgesDynamicData: {};
 		badges: { [key: string]: ('1' | '0') };
@@ -484,15 +632,7 @@ export namespace Twitch {
 		hidden: boolean;
 		id: string;
 		isHistorical: unknown;
-		seventv: {
-			patcher: MessagePatcher | null;
-			words: string[];
-			parts: ChatMessage.AppPart[];
-			badges?: ChatBadge[];
-			is_slash_me?: boolean;
-			currenUserID?: string;
-			currentUserLogin?: string;
-		};
+		seventv: SevenTV;
 		message: string;
 		messageBody: string;
 		messageParts: ChatMessage.Part[];

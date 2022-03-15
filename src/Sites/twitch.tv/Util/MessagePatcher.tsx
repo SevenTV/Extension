@@ -5,7 +5,7 @@ import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 export class MessagePatcher {
 	constructor(
 		private page: TwitchPageScript,
-		private msg: Twitch.ChatMessage
+		private msg: Twitch.ChatMessage | Twitch.VideoChatComment
 	) { }
 
 	/**
@@ -16,8 +16,11 @@ export class MessagePatcher {
 		// Daily Quest: find 7TV emotes ZULUL
 		const eIndex = this.page.getEmoteIndex();
 
+		const messageParts = (this.msg as Twitch.ChatMessage)?.messageParts
+			?? (this.msg as Twitch.VideoChatComment)?.message.tokens;
+
 		// Find all emotes across the message parts
-		for (const part of this.msg.messageParts) {
+		for (const part of messageParts) {
 			// Handle link / mention
 			if (part.type === 4) { // Is mention
 				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });

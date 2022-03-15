@@ -11,6 +11,7 @@ import { SiteApp } from 'src/Sites/app/SiteApp';
 import { map } from 'rxjs/operators';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import type { EventAPI } from 'src/Global/Events/EventAPI';
+import { TwitchVideoChatListener } from 'src/Sites/twitch.tv/Runtime/VideoChatListener';
 
 export class TwitchPageScript {
 	site = new SiteApp();
@@ -18,13 +19,15 @@ export class TwitchPageScript {
 	inputManager = inputManager = new InputManager(this);
 	avatarManager = new AvatarManager(this);
 	banSliderManager = new BanSliderManager(this);
+	videoChatListener = new TwitchVideoChatListener(this);
 
 	currentChannel = '';
+	currentVideo = '';
 	currentChannelSet: EmoteStore.EmoteSet | null = null;
 	isActorModerator = false;
 	isActorVIP = false;
 
-	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:(u|popout|moderator)\/)?([a-zA-Z0-9_]{3,25})/;
+	channelRegex = /(https:\/\/[a-z]*.twitch.tv\/)(?:videos\/(?<videoid>[0-9]{3,100})|(?:(u|popout|moderator)\/)?(?<channelname>[a-zA-Z0-9_]{3,25}))/;
 	emoteRegex = /$^/;
 
 	get ffzMode(): boolean {
@@ -60,7 +63,8 @@ export class TwitchPageScript {
 	 * the user is currently watching.
 	 */
 	private handleChannelSwitch(): void {
-		if (!this.channelRegex.test(window.location.href)) {
+		const match = this.channelRegex.exec(window.location.href);
+		if (!match) {
 			setTimeout(() => this.handleChannelSwitch(), 1000);
 			return undefined;
 		}
@@ -70,26 +74,51 @@ export class TwitchPageScript {
 			this.site.switchChannel({ channelID: id, channelName: login, as })
 				.toPromise()
 				.finally(() => {
-					this.eIndex = null;
-					this.avatarManager.check();
-					this.isActorModerator = controller.props.isCurrentUserModerator;
-					this.banSliderManager.initialize();
-					this.chatListener.listen();
 
-					this.site.tabCompleteDetector.updateEmotes();
-					this.site.tabCompleteDetector.start();
-					this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
-					inputManager.listen();
-					this.isActorVIP = controller.props.isCurrentUserVIP;
+					// Load live chat related items.
+					if ((channelInfo as Twitch.ChatControllerComponent)?.props.chatConnectionAPI) {
+						const controller = channelInfo as Twitch.ChatControllerComponent;
+
+						this.eIndex = null;
+						this.avatarManager.check();
+						this.isActorModerator = controller.props.isCurrentUserModerator ?? false;
+						this.banSliderManager.initialize();
+						this.chatListener.listen();
+	
+						this.site.tabCompleteDetector.updateEmotes();
+						this.site.tabCompleteDetector.start();
+						this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
+						inputManager.listen();
+						this.isActorVIP = controller.props.isCurrentUserVIP ?? false;
+						this.insertEmotesIntoAutocomplete();
+					}
+
+					// Load VOD and clip items.
+					else {
+
+					}
+
 					this.site.sendMessageUp('EventAPI:AddChannel', login);
-					this.insertEmotesIntoAutocomplete();
 				});
 		};
 
 		// Get chat service
-		let controller = this.twitch.getChatController();
-		let channelName = controller?.props.channelLogin; // Set current channel
-		let channelID = controller?.props.channelID;
+		let channelName, channelID;
+		let channelInfo: Twitch.ChatControllerComponent | Twitch.VideoChannelComponent | undefined;
+
+		if (match.groups?.['channelname']) {
+			channelInfo = this.twitch.getChatController();
+		}
+
+		// Determine channel for VODs and clips
+		else if (match.groups?.['videoid']) {
+			channelInfo = this.twitch.getVideoChannel();
+			this.currentVideo = match.groups['videoid'];
+		}
+
+		channelName = channelInfo?.props.channelLogin; // Set current channel
+		channelID = channelInfo?.props.channelID;
+
 		if (!channelName || !channelID) {
 			setTimeout(() => this.handleChannelSwitch(), 1000);
 			return undefined;
@@ -97,32 +126,58 @@ export class TwitchPageScript {
 
 		// Begin listening for joined events, meaning the end user has switched to another channel
 		setInterval(async () => {
-			let channelName = this.getCurrentChannelFromURL();
-			if (channelName !== this.currentChannel) {
+			let [ urlChannelName, urlVideoID ] = this.getCurrentIdsFromURL();
+			let channelInfo: Twitch.ChatControllerComponent | Twitch.VideoChannelComponent | undefined;
+
+			if (urlChannelName !== this.currentChannel) {
+				this.currentVideo = '';
+				channelInfo = await this.awaitChannelInfo();
+			}
+
+			else if (urlVideoID !== this.currentVideo) {
+				this.currentVideo = urlVideoID;
+				channelInfo = await this.awaitChannelInfo(true);
+			}
+
+			if (channelInfo) {
+				channelName = channelInfo.props.channelLogin;
+				channelID = channelInfo.props.channelID;
+
 				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${channelName}`);
-				this.currentChannel = channelName;
-				controller = await this.awaitChatController();
+				this.currentChannel = urlChannelName;
 
 				// Unsubscribe from events in previous channel
 				this.site.sendMessageUp('EventAPI:RemoveChannel', {});
 
 				this.currentChannelSet = null;
-				channelName = controller.props.channelLogin;
-				channelID = controller.props.channelID;
 
 				if (channelName && channelID) {
-					switched(channelID, channelName, controller.props.userID ?? '');
+					switched(
+						channelID,
+						channelName,
+						(channelInfo as Twitch.ChatControllerComponent)?.props?.userID ?? ''
+					);
 				}
 			}
 		}, 500);
 
-		this.chatListener.start();
+		// Load the appropriate chat listener depending on what kind of
+		// chat is available: live, VOD, or clip.
+		(
+			!this.currentVideo
+			? this.chatListener
+			: this.videoChatListener
+		).start();
 	}
 
-	async awaitChatController(): Promise<Twitch.ChatControllerComponent> {
+	async awaitChannelInfo(
+		isVideo?: boolean
+	): Promise<Twitch.ChatControllerComponent | Twitch.VideoChannelComponent> {
 		return new Promise(resolve => {
 			const i = setInterval(() => {
-				const c = this.twitch.getChatController();
+				const c = isVideo
+					? this.twitch.getVideoChannel()
+					: this.twitch.getChatController();
 				if (c && (c.props?.channelID && c.props?.channelLogin)) {
 					clearInterval(i);
 					resolve(c);
@@ -172,8 +227,12 @@ export class TwitchPageScript {
 		});
 	}
 
-	getCurrentChannelFromURL(): string {
-		return window.location.href.match(this.channelRegex)?.[3] ?? '';
+	getCurrentIdsFromURL(): string[] {
+		const match = window.location.href.match(this.channelRegex);
+		return [
+			match?.groups?.['channelname'] ?? '',
+			match?.groups?.['videoid'] ?? ''
+		];
 	}
 
 	@PageScriptListener('InsertEmoteInChatInput')
