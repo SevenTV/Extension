@@ -84,10 +84,11 @@ export class MessagePatcher {
 	 */
 	render(line: Twitch.ChatLineAndComponent | Twitch.VideoMessageAndComponent): void {
 		// Hide twitch fragments
-		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, [data-test-selector=emote-button]'));
+		// Note: Some VOD fragments, like Twitch emotes, contain an additional layout that also needs to be hidden. Hence: div[class^=InjectLayout-sc-]
+		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, [data-test-selector=emote-button], div[class^=InjectLayout-sc-]'));
 		for (const oldFrag of oldFragments) {
 			oldFrag.setAttribute('superceded', '');
-			oldFrag.style.display = 'none';
+			oldFrag.style.setProperty('display', 'none', 'important');	// VOD fragments with additional layout contain 'display: inline !important'. This needs to be overrode.
 		}
 
 		const message = (this.msg as Twitch.ChatMessage)

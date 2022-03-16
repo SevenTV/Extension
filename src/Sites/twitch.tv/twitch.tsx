@@ -163,7 +163,7 @@ export class TwitchPageScript {
 		// Load the appropriate chat listener depending on what kind of
 		// chat is available: live or VOD/clip.
 		(
-			!(channelInfo as Twitch.VideoChannelComponent)
+			(channelInfo as Twitch.ChatControllerComponent)?.props.chatConnectionAPI
 			? this.chatListener
 			: this.videoChatListener
 		).start();
