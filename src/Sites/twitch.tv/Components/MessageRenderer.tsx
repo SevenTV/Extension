@@ -29,7 +29,7 @@ export class MessageRenderer {
 			c.remove();
 		});
 
-		const container = el.querySelector('.chat-line__no-background') ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
+		const container = el.querySelector('.chat-line__no-background, .video-chat__message') ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-message-context');
 		newContext.style.position = 'relative';

@@ -113,7 +113,6 @@ export class TwitchPageScript {
 		// Determine channel for VODs and clips
 		else if (match.groups?.['videoid']) {
 			channelInfo = this.twitch.getVideoChannel();
-			this.currentVideo = match.groups['videoid'];
 		}
 
 		channelName = channelInfo?.props.channelLogin; // Set current channel
@@ -162,9 +161,9 @@ export class TwitchPageScript {
 		}, 500);
 
 		// Load the appropriate chat listener depending on what kind of
-		// chat is available: live, VOD, or clip.
+		// chat is available: live or VOD/clip.
 		(
-			!this.currentVideo
+			!(channelInfo as Twitch.VideoChannelComponent)
 			? this.chatListener
 			: this.videoChatListener
 		).start();

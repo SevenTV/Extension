@@ -1,6 +1,8 @@
+import { Observable } from 'rxjs';
 import { Logger } from 'src/Logger';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
+import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 
@@ -24,7 +26,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
     }
 
     listen(): void {
-
+        Logger.Get().info('Listen for chat messages');
     }
 
     private renderAll(messages: Twitch.VideoMessageAndComponent[]): void {
@@ -33,6 +35,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
                 continue;
             }
 
+            this.onMessage(message.component.props.context, message);
             this.renderPaintOnNametag(message);
         }
     }
@@ -46,8 +49,6 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
 
         const user = props.context.author;
         const userID = parseInt(user.id);
-
-        console.log(props.context.comment.message.userColor)
 
         // Add custom paint.
         const paintMap = this.page.site.paintMap;
@@ -68,5 +69,58 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
                 username.style.color = userColor;
             }
         }
+    }
+
+    private onMessage(message: Twitch.VideoChatCommentContext, renderAs: Twitch.VideoMessageAndComponent | null = null): void {
+
+        const patcher = new MessagePatcher(this.page, message.comment);
+        message.comment.seventv = {
+            patcher,
+            parts: [],
+            badges: [],
+            words: []
+        }
+
+        patcher.tokenize();
+
+        if (renderAs) {
+            patcher.render(renderAs);
+        }
+    }
+
+    /**
+     * Watch for new chat comments.
+     */
+    observeDOM(): Observable<Twitch.VideoMessageAndComponent> {
+        return new Observable<Twitch.VideoMessageAndComponent>(subscriber => {
+            Logger.Get().info('Creating MutationObserver');
+
+            const mutationObserver = new MutationObserver(mutations => {
+                for (const mutation of mutations) {
+                    for (const node of mutation.addedNodes) {
+                        const component = this.twitch.getVideoChatMessage(node as HTMLElement);
+
+                        subscriber.next({
+                            element: node as HTMLDivElement,
+                            component: component.component as Twitch.VideoMessageComponent,
+                            inst: component.instance
+                        })
+                    }
+                }
+            });
+
+            // Ensure the video chat is available.
+            const list = document.querySelectorAll(`${Twitch.Selectors.VideoChatContainer} div.video-chat__message-list-wrapper > div > ul`)?.[0];
+            if (!list) {
+                throw new Error('Could not find chat container');
+            }
+
+            mutationObserver.observe(
+                list,
+                {
+                    childList: true
+                }
+            )
+        });
     }
 }

@@ -82,7 +82,7 @@ export class MessagePatcher {
 	/**
 	 * Render the message with 7TV emotes
 	 */
-	render(line: Twitch.ChatLineAndComponent): void {
+	render(line: Twitch.ChatLineAndComponent | Twitch.VideoMessageAndComponent): void {
 		// Hide twitch fragments
 		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, [data-test-selector=emote-button]'));
 		for (const oldFrag of oldFragments) {
@@ -90,13 +90,16 @@ export class MessagePatcher {
 			oldFrag.style.display = 'none';
 		}
 
+		const message = (this.msg as Twitch.ChatMessage)
+			?? (this.msg as Twitch.VideoChatComment);
+
 		// Render 7TV third party stuff (and idk...)
 		// Send message data back to the content script
-		line.element.id = `7TV#msg:${this.msg.id}`; // Give an ID to the message element
-		line.element.setAttribute('seventv-id', this.msg.id);
+		line.element.id = `7TV#msg:${message.id}`; // Give an ID to the message element
+		line.element.setAttribute('seventv-id', message.id);
 		this.msg.seventv.patcher = null;
 
-		const renderer = new MessageRenderer(this.page.site, this.msg, line.element.id);
+		const renderer = new MessageRenderer(this.page.site, message, line.element.id);
 
 		renderer.renderMessageTree();
 		renderer.insert();

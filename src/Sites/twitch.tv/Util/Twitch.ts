@@ -182,7 +182,7 @@ export class Twitch {
 		const inst = this.getReactInstance(element);
 
 		return {
-			component: inst?.child?.stateNode,
+			component: inst?.return?.return?.stateNode,
 			instance: inst as Twitch.TwitchPureComponent
 		}
 	}
@@ -225,7 +225,7 @@ export namespace Twitch {
 		export const VideoChatContainer = 'div.video-chat.va-vod-chat';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
 		export const ChatLine = '.chat-line__message';
-		export const VideoChatMessage = '.vod-message > div:not(.vod-message__header)';
+		export const VideoChatMessage = '.vod-message > div:not(.vod-message__header) > div';
 		export const ChatInput = '.chat-input__textarea';
 		export const ChatInputButtonsContainer = 'div[data-test-selector="chat-input-buttons-container"]';
 		export const ChatMessageContainer = '.chat-line__message-container';
