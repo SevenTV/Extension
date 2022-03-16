@@ -25,11 +25,17 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
     }
 
     listen(): void {
+
+        // Let FFZ handle things if it's available.
+        if (this.page.ffzMode) {
+            return;
+        }
+        
         Logger.Get().info('Listen for chat messages');
 
         this.observeDOM().pipe(
             takeUntil(this.killed),
-            filter(message => !!message.component),  // TODO: Account for resub messages that have no component state.
+            filter(message => !!message.component),  // Ignore messages with no component states, like subs/resubs.
             tap(message => {
                 this.renderPaintOnNametag(message);
                 this.onMessage(message);
