@@ -1,12 +1,11 @@
 import { Observable } from 'rxjs';
+import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
-
-let currentHandler: (comment: Twitch.VideoChatComment) => void;
 
 export class TwitchVideoChatListener extends BaseTwitchChatListener {
 
@@ -21,12 +20,21 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
         if (!this.page.ffzMode) {
 
             Logger.Get().debug('Twitch video chat rerender detected, rendering 7TV emotes');
-            setTimeout(() => listener.renderAll(listener.twitch.getVideoMessages()), 1000);
+            setTimeout(() => listener.renderAll(listener.twitch.getVideoMessages()), 10000);
         }
     }
 
     listen(): void {
         Logger.Get().info('Listen for chat messages');
+
+        this.observeDOM().pipe(
+            takeUntil(this.killed),
+            filter(message => !!message.component),  // TODO: Account for resub messages that have no component state.
+            tap(message => {
+                this.renderPaintOnNametag(message);
+                this.onMessage(message);
+            })
+        ).subscribe();
     }
 
     private renderAll(messages: Twitch.VideoMessageAndComponent[]): void {
@@ -35,7 +43,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
                 continue;
             }
 
-            this.onMessage(message.component.props.context, message);
+            this.onMessage(message);
             this.renderPaintOnNametag(message);
         }
     }
@@ -71,21 +79,25 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
         }
     }
 
-    private onMessage(message: Twitch.VideoChatCommentContext, renderAs: Twitch.VideoMessageAndComponent | null = null): void {
+    private onMessage(message: Twitch.VideoMessageAndComponent): void {
+        const context = message.component.props.context;
+        if (!context) {
+            return;
+        }
 
-        const patcher = new MessagePatcher(this.page, message.comment);
-        message.comment.seventv = {
+        const author = context.author;
+        const patcher = new MessagePatcher(this.page, context.comment);
+        context.comment.seventv = {
             patcher,
             parts: [],
             badges: [],
-            words: []
+            words: [],
+            currenUserID: author.id,
+            currentUserLogin: author.name
         }
 
         patcher.tokenize();
-
-        if (renderAs) {
-            patcher.render(renderAs);
-        }
+        patcher.render(message);
     }
 
     /**
@@ -98,7 +110,12 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
             const mutationObserver = new MutationObserver(mutations => {
                 for (const mutation of mutations) {
                     for (const node of mutation.addedNodes) {
-                        const component = this.twitch.getVideoChatMessage(node as HTMLElement);
+                        const message = (node as HTMLElement).querySelectorAll<HTMLElement>(Twitch.Selectors.VideoChatMessage)[0];
+                        if (!message) {
+                            continue;
+                        }
+
+                        const component = this.twitch.getVideoChatMessage(message);
 
                         subscriber.next({
                             element: node as HTMLDivElement,
@@ -109,7 +126,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
                 }
             });
 
-            // Ensure the video chat is available.
+            // Ensure the video chat is available and watch for additions.
             const list = document.querySelectorAll(`${Twitch.Selectors.VideoChatContainer} div.video-chat__message-list-wrapper > div > ul`)?.[0];
             if (!list) {
                 throw new Error('Could not find chat container');

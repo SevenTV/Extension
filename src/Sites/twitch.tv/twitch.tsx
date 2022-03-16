@@ -95,7 +95,7 @@ export class TwitchPageScript {
 
 					// Load VOD and clip items.
 					else {
-
+						this.videoChatListener.listen();
 					}
 
 					this.site.sendMessageUp('EventAPI:AddChannel', login);
