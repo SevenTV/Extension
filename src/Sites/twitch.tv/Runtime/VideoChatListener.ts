@@ -7,6 +7,12 @@ import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 
+/**
+ * Chat listener specifically for handling VODs, clips, and other videos.
+ * Unfortunately, Twitch's React components and DOM for video chats
+ * are too different from the ones used for live stream chats,
+ * therefore requiring this listener.
+ */
 export class TwitchVideoChatListener extends BaseTwitchChatListener {
 
     constructor(page: TwitchPageScript) {
@@ -20,7 +26,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
         if (!this.page.ffzMode) {
 
             Logger.Get().debug('Twitch video chat rerender detected, rendering 7TV emotes');
-            setTimeout(() => listener.renderAll(listener.twitch.getVideoMessages()), 10000);
+            this.renderAll(listener.twitch.getVideoMessages());
         }
     }
 
@@ -31,7 +37,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
             return;
         }
         
-        Logger.Get().info('Listen for chat messages');
+        Logger.Get().info('Listen for new video chat messages.');
 
         this.observeDOM().pipe(
             takeUntil(this.killed),
@@ -106,44 +112,93 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
         patcher.render(message);
     }
 
+    sendSystemMessage(_: string): void {
+        
+    }
+
     /**
      * Watch for new chat comments.
      */
     observeDOM(): Observable<Twitch.VideoMessageAndComponent> {
+
+        const getVideoChatList = () => document.querySelectorAll(`${Twitch.Selectors.VideoChatContainer} div.video-chat__message-list-wrapper > div > ul`)?.[0];
+
         return new Observable<Twitch.VideoMessageAndComponent>(subscriber => {
-            Logger.Get().info('Creating MutationObserver');
+            Logger.Get().info('Creating MutationObserver for video chat list.');
 
-            const mutationObserver = new MutationObserver(mutations => {
-                for (const mutation of mutations) {
-                    for (const node of mutation.addedNodes) {
-                        const message = (node as HTMLElement).querySelectorAll<HTMLElement>(Twitch.Selectors.VideoChatMessage)[0];
-                        if (!message) {
-                            continue;
+            let chatList: Element;
+
+            // Create method for setting up a chat list item add observable.
+            const setupChatListObservable = () => {
+
+                // Start looking for new chat items to be added.
+                const chatListObserver = new MutationObserver(mutations => {
+                    for (const mutation of mutations) {
+                        for (const node of mutation.addedNodes) {
+                            const message = (node as HTMLElement).querySelectorAll<HTMLElement>(Twitch.Selectors.VideoChatMessage)[0];
+                            if (!message) {
+                                continue;
+                            }
+
+                            const component = this.twitch.getVideoChatMessage(message);
+
+                            subscriber.next({
+                                element: node as HTMLDivElement,
+                                component: component.component as Twitch.VideoMessageComponent,
+                                inst: component.instance
+                            })
                         }
-
-                        const component = this.twitch.getVideoChatMessage(message);
-
-                        subscriber.next({
-                            element: node as HTMLDivElement,
-                            component: component.component as Twitch.VideoMessageComponent,
-                            inst: component.instance
-                        })
                     }
-                }
-            });
+                });
 
-            // Ensure the video chat is available and watch for additions.
-            const list = document.querySelectorAll(`${Twitch.Selectors.VideoChatContainer} div.video-chat__message-list-wrapper > div > ul`)?.[0];
-            if (!list) {
-                throw new Error('Could not find chat container');
+                chatListObserver.observe(
+                    chatList,
+                    {
+                        childList: true
+                    }
+                );
             }
 
-            mutationObserver.observe(
-                list,
-                {
-                    childList: true
-                }
-            )
+            // Check if the chat list exists in the DOM yet.
+            chatList = getVideoChatList();
+
+            // Already does? Setup the observable.
+            if (chatList) {
+                setupChatListObservable();
+            }
+
+            // Otherwise, until video chat container is lazy loaded to the DOM.
+            else {
+                const domObserver = new MutationObserver(mutations => {
+                    for (const mutation of mutations) {
+                        for (const node of mutation.addedNodes) {
+
+                            // Check if the node added is the video chat container.
+                            if (
+                                node.nodeName === 'UL' &&
+                                getVideoChatList()
+                            ) {
+
+                                // Stop watching for the chat list to be added.
+                                domObserver.disconnect();
+
+                                // Now start watching for new items.
+                                chatList = node as Element;
+                                setupChatListObservable();
+                            }
+                        }
+                    }
+                });
+
+                domObserver.observe(
+                    document.body,
+                    {
+                        childList: true,
+                        subtree: true,
+                        attributes: false
+                    }
+                );
+            }
         });
     }
 }

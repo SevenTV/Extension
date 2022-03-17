@@ -14,6 +14,7 @@ export abstract class BaseTwitchChatListener {
 
 	abstract start(): void;
 	abstract listen(): void;
+	abstract sendSystemMessage(message: string): void;
 
 	kill(): void {
 		this.killed.next(undefined);

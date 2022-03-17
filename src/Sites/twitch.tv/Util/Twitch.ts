@@ -40,9 +40,9 @@ export class Twitch {
 
 	getRouter(): Twitch.RouterComponent {
 		const node = this.findReactChildren(
-			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ROOT)[0]),
-			n => n.stateNode?.props?.match?.isExact === true,
-			1000
+			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.MainLayout)[0]),
+			n => n.stateNode?.props?.history?.listen,
+			100
 		);
 
 		return node?.stateNode;
@@ -221,6 +221,7 @@ export namespace Twitch {
 	export namespace Selectors {
 		export const ROOT = '#root div';
 		export const NAV = '[data-a-target="top-nav-container"]';
+		export const MainLayout = 'main.twilight-main';
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
 		export const VideoChatContainer = 'div.video-chat.va-vod-chat';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
@@ -319,12 +320,28 @@ export namespace Twitch {
 	}>;
 
 	export type RouterComponent = React.PureComponent<{
-		isExact: boolean;
-		params: {
-			channel: string;
-		};
-		path: string;
-		url: string;
+
+		// React history object used for navigating.
+		history: {
+			action: string;
+			goBack: () => void;
+			goForward: () => void;
+			listen: (
+				handler: (
+					location: Location,
+					action: string
+				) => void
+			) => void;
+			location: Location;
+		}
+		location: Location;
+		isLoggedIn: boolean;
+		match: {
+			isExact: boolean;
+			params: { [key: string]: string }
+			path: string;
+			url: string;
+		}
 	}>;
 
 	export type ChatServiceComponent = React.PureComponent<{
@@ -504,6 +521,15 @@ export namespace Twitch {
 	export enum Theme {
 		'Light',
 		'Dark'
+	}
+
+	// Standard React location object.
+	export interface Location {
+		hash: string;
+		key: string;
+		pathname: string;
+		search: string;
+		state?: any;
 	}
 
 	export interface BitsConfig {
