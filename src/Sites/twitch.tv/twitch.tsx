@@ -63,45 +63,8 @@ export class TwitchPageScript {
 	 */
 	private handlePageSwitch(): void {
 
-		const switched = (id: string, login: string, as: string) => {
-
-			// Assume channel switch on page switch as UI/DOM is completely different depending on
-			// which channel page the user is on, whether it's the livestream/landing, VOD, or clip.
-			this.site.switchChannel({ channelID: id, channelName: login, as })
-				.toPromise()
-				.finally(() => {
-
-					// Ensure a chat listener is available.
-					if (!this.chatListener) {
-						Logger.Get().warn('No appropriate chat listener loaded. Nothing to do.');
-						return;
-					}
-
-					// Load live chat related items.
-					if ((channelInfo as Twitch.ChatControllerComponent)?.props.chatConnectionAPI) {
-						const controller = channelInfo as Twitch.ChatControllerComponent;
-
-						this.eIndex = null;
-						this.avatarManager.check();
-						this.isActorModerator = controller.props.isCurrentUserModerator ?? false;
-						this.banSliderManager.initialize();
-	
-						this.site.tabCompleteDetector.updateEmotes();
-						this.site.tabCompleteDetector.start();
-						this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
-						inputManager.listen();
-						this.isActorVIP = controller.props.isCurrentUserVIP ?? false;
-						this.insertEmotesIntoAutocomplete();
-					}
-
-					// Begin handling new messages.
-					this.chatListener.listen();
-				});
-		};
-
 		// Get chat service
 		let channelName, channelID;
-		let channelInfo: Twitch.ChatControllerComponent | Twitch.VideoChannelComponent | undefined;
 		
 		const switchHandler = async (
 			location: Twitch.Location,
@@ -113,11 +76,15 @@ export class TwitchPageScript {
 			let channelInfo: Twitch.ChatControllerComponent | Twitch.VideoChannelComponent | undefined;
 
 			// Is the page the landing/livestream?
-			if (urlChannelName && urlChannelName !== this.currentChannel) {
+			if (urlChannelName && !urlVideoID) {
 				this.currentVideo = '';
 
 				channelInfo = await this.awaitChannelInfo();
-				Logger.Get().info(`Changing channel from ${this.currentChannel} to ${urlChannelName}.`);
+
+				if (urlChannelName !== this.currentChannel) {
+					Logger.Get().info(`Changing channel from ${this.currentChannel} to ${urlChannelName}.`);
+				}
+				Logger.Get().info('Watching live chat.');
 			}
 
 			// Or is it a VOD or clip?
@@ -134,6 +101,7 @@ export class TwitchPageScript {
 				channelID = channelInfo.props.channelID;
 
 				// Different channel? Update emote events.
+				let channelSwitchHandler = undefined;
 				if (channelName !== this.currentChannel) {
 
 					// Unsubscribe from events in previous channel
@@ -141,6 +109,14 @@ export class TwitchPageScript {
 
 					// Sub events for the new channel.
 					this.site.sendMessageUp('EventAPI:AddChannel', channelName);
+
+					// Load all emotes available to this channel.
+					channelSwitchHandler = this.site.switchChannel({
+							channelID,
+							channelName,
+							as: (channelInfo as Twitch.ChatControllerComponent)?.props?.userID ?? ''
+						})
+						.toPromise();
 				}
 
 				// Update current channel.
@@ -157,14 +133,48 @@ export class TwitchPageScript {
 						? new TwitchChatListener(this)
 						: new TwitchVideoChatListener(this);
 
-					// Apply 7TV rendering existing chat items.
-					this.chatListener.start();
+					// Complete setup and start listening for new chat lines once emotes are loaded (if they haven't been already).
+					const continueListening = () => {
 
-					switched(
-						channelID,
-						channelName,
-						(channelInfo as Twitch.ChatControllerComponent)?.props?.userID ?? ''
-					);
+						// Ensure a chat listener is available.
+						if (!this.chatListener) {
+							Logger.Get().warn('No appropriate chat listener loaded. Nothing to do.');
+							return;
+						}
+
+						// Apply 7TV rendering existing chat items.
+						this.chatListener.start();
+
+						// Load live chat related items.
+						if ((channelInfo as Twitch.ChatControllerComponent)?.props.chatConnectionAPI) {
+							const controller = channelInfo as Twitch.ChatControllerComponent;
+
+							this.eIndex = null;
+							this.avatarManager.check();
+							this.isActorModerator = controller.props.isCurrentUserModerator ?? false;
+							this.banSliderManager.initialize();
+
+							this.site.tabCompleteDetector.updateEmotes();
+							this.site.tabCompleteDetector.start();
+							this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
+							inputManager.listen();
+							this.isActorVIP = controller.props.isCurrentUserVIP ?? false;
+							this.insertEmotesIntoAutocomplete();
+						}
+
+						// Begin handling new messages.
+						this.chatListener.listen();
+					}
+
+					// Are we waiting for emotes to be loaded? Yes? Then hold off on listening for new chat lines.
+					if (channelSwitchHandler) {
+						channelSwitchHandler.finally(continueListening);
+					}
+
+					// Emotes already loaded? Start listening for more chat.
+					else {
+						continueListening();
+					}
 				}
 			}
 		}
