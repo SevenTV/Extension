@@ -217,8 +217,14 @@ export class TwitchPageScript {
 		const emoteProvider = this.twitch.getAutocompleteHandler().providers[0];
 
 		// Wait 500ms if twitch has not inserted its emotes.
-		if (emoteProvider.props.emotes.length == 0) {
-			setTimeout(this.insertEmotesIntoAutocomplete, 500);
+		if (emoteProvider.props.emotes.length === 0) {
+
+			// Note: The scope of 'this' changes to the window instead
+			// of the page script when the function is called with setTimeout().
+			// Lambda/arrow functions preserve the previous scope when called.
+			// See https://stackoverflow.com/a/11714413
+			// Alternatively, could use an observable.
+			setTimeout(() => this.insertEmotesIntoAutocomplete(), 500);
 			return;
 		}
 
