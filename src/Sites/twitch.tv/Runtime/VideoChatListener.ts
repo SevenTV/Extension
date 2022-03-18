@@ -15,190 +15,190 @@ import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
  */
 export class TwitchVideoChatListener extends BaseTwitchChatListener {
 
-    constructor(page: TwitchPageScript) {
-        super(page);
-    }
+	constructor(page: TwitchPageScript) {
+		super(page);
+	}
 
-    start(): void {
-        const listener = this;
+	start(): void {
+		const listener = this;
 
-        // Handle changes only if FFZ isn't enabled.
-        if (!this.page.ffzMode) {
+		// Handle changes only if FFZ isn't enabled.
+		if (!this.page.ffzMode) {
 
-            Logger.Get().debug('Twitch video chat rerender detected, rendering 7TV emotes');
-            this.renderAll(listener.twitch.getVideoMessages());
-        }
-    }
+			Logger.Get().debug('Twitch video chat rerender detected, rendering 7TV emotes');
+			this.renderAll(listener.twitch.getVideoMessages());
+		}
+	}
 
-    listen(): void {
+	listen(): void {
 
-        // Let FFZ handle things if it's available.
-        if (this.page.ffzMode) {
-            return;
-        }
-        
-        Logger.Get().info('Listen for new video chat messages.');
+		// Let FFZ handle things if it's available.
+		if (this.page.ffzMode) {
+			return;
+		}
 
-        this.observeDOM().pipe(
-            takeUntil(this.killed),
-            filter(message => !!message.component),  // Ignore messages with no component states, like subs/resubs.
-            tap(message => {
-                this.renderPaintOnNametag(message);
-                this.onMessage(message);
-            })
-        ).subscribe();
-    }
+		Logger.Get().info('Listen for new video chat messages.');
 
-    private renderAll(messages: Twitch.VideoMessageAndComponent[]): void {
-        for (const message of messages) {
-            if (!message.component?.props) {
-                continue;
-            }
+		this.observeDOM().pipe(
+			takeUntil(this.killed),
+			filter(message => !!message.component),  // Ignore messages with no component states, like subs/resubs.
+			tap(message => {
+				this.renderPaintOnNametag(message);
+				this.onMessage(message);
+			})
+		).subscribe();
+	}
 
-            this.onMessage(message);
-            this.renderPaintOnNametag(message);
-        }
-    }
+	private renderAll(messages: Twitch.VideoMessageAndComponent[]): void {
+		for (const message of messages) {
+			if (!message.component?.props) {
+				continue;
+			}
 
-    renderPaintOnNametag(message: Twitch.VideoMessageAndComponent) {
+			this.onMessage(message);
+			this.renderPaintOnNametag(message);
+		}
+	}
 
-        const props = message.component.props;
-        if (!props || !props.context) {
-            return undefined;
-        }
+	renderPaintOnNametag(message: Twitch.VideoMessageAndComponent) {
 
-        const user = props.context.author;
-        const userID = parseInt(user.id);
+		const props = message.component.props;
+		if (!props || !props.context) {
+			return undefined;
+		}
 
-        // Add custom paint.
-        const paintMap = this.page.site.paintMap;
-        if (user && paintMap.has(userID)) {
-            const paintID = paintMap.get(userID);
+		const user = props.context.author;
+		const userID = parseInt(user.id);
 
-            if (typeof paintID !== 'number') {
-                return undefined;
-            }
+		// Add custom paint.
+		const paintMap = this.page.site.paintMap;
+		if (user && paintMap.has(userID)) {
+			const paintID = paintMap.get(userID);
 
-            const paint = this.page.site.paints[paintID];
-            const username = message.element.querySelector<HTMLAnchorElement>('.video-chat__message-author');
-            username?.setAttribute('data-seventv-paint', paintID.toString());
+			if (typeof paintID !== 'number') {
+				return undefined;
+			}
 
-            // No paint color? Use Twitch assigned color.
-            const userColor = props.context.comment.message.userColor;
-            if (!paint.color && userColor && username) {
-                username.style.color = userColor;
-            }
-        }
-    }
+			const paint = this.page.site.paints[paintID];
+			const username = message.element.querySelector<HTMLAnchorElement>('.video-chat__message-author');
+			username?.setAttribute('data-seventv-paint', paintID.toString());
 
-    private onMessage(message: Twitch.VideoMessageAndComponent): void {
-        const context = message.component.props.context;
-        if (!context) {
-            return;
-        }
+			// No paint color? Use Twitch assigned color.
+			const userColor = props.context.comment.message.userColor;
+			if (!paint.color && userColor && username) {
+				username.style.color = userColor;
+			}
+		}
+	}
 
-        const author = context.author;
-        const patcher = new MessagePatcher(this.page, context.comment);
-        context.comment.seventv = {
-            patcher,
-            parts: [],
-            badges: [],
-            words: [],
-            currenUserID: author.id,
-            currentUserLogin: author.name
-        }
+	private onMessage(message: Twitch.VideoMessageAndComponent): void {
+		const context = message.component.props.context;
+		if (!context) {
+			return;
+		}
 
-        patcher.tokenize();
-        patcher.render(message);
-    }
+		const author = context.author;
+		const patcher = new MessagePatcher(this.page, context.comment);
+		context.comment.seventv = {
+			patcher,
+			parts: [],
+			badges: [],
+			words: [],
+			currenUserID: author.id,
+			currentUserLogin: author.name
+		};
 
-    sendSystemMessage(_: string): void {
-        
-    }
+		patcher.tokenize();
+		patcher.render(message);
+	}
 
-    /**
-     * Watch for new chat comments.
-     */
-    observeDOM(): Observable<Twitch.VideoMessageAndComponent> {
+	sendSystemMessage(_: string): void {
 
-        const getVideoChatList = () => document.querySelectorAll(`${Twitch.Selectors.VideoChatContainer} div.video-chat__message-list-wrapper > div > ul`)?.[0];
+	}
 
-        return new Observable<Twitch.VideoMessageAndComponent>(subscriber => {
-            Logger.Get().info('Creating MutationObserver for video chat list.');
+	/**
+	 * Watch for new chat comments.
+	 */
+	observeDOM(): Observable<Twitch.VideoMessageAndComponent> {
 
-            let chatList: Element;
+		const getVideoChatList = () => document.querySelectorAll(`${Twitch.Selectors.VideoChatContainer} div.video-chat__message-list-wrapper > div > ul`)?.[0];
 
-            // Create method for setting up a chat list item add observable.
-            const setupChatListObservable = () => {
+		return new Observable<Twitch.VideoMessageAndComponent>(subscriber => {
+			Logger.Get().info('Creating MutationObserver for video chat list.');
 
-                // Start looking for new chat items to be added.
-                const chatListObserver = new MutationObserver(mutations => {
-                    for (const mutation of mutations) {
-                        for (const node of mutation.addedNodes) {
-                            const message = (node as HTMLElement).querySelectorAll<HTMLElement>(Twitch.Selectors.VideoChatMessage)[0];
-                            if (!message) {
-                                continue;
-                            }
+			let chatList: Element;
 
-                            const component = this.twitch.getVideoChatMessage(message);
+			// Create method for setting up a chat list item add observable.
+			const setupChatListObservable = () => {
 
-                            subscriber.next({
-                                element: node as HTMLDivElement,
-                                component: component.component as Twitch.VideoMessageComponent,
-                                inst: component.instance
-                            })
-                        }
-                    }
-                });
+				// Start looking for new chat items to be added.
+				const chatListObserver = new MutationObserver(mutations => {
+					for (const mutation of mutations) {
+						for (const node of mutation.addedNodes) {
+							const message = (node as HTMLElement).querySelectorAll<HTMLElement>(Twitch.Selectors.VideoChatMessage)[0];
+							if (!message) {
+								continue;
+							}
 
-                chatListObserver.observe(
-                    chatList,
-                    {
-                        childList: true
-                    }
-                );
-            }
+							const component = this.twitch.getVideoChatMessage(message);
 
-            // Check if the chat list exists in the DOM yet.
-            chatList = getVideoChatList();
+							subscriber.next({
+								element: node as HTMLDivElement,
+								component: component.component as Twitch.VideoMessageComponent,
+								inst: component.instance
+							});
+						}
+					}
+				});
 
-            // Already does? Setup the observable.
-            if (chatList) {
-                setupChatListObservable();
-            }
+				chatListObserver.observe(
+					chatList,
+					{
+						childList: true
+					}
+				);
+			};
 
-            // Otherwise, until video chat container is lazy loaded to the DOM.
-            else {
-                const domObserver = new MutationObserver(mutations => {
-                    for (const mutation of mutations) {
-                        for (const node of mutation.addedNodes) {
+			// Check if the chat list exists in the DOM yet.
+			chatList = getVideoChatList();
 
-                            // Check if the node added is the video chat container.
-                            if (
-                                node.nodeName === 'UL' &&
-                                getVideoChatList()
-                            ) {
+			// Already does? Setup the observable.
+			if (chatList) {
+				setupChatListObservable();
+			}
 
-                                // Stop watching for the chat list to be added.
-                                domObserver.disconnect();
+			// Otherwise, until video chat container is lazy loaded to the DOM.
+			else {
+				const domObserver = new MutationObserver(mutations => {
+					for (const mutation of mutations) {
+						for (const node of mutation.addedNodes) {
 
-                                // Now start watching for new items.
-                                chatList = node as Element;
-                                setupChatListObservable();
-                            }
-                        }
-                    }
-                });
+							// Check if the node added is the video chat container.
+							if (
+								node.nodeName === 'UL' &&
+								getVideoChatList()
+							) {
 
-                domObserver.observe(
-                    document.body,
-                    {
-                        childList: true,
-                        subtree: true,
-                        attributes: false
-                    }
-                );
-            }
-        });
-    }
+								// Stop watching for the chat list to be added.
+								domObserver.disconnect();
+
+								// Now start watching for new items.
+								chatList = node as Element;
+								setupChatListObservable();
+							}
+						}
+					}
+				});
+
+				domObserver.observe(
+					document.body,
+					{
+						childList: true,
+						subtree: true,
+						attributes: false
+					}
+				);
+			}
+		});
+	}
 }

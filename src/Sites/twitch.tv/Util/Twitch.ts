@@ -184,7 +184,7 @@ export class Twitch {
 		return {
 			component: inst?.return?.return?.stateNode,
 			instance: inst as Twitch.TwitchPureComponent
-		}
+		};
 	}
 
 	/**
@@ -199,7 +199,7 @@ export class Twitch {
 					element,
 					component: message.component,
 					inst: message.instance
-				}
+				};
 			});
 
 		return messages as Twitch.VideoMessageAndComponent[];
@@ -542,8 +542,8 @@ export namespace Twitch {
 			tiers: { id: string; bits: number; canShowInBitsCard: boolean; __typename: string; };
 			template: string;
 			__typename: string;
-		}}
-	};
+		}};
+	}
 
 	export interface EmoteCardOpener {
 		onShowEmoteCard: (v: any) => void;

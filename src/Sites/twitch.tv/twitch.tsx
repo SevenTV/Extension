@@ -65,7 +65,7 @@ export class TwitchPageScript {
 
 		// Get chat service
 		let channelName, channelID;
-		
+
 		const switchHandler = async (
 			location: Twitch.Location,
 			_action: string
@@ -164,7 +164,7 @@ export class TwitchPageScript {
 
 						// Begin handling new messages.
 						this.chatListener.listen();
-					}
+					};
 
 					// Are we waiting for emotes to be loaded? Yes? Then hold off on listening for new chat lines.
 					if (channelSwitchHandler) {
@@ -177,7 +177,7 @@ export class TwitchPageScript {
 					}
 				}
 			}
-		}
+		};
 
 		// Track routing using the page's router.
 		const router = this.twitch.getRouter();
@@ -185,7 +185,7 @@ export class TwitchPageScript {
 
 		// Run handler once on first page load.
 		switchHandler.apply(this, [history.location, history.action]);
-		
+
 		// Begin listening for page change events.
 		router.props.history.listen(switchHandler);
 	}
