@@ -16,8 +16,9 @@ export class MessagePatcher {
 		// Daily Quest: find 7TV emotes ZULUL
 		const eIndex = this.page.getEmoteIndex();
 
-		const messageParts = (this.msg as Twitch.ChatMessage)?.messageParts
-			?? (this.msg as Twitch.VideoChatComment)?.message.tokens;
+		const messageParts = this.msg.seventv.live
+			? (this.msg as Twitch.ChatMessage)?.messageParts
+			: (this.msg as Twitch.VideoChatComment)?.message.tokens;
 
 		// Find all emotes across the message parts
 		for (const part of messageParts) {
@@ -110,7 +111,7 @@ export class MessagePatcher {
 		const renderer = new MessageRenderer(this.page.site, message, line.element.id);
 
 		renderer.renderMessageTree();
-		renderer.insert();
+		renderer.insert(this.msg.seventv.live);
 	}
 
 	/**

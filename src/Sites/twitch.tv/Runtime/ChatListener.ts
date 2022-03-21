@@ -5,7 +5,6 @@ import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
-import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { intervalToDuration, formatDuration } from 'date-fns';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
@@ -109,7 +108,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 			filter(line => !!line.component),
 			// Render 7TV emotes
 			tap(line => {
-				this.renderPaintOnNametag(line);
+				this.renderNametagPaint(line);
 
 				if (!!line.component.props.message?.seventv) {
 					line.component.props.message.seventv.currenUserID = line.component.props.currentUserID;
@@ -127,33 +126,26 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 		for (const line of lines) {
 			if (!line.component?.props) continue;
 			this.onMessage(line.component.props.message, line);
-			this.renderPaintOnNametag(line);
+			this.renderNametagPaint(line);
 		}
 	}
 
 	/**
 	 * Patch a chat line with a nametag paint when applicable
 	 */
-	renderPaintOnNametag(line: Twitch.ChatLineAndComponent): void {
+	renderNametagPaint(line: Twitch.ChatLineAndComponent): void {
 		if (!line.component.props || !line.component.props.message) {
 			return undefined;
 		}
-		const user = line.component.props.message.user;
-		const userID = parseInt(user.userID);
-		// Add paint?
-		if (!!user && this.page.site.paintMap.has(userID)) {
-			const paintID = this.page.site.paintMap.get(userID);
-			if (typeof paintID !== 'number') {
-				return undefined;
-			}
-			const paint = this.page.site.paints[paintID];
-			const username = line.element.querySelector<HTMLSpanElement>('[data-a-target="chat-message-username"], .chat-line__username');
-			username?.setAttribute('data-seventv-paint', paintID.toString());
 
-			if (!paint.color && username) {
-				username.style.color = line.component.props.message.user.color;
-			}
-		}
+		const user = line.component.props.message.user;
+
+		super.renderPaintOnNametag(
+			{ id: user.userID },
+			line.element,
+			user.color,
+			'[data-a-target="chat-message-username"], .chat-line__username'
+		);
 	}
 
 	private onMessage(msg: Twitch.ChatMessage, renderAs: Twitch.ChatLineAndComponent | null = null): void {
@@ -164,19 +156,11 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 		 */
 		this.pendingMessages.add(msg.id);
 
-		// Push emotes to seventv.emotes property
-		const patcher = new MessagePatcher(this.page, msg);
-		msg.seventv = {
-			patcher,
-			parts: [],
-			badges: [],
-			words: [],
-			is_slash_me: msg.messageType === 1
-		};
-
-		// Tokenize 7TV emotes to Message Data
-		// This detects/matches 7TV emotes as text and adds it to a seventv namespace within the message
-		patcher.tokenize();
+		const patcher = super.prepareMessageRender(
+			msg,
+			{ is_slash_me: msg.messageType === 1 },
+			true
+		);
 
 		this.linesRendered++;
 		if (this.linesRendered === 1) {

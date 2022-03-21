@@ -606,6 +606,7 @@ export namespace Twitch {
 		is_slash_me?: boolean;
 		currenUserID?: string;
 		currentUserLogin?: string;
+		live?: boolean;
 	}
 
 	export interface VideoChatComment {

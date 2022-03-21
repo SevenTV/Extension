@@ -3,7 +3,6 @@ import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
-import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 
 
@@ -43,7 +42,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
 			takeUntil(this.killed),
 			filter(message => !!message.component),  // Ignore messages with no component states, like subs/resubs.
 			tap(message => {
-				this.renderPaintOnNametag(message);
+				this.renderNametagPaint(message);
 				this.onMessage(message);
 			})
 		).subscribe();
@@ -56,39 +55,25 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
 			}
 
 			this.onMessage(message);
-			this.renderPaintOnNametag(message);
+			this.renderNametagPaint(message);
 		}
 	}
 
-	renderPaintOnNametag(message: Twitch.VideoMessageAndComponent) {
+	renderNametagPaint(message: Twitch.VideoMessageAndComponent) {
 
 		const props = message.component.props;
 		if (!props || !props.context) {
 			return undefined;
 		}
 
-		const user = props.context.author;
-		const userID = parseInt(user.id);
+		const context = props.context;
 
-		// Add custom paint.
-		const paintMap = this.page.site.paintMap;
-		if (user && paintMap.has(userID)) {
-			const paintID = paintMap.get(userID);
-
-			if (typeof paintID !== 'number') {
-				return undefined;
-			}
-
-			const paint = this.page.site.paints[paintID];
-			const username = message.element.querySelector<HTMLAnchorElement>('.video-chat__message-author');
-			username?.setAttribute('data-seventv-paint', paintID.toString());
-
-			// No paint color? Use Twitch assigned color.
-			const userColor = props.context.comment.message.userColor;
-			if (!paint.color && userColor && username) {
-				username.style.color = userColor;
-			}
-		}
+		super.renderPaintOnNametag(
+			context.author,
+			message.element,
+			context.comment.message.userColor,
+			'.video-chat__message-author'
+		);
 	}
 
 	private onMessage(message: Twitch.VideoMessageAndComponent): void {
@@ -98,17 +83,14 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
 		}
 
 		const author = context.author;
-		const patcher = new MessagePatcher(this.page, context.comment);
-		context.comment.seventv = {
-			patcher,
-			parts: [],
-			badges: [],
-			words: [],
-			currenUserID: author.id,
-			currentUserLogin: author.name
-		};
+		const patcher = super.prepareMessageRender(
+			context.comment,
+			{
+				currenUserID: author.id,
+				currentUserLogin: author.name
+			}
+		);
 
-		patcher.tokenize();
 		patcher.render(message);
 	}
 
@@ -167,7 +149,7 @@ export class TwitchVideoChatListener extends BaseTwitchChatListener {
 				setupChatListObservable();
 			}
 
-			// Otherwise, until video chat container is lazy loaded to the DOM.
+			// Otherwise, wait until video chat container is lazy-loaded into the DOM.
 			else {
 				const domObserver = new MutationObserver(mutations => {
 					for (const mutation of mutations) {

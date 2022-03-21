@@ -19,7 +19,7 @@ export class MessageRenderer {
 		return document.querySelector(Twitch.Selectors.ChatScrollableContainer);
 	}
 
-	insert(): void {
+	insert(live?: boolean): void {
 		const el = this.element;
 		if (!el) return undefined;
 
@@ -29,7 +29,12 @@ export class MessageRenderer {
 			c.remove();
 		});
 
-		const container = el.querySelector('.chat-line__no-background, .video-chat__message') ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
+		const container = el.querySelector(
+			live
+			? '.chat-line__no-background'
+			: '.video-chat__message'
+		) ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
+
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-message-context');
 		newContext.style.position = 'relative';
@@ -55,7 +60,10 @@ export class MessageRenderer {
 		});
 
 		// Render user badges
-		const authorID = (this.msg as Twitch.ChatMessage).user?.userID ?? (this.msg as Twitch.VideoChatComment)?.commenter;
+		const authorID = live
+			? (this.msg as Twitch.ChatMessage).user?.userID
+			: (this.msg as Twitch.VideoChatComment)?.commenter;
+
 		if (typeof authorID === 'string') {
 			(() => {
 				const usernameContainer = container.querySelector(Twitch.Selectors.ChatUsernameContainer); // Chat Line - Username Container
