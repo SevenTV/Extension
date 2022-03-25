@@ -3,7 +3,7 @@ An emote extension for Twitch and YouTube
 
 ### Features
 
-* 200 free emote slots per channel
+* 250 free emote slots per channel
 * Support for wide emotes, animated emotes and animated wide emotes
 * Greater creative support for emote artists
 * Better customization with features such as emote aliases
