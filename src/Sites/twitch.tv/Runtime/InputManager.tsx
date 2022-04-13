@@ -87,7 +87,7 @@ export class InputManager {
 				} else { // Notify the user they could enable the setting to send duplicate messages
 					if (this.lastMessage === input.value && !this.noticedAboutAllowSendTwice) {
 						this.noticedAboutAllowSendTwice = true;
-						this.page.chatListener.sendSystemMessage('Enable the setting "Allow sending the same message twice" in the 7TV settings menu to bypass the duplicate message restriction');
+						this.page.chatListener?.sendSystemMessage('Enable the setting "Allow sending the same message twice" in the 7TV settings menu to bypass the duplicate message restriction');
 					}
 					this.lastMessage = value;
 				}
