@@ -45,17 +45,15 @@ export class MessageRenderer {
 		}
 		// Render emojis
 		newContext.querySelectorAll('span').forEach(span => {
-			if (twemoji.test(span.innerText)) {
-				twemoji.parse(span, {
-					className: 'seventv-emoji'
-				});
-				const emojis = span.querySelectorAll('img');
-				for (const emoji of Array.from(emojis)) {
-					const emoteji = this.app.emoteStore.fromEmoji(emoji);
-					emoji.title = emoteji.name;
-					emoji.width = 19.5;
-					emoji.height = 19.5;
-				}
+			twemoji.parse(span, {
+				className: 'seventv-emoji',
+			});
+			const emojis = span.querySelectorAll<HTMLImageElement>('img.seventv-emoji');
+			for (const emoji of Array.from(emojis)) {
+				const emoteji = this.app.emoteStore.fromEmoji(emoji);
+				emoji.title = emoteji.name;
+				emoji.width = 19.5;
+				emoji.height = 19.5;
 			}
 		});
 
