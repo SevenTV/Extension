@@ -155,6 +155,7 @@ export class InputManager {
 	}
 
 	setInputValue(value: string): void {
+		value = value.replace(/�/g, ''); // omit weird character
 		const el = document.querySelector('.chat-input textarea') as HTMLInputElement;
 		if (el && typeof el.value != undefined) {
 			el.value = value;
