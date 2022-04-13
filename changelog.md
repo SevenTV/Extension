@@ -2,7 +2,8 @@
 
 ### Version 2.2.0
 
-- Added support for chat in VODs (#234)
+- Twitch: Added support for chat in VODs (#234)
+- Twitch: The "Send same message twice" option should now work again (#239)
 
 ### Version 2.1.4
 
