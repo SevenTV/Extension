@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.2.0
+
+- Added support for chat in VODs
+
 ### Version 2.1.4
 
 - Twitch: Fixed tab-completion for Twitch's chat input update
