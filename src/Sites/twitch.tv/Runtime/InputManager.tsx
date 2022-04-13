@@ -46,13 +46,13 @@ export class InputManager {
 
 	}
 
-	waitForNextSend(input: HTMLInputElement): void {
+	waitForNextSend(initInput: HTMLInputElement): void {
 		let listener: (ev: KeyboardEvent) => any;
-		input.addEventListener('keydown', listener = (ev) => {
+		initInput.addEventListener('keydown', listener = (ev) => {
+			const input = ev.target as HTMLInputElement;
 			const historyEnabled = this.page.site.config.get('general.history_navigation')?.asBoolean();
-			const target = ev.target as HTMLInputElement;
-			let value = (target.value ?? this.twitch.getChatInput()?.props.value ?? '');
-			const normalizedValue = [...value]
+			let value = (input.value ?? input.textContent).replace(/﻿/g, '');
+			const normalizedValue = value?.split('')
 				.filter(char => char.charCodeAt(0) !== unicodeTag0.charCodeAt(0))
 				.join('').trim();
 			this.history[0] = normalizedValue;
@@ -64,9 +64,9 @@ export class InputManager {
 						return undefined;
 					}
 
-					const endChar = value.charAt(value.length - 1);
+					const endChar = value?.charAt(value.length - 1);
 					// If message is duplicate we must edit the input value with a unicode tag
-					if (this.lastMessage === target.value) {
+					if (this.lastMessage === value) {
 						ev.preventDefault(); // For now cancel & stop the propgagation
 						ev.stopPropagation();
 
@@ -79,13 +79,13 @@ export class InputManager {
 						this.setInputValue(this.lastMessage = value);
 
 						// Resume the event
-						input.removeEventListener('keydown', listener);
-						setTimeout(() => target.dispatchEvent(ev), 0);
+						initInput.removeEventListener('keydown', listener);
+						setTimeout(() => input.dispatchEvent(ev), 0);
 						setTimeout(() => restart(), 25);
 					}
 					this.lastMessage = value;
 				} else { // Notify the user they could enable the setting to send duplicate messages
-					if (this.lastMessage === target.value && !this.noticedAboutAllowSendTwice) {
+					if (this.lastMessage === input.value && !this.noticedAboutAllowSendTwice) {
 						this.noticedAboutAllowSendTwice = true;
 						this.page.chatListener.sendSystemMessage('Enable the setting "Allow sending the same message twice" in the 7TV settings menu to bypass the duplicate message restriction');
 					}
@@ -111,7 +111,7 @@ export class InputManager {
 				}
 			}
 			if (historyEnabled) {
-				if (ev.key === 'ArrowUp' && (target.selectionStart ?? this.twitch.getChatInput().selectionStart) === 0) { // Handle up-arrow (navigate back in history)
+				if (ev.key === 'ArrowUp' && (input.selectionStart ?? this.twitch.getChatInput().selectionStart) === 0) { // Handle up-arrow (navigate back in history)
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {
 						this.historyPos--;
@@ -119,7 +119,7 @@ export class InputManager {
 						this.historyPos++;
 						this.setInputValue(newVal);
 					}
-				} else if (ev.key === 'ArrowDown' && (target.selectionEnd ?? this.twitch.getChatInput().selectionStart) === value.length) { // Handle down-arrow (navigate forward in history)
+				} else if (ev.key === 'ArrowDown' && (input.selectionEnd ?? this.twitch.getChatInput().selectionStart) === value.length) { // Handle down-arrow (navigate forward in history)
 					this.historyPos--;
 					const newVal = this.history.slice(1)[this.historyPos];
 					if (typeof newVal === 'undefined') {
@@ -132,10 +132,10 @@ export class InputManager {
 		});
 
 		const restart = () => {
-			this.waitForNextSend(input);
+			this.waitForNextSend(initInput);
 		};
 		// Handle input handler restart
-		this.restart.pipe(tap(() => input.removeEventListener('keydown', listener))).subscribe();
+		this.restart.pipe(tap(() => initInput.removeEventListener('keydown', listener))).subscribe();
 	}
 
 	createOverlayInput(): void {
