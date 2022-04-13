@@ -1513,10 +1513,12 @@
     "@types/cookiejar" "*"
     "@types/node" "*"
 
-"@types/twemoji@^12.1.1":
-  version "12.1.2"
-  resolved "https://registry.yarnpkg.com/@types/twemoji/-/twemoji-12.1.2.tgz#52578fd22665311e6a78d04f800275449d51c97e"
-  integrity sha512-3eMyKenMi0R1CeKzBYtk/Z2JIHsTMQrIrTah0q54o45pHTpWVNofU2oHx0jS8tqsDRhis2TbB6238WP9oh2l2w==
+"@types/twemoji@^13.1.2":
+  version "13.1.2"
+  resolved "https://registry.yarnpkg.com/@types/twemoji/-/twemoji-13.1.2.tgz#5d06e4093479254b43abf84ec56ee5c623161f88"
+  integrity sha512-vPNsrN08aRI2Gmdo+Ds3zZXzUk6igp1Hg+JPCeHavpiUGfgth/tGiHLQxfSrKzPXeRC0zbLs8WaUZSYxRWPbNg==
+  dependencies:
+    twemoji "*"
 
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
@@ -5956,19 +5958,19 @@ tsutils@^2.29.0:
   dependencies:
     tslib "^1.8.1"
 
-twemoji-parser@13.1.0:
-  version "13.1.0"
-  resolved "https://registry.yarnpkg.com/twemoji-parser/-/twemoji-parser-13.1.0.tgz#65e7e449c59258791b22ac0b37077349127e3ea4"
-  integrity sha512-AQOzLJpYlpWMy8n+0ATyKKZzWlZBJN+G0C+5lhX7Ftc2PeEVdUU/7ns2Pn2vVje26AIZ/OHwFoUbdv6YYD/wGg==
+twemoji-parser@14.0.0:
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/twemoji-parser/-/twemoji-parser-14.0.0.tgz#13dabcb6d3a261d9efbf58a1666b182033bf2b62"
+  integrity sha512-9DUOTGLOWs0pFWnh1p6NF+C3CkQ96PWmEFwhOVmT3WbecRC+68AIqpsnJXygfkFcp4aXbOp8Dwbhh/HQgvoRxA==
 
-twemoji@^13.0.2:
-  version "13.1.0"
-  resolved "https://registry.yarnpkg.com/twemoji/-/twemoji-13.1.0.tgz#65bb71e966dae56f0d42c30176f04cbdae109913"
-  integrity sha512-e3fZRl2S9UQQdBFLYXtTBT6o4vidJMnpWUAhJA+yLGR+kaUTZAt3PixC0cGvvxWSuq2MSz/o0rJraOXrWw/4Ew==
+twemoji@*, twemoji@^14.0.2:
+  version "14.0.2"
+  resolved "https://registry.yarnpkg.com/twemoji/-/twemoji-14.0.2.tgz#c53adb01dab22bf4870f648ca8cc347ce99ee37e"
+  integrity sha512-BzOoXIe1QVdmsUmZ54xbEH+8AgtOKUiG53zO5vVP2iUu6h5u9lN15NcuS6te4OY96qx0H7JK9vjjl9WQbkTRuA==
   dependencies:
     fs-extra "^8.0.1"
     jsonfile "^5.0.0"
-    twemoji-parser "13.1.0"
+    twemoji-parser "14.0.0"
     universalify "^0.1.2"
 
 type-check@^0.4.0, type-check@~0.4.0:
