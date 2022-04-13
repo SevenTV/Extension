@@ -2,7 +2,7 @@
 
 ### Version 2.2.0
 
-- Added support for chat in VODs
+- Added support for chat in VODs (#234)
 
 ### Version 2.1.4
 
