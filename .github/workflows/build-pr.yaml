@@ -21,13 +21,13 @@ jobs:
 
       - name: Lint
         run: |
-          npm install
-          npm run lint
+          yarn
+          yarn lint
 
       - name: Build
         run: |
-          npm run build-prod-chromium
-          npm run build-prod-firefox
+          yarn build-prod-chromium
+          yarn build-prod-firefox
 
       - name: ZIP Releases
         run: |
