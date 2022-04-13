@@ -64,7 +64,11 @@ export class MessageRenderer {
 
 		if (typeof authorID === 'string') {
 			(() => {
-				const usernameContainer = container.querySelector(Twitch.Selectors.ChatUsernameContainer); // Chat Line - Username Container
+				const usernameContainer =
+					live
+					? container.querySelector(Twitch.Selectors.ChatUsernameContainer) // Chat Line - Username Container
+					: container?.parentElement; // Chat line container for VODs
+
 				const badgeList = this.app.badgeMap.get(parseInt(authorID)); // Get the badge index ID for this user
 				if (!Array.isArray(badgeList) || badgeList.length === 0) {
 					return undefined;
