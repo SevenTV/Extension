@@ -85,15 +85,8 @@ export class MessagePatcher {
 	 */
 	render(line: Twitch.ChatLineAndComponent | Twitch.VideoMessageAndComponent): void {
 		// Hide twitch fragments
-		// Note: Some VOD fragments, like Twitch emotes, contain an additional layout that also needs to be hidden. Hence: div[class^=InjectLayout-sc-]
-		// All user badges also have layouts, so they need to be excluded from removal.
-		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, [data-test-selector=emote-button], div[class^=InjectLayout-sc-]'));
+		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, div.chat-image__container, [data-test-selector=emote-button]'));
 		for (const oldFrag of oldFragments) {
-
-			// Excludge layouts for badges from removal.
-			if (oldFrag.querySelectorAll(':scope > button[data-a-target=chat-badge]').length) {
-				continue;
-			}
 
 			oldFrag.setAttribute('superceded', '');
 			oldFrag.style.setProperty('display', 'none', 'important');	// VOD fragments with additional layout contain 'display: inline !important'. This needs to be overrode.
