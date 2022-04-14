@@ -4,6 +4,7 @@
 
 - Twitch: Added support for chat in VODs (#234)
 - Twitch: The "Send same message twice" option should now work again (#239)
+- Twitch: Fixed an issue which caused FFZ emotes to sometimes be broken images or unexpected random images
 
 ### Version 2.1.4
 
