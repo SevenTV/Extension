@@ -8,6 +8,7 @@
 - Twitch: Improved the time formatting for time-out and ban notices (#218)
 - Twitch: Fixed an issue which caused FFZ emotes to sometimes be broken images or unexpected random images (#240)
 - Twitch: Fixed an issue which occasionally prevented name tag paints from rendering
+- Twitch: Tentatively fixed an issue which caused random emojis to appear in chat
 
 ### Version 2.1.4
 

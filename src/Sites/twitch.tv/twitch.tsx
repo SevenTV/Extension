@@ -305,6 +305,8 @@ export class TwitchPageScript {
 		let sets = twitch?.getAutocompleteHandler()?.providers[0].props.emotes;
 		if (sets) sets = sets.filter(s=>s.__typename !== 'SeventvEmoteSet');
 
+		// Re-render button, sometimes FFZ will remove it if it loads late
+		page.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
 		Logger.Get().info('Received Cease Signal -- pagescript will stop.');
 	}
 
