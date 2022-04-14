@@ -50,9 +50,13 @@ export class InputManager {
 		let listener: (ev: KeyboardEvent) => any;
 		initInput.addEventListener('keydown', listener = (ev) => {
 			const input = ev.target as HTMLInputElement;
+			if (!input) {
+				Logger.Get().debug('waitForNextSend() failed to find chat input');
+				return undefined;
+			}
 			const historyEnabled = this.page.site.config.get('general.history_navigation')?.asBoolean();
-			let value = (input.value ?? input.textContent).replace(/﻿/g, '');
-			const normalizedValue = value?.split('')
+			let value = (input.value ?? input.textContent).replace(/﻿ /g, '');
+			const normalizedValue = [...value]
 				.filter(char => char.charCodeAt(0) !== unicodeTag0.charCodeAt(0))
 				.join('').trim();
 			this.history[0] = normalizedValue;
@@ -71,9 +75,11 @@ export class InputManager {
 						ev.stopPropagation();
 
 						// Append or remove the unicode tag
-						value = endChar === ' ' + unicodeTag0
-							? value.slice(0, value.length - 2)
-							: value + (' ' + unicodeTag0);
+						if (endChar != unicodeTag0) {
+							value += unicodeTag0;
+						} else {
+							value = value.replace(new RegExp(unicodeTag0, 'g'), '');
+						}
 
 						// Patch the input value
 						this.setInputValue(this.lastMessage = value);
@@ -103,7 +109,7 @@ export class InputManager {
 				if (ev.ctrlKey) {
 					// Temporarily lock the input
 					input.setAttribute('disabled', 'true');
-					setTimeout(() => this.setInputValue(value), 25);
+					setTimeout(() => this.setInputValue(value), 100);
 					setTimeout(() => {
 						input.removeAttribute('disabled');
 						input.focus();
