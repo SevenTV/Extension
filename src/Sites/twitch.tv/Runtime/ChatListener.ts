@@ -10,12 +10,14 @@ import { intervalToDuration, formatDuration } from 'date-fns';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
+let currentModHandler: (msg: Twitch.ChatMessage) => void;
 export class TwitchChatListener extends BaseTwitchChatListener {
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
 	private pendingMessages = new Set<string>();
 
 	linesRendered = 0;
+	lastModMessage = '';
 
 	constructor(page: TwitchPageScript) {
 		super(page);
@@ -62,6 +64,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 		if (!!currentHandler) {
 			Logger.Get().info('Unloading previous handler');
 			msgHandler.removeMessageHandler(currentHandler);
+			msgHandler.removeMessageHandler(currentModHandler);
 		}
 
 		// Add a handler for regular chat messages
@@ -74,22 +77,31 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 		msgHandler.addMessageHandler(currentHandler);
 
 		// Add a handler for moderation messages
-		msgHandler.addMessageHandler(msg => {
+		currentModHandler = (msg) => {
 			if (msg.type !== 2) return undefined;
 			if (!this.page.site.config.get('general.display_mod_actions')?.asBoolean()) {
 				return undefined; // Don't emit a mod message, as the setting is disabled
 			}
+			if (this.page.isActorModerator) {
+				return undefined; // Don't emit a message if the actor is a moderator
+			}
 			const modMsg = msg as unknown as Twitch.ChatMessage.ModerationMessage;
+			const h = `${modMsg.userLogin}.${modMsg.moderationType}.${modMsg.duration}`;
+			if (this.lastModMessage === h) {
+				return undefined; // skip if this is duplicate
+			}
 
 			if (modMsg.moderationType === 1) { // Timeout
 				const humanizedInterval = formatDuration(intervalToDuration({start: 0, end: modMsg.duration * 1000}));
-				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${humanizedInterval}${!!modMsg.reason ? ` (${modMsg.reason})` : ''} by a moderator`);
+				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${humanizedInterval}${!!modMsg.reason ? ` (${modMsg.reason})` : ''}`, true);
 			} else if (modMsg.moderationType === 0) { // Ban
-				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned by a moderator`);
+				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned`, true);
 			} else if (modMsg.moderationType === 2) { // Message deleted
-				this.sendSystemMessage(`A message from ${modMsg.userLogin} was deleted by a moderator`);
+				this.sendSystemMessage(`A message from ${modMsg.userLogin} was deleted`, true);
 			}
-		});
+			this.lastModMessage = h;
+		};
+		msgHandler.addMessageHandler(currentModHandler);
 
 		// Send twitch emotes to upper layer
 		const twitchEmotes = this.twitch.getChat()?.props.emotes;
@@ -171,7 +183,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 		}
 	}
 
-	sendSystemMessage(msg: string): void {
+	sendSystemMessage(msg: string, hidePrefix?: boolean): void {
 		const controller = this.twitch.getChatController();
 
 		if (controller) {
@@ -182,7 +194,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 				msgid: id,
 				channel: `#${controller.props.channelLogin}`,
 				type: 32,
-				message: `[7TV] ${text}`
+				message: `${hidePrefix ? '' : '[7TV] '}${text}`
 			});
 		}
 	}
