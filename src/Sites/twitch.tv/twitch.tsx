@@ -25,6 +25,7 @@ export class TwitchPageScript {
 	currentVideo = '';
 	isActorModerator = false;
 	isActorVIP = false;
+	retryLoadCount = 0;
 
 	channelRegex = /(?:videos\/(?<videoid>[0-9]{3,100})|[a-zA-Z0-9_]{3,25}\/clip\/(?<clipid>[a-zA-Z0-9-]{3,100})|(?:(u|popout|moderator)\/)?(?<channelname>[a-zA-Z0-9_]{3,25}))/;
 	emoteRegex = /$^/;
@@ -70,7 +71,6 @@ export class TwitchPageScript {
 			location: Twitch.Location,
 			_action: string
 		) => {
-
 			// Get the currently available IDs from the page URL.
 			let [ urlChannelName, urlVideoID ] = this.getIDsFromRoute(location.pathname);
 			let channelInfo: Twitch.ChatControllerComponent | Twitch.VideoChannelComponent | undefined;
@@ -85,10 +85,7 @@ export class TwitchPageScript {
 					Logger.Get().info(`Changing channel from ${this.currentChannel} to ${urlChannelName}.`);
 				}
 				Logger.Get().info('Watching live chat.');
-			}
-
-			// Or is it a VOD or clip?
-			else if (urlVideoID !== this.currentVideo) {
+			} else if (urlVideoID !== this.currentVideo) { // Or is it a VOD or clip?
 				this.currentVideo = urlVideoID;
 
 				channelInfo = await this.awaitChannelInfo(true);
@@ -99,11 +96,12 @@ export class TwitchPageScript {
 			if (channelInfo) {
 				channelName = channelInfo.props.channelLogin;
 				channelID = channelInfo.props.channelID;
+				// Reload cosmetics
+				this.site.loadCosmetics();
 
 				// Different channel? Update emote events.
 				let channelSwitchHandler = undefined;
 				if (channelName !== this.currentChannel) {
-
 					// Unsubscribe from events in previous channel
 					this.site.sendMessageUp('EventAPI:RemoveChannel', {});
 
@@ -118,12 +116,9 @@ export class TwitchPageScript {
 						})
 						.toPromise();
 				}
-
 				// Update current channel.
 				this.currentChannel = channelName;
-
 				if (channelName && channelID) {
-
 					// Unload resources for the previous listener.
 					this.chatListener?.kill();
 
@@ -135,7 +130,6 @@ export class TwitchPageScript {
 
 					// Complete setup and start listening for new chat lines once emotes are loaded (if they haven't been already).
 					const continueListening = () => {
-
 						// Ensure a chat listener is available.
 						if (!this.chatListener) {
 							Logger.Get().warn('No appropriate chat listener loaded. Nothing to do.');
@@ -159,7 +153,9 @@ export class TwitchPageScript {
 							this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
 							inputManager.listen();
 							this.isActorVIP = controller.props.isCurrentUserVIP ?? false;
-							this.insertEmotesIntoAutocomplete();
+							setTimeout(() => {
+								this.insertEmotesIntoAutocomplete();
+							}, 2500); // TODO: find a solution to avoid arbitrary delay
 						}
 
 						// Begin handling new messages.
@@ -169,10 +165,7 @@ export class TwitchPageScript {
 					// Are we waiting for emotes to be loaded? Yes? Then hold off on listening for new chat lines.
 					if (channelSwitchHandler) {
 						channelSwitchHandler.finally(continueListening);
-					}
-
-					// Emotes already loaded? Start listening for more chat.
-					else {
+					} else { // Emotes already loaded? Start listening for more chat.
 						continueListening();
 					}
 				}
@@ -181,13 +174,20 @@ export class TwitchPageScript {
 
 		// Track routing using the page's router.
 		const router = this.twitch.getRouter();
-		const history = router.props.history;
+		if (!!router) {
+			const history = router.props.history;
 
-		// Run handler once on first page load.
-		switchHandler.apply(this, [history.location, history.action]);
+			// Run handler once on first page load.
+			switchHandler.apply(this, [history.location, history.action]);
 
-		// Begin listening for page change events.
-		router.props.history.listen(switchHandler);
+			// Begin listening for page change events.
+			router.props.history.listen(switchHandler);
+			Logger.Get().debug('Now listening for router changes');
+		} else if (this.retryLoadCount < 32) { // Router not found, we will retry
+			setTimeout(() => this.handlePageSwitch(), 100);
+			this.retryLoadCount++;
+			Logger.Get().debug(`Couldn't find router (try #${this.retryLoadCount})`);
+		}
 	}
 
 	async awaitChannelInfo(
@@ -235,7 +235,22 @@ export class TwitchPageScript {
 					`${prev} ${current[1]} ${current[0]}x,`
 				, '');
 			}
-			return x.call(this, e);
+
+			let provider = e.type;
+			switch (provider) {
+				case 'GLOBALS':
+					provider = 'Twitch Global';
+					break;
+				case 'SUBSCRIPTIONS':
+					provider = 'Twitch Sub';
+					break;
+				case 'TURBO':
+					provider = 'Twitch Turbo';
+				default:
+					provider = `${e._thirdPartyGlobal ? 'Global' : 'Channel'} ${e.type}`;
+					break;
+			}
+			return x.call(this, {...e, token: `${e.token} (${provider})` });
 		};
 
 		emoteProvider.props.emotes.push({
@@ -245,6 +260,7 @@ export class TwitchPageScript {
 					setID: '-1',
 					token: emote.name,
 					type: emote.provider,
+					_thirdPartyGlobal: emote.isGlobal(),
 					__typename: 'SeventvEmote'
 				};
 			}),

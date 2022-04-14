@@ -221,7 +221,7 @@ export namespace Twitch {
 	export namespace Selectors {
 		export const ROOT = '#root div';
 		export const NAV = '[data-a-target="top-nav-container"]';
-		export const MainLayout = 'main.twilight-main';
+		export const MainLayout = 'main.twilight-main, #root.sunlight-root > div:nth-of-type(3), #root[data-a-page-loaded-name="PopoutChatPage"] > div';
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
 		export const VideoChatContainer = 'div.video-chat.va-vod-chat';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';
@@ -504,18 +504,19 @@ export namespace Twitch {
 	};
 
 	export type Provider = {
-		autocompleteType: string
-		canBeTriggeredByTab: boolean
+		autocompleteType: string;
+		canBeTriggeredByTab: boolean;
 		doesEmoteMatchTerm: (e: TwitchEmote, t: string) => boolean;
-		getMatchedEmotes: (s: string) => TwitchEmote[]
-		getMatches: (s: string) => TwitchEmote[]
+		getMatchedEmotes: (s: string) => TwitchEmote[];
+		getMatches: (s: string) => TwitchEmote[];
 		props: {
 			emotes: TwitchEmoteSet[];
 			isEmoteAnimationsEnabled: boolean;
 			registerAutocompleteProvider: (p: Provider) => void;
 			theme: Theme;
 		};
-		renderEmoteSuggestion: (e: TwitchEmote) => TwitchEmote
+		renderEmoteSuggestion: (e: TwitchEmote) => TwitchEmote;
+		hydrateEmotes: (emotes: any, b: boolean, theme: Twitch.Theme) => Twitch.TwitchEmoteSet[];
 	};
 
 	export enum Theme {
@@ -565,6 +566,7 @@ export namespace Twitch {
 		id: string;
 		modifiers?: any;
 		setID: string;
+		displayName?: string;
 		token: string;
 		type: string;
 		owner?: {
@@ -574,6 +576,7 @@ export namespace Twitch {
 			profileImageURL: string;
 		};
 		__typename?: string;
+		_thirdPartyGlobal: boolean;
 		srcSet?: string;
 	}
 
