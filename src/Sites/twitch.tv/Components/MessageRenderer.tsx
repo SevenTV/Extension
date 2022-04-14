@@ -9,7 +9,7 @@ export class MessageRenderer {
 
 	constructor(
 		public app: SiteApp,
-		public msg: Twitch.ChatMessage,
+		public msg: Twitch.ChatMessage | Twitch.VideoChatComment,
 		public elementId: string
 	) {
 		this.element = document.getElementById(elementId);
@@ -19,7 +19,7 @@ export class MessageRenderer {
 		return document.querySelector(Twitch.Selectors.ChatScrollableContainer);
 	}
 
-	insert(): void {
+	insert(live?: boolean): void {
 		const el = this.element;
 		if (!el) return undefined;
 
@@ -29,7 +29,12 @@ export class MessageRenderer {
 			c.remove();
 		});
 
-		const container = el.querySelector('.chat-line__no-background') ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
+		const container = el.querySelector(
+			live
+			? '.chat-line__no-background'
+			: '.video-chat__message'
+		) ?? el.querySelector(Twitch.Selectors.ChatMessageContainer) ?? el;
+
 		const newContext = document.createElement('span');
 		newContext.classList.add('seventv-message-context');
 		newContext.style.position = 'relative';
@@ -40,25 +45,30 @@ export class MessageRenderer {
 		}
 		// Render emojis
 		newContext.querySelectorAll('span').forEach(span => {
-			if (twemoji.test(span.innerText)) {
-				twemoji.parse(span, {
-					className: 'seventv-emoji'
-				});
-				const emojis = span.querySelectorAll('img');
-				for (const emoji of Array.from(emojis)) {
-					const emoteji = this.app.emoteStore.fromEmoji(emoji);
-					emoji.title = emoteji.name;
-					emoji.width = 19.5;
-					emoji.height = 19.5;
-				}
+			twemoji.parse(span, {
+				className: 'seventv-emoji',
+			});
+			const emojis = span.querySelectorAll<HTMLImageElement>('img.seventv-emoji');
+			for (const emoji of Array.from(emojis)) {
+				const emoteji = this.app.emoteStore.fromEmoji(emoji);
+				emoji.title = emoteji.name;
+				emoji.width = 19.5;
+				emoji.height = 19.5;
 			}
 		});
 
 		// Render user badges
-		const authorID = this.msg.user?.userID;
+		const authorID = live
+			? (this.msg as Twitch.ChatMessage).user?.userID
+			: (this.msg as Twitch.VideoChatComment)?.commenter;
+
 		if (typeof authorID === 'string') {
 			(() => {
-				const usernameContainer = container.querySelector(Twitch.Selectors.ChatUsernameContainer); // Chat Line - Username Container
+				const usernameContainer =
+					live
+					? container.querySelector(Twitch.Selectors.ChatUsernameContainer) // Chat Line - Username Container
+					: container?.parentElement; // Chat line container for VODs
+
 				const badgeList = this.app.badgeMap.get(parseInt(authorID)); // Get the badge index ID for this user
 				if (!Array.isArray(badgeList) || badgeList.length === 0) {
 					return undefined;
