@@ -1,5 +1,5 @@
 import { DataStructure } from '@typings/typings/DataStructure';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { filter, map, mergeAll, toArray } from 'rxjs/operators';
 import { Config } from 'src/Config';
 import { version } from 'public/manifest.v3.json';
@@ -71,13 +71,24 @@ export class API {
 	}
 
 	GetFrankerFaceZChannelEmotes(channelID: string, platform: API.Platform = 'twitch'): Observable<DataStructure.Emote[]> {
-		return this.createRequest<API.BTTV.Emote[]>(`/cached/frankerfacez/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
-			map(res => res.body),
-			mergeAll(),
-			filter(emote => !!emote),
-			map(emote => this.transformBTTV(emote, false, true)),
-			toArray()
-		);
+		if (platform === 'twitch') {
+			return this.createRequest<API.FFZ.RoomResponse>(`/room/id/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_FFZ }).pipe(
+				map(res => res?.body?.sets ? Object.keys(res?.body.sets).map(k => res?.body.sets[k].emoticons).reduce((a, b) => [...a, ...b]) : []),
+				mergeAll(),
+				filter(emote => !!emote),
+				map(emote => this.transformFFZ(emote)),
+				toArray()
+			);
+		} else if (platform === 'youtube') {
+			return this.createRequest<API.BTTV.Emote[]>(`/cached/frankerfacez/users/${platform}/${channelID}`, { method: 'GET', baseUrl: this.BASE_URL_BTTV }).pipe(
+				map(res => res.body),
+				mergeAll(),
+				filter(emote => !!emote),
+				map(emote => this.transformBTTV(emote, false, true)),
+				toArray()
+			);
+		}
+		return of([]);
 	}
 
 	GetFrankerFaceZGlobalEmotes(): Observable<DataStructure.Emote[]> {
