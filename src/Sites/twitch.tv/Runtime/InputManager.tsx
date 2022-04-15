@@ -105,6 +105,7 @@ export class InputManager {
 		let alt = false;
 		ws.send = function (s: string) {
 			if (isAllowSendTwice()) {
+				// Set alternate unicode tag suffix
 				if (!alt) {
 					s += ' ' + unicodeTag0;
 				}
@@ -160,10 +161,10 @@ export class InputManager {
 				controller.componentDidUpdate = initOnUpdate;
 				controller.props.onSendMessage = initialOnSend;
 				ws.send = ircSend;
-				if (!!dupeCheck) {
+				if (!!controller.props.sendMessageErrorChecks?.['duplicated-messages']) {
 					controller.props.sendMessageErrorChecks['duplicated-messages'].check = dupeCheck;
 				}
-				if (!!throughputCheck) {
+				if (!!controller.props.sendMessageErrorChecks?.['message-throughput']) {
 					controller.props.sendMessageErrorChecks['message-throughput'].check = throughputCheck;
 				}
 			}
