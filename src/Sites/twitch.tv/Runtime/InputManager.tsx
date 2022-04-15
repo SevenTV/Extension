@@ -104,7 +104,7 @@ export class InputManager {
 		const ircSend = ws.send;
 		let alt = false;
 		ws.send = function (s: string) {
-			if (isAllowSendTwice()) {
+			if (!actorCanSpam && isAllowSendTwice()) {
 				// Set alternate unicode tag suffix
 				if (!alt) {
 					s += ' ' + unicodeTag0;
