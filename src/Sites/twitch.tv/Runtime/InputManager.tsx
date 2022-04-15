@@ -17,7 +17,6 @@ export class InputManager {
 	};
 	history = [''] as string[];
 	historyPos = 0;
-	noticedAboutAllowSendTwice = false;
 
 	restart = new Subject<void>();
 
