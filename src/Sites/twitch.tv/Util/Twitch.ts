@@ -121,8 +121,15 @@ export class Twitch {
 		return node?.stateNode;
 	}
 
-	getChatInput(): Twitch.ChatInputComponent {
+	getInputController(): Twitch.ChatInputController {
+		const node = this.findReactParents(
+			this.getReactInstance(document.querySelectorAll('div.chat-input')[0]),
+			n => n.stateNode?.props.onSendMessage,
+		);
+		return node?.stateNode;
+	}
 
+	getChatInput(): Twitch.ChatInputComponent {
 		return this.getAutocompleteHandler()?.componentRef;
 	}
 
@@ -456,6 +463,20 @@ export namespace Twitch {
 		onDeleteComment: (n: any) => void;
 		videoID: string;
 	}>;
+
+	export type ChatInputController = React.Component<{
+		sendMessageErrorChecks: Record<'duplicated-messages' | 'message-throughput', {
+			check: (value: string) => any;
+			onMessageSent: (x: any) => any;
+		}>;
+		chatConnectionAPI: {
+			sendMessage: Function;
+		};
+	}> & {
+		props: {
+			onSendMessage: (value: string) => any;
+		}
+	};
 
 	export type ChatInputComponent = React.Component<{
 		channelID: string;

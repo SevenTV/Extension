@@ -16,6 +16,8 @@ export class InputManager {
 		entry: ''
 	};
 	lastMessage = '';
+	lastMessageAlt = false;
+	isCooldown = false;
 	history = [''] as string[];
 	historyPos = 0;
 	noticedAboutAllowSendTwice = false;
@@ -44,6 +46,78 @@ export class InputManager {
 		// Handle send
 		this.waitForNextSend(input);
 
+		this.handleSpam(input);
+	}
+
+	handleSpam(input: HTMLInputElement): void {
+		// Find the WebSocket IRC
+		const cs = this.twitch.getChatService();
+		if (!cs) {
+			return;
+		}
+		const ws = cs.client.connection.ws;
+		if (!ws) {
+			return;
+		}
+
+		// Put a middleware in the websocket send
+		const isAllowSendTwice = () => this.page.site.config.get('general.allow_send_twice');
+		const chatController = this.twitch.getChatController();
+		const controller = this.twitch.getInputController();
+		if (!controller || !chatController) {
+			return;
+		}
+		const dupeCheck = controller.props.sendMessageErrorChecks['duplicated-messages']?.check;
+		if (!!dupeCheck) {
+			controller.props.sendMessageErrorChecks['duplicated-messages'].check = function (s: string) {
+				return isAllowSendTwice() ? false : dupeCheck.apply(this, [s]);
+			};
+		}
+
+		const actorCanSpam = this.page.isActorModerator || this.page.isActorVIP;
+		const x = ws.send;
+		let cooldown = false;
+		let alt = false;
+		ws.send = function (s: string) {
+			if (isAllowSendTwice()) {
+				if (!alt) {
+					s += ' ' + unicodeTag0;
+				}
+				alt = !alt;
+			}
+
+			if (!cooldown) {
+				cooldown = true;
+				setTimeout(() => {
+					cooldown = false;
+				}, actorCanSpam ? 100 : 750);
+			}
+			if (!!x && typeof x === 'function') {
+				try {
+					return x.apply(this, [s]);
+				} catch (err) {
+					Logger.Get().error('error occured whilst mutating irc input');
+				}
+			}
+		};
+
+		let keepInput = false;
+		const initialOnSend = controller.props.onSendMessage;
+		const initOnUpdate = controller.componentDidUpdate;
+		controller.componentDidUpdate = function (p, st) {
+			controller.props.onSendMessage = function(s: string) {
+				if (keepInput) {
+					if (!cooldown) {
+						chatController.props.chatConnectionAPI.sendMessage(s);
+					}
+					return;
+				}
+				return initialOnSend.apply(this, [s]);
+			};
+			return initOnUpdate?.apply(this, [p, st]);
+		};
+		input.addEventListener('keyup', (ev) => keepInput = ev.ctrlKey);
+		input.addEventListener('keydown', (ev) => keepInput = ev.ctrlKey);
 	}
 
 	waitForNextSend(initInput: HTMLInputElement): void {
@@ -55,65 +129,20 @@ export class InputManager {
 				return undefined;
 			}
 			const historyEnabled = this.page.site.config.get('general.history_navigation')?.asBoolean();
-			let value = (input.value ?? input.textContent).replace(/﻿ /g, '');
-			const normalizedValue = [...value]
-				.filter(char => char.charCodeAt(0) !== unicodeTag0.charCodeAt(0))
-				.join('').trim();
-			this.history[0] = normalizedValue;
+			const value = (input.value ?? input.textContent).replace(/﻿ /g, '');
 
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
-				if (this.page.site.config.get('general.allow_send_twice')?.asBoolean()) {
-					if (value === '') {
-						return undefined;
-					}
-
-					const endChar = value?.charAt(value.length - 1);
-					// If message is duplicate we must edit the input value with a unicode tag
-					if (this.lastMessage === value) {
-						ev.preventDefault(); // For now cancel & stop the propgagation
-						ev.stopPropagation();
-
-						// Append or remove the unicode tag
-						if (endChar != unicodeTag0) {
-							value += unicodeTag0;
-						} else {
-							value = value.replace(new RegExp(unicodeTag0, 'g'), '');
-						}
-
-						// Patch the input value
-						this.setInputValue(this.lastMessage = value);
-
-						// Resume the event
-						initInput.removeEventListener('keydown', listener);
-						setTimeout(() => input.dispatchEvent(ev), 0);
-						setTimeout(() => restart(), 25);
-					}
-					this.lastMessage = value;
-				} else { // Notify the user they could enable the setting to send duplicate messages
-					if (this.lastMessage === input.value && !this.noticedAboutAllowSendTwice) {
-						this.noticedAboutAllowSendTwice = true;
-						this.page.chatListener?.sendSystemMessage('Enable the setting "Allow sending the same message twice" in the 7TV settings menu to bypass the duplicate message restriction');
-					}
-					this.lastMessage = value;
-				}
+				this.history[0] = value;
+				this.lastMessage = value;
 
 				// Save messages to history?
 				if (historyEnabled) {
 					this.historyPos = 0;
-					if (this.history[1] !== normalizedValue) {
-						this.history = ['', normalizedValue, ...new Set(this.history.slice(1))];
+					const sval = sanitizeValue(value);
+					if (this.history[1] !== sval) {
+						this.history = ['', sval, ...new Set(this.history.slice(1))];
 					}
-				}
-
-				if (ev.ctrlKey) {
-					// Temporarily lock the input
-					input.setAttribute('disabled', 'true');
-					setTimeout(() => this.setInputValue(value), 100);
-					setTimeout(() => {
-						input.removeAttribute('disabled');
-						input.focus();
-					}, (this.page.isActorModerator || this.page.isActorVIP) ? 100 : 1100); // Control cooldown depending on whether user is mod/vip or pleb
 				}
 			}
 			if (historyEnabled) {
@@ -123,7 +152,7 @@ export class InputManager {
 						this.historyPos--;
 					} else {
 						this.historyPos++;
-						this.setInputValue(newVal);
+						this.setInputValue(sanitizeValue(newVal));
 					}
 				} else if (ev.key === 'ArrowDown' && (input.selectionEnd ?? this.twitch.getChatInput().selectionStart) === value.length) { // Handle down-arrow (navigate forward in history)
 					this.historyPos--;
@@ -131,15 +160,16 @@ export class InputManager {
 					if (typeof newVal === 'undefined') {
 						this.historyPos++;
 					} else {
-						this.setInputValue(newVal);
+						this.setInputValue(sanitizeValue(newVal));
 					}
 				}
 			}
 		});
 
-		const restart = () => {
-			this.waitForNextSend(initInput);
-		};
+		const sanitizeValue = (v: string) => v.replace('﻿', '').replace(new RegExp(unicodeTag0, 'g'), '');
+		// const restart = () => {
+		// 	this.waitForNextSend(initInput);
+		// };
 		// Handle input handler restart
 		this.restart.pipe(tap(() => initInput.removeEventListener('keydown', listener))).subscribe();
 	}
@@ -157,7 +187,7 @@ export class InputManager {
 
 	getInput(): HTMLInputElement {
 		return (document.querySelector('.chat-input textarea')
-			??  document.querySelector(Twitch.Selectors.ChatInput)) as HTMLInputElement;
+			?? document.querySelector(Twitch.Selectors.ChatInput)) as HTMLInputElement;
 	}
 
 	setInputValue(value: string): void {
@@ -177,7 +207,7 @@ export class InputManager {
 			}
 		} else {
 			const el = this.twitch.getChatInput()?.props;
-			el.onChange({target: {value: value}});
+			el.onChange({ target: { value: value } });
 		}
 	}
 
