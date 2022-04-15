@@ -22,6 +22,7 @@ export class SiteApp {
 	paints = [] as API.Paint[];
 	badgeMap = new Map<number, number[]>();
 	paintMap = new Map<number, number>();
+	paintStyleRules = new Set<number>();
 	currentChannel = '';
 	tabCompleteDetector = new TabCompleteDetection(this);
 	config = config;
@@ -179,6 +180,18 @@ export class SiteApp {
 		if (!stylesheet) {
 			return undefined;
 		}
+		// Clear previous rules
+		this.paintStyleRules.forEach((i) => {
+			const r = stylesheet.cssRules.item(i);
+			if (!r) {
+				return;
+			}
+			const isPaint = r?.cssText.includes('data-seventv-paint');
+			if (isPaint) {
+				stylesheet.deleteRule(i);
+			}
+		});
+		this.paintStyleRules.clear();
 
 		// Turn the paint data into css rule
 		for (let i = 0; i < this.paints.length; i++) {
@@ -218,7 +231,7 @@ export class SiteApp {
 			}
 
 			// Insert new css rule for the paint
-			stylesheet.insertRule(`
+			this.paintStyleRules.add(stylesheet.insertRule(`
 				body:not(.seventv-no-paints) [data-seventv-paint="${i}"] {
 					${paint.color !== null ? `color: ${decimalColorToRGBA(paint.color)} !important;` : ''}
 					filter: ${dropShadows.length > 0
@@ -227,7 +240,7 @@ export class SiteApp {
 					};
 					background-image: ${funcName}(${args.join(', ')});
 				}
-			`.replace(/(\r\n|\n|\r)/gm, ''), stylesheet.cssRules.length);
+			`.replace(/(\r\n|\n|\r)/gm, ''), stylesheet.cssRules.length));
 
 			Logger.Get().debug(`Loaded cosmetic paint: '${paint.name}' (index: ${i}, id: ${paint.id})`);
 		}

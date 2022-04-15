@@ -50,9 +50,9 @@ export class Twitch {
 
 	getChatService(): Twitch.ChatServiceComponent {
 		const node = this.findReactChildren(
-			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.ROOT)[0]),
+			this.getReactInstance(document.querySelectorAll(Twitch.Selectors.MainLayout)[0]),
 			n => n.stateNode?.join && n.stateNode?.client,
-			1000
+			500
 		);
 
 		return node?.stateNode;
