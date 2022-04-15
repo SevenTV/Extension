@@ -6,7 +6,7 @@ import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
 import { Subject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 
 export class InputManager {
 	private twitch = new Twitch();
@@ -15,10 +15,8 @@ export class InputManager {
 		index: 0,
 		entry: ''
 	};
-	lastMessage = '';
 	history = [''] as string[];
 	historyPos = 0;
-	noticedAboutAllowSendTwice = false;
 
 	restart = new Subject<void>();
 
@@ -41,12 +39,139 @@ export class InputManager {
 
 		Logger.Get().info(`Managing chat input`);
 
-		// Handle send
-		this.waitForNextSend(input);
-
+		this.handleHistory(input);
+		this.handleIRC(input);
 	}
 
-	waitForNextSend(initInput: HTMLInputElement): void {
+	handleIRC(input: HTMLInputElement): void {
+		// Find the WebSocket IRC
+		const cs = this.twitch.getChatService();
+		if (!cs || !cs.client?.connection) {
+			Logger.Get().warn('Unable to hook into chat service. Some features will not work');
+			return;
+		}
+		const ws = cs.client.connection.ws;
+		if (!ws || ws.readyState !== WebSocket.OPEN) {
+			// Retry in 500ms if connection is not open
+			Logger.Get().debug('<IRC> Connection not open, retrying');
+			setTimeout(() => this.handleIRC(input), 1000);
+			return;
+		}
+		this.page.insertEmotesIntoAutocomplete();
+
+		// Get chat controllers
+		const isAllowSendTwice = () => this.page.site.config.get('general.allow_send_twice')?.asBoolean();
+		const chatController = this.twitch.getChatController();
+		const controller = this.twitch.getInputController();
+		if (!controller || !chatController) {
+			Logger.Get().warn('Unable to take control of chat input. Some features will not work');
+			return;
+		}
+
+		// Overwrite the dupe message and throughput checks
+		// We want to prevent them when the user is useful spam features
+		const actorCanSpam = this.page.isActorModerator || this.page.isActorVIP;
+		const dupeCheck = controller.props.sendMessageErrorChecks?.['duplicated-messages']?.check;
+		const throughputCheck = controller.props.sendMessageErrorChecks?.['message-throughput']?.check;
+		if (!!dupeCheck) {
+			let sentAdvice = false;
+			const sendAdvice = () => {
+				if (sentAdvice || actorCanSpam) {
+					return;
+				}
+				this.page.chatListener?.sendSystemMessage('Enable the setting "Allow sending the same message twice" in the 7TV settings menu to bypass Twitch\'s duplicate message restriction');
+				sentAdvice = true;
+			};
+			controller.props.sendMessageErrorChecks['duplicated-messages'].check = function (s: string) {
+				if (!isAllowSendTwice()) {
+					const restricted = dupeCheck.apply(this, [s]);
+					if (restricted) {
+						sendAdvice(); // Advice: use 7TV to send the same message twice forsenBased
+					}
+					return restricted;
+				} else {
+					return false;
+				}
+			};
+		}
+		if (!!throughputCheck) {
+			controller.props.sendMessageErrorChecks['message-throughput'].check = function(s: string) {
+				// Hide the throughput warning if the using is using ctrl+enter
+				return keepInput ? false : throughputCheck.apply(this, [s]);
+			};
+		}
+
+		const ircSend = ws.send;
+		let alt = false;
+		ws.send = function (s: string) {
+			if (!actorCanSpam && isAllowSendTwice()) {
+				// Set alternate unicode tag suffix
+				if (!alt) {
+					s += ' ' + unicodeTag0;
+				}
+				alt = !alt;
+			}
+
+			if (!!ircSend && typeof ircSend === 'function') {
+				try {
+					return ircSend.apply(this, [s]);
+				} catch (err) {
+					Logger.Get().error('error occured whilst mutating irc input');
+				}
+			}
+		};
+
+		// Handle closure
+		// We must restart the input manager if this happens
+		ws.addEventListener('close', (close) => {
+			Logger.Get().debug(`<InputManager> Detected IRC closure with code ${close.code}`);
+			Logger.Get().info(`<InputManager> IRC connection lost, restarting`);
+			this.restart.next(undefined);
+			this.listen();
+		}, { once: true });
+
+		let cooldown = false;
+		let keepInput = false;
+		const initialOnSend = controller.props.onSendMessage;
+		const initOnUpdate = controller.componentDidUpdate;
+		controller.componentDidUpdate = function (p, st) {
+			controller.props.onSendMessage = function(s: string) {
+				if (keepInput) {
+					if (!cooldown) {
+						// Set a cooldown
+						// This is 100ms as Mod/VIP, or ~1s as a plen. (we add an extra 250ms to account for latency)
+						cooldown = true;
+						setTimeout(() => {
+							cooldown = false;
+						}, actorCanSpam ? 100 : 1250);
+
+						chatController.props.chatConnectionAPI.sendMessage(s);
+					}
+					return;
+				}
+				return initialOnSend.apply(this, [s]);
+			};
+			return initOnUpdate?.apply(this, [p, st]);
+		};
+		input.addEventListener('keyup', (ev) => keepInput = ev.ctrlKey);
+		input.addEventListener('keydown', (ev) => keepInput = ev.ctrlKey);
+
+		this.restart.pipe(take(1)).subscribe({
+			next: () => {
+				controller.componentDidUpdate = initOnUpdate;
+				controller.props.onSendMessage = initialOnSend;
+				ws.send = ircSend;
+				if (!!controller.props.sendMessageErrorChecks?.['duplicated-messages']) {
+					controller.props.sendMessageErrorChecks['duplicated-messages'].check = dupeCheck;
+				}
+				if (!!controller.props.sendMessageErrorChecks?.['message-throughput']) {
+					controller.props.sendMessageErrorChecks['message-throughput'].check = throughputCheck;
+				}
+			}
+		});
+	}
+
+	handleHistory(initInput: HTMLInputElement): void {
 		let listener: (ev: KeyboardEvent) => any;
 		initInput.addEventListener('keydown', listener = (ev) => {
 			const input = ev.target as HTMLInputElement;
@@ -55,65 +180,19 @@ export class InputManager {
 				return undefined;
 			}
 			const historyEnabled = this.page.site.config.get('general.history_navigation')?.asBoolean();
-			let value = (input.value ?? input.textContent).replace(/﻿ /g, '');
-			const normalizedValue = [...value]
-				.filter(char => char.charCodeAt(0) !== unicodeTag0.charCodeAt(0))
-				.join('').trim();
-			this.history[0] = normalizedValue;
+			const value = (input.value ?? input.textContent).replace(/﻿ /g, '');
 
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
-				if (this.page.site.config.get('general.allow_send_twice')?.asBoolean()) {
-					if (value === '') {
-						return undefined;
-					}
-
-					const endChar = value?.charAt(value.length - 1);
-					// If message is duplicate we must edit the input value with a unicode tag
-					if (this.lastMessage === value) {
-						ev.preventDefault(); // For now cancel & stop the propgagation
-						ev.stopPropagation();
-
-						// Append or remove the unicode tag
-						if (endChar != unicodeTag0) {
-							value += unicodeTag0;
-						} else {
-							value = value.replace(new RegExp(unicodeTag0, 'g'), '');
-						}
-
-						// Patch the input value
-						this.setInputValue(this.lastMessage = value);
-
-						// Resume the event
-						initInput.removeEventListener('keydown', listener);
-						setTimeout(() => input.dispatchEvent(ev), 0);
-						setTimeout(() => restart(), 25);
-					}
-					this.lastMessage = value;
-				} else { // Notify the user they could enable the setting to send duplicate messages
-					if (this.lastMessage === input.value && !this.noticedAboutAllowSendTwice) {
-						this.noticedAboutAllowSendTwice = true;
-						this.page.chatListener?.sendSystemMessage('Enable the setting "Allow sending the same message twice" in the 7TV settings menu to bypass the duplicate message restriction');
-					}
-					this.lastMessage = value;
-				}
+				this.history[0] = value;
 
 				// Save messages to history?
 				if (historyEnabled) {
 					this.historyPos = 0;
-					if (this.history[1] !== normalizedValue) {
-						this.history = ['', normalizedValue, ...new Set(this.history.slice(1))];
+					const sval = sanitizeValue(value);
+					if (this.history[1] !== sval) {
+						this.history = ['', sval, ...new Set(this.history.slice(1))];
 					}
-				}
-
-				if (ev.ctrlKey) {
-					// Temporarily lock the input
-					input.setAttribute('disabled', 'true');
-					setTimeout(() => this.setInputValue(value), 100);
-					setTimeout(() => {
-						input.removeAttribute('disabled');
-						input.focus();
-					}, (this.page.isActorModerator || this.page.isActorVIP) ? 100 : 1100); // Control cooldown depending on whether user is mod/vip or pleb
 				}
 			}
 			if (historyEnabled) {
@@ -123,7 +202,7 @@ export class InputManager {
 						this.historyPos--;
 					} else {
 						this.historyPos++;
-						this.setInputValue(newVal);
+						this.setInputValue(sanitizeValue(newVal));
 					}
 				} else if (ev.key === 'ArrowDown' && (input.selectionEnd ?? this.twitch.getChatInput().selectionStart) === value.length) { // Handle down-arrow (navigate forward in history)
 					this.historyPos--;
@@ -131,17 +210,14 @@ export class InputManager {
 					if (typeof newVal === 'undefined') {
 						this.historyPos++;
 					} else {
-						this.setInputValue(newVal);
+						this.setInputValue(sanitizeValue(newVal));
 					}
 				}
 			}
 		});
 
-		const restart = () => {
-			this.waitForNextSend(initInput);
-		};
-		// Handle input handler restart
-		this.restart.pipe(tap(() => initInput.removeEventListener('keydown', listener))).subscribe();
+		const sanitizeValue = (v: string) => v.replace('﻿', '').replace(new RegExp(unicodeTag0, 'g'), '');
+		this.restart.pipe(take(1), tap(() => initInput.removeEventListener('keydown', listener))).subscribe();
 	}
 
 	createOverlayInput(): void {
@@ -157,7 +233,7 @@ export class InputManager {
 
 	getInput(): HTMLInputElement {
 		return (document.querySelector('.chat-input textarea')
-			??  document.querySelector(Twitch.Selectors.ChatInput)) as HTMLInputElement;
+			?? document.querySelector(Twitch.Selectors.ChatInput)) as HTMLInputElement;
 	}
 
 	setInputValue(value: string): void {
@@ -177,7 +253,7 @@ export class InputManager {
 			}
 		} else {
 			const el = this.twitch.getChatInput()?.props;
-			el.onChange({target: {value: value}});
+			el.onChange({ target: { value: value } });
 		}
 	}
 

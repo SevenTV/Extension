@@ -184,9 +184,11 @@ export class TwitchPageScript {
 			router.props.history.listen(switchHandler);
 			Logger.Get().debug('Now listening for router changes');
 		} else if (this.retryLoadCount < 32) { // Router not found, we will retry
-			setTimeout(() => this.handlePageSwitch(), 100);
+			setTimeout(() => this.handlePageSwitch(), this.retryLoadCount*250);
 			this.retryLoadCount++;
 			Logger.Get().debug(`Couldn't find router (try #${this.retryLoadCount})`);
+		} else {
+			Logger.Get().error(`Failed to find router in ${this.retryLoadCount} tries`);
 		}
 	}
 
@@ -215,15 +217,10 @@ export class TwitchPageScript {
 
 		const store = this.emoteStore;
 		const emoteProvider = this.twitch.getAutocompleteHandler().providers[0];
+		emoteProvider.props.emotes = emoteProvider.props.emotes.filter((s) => s.id !== '777');
 
 		// Wait 500ms if twitch has not inserted its emotes.
 		if (emoteProvider.props.emotes.length === 0) {
-
-			// Note: The scope of 'this' changes to the window instead
-			// of the page script when the function is called with setTimeout().
-			// Lambda/arrow functions preserve the previous scope when called.
-			// See https://stackoverflow.com/a/11714413
-			// Alternatively, could use an observable.
 			setTimeout(() => this.insertEmotesIntoAutocomplete(), 500);
 			return;
 		}
@@ -250,21 +247,22 @@ export class TwitchPageScript {
 					provider = `${e._thirdPartyGlobal ? 'Global' : 'Channel'} ${e.type}`;
 					break;
 			}
-			return x.call(this, {...e, token: `${e.token} (${provider})` });
+			const t = e.token.replace(`(${provider})`, '');
+			return x.call(this, {...e, token: `${t} (${provider})` });
 		};
 
 		emoteProvider.props.emotes.push({
 			emotes: this.emoteStore.getAllEmotes(['7TV', 'BTTV', 'EMOJI', 'FFZ']).map(emote => {
 				return {
 					id: emote.id.toString(),
-					setID: '-1',
+					setID: '777',
 					token: emote.name,
 					type: emote.provider,
 					_thirdPartyGlobal: emote.isGlobal(),
 					__typename: 'SeventvEmote'
 				};
 			}),
-			id: '-1',
+			id: '777',
 			__typename: 'SeventvEmoteSet'
 		});
 	}
