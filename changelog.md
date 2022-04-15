@@ -3,9 +3,10 @@
 ### Version 2.2.0
 
 - Twitch: Added support for chat in VODs (#234)
-- Twitch: The "Send same message twice" option should now work again (#239)
+- Twitch: The "Send same message twice" option should now work again (#239, #241)
 - Twitch: The "Show Timeouts & Bans" option will now disable itself while acting as a moderator
 - Twitch: Improved the time formatting for time-out and ban notices (#218)
+- Twitch: Added provider indicators in emote colon-completion and fixed its inconsistent functionality
 - Twitch: Fixed an issue which caused FFZ emotes to sometimes be broken images or unexpected random images (#240)
 - Twitch: Fixed an issue which occasionally prevented name tag paints from rendering
 - Twitch: Tentatively fixed an issue which caused random emojis to appear in chat
