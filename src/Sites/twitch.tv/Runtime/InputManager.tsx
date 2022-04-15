@@ -6,7 +6,7 @@ import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Logger } from 'src/Logger';
 import { unicodeTag0 } from 'src/Global/Util';
 import { Subject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 
 export class InputManager {
 	private twitch = new Twitch();
@@ -15,9 +15,6 @@ export class InputManager {
 		index: 0,
 		entry: ''
 	};
-	lastMessage = '';
-	lastMessageAlt = false;
-	isCooldown = false;
 	history = [''] as string[];
 	historyPos = 0;
 	noticedAboutAllowSendTwice = false;
@@ -118,6 +115,17 @@ export class InputManager {
 		};
 		input.addEventListener('keyup', (ev) => keepInput = ev.ctrlKey);
 		input.addEventListener('keydown', (ev) => keepInput = ev.ctrlKey);
+
+		this.restart.pipe(take(1)).subscribe({
+			next: () => {
+				controller.componentDidUpdate = initOnUpdate;
+				controller.props.onSendMessage = initialOnSend;
+				ws.send = x;
+				if (!!dupeCheck) {
+					controller.props.sendMessageErrorChecks['duplicated-messages'].check = dupeCheck;
+				}
+			}
+		});
 	}
 
 	waitForNextSend(initInput: HTMLInputElement): void {
@@ -134,7 +142,6 @@ export class InputManager {
 			// User presses enter: message will be sent
 			if (ev.key === 'Enter') {
 				this.history[0] = value;
-				this.lastMessage = value;
 
 				// Save messages to history?
 				if (historyEnabled) {
