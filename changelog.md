@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.2.1
+
+- Fixed an issue which broke the reply functionality on Twitch
+
 ### Version 2.2.0
 
 - Twitch: Added support for chat in VODs (#234)
