@@ -135,7 +135,7 @@ export class InputManager {
 		const initialOnSend = controller.props.onSendMessage;
 		const initOnUpdate = controller.componentDidUpdate;
 		controller.componentDidUpdate = function (p, st) {
-			controller.props.onSendMessage = function(s: string) {
+			controller.props.onSendMessage = function(s: string, reply) {
 				if (keepInput) {
 					if (!cooldown) {
 						// Set a cooldown
@@ -149,7 +149,7 @@ export class InputManager {
 					}
 					return;
 				}
-				return initialOnSend.apply(this, [s]);
+				return initialOnSend.apply(this, [s, reply]);
 			};
 			return initOnUpdate?.apply(this, [p, st]);
 		};

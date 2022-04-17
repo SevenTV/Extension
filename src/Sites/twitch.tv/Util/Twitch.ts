@@ -474,7 +474,14 @@ export namespace Twitch {
 		};
 	}> & {
 		props: {
-			onSendMessage: (value: string) => any;
+			onSendMessage: (value: string, reply: {
+				parentDeleted: boolean;
+				parentDisplayName: string;
+				parentMessageBodsy: string;
+				parentMsgId: string;
+				parentUid: string;
+				parentUserLogin: string;
+			}) => any;
 		}
 	};
 
