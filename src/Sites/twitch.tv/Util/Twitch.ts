@@ -228,7 +228,7 @@ export namespace Twitch {
 	export namespace Selectors {
 		export const ROOT = '#root div';
 		export const NAV = '[data-a-target="top-nav-container"]';
-		export const MainLayout = 'main.twilight-main, #root.sunlight-root > div:nth-of-type(3), #root[data-a-page-loaded-name="PopoutChatPage"] > div';
+		export const MainLayout = 'main.twilight-main, #root.sunlight-root > div:nth-of-type(3), #root[data-a-page-loaded-name="PopoutChatPage"] > div, #root[data-a-page-loaded-name="ModerationViewChannelPage"] > div:nth-of-type(1)';
 		export const ChatContainer = 'section[data-test-selector="chat-room-component-layout"]';
 		export const VideoChatContainer = 'div.video-chat.va-vod-chat';
 		export const ChatScrollableContainer = '.chat-scrollable-area__message-container';

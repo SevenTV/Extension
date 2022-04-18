@@ -2,8 +2,10 @@
 
 ### Version 2.2.1
 
-- Fixed an issue which broke the reply functionality on Twitch
-- The duplicate message bypass feature should no longer insert unnecessary extra unicodes 
+- Twitch: Fixed an issue which prevented the extension from loading in Mod View
+- Twitch: Fixed an issue which broke the reply functionality
+- Twitch: Tentatively fixed an issue which caused random chat disconnections
+- Twitch: The duplicate message bypass feature should no longer insert unnecessary extra unicodes 
 
 ### Version 2.2.0
 
