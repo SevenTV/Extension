@@ -168,7 +168,7 @@ export class InputManager {
 				}
 				return initialOnSend.apply(this, [s, reply]);
 			};
-		}
+		};
 		input.addEventListener('keyup', (ev) => keepInput = ev.ctrlKey);
 		input.addEventListener('keydown', (ev) => keepInput = ev.ctrlKey);
 
