@@ -244,7 +244,7 @@ export class TwitchPageScript {
 				case 'TURBO':
 					provider = 'Twitch Turbo';
 				default:
-					provider = `${e._thirdPartyGlobal ? 'Global' : 'Channel'} ${e.type}`;
+					provider = e.type ? `${e._thirdPartyGlobal ? 'Global' : 'Channel'} ${e.type}` : 'Unknown';
 					break;
 			}
 			const t = e.token.replace(`(${provider})`, '');
