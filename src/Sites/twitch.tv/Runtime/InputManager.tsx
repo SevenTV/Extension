@@ -148,6 +148,10 @@ export class InputManager {
 		const initialOnSend = controller.props.onSendMessage;
 		const initOnUpdate = controller.componentDidUpdate;
 		controller.componentDidUpdate = function (p, st) {
+			overwriteOnSend();
+			return initOnUpdate?.apply(this, [p, st]);
+		};
+		const overwriteOnSend = () => {
 			controller.props.onSendMessage = function(s: string, reply) {
 				if (keepInput) {
 					if (!cooldown) {
@@ -164,8 +168,7 @@ export class InputManager {
 				}
 				return initialOnSend.apply(this, [s, reply]);
 			};
-			return initOnUpdate?.apply(this, [p, st]);
-		};
+		}
 		input.addEventListener('keyup', (ev) => keepInput = ev.ctrlKey);
 		input.addEventListener('keydown', (ev) => keepInput = ev.ctrlKey);
 
