@@ -8,6 +8,8 @@ import { unicodeTag0 } from 'src/Global/Util';
 import { Subject } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 
+const TAG0_REGEX = new RegExp(unicodeTag0, 'g');
+
 export class InputManager {
 	private twitch = new Twitch();
 
@@ -103,15 +105,26 @@ export class InputManager {
 
 		const ircSend = ws.send;
 		let alt = false;
+		let prevMessage = '';
 		ws.send = function (s: string) {
+			const content = s.split(' :')[1];
 			if (!actorCanSpam && isAllowSendTwice()) {
-				// Set alternate unicode tag suffix
-				if (!alt) {
-					s += ' ' + unicodeTag0;
+				if (typeof content === 'string' && content === prevMessage) {
+					// Remove existing unicode tags
+					// avoids conflict with other extensions
+					s = s.replace(TAG0_REGEX, '');
+
+					// Set alternate unicode tag suffix
+					alt = !alt;
+					if (alt) {
+						s += ' ' + unicodeTag0;
+					}
+				} else {
+					alt = false;
 				}
-				alt = !alt;
 			}
 
+			prevMessage = content;
 			if (!!ircSend && typeof ircSend === 'function') {
 				try {
 					return ircSend.apply(this, [s]);

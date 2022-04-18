@@ -3,6 +3,7 @@
 ### Version 2.2.1
 
 - Fixed an issue which broke the reply functionality on Twitch
+- The duplicate message bypass feature should no longer insert unnecessary extra unicodes 
 
 ### Version 2.2.0
 
