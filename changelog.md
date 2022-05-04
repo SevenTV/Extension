@@ -2,6 +2,10 @@
 
 ### Version 2.2.1
 
+- YouTube: Fixed an issue causing the true theater mode to be cut off
+
+### Version 2.2.1
+
 - Twitch: Fixed an issue which prevented the extension from loading in Mod View
 - Twitch: Fixed an issue which broke the reply functionality
 - Twitch: Tentatively fixed an issue which caused random chat disconnections
