@@ -2,7 +2,7 @@
 
 ### Version 2.2.1
 
-- YouTube: Fixed an issue causing the true theater mode to be cut off
+- YouTube: Fixed an issue causing the true theater mode to cut off the video/stream
 
 ### Version 2.2.1
 
