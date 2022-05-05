@@ -1,8 +1,8 @@
 # 7TV Web Extension - Changelog
 
-### Version 2.2.1
+### Version 2.2.2
 
-- YouTube: Fixed an issue causing the true theater mode to cut off the video/stream
+- YouTube: Fixed an issue causing the true theater mode to cut off the video/stream (#258)
 
 ### Version 2.2.1
 
