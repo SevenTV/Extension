@@ -1,81 +1,109 @@
-.seventv-emote-menu {	
-	position: absolute;
+.seventv-emote-menu {
+  position: absolute;
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 30rem;
 
-	.seventv-emote-menu-header {
-		background-color: var(--seventv-color-background-1);
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		border-radius: 0.4rem;
-	}
-	.seventv-emote-menu-scrollable {
-		background-color: var(--seventv-color-background-0);
-		padding-top: 1em;
-		border-radius: 0.6rem;
-		width: 30rem;
-		height: 30rem;
-		overflow: auto;
-	}
-	.seventv-emote-menu-tab {
-		background-color: var(--seventv-color-background-1);
-		display: flex;
-		justify-content: center;
-		flex-grow: 1;
-		min-height: 3em;
+  .seventv-emote-menu-header {
+    background-color: var(--seventv-color-background-1);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-radius: 0.4rem 0.4rem 0 0;
+    overflow: hidden;
+  }
+  .seventv-emote-menu-scrollable {
+    background-color: var(--seventv-color-background-0);
+    padding-top: 1em;
+    height: 30rem;
+    overflow: auto;
 
-		&.selected {
-			border-bottom: 0.1rem solid white !important;
-		}
-	}
-	.seventv-emote-menu-emote-list-section {
-		margin-top: 1em;
-		margin-left: 1em;
-	}
-	.seventv-emote-menu-category-header {
-		display: flex;
-		width: 100%;
-		justify-content: center;
-		font-size: 1.65rem;
+    // Scrollbar Styling
+    scrollbar-width: thin;
+    scrollbar-color: var(--seventv-color-background-1) var(--seventv-color-background-0);
+  }
+  .seventv-emote-menu-tab {
+    background-color: var(--seventv-color-background-1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    cursor: pointer;
+    min-height: 3em;
+    border-style: none;
 
-		border-style: solid;
-		border-bottom-width: 0.1rem;
-		border-color: white;
-	}
-	.seventv-emote-menu-emote-list {
-		display: flex;
-		flex-wrap: wrap;
+    &.selected {
+      border-bottom: 0.1rem solid white !important;
+    }
+  }
+  .seventv-emote-menu-emote-list-section {
+    margin-top: 1em;
+    margin-left: 1em;
+  }
+  .seventv-emote-menu-category-header {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    font-size: 1.65rem;
 
-		margin-top: 1em;
-		margin-right: .25em;
-		margin-left: 1.25em;
-		margin-bottom: 1em;
+    border-style: solid;
+    border-bottom-width: 0.1rem;
+    border-color: white;
+  }
+  .seventv-emote-menu-emote-list {
+    display: flex;
+    flex-wrap: wrap;
 
-		span {
-			margin-right: .2em;
-			margin-left: .2em;
-			margin-top: .1em;
-			margin-bottom: .1em;
-		}
-	}
-	.seventv-emote-menu-search {
-		background-color: var(--seventv-background-color);
+    margin-top: 1em;
+    margin-right: 0.25em;
+    margin-left: 1.25em;
+    margin-bottom: 1em;
 
-		input {
-			width: 95%;
-			height: 3em;
-			color: white;
-			border-color: white;
-			border-width: 0.1rem;
-			border-style: solid;
-			border-radius: 0.4rem;
-			background-color: var(--seventv-color-background-1);
-			padding: .5em;
-	
-			&:focus {
-				outline: none !important;
-				border: 0.1rem solid rgb(0, 195, 255) ;
-				box-shadow: 0 0 1rem rgb(0, 195, 255) !important;
-			}
-		}
-	}
+    span {
+      margin-right: 0.2em;
+      margin-left: 0.2em;
+      margin-top: 0.1em;
+      margin-bottom: 0.1em;
+    }
+  }
+  .seventv-emote-menu-search {
+    background-color: var(--seventv-background-color);
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    padding: 0;
+    margin: 0;
+    input {
+      width: 100%;
+      height: 3em;
+      color: white;
+      border-color: white;
+      border-width: 0.1rem;
+      border-style: solid;
+      border-radius: 0 0 0.4rem 0.4rem;
+      background-color: var(--seventv-color-background-1);
+      padding: 0.25em 0.5em;
+      transition: all 0.2s ease-in-out;
+
+      &:focus {
+        outline: none !important;
+        border: 0.1rem solid rgb(0, 195, 255);
+        box-shadow: 0 0 1rem rgb(0, 195, 255) !important;
+      }
+    }
+  }
+
+  & *::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+  & *::-webkit-scrollbar-track {
+    background-color: var(--seventv-color-background-0);
+  }
+  & *::-webkit-scrollbar-thumb {
+    background-color: var(--seventv-color-background-1);
+    border-radius: 0.2rem;
+    border: 0 solid transparent;
+  }
 }
