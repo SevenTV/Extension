@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.2.3
+
+- Twitch: Fixed an issue with some low resolution emotes
+
 ### Version 2.2.2
 
 - YouTube: Fixed an issue causing the true theater mode to cut off the video/stream (#258)
