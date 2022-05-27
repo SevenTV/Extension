@@ -536,7 +536,7 @@ export namespace Twitch {
 		canBeTriggeredByTab: boolean;
 		doesEmoteMatchTerm: (e: TwitchEmote, t: string) => boolean;
 		getMatchedEmotes: (s: string) => TwitchEmote[];
-		getMatches: (s: string) => TwitchEmote[];
+		getMatches: (x: string) => any[];
 		props: {
 			emotes: TwitchEmoteSet[];
 			isEmoteAnimationsEnabled: boolean;
