@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "7TV",
 	"description": "7TV is an emote service and extension for Twitch and YouTube",
-	"version": "2.2.1",
+	"version": "2.2.2",
 	"page_action": {
 		"default_icon": "icon128.png"
 	},

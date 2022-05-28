@@ -1,8 +1,11 @@
 # 7TV Web Extension - Changelog
+### Version 2.2.3
+
+- Twitch: Fixed 3rd party emote previews not rendering in the autocomplete tray
 
 ### Version 2.2.2
 
-- Twitch: Fixed 3rd party emote previews not rendering in the autocomplete tray
+- YouTube: Fixed an issue causing the true theater mode to cut off the video/stream (#258)
 
 ### Version 2.2.1
 
