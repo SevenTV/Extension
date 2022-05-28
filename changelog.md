@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.2.2
+
+- Twitch: Fixed 3rd party emote previews not rendering in the autocomplete tray
+
 ### Version 2.2.1
 
 - Twitch: Fixed an issue which prevented the extension from loading in Mod View
