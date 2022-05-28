@@ -1,5 +1,9 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.2.3
+
+- Twitch: Fix emotes not showing up while using FFZ in channels who have changed username recently (#264)
+
 ### Version 2.2.2
 
 - YouTube: Fixed an issue causing the true theater mode to cut off the video/stream (#258)
