@@ -235,7 +235,7 @@ export class TwitchPageScript {
 			}
 
 			//override the srcSet if the emote is inserted by seventv
-			matches.forEach((m) => {	
+			matches.forEach((m) => {
 				const elem = m.element[0];
 				if (elem.key.startsWith('emote-img-seventv')) {
 					m.element[0].props.children.props.srcSet = store.getEmote(elem.key.substring(18))?.urls.reduce((prev, current) =>
