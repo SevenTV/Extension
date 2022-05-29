@@ -2,7 +2,8 @@
 
 ### Version 2.2.3
 
-- Twitch: Fixed an issue with some low resolution emotes
+- Twitch: Fixed an issue with some low resolution emotes (#266)
+- Twitch: Fix emotes not showing up while using FFZ in channels who have changed username recently (#264)
 
 ### Version 2.2.2
 
