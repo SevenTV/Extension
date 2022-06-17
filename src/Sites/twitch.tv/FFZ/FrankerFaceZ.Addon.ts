@@ -100,8 +100,8 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		}
 	}
 
-	async fetchChannelEmotes(channelLogin: string) {
-		const response = await fetch(`${apiBase}/v2/users/${channelLogin}/emotes`);
+	async fetchChannelEmotes(channelId: string) {
+		const response = await fetch(`${apiBase}/v2/users/${channelId}/emotes`);
 		if (response.ok) {
 			const json = await response.json();
 
@@ -111,7 +111,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 			}
 
 			this.sendMessageUp('SwitchChannel', {
-				channelName: channelLogin,
+				channelName: channelId,
 				emotes: emotes ?? [],
 				skip_download: true
 			});
@@ -127,7 +127,7 @@ class SevenTVEmotes extends FrankerFaceZ.utilities.addon.Addon {
 		this.removeChannelSet(channel);
 
 		if (emotes === undefined) {
-			emotes = await this.fetchChannelEmotes(channel.login);
+			emotes = await this.fetchChannelEmotes(channel.id);
 		}
 
 		this.sendMessageUp('EmoteSetUpdateFFZ', emotes);
