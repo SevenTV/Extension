@@ -682,8 +682,8 @@ export namespace Twitch {
 	}
 
 	export interface ChatMessage {
-		badgeDynamicData: {};
-		badges: { [key: string]: ('1' | '0') };
+		badgeDynamicData: { [key: string]: string };
+		badges: { [key: string]: string };
 		banned: boolean;
 		bits: number;
 		deleted: boolean;

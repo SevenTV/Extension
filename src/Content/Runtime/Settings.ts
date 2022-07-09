@@ -126,7 +126,7 @@ class Settings {
 				{
 					id: 'general.recent_messages',
 					label: 'Show Recent Chat History',
-					hint: 'Show the most recent chat history from before you first opened chat',
+					hint: 'Show the most recent chat history from before you first opened chat. With this option enabled, 7TV will load historical chat messages from a third party service whenever you visit someone\'s stream. To get the messages, 7TV sends the name of the channel you have open to this service. The service temporarily stores messages that you and others send in order to provide chat history. For more information about this service and how it relates to privacy concerns, please visit https://recent-messages.robotty.de/.',
 					type: 'checkbox',
 					defaultValue: false
 				},

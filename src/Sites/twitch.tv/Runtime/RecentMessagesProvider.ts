@@ -17,16 +17,32 @@ export class RecentMessagesProvider {
         }
 
         const metadataStrings = matches[1].split(';');
-        let metadata: { [key: string]: string } = {};
+        const metadata: { [key: string]: string } = {};
         for (const item of metadataStrings) {
             const [key, value] = item.split('=');
             metadata[key] = value;
         }
+        const badges: { [key: string]: string } = {};
+        const badgeDynamicData: { [key: string]: string } = {};
+        if (metadata['badges']) {
+            const badgesData = metadata['badges'].split(',');
+            for (const badge of badgesData) {
+                const [key, value] = badge.split('/');
+                badges[key] = value;
+            }
+        }
+        if (metadata['badge-info']) {
+            const badgesInfoData = metadata['badge-info'].split(',');
+            for (const badgeInfo of badgesInfoData) {
+                const [key, value] = badgeInfo.split('/');
+                badgeDynamicData[key] = value;
+            }
+        }
         const message = matches[2];
 
         return {
-            badges: {},
-            badgeDynamicData: {},
+            badges,
+            badgeDynamicData,
             bits: 0,
             user: {
                 userDisplayName: metadata['display-name'],

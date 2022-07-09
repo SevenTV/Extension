@@ -170,6 +170,8 @@ export class TwitchPageScript {
 						continueListening();
 					}
 
+					// If the recent messages feature is enabled and we're on a live chat as opposed to a VOD/clip,
+					// load the chat history according to the user's preferences and show them in the chat view.
 					if (this.site.config.get('general.recent_messages')?.asBoolean() && channelInfo as Twitch.ChatControllerComponent) {
 						const controller = channelInfo as Twitch.ChatControllerComponent;
 						const recentMessagesProvider = new RecentMessagesProvider(channelName);
