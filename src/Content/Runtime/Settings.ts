@@ -124,6 +124,29 @@ class Settings {
 					defaultValue: true
 				},
 				{
+					id: 'general.recent_messages',
+					label: 'Show Recent Chat History',
+					hint: 'Show the most recent chat history from before you first opened chat',
+					type: 'checkbox',
+					defaultValue: false
+				},
+				{
+					id: 'general.recent_messages_count',
+					label: 'Limit Recent Chat History',
+					hint: 'Max number of recent chat history messages to show',
+					type: 'select',
+					options: ['10', '25', '50'],
+					defaultValue: '10'
+				},
+				{
+					id: 'general.recent_messages_time',
+					label: 'Recent Chat History Time Limit',
+					hint: 'How many minutes in the past to show recent chat history for',
+					type: 'select',
+					options: ['10', '30', '60'],
+					defaultValue: '10'
+				},
+				{
 					id: 'ui.transparency',
 					label: 'UI Transparency',
 					hint: 'Toggle the transparency / backdrop blur' + (isFirefox ? ` (Unavailable on Firefox) ` : ''),

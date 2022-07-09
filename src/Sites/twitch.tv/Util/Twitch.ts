@@ -413,7 +413,7 @@ export namespace Twitch {
 		userID: string | undefined;
 		userLogin: string | undefined;
 	}> & {
-		pushMessage: (msg: { id: string; msgid: string; channel: string; type: number; message: any; }) => void;
+		pushMessage: (msg: { id: string; msgid: string; channel: string; type: number; message: any; } | Twitch.ChatMessage) => void;
 		sendMessage: (msg: string, n: any) => void;
 	};
 
@@ -682,21 +682,24 @@ export namespace Twitch {
 	}
 
 	export interface ChatMessage {
-		badgesDynamicData: {};
+		badgeDynamicData: {};
 		badges: { [key: string]: ('1' | '0') };
 		banned: boolean;
 		bits: number;
 		deleted: boolean;
 		hidden: boolean;
 		id: string;
-		isHistorical: unknown;
+		isHistorical: boolean;
+		isFirstMsg: boolean;
+		isReturningChatter: boolean;
 		seventv: SevenTV;
 		message: string;
 		messageBody: string;
 		messageParts: ChatMessage.Part[];
 		messageType: number;
+		timestamp: number;
 		type: number;
-		reply: unknown;
+		reply?: ChatMessage.Reply;
 		user: ChatUser;
 
 		// Other third party things
@@ -709,7 +712,7 @@ export namespace Twitch {
 			text: string;
 			type: 'emote' | 'text';
 		}[];
-		ffz_emotes: any;
+		ffz_emotes?: any;
 		emotes?: any;
 		_ffz_checked?: boolean;
 		opener?: Twitch.EmoteCardOpener;
@@ -752,6 +755,15 @@ export namespace Twitch {
 			type: number;
 			userLogin: string;
 		}
+
+		export interface Reply {
+			parentDeleted: boolean;
+			parentMsgId: string;
+			parentMessageBody: string;
+			parentUid: string;
+			parentUserLogin: string;
+			parentDisplayName: string;
+		}
 	}
 
 	export interface ChatUser {
@@ -762,5 +774,6 @@ export namespace Twitch {
 		userID: string;
 		userLogin: string;
 		userType: string;
+		isSubscriber: boolean;
 	}
 }

@@ -13,6 +13,7 @@ import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import type { EventAPI } from 'src/Global/Events/EventAPI';
 import { TwitchVideoChatListener } from 'src/Sites/twitch.tv/Runtime/VideoChatListener';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
+import { RecentMessagesProvider } from 'src/Sites/twitch.tv/Runtime/RecentMessagesProvider';
 
 export class TwitchPageScript {
 	site = new SiteApp();
@@ -167,6 +168,19 @@ export class TwitchPageScript {
 						channelSwitchHandler.finally(continueListening);
 					} else { // Emotes already loaded? Start listening for more chat.
 						continueListening();
+					}
+
+					if (this.site.config.get('general.recent_messages')?.asBoolean() && channelInfo as Twitch.ChatControllerComponent) {
+						const controller = channelInfo as Twitch.ChatControllerComponent;
+						const recentMessagesProvider = new RecentMessagesProvider(channelName);
+						const countLimit = parseInt(this.site.config.get('general.recent_messages_count')?.asString() ?? '10');
+						const timeLimit = parseInt(this.site.config.get('general.recent_messages_time')?.asString() ?? '10');
+						try {
+							const recentMessages = await recentMessagesProvider.getMessages(countLimit, new Date(Date.now() - 1000 * 60 * timeLimit));
+							recentMessages.forEach(controller.pushMessage);
+						} catch (err) {
+							console.error(err);
+						}
 					}
 				}
 			}
