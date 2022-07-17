@@ -170,18 +170,20 @@ export class TwitchPageScript {
 						continueListening();
 					}
 
-					// If the recent messages feature is enabled and we're on a live chat as opposed to a VOD/clip,
-					// load the chat history according to the user's preferences and show them in the chat view.
-					if (this.site.config.get('general.recent_messages')?.asBoolean() && channelInfo as Twitch.ChatControllerComponent) {
-						const controller = channelInfo as Twitch.ChatControllerComponent;
+					// If the recent messages feature is enabled, the user is not a moderator on the current channel,
+					// and we're on a live chat as opposed to a VOD/clip, load the chat history according to the user's
+					// preferences and show them in the chat view.
+					const controller = channelInfo as Twitch.ChatControllerComponent;
+					if (this.site.config.get('general.recent_messages')?.asBoolean() && controller && !controller.props.isCurrentUserModerator) {
 						const recentMessagesProvider = new RecentMessagesProvider(channelName);
 						const countLimit = parseInt(this.site.config.get('general.recent_messages_count')?.asString() ?? '10');
 						const timeLimit = parseInt(this.site.config.get('general.recent_messages_time')?.asString() ?? '10');
 						try {
 							const recentMessages = await recentMessagesProvider.getMessages(countLimit, new Date(Date.now() - 1000 * 60 * timeLimit));
 							recentMessages.forEach(controller.pushMessage);
+							Logger.Get().info(`Loaded ${recentMessages.length} (out of ${countLimit} max) historical messages from the past ${timeLimit} minutes.`);
 						} catch (err) {
-							console.error(err);
+							Logger.Get().warn(`Failed to load historical messages: ${countLimit} limit, past ${timeLimit} minutes, with error: ${err}`);
 						}
 					}
 				}
