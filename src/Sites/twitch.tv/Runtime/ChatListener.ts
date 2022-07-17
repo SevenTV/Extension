@@ -71,6 +71,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 		currentHandler = msg => {
 			if (this.page.ffzMode) return undefined;
 			if (msg.messageType !== 0 && msg.messageType !== 1) return undefined;
+
 			this.onMessage(msg);
 		};
 		msgHandler.addMessageHandler(currentHandler);
