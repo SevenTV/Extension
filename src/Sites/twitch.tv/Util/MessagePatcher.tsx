@@ -99,7 +99,9 @@ export class MessagePatcher {
 		// Send message data back to the content script
 		line.element.id = `7TV#msg:${message.id}`; // Give an ID to the message element
 		line.element.setAttribute('seventv-id', message.id);
-		this.msg.seventv.patcher = null;
+
+		// Don't clear the patcher as a temporary workaround to twitch rerendering the most recent message
+		//this.msg.seventv.patcher = null;
 
 		const renderer = new MessageRenderer(this.page.site, message, line.element.id);
 
