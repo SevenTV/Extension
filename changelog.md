@@ -2,6 +2,7 @@
 
 ### Version 2.2.3
 
+- Twitch: Fixed an issue where emotes in typed messages would disappear
 - Twitch: Fixed an issue with some low resolution emotes (#266)
 - Twitch: Fix emotes not showing up while using FFZ in channels who have changed username recently (#264)
 
