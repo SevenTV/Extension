@@ -133,7 +133,7 @@ export class API {
 				['2', emote.urls['2']],
 				['3', emote.urls['4']],
 				['4', emote.urls['4']],
-			],
+			].filter(([_, url]) => !!url) as [string, string][],
 			owner: emote?.owner ? {
 				id: emote?.id,
 				login: emote.owner?.name,
