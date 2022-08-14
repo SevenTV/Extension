@@ -225,36 +225,32 @@ export class TwitchPageScript {
 			return;
 		}
 
-		const x = emoteProvider.renderEmoteSuggestion;
-		emoteProvider.renderEmoteSuggestion = function(e: Twitch.TwitchEmote) {
-			if (e.__typename === 'SeventvEmote') {
-				e.srcSet = store.getEmote(e.id)?.urls.reduce((prev, current) =>
-					`${prev} ${current[1]} ${current[0]}x,`
-				, '');
+		const x = emoteProvider.getMatches;
+		emoteProvider.getMatches = function(...args) {
+			let matches = x.apply(this, args);
+
+			//only continue if there are any matches
+			if (!matches || matches.length == 0) {
+				return matches;
 			}
 
-			let provider = e.type;
-			switch (provider) {
-				case 'GLOBALS':
-					provider = 'Twitch Global';
-					break;
-				case 'SUBSCRIPTIONS':
-					provider = 'Twitch Sub';
-					break;
-				case 'TURBO':
-					provider = 'Twitch Turbo';
-				default:
-					provider = e.type ? `${e._thirdPartyGlobal ? 'Global' : 'Channel'} ${e.type}` : 'Unknown';
-					break;
-			}
-			const t = e.token.replace(`(${provider})`, '');
-			return x.call(this, {...e, token: `${t} (${provider})` });
+			//override the srcSet if the emote is inserted by seventv
+			matches.forEach((m) => {
+				const elem = m.element[0];
+				if (elem.key.startsWith('emote-img-seventv')) {
+					m.element[0].props.children.props.srcSet = store.getEmote(elem.key.substring(18))?.urls.reduce((prev, current) =>
+					`${prev} ${current[1]} ${current[0]}x,`
+				, '');
+				}
+			});
+
+			return matches;
 		};
 
 		emoteProvider.props.emotes.push({
 			emotes: this.emoteStore.getAllEmotes(['7TV', 'BTTV', 'EMOJI', 'FFZ']).map(emote => {
 				return {
-					id: emote.id.toString(),
+					id: 'seventv-' + emote.id.toString(),
 					setID: '777',
 					token: emote.name,
 					type: emote.provider,
