@@ -1,0 +1,40 @@
+{
+	"name": "seventv",
+	"displayName": "7TV",
+	"description": "The Official 7TV Web Extension",
+	"private": true,
+	"version": "3.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite build --watch --mode dev",
+		"build:dev": "vite build --mode dev",
+		"build:prod": "vue-tsc --noEmit && vite build",
+		"dev:web": "vite",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@types/chrome": "^0.0.195",
+		"@types/node": "^18.7.13",
+		"vue": "^3.2.37"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^9.0.13",
+		"@typescript-eslint/eslint-plugin": "^5.34.0",
+		"@typescript-eslint/parser": "^5.34.0",
+		"@vitejs/plugin-vue": "^3.0.3",
+		"@vue/eslint-config-prettier": "^7.0.0",
+		"@vue/eslint-config-typescript": "^11.0.0",
+		"chokidar": "^3.5.3",
+		"eslint": "^8.22.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-vue": "^9.4.0",
+		"fs-extra": "^10.1.0",
+		"npm-run-all": "^4.1.5",
+		"sass": "^1.54.5",
+		"typescript": "^4.6.4",
+		"vite": "^3.0.7",
+		"vite-plugin-chrome-extension": "^0.0.7",
+		"vue-tsc": "^0.39.5",
+		"webextension-polyfill-ts": "^0.26.0"
+	}
+}
