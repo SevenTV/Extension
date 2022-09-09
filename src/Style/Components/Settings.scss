@@ -1,4 +1,6 @@
 $borderRadius: 8px;
+$space-s: 10px;
+$space-m: 25px;
 
 .seventv-settings-menu {
 	width: 80vw;
@@ -6,6 +8,7 @@ $borderRadius: 8px;
 	pointer-events: all;
 	border-radius: $borderRadius;
 	max-width: 96em;
+	overflow: hidden;
 
 	background-color: var(--seventv-color-background-0);
 	&.seventv-sm-backdrop-blur {
@@ -14,46 +17,42 @@ $borderRadius: 8px;
 	}
 
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 
-	.seventv-sm-sidebar {
+	.seventv-sm-header {
 		display: flex;
-		flex-direction: column;
-		height: 100%;
-		width: 20rem;
-		flex-grow: 0;
+		justify-content: space-between;
+		align-items: center;
+		height: 5rem;
+		padding: $space-s $space-m;
 		background-color: var(--seventv-color-background-1);
-		border-bottom-left-radius: $borderRadius;
 
-		.seventv-sm-logo {
-			background-color: var(--seventv-color-background-0);
-			border-bottom-right-radius: 3em;
-			height: min-content;
-			width: 10rem;
+		.seventv-sm-header-left {
+			height: 100%;
+			display: flex;
+			align-items: center;
+
+			img {
+				height: 100%;
+				margin-right: $space-s;
+			}
+
+			.seventv-sm-title {
+				font-size: 2.5rem;
+			}
 		}
 
-		.seventv-sm-tabs {
+		.seventv-sm-header-right {
 			display: flex;
-			flex-direction: column;
-			align-content: space-between;
-			height: 100%;
-
-			.seventv-sm-tablist {
-				display: flex;
-				flex-grow: 1;
-			}
 
 			.seventv-sm-socials {
 				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				margin-left: 1em;
-				margin-right: 1em;
-				margin-bottom: 3em;
+				align-items: center;
+				padding: 0px $space-s;
+				margin-right: $space-m;
 
-				span {
-					text-align: center;
-					margin-bottom: 1em;
+				.seventv-sm-cta {
+					margin-right: $space-s;
 				}
 
 				.seventv-sm-social-list {
@@ -61,65 +60,27 @@ $borderRadius: 8px;
 					align-items: center;
 					justify-content: space-around;
 				}
+
 				.seventv-sm-social-icon {
-					display: block;
-					padding-right: 1em;
-					padding-left: 1em;
 					cursor: pointer;
 
 					img {
-						width: 4rem;
-						height: 4rem;
+						width: 3rem;
+						height: 3rem;
 					}
 				}
 			}
-	
-			.seventv-sm-appinfo {
+			
+			.close-icon {
+				cursor: pointer;
 				display: flex;
-				flex-direction: column;
-				flex-shrink: 1;
-				flex-wrap: wrap;
-				text-align: center;
-				justify-content: center;
-				margin-bottom: 1em;
-
-				span {
-					font-size: .95rem;
-				}
+				align-items: center;
 			}
 		}
 	}
 
 	.seventv-sm-content {
-		display: flex;
-		flex-direction: column;
-		flex-grow: 1;
-		height: 100%;
-		width: 100%;
-
-		.seventv-sm-heading {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			height: 4.8rem;
-			width: 100%;
-			background-color: var(--seventv-color-background-1);
-			backdrop-filter: blur(1rem);
-			border-top-right-radius: $borderRadius;
-
-			.seventv-sm-titlebox {
-				display: flex;
-
-				span {
-					margin-left: .1em;
-					font-size: 2em;
-				}
-			}
-
-			.close-icon {
-				cursor: pointer;
-			}
-		}
+		overflow-y: scroll;
 
 		.seventv-sm-options {
 			overflow: auto;
@@ -128,6 +89,25 @@ $borderRadius: 8px;
 
 			.form-list {
 				padding: 1em;
+			}
+		}
+	}
+
+	.seventv-sm-footer {
+		display: flex;
+		justify-content: end;
+		align-items: center;
+		height: 3rem;
+		padding: $space-s $space-m;
+		background-color: var(--seventv-color-background-1);
+
+		.seventv-sm-appinfo {
+			span {
+				font-size: .95rem;
+
+				&:not(:last-child) {
+					margin-right: $space-s;
+				}
 			}
 		}
 	}
