@@ -40,7 +40,7 @@ const SettingsForm: React.FC<SettingsForm.Props> = ({ main, settings }) => (
 						{input}
 						<FormHelperText style={{ fontSize: '0.75em', color: 'currentcolor', opacity: '0.60' }}> {setting.hint} </FormHelperText>
 				</FormControl>
-			)
+			);
 		})}
 	</FormGroup>
 );

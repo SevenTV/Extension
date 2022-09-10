@@ -21,7 +21,7 @@ const checkboxStyle = {
 		fontSize: 24,
 		marginLeft: '14px'
 	}
-}
+};
 
 const Checkbox: React.FC<Checkbox.Props> = ({ main, id, label, defaultValue }) => {
 	const handleChange = (ev: React.ChangeEvent<HTMLInputElement>): void => {
@@ -33,15 +33,15 @@ const Checkbox: React.FC<Checkbox.Props> = ({ main, id, label, defaultValue }) =
 		main.setState({});
 	};
 
-  return (
-    <FormControlLabel label={label} sx={formControlLabelStyle} control={
-      <MUICheckbox
-        checked={(main.app?.config.get(id)?.asBoolean() ?? defaultValue) as boolean}
-        onChange={handleChange}
-        sx={checkboxStyle} />
-    } />
-  );
-}
+	return (
+		<FormControlLabel label={label} sx={formControlLabelStyle} control={
+			<MUICheckbox
+				checked={(main.app?.config.get(id)?.asBoolean() ?? defaultValue) as boolean}
+				onChange={handleChange}
+				sx={checkboxStyle} />
+		} />
+	);
+};
 
 export default Checkbox;
 

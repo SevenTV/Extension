@@ -31,7 +31,7 @@ const Select: React.FC<Select.Props> = ({ main, id, label, defaultValue, options
 		main.setState({});
 	};
 
-  return (
+	return (
 		<div className='seventv-sm-option-select'>
 			<Typography variant='body1' sx={{ fontSize: '1em' }} className='seventv-sm-select-label'>{label}</Typography>
 			<MUISelect
@@ -47,8 +47,8 @@ const Select: React.FC<Select.Props> = ({ main, id, label, defaultValue, options
 				))}
 			</MUISelect>
 		</div>
-  );
-}
+	);
+};
 
 export default Select;
 
