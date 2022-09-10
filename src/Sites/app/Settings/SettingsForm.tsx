@@ -3,7 +3,7 @@ import {
 	FormGroup,
 	FormControl,
 	FormHelperText,
-	OutlinedInput
+	OutlinedInput,
 } from '@material-ui/core';
 import { SettingNode } from 'src/Content/Runtime/Settings';
 import { MainComponent } from 'src/Sites/app/MainComponent';
@@ -14,6 +14,7 @@ const SettingsForm: React.FC<SettingsForm.Props> = ({ main, settings }) => (
 	<FormGroup>
 		{settings.map(setting => {
 			let input: JSX.Element;
+			let controlProps = {};
 
 			switch (setting.type) {
 				case 'checkbox':
@@ -21,6 +22,7 @@ const SettingsForm: React.FC<SettingsForm.Props> = ({ main, settings }) => (
 					break;
 				case 'select':
 					input = <Select main={main} {...setting} />;
+					controlProps = { size: 'small' };
 					break;
 				default:
 					input = <OutlinedInput placeholder='Generic Input' />;
@@ -29,11 +31,12 @@ const SettingsForm: React.FC<SettingsForm.Props> = ({ main, settings }) => (
 
 			return (
 				<FormControl
+					key={`formcontrol-${setting.id}`}
 					disabled={setting.disabledIf?.() || false}
 					component='fieldset'
-					sx={{ '.Mui-disabled': { color: 'red' }}}
-					key={`formcontrol-${setting.id}`}
-					id={setting.id}>
+					sx={{ '.Mui-disabled': { color: 'red' }, marginBottom: '18px' }}
+					id={setting.id}
+					{...controlProps}>
 						{input}
 						<FormHelperText style={{ fontSize: '0.75em', color: 'currentcolor', opacity: '0.60' }}> {setting.hint} </FormHelperText>
 				</FormControl>

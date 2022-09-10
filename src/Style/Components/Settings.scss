@@ -1,6 +1,11 @@
 $borderRadius: 8px;
-$space-s: 10px;
-$space-m: 25px;
+
+$space-xs: 5px;
+$space-sm: 10px;
+$space-md: 18px;
+$space-lg: 25px;
+
+$select-inactive-color: #767676;
 
 .seventv-settings-menu {
 	width: 80vw;
@@ -24,7 +29,7 @@ $space-m: 25px;
 		justify-content: space-between;
 		align-items: center;
 		height: 5rem;
-		padding: $space-s $space-m;
+		padding: $space-sm $space-lg;
 		background-color: var(--seventv-color-background-1);
 
 		.seventv-sm-header-left {
@@ -34,7 +39,7 @@ $space-m: 25px;
 
 			img {
 				height: 100%;
-				margin-right: $space-s;
+				margin-right: $space-sm;
 			}
 
 			.seventv-sm-title {
@@ -48,11 +53,11 @@ $space-m: 25px;
 			.seventv-sm-socials {
 				display: flex;
 				align-items: center;
-				padding: 0px $space-s;
-				margin-right: $space-m;
+				padding: 0px $space-sm;
+				margin-right: $space-lg;
 
 				.seventv-sm-cta {
-					margin-right: $space-s;
+					margin-right: $space-sm;
 				}
 
 				.seventv-sm-social-list {
@@ -98,7 +103,7 @@ $space-m: 25px;
 		justify-content: end;
 		align-items: center;
 		height: 3rem;
-		padding: $space-s $space-m;
+		padding: $space-sm $space-lg;
 		background-color: var(--seventv-color-background-1);
 
 		.seventv-sm-appinfo {
@@ -106,8 +111,40 @@ $space-m: 25px;
 				font-size: .95rem;
 
 				&:not(:last-child) {
-					margin-right: $space-s;
+					margin-right: $space-sm;
 				}
+			}
+		}
+	}
+
+	.seventv-sm-options {
+		.seventv-sm-option-select {
+			margin-left: 15px;
+
+			.seventv-sm-select-label {
+				margin-bottom: $space-xs;
+			}
+
+			.MuiMenuItem-root:hover {
+				background-color: var(--seventv-color-background-0);
+			}
+
+			.Mui-focused {
+				fieldset {
+					border-color: var(--seventv-primary-color);
+				}
+
+				svg {
+					fill: var(--seventv-primary-color);
+				}
+			}
+
+			fieldset {
+				border-color: $select-inactive-color;
+			}
+
+			svg {
+				fill: $select-inactive-color;
 			}
 		}
 	}
