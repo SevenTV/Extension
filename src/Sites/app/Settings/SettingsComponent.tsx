@@ -44,7 +44,7 @@ const SettingsComponent: React.FC<SettingsComponent.Props> = ({ main, settings }
 						</div>
 					</div>
 					<IconButton title='Close settings' onClick={() => main.setState({ settingsMenu: { open: false } })}>
-						<CloseIcon sx={{ fontSize: 32, color: 'red' }} />
+						<CloseIcon sx={{ fontSize: 28, color: '#747474' }} />
 					</IconButton>
 				</div>
 			</div>
