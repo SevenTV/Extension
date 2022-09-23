@@ -244,6 +244,11 @@ export namespace Twitch {
 		export const ChatMessageTimestamp = '.chat-line__timestamp';
 	}
 
+	// https://github.com/daylamtayari/Twitch-GQL/blob/master/Operation-Hashes.md
+	export namespace ApolloOperationNames {
+		export const CurrentUserBannedStatus = 'CurrentUserBannedStatus';
+	}
+
 
 	export type FindReactInstancePredicate = (node: any) => boolean;
 	export type AnyPureComponent = React.PureComponent & { [x: string]: any; };

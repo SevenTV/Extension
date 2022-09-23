@@ -13,6 +13,7 @@ import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import type { EventAPI } from 'src/Global/Events/EventAPI';
 import { TwitchVideoChatListener } from 'src/Sites/twitch.tv/Runtime/VideoChatListener';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
+import { ApolloCallbackDecorator } from 'src/Sites/twitch.tv/Runtime/ApolloCallbackDecorator';
 
 export class TwitchPageScript {
 	site = new SiteApp();
@@ -20,6 +21,7 @@ export class TwitchPageScript {
 	inputManager = inputManager = new InputManager(this);
 	avatarManager = new AvatarManager(this);
 	banSliderManager = new BanSliderManager(this);
+	ApolloCallbackDecorator = new ApolloCallbackDecorator(this);
 
 	currentChannel = '';
 	currentVideo = '';
