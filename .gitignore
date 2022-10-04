@@ -23,3 +23,4 @@ dist-ssr
 
 # Manifest.json is generated from manifest.config.json
 src/manifest.json
+msg_types.json

@@ -1,26 +1,26 @@
 import path from "path";
-import { build, defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { getManifest } from "./manifest.config";
 import fs from "fs-extra";
 import vue from "@vitejs/plugin-vue";
-import chokidar from "chokidar";
 
 const r = (...args: string[]) => path.resolve(__dirname, ...args);
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const isDev = mode === "dev";
+	process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
 	return {
 		server: {
-			port: 4777
+			port: 4777,
 		},
 		mode: "module",
 		base: isDev ? `http://localhost:4777/` : undefined,
 		resolve: {
 			alias: {
-				"@": path.resolve(__dirname, "src")
-			}
+				"@": path.resolve(__dirname, "src"),
+			},
 		},
 
 		root: ".",
@@ -33,18 +33,16 @@ export default defineConfig(({ mode }) => {
 				input: {
 					background: r("src/background.ts"),
 					content: r("src/content/content.ts"),
-					site: r("src/site/site.ts")
+					site: r("src/site/site.ts"),
 				},
 				output: {
 					entryFileNames: info => {
-						const name = path.basename(
-							info.facadeModuleId.replace(".ts", ".js")
-						);
+						const name = path.basename(info.facadeModuleId.replace(".ts", ".js"));
 
 						return name;
-					}
-				}
-			}
+					},
+				},
+			},
 		},
 
 		plugins: [
@@ -60,7 +58,7 @@ export default defineConfig(({ mode }) => {
 					setTimeout(() => {
 						fs.writeJSON(r("dist/manifest.json"), man);
 					}, 0);
-				}
+				},
 			},
 
 			{
@@ -74,8 +72,7 @@ export default defineConfig(({ mode }) => {
 
 					const files = await fs.readdir("dist/assets");
 
-					fs.existsSync("dist/styles.css") &&
-						(await fs.truncate("dist/styles.css"));
+					fs.existsSync("dist/styles.css") && (await fs.truncate("dist/styles.css"));
 					await fs.writeFile("dist/styles.css", "");
 
 					for (const file of files) {
@@ -83,13 +80,10 @@ export default defineConfig(({ mode }) => {
 							return;
 						}
 
-						await fs.appendFile(
-							"dist/styles.css",
-							await fs.readFile(`dist/assets/${file}`, "utf-8")
-						);
+						await fs.appendFile("dist/styles.css", await fs.readFile(`dist/assets/${file}`, "utf-8"));
 					}
-				}
-			}
-		]
+				},
+			},
+		],
 	};
 });

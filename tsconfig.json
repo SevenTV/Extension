@@ -6,23 +6,18 @@
 		"moduleResolution": "Node",
 		"strict": true,
 		"jsx": "preserve",
+		"jsxFactory": "VueJSX",
 		"sourceMap": true,
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
-		"lib": ["ESNext", "DOM"],
+		"lib": ["ESNext", "DOM", "WebWorker"],
 		"types": ["vite/client", "chrome"],
 		"skipLibCheck": true,
+		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": [
-		"src/*.ts",
-		"src/**/*.ts",
-		"src/**/*.d.ts",
-		"src/**/*.tsx",
-		"src/**/*.vue",
-		"manifest.config.ts"
-	],
+	"include": ["src/*.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "manifest.config.ts"],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }
