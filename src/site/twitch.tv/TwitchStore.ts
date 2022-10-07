@@ -13,7 +13,7 @@ export const useTwitchStore = defineStore("chat", {
 			channel: null,
 			messages: [],
 			messageIds: new Set(),
-			lineLimit: 250,
+			lineLimit: 100,
 			emoteMap: {},
 		} as State),
 
@@ -28,9 +28,13 @@ export const useTwitchStore = defineStore("chat", {
 			this.messages.push(message);
 			this.messageIds.add(message.id);
 
-			if (this.messages.length > this.lineLimit) {
-				const msg = this.messages.shift() as Twitch.ChatMessage;
-				this.messageIds.delete(msg.id);
+			// Clear out messages beyond the limit
+			const overflowLimit = this.lineLimit * 1.25;
+			if (this.messages.length > overflowLimit) {
+				const removed = this.messages.splice(0, this.messages.length - this.lineLimit);
+				for (const m of removed) {
+					this.messageIds.delete(m.id);
+				}
 			}
 		},
 	},

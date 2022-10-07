@@ -1,14 +1,7 @@
 <template>
 	<Teleport v-if="extMounted && channel && channel.id" :to="containerEl">
 		<div id="seventv-message-container" class="seventv-message-container">
-			<div v-for="msg of chatStore.messages" :key="msg.id" :msg-id="msg.id">
-				<template v-if="msg.seventv">
-					<ChatMessage :msg="msg" @open-viewer-card="openViewerCard" />
-				</template>
-				<template v-else>
-					<ChatMessageUnhandled :msg="msg" />
-				</template>
-			</div>
+			<ChatList :controller="controller" :messages="chatStore.messages" />
 		</div>
 
 		<!-- Data Logic -->
@@ -40,10 +33,9 @@ import { log } from "@/common/Logger";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { getRandomInt } from "@/common/Rand";
-import ChatMessage from "@/site/twitch.tv/modules/chat/components/ChatMessage.vue";
-import ChatData from "./ChatData.vue";
-import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
 import { TransformWorkerMessageType } from "@/worker";
+import ChatData from "./ChatData.vue";
+import ChatList from "./ChatList.vue";
 
 const store = useStore();
 const chatStore = useTwitchStore();
@@ -316,34 +308,6 @@ const resizeObserver = new ResizeObserver(() => {
 	bounds.value = containerEl.value.getBoundingClientRect();
 });
 resizeObserver.observe(containerEl.value);
-
-const openViewerCard = (ev: MouseEvent, viewer: Twitch.ChatUser) => {
-	controller.sendMessage(`/user ${viewer.userLogin}`);
-
-	// Watch for card being created
-	const userCardContainer = document.querySelector("[data-a-target='chat-user-card']");
-	if (!userCardContainer) return;
-
-	const observer = new MutationObserver(() => {
-		// Find card element
-		const cardEl = document.querySelector<HTMLDivElement>("[data-test-selector='viewer-card-positioner']");
-		if (!cardEl) return;
-
-		cardEl.style.top = `${ev.y - cardEl.getBoundingClientRect().height}px`;
-		observer.disconnect();
-		clearTimeout(timeout);
-	});
-
-	observer.observe(userCardContainer, {
-		childList: true,
-		subtree: true,
-	});
-
-	// timeout the mutation observer
-	const timeout = setTimeout(() => {
-		observer.disconnect();
-	}, 30000);
-};
 
 onUnmounted(() => {
 	resizeObserver.disconnect();
