@@ -43,6 +43,7 @@ import { getRandomInt } from "@/common/Rand";
 import ChatMessage from "@/site/twitch.tv/modules/chat/components/ChatMessage.vue";
 import ChatData from "./ChatData.vue";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
+import { TransformWorkerMessageType } from "@/worker";
 
 const store = useStore();
 const chatStore = useTwitchStore();
@@ -69,9 +70,16 @@ watch(channel, channel => {
 	log.info("<ChatController>", `Joining #${channel.username}`);
 });
 
+const hooks = reactive({
+	controllerMounted: (() => {}) as Function,
+	handleMessage: (() => {}) as Function,
+	chatListEl: null as HTMLElement | null,
+});
+
 // Hook chat controller mount event
+hooks.controllerMounted = controllerClass.componentDidUpdate;
 {
-	const x = controllerClass.componentDidUpdate;
+	hooks.handleMessage = controller.props.messageHandlerAPI.handleMessage;
 	controllerClass.componentDidUpdate = function(this: Twitch.ChatControllerComponent, args: any[]) {
 		// Update current channel
 		if (
@@ -96,6 +104,12 @@ watch(channel, channel => {
 		const parentEl = document.querySelector(".chat-room__content");
 		if (parentEl && !parentEl.contains(el)) {
 			parentEl.insertBefore(el, parentEl.children[2]);
+
+			// Hide the original chat list
+			const chatList = (hooks.chatListEl = parentEl.querySelector(Selectors.ChatList));
+			if (chatList) {
+				chatList.classList.add("seventv-checked");
+			}
 		}
 
 		// Send dummy message
@@ -121,19 +135,18 @@ watch(channel, channel => {
 						extMounted.value = true;
 
 						// Bind twitch emotes
-						// if (this.props.emoteSetsData) {
-						// 	// We must wait for the data to be received
-						// 	const i = setInterval(() => {
-						// 		if (this.props.emoteSetsData?.loading) return;
-						//
-						// 		// Send the twitch emotes to the transform worker
-						// 		// These can later be fetched from IDB by components
-						// 		store.sendTransformRequest(TransformWorkerMessageType.TWITCH_EMOTES, {
-						// 			input: this.props.emoteSetsData?.emoteSets ?? [],
-						// 		});
-						// 		clearInterval(i);
-						// 	}, 200);
-						// }
+						if (this.props.emoteSetsData) {
+							// We must wait for the data to be received
+							const i = setInterval(() => {
+								if (this.props.emoteSetsData?.loading) return;
+								// Send the twitch emotes to the transform worker
+								// These can later be fetched from IDB by components
+								store.sendTransformRequest(TransformWorkerMessageType.TWITCH_EMOTES, {
+									input: this.props.emoteSetsData?.emoteSets ?? [],
+								});
+								clearInterval(i);
+							}, 200);
+						}
 
 						log.debug("<ChatController>", "Chat controller mounted", `(${Date.now() - t}ms)`);
 						observer.disconnect(); // work is done, stop the mutation observer
@@ -150,19 +163,21 @@ watch(channel, channel => {
 			log.debug("<ChatController>", "Spawning MutationObserver");
 		}
 
-		return x.apply(this, [args]);
+		return hooks.controllerMounted.apply(this, [args]);
 	};
 }
 
 // Take over the chat's native message container
 const handledMessageTypes = [0, 2];
-const overwriteMessageContainer = (controller: Twitch.ChatControllerComponent, scrollContainer: HTMLDivElement) => {
+const overwriteMessageContainer = (
+	scopedController: Twitch.ChatControllerComponent,
+	scrollContainer: HTMLDivElement,
+) => {
 	// Hook the handleMessage method
 	// We will use our custom renderer for all supported types
 	// if a message type is unsupported, we will instead render it as native
 	// and then move it into our context.
-	const xHandleMessage = controller.props.messageHandlerAPI.handleMessage;
-	controller.props.messageHandlerAPI.handleMessage = function(
+	scopedController.props.messageHandlerAPI.handleMessage = function(
 		this: Twitch.ChatControllerComponent["props"]["messageHandlerAPI"],
 		msg: Twitch.ChatMessage,
 	) {
@@ -208,9 +223,8 @@ const overwriteMessageContainer = (controller: Twitch.ChatControllerComponent, s
 			childList: true,
 		});
 		const timeout = setTimeout(() => o.disconnect(), 1250);
-		//////////
 
-		xHandleMessage.call(this, msg);
+		hooks.handleMessage.call(this, msg);
 	};
 };
 
@@ -222,6 +236,44 @@ const scroll = reactive({
 	paused: false, // whether or not scrolling is paused
 	buffer: [] as Twitch.ChatMessage[], // twitch chat message buffe when scrolling is paused
 });
+
+const onMessage = (msg: Twitch.ChatMessage): boolean => {
+	if (msg.id === "seventv-hook-message" || !handledMessageTypes.includes(msg.type)) {
+		return false;
+	}
+
+	if (scroll.paused) {
+		// if scrolling is paused, buffer the message
+		scroll.buffer.push(msg);
+		if (scroll.buffer.length > chatStore.lineLimit) scroll.buffer.shift();
+
+		return true;
+	}
+
+	// Add message to store
+	// it will be rendered on the next tick
+	chatStore.pushMessage(msg);
+
+	nextTick(() => {
+		// autoscroll on new message
+		scrollToLive();
+	});
+
+	return true;
+};
+
+const scrollToLive = () => {
+	if (!containerEl.value || scroll.paused) {
+		return;
+	}
+
+	scroll.sys = true;
+
+	containerEl.value.scrollTo({
+		top: containerEl.value?.scrollHeight,
+	});
+	bounds.value = containerEl.value.getBoundingClientRect();
+};
 
 // Listen for scroll events
 containerEl.value.addEventListener("scroll", () => {
@@ -255,49 +307,11 @@ containerEl.value.addEventListener("scroll", () => {
 	}
 });
 
-const onMessage = (msg: Twitch.ChatMessage): boolean => {
-	if (msg.id === "seventv-hook-message" || !handledMessageTypes.includes(msg.type)) {
-		return false;
-	}
-
-	if (scroll.paused) {
-		// if scrolling is paused, buffer the message
-		scroll.buffer.push(msg);
-		if (scroll.buffer.length > chatStore.lineLimit) scroll.buffer.shift();
-
-		return true;
-	}
-
-	// Add message to store
-	// it will be rendered on the next tick
-	chatStore.pushMessage(msg);
-
-	nextTick(() => {
-		// autoscroll on new message
-		scrollToLive();
-	});
-
-	return true;
-};
-
 // Apply new boundaries when the window is resized
 const resizeObserver = new ResizeObserver(() => {
 	bounds.value = containerEl.value.getBoundingClientRect();
 });
 resizeObserver.observe(containerEl.value);
-
-const scrollToLive = () => {
-	if (!containerEl.value || scroll.paused) {
-		return;
-	}
-
-	scroll.sys = true;
-
-	containerEl.value.scrollTo({
-		top: containerEl.value?.scrollHeight,
-	});
-	bounds.value = containerEl.value.getBoundingClientRect();
-};
 
 const openViewerCard = (ev: MouseEvent, viewer: Twitch.ChatUser) => {
 	controller.sendMessage(`/user ${viewer.userLogin}`);
@@ -329,6 +343,14 @@ const openViewerCard = (ev: MouseEvent, viewer: Twitch.ChatUser) => {
 
 onUnmounted(() => {
 	resizeObserver.disconnect();
+
+	controllerClass.componentDidUpdate = hooks.controllerMounted;
+	(controller.props.messageHandlerAPI.handleMessage as Function) = hooks.handleMessage;
+
+	el.remove();
+	hooks.chatListEl?.classList.remove("seventv-checked");
+
+	log.debug("<ChatController> Unmounted");
 });
 </script>
 
@@ -380,7 +402,7 @@ onUnmounted(() => {
 	backdrop-filter: blur(1em);
 }
 
-.chat-list--default {
+.chat-list--default.seventv-checked {
 	display: none !important;
 }
 </style>

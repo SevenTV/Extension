@@ -255,6 +255,7 @@ export namespace Selectors {
 	export const ChatInput = ".chat-input__textarea";
 	export const ChatInputButtonsContainer = 'div[data-test-selector="chat-input-buttons-container"]';
 	export const ChatMessageContainer = ".chat-line__message-container";
+	export const ChatList = ".chat-list--default ";
 	export const ChatUsernameContainer = ".chat-line__username-container";
 	export const ChatAuthorDisplayName = ".chat-author__display-name";
 	export const ChatMessageBadges = ".chat-line__message--badges";
