@@ -25,7 +25,7 @@ import { storeToRefs } from "pinia";
 import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
 import { ConvertTwitchEmote } from "@/common/Transform";
 import ChatUserTag from "@/site/twitch.tv/modules/chat/ChatUserTag.vue";
-import ChatEmote from "@/components/ChatEmote.vue";
+import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
 
 const emit = defineEmits<{
 	(e: "open-viewer-card", ev: MouseEvent, viewer: Twitch.ChatUser): void;

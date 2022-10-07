@@ -1,9 +1,19 @@
 <template>
-	<img class="chat-emote" :srcset="srcset" @click="openCard" />
+	<img
+		class="chat-emote"
+		:srcset="srcset"
+		@click="openCard"
+		ref="imgRef"
+		@mouseenter="show(imgRef)"
+		@mouseleave="hide()"
+	/>
 </template>
 
 <script setup lang="ts">
+import { useTooltip } from "@/composable/useTooltip";
 import { tools } from "@/site/twitch.tv/modules/chat/ChatBackend";
+import { ref } from "vue";
+import ChatEmoteTooltip from "@/site/twitch.tv/modules/chat/components/ChatEmoteTooltip.vue";
 
 const props = defineProps<{
 	emote: SevenTV.ActiveEmote;
@@ -15,6 +25,12 @@ const srcset = host.files
 	.filter(f => f.format === host.files[0].format)
 	.map((f, i) => `${host.url}/${f.name} ${i + 1}x`)
 	.join(", ");
+
+const imgRef = ref<HTMLElement>();
+
+const { show, hide } = useTooltip(ChatEmoteTooltip, {
+	emote: props.emote,
+});
 
 const openCard = (ev: MouseEvent) => {
 	if (!props.emote.id || props.emote.provider !== "TWITCH") return;

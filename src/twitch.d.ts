@@ -467,7 +467,7 @@ declare module Twitch {
 		hidden: boolean;
 		id: string;
 		isHistorical: unknown;
-		message: string;
+		message: string | ChatMessage;
 		messageBody: string;
 		messageParts: ChatMessage.Part[];
 		messageType: number;

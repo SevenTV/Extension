@@ -39,9 +39,9 @@ import { registerCardOpeners, sendDummyMessage } from "@/site/twitch.tv/modules/
 import { log } from "@/common/Logger";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
-import ChatMessage from "@/site/twitch.tv/modules/chat/ChatMessage.vue";
-import ChatData from "./ChatData.vue";
 import { getRandomInt } from "@/common/Rand";
+import ChatMessage from "@/site/twitch.tv/modules/chat/components/ChatMessage.vue";
+import ChatData from "./ChatData.vue";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
 
 const store = useStore();
@@ -82,6 +82,8 @@ watch(channel, channel => {
 			})
 		) {
 			messages.value = [];
+			scroll.paused = false;
+			scroll.buffer.length = 0;
 		}
 
 		// Put placeholder to teleport our message list
@@ -154,14 +156,7 @@ watch(channel, channel => {
 
 // Take over the chat's native message container
 const handledMessageTypes = [0, 2];
-
-let currentController: Twitch.ChatControllerComponent;
 const overwriteMessageContainer = (controller: Twitch.ChatControllerComponent, scrollContainer: HTMLDivElement) => {
-	if (currentController) {
-		currentController.props.messageHandlerAPI.handleMessage = () => {};
-	}
-	currentController = controller;
-
 	// Hook the handleMessage method
 	// We will use our custom renderer for all supported types
 	// if a message type is unsupported, we will instead render it as native
@@ -251,7 +246,7 @@ containerEl.value.addEventListener("scroll", () => {
 		scroll.init = true;
 
 		chatStore.messages.push(...scroll.buffer);
-		scroll.buffer = [];
+		scroll.buffer.length = 0;
 
 		nextTick(() => {
 			scroll.init = false;

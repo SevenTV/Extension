@@ -4,7 +4,7 @@ import { useStore } from "@/store/main";
 import { liveQuery } from "dexie";
 import { storeToRefs } from "pinia";
 import { reactive, watch } from "vue";
-import { useTwitchStore } from "../../TwitchStore";
+import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
 
 const { channel } = storeToRefs(useStore());
 const twitchStore = useTwitchStore();

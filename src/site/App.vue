@@ -1,14 +1,30 @@
 <template>
 	<!-- Spawn Platform-specific Logic -->
 	<component v-if="platformComponent" :is="platformComponent" :net-worker="nw" :transform-worker="tw" />
+
+	<!-- Render tooltip -->
+	<div
+		ref="tooltipContainer"
+		class="seventv-tooltip-container"
+		:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
+	>
+		<template v-if="typeof tooltip.content === 'string'">
+			{{ tooltip.content }}
+		</template>
+		<template v-else>
+			<component :is="tooltip.content" v-bind="tooltip.contentProps" />
+		</template>
+	</div>
 </template>
 
 <script setup lang="ts">
+import { Component, markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
-import TwitchSite from "./twitch.tv/TwitchSite.vue";
-import { NetWorkerMessage, NetWorkerMessageType, WorkerMessage } from "@/worker";
+import { tooltip } from "@/composable/useTooltip";
+import { NetWorkerMessage, NetWorkerMessageType } from "@/worker";
 import NetworkWorker from "@/worker/NetWorker?worker&inline";
 import TransformWorker from "@/worker/TransformWorker?worker&inline";
+import TwitchSite from "./twitch.tv/TwitchSite.vue";
 
 // Spawn NetworkWorker
 // This contains the connection for the Event API
@@ -32,9 +48,32 @@ const domain = window.location.hostname
 	.slice(-2)
 	.join(".");
 
-const platformComponent = {
-	"twitch.tv": TwitchSite,
-}[domain];
+const platformComponent = ref<Component>();
 
 log.setContextName(`site/${domain}`);
+
+// Tooltip positioning data
+const tooltipContainer = ref<HTMLDivElement | null>(null);
+
+onMounted(() => {
+	if (tooltipContainer.value) {
+		tooltip.container = tooltipContainer.value;
+	}
+
+	// Define site controller for the platform
+	platformComponent.value = {
+		"twitch.tv": markRaw(TwitchSite),
+	}[domain];
+});
 </script>
+
+<style scoped lang="scss">
+.seventv-tooltip-container {
+	all: unset;
+	z-index: 999;
+	position: absolute;
+	pointer-events: none;
+	top: 0;
+	left: 0;
+}
+</style>
