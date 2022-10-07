@@ -1,11 +1,11 @@
 <template>
-	<div class="seventv-tooltip" tooltip-type="emote" ref="tooltip">
+	<div ref="tooltip" class="seventv-tooltip" tooltip-type="emote">
 		<h3>{{ emote.name }}</h3>
 	</div>
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
 	emote: SevenTV.Emote;
 }>();
 </script>

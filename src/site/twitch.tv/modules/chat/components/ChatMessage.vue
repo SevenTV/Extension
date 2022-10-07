@@ -8,12 +8,12 @@
 
 		<!-- Message Content -->
 		<span class="seventv-chat-message-body">
-			<span class="message-token" :token-type="t.type" v-for="t of tokens">
+			<span v-for="(t, index) of tokens" :key="index" class="message-token" :token-type="t.type">
 				<template v-if="t.type === 'text'">
 					{{ t.value }}
 				</template>
 				<template v-else-if="t.type === 'emote'">
-					<ChatEmote :emote="t.value" format="WEBP" />
+					<ChatEmote :emote="(t.value as SevenTV.ActiveEmote)" format="WEBP" />
 				</template>
 			</span>
 		</span>
@@ -39,7 +39,8 @@ const { emoteMap } = storeToRefs(useTwitchStore());
 const localEmoteMap = {} as { [key: string]: SevenTV.ActiveEmote };
 
 // Tokenize the message
-const tokens = [] as MessageToken[];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const tokens = [] as MessageToken<any>[];
 
 if (props.msg && typeof props.msg.messageBody === "string") {
 	const split = (props.msg.messageBody ?? "").split(" ");
@@ -47,8 +48,8 @@ if (props.msg && typeof props.msg.messageBody === "string") {
 
 	// Local twitch emotes?
 	props.msg.messageParts
-		.filter(p => p.type === 6)
-		.forEach(p => {
+		.filter((p) => p.type === 6)
+		.forEach((p) => {
 			const emote = p.content as Twitch.ChatMessage.EmoteRef;
 			if (Object.keys(emote).length) {
 				localEmoteMap[emote.alt] = {
@@ -71,7 +72,8 @@ if (props.msg && typeof props.msg.messageBody === "string") {
 
 	let i = 0;
 	while (split.length) {
-		const s = split.shift()!;
+		const s = split.shift() ?? "";
+		if (s == "") continue;
 
 		const emote = localEmoteMap[s] || emoteMap.value[s];
 		const start = !split[i - 1];
@@ -93,7 +95,7 @@ if (props.msg && typeof props.msg.messageBody === "string") {
 	tokenOfCurrentText();
 }
 
-interface MessageToken<T extends MessageTokenType = any> {
+interface MessageToken<T extends MessageTokenType> {
 	type: T;
 	value: MessageTokenValue<T>;
 }
@@ -101,7 +103,7 @@ interface MessageToken<T extends MessageTokenType = any> {
 type MessageTokenValue<T extends MessageTokenType> = {
 	text: string;
 	emote: SevenTV.ActiveEmote;
-	[key: string]: any;
+	[key: string]: unknown;
 }[T];
 
 type MessageTokenType = "text" | "emote";

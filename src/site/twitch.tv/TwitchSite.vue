@@ -39,8 +39,8 @@ if (router) {
 	// router may be undefined in certain places, such as popout chat
 	const route = router.props.location;
 
-	router.props.history.listen((loc, act) => {
-		store.setLocation(route);
+	router.props.history.listen((loc) => {
+		store.setLocation(loc);
 	});
 
 	store.setLocation(route);

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/prefer-namespace-keyword */
 declare module Twitch {
 	export type FindReactInstancePredicate = (node: any) => boolean;
 	export type AnyPureComponent = React.PureComponent & { [x: string]: any };

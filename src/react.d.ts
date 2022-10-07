@@ -33,6 +33,8 @@
 // to 'react/experimental' in their project. See experimental.d.ts's top comment
 // for reference and documentation on how exactly to do it.
 
+/* eslint-disable */
+
 /// <reference path="global.d.ts" />
 
 import * as CSS from "csstype";

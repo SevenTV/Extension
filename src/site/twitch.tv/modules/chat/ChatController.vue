@@ -62,7 +62,7 @@ const bounds = ref<DOMRect>(el.getBoundingClientRect());
 
 log.debug("<ChatController>", "Hook started");
 
-watch(channel, channel => {
+watch(channel, (channel) => {
 	if (!channel) {
 		return;
 	}
@@ -71,8 +71,8 @@ watch(channel, channel => {
 });
 
 const hooks = reactive({
-	controllerMounted: (() => {}) as Function,
-	handleMessage: (() => {}) as Function,
+	controllerMounted: (() => null) as Twitch.ChatControllerComponent["componentDidUpdate"],
+	handleMessage: (() => null) as Twitch.ChatControllerComponent["props"]["messageHandlerAPI"]["handleMessage"],
 	chatListEl: null as HTMLElement | null,
 });
 
@@ -80,7 +80,9 @@ const hooks = reactive({
 hooks.controllerMounted = controllerClass.componentDidUpdate;
 {
 	hooks.handleMessage = controller.props.messageHandlerAPI.handleMessage;
-	controllerClass.componentDidUpdate = function(this: Twitch.ChatControllerComponent, args: any[]) {
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	controllerClass.componentDidUpdate = function (this: Twitch.ChatControllerComponent, args: any[]) {
 		// Update current channel
 		if (
 			store.setChannel({
@@ -98,7 +100,8 @@ hooks.controllerMounted = controllerClass.componentDidUpdate;
 		if (document.getElementById("seventv-chat-controller")) {
 			return;
 		}
-		let t = Date.now();
+
+		const t = Date.now();
 
 		// Attach to chat
 		const parentEl = document.querySelector(".chat-room__content");
@@ -117,11 +120,11 @@ hooks.controllerMounted = controllerClass.componentDidUpdate;
 
 		const scrollContainer = document.querySelector<HTMLDivElement>(Selectors.ChatScrollableContainer);
 		if (scrollContainer) {
-			const observer = new MutationObserver(entries => {
+			const observer = new MutationObserver((entries) => {
 				for (let i = 0; i < entries.length; i++) {
 					const rec = entries[i];
 
-					rec.addedNodes.forEach(node => {
+					rec.addedNodes.forEach((node) => {
 						if (!(node instanceof HTMLElement) || !node.classList.contains("chat-line__message")) {
 							return;
 						}
@@ -163,7 +166,8 @@ hooks.controllerMounted = controllerClass.componentDidUpdate;
 			log.debug("<ChatController>", "Spawning MutationObserver");
 		}
 
-		return hooks.controllerMounted.apply(this, [args]);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return hooks.controllerMounted?.apply(this, [args] as any[any]);
 	};
 }
 
@@ -177,7 +181,7 @@ const overwriteMessageContainer = (
 	// We will use our custom renderer for all supported types
 	// if a message type is unsupported, we will instead render it as native
 	// and then move it into our context.
-	scopedController.props.messageHandlerAPI.handleMessage = function(
+	scopedController.props.messageHandlerAPI.handleMessage = function (
 		this: Twitch.ChatControllerComponent["props"]["messageHandlerAPI"],
 		msg: Twitch.ChatMessage,
 	) {
@@ -192,11 +196,11 @@ const overwriteMessageContainer = (
 
 		// message type is not supported:
 		// render is natively
-		const o = new MutationObserver(x => {
+		const o = new MutationObserver((x) => {
 			for (let i = 0; i < x.length; i++) {
 				const rec = x[i];
 
-				rec.addedNodes.forEach(node => {
+				rec.addedNodes.forEach((node) => {
 					if (!(node instanceof HTMLElement)) return;
 
 					const unhandledID = `seventv-unhandled-msg-ref-${msgData.t}`;
@@ -345,7 +349,7 @@ onUnmounted(() => {
 	resizeObserver.disconnect();
 
 	controllerClass.componentDidUpdate = hooks.controllerMounted;
-	(controller.props.messageHandlerAPI.handleMessage as Function) = hooks.handleMessage;
+	controller.props.messageHandlerAPI.handleMessage = hooks.handleMessage;
 
 	el.remove();
 	hooks.chatListEl?.classList.remove("seventv-checked");
@@ -369,7 +373,7 @@ onUnmounted(() => {
 	}
 
 	// Chat padding
-	pad &.custom-scrollbar {
+	&.custom-scrollbar {
 		scrollbar-width: none;
 
 		&::-webkit-scrollbar {

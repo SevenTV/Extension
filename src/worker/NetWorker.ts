@@ -3,7 +3,7 @@ import { NetWorkerMessageType, NetWorkerInstance, TypedNetWorkerMessage, NetWork
 import { seventv } from "./NetWorkerHttp";
 import { ws } from "./NetWorkerSocket";
 
-const w = (self as unknown) as DedicatedWorkerGlobalScope;
+const w = self as unknown as DedicatedWorkerGlobalScope;
 
 // Set up logger
 log.setContextName("NetWorker");
@@ -23,14 +23,14 @@ const state = {
 let electionTimeout = 0;
 
 // Listen to messages from the parent tab
-w.onmessage = ev => {
+w.onmessage = (ev) => {
 	if (ev.data.source !== "SEVENTV") {
 		return; // not a message from us
 	}
 
 	switch (ev.data.type as NetWorkerMessageType) {
 		// Receive the ID from the tab
-		case NetWorkerMessageType.INIT:
+		case NetWorkerMessageType.INIT: {
 			const msg = ev.data as NetWorkerMessage<NetWorkerMessageType.INIT>;
 			state.id = msg.data.id;
 			state.online = true;
@@ -45,6 +45,7 @@ w.onmessage = ev => {
 
 			log.debug("Initialized as #" + msg.data.id);
 			break;
+		}
 		case NetWorkerMessageType.STATE: {
 			const msg = ev.data as NetWorkerMessage<NetWorkerMessageType.STATE>;
 			if (!msg.data.local) return;
@@ -55,10 +56,11 @@ w.onmessage = ev => {
 			// Load local data
 			// todo: make this better
 			if (state.local.channel) {
-				seventv.loadUserConnection("TWITCH", state.local.channel.id).catch(err => console.error(err));
+				seventv.loadUserConnection("TWITCH", state.local.channel.id);
 			}
 
 			log.debug("<NetWorker>", "Local State Updated", JSON.stringify(state.local));
+			break;
 		}
 
 		default:
@@ -66,7 +68,7 @@ w.onmessage = ev => {
 	}
 };
 
-bc.onmessage = ev => {
+bc.onmessage = (ev) => {
 	if (ev.data.source !== "SEVENTV") return;
 	// ignore if "to" is set and it's not us
 	if (ev.data.to && ev.data.to !== state.id) return;
@@ -146,9 +148,9 @@ setInterval(() => {
 }, PING_INTERVAL);
 
 function runPrimaryElection(exclude?: number): void {
-	const instanceList = Object.values(instances).filter(i => i.id !== exclude);
+	const instanceList = Object.values(instances).filter((i) => i.id !== exclude);
 
-	const primaryExists = instanceList.some(i => i.primary);
+	const primaryExists = instanceList.some((i) => i.primary);
 	if (!primaryExists) {
 		// There is only one instance, so it is the primary
 		if (instanceList.length === 1) {
@@ -158,10 +160,12 @@ function runPrimaryElection(exclude?: number): void {
 		}
 
 		// Tally votes
-		const votes = instanceList.filter(i => typeof i.primary_vote === "number").map(i => i.primary_vote as number);
+		const votes = instanceList
+			.filter((i) => typeof i.primary_vote === "number")
+			.map((i) => i.primary_vote as number);
 		if (votes.length >= instanceList.length - 1) {
 			// all the votes are in. we can now elect a primary
-			const primary = instanceList.find(i => i.primary_vote === Math.max(...votes));
+			const primary = instanceList.find((i) => i.primary_vote === Math.max(...votes));
 			if (!primary || primary.id !== state.id) return;
 
 			// if we are the primary, declare our authority status to the network
@@ -222,7 +226,7 @@ function setInstanceTimeout(inst: NetWorkerInstance): void {
 		log.debug("<NetworkState>", `#${inst.id} timed out`);
 
 		// Primary has quit, we must elect a new one
-		const primaryExists = Object.values(instances).some(i => i.primary);
+		const primaryExists = Object.values(instances).some((i) => i.primary);
 		if (!primaryExists) {
 			log.debug("<NetworkState>", `#${inst.id} was primary, but has quit. Running primary election.`);
 			runPrimaryElection(inst.id);

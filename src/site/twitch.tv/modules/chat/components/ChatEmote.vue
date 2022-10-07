@@ -1,9 +1,9 @@
 <template>
 	<img
+		ref="imgRef"
 		class="chat-emote"
 		:srcset="srcset"
 		@click="openCard"
-		ref="imgRef"
 		@mouseenter="show(imgRef)"
 		@mouseleave="hide()"
 	/>
@@ -22,7 +22,7 @@ const props = defineProps<{
 
 const host = props.emote.data?.host ?? { url: "", files: [] };
 const srcset = host.files
-	.filter(f => f.format === host.files[0].format)
+	.filter((f) => f.format === host.files[0].format)
 	.map((f, i) => `${host.url}/${f.name} ${i + 1}x`)
 	.join(", ");
 

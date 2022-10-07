@@ -15,6 +15,7 @@ export class Logger {
 
 	private print(type: "error" | "warn" | "debug" | "info", text: string[], extraCSS: string[]): void {
 		const prefix = this.getPrefix();
+		// eslint-disable-next-line no-console
 		console[type](prefix.text + " " + text.join(" ") + ` (${this.ctx})`, prefix.css, ...extraCSS);
 	}
 

@@ -1,11 +1,11 @@
-import { Component, markRaw, nextTick, Prop, reactive, ref, Ref } from "vue";
-import { autoPlacement, computePosition, offset } from "@floating-ui/dom";
+import { Component, markRaw, nextTick, reactive } from "vue";
+import { computePosition, offset } from "@floating-ui/dom";
 
 export const tooltip = reactive({
 	x: 0,
 	y: 0,
 	content: null as Component | string | null,
-	contentProps: {} as Record<string, any>,
+	contentProps: {} as Record<string, unknown>,
 	container: null as HTMLElement | null,
 });
 
@@ -16,7 +16,7 @@ export const tooltip = reactive({
  * @param props if content is a component, these are the props to pass to it
  * @returns
  */
-export function useTooltip(content?: string | Component, props?: Record<string, any>) {
+export function useTooltip(content?: string | Component, props?: Record<string, unknown>) {
 	// this shows the tooltip
 	function show(el: HTMLElement | undefined): void {
 		if (!el) return;

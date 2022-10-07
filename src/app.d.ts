@@ -1,4 +1,4 @@
-declare module SevenTV {
+declare namespace SevenTV {
 	interface Emote {
 		id: ObjectID;
 		name: string;

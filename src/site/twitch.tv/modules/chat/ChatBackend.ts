@@ -1,8 +1,8 @@
-import { getEmoteButton, getMessageCardOpeners } from "@/site/twitch.tv";
+import { getEmoteButton } from "@/site/twitch.tv";
 
 export const tools = {
-	emoteClick: (() => {}) as Twitch.EmoteButton["props"]["onEmoteClick"],
-	userClick: (() => {}) as Twitch.MessageCardOpeners["onShowViewerCard"],
+	emoteClick: (() => null) as Twitch.EmoteButton["props"]["onEmoteClick"],
+	userClick: (() => null) as Twitch.MessageCardOpeners["onShowViewerCard"],
 };
 
 export const registerCardOpeners = (): boolean => {

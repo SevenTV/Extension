@@ -36,7 +36,7 @@ liveQuery(() =>
 	next(conn) {
 		if (!conn) return;
 
-		for (const emote of conn!.emote_set.emotes) {
+		for (const emote of conn.emote_set.emotes) {
 			twitchStore.emoteMap[emote.name] = emote;
 		}
 	},

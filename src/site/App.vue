@@ -1,6 +1,6 @@
 <template>
 	<!-- Spawn Platform-specific Logic -->
-	<component v-if="platformComponent" :is="platformComponent" :net-worker="nw" :transform-worker="tw" />
+	<component :is="platformComponent" v-if="platformComponent" :net-worker="nw" :transform-worker="tw" />
 
 	<!-- Render tooltip -->
 	<div
@@ -43,10 +43,7 @@ nw.postMessage({
 const tw = new TransformWorker();
 
 // Detect current platform
-const domain = window.location.hostname
-	.split(/\./)
-	.slice(-2)
-	.join(".");
+const domain = window.location.hostname.split(/\./).slice(-2).join(".");
 
 const platformComponent = ref<Component>();
 

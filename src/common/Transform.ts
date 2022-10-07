@@ -6,7 +6,7 @@ export function ConvertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Emot
 		privileged: true,
 		tags: [],
 		provider: "TWITCH",
-		emotes: data.emotes.map(e => ({
+		emotes: data.emotes.map((e) => ({
 			id: e.id,
 			name: e.token,
 			flags: 0,
@@ -18,8 +18,8 @@ export function ConvertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Emot
 
 export function ConvertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.Emote {
 	return {
-		id: data.id!,
-		name: data.token!,
+		id: data.id ?? "",
+		name: data.token ?? "",
 		flags: 0,
 		tags: [],
 		lifecycle: 3,
@@ -47,19 +47,4 @@ export function ConvertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.E
 			],
 		},
 	};
-}
-
-export function destroyObject(obj: Record<any, any>): void {
-	for (const prop in obj) {
-		const property = obj[prop];
-		if (property === null || typeof property === "undefined") {
-			continue;
-		}
-
-		if (typeof property === "object") {
-			destroyObject(property);
-		} else {
-			obj[prop] = undefined;
-		}
-	}
 }

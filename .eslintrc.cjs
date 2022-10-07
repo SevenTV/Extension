@@ -21,6 +21,7 @@ module.exports = {
 		"prettier/prettier": "error",
 		"no-console": "warn",
 		"no-debugger": "error",
+		"no-undef": "off",
 		quotes: [1, "double"],
 		"@typescript-eslint/no-unused-vars": "error",
 		"@typescript-eslint/explicit-module-boundary-types": "off",

@@ -27,8 +27,8 @@ export type TypedNetWorkerMessage<T extends NetWorkerMessageType> = {
 	[NetWorkerMessageType.INIT]: {
 		id: number;
 	};
-	[NetWorkerMessageType.PING]: {};
-	[NetWorkerMessageType.PONG]: {};
+	[NetWorkerMessageType.PING]: Record<string, never>;
+	[NetWorkerMessageType.PONG]: Record<string, never>;
 	[NetWorkerMessageType.STATE]: {
 		local?: NetWorkerInstance["local"];
 	};

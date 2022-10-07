@@ -1,0 +1,63 @@
+name: WebExtension Lint, Build, Test
+
+on:
+    push:
+        branches:
+            - master
+            - dev
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - labeled
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    ci:
+        name: WebExtension Lint, Build, Test
+        runs-on: aws-runner
+        env:
+            DEPLOY_PROD: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'production') || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+            DEPLOY_STAGE: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'staging') || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'dev') || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'staged')) }}
+        concurrency:
+            group: ${{ github.workflow }}-ci-${{ github.ref }}
+            cancel-in-progress: true
+
+        steps:
+            - name: Set up Go
+              uses: actions/setup-go@v3
+              with:
+                  go-version: 1.18.3
+
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+
+            - name: Install Yarn
+              run: npm install -g yarn
+
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Node Modules Cache
+              uses: actions/cache@v3
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+
+            - name: Install Dependencies
+              run: |
+                  make deps
+
+            - name: Run Linter
+              run: make lint
+
+            - name: Build App
+              run: make ${{ (env.DEPLOY_PROD == 'true' && 'prod') || 'stage' }}

@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
 			port: 4777,
 		},
 		mode: "module",
-		base: isDev ? `http://localhost:4777/` : undefined,
+		base: isDev ? "http://localhost:4777/" : undefined,
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "src"),
@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => {
 					site: r("src/site/site.ts"),
 				},
 				output: {
-					entryFileNames: info => {
+					entryFileNames: (info) => {
 						const name = path.basename(info.facadeModuleId.replace(".ts", ".js"));
 
 						return name;

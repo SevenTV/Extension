@@ -1,16 +1,16 @@
 // TransformWorker provides tools to convert and manipulate data without occupying the main thread.
 
 import { log } from "@/common/Logger";
-import { TransformWorkerMessage, TransformWorkerMessageType, TypedTransformWorkerMessage } from ".";
+import { TransformWorkerMessage, TransformWorkerMessageType } from ".";
 import { db } from "@/db/IndexedDB";
 import { ConvertTwitchEmoteSet } from "@/common/Transform";
 
-const w = (self as unknown) as DedicatedWorkerGlobalScope;
+const w = self as unknown as DedicatedWorkerGlobalScope;
 
 // Set up logger
 log.setContextName("TransformWorker");
 
-w.onmessage = async ev => {
+w.onmessage = async (ev) => {
 	if (ev.data.source !== "SEVENTV") {
 		return; // not a message from us
 	}
@@ -38,16 +38,3 @@ w.onmessage = async ev => {
 			break;
 	}
 };
-
-function sendMessage<T extends TransformWorkerMessageType>(
-	t: T,
-	data: TypedTransformWorkerMessage<T>,
-	seq: number,
-): void {
-	w.postMessage({
-		source: "SEVENTV",
-		type: t,
-		seq,
-		data,
-	});
-}

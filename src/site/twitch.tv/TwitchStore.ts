@@ -1,8 +1,4 @@
-import { destroyObject } from "@/common/Transform";
-import { useStore } from "@/store/main";
-import { NetWorkerMessage, NetWorkerMessageType } from "@/worker";
 import { defineStore } from "pinia";
-import { ref, Ref } from "vue";
 
 export interface State {
 	messages: Twitch.ChatMessage[];
@@ -22,7 +18,7 @@ export const useTwitchStore = defineStore("chat", {
 		} as State),
 
 	getters: {
-		currentMessage: state => state.messages[state.messages.length - 1],
+		currentMessage: (state) => state.messages[state.messages.length - 1],
 	},
 
 	actions: {
