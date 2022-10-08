@@ -36,6 +36,11 @@ import { getRandomInt } from "@/common/Rand";
 import { TransformWorkerMessageType } from "@/worker";
 import ChatData from "./ChatData.vue";
 import ChatList from "./ChatList.vue";
+import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+
+const emit = defineEmits<{
+	(e: "hooked"): void;
+}>();
 
 const store = useStore();
 const chatStore = useTwitchStore();
@@ -43,12 +48,12 @@ const { channel } = storeToRefs(store);
 const { messages } = storeToRefs(chatStore);
 
 const extMounted = ref(false);
-const controller = getChatController();
-const controllerClass = controller?.constructor?.prototype;
+const controller = ref<Twitch.ChatControllerComponent | undefined>();
 
 const el = document.createElement("seventv-container");
 el.id = "seventv-chat-controller";
 const containerEl = ref<HTMLElement>(el);
+const replacedEl = ref<Element | null>(null);
 
 const bounds = ref<DOMRect>(el.getBoundingClientRect());
 
@@ -62,105 +67,133 @@ watch(channel, (channel) => {
 	log.info("<ChatController>", `Joining #${channel.username}`);
 });
 
-const hooks = reactive({
-	controllerMounted: (() => null) as Twitch.ChatControllerComponent["componentDidUpdate"],
-	handleMessage: (() => null) as Twitch.ChatControllerComponent["props"]["messageHandlerAPI"]["handleMessage"],
-	chatListEl: null as HTMLElement | null,
-});
+// TODO: replace this with a temporary mutation observer
+const ctrl = getChatController();
+if (ctrl) setController(ctrl);
 
-// Hook chat controller mount event
-hooks.controllerMounted = controllerClass.componentDidUpdate;
-{
-	hooks.handleMessage = controller.props.messageHandlerAPI.handleMessage;
+// Hook chat controller events
+function setController(ctrl: Twitch.ChatControllerComponent) {
+	unhookController();
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	controllerClass.componentDidUpdate = function (this: Twitch.ChatControllerComponent, args: any[]) {
-		// Update current channel
-		if (
-			store.setChannel({
-				id: this.props.channelID,
-				username: this.props.channelLogin,
-				display_name: this.props.channelDisplayName,
-			})
-		) {
-			messages.value = [];
-			scroll.paused = false;
-			scroll.buffer.length = 0;
-		}
+	controller.value = ctrl;
 
-		// Put placeholder to teleport our message list
-		if (document.getElementById("seventv-chat-controller")) {
-			return;
-		}
+	const cls = ctrl.constructor.prototype;
+	defineFunctionHook(
+		cls,
+		"componentDidUpdate",
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		function (this: Twitch.ChatControllerComponent, old, ...args: any[]) {
+			// Update refrence to current controller if its not us
+			if (controller.value != this) controller.value = this;
 
-		const t = Date.now();
-
-		// Attach to chat
-		const parentEl = document.querySelector(".chat-room__content");
-		if (parentEl && !parentEl.contains(el)) {
-			parentEl.insertBefore(el, parentEl.children[2]);
-
-			// Hide the original chat list
-			const chatList = (hooks.chatListEl = parentEl.querySelector(Selectors.ChatList));
-			if (chatList) {
-				chatList.classList.add("seventv-checked");
+			// Update current channel
+			if (
+				store.setChannel({
+					id: this.props.channelID,
+					username: this.props.channelLogin,
+					display_name: this.props.channelDisplayName,
+				})
+			) {
+				messages.value = [];
+				scroll.paused = false;
+				scroll.buffer.length = 0;
 			}
-		}
 
-		// Send dummy message
-		sendDummyMessage(this);
+			// Put placeholder to teleport our message list
+			if (document.getElementById("seventv-chat-controller")) {
+				return;
+			}
 
-		const scrollContainer = document.querySelector<HTMLDivElement>(Selectors.ChatScrollableContainer);
-		if (scrollContainer) {
-			const observer = new MutationObserver((entries) => {
-				for (let i = 0; i < entries.length; i++) {
-					const rec = entries[i];
+			const t = Date.now();
 
-					rec.addedNodes.forEach((node) => {
-						if (!(node instanceof HTMLElement) || !node.classList.contains("chat-line__message")) {
-							return;
-						}
+			// Attach to chat
+			const parentEl = document.querySelector(".chat-room__content");
+			if (parentEl && !parentEl.contains(el)) {
+				const replace = parentEl.querySelector(Selectors.ChatList);
+				if (replace) {
+					parentEl.insertBefore(el, replace);
 
-						// Finalize all chat hooks
-						if (!registerCardOpeners()) {
-							return;
-						}
+					replacedEl.value = replace;
 
-						overwriteMessageContainer(this, scrollContainer);
-						extMounted.value = true;
+					// Hide the original chat list
+					replace.classList.add("seventv-checked");
+				}
+			}
 
-						// Bind twitch emotes
-						if (this.props.emoteSetsData) {
-							// We must wait for the data to be received
-							const i = setInterval(() => {
-								if (this.props.emoteSetsData?.loading) return;
+			definePropertyHook(this, "props", {
+				value: (v) => {
+					// Bind twitch emotes
+					definePropertyHook(v, "emoteSetsData", {
+						value: (v) => {
+							if (v.emoteSets) {
 								// Send the twitch emotes to the transform worker
 								// These can later be fetched from IDB by components
 								store.sendTransformRequest(TransformWorkerMessageType.TWITCH_EMOTES, {
-									input: this.props.emoteSetsData?.emoteSets ?? [],
+									input: v.emoteSets,
 								});
-								clearInterval(i);
-							}, 200);
-						}
-
-						log.debug("<ChatController>", "Chat controller mounted", `(${Date.now() - t}ms)`);
-						observer.disconnect(); // work is done, stop the mutation observer
+							}
+						},
 					});
-				}
+				},
 			});
 
-			// start looking for our system message
-			// we need its component to be mounted to get the constructor to message-specific hooks
-			observer.observe(scrollContainer, {
-				childList: true,
-			});
+			// Send dummy message
+			sendDummyMessage(this);
 
-			log.debug("<ChatController>", "Spawning MutationObserver");
+			const scrollContainer = document.querySelector<HTMLDivElement>(Selectors.ChatScrollableContainer);
+			if (scrollContainer) {
+				const observer = new MutationObserver((entries) => {
+					for (let i = 0; i < entries.length; i++) {
+						const rec = entries[i];
+
+						rec.addedNodes.forEach((node) => {
+							if (!(node instanceof HTMLElement) || !node.classList.contains("chat-line__message")) {
+								return;
+							}
+
+							// Finalize all chat hooks
+							if (!registerCardOpeners()) {
+								return;
+							}
+
+							overwriteMessageContainer(this, scrollContainer);
+							emit("hooked");
+							extMounted.value = true;
+
+							log.debug("<ChatController>", "Chat controller mounted", `(${Date.now() - t}ms)`);
+							observer.disconnect(); // work is done, stop the mutation observer
+						});
+					}
+				});
+
+				// start looking for our system message
+				// we need its component to be mounted to get the constructor to message-specific hooks
+				observer.observe(scrollContainer, {
+					childList: true,
+				});
+
+				log.debug("<ChatController>", "Spawning MutationObserver");
+			}
+
+			return old?.apply(this, args);
+		},
+	);
+}
+
+function unhookController() {
+	if (controller.value) {
+		const ctrl = controller.value;
+		unsetPropertyHook(ctrl, "props");
+		unsetPropertyHook(ctrl.constructor.prototype, "componentDidUpdate");
+
+		if (ctrl.props) {
+			unsetPropertyHook(ctrl.props, "emoteSetsData");
+
+			if (ctrl.props.messageHandlerAPI) {
+				unsetPropertyHook(ctrl.props.messageHandlerAPI, "handleMessage");
+			}
 		}
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		return hooks.controllerMounted?.apply(this, [args] as any[any]);
-	};
+	}
 }
 
 // Take over the chat's native message container
@@ -173,55 +206,58 @@ const overwriteMessageContainer = (
 	// We will use our custom renderer for all supported types
 	// if a message type is unsupported, we will instead render it as native
 	// and then move it into our context.
-	scopedController.props.messageHandlerAPI.handleMessage = function (
-		this: Twitch.ChatControllerComponent["props"]["messageHandlerAPI"],
-		msg: Twitch.ChatMessage,
-	) {
-		const t = Date.now() + getRandomInt(0, 1000);
-		const msgData = Object.create({ seventv: true, t });
-		for (const k of Object.keys(msg)) {
-			msgData[k] = msg[k as keyof Twitch.ChatMessage];
-		}
-
-		const ok = onMessage(msgData);
-		if (ok) return ""; // message was rendered by the extension
-
-		// message type is not supported:
-		// render is natively
-		const o = new MutationObserver((x) => {
-			for (let i = 0; i < x.length; i++) {
-				const rec = x[i];
-
-				rec.addedNodes.forEach((node) => {
-					if (!(node instanceof HTMLElement)) return;
-
-					const unhandledID = `seventv-unhandled-msg-ref-${msgData.t}`;
-					msgData.seventv = false;
-					msgData.id = unhandledID;
-					chatStore.pushMessage(msgData);
-
-					nextTick(() => {
-						const wrapper = document.getElementById(unhandledID);
-						if (wrapper) {
-							wrapper.appendChild(node as Node);
-						}
-
-						scrollToLive();
-					});
-
-					o.disconnect();
-					clearTimeout(timeout);
-				});
+	defineFunctionHook(
+		scopedController.props.messageHandlerAPI,
+		"handleMessage",
+		function (old, msg: Twitch.ChatMessage) {
+			const t = Date.now() + getRandomInt(0, 1000);
+			const msgData = Object.create({ seventv: true, t });
+			for (const k of Object.keys(msg)) {
+				msgData[k] = msg[k as keyof Twitch.ChatMessage];
 			}
-		});
 
-		o.observe(scrollContainer, {
-			childList: true,
-		});
-		const timeout = setTimeout(() => o.disconnect(), 1250);
+			const ok = onMessage(msgData);
+			if (ok) return ""; // message was rendered by the extension
 
-		hooks.handleMessage.call(this, msg);
-	};
+			if (!old) return; // we cant continue since there is no native renderer to call.
+
+			// message type is not supported:
+			// render is natively
+			const o = new MutationObserver((x) => {
+				for (let i = 0; i < x.length; i++) {
+					const rec = x[i];
+
+					rec.addedNodes.forEach((node) => {
+						if (!(node instanceof HTMLElement)) return;
+
+						const unhandledID = `seventv-unhandled-msg-ref-${msgData.t}`;
+						msgData.seventv = false;
+						msgData.id = unhandledID;
+						chatStore.pushMessage(msgData);
+
+						nextTick(() => {
+							const wrapper = document.getElementById(unhandledID);
+							if (wrapper) {
+								wrapper.appendChild(node as Node);
+							}
+
+							scrollToLive();
+						});
+
+						o.disconnect();
+						clearTimeout(timeout);
+					});
+				}
+			});
+
+			o.observe(scrollContainer, {
+				childList: true,
+			});
+			const timeout = setTimeout(() => o.disconnect(), 1250);
+
+			old.call(this, msg);
+		},
+	);
 };
 
 // Handle scrolling
@@ -312,11 +348,10 @@ resizeObserver.observe(containerEl.value);
 onUnmounted(() => {
 	resizeObserver.disconnect();
 
-	controllerClass.componentDidUpdate = hooks.controllerMounted;
-	controller.props.messageHandlerAPI.handleMessage = hooks.handleMessage;
+	unhookController();
 
 	el.remove();
-	hooks.chatListEl?.classList.remove("seventv-checked");
+	if (replacedEl.value) replacedEl.value.classList.remove("seventv-checked");
 
 	log.debug("<ChatController> Unmounted");
 });

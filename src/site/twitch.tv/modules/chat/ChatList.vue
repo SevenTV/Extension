@@ -14,11 +14,13 @@ import ChatMessage from "@/site/twitch.tv/modules/chat/components/ChatMessage.vu
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
 
 const props = defineProps<{
-	controller: Twitch.ChatControllerComponent;
+	controller: Twitch.ChatControllerComponent | undefined;
 	messages: Twitch.ChatMessage[];
 }>();
 
 const openViewerCard = (ev: MouseEvent, viewer: Twitch.ChatUser) => {
+	if (!props.controller) return;
+
 	props.controller.sendMessage(`/user ${viewer.userLogin}`);
 
 	// Watch for card being created
