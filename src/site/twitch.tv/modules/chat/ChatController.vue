@@ -7,6 +7,15 @@
 		<!-- Data Logic -->
 		<ChatData />
 
+		<!-- New Messages during Scrolling Pause -->
+		<div
+			v-if="scroll.paused && scroll.buffer.length > 0"
+			class="seventv-message-buffer-notice"
+			@click="unpauseScrolling"
+		>
+			<span>{{ scroll.buffer.length }}{{ scroll.buffer.length >= lineLimit ? "+" : "" }} new messages</span>
+		</div>
+
 		<!-- Custom Scrollbar -->
 		<div
 			v-if="scroll.visible"
@@ -45,7 +54,7 @@ const emit = defineEmits<{
 const store = useStore();
 const chatStore = useTwitchStore();
 const { channel } = storeToRefs(store);
-const { messages } = storeToRefs(chatStore);
+const { messages, lineLimit } = storeToRefs(chatStore);
 
 const extMounted = ref(false);
 const controller = ref<Twitch.ChatControllerComponent | undefined>();
@@ -277,7 +286,7 @@ const onMessage = (msg: Twitch.ChatMessage): boolean => {
 	if (scroll.paused) {
 		// if scrolling is paused, buffer the message
 		scroll.buffer.push(msg);
-		if (scroll.buffer.length > chatStore.lineLimit) scroll.buffer.shift();
+		if (scroll.buffer.length > lineLimit.value) scroll.buffer.shift();
 
 		return true;
 	}
@@ -307,6 +316,23 @@ const scrollToLive = () => {
 	bounds.value = containerEl.value.getBoundingClientRect();
 };
 
+function unpauseScrolling(): void {
+	scroll.paused = false;
+	scroll.init = true;
+
+	chatStore.messages.push(...scroll.buffer);
+	scroll.buffer.length = 0;
+
+	nextTick(() => {
+		scroll.init = false;
+		scrollToLive();
+	});
+}
+
+function pauseScrolling(): void {
+	scroll.paused = true;
+}
+
 // Listen for scroll events
 containerEl.value.addEventListener("scroll", () => {
 	const top = Math.floor(containerEl.value.scrollTop);
@@ -324,18 +350,9 @@ containerEl.value.addEventListener("scroll", () => {
 	}
 
 	// Check if the user has scrolled back down to live mode
-	scroll.paused = true;
+	pauseScrolling();
 	if (live) {
-		scroll.paused = false;
-		scroll.init = true;
-
-		chatStore.messages.push(...scroll.buffer);
-		scroll.buffer.length = 0;
-
-		nextTick(() => {
-			scroll.init = false;
-			scrollToLive();
-		});
+		unpauseScrolling();
 	}
 });
 
@@ -397,6 +414,22 @@ onUnmounted(() => {
 				background-color: rgb(77, 77, 77);
 			}
 		}
+	}
+
+	.seventv-message-buffer-notice {
+		cursor: pointer;
+		position: absolute;
+		bottom: 8em;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5em;
+		border-radius: 0.33em;
+		color: #fff;
+		background-color: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(0.05em);
 	}
 }
 

@@ -4,8 +4,8 @@
 
 	<!-- Render tooltip -->
 	<div
+		id="seventv-tooltip-container"
 		ref="tooltipContainer"
-		class="seventv-tooltip-container"
 		:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
 	>
 		<template v-if="typeof tooltip.content === 'string'">
@@ -64,8 +64,12 @@ onMounted(() => {
 });
 </script>
 
-<style scoped lang="scss">
-.seventv-tooltip-container {
+<style lang="scss">
+#seventv-root {
+	z-index: 1;
+}
+
+#seventv-tooltip-container {
 	all: unset;
 	z-index: 999;
 	position: absolute;
