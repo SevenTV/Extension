@@ -22,58 +22,14 @@ export class SiteApp {
 	paints = [] as API.Paint[];
 	badgeMap = new Map<number, number[]>();
 	paintMap = new Map<number, number>();
+	paintStyleRules = new Set<number>();
 	currentChannel = '';
 	tabCompleteDetector = new TabCompleteDetection(this);
 	config = config;
 
 	menuPickEmote = new Subject<EmoteStore.Emote>();
 
-	constructor() {
-		// Fetch Badges
-		this.api.GetCosmetics().pipe(
-			map(cosmetics => {
-				for (let i = 0; i < cosmetics.badges.length; i++) {
-					const badge = cosmetics.badges[i];
-					this.badges[i] = badge;
-
-					for (const u of badge.users) {
-						let id: number | string = parseInt(u);
-						if (isNaN(id)) {
-							id = u;
-						}
-
-						if (this.badgeMap.has(id as number)) {
-							this.badgeMap.set(id as number, [...this.badgeMap.get(id as number) as number[], i]);
-						} else {
-							this.badgeMap.set(id as number, [i]);
-						}
-					}
-				}
-				for (let i = 0; i < cosmetics.paints.length; i++) {
-					const paint = cosmetics.paints[i];
-					this.paints[i] = paint;
-
-					for (const u of paint.users) {
-						let id: number | string = parseInt(u);
-						if (isNaN(id)) {
-							id = u;
-						}
-
-						this.paintMap.set(id as number, i);
-					}
-				}
-
-				this.buildCosmeticPaintStyles();
-				return cosmetics;
-			}),
-
-			tap(x => {
-				const appliedCount = x.badges.filter(b => b.users.length > 0).map(b => b.users.length).reduce((a, b) => a + b)
-					+ x.paints.filter(p => p.users.length > 0).map(p => p.users.length).reduce((a, b) => a + b);
-				Logger.Get().info(`Loaded ${x.badges?.length ?? 0} badges and ${x.paints?.length ?? 0} paints. Cosmetics applied to ${appliedCount} users`);
-			})
-		).subscribe();
-	}
+	constructor() {}
 
 	switchChannel(data: {
 		channelID: string;
@@ -164,6 +120,58 @@ export class SiteApp {
 		return stylesheet;
 	}
 
+	loadCosmetics(): void {
+		this.api.GetCosmetics().pipe(
+			map(cosmetics => {
+				// Clear previous cosmetics
+				this.badges = [];
+				this.badgeMap.clear();
+				this.paints = [];
+				this.paintMap.clear();
+
+				for (let i = 0; i < cosmetics.badges.length; i++) {
+					const badge = cosmetics.badges[i];
+					this.badges[i] = badge;
+
+					for (const u of badge.users) {
+						let id: number | string = parseInt(u);
+						if (isNaN(id)) {
+							id = u;
+						}
+
+						if (this.badgeMap.has(id as number)) {
+							this.badgeMap.set(id as number, [...this.badgeMap.get(id as number) as number[], i]);
+						} else {
+							this.badgeMap.set(id as number, [i]);
+						}
+					}
+				}
+				for (let i = 0; i < cosmetics.paints.length; i++) {
+					const paint = cosmetics.paints[i];
+					this.paints[i] = paint;
+
+					for (const u of paint.users) {
+						let id: number | string = parseInt(u);
+						if (isNaN(id)) {
+							id = u;
+						}
+
+						this.paintMap.set(id as number, i);
+					}
+				}
+
+				this.buildCosmeticPaintStyles();
+				return cosmetics;
+			}),
+
+			tap(x => {
+				const appliedCount = x.badges.filter(b => b.users.length > 0).map(b => b.users.length).reduce((a, b) => a + b)
+					+ x.paints.filter(p => p.users.length > 0).map(p => p.users.length).reduce((a, b) => a + b);
+				Logger.Get().info(`Loaded ${x.badges?.length ?? 0} badges and ${x.paints?.length ?? 0} paints. Cosmetics applied to ${appliedCount} users`);
+			})
+		).subscribe();
+	}
+
 	/**
 	 * Insert paint styles into our global stylesheet
 	 */
@@ -172,6 +180,18 @@ export class SiteApp {
 		if (!stylesheet) {
 			return undefined;
 		}
+		// Clear previous rules
+		this.paintStyleRules.forEach((i) => {
+			const r = stylesheet.cssRules.item(i);
+			if (!r) {
+				return;
+			}
+			const isPaint = r?.cssText.includes('data-seventv-paint');
+			if (isPaint) {
+				stylesheet.deleteRule(i);
+			}
+		});
+		this.paintStyleRules.clear();
 
 		// Turn the paint data into css rule
 		for (let i = 0; i < this.paints.length; i++) {
@@ -211,7 +231,7 @@ export class SiteApp {
 			}
 
 			// Insert new css rule for the paint
-			stylesheet.insertRule(`
+			this.paintStyleRules.add(stylesheet.insertRule(`
 				body:not(.seventv-no-paints) [data-seventv-paint="${i}"] {
 					${paint.color !== null ? `color: ${decimalColorToRGBA(paint.color)} !important;` : ''}
 					filter: ${dropShadows.length > 0
@@ -220,7 +240,7 @@ export class SiteApp {
 					};
 					background-image: ${funcName}(${args.join(', ')});
 				}
-			`.replace(/(\r\n|\n|\r)/gm, ''), stylesheet.cssRules.length);
+			`.replace(/(\r\n|\n|\r)/gm, ''), stylesheet.cssRules.length));
 
 			Logger.Get().debug(`Loaded cosmetic paint: '${paint.name}' (index: ${i}, id: ${paint.id})`);
 		}

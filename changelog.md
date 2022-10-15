@@ -1,5 +1,34 @@
 # 7TV Web Extension - Changelog
 
+### Version 2.2.3
+
+- Twitch: Fixed an issue where emotes in typed messages would disappear (#287)
+- Twitch: Fixed 3rd party emote previews not rendering in the autocomplete tray (#268)
+- Twitch: Fixed an issue with some low resolution emotes (#266)
+- Twitch: Fix emotes not showing up while using FFZ in channels who have changed username recently (#264)
+
+### Version 2.2.2
+
+- YouTube: Fixed an issue causing the true theater mode to cut off the video/stream (#258)
+
+### Version 2.2.1
+
+- Twitch: Fixed an issue which prevented the extension from loading in Mod View
+- Twitch: Fixed an issue which broke the reply functionality
+- Twitch: Tentatively fixed an issue which caused random chat disconnections
+- Twitch: The duplicate message bypass feature should no longer insert unnecessary extra unicodes 
+
+### Version 2.2.0
+
+- Twitch: Added support for chat in VODs (#234)
+- Twitch: The "Send same message twice" option should now work again (#239, #241)
+- Twitch: The "Show Timeouts & Bans" option will now disable itself while acting as a moderator
+- Twitch: Improved the time formatting for time-out and ban notices (#218)
+- Twitch: Added provider indicators in emote colon-completion and fixed its inconsistent functionality
+- Twitch: Fixed an issue which caused FFZ emotes to sometimes be broken images or unexpected random images (#240)
+- Twitch: Fixed an issue which occasionally prevented name tag paints from rendering
+- Twitch: Tentatively fixed an issue which caused random emojis to appear in chat
+
 ### Version 2.1.4
 
 - Twitch: Fixed tab-completion for Twitch's chat input update

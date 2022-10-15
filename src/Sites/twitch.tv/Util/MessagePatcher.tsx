@@ -5,7 +5,7 @@ import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 export class MessagePatcher {
 	constructor(
 		private page: TwitchPageScript,
-		private msg: Twitch.ChatMessage
+		private msg: Twitch.ChatMessage | Twitch.VideoChatComment
 	) { }
 
 	/**
@@ -16,8 +16,12 @@ export class MessagePatcher {
 		// Daily Quest: find 7TV emotes ZULUL
 		const eIndex = this.page.getEmoteIndex();
 
+		const messageParts = this.msg.seventv.live
+			? (this.msg as Twitch.ChatMessage)?.messageParts
+			: (this.msg as Twitch.VideoChatComment)?.message.tokens;
+
 		// Find all emotes across the message parts
-		for (const part of this.msg.messageParts) {
+		for (const part of messageParts) {
 			// Handle link / mention
 			if (part.type === 4) { // Is mention
 				this.msg.seventv.parts.push({ type: 'mention', content: (part.content as any).recipient });
@@ -79,24 +83,30 @@ export class MessagePatcher {
 	/**
 	 * Render the message with 7TV emotes
 	 */
-	render(line: Twitch.ChatLineAndComponent): void {
+	render(line: Twitch.ChatLineAndComponent | Twitch.VideoMessageAndComponent): void {
 		// Hide twitch fragments
-		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, [data-test-selector=emote-button]'));
+		const oldFragments = Array.from(line.element.querySelectorAll<HTMLSpanElement | HTMLImageElement>('span.text-fragment, span.mention-fragment, a.link-fragment, img.chat-line__message--emote, div.chat-image__container, [data-test-selector=emote-button]'));
 		for (const oldFrag of oldFragments) {
+
 			oldFrag.setAttribute('superceded', '');
-			oldFrag.style.display = 'none';
+			oldFrag.style.setProperty('display', 'none', 'important');	// VOD fragments with additional layout contain 'display: inline !important'. This needs to be overrode.
 		}
+
+		const message = (this.msg as Twitch.ChatMessage)
+			?? (this.msg as Twitch.VideoChatComment);
 
 		// Render 7TV third party stuff (and idk...)
 		// Send message data back to the content script
-		line.element.id = `7TV#msg:${this.msg.id}`; // Give an ID to the message element
-		line.element.setAttribute('seventv-id', this.msg.id);
-		this.msg.seventv.patcher = null;
+		line.element.id = `7TV#msg:${message.id}`; // Give an ID to the message element
+		line.element.setAttribute('seventv-id', message.id);
 
-		const renderer = new MessageRenderer(this.page.site, this.msg, line.element.id);
+		// Don't clear the patcher as a temporary workaround to twitch rerendering the most recent message
+		//this.msg.seventv.patcher = null;
+
+		const renderer = new MessageRenderer(this.page.site, message, line.element.id);
 
 		renderer.renderMessageTree();
-		renderer.insert();
+		renderer.insert(this.msg.seventv.live);
 	}
 
 	/**

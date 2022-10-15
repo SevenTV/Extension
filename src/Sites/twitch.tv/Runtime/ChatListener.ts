@@ -1,28 +1,26 @@
 import { Constants } from '@typings/src/Constants';
 import { DataStructure } from '@typings/typings/DataStructure';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { filter, takeUntil, tap } from 'rxjs/operators';
 import { Logger } from 'src/Logger';
 import { emoteStore } from 'src/Sites/app/SiteApp';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
-import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { intervalToDuration, formatDuration } from 'date-fns';
+import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
-export class TwitchChatListener {
-	/** Create a Twitch instance bound to this listener */
-	private twitch = this.page.twitch;
+let currentModHandler: (msg: Twitch.ChatMessage) => void;
+export class TwitchChatListener extends BaseTwitchChatListener {
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
 	private pendingMessages = new Set<string>();
 
 	linesRendered = 0;
+	lastModMessage = '';
 
-	private killed = new Subject<void>();
-
-	constructor(private page: TwitchPageScript) {
-		(window as any).twitch = this.twitch;
+	constructor(page: TwitchPageScript) {
+		super(page);
 	}
 
 	start(): void {
@@ -66,6 +64,7 @@ export class TwitchChatListener {
 		if (!!currentHandler) {
 			Logger.Get().info('Unloading previous handler');
 			msgHandler.removeMessageHandler(currentHandler);
+			msgHandler.removeMessageHandler(currentModHandler);
 		}
 
 		// Add a handler for regular chat messages
@@ -78,22 +77,31 @@ export class TwitchChatListener {
 		msgHandler.addMessageHandler(currentHandler);
 
 		// Add a handler for moderation messages
-		msgHandler.addMessageHandler(msg => {
+		currentModHandler = (msg) => {
 			if (msg.type !== 2) return undefined;
 			if (!this.page.site.config.get('general.display_mod_actions')?.asBoolean()) {
 				return undefined; // Don't emit a mod message, as the setting is disabled
 			}
+			if (this.page.isActorModerator) {
+				return undefined; // Don't emit a message if the actor is a moderator
+			}
 			const modMsg = msg as unknown as Twitch.ChatMessage.ModerationMessage;
+			const h = `${modMsg.userLogin}.${modMsg.moderationType}.${modMsg.duration}`;
+			if (this.lastModMessage === h) {
+				return undefined; // skip if this is duplicate
+			}
 
 			if (modMsg.moderationType === 1) { // Timeout
 				const humanizedInterval = formatDuration(intervalToDuration({start: 0, end: modMsg.duration * 1000}));
-				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${humanizedInterval}${!!modMsg.reason ? ` (${modMsg.reason})` : ''} by a moderator`);
+				this.sendSystemMessage(`${modMsg.userLogin} was timed out for ${humanizedInterval}${!!modMsg.reason ? ` (${modMsg.reason})` : ''}`, true);
 			} else if (modMsg.moderationType === 0) { // Ban
-				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned by a moderator`);
+				this.sendSystemMessage(`${modMsg.userLogin} was permanently banned`, true);
 			} else if (modMsg.moderationType === 2) { // Message deleted
-				this.sendSystemMessage(`A message from ${modMsg.userLogin} was deleted by a moderator`);
+				this.sendSystemMessage(`A message from ${modMsg.userLogin} was deleted`, true);
 			}
-		});
+			this.lastModMessage = h;
+		};
+		msgHandler.addMessageHandler(currentModHandler);
 
 		// Send twitch emotes to upper layer
 		const twitchEmotes = this.twitch.getChat()?.props.emotes;
@@ -112,7 +120,7 @@ export class TwitchChatListener {
 			filter(line => !!line.component),
 			// Render 7TV emotes
 			tap(line => {
-				this.renderPaintOnNametag(line);
+				this.renderNametagPaint(line);
 
 				if (!!line.component.props.message?.seventv) {
 					line.component.props.message.seventv.currenUserID = line.component.props.currentUserID;
@@ -130,33 +138,26 @@ export class TwitchChatListener {
 		for (const line of lines) {
 			if (!line.component?.props) continue;
 			this.onMessage(line.component.props.message, line);
-			this.renderPaintOnNametag(line);
+			this.renderNametagPaint(line);
 		}
 	}
 
 	/**
 	 * Patch a chat line with a nametag paint when applicable
 	 */
-	renderPaintOnNametag(line: Twitch.ChatLineAndComponent): void {
+	renderNametagPaint(line: Twitch.ChatLineAndComponent): void {
 		if (!line.component.props || !line.component.props.message) {
 			return undefined;
 		}
-		const user = line.component.props.message.user;
-		const userID = parseInt(user.userID);
-		// Add paint?
-		if (!!user && this.page.site.paintMap.has(userID)) {
-			const paintID = this.page.site.paintMap.get(userID);
-			if (typeof paintID !== 'number') {
-				return undefined;
-			}
-			const paint = this.page.site.paints[paintID];
-			const username = line.element.querySelector<HTMLSpanElement>('[data-a-target="chat-message-username"], .chat-line__username');
-			username?.setAttribute('data-seventv-paint', paintID.toString());
 
-			if (!paint.color && username) {
-				username.style.color = line.component.props.message.user.color;
-			}
-		}
+		const user = line.component.props.message.user;
+
+		super.renderPaintOnNametag(
+			{ id: user.userID },
+			line.element,
+			user.color,
+			'[data-a-target="chat-message-username"], .chat-line__username'
+		);
 	}
 
 	private onMessage(msg: Twitch.ChatMessage, renderAs: Twitch.ChatLineAndComponent | null = null): void {
@@ -167,19 +168,11 @@ export class TwitchChatListener {
 		 */
 		this.pendingMessages.add(msg.id);
 
-		// Push emotes to seventv.emotes property
-		const patcher = new MessagePatcher(this.page, msg);
-		msg.seventv = {
-			patcher,
-			parts: [],
-			badges: [],
-			words: [],
-			is_slash_me: msg.messageType === 1
-		};
-
-		// Tokenize 7TV emotes to Message Data
-		// This detects/matches 7TV emotes as text and adds it to a seventv namespace within the message
-		patcher.tokenize();
+		const patcher = super.prepareMessageRender(
+			msg,
+			{ is_slash_me: msg.messageType === 1 },
+			true
+		);
 
 		this.linesRendered++;
 		if (this.linesRendered === 1) {
@@ -190,7 +183,7 @@ export class TwitchChatListener {
 		}
 	}
 
-	sendSystemMessage(msg: string): void {
+	sendSystemMessage(msg: string, hidePrefix?: boolean): void {
 		const controller = this.twitch.getChatController();
 
 		if (controller) {
@@ -201,7 +194,7 @@ export class TwitchChatListener {
 				msgid: id,
 				channel: `#${controller.props.channelLogin}`,
 				type: 32,
-				message: `[7TV] ${text}`
+				message: `${hidePrefix ? '' : '[7TV] '}${text}`
 			});
 		}
 	}
@@ -264,10 +257,5 @@ export class TwitchChatListener {
 			emoteStore.sets.delete('twitch');
 		}
 		emoteStore.enableSet(`twitch`, emotes);
-	}
-
-	kill(): void {
-		this.killed.next(undefined);
-		this.killed.complete();
 	}
 }
