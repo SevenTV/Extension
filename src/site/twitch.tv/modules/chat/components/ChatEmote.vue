@@ -3,6 +3,7 @@
 		ref="imgRef"
 		class="chat-emote"
 		:srcset="srcset"
+		:alt="emote.name"
 		@click="openCard"
 		@mouseenter="show(imgRef)"
 		@mouseleave="hide()"

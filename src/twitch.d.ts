@@ -407,13 +407,11 @@ declare module Twitch {
 	}
 
 	export interface ChatBadge {
-		clickAction?: string;
-		clickURL?: string;
-		click_action?: string;
-		click_url?: string;
+		clickAction: string | null;
+		clickURL: string | null;
 		id: string;
 		image1x: string;
-		image2x?: string;
+		image2x: string;
 		image4x: string;
 		setID: string;
 		title: string;
@@ -462,8 +460,8 @@ declare module Twitch {
 	}
 
 	export interface ChatMessage {
-		badgesDynamicData: {};
-		badges: { [key: string]: "1" | "0" };
+		badgeDynamicData: {};
+		badges: Record<string, string>;
 		banned: boolean;
 		bits: number;
 		deleted: boolean;

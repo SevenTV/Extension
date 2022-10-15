@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { getChatController, Selectors } from "@/site/twitch.tv";
+import { getChatController, getChatLines, Selectors } from "@/site/twitch.tv";
 import { ref, reactive, nextTick, onUnmounted, watch } from "vue";
 import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
 import { registerCardOpeners, sendDummyMessage } from "@/site/twitch.tv/modules/chat/ChatBackend";
@@ -129,18 +129,20 @@ function setController(ctrl: Twitch.ChatControllerComponent) {
 				}
 			}
 
+			const scrollContainer = document.querySelector<HTMLDivElement>(Selectors.ChatScrollableContainer);
+
 			definePropertyHook(this, "props", {
-				value: (v) => {
+				value: (v: typeof this["props"]) => {
 					// Bind twitch emotes
 					definePropertyHook(v, "emoteSetsData", {
-						value: (v) => {
-							if (v.emoteSets) {
-								// Send the twitch emotes to the transform worker
-								// These can later be fetched from IDB by components
-								store.sendTransformRequest(TransformWorkerMessageType.TWITCH_EMOTES, {
-									input: v.emoteSets,
-								});
-							}
+						value: (v: typeof this["props"]["emoteSetsData"]) => {
+							if (!v || !v.emoteSets) return;
+
+							// Send the twitch emotes to the transform worker
+							// These can later be fetched from IDB by components
+							store.sendTransformRequest(TransformWorkerMessageType.TWITCH_EMOTES, {
+								input: v.emoteSets,
+							});
 						},
 					});
 				},
@@ -149,7 +151,6 @@ function setController(ctrl: Twitch.ChatControllerComponent) {
 			// Send dummy message
 			sendDummyMessage(this);
 
-			const scrollContainer = document.querySelector<HTMLDivElement>(Selectors.ChatScrollableContainer);
 			if (scrollContainer) {
 				const observer = new MutationObserver((entries) => {
 					for (let i = 0; i < entries.length; i++) {
@@ -163,6 +164,26 @@ function setController(ctrl: Twitch.ChatControllerComponent) {
 							// Finalize all chat hooks
 							if (!registerCardOpeners()) {
 								return;
+							}
+
+							// Hook chat line
+							const line = getChatLines(scrollContainer, ["seventv-hook-message"])[0];
+							if (line && line.component) {
+								definePropertyHook(line.component, "props", {
+									value: (v: typeof line.component["props"]) => {
+										// store twitch badge sets
+										definePropertyHook(v, "badgeSets", {
+											value: (v: typeof line.component["props"]["badgeSets"]) => {
+												if (v.count === 0) return;
+
+												chatStore.twitchBadgeSets = v;
+
+												unsetPropertyHook(line.component, "props");
+												unsetPropertyHook(line.component.props, "badgeSets");
+											},
+										});
+									},
+								});
 							}
 
 							overwriteMessageContainer(this, scrollContainer);
@@ -428,7 +449,7 @@ onUnmounted(() => {
 		padding: 0.5em;
 		border-radius: 0.33em;
 		color: #fff;
-		background-color: rgba(0, 0, 0, 0.5);
+		background-color: rgba(0, 0, 0, 0.5%);
 		backdrop-filter: blur(0.05em);
 	}
 }

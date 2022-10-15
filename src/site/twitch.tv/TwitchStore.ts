@@ -5,6 +5,7 @@ export interface State {
 	messageIds: Set<string>;
 	lineLimit: number;
 	emoteMap: Record<string, SevenTV.ActiveEmote>;
+	twitchBadgeSets: Twitch.BadgeSets | null;
 }
 
 export const useTwitchStore = defineStore("chat", {
@@ -15,6 +16,7 @@ export const useTwitchStore = defineStore("chat", {
 			messageIds: new Set(),
 			lineLimit: 100,
 			emoteMap: {},
+			twitchBadgeSets: null,
 		} as State),
 
 	getters: {

@@ -60,21 +60,6 @@ declare namespace SevenTV {
 		provider?: Provider;
 	}
 
-	interface ImageHost {
-		url: string;
-		files: ImageFile[];
-	}
-
-	interface ImageFile {
-		name: string;
-		static_name?: string;
-		width?: number;
-		height?: number;
-		frame_count?: number;
-		size?: number;
-		format: ImageFormat;
-	}
-
 	interface User {
 		id: ObjectID;
 		type: UserType;
@@ -97,6 +82,19 @@ declare namespace SevenTV {
 		user?: User;
 	}
 
+	interface Cosmetic {
+		id: ObjectID;
+		kind: CosmeticKind;
+		name: string;
+	}
+
+	interface CosmeticBadge extends Cosmetic {
+		tooltip: string;
+		host: ImageHost;
+	}
+
+	type CosmeticKind = "BADGE" | "PAINT";
+
 	type UserType = "" | "BOT" | "SYSTEM";
 
 	type ImageFormat = "AVIF" | "WEBP" | "PNG" | "GIF";
@@ -104,6 +102,21 @@ declare namespace SevenTV {
 	type ObjectID = string;
 
 	type Provider = "7TV" | "TWITCH" | "BTTV" | "FFZ";
+
+	interface ImageHost {
+		url: string;
+		files: ImageFile[];
+	}
+
+	interface ImageFile {
+		name: string;
+		static_name?: string;
+		width?: number;
+		height?: number;
+		frame_count?: number;
+		size?: number;
+		format: ImageFormat;
+	}
 
 	namespace EventAPI {
 		interface WebSocketPayload<T> {

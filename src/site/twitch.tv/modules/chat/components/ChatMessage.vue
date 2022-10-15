@@ -2,7 +2,12 @@
 	<span v-if="msg" class="seventv-chat-message">
 		<!-- Chat Author -->
 		<template v-if="msg.user && msg.user.userDisplayName">
-			<ChatUserTag v-if="msg.user" :user="msg.user" @click="emit('open-viewer-card', $event, msg.user)" />
+			<ChatUserTag
+				v-if="msg.user"
+				:user="msg.user"
+				:badges="msg.badges"
+				@click="emit('open-viewer-card', $event, msg.user)"
+			/>
 			<span>: </span>
 		</template>
 
@@ -24,7 +29,7 @@
 import { storeToRefs } from "pinia";
 import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
 import { ConvertTwitchEmote } from "@/common/Transform";
-import ChatUserTag from "@/site/twitch.tv/modules/chat/ChatUserTag.vue";
+import ChatUserTag from "@/site/twitch.tv/modules/chat/components/ChatUserTag.vue";
 import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
 
 const emit = defineEmits<{

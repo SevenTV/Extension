@@ -1,12 +1,12 @@
 <template>
-	<div ref="tooltip" class="seventv-tooltip" tooltip-type="emote">
-		<h3>{{ emote.name }}</h3>
+	<div ref="tooltip" class="seventv-tooltip" tooltip-type="badge">
+		<h3>{{ badge.title }}</h3>
 	</div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
-	emote: SevenTV.Emote;
+	badge: Twitch.ChatBadge;
 }>();
 </script>
 
