@@ -8,6 +8,8 @@ import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
 import { intervalToDuration, formatDuration } from 'date-fns';
 import { BaseTwitchChatListener } from 'src/Sites/twitch.tv/Runtime/BaseChatListener';
+import ChatComponentProps = Twitch.ChatComponentProps;
+import ChatComponentState = Twitch.ChatComponentState;
 
 let currentHandler: (msg: Twitch.ChatMessage) => void;
 let currentModHandler: (msg: Twitch.ChatMessage) => void;
@@ -15,6 +17,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 
 	/** A list of message IDs which have been received but not yet rendered on screen */
 	private pendingMessages = new Set<string>();
+	private originalChatComponentDidUpdate?:(previousProps: ChatComponentProps, previousState:ChatComponentState, snapshot:any) => void;
 
 	linesRendered = 0;
 	lastModMessage = '';
@@ -56,6 +59,12 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 				});
 			}
 		}
+		this.startListeningForBanStatusChanges();
+		this.killed.subscribe({
+			next: () => {
+				this.stopListeningForBanStatusChanges();
+			}
+		});
 	}
 
 	listen(): void {
@@ -129,6 +138,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 				}
 			}),
 		).subscribe();
+		this.startListeningForBanStatusChanges();
 	}
 
 	/**
@@ -257,5 +267,37 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 			emoteStore.sets.delete('twitch');
 		}
 		emoteStore.enableSet(`twitch`, emotes);
+	}
+
+	/**
+	 * Listen for chat component updates to the current user's ban status, and update the input on ban status updates.
+	 */
+	private startListeningForBanStatusChanges():void{
+		if(!this.originalChatComponentDidUpdate){
+			let chat = this.twitch.getChat();
+			this.originalChatComponentDidUpdate = chat.componentDidUpdate;
+			chat.componentDidUpdate = (previousProps: ChatComponentProps, previousState:ChatComponentState, snapshot:any) => {
+				if(previousProps.currentUserBannedStatusData?.channel?.self?.banStatus != chat.props.currentUserBannedStatusData?.channel?.self?.banStatus){
+					this.banStatusChangedSubject.next();
+				}
+
+				if (!!this.originalChatComponentDidUpdate && typeof this.originalChatComponentDidUpdate === 'function') {
+					try {
+						this.originalChatComponentDidUpdate.apply(chat, [previousProps, previousState, snapshot]);
+					} catch (err) {
+						console.error(err);
+					}
+				}
+			};
+		}
+	}
+
+	/**
+	 * Stop listening for chat component updates to the current user's ban status.
+	 */
+	private stopListeningForBanStatusChanges():void{
+		if(this.originalChatComponentDidUpdate){
+			this.twitch.getChat().componentDidUpdate = this.originalChatComponentDidUpdate;
+		}
 	}
 }

@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import { TwitchPageScript } from 'src/Sites/twitch.tv/twitch';
 import { MessagePatcher } from 'src/Sites/twitch.tv/Util/MessagePatcher';
 import { Twitch } from 'src/Sites/twitch.tv/Util/Twitch';
@@ -9,6 +9,8 @@ export abstract class BaseTwitchChatListener {
 	protected twitch = this.page.twitch;
 
 	protected killed = new Subject<void>();
+
+	protected banStatusChangedSubject = new Subject<void>();
 
 	constructor(protected page: TwitchPageScript) {
 		(window as any).twitch = this.twitch;
@@ -80,5 +82,9 @@ export abstract class BaseTwitchChatListener {
 	kill(): void {
 		this.killed.next(undefined);
 		this.killed.complete();
+	}
+
+	banStatusChanged():Observable<void> {
+		return this.banStatusChangedSubject.asObservable();
 	}
 }

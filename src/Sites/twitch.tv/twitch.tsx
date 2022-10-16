@@ -127,7 +127,9 @@ export class TwitchPageScript {
 					this.chatListener = chatListener = (channelInfo as Twitch.ChatControllerComponent)?.props.chatConnectionAPI
 						? new TwitchChatListener(this)
 						: new TwitchVideoChatListener(this);
-
+					this.chatListener.banStatusChanged().subscribe(() => {
+						this.refreshChat();
+					});
 					// Complete setup and start listening for new chat lines once emotes are loaded (if they haven't been already).
 					const continueListening = () => {
 						// Ensure a chat listener is available.
@@ -398,6 +400,11 @@ export class TwitchPageScript {
 		page.site.tabCompleteDetector?.updateEmotes();
 	}
 
+	private refreshChat():void {
+		this.site.tabCompleteDetector.refresh();
+		this.site.embeddedUI.embedChatButton(document.querySelector(Twitch.Selectors.ChatInputButtonsContainer) as HTMLElement);
+		inputManager.listen();
+	}
 }
 
 let page: TwitchPageScript;
