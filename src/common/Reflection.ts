@@ -59,6 +59,9 @@ export function definePropertyProxy<T extends object>(object: T, prop: keyof T, 
 /**
  * Hooks the function on the defined property, whenever the defined property is updated it is automatically hooked.
  * Setting a hook will overwrite all previous hooks for the property.
+ *
+ * When a new value is set to the defined property, the old hooked functions call the previous value at the time of their creation, however will not call the callback.
+ * In other words, the hook will only call for the top level execution of nested functions.
  * @param object Object to hook
  * @param prop Function to hook
  * @param callback Callback run whenever the hooked function is called, the original function is provided as the first argument to the callback.
@@ -69,11 +72,20 @@ export function defineFunctionHook<T extends object>(
 	callback: (this: T, old: ((...args: any[]) => any) | null, ...args: any[]) => any,
 ) {
 	let hooked: (...args: any[]) => any;
+	let currentSymbol: symbol;
 	definePropertyHook(object, prop, {
 		value: (v) => {
-			const old = typeof v == "function" ? v : undefined;
+			if (hooked !== undefined && v === hooked) return;
+
+			currentSymbol = Symbol();
+			const symbol = currentSymbol;
+			const old = typeof v == "function" ? v : null;
 			hooked = function (this: T, ...args: any[]) {
-				return Reflect.apply(callback, this, [old, ...args]);
+				if (symbol === currentSymbol) {
+					return Reflect.apply(callback, this, [old, ...args]);
+				} else {
+					return old?.apply(old, this, args);
+				}
 			};
 		},
 		get: (v) => hooked ?? v,

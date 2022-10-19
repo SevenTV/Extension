@@ -169,17 +169,18 @@ function setController(ctrl: Twitch.ChatControllerComponent) {
 							// Hook chat line
 							const line = getChatLines(scrollContainer, ["seventv-hook-message"])[0];
 							if (line && line.component) {
-								definePropertyHook(line.component, "props", {
-									value: (v: typeof line.component["props"]) => {
+								const component = line.component;
+								definePropertyHook(component, "props", {
+									value: (v: typeof component["props"]) => {
 										// store twitch badge sets
 										definePropertyHook(v, "badgeSets", {
-											value: (v: typeof line.component["props"]["badgeSets"]) => {
+											value: (v: typeof component["props"]["badgeSets"]) => {
 												if (v.count === 0) return;
 
 												chatStore.twitchBadgeSets = v;
 
-												unsetPropertyHook(line.component, "props");
-												unsetPropertyHook(line.component.props, "badgeSets");
+												unsetPropertyHook(component, "props");
+												unsetPropertyHook(component.props, "badgeSets");
 											},
 										});
 									},
