@@ -1,11 +1,13 @@
 <template>
 	<ChatModule />
+	<ChatInputModule />
 </template>
 
 <script setup lang="ts">
 import { getRouter, getUser } from "@/site/twitch.tv";
 import { useStore } from "@/store/main";
 import ChatModule from "./modules/chat/ChatModule.vue";
+import ChatInputModule from "./modules/chat-input/ChatInputModule.vue";
 
 const props = defineProps<{
 	netWorker: Worker;

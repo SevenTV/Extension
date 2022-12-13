@@ -239,19 +239,24 @@ declare module Twitch {
 		};
 	};
 
-	export type ChatInputComponent = ReactExtended.WritableComponent<{
-		channelID: string;
-		channelLogin: string;
-		setInputValue: (v: string) => void;
-		onFocus: (v: any) => void;
-		onChange: (v: any) => void;
-		onKeyDown: (v: any) => void;
-		onValueUpdate: (v: any) => void;
-		value: string;
-		placeholder: string;
-		paddingLeft: number;
-		paddingRight: number;
-	}> & {
+	export type ChatInputComponent = ReactExtended.WritableComponent<
+		{
+			channelID: string;
+			channelLogin: string;
+			setInputValue: (v: string) => void;
+			onFocus: (v: any) => void;
+			onChange: (v: any) => void;
+			onKeyDown: (v: any) => void;
+			onValueUpdate: (v: any) => void;
+			value: string;
+			placeholder: string;
+			paddingLeft: number;
+			paddingRight: number;
+		},
+		{
+			slateEditor?: ChatSlate;
+		}
+	> & {
 		selectionStart: number;
 	};
 
@@ -284,20 +289,72 @@ declare module Twitch {
 		tray: any;
 		useHighContrastColors: boolean;
 	}> & {
+		focus: () => void;
+		selectionStart: number;
+		setSelectionRange: (start: number, end: number) => void;
 		componentRef: Twitch.ChatInputComponent;
 		getMatches: (v: string) => object[];
-		providers: Provider[];
+		providers: ChatAutocompleteProvider[];
+		onEditableValueUpdate: (value: string, sendOnUpdate: boolean | undefined) => void;
 	};
 
-	export type Provider = ReactExtended.WritableComponent<{
-		emotes: TwitchEmoteSet[];
-		isEmoteAnimationsEnabled: boolean;
-		registerAutocompleteProvider: (p: Provider) => void;
-		theme: Theme;
-	}> & {
+	export type ChatSlate = {
+		children: ChatStateLeaf[];
+		selection: {
+			anchor: {
+				offset: number;
+				path: number[];
+			};
+			focus: {
+				offset: number;
+				path: number[];
+			};
+		} | null;
+		isInline: (element: ChatSlateLeaf) => boolean;
+		isVoid: (element: ChatSlateLeaf) => boolean;
+		normalizeNode: (entry: ChatSlateLeaf) => void;
+		onChange: () => void;
+		addMark: (key: string, value: any) => void;
+		apply: (operation: object) => void;
+		deleteBackward: (unit: "character" | "word" | "line" | "block") => void;
+		deleteForward: (unit: "character" | "word" | "line" | "block") => void;
+		deleteFragment: () => void;
+		insertBreak: () => void;
+		insertFragment: (fragment: ChatSlateLeaf[]) => void;
+		insertNode: (node: ChatSlateLeaf) => void;
+		insertText: (text: string) => void;
+		removeMark: (key: string) => void;
+	};
+
+	export type ChatSlateLeaf = {
+		type: "text" | "paragraph" | "emote";
+		children: ChatStateLeaf[];
+		emoteData?: {};
+		emoteName?: string;
+		text?: string;
+	};
+
+	export type ChatAutocompleteProvider = {
 		autocompleteType: string;
 		canBeTriggeredByTab: boolean;
-		getMatches: (x: string) => object[];
+		getMatches: (
+			string: string,
+			unk: unknown,
+			index: number,
+		) =>
+			| {
+					current: string;
+					element: React.ReactFragment;
+					replacement: string;
+					type: string;
+			  }[]
+			| undefined;
+		props: {
+			emotes: TwitchEmoteSet[];
+			isEmoteAnimationsEnabled: boolean;
+			registerAutocompleteProvider: (p: ChatAutocompleteProvider) => void;
+			theme: Theme;
+		};
 	};
 
 	export enum Theme {
