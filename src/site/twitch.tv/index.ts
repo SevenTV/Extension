@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { findComponentChildren, findComponentParents, getVNodeFromDOM } from "./ReactHooks";
+import { findComponentChildren, findComponentParents, getVNodeFromDOM } from "../../common/ReactHooks";
 
 export function getRouter(): Twitch.RouterComponent | undefined {
 	const parentEl = document.querySelector(Selectors.MainLayout);

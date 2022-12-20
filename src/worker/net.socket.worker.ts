@@ -19,7 +19,7 @@ export class EventAPI {
 		this.socket.onopen = () => this.onOpen();
 		this.socket.onclose = () => this.onClose();
 
-		log.debug("<NetworkState/EventAPI>", "Connecting to the EventAPI...", `url=${this.url}`);
+		log.debug("<Net/EventAPI>", "Connecting to the EventAPI...", `url=${this.url}`);
 	}
 
 	getSocket(): WebSocket | null {
@@ -42,7 +42,7 @@ export class EventAPI {
 	}
 
 	private onOpen(): void {
-		log.info("<NetworkState/EventAPI>", "Connected", `url=${this.url}`);
+		log.info("<Net/EventAPI>", "Connected", `url=${this.url}`);
 	}
 
 	private onHello(msg: SevenTV.EventAPI.WebSocketPayload<SevenTV.EventAPI.WebSocketPayload.Hello>): void {
@@ -54,7 +54,7 @@ export class EventAPI {
 		this.socket = null;
 		const n = this.reconnect();
 
-		log.debug("<NetworkState/EventAPI>", "Disconnected", `url=${this.url}, reconnect=${n}`);
+		log.debug("<Net/EventAPI>", "Disconnected", `url=${this.url}, reconnect=${n}`);
 	}
 
 	reconnect(): number {

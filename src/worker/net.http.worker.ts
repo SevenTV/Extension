@@ -27,9 +27,7 @@ export const seventv = {
 				.equals(u.id)
 				.modify(u)
 				.catch(() => {
-					db.users
-						.add(u)
-						.catch((err) => log.error("<NetWorker/Http>", "failed to add user to database", err));
+					db.users.add(u).catch((err) => log.error("<Net/Http>", "failed to add user to database", err));
 				});
 		}
 

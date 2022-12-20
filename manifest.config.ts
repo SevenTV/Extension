@@ -6,7 +6,7 @@ interface MV3HostPermissions {
 	optional_host_permissions?: string[];
 }
 
-export async function getManifest(dev?: boolean): Promise<Manifest.WebExtensionManifest> {
+export async function getManifest(dev?: boolean, chunkResources?: string[]): Promise<Manifest.WebExtensionManifest> {
 	const manifest = {
 		manifest_version: 3,
 		name: displayName || name,
@@ -41,7 +41,7 @@ export async function getManifest(dev?: boolean): Promise<Manifest.WebExtensionM
 
 		web_accessible_resources: [
 			{
-				resources: ["site.js", "styles.css"],
+				resources: ["site.js", "assets/style.css", ...(chunkResources ?? [])],
 				matches: ["*://*.twitch.tv/*"],
 			},
 		],

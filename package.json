@@ -4,7 +4,6 @@
 	"description": "The Official 7TV Web Extension",
 	"private": true,
 	"version": "3.0.0",
-	"type": "module",
 	"scripts": {
 		"dev": "vite build --watch --mode dev",
 		"build:dev": "vite build --mode dev",

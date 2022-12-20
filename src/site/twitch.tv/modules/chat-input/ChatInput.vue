@@ -8,7 +8,7 @@ import {
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
-import { HookedInstance } from "../../ReactHooks";
+import { HookedInstance } from "../../../../common/ReactHooks";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;

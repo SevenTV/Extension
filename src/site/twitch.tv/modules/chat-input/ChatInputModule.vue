@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { useModule } from "@/composable/useModule";
-import { useComponentHook } from "@/site/twitch.tv/ReactHooks";
+import { useComponentHook } from "@/common/ReactHooks";
 import ChatInput from "./ChatInput.vue";
 
 const { markAsReady } = useModule("chat-input", {

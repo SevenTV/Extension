@@ -22,8 +22,8 @@ import { Component, markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
 import { tooltip } from "@/composable/useTooltip";
 import { NetWorkerMessage, NetWorkerMessageType } from "@/worker";
-import NetworkWorker from "@/worker/NetWorker?worker&inline";
-import TransformWorker from "@/worker/TransformWorker?worker&inline";
+import NetworkWorker from "@/worker/net.worker?worker&inline";
+import TransformWorker from "@/worker/transform.worker?worker&inline";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
 
 // Spawn NetworkWorker

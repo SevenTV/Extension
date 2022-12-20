@@ -1,7 +1,7 @@
 import { log } from "@/common/Logger";
 import { NetWorkerMessageType, NetWorkerInstance, TypedNetWorkerMessage, NetWorkerMessage } from ".";
-import { seventv } from "./NetWorkerHttp";
-import { ws } from "./NetWorkerSocket";
+import { seventv } from "./net.http.worker";
+import { ws } from "./net.socket.worker";
 
 const w = self as unknown as DedicatedWorkerGlobalScope;
 
@@ -91,7 +91,7 @@ bc.onmessage = (ev) => {
 				// This instance will be dereferenced if it does not ping
 				setInstanceTimeout(msg.from);
 
-				log.debug("<NetworkState>", `#${msg.from.id}`, "joined");
+				log.debug("<Net>", `#${msg.from.id}`, "joined");
 			} else {
 				const inst = instances[msg.from.id];
 
@@ -101,7 +101,7 @@ bc.onmessage = (ev) => {
 				inst.local = msg.from.local;
 
 				if (inst.primary) {
-					log.debug("<NetworkState>", `#${msg.from.id}`, "elected as primary");
+					log.debug("<Net>", `#${msg.from.id}`, "elected as primary");
 				}
 			}
 
@@ -201,7 +201,7 @@ function becomePrimary(): void {
 	});
 
 	broadcastMessage(NetWorkerMessageType.STATE, {});
-	log.info("<NetworkState>", "Elected as primary");
+	log.info("<Net>", "Elected as primary");
 }
 
 function broadcastMessage<T extends NetWorkerMessageType>(t: T, data: TypedNetWorkerMessage<T>, to?: number): void {
@@ -223,12 +223,12 @@ function setInstanceTimeout(inst: NetWorkerInstance): void {
 	inst._timeout = setTimeout(() => {
 		delete instances[inst.id];
 
-		log.debug("<NetworkState>", `#${inst.id} timed out`);
+		log.debug("<Net>", `#${inst.id} timed out`);
 
 		// Primary has quit, we must elect a new one
 		const primaryExists = Object.values(instances).some((i) => i.primary);
 		if (!primaryExists) {
-			log.debug("<NetworkState>", `#${inst.id} was primary, but has quit. Running primary election.`);
+			log.debug("<Net>", `#${inst.id} was primary, but has quit. Running primary election.`);
 			runPrimaryElection(inst.id);
 		}
 	}, PING_INTERVAL * 1.25);
