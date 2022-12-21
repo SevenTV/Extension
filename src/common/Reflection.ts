@@ -22,7 +22,7 @@ export function getNamedStore<T extends object>(object: T, storeSymbol: symbol) 
  * @returns Store for true values
  */
 export function getPropStore<T extends object>(object: T): Record<keyof T, any> {
-	return getNamedStore(object, PROP_STORE_ACCESSOR);
+	return getNamedStore(object, PROP_STORE_ACCESSOR) as Record<keyof T, any>;
 }
 
 /**
@@ -32,7 +32,7 @@ export function getPropStore<T extends object>(object: T): Record<keyof T, any> 
  * @returns Store for named event listeners
  */
 export function getEventStore<T extends object>(object: T): Record<string, any> {
-	return getNamedStore(object, EVENT_STORE_ACCESSOR);
+	return getNamedStore(object, EVENT_STORE_ACCESSOR) as Record<string, any>;
 }
 
 /**

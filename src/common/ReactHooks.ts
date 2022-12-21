@@ -210,7 +210,7 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 			const proto = cls.prototype;
 
 			const createOrGetHook = function (component: C) {
-				let instance: HookedInstance<C> = Reflect.get(component, WRAPPER_ACCESSOR);
+				let instance = Reflect.get(component, WRAPPER_ACCESSOR) as HookedInstance<C>;
 
 				if (!instance) {
 					instance = new HookedInstance(component);
@@ -240,7 +240,7 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 			});
 
 			defineFunctionHook(proto, "componentWillUnmount", function (old, ...args: unknown[]) {
-				const instance = Reflect.get(this, WRAPPER_ACCESSOR);
+				const instance = Reflect.get(this, WRAPPER_ACCESSOR) as HookedInstance<C>;
 				if (instance) {
 					const index = hook.instances.findIndex((x) => x.identifier === instance.identifier);
 

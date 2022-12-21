@@ -46,6 +46,8 @@ export default defineConfig(({ mode }) => {
 			emptyOutDir: true,
 			cssCodeSplit: false,
 			write: true,
+			sourcemap: isDev,
+			chunkSizeWarningLimit: 1000,
 			rollupOptions: {
 				input: {
 					background: r("src/background.ts"),
@@ -75,7 +77,9 @@ export default defineConfig(({ mode }) => {
 				async buildEnd() {
 					const man = await getManifest(
 						isDev,
-						Object.keys(chunks).map((key) => `assets/${key}.js`),
+						Object.keys(chunks)
+							.map((key) => [`assets/${key}.js`, `assets/${key}.js.map`])
+							.reduce((a, b) => [...a, ...b], []),
 					);
 
 					setTimeout(() => {

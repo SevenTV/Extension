@@ -28,7 +28,6 @@ import TwitchSite from "./twitch.tv/TwitchSite.vue";
 
 // Spawn NetworkWorker
 // This contains the connection for the Event API
-
 const nw = new NetworkWorker();
 const id = Math.floor(Math.random() * Math.pow(2, 15));
 log.info("<Global>", "Initializing WebSocket,", `id=${id}`);
