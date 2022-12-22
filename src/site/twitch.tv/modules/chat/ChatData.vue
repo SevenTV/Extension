@@ -1,44 +1,42 @@
 <script setup lang="ts">
 import { db } from "@/db/IndexedDB";
 import { useStore } from "@/store/main";
-import { liveQuery } from "dexie";
 import { storeToRefs } from "pinia";
-import { reactive, watch } from "vue";
 import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
+import { useLiveQuery } from "@/composable/useLiveQuery";
 
 const { channel } = storeToRefs(useStore());
 const twitchStore = useTwitchStore();
-const setMap = reactive({
-	twitch: [] as SevenTV.EmoteSet[],
-});
+const id = channel.value?.id ?? "";
 
-// watch for changes and remap emotes
-watch(setMap, () => {
-	for (let i = 0; i < setMap.twitch.length; i++) {
-		const set = setMap.twitch[i];
+// query the channel's emote set bindings
+const channelSets = useLiveQuery(() =>
+	db.channels
+		.where("id")
+		.equals(id)
+		.first()
+		.then((c) => c?.set_ids ?? []),
+);
 
-		for (let i2 = 0; i2 < set.emotes.length; i2++) {
-			const e = set.emotes[i2];
+// query the channel's active emote sets
+useLiveQuery(
+	() =>
+		db.emoteSets
+			.where("id")
+			.anyOf(channelSets.value ?? [])
+			.or("provider")
+			.anyOf("7TV/G", "FFZ/G", "BTTV/G")
+			.sortBy("priority"),
+	undefined,
+	(sets) => {
+		if (!sets) return;
 
-			twitchStore.emoteMap[e.name] = e;
+		const o = {} as Record<SevenTV.ObjectID, SevenTV.ActiveEmote>;
+		for (const emote of sets.flatMap((set) => set.emotes)) {
+			o[emote.name] = emote;
 		}
-	}
-});
 
-// Query 7TV Emotes
-liveQuery(() =>
-	db.userConnections
-		.where({
-			id: channel.value?.id,
-		})
-		.first(),
-).subscribe({
-	next(conn) {
-		if (!conn) return;
-
-		for (const emote of conn.emote_set.emotes) {
-			twitchStore.emoteMap[emote.name] = emote;
-		}
+		twitchStore.emoteMap = o;
 	},
-});
+);
 </script>

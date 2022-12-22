@@ -42,7 +42,6 @@ import { log } from "@/common/Logger";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { getRandomInt } from "@/common/Rand";
-import { TransformWorkerMessageType } from "@/worker";
 import ChatData from "./ChatData.vue";
 import ChatList from "./ChatList.vue";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
@@ -130,23 +129,6 @@ function setController(ctrl: Twitch.ChatControllerComponent) {
 			}
 
 			const scrollContainer = document.querySelector<HTMLDivElement>(Selectors.ChatScrollableContainer);
-
-			definePropertyHook(this, "props", {
-				value: (v: typeof this["props"]) => {
-					// Bind twitch emotes
-					definePropertyHook(v, "emoteSetsData", {
-						value: (v: typeof this["props"]["emoteSetsData"]) => {
-							if (!v || !v.emoteSets) return;
-
-							// Send the twitch emotes to the transform worker
-							// These can later be fetched from IDB by components
-							store.sendTransformRequest(TransformWorkerMessageType.TWITCH_EMOTES, {
-								input: v.emoteSets,
-							});
-						},
-					});
-				},
-			});
 
 			// Send dummy message
 			sendDummyMessage(this);

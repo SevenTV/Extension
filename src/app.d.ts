@@ -46,7 +46,10 @@ declare namespace SevenTV {
 		privileged: boolean;
 		emotes: ActiveEmote[];
 
+		// Non-structural
+
 		provider?: Provider;
+		priority?: number;
 	}
 
 	interface ActiveEmote {
@@ -77,8 +80,9 @@ declare namespace SevenTV {
 		display_name: string;
 		linked_at: number;
 		emote_capacity: number;
-		emote_set: EmoteSet;
+		emote_set: EmoteSet | null;
 
+		provider?: Provider;
 		user?: User;
 	}
 
@@ -177,4 +181,58 @@ interface CurrentChannel {
 	id: string;
 	username: string;
 	display_name: string;
+}
+
+declare namespace BTTV {
+	interface UserResponse {
+		id: string;
+		avatar?: URL;
+		channelEmotes: BTTV.Emote[];
+		sharedEmotes: BTTV.Emote[];
+	}
+
+	interface EmoteSet {
+		id: string;
+		channel: string;
+		type: SetType;
+		emotes: Emote[];
+	}
+
+	interface Emote {
+		id: string;
+		code: string;
+		imageType: "png" | "gif";
+		userId: string;
+	}
+
+	type SetType = "Global" | "Channel" | "Shared";
+}
+
+declare namespace FFZ {
+	interface RoomResponse {
+		sets: {
+			[key: string]: {
+				emoticons: FFZ.Emote[];
+			};
+		};
+	}
+
+	interface Emote {
+		id: number;
+		name: string;
+		height: number;
+		width: number;
+		public: boolean;
+		hidden: boolean;
+		owner: {
+			_id: number;
+			name: string;
+			display_name: string;
+		} | null;
+		urls: {
+			"1"?: string;
+			"2"?: string;
+			"4"?: string;
+		};
+	}
 }
