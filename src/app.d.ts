@@ -61,6 +61,7 @@ declare namespace SevenTV {
 		data?: Emote;
 
 		provider?: Provider;
+		overlaid?: ActiveEmote[];
 	}
 
 	interface User {

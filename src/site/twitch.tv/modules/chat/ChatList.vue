@@ -1,7 +1,7 @@
 <template>
 	<div v-for="msg of messages" :key="msg.id" :msg-id="msg.id">
 		<template v-if="msg.seventv">
-			<ChatMessage :msg="msg" @open-viewer-card="openViewerCard" />
+			<ChatMessage :msg="msg" :controller="controller" @open-viewer-card="openViewerCard" />
 		</template>
 		<template v-else>
 			<ChatMessageUnhandled :msg="msg" />

@@ -89,6 +89,11 @@ export function getChatLines(container: HTMLElement, idList?: string[]) {
 	return lines;
 }
 
+export namespace Regex {
+	export const MessageDelimiter = new RegExp("( )", "g");
+	export const SevenTVLink = new RegExp("^https?:\\/\\/(?:www\\.)?7tv.app\\/emotes\\/(?<emoteID>[0-9a-f]{24})", "gi");
+}
+
 export namespace Selectors {
 	export const ROOT = "#root div";
 	export const NAV = "[data-a-target='top-nav-container']";
@@ -108,4 +113,84 @@ export namespace Selectors {
 	export const ChatMessageBadges = ".chat-line__message--badges";
 	export const ChatMessageUsername = ".chat-line__usernames";
 	export const ChatMessageTimestamp = ".chat-line__timestamp";
+}
+
+export const enum MessageType {
+	MESSAGE = 0,
+	EXTENSIONMESSAGE,
+	MODERATION,
+	MODERATIONACTION,
+	TARGETEDMODERATIONACTION,
+	AUTOMOD,
+	SUBSCRIBERONLYMODE,
+	FOLLOWERONLYMODE,
+	SLOWMODE,
+	EMOTEONLYMODE,
+	R9KMODE,
+	CONNECTED,
+	DISCONNECTED,
+	RECONNECT,
+	HOSTING,
+	UNHOST,
+	HOSTED,
+	SUBSCRIPTION,
+	RESUBSCRIPTION,
+	GIFTPAIDUPGRADE,
+	ANONGIFTPAIDUPGRADE,
+	PRIMEPAIDUPGRADE,
+	PRIMECOMMUNITYGIFTRECEIVEDEVENT,
+	EXTENDSUBSCRIPTION,
+	SUBGIFT,
+	ANONSUBGIFT,
+	CLEAR,
+	ROOMMODS,
+	ROOMSTATE,
+	RAID,
+	UNRAID,
+	NOTICE,
+	INFO,
+	BADGESUPDATED,
+	PURCHASE,
+	BITSCHARITY,
+	CRATEGIFT,
+	REWARDGIFT,
+	SUBMYSTERYGIFT,
+	ANONSUBMYSTERYGIFT,
+	STANDARDPAYFORWARD,
+	COMMUNITYPAYFORWARD,
+	FIRSTCHEERMESSAGE,
+	FIRSTMESSAGEHIGHLIGHT,
+	BITSBADGETIERMESSAGE,
+	INLINEPRIVATECALLOUT,
+	CHANNELPOINTSREWARD,
+	COMMUNITYCHALLENGECONTRIBUTION,
+	LIVEMESSAGESEPARATOR,
+	RESTRICTEDLOWTRUSTUSERMESSAGE,
+	COMMUNITYINTRODUCTION,
+	SHOUTOUT,
+	ANNOUNCEMENTMESSAGE,
+	MIDNIGHTSQUID,
+	CHARITYDONATION,
+	MESSAGEIDUPDATE,
+	PINNEDCHAT,
+}
+
+export const enum ModerationType {
+	BAN = 0,
+	TIMEOUT,
+	DELETE,
+}
+
+export const enum MessagePartType {
+	TEXT = 0,
+	MODERATEDTEXT,
+	FLAGGEDSEGMENT,
+	CURRENTUSERHIGHLIGHT,
+	MENTION,
+	LINK,
+	EMOTE,
+	CLIPLINK,
+	VIDEOLINK,
+	SEVENTVEMOTE = 700,
+	SEVENTVLINK,
 }

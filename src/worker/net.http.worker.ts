@@ -66,6 +66,7 @@ export const seventv = {
 		const data = (await resp.json()) as SevenTV.UserConnection;
 
 		const set = structuredClone(data.emote_set) as SevenTV.EmoteSet;
+		set.emotes = set.emotes ?? [];
 		set.provider = "7TV";
 		set.priority = ProviderPriority.SEVENTV;
 

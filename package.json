@@ -31,6 +31,7 @@
 		"@vue/eslint-config-prettier": "^7.0.0",
 		"@vue/eslint-config-typescript": "^11.0.2",
 		"chokidar": "^3.5.3",
+		"color2k": "^2.0.0",
 		"dexie": "^3.2.2",
 		"eslint": "^8.30.0",
 		"eslint-plugin-prettier": "^4.2.1",

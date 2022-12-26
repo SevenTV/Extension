@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { getChatController, getChatLines, Selectors } from "@/site/twitch.tv";
+import { getChatController, getChatLines, Selectors, MessageType, ModerationType } from "@/site/twitch.tv";
 import { ref, reactive, nextTick, onUnmounted, watch } from "vue";
 import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
 import { registerCardOpeners, sendDummyMessage } from "@/site/twitch.tv/modules/chat/ChatBackend";
@@ -210,7 +210,6 @@ function unhookController() {
 }
 
 // Take over the chat's native message container
-const handledMessageTypes = [0, 2];
 const overwriteMessageContainer = (
 	scopedController: Twitch.ChatControllerComponent,
 	scrollContainer: HTMLDivElement,
@@ -282,14 +281,30 @@ const scroll = reactive({
 	buffer: [] as Twitch.ChatMessage[], // twitch chat message buffe when scrolling is paused
 });
 
-const onMessage = (msg: Twitch.ChatMessage): boolean => {
-	if (msg.id === "seventv-hook-message" || !handledMessageTypes.includes(msg.type)) {
+const onMessage = (msg: Twitch.Message): boolean => {
+	if (msg.id === "seventv-hook-message") {
 		return false;
 	}
 
+	switch (msg.type) {
+		case MessageType.MESSAGE:
+			onChatMessage(msg as Twitch.ChatMessage);
+			break;
+
+		case MessageType.MODERATION:
+			onModerationMessage(msg as Twitch.ModerationMessage);
+			break;
+
+		default:
+			return false;
+	}
+	return true;
+};
+
+function onChatMessage(msg: Twitch.ChatMessage) {
 	if (scroll.paused) {
 		// if scrolling is paused, buffer the message
-		scroll.buffer.push(msg);
+		scroll.buffer.push(msg as Twitch.ChatMessage);
 		if (scroll.buffer.length > lineLimit.value) scroll.buffer.shift();
 
 		return true;
@@ -297,15 +312,25 @@ const onMessage = (msg: Twitch.ChatMessage): boolean => {
 
 	// Add message to store
 	// it will be rendered on the next tick
-	chatStore.pushMessage(msg);
+	chatStore.pushMessage(msg as Twitch.ChatMessage);
 
 	nextTick(() => {
 		// autoscroll on new message
 		scrollToLive();
 	});
+}
 
-	return true;
-};
+function onModerationMessage(msg: Twitch.ModerationMessage) {
+	if (msg.moderationType == ModerationType.DELETE) {
+		const found = chatStore.messages.find((m) => m.id == msg.targetMessageID);
+		if (found) found.deleted = true;
+	} else {
+		chatStore.messages.forEach((m) => {
+			if (!m.seventv || m.user.userLogin != msg.userLogin) return;
+			m.banned = true;
+		});
+	}
+}
 
 const scrollToLive = () => {
 	if (!containerEl.value || scroll.paused) {
@@ -388,7 +413,7 @@ onUnmounted(() => {
 	overflow-x: hidden !important;
 
 	.seventv-message-container {
-		padding-bottom: 1em;
+		padding: 1em 0;
 		line-height: 1.5em;
 	}
 

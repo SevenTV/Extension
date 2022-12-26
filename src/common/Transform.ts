@@ -62,7 +62,7 @@ export function convertBttvEmoteSet(data: BTTV.UserResponse, channelID: string):
 		emotes: [...data.channelEmotes, ...data.sharedEmotes].map((e) => ({
 			id: e.id,
 			name: e.code,
-			flags: BTTV_ZeroWidth.indexOf(e.code) > -1 ? 0 : 256,
+			flags: 0,
 			provider: "BTTV",
 			data: convertBttvEmote(e),
 		})),
@@ -73,7 +73,7 @@ export function convertBttvEmote(data: BTTV.Emote): SevenTV.Emote {
 	return {
 		id: data.id,
 		name: data.code,
-		flags: BTTV_ZeroWidth.indexOf(data.code) > -1 ? 0 : 256,
+		flags: BTTV_ZeroWidth.indexOf(data.code) > -1 ? 256 : 0,
 		tags: [],
 		lifecycle: 3,
 		listed: true,

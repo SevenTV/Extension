@@ -2,12 +2,15 @@
 	<img
 		ref="imgRef"
 		class="chat-emote"
-		:srcset="srcset"
+		:srcset="getSrcSet(props.emote)"
 		:alt="emote.name"
 		@click="openCard"
 		@mouseenter="show(imgRef)"
 		@mouseleave="hide()"
 	/>
+	<template v-for="(e, index) of emote.overlaid" :key="index">
+		<img class="chat-emote zero-width-emote" :srcset="getSrcSet(e)" :alt="' ' + e.name" />
+	</template>
 </template>
 
 <script setup lang="ts">
@@ -18,14 +21,15 @@ import ChatEmoteTooltip from "@/site/twitch.tv/modules/chat/components/ChatEmote
 
 const props = defineProps<{
 	emote: SevenTV.ActiveEmote;
-	format: SevenTV.ImageFormat;
 }>();
 
-const host = props.emote.data?.host ?? { url: "", files: [] };
-const srcset = host.files
-	.filter((f) => f.format === host.files[0].format)
-	.map((f, i) => `${host.url}/${f.name} ${i + 1}x`)
-	.join(", ");
+function getSrcSet(emote: SevenTV.ActiveEmote) {
+	const host = emote.data?.host ?? { url: "", files: [] };
+	return host.files
+		.filter((f) => f.format === host.files[0].format)
+		.map((f, i) => `${host.url}/${f.name} ${i + 1}x`)
+		.join(", ");
+}
 
 const imgRef = ref<HTMLElement>();
 
@@ -49,12 +53,17 @@ const openCard = (ev: MouseEvent) => {
 
 <style scoped lang="scss">
 img.chat-emote {
-	vertical-align: middle;
-	color: red;
 	font-weight: 900;
+	grid-column: 1;
+	grid-row: 1;
+	margin: auto;
 
 	&:hover {
 		cursor: pointer;
 	}
+}
+
+img.zero-width-emote {
+	pointer-events: none;
 }
 </style>

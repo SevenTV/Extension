@@ -32,6 +32,8 @@ const { show, hide } = useTooltip(ChatBadgeTooltip, {
 <style scoped lang="scss">
 .seventv-chat-badge {
 	display: inline-block;
-	vertical-align: middle;
+	height: 1.8rem;
+	width: 1.8rem;
+	vertical-align: baseline;
 }
 </style>

@@ -478,6 +478,11 @@ declare module Twitch {
 		replies: [];
 	}
 
+	export interface Message {
+		id: string;
+		type: number;
+	}
+
 	export interface ChatMessage {
 		badgeDynamicData: {};
 		badges: Record<string, string>;
@@ -513,47 +518,53 @@ declare module Twitch {
 	}
 	export namespace ChatMessage {
 		export interface Part {
-			content: string | EmoteRef | { [key: string]: any };
+			content: string | EmoteRef | LinkContent | { [key: string]: any };
 			type: number;
 		}
-
-		export interface EmoteRef {
-			alt: string;
-			emoteID?: string;
-			images?: {
-				dark: {
-					"1x": string;
-					"2x": string;
-					"3x": string;
-					"4x": string;
+		export namespace Part {
+			export interface EmoteContent {
+				alt: string;
+				emoteID?: string;
+				images?: {
+					dark: {
+						"1x": string;
+						"2x": string;
+						"3x": string;
+						"4x": string;
+					};
+					light: {
+						"1x": string;
+						"2x": string;
+						"3x": string;
+						"4x": string;
+					};
+					themed: boolean;
 				};
-				light: {
-					"1x": string;
-					"2x": string;
-					"3x": string;
-					"4x": string;
-				};
-				themed: boolean;
-			};
 
-			// Only exists if cheermote
-			cheerAmount?: number;
-			cheerColor?: string;
+				// Only exists if cheermote
+				cheerAmount?: number;
+				cheerColor?: string;
+			}
+
+			export interface LinkContent {
+				displayText: string;
+				url: string;
+			}
 		}
 
 		export interface AppPart {
 			type: "text" | "emote" | "twitch-emote" | "link" | "mention";
 			content?: string | { [key: string]: any };
 		}
-
-		export interface ModerationMessage {
-			duration: number;
-			id: string;
-			moderationType: number;
-			reason: string;
-			type: number;
-			userLogin: string;
-		}
+	}
+	export interface ModerationMessage {
+		duration: number;
+		id: string;
+		moderationType: number;
+		reason: string;
+		type: number;
+		userLogin: string;
+		targetMessageID?: string;
 	}
 
 	export interface ChatUser {
