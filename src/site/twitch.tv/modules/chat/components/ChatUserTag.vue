@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { useChatStore } from "@/site/twitch.tv/TwitchStore";
+import { useChatStore } from "@/site/twitch.tv/ChatStore";
 import { ref } from "vue";
 import ChatBadge from "./ChatBadge.vue";
 import { normalizeUsername } from "@/site/twitch.tv/modules/chat/ChatBackend";

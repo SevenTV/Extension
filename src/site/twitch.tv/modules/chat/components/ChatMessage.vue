@@ -79,7 +79,7 @@ import ChatUserTag from "@/site/twitch.tv/modules/chat/components/ChatUserTag.vu
 import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
 import BanSlider from "@/site/twitch.tv/modules/chat/components/BanSlider.vue";
 import { Tokenizer } from "./Tokenizer";
-import { useChatStore } from "@/site/twitch.tv/TwitchStore";
+import { useChatStore } from "@/site/twitch.tv/ChatStore";
 import { MessagePartType } from "@/site/twitch.tv";
 
 const emit = defineEmits<{

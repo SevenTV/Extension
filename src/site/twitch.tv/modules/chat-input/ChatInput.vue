@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import { useChatStore } from "../../TwitchStore";
+import { useChatStore } from "../../ChatStore";
 import { storeToRefs } from "pinia";
 import {
 	defineFunctionHook,

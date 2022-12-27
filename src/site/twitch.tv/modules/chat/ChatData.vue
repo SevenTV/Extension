@@ -2,7 +2,7 @@
 import { db } from "@/db/IndexedDB";
 import { useStore } from "@/store/main";
 import { storeToRefs } from "pinia";
-import { useChatStore } from "@/site/twitch.tv/TwitchStore";
+import { useChatStore } from "@/site/twitch.tv/ChatStore";
 import { useLiveQuery } from "@/composable/useLiveQuery";
 
 const { channel } = storeToRefs(useStore());
