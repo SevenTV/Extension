@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
+import { useChatStore } from "@/site/twitch.tv/TwitchStore";
 import { ref } from "vue";
 import ChatBadge from "./ChatBadge.vue";
 import { normalizeUsername } from "@/site/twitch.tv/modules/chat/ChatBackend";
@@ -23,7 +23,7 @@ const props = defineProps<{
 	badges?: Record<string, string>;
 }>();
 
-const { twitchBadgeSets } = useTwitchStore();
+const { twitchBadgeSets } = useChatStore();
 const badges = ref([] as Twitch.ChatBadge[]);
 
 const color = ref(props.user.color);

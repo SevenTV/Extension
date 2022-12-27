@@ -61,13 +61,13 @@ export function findComponentParents(
  * @param limit Max ammount of components to return
  * @returns Array of found components
  */
-export function findComponentChildren(
+export function findComponentChildren<T extends ReactExtended.AnyReactComponent>(
 	node: ReactExtended.ReactVNode,
 	predicate: ReactComponentPredicate,
 	maxDepth = 1000,
 	limit = Infinity,
-): ReactExtended.AnyReactComponent[] {
-	const components: ReactExtended.AnyReactComponent[] = [];
+): T[] {
+	const components: T[] = [];
 
 	let current: ReactExtended.ReactVNode | null = node;
 	const path: ReactExtended.ReactVNode[] = [];
@@ -86,7 +86,7 @@ export function findComponentChildren(
 		}
 
 		if (current.stateNode && current.stateNode instanceof Element == false) {
-			const component = current.stateNode as ReactExtended.AnyReactComponent;
+			const component = current.stateNode as T;
 			if (predicate(component)) {
 				components.push(component);
 			}
@@ -117,23 +117,25 @@ export function getVNodeFromDOM(el: Node): ReactExtended.ReactVNode | undefined 
  * @param criteria Criteria to match for components
  * @returns Found components
  */
-export function awaitComponents(criteria: ComponentCriteria): PromiseLike<Set<ReactExtended.WritableComponent>> {
-	const instances = new Set<ReactExtended.WritableComponent>();
+export function awaitComponents<T extends ReactExtended.WritableComponent>(
+	criteria: ComponentCriteria,
+): PromiseLike<Set<T>> {
+	const instances = new Set<T>();
 
 	if (criteria.parentSelector) {
 		document.querySelectorAll(criteria.parentSelector).forEach((el) => {
 			const node = getVNodeFromDOM(el);
 			if (node) {
-				findComponentChildren(node, criteria.predicate).forEach((c) => instances.add(c));
+				findComponentChildren<T>(node, criteria.predicate).forEach((c) => instances.add(c));
 			}
 		});
 	} else {
 		const root = getRootVNode();
-		if (root) findComponentChildren(root, criteria.predicate).forEach((c) => instances.add(c));
+		if (root) findComponentChildren<T>(root, criteria.predicate).forEach((c) => instances.add(c));
 	}
 
 	if (instances.size < 1) {
-		return new ObserverPromise<Set<ReactExtended.WritableComponent>>(
+		return new ObserverPromise<Set<T>>(
 			(records, emit) => {
 				for (const record of records) {
 					record.addedNodes.forEach((node) => {
@@ -141,13 +143,15 @@ export function awaitComponents(criteria: ComponentCriteria): PromiseLike<Set<Re
 							if (!criteria.parentSelector || node.matches(criteria.parentSelector)) {
 								const vnode = getVNodeFromDOM(node);
 								if (vnode) {
-									findComponentChildren(vnode, criteria.predicate).forEach((c) => instances.add(c));
+									findComponentChildren<T>(vnode, criteria.predicate).forEach((c) =>
+										instances.add(c),
+									);
 								}
 							} else {
 								node.querySelectorAll(criteria.parentSelector).forEach((el) => {
 									const node = getVNodeFromDOM(el);
 									if (node) {
-										findComponentChildren(node, criteria.predicate).forEach((c) =>
+										findComponentChildren<T>(node, criteria.predicate).forEach((c) =>
 											instances.add(c),
 										);
 									}
@@ -325,7 +329,11 @@ export function getTrackedReactRef<C extends ReactExtended.WritableComponent>(ho
 
 	definePropertyHook(ref, "current", {
 		value: (v) => {
-			hook.domNodes[name] = v;
+			if (v == null) {
+				delete hook.domNodes[name];
+			} else {
+				hook.domNodes[name] = v;
+			}
 		},
 	});
 

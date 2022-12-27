@@ -139,11 +139,7 @@ declare module Twitch {
 		isPopout: boolean;
 		isReadOnly: boolean | undefined;
 		isStaff: boolean;
-		messageHandlerAPI: {
-			addMessageHandler: (event: (msg: ChatMessage) => void) => void;
-			removeMessageHandler: (event: (msg: ChatMessage) => void) => void;
-			handleMessage: (msg: ChatMessage) => void;
-		};
+		messageHandlerAPI: MessageHandlerAPI;
 		rightColumnExpanded: boolean;
 		rootTrackerExists: boolean;
 		shouldConnectChat: boolean | undefined;
@@ -161,6 +157,20 @@ declare module Twitch {
 		onChatEvent: (e: any) => void;
 		onBadgesUpdated: (e: any) => void;
 	};
+
+	export type ChatListComponent = ReactExtended.WritableComponent<{
+		channelID: string;
+		children: ReactExtended.ReactRuntimeElement[];
+		currentUserLogin: string;
+		hasNewerLeft: boolean;
+		messageHandlerAPI: MessageHandlerAPI;
+	}>;
+
+	export interface MessageHandlerAPI {
+		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
+		removeMessageHandler: (event: (msg: ChatMessage) => void) => void;
+		handleMessage: (msg: ChatMessage) => void;
+	}
 
 	export type VideoChannelComponent = ReactExtended.WritableComponent<{
 		channelID: string;

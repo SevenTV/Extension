@@ -8,7 +8,7 @@ export interface State {
 	twitchBadgeSets: Twitch.BadgeSets | null;
 }
 
-export const useTwitchStore = defineStore("chat", {
+export const useChatStore = defineStore("chat", {
 	state: () =>
 		({
 			channel: null,

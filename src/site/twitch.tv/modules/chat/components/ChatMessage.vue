@@ -79,7 +79,7 @@ import ChatUserTag from "@/site/twitch.tv/modules/chat/components/ChatUserTag.vu
 import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
 import BanSlider from "@/site/twitch.tv/modules/chat/components/BanSlider.vue";
 import { Tokenizer } from "./Tokenizer";
-import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
+import { useChatStore } from "@/site/twitch.tv/TwitchStore";
 import { MessagePartType } from "@/site/twitch.tv";
 
 const emit = defineEmits<{
@@ -93,7 +93,7 @@ const props = defineProps<{
 
 // Tokenize the message
 
-const tokenizer = new Tokenizer(props.msg.messageParts, useTwitchStore().emoteMap);
+const tokenizer = new Tokenizer(props.msg.messageParts, useChatStore().emoteMap);
 </script>
 
 <style scoped lang="scss">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import { useTwitchStore } from "../../TwitchStore";
+import { useChatStore } from "../../TwitchStore";
 import { storeToRefs } from "pinia";
 import {
 	defineFunctionHook,
@@ -14,7 +14,7 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
-const { emoteMap } = storeToRefs(useTwitchStore());
+const { emoteMap } = storeToRefs(useChatStore());
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 

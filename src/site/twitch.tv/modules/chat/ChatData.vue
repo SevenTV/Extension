@@ -2,11 +2,11 @@
 import { db } from "@/db/IndexedDB";
 import { useStore } from "@/store/main";
 import { storeToRefs } from "pinia";
-import { useTwitchStore } from "@/site/twitch.tv/TwitchStore";
+import { useChatStore } from "@/site/twitch.tv/TwitchStore";
 import { useLiveQuery } from "@/composable/useLiveQuery";
 
 const { channel } = storeToRefs(useStore());
-const twitchStore = useTwitchStore();
+const twitchStore = useChatStore();
 const id = channel.value?.id ?? "";
 
 // query the channel's emote set bindings
