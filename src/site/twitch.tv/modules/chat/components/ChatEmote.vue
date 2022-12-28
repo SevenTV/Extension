@@ -4,6 +4,7 @@
 		class="chat-emote"
 		:srcset="getSrcSet(props.emote)"
 		:alt="emote.name"
+		loading="lazy"
 		@click="openCard"
 		@mouseenter="show(imgRef)"
 		@mouseleave="hide()"

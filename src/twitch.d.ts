@@ -233,20 +233,22 @@ declare module Twitch {
 		chatConnectionAPI: {
 			sendMessage: Function;
 		};
+		onSendMessage: (
+			value: string,
+			reply: {
+				parentDeleted: boolean;
+				parentDisplayName: string;
+				parentMessageBodsy: string;
+				parentMsgId: string;
+				parentUid: string;
+				parentUserLogin: string;
+			},
+		) => any;
+		showEmotePicker: (v: any) => void;
 	}> & {
-		props: {
-			onSendMessage: (
-				value: string,
-				reply: {
-					parentDeleted: boolean;
-					parentDisplayName: string;
-					parentMessageBodsy: string;
-					parentMsgId: string;
-					parentUid: string;
-					parentUserLogin: string;
-				},
-			) => any;
-		};
+		autocompleteInputRef: ChatAutocompleteComponent;
+		onEmotePickerButtonClick: () => void;
+		onEmotePickerToggle: () => void;
 	};
 
 	export type ChatInputComponent = ReactExtended.WritableComponent<
@@ -270,35 +272,40 @@ declare module Twitch {
 		selectionStart: number;
 	};
 
-	export type ChatAutocompleteComponent = ReactExtended.WritableComponent<{
-		channelID: string;
-		channelLogin: string;
-		clearModifierTray: () => void;
-		clearReplyToList: () => void;
-		closeCard: () => void;
-		closeKeyboardReplyTray: () => void;
-		currentUserDisplayName: string;
-		currentUserID: string;
-		currentUserLogin: string;
-		emotes: TwitchEmoteSet[];
-		isCurrentUserEditor: boolean;
-		isCurrentUserModerator: boolean;
-		isCurrentUserStaff: boolean;
-		messageBufferAPI: any;
-		onFocus: (v: any) => any;
-		onKeyDown: (v: any) => any;
-		onMatch: (e: any, t: any, i: any) => any;
-		onReset: (v: any) => any;
-		onValueUpdate: (v: any) => any;
-		setInputValue: (v: any) => any;
-		setModifierTray: (v: any) => any;
-		setReplyToList: (v: any) => any;
-		setTray: (v: any) => any;
-		showModerationIcons: boolean;
-		showTimestamps: boolean;
-		tray: any;
-		useHighContrastColors: boolean;
-	}> & {
+	export type ChatAutocompleteComponent = ReactExtended.WritableComponent<
+		{
+			channelID: string;
+			channelLogin: string;
+			clearModifierTray: () => void;
+			clearReplyToList: () => void;
+			closeCard: () => void;
+			closeKeyboardReplyTray: () => void;
+			currentUserDisplayName: string;
+			currentUserID: string;
+			currentUserLogin: string;
+			emotes: TwitchEmoteSet[];
+			isCurrentUserEditor: boolean;
+			isCurrentUserModerator: boolean;
+			isCurrentUserStaff: boolean;
+			messageBufferAPI: any;
+			onFocus: (v: any) => any;
+			onKeyDown: (v: any) => any;
+			onMatch: (e: any, t: any, i: any) => any;
+			onReset: (v: any) => any;
+			onValueUpdate: (v: any) => any;
+			setInputValue: (v: any) => any;
+			setModifierTray: (v: any) => any;
+			setReplyToList: (v: any) => any;
+			setTray: (v: any) => any;
+			showModerationIcons: boolean;
+			showTimestamps: boolean;
+			tray: any;
+			useHighContrastColors: boolean;
+		},
+		{
+			value: string;
+		}
+	> & {
 		focus: () => void;
 		selectionStart: number;
 		setSelectionRange: (start: number, end: number) => void;
@@ -306,6 +313,8 @@ declare module Twitch {
 		getMatches: (v: string) => object[];
 		providers: ChatAutocompleteProvider[];
 		onEditableValueUpdate: (value: string, sendOnUpdate: boolean | undefined) => void;
+		getValue: () => string;
+		setValue: (v: string) => void;
 	};
 
 	export type ChatSlate = {
