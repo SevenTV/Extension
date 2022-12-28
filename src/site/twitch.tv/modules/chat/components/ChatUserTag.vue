@@ -14,16 +14,16 @@
 </template>
 
 <script setup lang="ts">
-import { useChatStore } from "@/site/twitch.tv/ChatStore";
 import { ref } from "vue";
 import ChatBadge from "./ChatBadge.vue";
 import { normalizeUsername } from "@/site/twitch.tv/modules/chat/ChatBackend";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 const props = defineProps<{
 	user: Twitch.ChatUser;
 	badges?: Record<string, string>;
 }>();
 
-const { twitchBadgeSets } = useChatStore();
+const { twitchBadgeSets } = useChatAPI();
 const badges = ref([] as Twitch.ChatBadge[]);
 
 const color = ref(props.user.color);
@@ -32,12 +32,14 @@ const color = ref(props.user.color);
 const readableColors = true;
 color.value = normalizeUsername(color.value, readableColors);
 
-if (props.badges && twitchBadgeSets) {
+if (props.badges && twitchBadgeSets.value) {
 	for (const [key, value] of Object.entries(props.badges)) {
 		const setID = key;
 		const badgeID = value;
 
-		for (const setGroup of [twitchBadgeSets.channelsBySet, twitchBadgeSets.globalsBySet]) {
+		for (const setGroup of [twitchBadgeSets.value.channelsBySet, twitchBadgeSets.value.globalsBySet]) {
+			if (!setGroup) continue;
+
 			const set = setGroup.get(setID);
 			if (!set) continue;
 

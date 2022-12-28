@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import { useChatStore } from "../../ChatStore";
-import { storeToRefs } from "pinia";
 import {
 	defineFunctionHook,
 	defineNamedEventHandler,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
-import { HookedInstance } from "../../../../common/ReactHooks";
+import { HookedInstance } from "@/common/ReactHooks";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
-const { emoteMap } = storeToRefs(useChatStore());
+const { emoteMap } = useChatAPI();
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { db } from "@/db/IndexedDB";
 import { useStore } from "@/store/main";
-import { storeToRefs } from "pinia";
-import { useChatStore } from "@/site/twitch.tv/ChatStore";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { useLiveQuery } from "@/composable/useLiveQuery";
+import { storeToRefs } from "pinia";
+import { toRefs } from "vue";
 
 const { channel } = storeToRefs(useStore());
-const twitchStore = useChatStore();
+const { emoteMap } = toRefs(useChatAPI());
 const id = channel.value?.id ?? "";
 
 // query the channel's emote set bindings
@@ -36,7 +37,7 @@ useLiveQuery(
 			o[emote.name] = emote;
 		}
 
-		twitchStore.emoteMap = o;
+		emoteMap.value = o;
 	},
 );
 </script>
