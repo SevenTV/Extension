@@ -1,7 +1,8 @@
 import { log } from "@/common/Logger";
 import { NetWorkerMessageType, NetWorkerInstance, TypedNetWorkerMessage, NetWorkerMessage } from ".";
 import { seventv, betterttv, frankerfacez, onChannelChange } from "./net.http.worker";
-import { ws } from "./net.socket.worker";
+import { ws } from "./net.events.worker";
+import { WebSocketPayload } from "./events";
 
 const w = self as unknown as DedicatedWorkerGlobalScope;
 
@@ -18,6 +19,9 @@ const state = {
 	online: false,
 	primary: false,
 } as NetWorkerInstance;
+
+export const primaryExists = () => Object.values(instances).some((i) => i.primary);
+export const isPrimary = () => state.primary;
 
 // Listen to global messages
 let electionTimeout = 0;
@@ -192,7 +196,7 @@ function becomePrimary(): void {
 	// Connect to the WebSocket
 	ws.connect();
 	ws.getSocket()?.addEventListener("message", (ev: MessageEvent) => {
-		const msg = JSON.parse(ev.data) as SevenTV.EventAPI.WebSocketPayload<unknown>;
+		const msg = JSON.parse(ev.data) as WebSocketPayload<unknown>;
 
 		// push the message to self
 		ws.pushMessage(msg);
@@ -222,6 +226,13 @@ function broadcastMessage<T extends NetWorkerMessageType>(t: T, data: TypedNetWo
 		to,
 		data,
 	});
+}
+
+export function sendToPrimary<T extends NetWorkerMessageType>(t: T, data: TypedNetWorkerMessage<T>): void {
+	const primaryInst = Object.values(instances).find((inst) => inst.primary);
+	if (!primaryInst) return;
+
+	broadcastMessage(t, data, primaryInst.id);
 }
 
 function setInstanceTimeout(inst: NetWorkerInstance): void {

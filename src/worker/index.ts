@@ -1,3 +1,5 @@
+import type { WebSocketPayload } from "./events";
+
 export interface WorkerMessage<E, T> {
 	source: "SEVENTV";
 	type: E;
@@ -32,7 +34,7 @@ export type TypedNetWorkerMessage<T extends NetWorkerMessageType> = {
 	[NetWorkerMessageType.STATE]: {
 		local?: NetWorkerInstance["local"];
 	};
-	[NetWorkerMessageType.MESSAGE]: SevenTV.EventAPI.WebSocketPayload<unknown>;
+	[NetWorkerMessageType.MESSAGE]: WebSocketPayload<unknown>;
 }[T];
 
 export interface NetWorkerInstance {

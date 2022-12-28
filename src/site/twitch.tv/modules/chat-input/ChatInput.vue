@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, toRefs, watch } from "vue";
 import {
 	defineFunctionHook,
 	defineNamedEventHandler,
@@ -13,7 +13,7 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
-const { emoteMap } = useChatAPI();
+const { emoteMap } = toRefs(useChatAPI());
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 

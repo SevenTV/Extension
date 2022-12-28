@@ -144,6 +144,9 @@ definePropertyHook(controller.value.component, "props", {
 			username: v.channelLogin,
 			display_name: v.channelDisplayName,
 		};
+
+		chatAPI.isModerator.value = v.isCurrentUserModerator;
+		chatAPI.isVIP.value = v.isCurrentUserVIP;
 	},
 });
 

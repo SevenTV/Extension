@@ -108,6 +108,17 @@ declare namespace SevenTV {
 
 	type Provider = "7TV" | "TWITCH" | "BTTV" | "FFZ";
 
+	enum ObjectKind {
+		USER = 1,
+		EMOTE = 2,
+		EMOTE_SET = 3,
+		ROLE = 4,
+		ENTITLEMENT = 5,
+		BAN = 6,
+		MESSAGE = 7,
+		REPORT = 8,
+	}
+
 	interface ImageHost {
 		url: string;
 		files: ImageFile[];
@@ -121,41 +132,6 @@ declare namespace SevenTV {
 		frame_count?: number;
 		size?: number;
 		format: ImageFormat;
-	}
-
-	namespace EventAPI {
-		interface WebSocketPayload<T> {
-			op: number;
-			t: number;
-			d: T;
-		}
-		namespace WebSocketPayload {
-			interface Hello {
-				heartbeat_interval: number;
-				session_id: string;
-			}
-		}
-
-		interface ChangeMap<T> {
-			id: string;
-			kind: number;
-			actor: null; //
-			added: ChangeField<T>[];
-			updated: ChangeField<T>[];
-			removed: ChangeField<T>[];
-			pushed: ChangeField<T>[];
-			pulled: ChangeField<T>[];
-			object: T;
-		}
-
-		interface ChangeField<T, O, N> {
-			key: keyof T;
-			index: number | null;
-			nested?: boolean;
-			type: string;
-			old_value?: O;
-			value: N;
-		}
 	}
 }
 

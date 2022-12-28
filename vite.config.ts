@@ -17,7 +17,7 @@ const chunks = {
 		"./src/common/ReactHooks.ts",
 	],
 	store: ["./src/store/main.ts"],
-	db: ["./src/db/IndexedDB.ts"],
+	db: ["./src/db/IndexedDB.ts", "./src/composable/useLiveQuery.ts"],
 	tw_mod_chat: ["./src/site/twitch.tv/modules/chat/ChatModule.vue"],
 	tw_mod_chat_input: ["./src/site/twitch.tv/modules/chat-input/ChatInputModule.vue"],
 };

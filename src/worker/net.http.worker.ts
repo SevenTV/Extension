@@ -4,11 +4,12 @@
 import { log } from "@/common/Logger";
 import { convertBttvEmoteSet, convertFFZEmoteSet } from "@/common/Transform";
 import { db } from "@/db/IndexedDB";
+import { ws } from "./net.events.worker";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API_REST;
-	export const BTTV = "https://api.betterttv.net/3";
 	export const FFZ = "https://api.frankerfacez.com/v1";
+	export const BTTV = "https://api.betterttv.net/3";
 }
 
 enum ProviderPriority {
@@ -27,8 +28,8 @@ export async function onChannelChange(channel: CurrentChannel) {
 	// setup fetching promises
 	const promises = [
 		["7TV", seventv.loadUserEmoteSet("TWITCH", channel.id)],
-		["BTTV", betterttv.loadUserEmoteSet(channel.id)],
 		["FFZ", frankerfacez.loadUserEmoteSet(channel.id)],
+		["BTTV", betterttv.loadUserEmoteSet(channel.id)],
 	] as [string, Promise<SevenTV.EmoteSet>][];
 
 	const onResult = (set: SevenTV.EmoteSet) => {
@@ -52,6 +53,8 @@ export async function onChannelChange(channel: CurrentChannel) {
 			log.error(`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`, err),
 		);
 	}
+
+	// listen to events (scuffed)
 }
 
 export const seventv = {
@@ -84,6 +87,8 @@ export const seventv = {
 				});
 		}
 
+		ws.subscribe("emote_set.*", { object_id: set.id });
+
 		return Promise.resolve(set);
 	},
 
@@ -98,6 +103,40 @@ export const seventv = {
 		set.provider = "7TV/G" as SevenTV.Provider;
 
 		db.emoteSets.put(set).catch(() => db.emoteSets.where({ id: set.id, provider: "7TV" }).modify(set));
+		return Promise.resolve(set);
+	},
+};
+
+export const frankerfacez = {
+	async loadUserEmoteSet(channelID: string): Promise<SevenTV.EmoteSet> {
+		const resp = await doRequest(API_BASE.FFZ, `room/id/${channelID}`).catch((err) => Promise.reject(err));
+		if (!resp || resp.status !== 200) {
+			return Promise.reject(resp);
+		}
+
+		const ffz_data = (await resp.json()) as FFZ.RoomResponse;
+
+		const set = convertFFZEmoteSet(ffz_data, channelID);
+		set.priority = ProviderPriority.FFZ;
+
+		return Promise.resolve(set);
+	},
+
+	async loadGlobalEmoteSet(): Promise<SevenTV.EmoteSet> {
+		const resp = await doRequest(API_BASE.FFZ, "set/global").catch((err) => Promise.reject(err));
+		if (!resp || resp.status !== 200) {
+			return Promise.reject(resp);
+		}
+
+		const ffz_data = (await resp.json()) as FFZ.RoomResponse;
+
+		const set = convertFFZEmoteSet({ sets: { emoticons: ffz_data.sets["3"] } }, "GLOBAL");
+		set.provider = "FFZ/G" as SevenTV.Provider;
+
+		db.emoteSets.put(set).catch(() => {
+			db.emoteSets.where({ id: set.id, provider: "FFZ" }).modify(set);
+		});
+
 		return Promise.resolve(set);
 	},
 };
@@ -138,40 +177,6 @@ export const betterttv = {
 
 		db.emoteSets.put(set).catch(() => {
 			db.emoteSets.where({ id: set.id, provider: "BTTV" }).modify(set);
-		});
-
-		return Promise.resolve(set);
-	},
-};
-
-export const frankerfacez = {
-	async loadUserEmoteSet(channelID: string): Promise<SevenTV.EmoteSet> {
-		const resp = await doRequest(API_BASE.FFZ, `room/id/${channelID}`).catch((err) => Promise.reject(err));
-		if (!resp || resp.status !== 200) {
-			return Promise.reject(resp);
-		}
-
-		const ffz_data = (await resp.json()) as FFZ.RoomResponse;
-
-		const set = convertFFZEmoteSet(ffz_data, channelID);
-		set.priority = ProviderPriority.FFZ;
-
-		return Promise.resolve(set);
-	},
-
-	async loadGlobalEmoteSet(): Promise<SevenTV.EmoteSet> {
-		const resp = await doRequest(API_BASE.FFZ, "set/global").catch((err) => Promise.reject(err));
-		if (!resp || resp.status !== 200) {
-			return Promise.reject(resp);
-		}
-
-		const ffz_data = (await resp.json()) as FFZ.RoomResponse;
-
-		const set = convertFFZEmoteSet({ sets: { emoticons: ffz_data.sets["3"] } }, "GLOBAL");
-		set.provider = "FFZ/G" as SevenTV.Provider;
-
-		db.emoteSets.put(set).catch(() => {
-			db.emoteSets.where({ id: set.id, provider: "FFZ" }).modify(set);
 		});
 
 		return Promise.resolve(set);
