@@ -28,7 +28,6 @@ useLiveQuery(
 			.or("provider")
 			.anyOf("7TV/G", "FFZ/G", "BTTV/G")
 			.sortBy("priority"),
-	undefined,
 	(sets) => {
 		if (!sets) return;
 
@@ -38,6 +37,9 @@ useLiveQuery(
 		}
 
 		emoteMap.value = o;
+	},
+	{
+		reactives: [channel],
 	},
 );
 </script>

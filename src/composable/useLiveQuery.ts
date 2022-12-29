@@ -1,16 +1,21 @@
 import { liveQuery } from "dexie";
 import { onUnmounted, ref, watch } from "vue";
+import type { Ref } from "vue";
 
 export function useLiveQuery<T>(
 	queryFn: () => T | Promise<T | undefined> | undefined,
-	count?: number,
 	onResult?: (result: T) => void,
+	opt: LiveQueryOptions = {},
 ) {
 	const value = ref<T>();
 
+	if (opt.reactives) {
+		opt.reactives.forEach((r) => watch(r, () => queryFn()));
+	}
+
 	const handleResult = (result: T | undefined) => {
 		if (!result) return;
-		if (typeof count === "number" && count-- <= 0) {
+		if (typeof opt.count === "number" && opt.count-- <= 0) {
 			sub.unsubscribe();
 		}
 
@@ -30,4 +35,9 @@ export function useLiveQuery<T>(
 	onUnmounted(() => sub.unsubscribe());
 
 	return value;
+}
+
+export interface LiveQueryOptions {
+	count?: number;
+	reactives?: Ref[];
 }
