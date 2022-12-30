@@ -84,7 +84,7 @@ export function defineFunctionHook<T extends object>(
 				if (symbol === currentSymbol) {
 					return Reflect.apply(callback, this, [old, ...args]);
 				} else {
-					return old?.apply(old, this, args);
+					return old?.apply(this, args);
 				}
 			};
 		},
