@@ -114,7 +114,7 @@ declare module Twitch {
 		channelID: string;
 		channelLogin: string;
 		chatConnectionAPI: {
-			sendMessage: Function;
+			sendMessage: (m: string) => void;
 		};
 		chatRules: string[];
 		emoteSetsData?: {

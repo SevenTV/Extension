@@ -64,7 +64,7 @@ watch(channel, (channel) => {
 });
 
 const chatAPI = useChatAPI(scroller, bounds);
-const { scrollBuffer, scrollPaused, messages, lineLimit, twitchBadgeSets } = chatAPI;
+const { scrollBuffer, scrollPaused, messages, lineLimit, twitchBadgeSets, clearMessages } = chatAPI;
 
 const dataSets = reactive({
 	badges: false,
@@ -88,7 +88,7 @@ watchEffect(() => {
 // Update current channel globally
 watchEffect(() => {
 	if (currentChannel.value) {
-		store.setChannel(currentChannel.value);
+		if (store.setChannel(currentChannel.value)) clearMessages();
 	}
 });
 
@@ -148,6 +148,7 @@ definePropertyHook(controller.value.component, "props", {
 
 		chatAPI.isModerator.value = v.isCurrentUserModerator;
 		chatAPI.isVIP.value = v.isCurrentUserVIP;
+		chatAPI.sendMessage.value = v.chatConnectionAPI.sendMessage;
 
 		const data = v.emoteSetsData;
 		if (!data || !data.emoteSets || data.loading) return;

@@ -1,26 +1,7 @@
-import { getChatController } from "@/site/twitch.tv";
-
 export const maxVal = 300.0;
 const minVal = 40.0;
 const delVal = 80.0;
 const maxSeconds = 1209600.0;
-
-const controller = getChatController();
-
-export function shouldModerate(msg: Twitch.ChatMessage) {
-	return (
-		(controller?.props.isCurrentUserModerator &&
-			msg.badges &&
-			!("moderator" in msg.badges) &&
-			!("broadcaster" in msg.badges) &&
-			!("staff" in msg.badges)) ??
-		false
-	);
-}
-
-export function executeModAction(message: string, name: string, id: string) {
-	controller?.sendMessage(message.replace("{user}", name).replace("{id}", id));
-}
 
 export function numberToTime(val: number): string {
 	if (val < 60) {

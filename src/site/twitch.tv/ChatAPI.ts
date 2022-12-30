@@ -21,6 +21,10 @@ const data = reactive({
 	visible: true,
 	paused: false, // whether or not scrolling is paused
 	scrollBuffer: [] as Twitch.ChatMessage[], // twitch chat message buffe when scrolling is paused
+
+	sendMessage: (() => {
+		return;
+	}) as (msg: string) => void,
 });
 
 let flushTimeout: number | undefined;
@@ -50,6 +54,11 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		data.messageBuffer.push(message);
 
 		flush();
+	}
+
+	function clearMessages() {
+		data.messages = [];
+		data.messageBuffer = [];
 	}
 
 	function flush(): void {
@@ -164,6 +173,7 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		paused,
 		isModerator,
 		isVIP,
+		sendMessage,
 	} = toRefs(data);
 
 	return {
@@ -181,6 +191,8 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		scrollBuffer: scrollBuffer,
 		scrollPaused: paused,
 
+		sendMessage,
+		clearMessages,
 		scrollToLive,
 		onScroll,
 		onWheel,
