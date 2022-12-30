@@ -170,6 +170,7 @@ export const betterttv = {
 			channelEmotes: bttv_data,
 			sharedEmotes: [] as BTTV.Emote[],
 			id: "GLOBAL",
+			avatar: "",
 		} as BTTV.UserResponse;
 
 		const set = convertBttvEmoteSet(data, data.id);

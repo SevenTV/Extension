@@ -45,9 +45,9 @@ declare namespace SevenTV {
 		immutable: boolean;
 		privileged: boolean;
 		emotes: ActiveEmote[];
+		owner?: User;
 
 		// Non-structural
-
 		provider?: Provider;
 		priority?: number;
 	}
@@ -66,12 +66,12 @@ declare namespace SevenTV {
 
 	interface User {
 		id: ObjectID;
-		type: UserType;
+		type?: UserType;
 		username: string;
 		display_name: string;
-		profile_picture_url: string;
-		biography: string;
-		connections: UserConnection[];
+		avatar_url: string;
+		biography?: string;
+		connections?: UserConnection[];
 	}
 
 	interface UserConnection {
@@ -163,7 +163,7 @@ interface CurrentChannel {
 declare namespace BTTV {
 	interface UserResponse {
 		id: string;
-		avatar?: URL;
+		avatar?: string;
 		channelEmotes: BTTV.Emote[];
 		sharedEmotes: BTTV.Emote[];
 	}

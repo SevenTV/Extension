@@ -2,12 +2,18 @@ const BTTV_ZeroWidth = ["SoSnowy", "IceCold", "SantaHat", "TopHat", "ReinDeer", 
 
 export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.EmoteSet {
 	return {
-		id: data.id,
-		name: "TwitchSet#" + data.id,
+		id: "TWITCH#" + data.id,
+		name: data.owner?.displayName ?? "Other emotes",
 		immutable: true,
 		privileged: true,
 		tags: [],
 		provider: "TWITCH",
+		owner: {
+			id: data.owner?.id ?? data.id,
+			username: data.owner?.displayName ?? data.id,
+			display_name: data.owner?.displayName ?? data.id,
+			avatar_url: data.owner?.profileImageURL ?? "",
+		},
 		emotes: data.emotes.map((e) => ({
 			id: e.id,
 			name: e.token,
@@ -54,11 +60,17 @@ export function convertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.E
 export function convertBttvEmoteSet(data: BTTV.UserResponse, channelID: string): SevenTV.EmoteSet {
 	return {
 		id: "BTTV#" + channelID,
-		name: "BTTV#" + channelID,
+		name: channelID == "GLOBAL" ? "Global emotes" : "Channel emotes",
 		immutable: true,
 		privileged: true,
 		tags: [],
 		provider: "BTTV",
+		owner: {
+			id: channelID,
+			username: channelID,
+			display_name: channelID,
+			avatar_url: data.avatar ?? "",
+		},
 		emotes: [...data.channelEmotes, ...data.sharedEmotes].map((e) => ({
 			id: e.id,
 			name: e.code,
@@ -101,11 +113,17 @@ export function convertBttvEmote(data: BTTV.Emote): SevenTV.Emote {
 export function convertFFZEmoteSet(data: FFZ.RoomResponse, channelID: string): SevenTV.EmoteSet {
 	return {
 		id: "FFZ#" + channelID,
-		name: "FFZ#" + channelID,
+		name: channelID == "GLOBAL" ? " Global emotes" : "Channel emotes",
 		immutable: true,
 		privileged: true,
 		tags: [],
 		provider: "FFZ",
+		owner: {
+			id: channelID,
+			username: channelID,
+			display_name: channelID,
+			avatar_url: "",
+		},
 		emotes: Object.values(data.sets).reduce((con, set) => {
 			return [
 				...con,

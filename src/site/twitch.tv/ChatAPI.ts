@@ -6,6 +6,7 @@ const data = reactive({
 	messages: [] as Twitch.ChatMessage[],
 	messageBuffer: [] as Twitch.ChatMessage[],
 	emoteMap: {} as Record<string, SevenTV.ActiveEmote>,
+	emoteProviders: {} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>,
 	twitchBadgeSets: {} as Twitch.BadgeSets | null,
 
 	// User State Data
@@ -151,13 +152,25 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		data.userInput++;
 	}
 
-	const { messages, lineLimit, emoteMap, twitchBadgeSets, sys, init, scrollBuffer, paused, isModerator, isVIP } =
-		toRefs(data);
+	const {
+		messages,
+		lineLimit,
+		emoteMap,
+		emoteProviders,
+		twitchBadgeSets,
+		sys,
+		init,
+		scrollBuffer,
+		paused,
+		isModerator,
+		isVIP,
+	} = toRefs(data);
 
 	return {
 		messages: messages,
 		lineLimit: lineLimit,
 		emoteMap: emoteMap,
+		emoteProviders: emoteProviders,
 		twitchBadgeSets: twitchBadgeSets,
 
 		isModerator: isModerator,

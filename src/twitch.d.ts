@@ -247,6 +247,7 @@ declare module Twitch {
 		showEmotePicker: (v: any) => void;
 	}> & {
 		autocompleteInputRef: ChatAutocompleteComponent;
+		chatInputRef: ChatInputComponent;
 		onEmotePickerButtonClick: () => void;
 		onEmotePickerToggle: () => void;
 	};
@@ -270,6 +271,7 @@ declare module Twitch {
 		}
 	> & {
 		selectionStart: number;
+		focus: () => void;
 	};
 
 	export type ChatAutocompleteComponent = ReactExtended.WritableComponent<

@@ -7,7 +7,7 @@ import { storeToRefs } from "pinia";
 import { toRefs } from "vue";
 
 const { channel } = storeToRefs(useStore());
-const { emoteMap } = toRefs(useChatAPI());
+const { emoteMap, emoteProviders } = toRefs(useChatAPI());
 const id = channel.value?.id ?? "";
 
 // query the channel's emote set bindings
@@ -30,6 +30,13 @@ useLiveQuery(
 			.sortBy("priority"),
 	(sets) => {
 		if (!sets) return;
+
+		const t = emoteProviders.value;
+		for (const set of sets) {
+			const provider = (set.provider?.replace("/G", "") ?? "UNKNOWN") as SevenTV.Provider;
+			if (!t[provider]) t[provider] = {};
+			t[provider][set.id] = set;
+		}
 
 		const o = {} as Record<SevenTV.ObjectID, SevenTV.ActiveEmote>;
 		for (const emote of sets.flatMap((set) => set.emotes)) {

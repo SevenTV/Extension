@@ -33,6 +33,7 @@ import { HookedInstance } from "@/common/ReactHooks";
 import ChatData from "./ChatData.vue";
 import ChatList from "./ChatList.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
+import { convertTwitchEmoteSet } from "@/common/Transform";
 
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
@@ -147,6 +148,16 @@ definePropertyHook(controller.value.component, "props", {
 
 		chatAPI.isModerator.value = v.isCurrentUserModerator;
 		chatAPI.isVIP.value = v.isCurrentUserVIP;
+
+		const data = v.emoteSetsData;
+		if (!data || !data.emoteSets || data.loading) return;
+
+		const temp = {} as Record<string, SevenTV.EmoteSet>;
+		for (const set of data.emoteSets) {
+			temp[set.id] = convertTwitchEmoteSet(set);
+		}
+
+		chatAPI.emoteProviders.value.TWITCH = temp;
 	},
 });
 
