@@ -4,10 +4,9 @@ import { useStore } from "@/store/main";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { useLiveQuery } from "@/composable/useLiveQuery";
 import { storeToRefs } from "pinia";
-import { toRefs } from "vue";
 
 const { channel } = storeToRefs(useStore());
-const { emoteMap, emoteProviders } = toRefs(useChatAPI());
+const { emoteMap, emoteProviders } = useChatAPI();
 const id = channel.value?.id ?? "";
 
 // query the channel's emote set bindings
@@ -31,15 +30,15 @@ useLiveQuery(
 	(sets) => {
 		if (!sets) return;
 
-		const t = emoteProviders.value;
 		for (const set of sets) {
 			const provider = (set.provider?.replace("/G", "") ?? "UNKNOWN") as SevenTV.Provider;
-			if (!t[provider]) t[provider] = {};
-			t[provider][set.id] = set;
+			if (!emoteProviders.value[provider]) emoteProviders.value[provider] = {};
+			emoteProviders.value[provider][set.id] = set;
 		}
 
 		const o = {} as Record<SevenTV.ObjectID, SevenTV.ActiveEmote>;
 		for (const emote of sets.flatMap((set) => set.emotes)) {
+			if (!emote) return;
 			o[emote.name] = emote;
 		}
 

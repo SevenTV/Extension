@@ -1,8 +1,8 @@
 <template>
 	<UiScrollable class="scroll-area">
 		<div class="emote-area">
-			<template v-for="(emoteSet, i) of emoteSets.map(filterSet).filter((s) => s.emotes.length)" :key="i">
-				<div :ref="'set-' + i.toString()" class="emote-set-container">
+			<template v-for="(emoteSet, i) of emoteSets" :key="i">
+				<div v-if="emoteSet.emotes.length" :ref="'set-' + i.toString()" class="emote-set-container">
 					<div class="set-header">
 						<div class="set-header-icon">
 							<img v-if="emoteSet.owner && emoteSet.owner.avatar_url" :src="emoteSet.owner.avatar_url" />
@@ -11,22 +11,25 @@
 						{{ emoteSet.name }}
 					</div>
 					<div class="emote-set">
-						<template v-for="emote of emoteSet.emotes" :key="emote.id">
-							<div
-								class="emote-container"
-								:class="`ratio-${determineRatio(emote)}`"
-								@click="insertText(emote.name)"
-							>
-								<ChatEmote :emote="emote" />
-							</div>
-						</template>
+						<div
+							v-for="emote of emoteSet.emotes"
+							:key="emote.id"
+							:ref="(el) => setCardRef(el as HTMLElement)"
+							class="emote-container"
+							:class="`ratio-${determineRatio(emote)}`"
+							:visible="loaded[emote.id]"
+							:emote-id="emote.id"
+							@click="emit('emoteClick', emote)"
+						>
+							<ChatEmote :emote="emote" :unload="!loaded[emote.id]" />
+						</div>
 					</div>
 				</div>
 			</template>
 		</div>
 	</UiScrollable>
 	<div class="sidebar">
-		<template v-for="(emoteSet, i) of emoteSets.filter((s) => s.emotes.some(filterEmote))" :key="i">
+		<template v-for="(emoteSet, i) of emoteSets" :key="i">
 			<div
 				v-if="emoteSet.emotes.length"
 				class="set-sidebar-icon"
@@ -46,38 +49,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, reactive, onBeforeUnmount } from "vue";
 import { determineRatio } from "./EmoteMenuBackend";
 import Logo from "@/common/Logo.vue";
 import ChatEmote from "../chat/components/ChatEmote.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
-const props = defineProps<{
+defineProps<{
 	emoteSets: SevenTV.EmoteSet[];
-	inputController: Twitch.ChatInputController;
-	filter: string;
 }>();
 
-function filterSet(s: SevenTV.EmoteSet) {
-	return {
-		...s,
-		emotes: s.emotes.filter(filterEmote),
-	};
-}
-
-function filterEmote(e: SevenTV.ActiveEmote) {
-	return e.name.toLowerCase().includes(props.filter.toLowerCase());
-}
-
-function insertText(text: string) {
-	const inputRef = props.inputController.autocompleteInputRef;
-	const current = inputRef.getValue();
-
-	inputRef.setValue(current.slice(0, props.filter.length ? props.filter.length * -1 : Infinity) + text + " ");
-	props.inputController.chatInputRef.focus();
-}
+const emit = defineEmits<{
+	(event: "emoteClick", emote: SevenTV.ActiveEmote): void;
+}>();
 
 const selectedSet = ref(0);
+
+const refs = [] as HTMLElement[];
+const loaded = reactive<Record<string, number>>({});
+const observer = new IntersectionObserver((entries) => {
+	entries.forEach((entry) => {
+		loaded[entry.target.getAttribute("emote-id") as string] = entry.isIntersecting ? 1 : 0;
+	});
+});
+// gather all card elements and observe them
+const setCardRef = (el: HTMLElement) => {
+	if (el instanceof Element) {
+		refs.push(el as HTMLElement);
+		observer.observe(el);
+	}
+};
+onBeforeUnmount(() => {
+	observer.disconnect();
+});
 </script>
 <style scoped lang="scss">
 .scroll-area {
@@ -100,7 +104,7 @@ const selectedSet = ref(0);
 	position: sticky;
 	top: 0;
 	display: flex;
-	background: #18181b;
+	background: var(--color-background-base);
 	box-shadow: 0 1px 3px #000;
 }
 

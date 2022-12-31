@@ -22,7 +22,7 @@ export function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 					.where("id")
 					.equals(cm.id)
 					.modify((es) => {
-						const i = es.emotes.findIndex((ae) => ae.id === old.id);
+						const i = es.emotes.findIndex((ae) => ae.id === old.id) ?? -1;
 
 						if (i >= 0) es.emotes.splice(i, 1);
 					});

@@ -1,10 +1,10 @@
 <template>
 	<img
+		v-if="srcSet"
 		ref="imgRef"
 		class="chat-emote"
-		:srcset="getSrcSet(props.emote)"
+		:srcset="srcSet"
 		:alt="emote.name"
-		loading="lazy"
 		@click="openCard"
 		@mouseenter="show(imgRef)"
 		@mouseleave="hide()"
@@ -17,12 +17,18 @@
 <script setup lang="ts">
 import { useTooltip } from "@/composable/useTooltip";
 import { tools } from "@/site/twitch.tv/modules/chat/ChatBackend";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import ChatEmoteTooltip from "@/site/twitch.tv/modules/chat/components/ChatEmoteTooltip.vue";
 
-const props = defineProps<{
-	emote: SevenTV.ActiveEmote;
-}>();
+const props = withDefaults(
+	defineProps<{
+		emote: SevenTV.ActiveEmote;
+		unload?: boolean;
+	}>(),
+	{ unload: false },
+);
+
+const srcSet = computed(() => (props.unload ? "" : getSrcSet(props.emote)));
 
 function getSrcSet(emote: SevenTV.ActiveEmote) {
 	const host = emote.data?.host ?? { url: "", files: [] };

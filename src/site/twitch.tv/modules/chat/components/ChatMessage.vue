@@ -15,7 +15,7 @@
 
 				<!-- Message Content -->
 				<span class="seventv-chat-message-body">
-					<template v-for="(part, index) of tokenizer.getParts()" :key="index">
+					<template v-for="(part, index) of tokens" :key="index">
 						<span v-if="part.type === MessagePartType.TEXT" class="text-part">
 							{{ part.content }}
 						</span>
@@ -81,6 +81,7 @@ import BanSlider from "@/site/twitch.tv/modules/chat/components/BanSlider.vue";
 import { Tokenizer } from "./Tokenizer";
 import { MessagePartType } from "@/site/twitch.tv";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { computed } from "vue";
 
 const emit = defineEmits<{
 	(e: "open-viewer-card", ev: MouseEvent, viewer: Twitch.ChatUser): void;
@@ -94,7 +95,9 @@ const props = defineProps<{
 // Tokenize the message
 const { emoteMap } = useChatAPI();
 
-const tokenizer = new Tokenizer(props.msg.messageParts, emoteMap.value);
+const tokens = computed(() => {
+	return new Tokenizer(props.msg.messageParts, emoteMap.value).getParts();
+});
 </script>
 
 <style scoped lang="scss">

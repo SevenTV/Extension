@@ -31,14 +31,13 @@
 
 <script setup lang="ts">
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
-import { ref, toRefs } from "vue";
+import { ref } from "vue";
 import { sliderData, maxVal } from "./BanSliderBackend";
 
 const props = defineProps<{
 	msg: Twitch.ChatMessage;
 }>();
-
-const { isModerator, sendMessage } = toRefs(useChatAPI());
+const chatAPI = useChatAPI();
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -48,7 +47,7 @@ let initial = 0;
 
 function shouldModerate(msg: Twitch.ChatMessage) {
 	return (
-		(isModerator.value &&
+		(chatAPI.isModerator.value &&
 			msg.badges &&
 			!("moderator" in msg.badges) &&
 			!("broadcaster" in msg.badges) &&
@@ -58,7 +57,7 @@ function shouldModerate(msg: Twitch.ChatMessage) {
 }
 
 function executeModAction(message: string, name: string, id: string) {
-	sendMessage.value(message.replace("{user}", name).replace("{id}", id));
+	chatAPI.sendMessage.value(message.replace("{user}", name).replace("{id}", id));
 }
 
 const handleDown = (e: PointerEvent) => {
