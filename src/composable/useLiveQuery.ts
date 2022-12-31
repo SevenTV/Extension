@@ -10,7 +10,7 @@ export function useLiveQuery<T>(
 	const value = ref<T>();
 
 	if (opt.reactives) {
-		opt.reactives.forEach((r) => watch(r, () => queryFn()));
+		opt.reactives.forEach((r) => watch(r, () => queryFn(), { deep: true }));
 	}
 
 	const handleResult = (result: T | undefined) => {

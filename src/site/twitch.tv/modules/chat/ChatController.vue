@@ -30,10 +30,11 @@ import { useStore } from "@/store/main";
 import { getRandomInt } from "@/common/Rand";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { HookedInstance } from "@/common/ReactHooks";
+import { convertTwitchEmoteSet } from "@/common/Transform";
+import { debounceFn } from "@/common/Async";
 import ChatData from "./ChatData.vue";
 import ChatList from "./ChatList.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import { convertTwitchEmoteSet } from "@/common/Transform";
 
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
@@ -138,12 +139,22 @@ definePropertyHook(list.value.component, "props", {
 	},
 });
 
+const onTwitchEmotes = debounceFn((emoteSets: Twitch.TwitchEmoteSet[]) => {
+	const temp = {} as Record<string, SevenTV.EmoteSet>;
+	for (const set of emoteSets) {
+		temp[set.id] = convertTwitchEmoteSet(set);
+	}
+
+	chatAPI.emoteProviders.value.TWITCH = temp;
+}, 1000);
+
 definePropertyHook(controller.value.component, "props", {
 	value(v: typeof controller.value.component.props) {
 		currentChannel.value = {
 			id: v.channelID,
 			username: v.channelLogin,
 			display_name: v.channelDisplayName,
+			loaded: false,
 		};
 
 		chatAPI.isModerator.value = v.isCurrentUserModerator;
@@ -154,12 +165,7 @@ definePropertyHook(controller.value.component, "props", {
 		const data = v.emoteSetsData;
 		if (!data || !data.emoteSets || data.loading) return;
 
-		const temp = {} as Record<string, SevenTV.EmoteSet>;
-		for (const set of data.emoteSets) {
-			temp[set.id] = convertTwitchEmoteSet(set);
-		}
-
-		chatAPI.emoteProviders.value.TWITCH = temp;
+		onTwitchEmotes(data.emoteSets);
 	},
 });
 

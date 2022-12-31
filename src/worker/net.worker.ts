@@ -3,6 +3,7 @@ import { NetWorkerMessageType, NetWorkerInstance, TypedNetWorkerMessage, NetWork
 import { seventv, betterttv, frankerfacez, onChannelChange } from "./net.http.worker";
 import { ws } from "./net.events.worker";
 import { WebSocketPayload } from "./events";
+import { db } from "@/db/IndexedDB";
 
 const w = self as unknown as DedicatedWorkerGlobalScope;
 
@@ -27,7 +28,7 @@ export const isPrimary = () => state.primary;
 let electionTimeout = 0;
 
 // Listen to messages from the parent tab
-w.onmessage = (ev) => {
+w.onmessage = async (ev) => {
 	if (ev.data.source !== "SEVENTV") {
 		return; // not a message from us
 	}
@@ -56,6 +57,8 @@ w.onmessage = (ev) => {
 
 			state.local = msg.data.local;
 			broadcastMessage(NetWorkerMessageType.STATE, { local: state.local });
+
+			await db.ready();
 
 			// Load local data
 			// todo: make this better
@@ -225,6 +228,14 @@ function broadcastMessage<T extends NetWorkerMessageType>(t: T, data: TypedNetWo
 		} as NetWorkerInstance,
 		to,
 		data,
+	});
+}
+
+export function sendTabNotify(key: string): void {
+	w.postMessage({
+		source: "SEVENTV",
+		type: NetWorkerMessageType.NOTIFY,
+		data: { key },
 	});
 }
 

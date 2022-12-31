@@ -7,15 +7,19 @@ import { storeToRefs } from "pinia";
 
 const { channel } = storeToRefs(useStore());
 const { emoteMap, emoteProviders } = useChatAPI();
-const id = channel.value?.id ?? "";
 
 // query the channel's emote set bindings
-const channelSets = useLiveQuery(() =>
-	db.channels
-		.where("id")
-		.equals(id)
-		.first()
-		.then((c) => c?.set_ids ?? []),
+const channelSets = useLiveQuery(
+	() =>
+		db.channels
+			.where("id")
+			.equals(channel.value?.id ?? "")
+			.first()
+			.then((c) => c?.set_ids ?? []),
+	() => void 0,
+	{
+		reactives: [channel],
+	},
 );
 
 // query the channel's active emote sets
@@ -45,7 +49,7 @@ useLiveQuery(
 		emoteMap.value = o;
 	},
 	{
-		reactives: [channel],
+		reactives: [channel, channelSets],
 	},
 );
 </script>

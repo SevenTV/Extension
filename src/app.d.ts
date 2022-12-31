@@ -158,6 +158,7 @@ interface CurrentChannel {
 	id: string;
 	username: string;
 	display_name: string;
+	loaded: boolean;
 }
 
 declare namespace BTTV {

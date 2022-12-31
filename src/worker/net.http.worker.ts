@@ -5,6 +5,7 @@ import { log } from "@/common/Logger";
 import { convertBttvEmoteSet, convertFFZEmoteSet } from "@/common/Transform";
 import { db } from "@/db/IndexedDB";
 import { ws } from "./net.events.worker";
+import { sendTabNotify } from "./net.worker";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API_REST;
@@ -21,27 +22,27 @@ enum ProviderPriority {
 
 export async function onChannelChange(channel: CurrentChannel) {
 	// store the channel into IDB
-	db.channels.put({ id: channel.id, set_ids: [] }, channel.id).catch(() => {
-		db.channels.where("id").equals(channel.id).modify(channel);
-	});
+	await db.withErrorFallback(db.channels.put({ id: channel.id, set_ids: [] }), () =>
+		db.channels.where("id").equals(channel.id).modify(channel),
+	);
 
 	// setup fetching promises
 	const promises = [
-		["7TV", seventv.loadUserEmoteSet("TWITCH", channel.id)],
-		["FFZ", frankerfacez.loadUserEmoteSet(channel.id)],
-		["BTTV", betterttv.loadUserEmoteSet(channel.id)],
+		["7TV", seventv.loadUserEmoteSet("TWITCH", channel.id).catch(() => void 0)],
+		["FFZ", frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
+		["BTTV", betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
 	] as [string, Promise<SevenTV.EmoteSet>][];
 
-	const onResult = (set: SevenTV.EmoteSet) => {
+	const onResult = async (set: SevenTV.EmoteSet) => {
 		if (!set) return;
 
 		// store set to DB
-		db.emoteSets.put(set).catch(() => {
-			db.emoteSets.where({ id: set.id, provider: set.provider }).modify(set);
-		});
+		await db.withErrorFallback(db.emoteSets.put(set), () =>
+			db.emoteSets.where({ id: set.id, provider: set.provider }).modify(set),
+		);
 
 		// add set ID to the channel
-		db.channels
+		await db.channels
 			.where("id")
 			.equals(channel.id)
 			.modify((x) => x.set_ids.push(set.id));
@@ -49,12 +50,16 @@ export async function onChannelChange(channel: CurrentChannel) {
 
 	// iterate results and store sets to DB
 	for (const [provider, setP] of promises) {
-		setP.then((set) => onResult(set)).catch((err) =>
+		const set = await setP.catch((err) =>
 			log.error(`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`, err),
 		);
+		if (!set) continue;
+
+		await onResult(set);
 	}
 
-	// listen to events (scuffed)
+	// notify the UI that the channel is ready
+	sendTabNotify(`channel:${channel.id}:ready`);
 }
 
 export const seventv = {

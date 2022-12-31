@@ -53,6 +53,10 @@ export const useStore = defineStore("main", {
 
 			const w = this.workers.net;
 			if (w) {
+				this.awaitWorkerNotify(`channel:${channel.id}:ready`).then(() => {
+					this.channel!.loaded = true;
+				});
+
 				w.postMessage({
 					source: "SEVENTV",
 					type: NetWorkerMessageType.STATE,
@@ -71,6 +75,26 @@ export const useStore = defineStore("main", {
 
 		setWorker(name: keyof State["workers"], worker: Worker | null) {
 			this.workers[name] = worker;
+		},
+
+		async awaitWorkerNotify(key: string): Promise<void> {
+			const w = this.workers.net;
+			if (!w) return;
+
+			const p = new Promise<void>((resolve) => {
+				const resp = (ev: MessageEvent) => {
+					if (ev.data.source !== "SEVENTV") return;
+					if (ev.data.type !== NetWorkerMessageType.NOTIFY) return;
+					if (ev.data.data.key !== key) return;
+
+					w.removeEventListener("message", resp);
+					resolve();
+				};
+
+				w.addEventListener("message", resp);
+			});
+
+			return p;
 		},
 
 		sendTransformRequest<T extends TransformWorkerMessageType>(t: T, data: TypedTransformWorkerMessage<T>): void {

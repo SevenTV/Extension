@@ -68,3 +68,14 @@ export class ObserverPromiseNotResolvedError extends Error {
 		super("ObserverPromise: Observer disconnected before resolving.");
 	}
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounceFn<T extends (...args: any[]) => any>(fn: T, delay = 100): T {
+	let timeout: number | undefined;
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return ((...args: any[]) => {
+		clearTimeout(timeout);
+		timeout = window.setTimeout(() => fn(...args), delay);
+	}) as T;
+}

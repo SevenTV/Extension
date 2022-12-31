@@ -1,6 +1,8 @@
 <template>
 	<!-- Spawn Platform-specific Logic -->
-	<component :is="platformComponent" v-if="platformComponent" :net-worker="nw" :transform-worker="tw" />
+	<template v-if="ok">
+		<component :is="platformComponent" v-if="platformComponent" :net-worker="nw" :transform-worker="tw" />
+	</template>
 
 	<!-- Render tooltip -->
 	<div
@@ -25,6 +27,16 @@ import { NetWorkerMessage, NetWorkerMessageType } from "@/worker";
 import NetworkWorker from "@/worker/net.worker?worker&inline";
 import TransformWorker from "@/worker/transform.worker?worker&inline";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
+import { db } from "@/db/IndexedDB";
+
+const ok = ref(false);
+
+log.debug("Waiting for IndexedDB...");
+
+db.ready().then(() => {
+	log.info("IndexedDB ready");
+	ok.value = true;
+});
 
 // Spawn NetworkWorker
 // This contains the connection for the Event API

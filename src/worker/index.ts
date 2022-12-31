@@ -23,6 +23,7 @@ export enum NetWorkerMessageType {
 	PING,
 	PONG,
 	MESSAGE,
+	NOTIFY,
 }
 
 export type TypedNetWorkerMessage<T extends NetWorkerMessageType> = {
@@ -35,6 +36,9 @@ export type TypedNetWorkerMessage<T extends NetWorkerMessageType> = {
 		local?: NetWorkerInstance["local"];
 	};
 	[NetWorkerMessageType.MESSAGE]: WebSocketPayload<unknown>;
+	[NetWorkerMessageType.NOTIFY]: {
+		key: string;
+	};
 }[T];
 
 export interface NetWorkerInstance {
