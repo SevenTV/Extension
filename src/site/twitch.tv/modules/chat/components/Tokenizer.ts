@@ -3,32 +3,12 @@ import { convertTwitchEmote } from "@/common/Transform";
 
 export class Tokenizer {
 	private newParts = new Array<Twitch.ChatMessage.Part>();
-	private emoteMap;
 
-	constructor(parts: Twitch.ChatMessage.Part[], emoteMap: Record<string, SevenTV.ActiveEmote>) {
-		this.emoteMap = emoteMap;
-		for (const part of parts) {
-			switch (part.type) {
-				case MessagePartType.TEXT:
-				case MessagePartType.MODERATEDTEXT:
-					this.tokenizeText(part.content as string);
+	constructor(private parts: Twitch.ChatMessage.Part[]) {}
 
-					break;
-				case MessagePartType.EMOTE:
-					this.newParts.push(twitchEmoteToPart(part.content as Twitch.ChatMessage.Part.EmoteContent));
-					break;
-				case MessagePartType.LINK:
-					this.newParts.push(matchLink(part.content as Twitch.ChatMessage.Part.LinkContent));
-					break;
-				default:
-					this.newParts.push(part);
-			}
-		}
-	}
-
-	private tokenizeText(content: string) {
+	private tokenizeText(content: string, emoteMap: Record<string, SevenTV.ActiveEmote>) {
 		const remainder = content.split(Regex.MessageDelimiter).reduce((pre, cur) => {
-			const emote = this.emoteMap[cur];
+			const emote = emoteMap[cur];
 
 			if (!emote) return pre + cur;
 
@@ -63,7 +43,25 @@ export class Tokenizer {
 		this.newParts.push(sevenTVEmoteToPart(emote));
 	}
 
-	public getParts() {
+	public getParts(emoteMap: Record<string, SevenTV.ActiveEmote>) {
+		this.newParts = [];
+		for (const part of this.parts) {
+			switch (part.type) {
+				case MessagePartType.TEXT:
+				case MessagePartType.MODERATEDTEXT:
+					this.tokenizeText(part.content as string, emoteMap);
+
+					break;
+				case MessagePartType.EMOTE:
+					this.newParts.push(twitchEmoteToPart(part.content as Twitch.ChatMessage.Part.EmoteContent));
+					break;
+				case MessagePartType.LINK:
+					this.newParts.push(matchLink(part.content as Twitch.ChatMessage.Part.LinkContent));
+					break;
+				default:
+					this.newParts.push(part);
+			}
+		}
 		return this.newParts;
 	}
 }

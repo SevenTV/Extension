@@ -75,13 +75,13 @@
 </template>
 
 <script setup lang="ts">
-import ChatUserTag from "@/site/twitch.tv/modules/chat/components/ChatUserTag.vue";
-import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
-import BanSlider from "@/site/twitch.tv/modules/chat/components/BanSlider.vue";
 import { Tokenizer } from "./Tokenizer";
 import { MessagePartType } from "@/site/twitch.tv";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { computed } from "vue";
+import ChatUserTag from "@/site/twitch.tv/modules/chat/components/ChatUserTag.vue";
+import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
+import BanSlider from "@/site/twitch.tv/modules/chat/components/BanSlider.vue";
 
 const emit = defineEmits<{
 	(e: "open-viewer-card", ev: MouseEvent, viewer: Twitch.ChatUser): void;
@@ -95,8 +95,9 @@ const props = defineProps<{
 // Tokenize the message
 const { emoteMap } = useChatAPI();
 
+const tokenizer = new Tokenizer(props.msg.messageParts);
 const tokens = computed(() => {
-	return new Tokenizer(props.msg.messageParts, emoteMap.value).getParts();
+	return tokenizer.getParts(emoteMap.value);
 });
 </script>
 
