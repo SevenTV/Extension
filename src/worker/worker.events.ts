@@ -1,11 +1,10 @@
 // EventAPI - WebSocket
 // Keeps our data state up to date
-
 import { log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
-import { EventAPIMessage, EventAPIOpCode, EventContext, SubscriptionData } from ".";
 import { handleDispatchedEvent } from "./event-handlers/handler";
 import type { WorkerDriver } from "./worker.driver";
+import { EventAPIMessage, EventAPIOpCode, EventContext, SubscriptionData } from ".";
 
 export class EventAPI {
 	private transport: EventAPITransport | null = null;

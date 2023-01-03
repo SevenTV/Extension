@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { db } from "@/db/idb";
-import { useStore } from "@/store/main";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
-import { useLiveQuery } from "@/composable/useLiveQuery";
 import { storeToRefs } from "pinia";
+import { useStore } from "@/store/main";
+import { useLiveQuery } from "@/composable/useLiveQuery";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { db } from "@/db/idb";
 
 const { channel } = storeToRefs(useStore());
 const { emoteMap, emoteProviders, cosmetics } = useChatAPI();

@@ -49,11 +49,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onBeforeUnmount } from "vue";
-import { determineRatio } from "./EmoteMenuBackend";
+import { onBeforeUnmount, reactive, ref } from "vue";
 import Logo from "@/common/Logo.vue";
-import ChatEmote from "../chat/components/ChatEmote.vue";
+import { determineRatio } from "./EmoteMenuBackend";
 import UiScrollable from "@/ui/UiScrollable.vue";
+import ChatEmote from "../chat/components/ChatEmote.vue";
 
 defineProps<{
 	emoteSets: SevenTV.EmoteSet[];

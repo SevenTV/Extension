@@ -28,10 +28,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import ChatBadge from "./ChatBadge.vue";
-import { normalizeUsername } from "@/site/twitch.tv/modules/chat/ChatBackend";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { convertTwitchEmote } from "@/common/Transform";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { normalizeUsername } from "@/site/twitch.tv/modules/chat/ChatBackend";
+import ChatBadge from "./ChatBadge.vue";
+
 const props = defineProps<{
 	user: Twitch.ChatUser;
 

@@ -28,13 +28,13 @@
 </template>
 
 <script setup lang="ts">
-import { useSettings } from "@/composable/useSettings";
 import { ref } from "vue";
 import { onClickOutside } from "@vueuse/core";
+import { useSettings } from "@/composable/useSettings";
+import Close from "@/assets/svg/Icons/Close.vue";
+import Logo7TV from "@/assets/svg/Logo7TV.vue";
 import SettingsMenuButton from "./SettingsMenuButton.vue";
 import SettingsNode from "./SettingsNode.vue";
-import Logo7TV from "@/assets/svg/Logo7TV.vue";
-import Close from "@/assets/svg/Icons/Close.vue";
 
 const { getNodes } = useSettings();
 

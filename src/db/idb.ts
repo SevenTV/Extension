@@ -1,6 +1,6 @@
 import { log } from "@/common/Logger";
-import { DBCoreMutateRequest, Dexie, PromiseExtended, Table, DexieError } from "dexie";
 import { defineVersions } from "./versions.idb";
+import { DBCoreMutateRequest, Dexie, DexieError, PromiseExtended, Table } from "dexie";
 
 export class Dexie7 extends Dexie {
 	VERSION = 1.7;

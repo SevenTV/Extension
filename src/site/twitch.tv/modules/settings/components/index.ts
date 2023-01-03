@@ -1,7 +1,7 @@
-import Select from "./Select.vue";
-import Dropdown from "./Dropdown.vue";
 import Checkbox from "./Checkbox.vue";
+import Dropdown from "./Dropdown.vue";
 import Input from "./Input.vue";
+import Select from "./Select.vue";
 import Toggle from "./Toggle.vue";
 
 const standard = {

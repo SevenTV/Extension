@@ -6,10 +6,10 @@
 </template>
 
 <script setup lang="ts">
-import { getRouter, getUser } from "@/site/twitch.tv";
 import { useStore } from "@/store/main";
-import ChatModule from "./modules/chat/ChatModule.vue";
+import { getRouter, getUser } from "@/site/twitch.tv";
 import ChatInputModule from "./modules/chat-input/ChatInputModule.vue";
+import ChatModule from "./modules/chat/ChatModule.vue";
 import EmoteMenuModule from "./modules/emote-menu/EmoteMenuModule.vue";
 import SettingsModule from "./modules/settings/SettingsModule.vue";
 

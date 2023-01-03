@@ -1,5 +1,5 @@
-import { ChangeMap, EventContext } from "..";
 import { iterateChangeMap } from "./handler";
+import { ChangeMap, EventContext } from "..";
 
 export function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.ObjectKind.EMOTE_SET>) {
 	iterateChangeMap<SevenTV.ObjectKind.EMOTE_SET>(cm, {

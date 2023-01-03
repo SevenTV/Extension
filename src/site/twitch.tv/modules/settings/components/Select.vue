@@ -10,6 +10,7 @@
 
 <script setup lang="ts">
 import { useConfig } from "@/composable/useSettings";
+
 const props = defineProps<{
 	node: SevenTV.SettingNode<string>;
 }>();

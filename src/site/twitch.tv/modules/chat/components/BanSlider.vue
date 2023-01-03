@@ -30,9 +30,9 @@
 </template>
 
 <script setup lang="ts">
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { ref } from "vue";
-import { sliderData, maxVal } from "./BanSliderBackend";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { maxVal, sliderData } from "./BanSliderBackend";
 
 const props = defineProps<{
 	msg: Twitch.ChatMessage;

@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { useModule } from "@/composable/useModule";
 import { useComponentHook } from "@/common/ReactHooks";
+import { useModule } from "@/composable/useModule";
 import ChatInput from "./ChatInput.vue";
 
 const { markAsReady } = useModule("chat-input", {

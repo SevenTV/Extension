@@ -1,8 +1,8 @@
 import { log } from "@/common/Logger";
-import type { ChangeMap, EventContext, ObjectTypeOfKind } from "../";
 import { onCosmeticCreate } from "./cosmetic.handler";
 import { onEmoteSetUpdate } from "./emote-set.handler";
 import { onEntitlementCreate } from "./entitlement.handler";
+import type { ChangeMap, EventContext, ObjectTypeOfKind } from "../";
 
 export function handleDispatchedEvent(ctx: EventContext, type: string, cm: ChangeMap<SevenTV.ObjectKind>) {
 	const h = {

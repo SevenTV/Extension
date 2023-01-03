@@ -1,7 +1,7 @@
 import type { LogType } from "@/common/Logger";
-import type { Dexie7 } from "@/db/idb";
 import { WorkerDriver } from "./worker.driver";
 import type { EventAPI } from "./worker.events";
+import type { Dexie7 } from "@/db/idb";
 
 export interface WorkerMessage<T extends WorkerMessageType> {
 	type: WorkerMessageType;

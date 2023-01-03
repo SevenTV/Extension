@@ -1,5 +1,5 @@
-import { getEmoteButton, getChatController } from "@/site/twitch.tv";
-import { hasBadContrast, darken, parseToRgba } from "color2k";
+import { getChatController, getEmoteButton } from "@/site/twitch.tv";
+import { darken, hasBadContrast, parseToRgba } from "color2k";
 
 export const tools = {
 	emoteClick: (() => null) as Twitch.EmoteButton["props"]["onEmoteClick"],

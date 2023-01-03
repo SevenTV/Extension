@@ -75,13 +75,13 @@
 </template>
 
 <script setup lang="ts">
-import { Tokenizer } from "./Tokenizer";
+import { computed } from "vue";
 import { MessagePartType } from "@/site/twitch.tv";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
-import { computed } from "vue";
-import ChatUserTag from "@/site/twitch.tv/modules/chat/components/ChatUserTag.vue";
-import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
 import BanSlider from "@/site/twitch.tv/modules/chat/components/BanSlider.vue";
+import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
+import ChatUserTag from "@/site/twitch.tv/modules/chat/components/ChatUserTag.vue";
+import { Tokenizer } from "./Tokenizer";
 
 const emit = defineEmits<{
 	(e: "open-viewer-card", ev: MouseEvent, viewer: Twitch.ChatUser): void;

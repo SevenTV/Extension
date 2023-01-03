@@ -1,5 +1,5 @@
-import { Regex, MessagePartType } from "@/site/twitch.tv";
 import { convertTwitchEmote } from "@/common/Transform";
+import { MessagePartType, Regex } from "@/site/twitch.tv";
 
 export class Tokenizer {
 	private newParts = new Array<Twitch.ChatMessage.Part>();

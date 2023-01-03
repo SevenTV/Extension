@@ -31,20 +31,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { onClickOutside } from "@vueuse/core";
+import Logo from "@/common/Logo.vue";
 import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineFunctionHook,
-	definePropertyHook,
 	defineNamedEventHandler,
+	definePropertyHook,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
-import { useChatAPI } from "../../ChatAPI";
 import { determineRatio } from "./EmoteMenuBackend";
-import Logo from "@/common/Logo.vue";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
-import { onClickOutside } from "@vueuse/core";
+import { useChatAPI } from "../../ChatAPI";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;

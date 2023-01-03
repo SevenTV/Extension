@@ -1,9 +1,9 @@
-import { defineConfig, loadEnv } from "vite";
-import { spawn } from "child_process";
 import { getManifest } from "./manifest.config";
+import vue from "@vitejs/plugin-vue";
+import { spawn } from "child_process";
 import fs from "fs-extra";
 import path from "path";
-import vue from "@vitejs/plugin-vue";
+import { defineConfig, loadEnv } from "vite";
 
 const r = (...args: string[]) => path.resolve(__dirname, ...args);
 

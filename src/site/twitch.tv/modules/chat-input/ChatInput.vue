@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
+import { useStore } from "@/store/main";
+import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineFunctionHook,
 	defineNamedEventHandler,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
-import { HookedInstance } from "@/common/ReactHooks";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
-import { useStore } from "@/store/main";
 import { useWorker } from "@/composable/useWorker";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
@@ -310,7 +310,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 			current: str,
 			element: [
 				{
-					$$typeof: Symbol.for("react.element"),
+					$typeof: Symbol.for("react.element"),
 					ref: null,
 					key: `emote-img-${emote.id}`,
 					type: "img",
@@ -322,7 +322,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 					},
 				},
 				{
-					$$typeof: Symbol.for("react.element"),
+					$typeof: Symbol.for("react.element"),
 					ref: null,
 					key: `emote-text-${emote.id}`,
 					type: "span",

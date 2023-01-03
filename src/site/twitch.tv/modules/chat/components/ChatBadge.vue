@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { useTooltip } from "@/composable/useTooltip";
 import { ref } from "vue";
+import { useTooltip } from "@/composable/useTooltip";
 import ChatBadgeTooltip from "./ChatBadgeTooltip.vue";
 
 const props = defineProps<{

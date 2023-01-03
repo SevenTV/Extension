@@ -1,5 +1,5 @@
+import { description, displayName, name, version } from "./package.json";
 import type { Manifest } from "webextension-polyfill-ts";
-import { version, displayName, name, description } from "./package.json";
 
 interface MV3HostPermissions {
 	host_permissions?: string[];

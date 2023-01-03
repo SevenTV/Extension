@@ -23,9 +23,9 @@
 import { Component, markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
 import { tooltip } from "@/composable/useTooltip";
-import { db } from "@/db/idb";
 import { useWorker } from "@/composable/useWorker";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
+import { db } from "@/db/idb";
 
 const wg = ref(2);
 

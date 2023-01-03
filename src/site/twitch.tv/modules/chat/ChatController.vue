@@ -21,19 +21,19 @@
 </template>
 
 <script setup lang="ts">
-import { MessageType, ModerationType } from "@/site/twitch.tv";
-import { ref, reactive, onUnmounted, watch, watchEffect, toRefs } from "vue";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
-import { log } from "@/common/Logger";
+import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
-import { getRandomInt } from "@/common/Rand";
-import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
-import { HookedInstance } from "@/common/ReactHooks";
-import { convertTwitchEmoteSet } from "@/common/Transform";
 import { debounceFn } from "@/common/Async";
-import ChatData from "./ChatData.vue";
-import ChatList from "./ChatList.vue";
+import { log } from "@/common/Logger";
+import { getRandomInt } from "@/common/Rand";
+import { HookedInstance } from "@/common/ReactHooks";
+import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { convertTwitchEmoteSet } from "@/common/Transform";
+import { MessageType, ModerationType } from "@/site/twitch.tv";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
+import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{

@@ -1,6 +1,6 @@
-import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { onUnmounted, reactive } from "vue";
 import { ObserverPromise } from "@/common/Async";
+import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 
 export const REACT_ROOT_SELECTOR = "#root";
 export const REACT_ELEMENT_SYMBOL = Symbol.for("react.element");

@@ -5,9 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import { onClickOutside } from "@vueuse/core";
-import { autoUpdate, computePosition, Middleware, Placement } from "@floating-ui/dom";
 import { onBeforeUnmount, ref, watchEffect } from "vue";
+import { onClickOutside } from "@vueuse/core";
+import { Middleware, Placement, autoUpdate, computePosition } from "@floating-ui/dom";
 
 const props = defineProps<{
 	anchor?: HTMLElement;

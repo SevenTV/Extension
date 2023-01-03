@@ -1,6 +1,6 @@
-import { liveQuery } from "dexie";
 import { onUnmounted, ref, watch } from "vue";
 import type { Ref } from "vue";
+import { liveQuery } from "dexie";
 
 export function useLiveQuery<T>(
 	queryFn: () => T | Promise<T | undefined> | undefined,

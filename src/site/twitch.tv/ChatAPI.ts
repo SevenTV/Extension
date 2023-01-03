@@ -1,6 +1,6 @@
-import { computed, nextTick, reactive, ref, Ref, toRefs, watchEffect } from "vue";
-import UiScrollableVue from "@/ui/UiScrollable.vue";
+import { Ref, computed, nextTick, reactive, ref, toRefs, watchEffect } from "vue";
 import { useStore } from "@/store/main";
+import UiScrollableVue from "@/ui/UiScrollable.vue";
 
 const data = reactive({
 	// Message Data

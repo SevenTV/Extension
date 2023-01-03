@@ -4,8 +4,8 @@
 
 <script setup lang="ts">
 import Logo7TV from "@/assets/svg/Logo7TV.vue";
-import LogoFFZ from "@/assets/svg/LogoFFZ.vue";
 import LogoBTTV from "@/assets/svg/LogoBTTV.vue";
+import LogoFFZ from "@/assets/svg/LogoFFZ.vue";
 import LogoTwitch from "@/assets/svg/LogoTwitch.vue";
 
 const props = withDefaults(

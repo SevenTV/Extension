@@ -5,9 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import { autoUpdate, computePosition, Middleware, Placement, ReferenceElement, shift } from "@floating-ui/dom";
-import { onClickOutside, useDraggable } from "@vueuse/core";
 import { onBeforeUnmount, ref, watch, watchEffect } from "vue";
+import { onClickOutside, useDraggable } from "@vueuse/core";
+import { Middleware, Placement, ReferenceElement, autoUpdate, computePosition, shift } from "@floating-ui/dom";
 
 const props = defineProps<{
 	initialPosition?: [number, number];

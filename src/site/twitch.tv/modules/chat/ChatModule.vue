@@ -5,9 +5,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { getTrackedNode, useComponentHook } from "@/common/ReactHooks";
 import { useModule } from "@/composable/useModule";
-import { computed } from "vue";
 import ChatController from "./ChatController.vue";
 
 const { dependenciesMet, markAsReady } = useModule("chat", {

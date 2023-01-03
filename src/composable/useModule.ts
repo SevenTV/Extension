@@ -1,5 +1,5 @@
-import { log } from "@/common/Logger";
 import { computed, nextTick, onUnmounted, reactive, ref, watch } from "vue";
+import { log } from "@/common/Logger";
 
 const data = reactive({
 	modules: {} as Record<string, Module>,

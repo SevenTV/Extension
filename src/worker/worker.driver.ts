@@ -1,11 +1,11 @@
-import { log, Logger } from "@/common/Logger";
+import type { TypedEventListenerOrEventListenerObject } from "@/common/EventTarget";
+import { Logger, log } from "@/common/Logger";
+import { getRandomInt } from "@/common/Rand";
+import { EventAPI } from "./worker.events";
 import { WorkerHttp } from "./worker.http";
 import { WorkerPort } from "./worker.port";
-import { EventAPI } from "./worker.events";
-import { db, Dexie7 } from "@/db/idb";
+import { Dexie7, db } from "@/db/idb";
 import { TypedWorkerMessage, WorkerMessageType } from ".";
-import type { TypedEventListenerOrEventListenerObject } from "@/common/EventTarget";
-import { getRandomInt } from "@/common/Rand";
 
 export class WorkerDriver extends EventTarget {
 	bc: BroadcastChannel;

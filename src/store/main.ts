@@ -1,7 +1,7 @@
-import { log } from "@/common/Logger";
-import { useWorker, WorkletEvent } from "@/composable/useWorker";
 import { defineStore } from "pinia";
-import { UAParser, UAParserInstance, IBrowser } from "ua-parser-js";
+import { log } from "@/common/Logger";
+import { WorkletEvent, useWorker } from "@/composable/useWorker";
+import { IBrowser, UAParser, UAParserInstance } from "ua-parser-js";
 
 export interface State {
 	platform: Platform;

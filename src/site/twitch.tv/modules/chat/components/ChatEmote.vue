@@ -23,11 +23,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
 import { tools } from "@/site/twitch.tv/modules/chat/ChatBackend";
-import { ref, computed } from "vue";
 import ChatEmoteTooltip from "@/site/twitch.tv/modules/chat/components/ChatEmoteTooltip.vue";
-import { useConfig } from "@/composable/useSettings";
 
 const props = withDefaults(
 	defineProps<{

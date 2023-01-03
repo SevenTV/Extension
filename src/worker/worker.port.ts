@@ -1,5 +1,5 @@
-import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from ".";
 import { WorkerDriver } from "./worker.driver";
+import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from ".";
 
 export class WorkerPort {
 	id: symbol;
