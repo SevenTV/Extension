@@ -1,17 +1,25 @@
 <template>
-	<img
-		v-if="srcSet"
-		ref="imgRef"
-		class="chat-emote"
-		:srcset="srcSet"
-		:alt="emote.name"
-		@click="openCard"
-		@mouseenter="show(imgRef)"
-		@mouseleave="hide()"
-	/>
-	<template v-for="(e, index) of emote.overlaid" :key="index">
-		<img class="chat-emote zero-width-emote" :srcset="getSrcSet(e)" :alt="' ' + e.name" />
-	</template>
+	<div class="emote-box">
+		<img
+			v-if="srcSet"
+			ref="imgRef"
+			class="chat-emote"
+			:srcset="srcSet"
+			:alt="emote.name"
+			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
+			@click="openCard"
+			@mouseenter="show(imgRef)"
+			@mouseleave="hide()"
+		/>
+		<template v-for="(e, index) of emote.overlaid" :key="index">
+			<img
+				class="chat-emote zero-width-emote"
+				:class="{ blur: hideUnlisted && e.data?.listed === false }"
+				:srcset="getSrcSet(e)"
+				:alt="' ' + e.name"
+			/>
+		</template>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -19,6 +27,7 @@ import { useTooltip } from "@/composable/useTooltip";
 import { tools } from "@/site/twitch.tv/modules/chat/ChatBackend";
 import { ref, computed } from "vue";
 import ChatEmoteTooltip from "@/site/twitch.tv/modules/chat/components/ChatEmoteTooltip.vue";
+import { useConfig } from "@/composable/useSettings";
 
 const props = withDefaults(
 	defineProps<{
@@ -44,6 +53,8 @@ const { show, hide } = useTooltip(ChatEmoteTooltip, {
 	emote: props.emote,
 });
 
+const hideUnlisted = useConfig<boolean>("general.blur_unlisted_emotes");
+
 const openCard = (ev: MouseEvent) => {
 	if (!props.emote.id || props.emote.provider !== "TWITCH") return;
 
@@ -59,6 +70,10 @@ const openCard = (ev: MouseEvent) => {
 </script>
 
 <style scoped lang="scss">
+.emote-box {
+	display: grid;
+	overflow: clip;
+}
 img.chat-emote {
 	font-weight: 900;
 	grid-column: 1;
@@ -68,6 +83,11 @@ img.chat-emote {
 	&:hover {
 		cursor: pointer;
 	}
+}
+
+img.blur {
+	filter: blur(16px);
+	overflow: clip;
 }
 
 img.zero-width-emote {

@@ -88,4 +88,14 @@ onMounted(() => {
 	top: 0;
 	left: 0;
 }
+
+.tw-root--theme-dark {
+	--seventv-background-transparent-1: #161616c4;
+	--seventv-border-transparent-1: #ffffff1a;
+}
+
+.tw-root--theme-light {
+	--seventv-background-transparent-1: #e9e9e9c4;
+	--seventv-border-transparent-1: #0000001a;
+}
 </style>

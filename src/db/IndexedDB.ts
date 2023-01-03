@@ -3,7 +3,7 @@
 import { Dexie, PromiseExtended, Table } from "dexie";
 
 export class Dexie7 extends Dexie {
-	VERSION = 1.4;
+	VERSION = 1.5;
 
 	private _ready = false;
 
@@ -12,6 +12,7 @@ export class Dexie7 extends Dexie {
 	emotes!: Table<SevenTV.Emote, SevenTV.ObjectID>;
 	users!: Table<SevenTV.User, SevenTV.ObjectID>;
 	userConnections!: Table<SevenTV.UserConnection, SevenTV.ObjectID>;
+	settings!: Table<SevenTV.Setting<SevenTV.SettingType>>;
 
 	constructor() {
 		super("SevenTV", {
@@ -24,6 +25,7 @@ export class Dexie7 extends Dexie {
 			emotes: "id,name,owner.id",
 			users: "id,username,connections.id,connections.username",
 			userConnections: "id,platform,username,emote_set.id",
+			settings: "key",
 		});
 	}
 
