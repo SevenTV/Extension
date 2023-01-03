@@ -6,7 +6,7 @@ interface MV3HostPermissions {
 	optional_host_permissions?: string[];
 }
 
-export async function getManifest(dev?: boolean, chunkResources?: string[]): Promise<Manifest.WebExtensionManifest> {
+export async function getManifest(mv2?: boolean, chunkResources?: string[]): Promise<Manifest.WebExtensionManifest> {
 	const manifest = {
 		manifest_version: 3,
 		name: displayName || name,
@@ -45,11 +45,8 @@ export async function getManifest(dev?: boolean, chunkResources?: string[]): Pro
 					"site.js",
 					"site.js.map",
 					"content.js.map",
+					"worker.js",
 					"assets/style.css",
-					"assets/net.worker.js",
-					"assets/net.worker.js.map",
-					"assets/transform.worker.js",
-					"assets/transform.worker.js.map",
 					...(chunkResources ?? []),
 				],
 				matches: ["*://*.twitch.tv/*"],
@@ -57,7 +54,7 @@ export async function getManifest(dev?: boolean, chunkResources?: string[]): Pro
 		],
 	} as Manifest.WebExtensionManifest & MV3HostPermissions;
 
-	if (dev) {
+	if (mv2) {
 		// if dev set manifest to version 2
 		manifest.manifest_version = 2;
 

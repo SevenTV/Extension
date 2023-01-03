@@ -1,5 +1,8 @@
 export class Logger {
 	private static instance: Logger;
+
+	pipe: ((type: LogType, text: string[], extraCSS: string[], objects?: object[]) => void) | null = null;
+
 	static Get(): Logger {
 		return this.instance ?? (Logger.instance = new Logger());
 	}
@@ -13,10 +16,20 @@ export class Logger {
 		};
 	}
 
-	private print(type: "error" | "warn" | "debug" | "info", text: string[], extraCSS: string[]): void {
+	private print(type: LogType, text: string[], extraCSS: string[], objects?: object[]): void {
+		if (this.pipe) {
+			this.pipe(type, text, extraCSS, objects);
+			return;
+		}
+
 		const prefix = this.getPrefix();
 		// eslint-disable-next-line no-console
-		console[type](prefix.text + " " + text.join(" ") + ` (${this.ctx})`, prefix.css, ...extraCSS);
+		console[type](
+			prefix.text + " " + text.join(" ") + ` (${this.ctx})`,
+			prefix.css,
+			...extraCSS,
+			...(objects ?? []),
+		);
 	}
 
 	setContextName(name: string): void {
@@ -25,6 +38,10 @@ export class Logger {
 
 	debug(...text: string[]): void {
 		return this.print("debug", ["%c[DEBUG]%c", ...text], ["color:#32c8e6;", "color:grey"]);
+	}
+
+	debugWithObjects(text: string[], objects: object[]): void {
+		return this.print("debug", ["%c[DEBUG]%c", ...text], ["color:#32c8e6;", "color:grey"], objects);
 	}
 
 	info(...text: string[]): void {
@@ -41,3 +58,5 @@ export class Logger {
 }
 
 export const log = new Logger();
+
+export type LogType = "error" | "warn" | "debug" | "info";

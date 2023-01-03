@@ -13,14 +13,7 @@ import ChatInputModule from "./modules/chat-input/ChatInputModule.vue";
 import EmoteMenuModule from "./modules/emote-menu/EmoteMenuModule.vue";
 import SettingsModule from "./modules/settings/SettingsModule.vue";
 
-const props = defineProps<{
-	netWorker: Worker;
-	transformWorker: Worker;
-}>();
-
 const store = useStore();
-store.setWorker("net", props.netWorker);
-store.setWorker("transform", props.transformWorker);
 
 // Retrieve the current user from twitch internals
 const user = getUser()?.props.user ?? null;

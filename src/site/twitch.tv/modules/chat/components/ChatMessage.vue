@@ -58,7 +58,7 @@
 						</a>
 
 						<span v-else-if="part.type === MessagePartType.SEVENTVEMOTE" class="emote-part">
-							<ChatEmote :emote="part.content" />
+							<ChatEmote :emote="part.content" :image-format="imageFormat" />
 						</span>
 						<a
 							v-else-if="part.type === MessagePartType.SEVENTVLINK"
@@ -93,7 +93,7 @@ const props = defineProps<{
 }>();
 
 // Tokenize the message
-const { emoteMap } = useChatAPI();
+const { emoteMap, imageFormat } = useChatAPI();
 
 const tokenizer = new Tokenizer(props.msg.messageParts);
 const tokens = computed(() => {

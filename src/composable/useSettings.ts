@@ -1,4 +1,4 @@
-import { db } from "@/db/IndexedDB";
+import { db } from "@/db/idb";
 import { reactive, Ref, customRef } from "vue";
 import { useLiveQuery } from "./useLiveQuery";
 

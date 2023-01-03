@@ -112,18 +112,53 @@ declare namespace SevenTV {
 		user?: User;
 	}
 
-	interface Cosmetic {
+	interface Cosmetic<K extends CosmeticKind = unknown> {
 		id: ObjectID;
-		kind: CosmeticKind;
+		kind: K;
 		name: string;
+		data: {
+			BADGE: CosmeticBadge;
+			PAINT: CosmeticPaint;
+			unknown: never;
+		}[K];
 	}
 
-	interface CosmeticBadge extends Cosmetic {
+	interface CosmeticBadge {
 		tooltip: string;
 		host: ImageHost;
 	}
 
-	type CosmeticKind = "BADGE" | "PAINT";
+	interface CosmeticPaint {
+		function: string;
+		color: number | null;
+		stops: CosmeticPaintStop[];
+		repeat: boolean;
+		angle: number;
+		shape?: string;
+		image_url?: string;
+		shadows: CosmeticPaintShadow[];
+	}
+	type AnyCosmetic = CosmeticBadge | CosmeticPaint;
+
+	interface CosmeticPaintStop {
+		at: number;
+		color: number;
+		_alpha?: number;
+	}
+	interface CosmeticPaintShadow {
+		x_offset: number;
+		y_offset: number;
+		radius: number;
+		color: number;
+	}
+
+	interface Entitlement {
+		id: ObjectID;
+		kind: EntitlementKind;
+		user?: User;
+		cid?: string;
+		ref_id: ObjectID;
+	}
 
 	type UserType = "" | "BOT" | "SYSTEM";
 
@@ -142,7 +177,13 @@ declare namespace SevenTV {
 		BAN = 6,
 		MESSAGE = 7,
 		REPORT = 8,
+		PRESENCE = 9,
+		COSMETIC = 10,
 	}
+
+	type CosmeticKind = "BADGE" | "PAINT";
+
+	type EntitlementKind = "BADGE" | "PAINT" | "EMOTE_SET";
 
 	interface ImageHost {
 		url: string;

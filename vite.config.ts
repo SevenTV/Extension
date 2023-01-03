@@ -1,13 +1,14 @@
-import path from "path";
 import { defineConfig, loadEnv } from "vite";
+import { spawn } from "child_process";
 import { getManifest } from "./manifest.config";
 import fs from "fs-extra";
+import path from "path";
 import vue from "@vitejs/plugin-vue";
 
 const r = (...args: string[]) => path.resolve(__dirname, ...args);
 
 const chunks = {
-	composable: ["./src/composable/useModule.ts", "./src/composable/useSettings.ts", "./src/composable/useTooltip.ts"],
+	composable: ["./src/composable/useModule.ts", "./src/composable/useTooltip.ts"],
 	common: [
 		"./src/common/Async.ts",
 		"./src/common/Logger.ts",
@@ -17,7 +18,12 @@ const chunks = {
 		"./src/common/ReactHooks.ts",
 	],
 	store: ["./src/store/main.ts"],
-	db: ["./src/db/IndexedDB.ts", "./src/composable/useLiveQuery.ts"],
+	db: [
+		"./src/db/idb.ts",
+		"./src/db/versions.idb.ts",
+		"./src/composable/useLiveQuery.ts",
+		"./src/composable/useSettings.ts",
+	],
 	tw_mod_chat: ["./src/site/twitch.tv/modules/chat/ChatModule.vue"],
 	tw_mod_chat_input: ["./src/site/twitch.tv/modules/chat-input/ChatInputModule.vue"],
 };
@@ -76,7 +82,7 @@ export default defineConfig(({ mode }) => {
 				apply: "build",
 				async buildEnd() {
 					const man = await getManifest(
-						isDev,
+						isDev || !!process.env.MV2,
 						Object.keys(chunks)
 							.map((key) => [`assets/${key}.js`, `assets/${key}.js.map`])
 							.reduce((a, b) => [...a, ...b], []),
@@ -84,33 +90,11 @@ export default defineConfig(({ mode }) => {
 
 					setTimeout(() => {
 						fs.writeJSON(r("dist/manifest.json"), man);
-					}, 0);
+
+						spawn("yarn", ["build:worker", "--mode", mode], { shell: true, stdio: "inherit" });
+					});
 				},
 			},
-
-			/*{
-				name: "merge-css",
-				enforce: "post",
-				apply: "build",
-				async closeBundle() {
-					if (!fs.existsSync("dist/assets")) {
-						return;
-					}
-
-					const files = await fs.readdir("dist/assets");
-
-					fs.existsSync("dist/styles.css") && (await fs.truncate("dist/styles.css"));
-					await fs.writeFile("dist/styles.css", "");
-
-					for (const file of files) {
-						if (!file.endsWith(".css")) {
-							return;
-						}
-
-						await fs.appendFile("dist/styles.css", await fs.readFile(`dist/assets/${file}`, "utf-8"));
-					}
-				},
-			},*/
 		],
 	};
 });

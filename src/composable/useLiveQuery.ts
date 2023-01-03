@@ -10,7 +10,8 @@ export function useLiveQuery<T>(
 	const value = ref<T>();
 
 	if (opt.reactives) {
-		opt.reactives.forEach((r) => watch(r, () => queryFn(), { deep: true }));
+		opt.reactives.forEach((r) => watch(r, async () => handleResult(await queryFn()), { deep: true }));
+		watch(queryFn, async () => handleResult(await queryFn()));
 	}
 
 	const handleResult = (result: T | undefined) => {
@@ -29,8 +30,6 @@ export function useLiveQuery<T>(
 			handleResult(x);
 		},
 	});
-
-	watch(queryFn, async () => handleResult(await queryFn()));
 
 	onUnmounted(() => sub.unsubscribe());
 

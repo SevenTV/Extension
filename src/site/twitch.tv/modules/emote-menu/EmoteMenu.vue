@@ -18,7 +18,7 @@
 				<!-- Emote menu body -->
 				<template v-for="[provider, emoteSets] of filtered" :key="provider">
 					<div v-show="provider == selectedProvider" class="body">
-						<EmoteMenuTab :emote-sets="emoteSets" @emote-click="onEmoteClick" />
+						<EmoteMenuTab :emote-sets="emoteSets" :image-format="imageFormat" @emote-click="onEmoteClick" />
 					</div>
 				</template>
 				<div v-if="filtered.size == 0" class="body empty">
@@ -50,7 +50,7 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;
 }>();
 
-const { emoteProviders, currentChannel } = useChatAPI();
+const { emoteProviders, currentChannel, imageFormat } = useChatAPI();
 
 const containerEl = ref();
 containerEl.value = document.querySelector(".chat-input__textarea") ?? undefined;

@@ -1,12 +1,27 @@
-import { nextTick, reactive, ref, Ref, toRefs, watchEffect } from "vue";
+import { computed, nextTick, reactive, ref, Ref, toRefs, watchEffect } from "vue";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
+import { useStore } from "@/store/main";
 
 const data = reactive({
 	// Message Data
 	messages: [] as Twitch.ChatMessage[],
 	messageBuffer: [] as Twitch.ChatMessage[],
+	chatters: {} as Record<string, object>,
+
+	// Emote Data
 	emoteMap: {} as Record<string, SevenTV.ActiveEmote>,
 	emoteProviders: {} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>,
+
+	// Cosmetics
+	cosmetics: {} as Record<string, SevenTV.Cosmetic>,
+	entitledUsers: {} as Record<
+		string,
+		{
+			BADGE: SevenTV.ObjectID[];
+			PAINT: SevenTV.ObjectID[];
+			EMOTE_SET: SevenTV.ObjectID[];
+		}
+	>,
 	twitchBadgeSets: {} as Twitch.BadgeSets | null,
 
 	// User State Data
@@ -32,7 +47,10 @@ const data = reactive({
 let flushTimeout: number | undefined;
 
 export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> | undefined>, bounds?: Ref<DOMRect>) {
+	const store = useStore();
 	const container = ref<HTMLElement | null>(null);
+
+	const imageFormat = computed<SevenTV.ImageFormat>(() => (store.avifSupported ? "AVIF" : "WEBP"));
 
 	watchEffect(() => {
 		if (scroller?.value?.container) {
@@ -51,6 +69,10 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 			if (data.scrollBuffer.length > data.lineLimit) data.scrollBuffer.shift();
 
 			return;
+		}
+
+		if (message.user && !data.chatters[message.user.userID]) {
+			data.chatters[message.user.userID] = {};
 		}
 
 		data.messageBuffer.push(message);
@@ -169,6 +191,9 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		lineLimit,
 		emoteMap,
 		emoteProviders,
+		chatters,
+		cosmetics,
+		entitledUsers,
 		twitchBadgeSets,
 		sys,
 		init,
@@ -185,6 +210,9 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		lineLimit: lineLimit,
 		emoteMap: emoteMap,
 		emoteProviders: emoteProviders,
+		chatters: chatters,
+		cosmetics: cosmetics,
+		entitledUsers: entitledUsers,
 		twitchBadgeSets: twitchBadgeSets,
 
 		isModerator: isModerator,
@@ -204,5 +232,7 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		addMessage,
 		pauseScrolling,
 		unpauseScrolling,
+
+		imageFormat,
 	};
 }

@@ -5,6 +5,7 @@ const inject = () => {
 	script.src = chrome.runtime.getURL("site.js");
 	script.id = "seventv";
 	script.type = "module";
+	script.setAttribute("worker_url", chrome.runtime.getURL("worker.js"));
 
 	// Style
 	const style = document.createElement("link");

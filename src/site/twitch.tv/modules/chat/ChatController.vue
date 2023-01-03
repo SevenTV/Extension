@@ -150,22 +150,33 @@ const onTwitchEmotes = debounceFn((emoteSets: Twitch.TwitchEmoteSet[]) => {
 
 definePropertyHook(controller.value.component, "props", {
 	value(v: typeof controller.value.component.props) {
-		currentChannel.value = {
-			id: v.channelID,
-			username: v.channelLogin,
-			display_name: v.channelDisplayName,
-			loaded: false,
-		};
+		if (v.channelID) {
+			currentChannel.value = {
+				id: v.channelID,
+				username: v.channelLogin,
+				display_name: v.channelDisplayName,
+				loaded: false,
+			};
 
+			chatAPI.currentChannel.value = currentChannel.value;
+		}
+
+		// Keep track of chat props
 		chatAPI.isModerator.value = v.isCurrentUserModerator;
 		chatAPI.isVIP.value = v.isCurrentUserVIP;
-		chatAPI.currentChannel.value = currentChannel.value;
 		chatAPI.sendMessage.value = v.chatConnectionAPI.sendMessage;
 
+		// Parse twitch emote sets
 		const data = v.emoteSetsData;
 		if (!data || !data.emoteSets || data.loading) return;
 
 		onTwitchEmotes(data.emoteSets);
+
+		// Add the current user & channel owner to active chatters
+		if (v.userID) {
+			chatAPI.chatters.value[v.userID] = {};
+			chatAPI.chatters.value[v.channelID] = {};
+		}
 	},
 });
 
@@ -196,10 +207,13 @@ watch(list.value.domNodes, (nodes) => {
 });
 
 // Push a message
+const msgTypes = [MessageType.MESSAGE, MessageType.MODERATION];
 const onMessage = (msg: Twitch.Message): boolean => {
 	if (msg.id === "seventv-hook-message") {
 		return false;
 	}
+	if (!msgTypes.includes(msg.type)) return false;
+
 	switch (msg.type) {
 		case MessageType.MESSAGE:
 			onChatMessage(msg as Twitch.ChatMessage);
@@ -318,6 +332,11 @@ seventv-container.seventv-chat-list {
 .community-highlight {
 	opacity: 0.75;
 	backdrop-filter: blur(1em);
+	transition: opacity 0.25s;
+
+	&:hover {
+		opacity: 1;
+	}
 }
 
 .chat-list--default.seventv-checked {

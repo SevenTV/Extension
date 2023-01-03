@@ -21,7 +21,7 @@
 							:emote-id="emote.id"
 							@click="emit('emoteClick', emote)"
 						>
-							<ChatEmote :emote="emote" :unload="!loaded[emote.id]" />
+							<ChatEmote :emote="emote" :image-format="imageFormat" :unload="!loaded[emote.id]" />
 						</div>
 					</div>
 				</div>
@@ -57,6 +57,7 @@ import UiScrollable from "@/ui/UiScrollable.vue";
 
 defineProps<{
 	emoteSets: SevenTV.EmoteSet[];
+	imageFormat: SevenTV.ImageFormat;
 }>();
 
 const emit = defineEmits<{

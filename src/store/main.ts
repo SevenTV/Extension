@@ -1,11 +1,7 @@
-import {
-	NetWorkerMessage,
-	NetWorkerMessageType,
-	TransformWorkerMessage,
-	TransformWorkerMessageType,
-	TypedTransformWorkerMessage,
-} from "@/worker";
+import { log } from "@/common/Logger";
+import { useWorker, WorkletEvent } from "@/composable/useWorker";
 import { defineStore } from "pinia";
+import { UAParser, UAParserInstance, IBrowser } from "ua-parser-js";
 
 export interface State {
 	platform: Platform;
@@ -14,9 +10,8 @@ export interface State {
 	channel: CurrentChannel | null;
 	workers: {
 		net: Worker | null;
-		transform: Worker | null;
 	};
-	workerSeq: number;
+	agent: UAParserInstance;
 }
 
 export const useStore = defineStore("main", {
@@ -26,12 +21,7 @@ export const useStore = defineStore("main", {
 			identity: null,
 			location: null,
 			channel: null,
-			workers: {
-				net: null,
-				transform: null,
-				transformSeq: 0,
-			},
-			workerSeq: 0,
+			agent: new UAParser(),
 		} as State),
 
 	actions: {
@@ -44,78 +34,38 @@ export const useStore = defineStore("main", {
 			this.location = location;
 		},
 
-		setChannel(channel: CurrentChannel): boolean {
-			if (this.channel && this.channel.id === channel.id) {
+		setChannel(channel: CurrentChannel | null): boolean {
+			if (
+				(channel === null && this.channel === null) ||
+				(this.channel && channel && this.channel.id === channel.id)
+			) {
 				return false; // no change.
 			}
 
 			this.channel = channel;
+			if (!this.channel) return true;
 
-			const w = this.workers.net;
-			if (w) {
-				this.awaitWorkerNotify(`channel:${channel.id}:ready`).then(() => {
-					this.channel!.loaded = true;
-				});
+			const { sendMessage, target } = useWorker();
 
-				w.postMessage({
-					source: "SEVENTV",
-					type: NetWorkerMessageType.STATE,
-					data: {
-						local: {
-							identity: { ...this.identity },
-							platform: this.platform,
-							channel: this.channel && this.channel.id ? { ...this.channel } : null,
-						},
-					},
-				} as NetWorkerMessage<NetWorkerMessageType.STATE>);
-			}
+			// Set the "loaded" property once the worker has confirmed the channel has been fetched
+			const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
+				if (!this.channel || this.channel.id !== ev.detail.id) return;
 
-			return true;
-		},
+				this.channel.loaded = true;
 
-		setWorker(name: keyof State["workers"], worker: Worker | null) {
-			this.workers[name] = worker;
-		},
+				log.info("Channel loaded:", this.channel.id);
+				target.removeEventListener("channel_fetched", onLoaded);
+			};
+			target.addEventListener("channel_fetched", onLoaded);
 
-		async awaitWorkerNotify(key: string): Promise<void> {
-			const w = this.workers.net;
-			if (!w) return;
-
-			const p = new Promise<void>((resolve) => {
-				const resp = (ev: MessageEvent) => {
-					if (ev.data.source !== "SEVENTV") return;
-					if (ev.data.type !== NetWorkerMessageType.NOTIFY) return;
-					if (ev.data.data.key !== key) return;
-
-					w.removeEventListener("message", resp);
-					resolve();
-				};
-
-				w.addEventListener("message", resp);
+			// Tell the worker we're now watching a new channel
+			sendMessage("STATE", {
+				identity: { ...this.identity } as TwitchIdentity | YouTubeIdentity,
+				platform: this.platform,
+				channel: this.channel && this.channel.id ? { ...this.channel } : null,
 			});
 
-			return p;
-		},
-
-		sendTransformRequest<T extends TransformWorkerMessageType>(t: T, data: TypedTransformWorkerMessage<T>): void {
-			if (!this.workers.transform) return;
-			this.workerSeq++;
-
-			const resp = (ev: MessageEvent) => {
-				if (!this.workers.transform) return;
-				if (ev.data.seq !== this.workerSeq) return;
-
-				this.workers.transform.removeEventListener("message", resp);
-			};
-
-			this.workers.transform.addEventListener("message", resp);
-
-			this.workers.transform.postMessage({
-				source: "SEVENTV",
-				type: t,
-				seq: this.workerSeq,
-				data,
-			} as TransformWorkerMessage<T>);
+			return true;
 		},
 	},
 
@@ -125,6 +75,12 @@ export const useStore = defineStore("main", {
 		},
 		getLocation(state: State) {
 			return state.location;
+		},
+		browser(): IBrowser {
+			return this.agent.getBrowser();
+		},
+		avifSupported(): boolean {
+			return this.browser.name === "Chrome" && parseInt(this.browser.version as string, 10) >= 100;
 		},
 	},
 });

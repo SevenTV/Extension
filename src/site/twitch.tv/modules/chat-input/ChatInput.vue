@@ -8,12 +8,16 @@ import {
 } from "@/common/Reflection";
 import { HookedInstance } from "@/common/ReactHooks";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { useStore } from "@/store/main";
+import { useWorker } from "@/composable/useWorker";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
+const store = useStore();
 const { emoteMap } = useChatAPI();
+const { sendMessage } = useWorker();
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -359,6 +363,13 @@ onMounted(() => {
 		function (old, value: string, sendOnUpdate?: boolean, ...args: unknown[]) {
 			if (sendOnUpdate) {
 				pushHistory();
+
+				// Tell the worker to write presence
+				if (store.channel) {
+					sendMessage("CHANNEL_ACTIVE_CHATTER", {
+						channel_id: store.channel.id,
+					});
+				}
 			}
 
 			if (!awaitingUpdate.value) {

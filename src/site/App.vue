@@ -1,7 +1,7 @@
 <template>
 	<!-- Spawn Platform-specific Logic -->
-	<template v-if="ok">
-		<component :is="platformComponent" v-if="platformComponent" :net-worker="nw" :transform-worker="tw" />
+	<template v-if="!wg">
+		<component :is="platformComponent" v-if="platformComponent" />
 	</template>
 
 	<!-- Render tooltip -->
@@ -23,35 +23,28 @@
 import { Component, markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
 import { tooltip } from "@/composable/useTooltip";
-import { NetWorkerMessage, NetWorkerMessageType } from "@/worker";
-import NetworkWorker from "@/worker/net.worker?worker&inline";
-import TransformWorker from "@/worker/transform.worker?worker&inline";
+import { db } from "@/db/idb";
+import { useWorker } from "@/composable/useWorker";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
-import { db } from "@/db/IndexedDB";
 
-const ok = ref(false);
+const wg = ref(2);
 
-log.debug("Waiting for IndexedDB...");
+log.info("7TV is loading");
 
 db.ready().then(() => {
 	log.info("IndexedDB ready");
-	ok.value = true;
+	wg.value--;
 });
 
-// Spawn NetworkWorker
-// This contains the connection for the Event API
-const nw = new NetworkWorker();
-const id = Math.floor(Math.random() * Math.pow(2, 15));
-log.info("<Global>", "Initializing WebSocket,", `id=${id}`);
+// Spawn SharedWorker
+const bc = new BroadcastChannel("SEVENTV#NETWORK");
+const { init, target } = useWorker();
+init(bc);
 
-nw.postMessage({
-	source: "SEVENTV",
-	type: NetWorkerMessageType.INIT,
-	data: { id },
-} as Partial<NetWorkerMessage<NetWorkerMessageType.INIT>>);
-
-// Spawn TransformWorker
-const tw = new TransformWorker();
+target.addEventListener("ready", () => {
+	log.info("Worker ready");
+	wg.value--;
+});
 
 // Detect current platform
 const domain = window.location.hostname.split(/\./).slice(-2).join(".");

@@ -1,13 +1,6 @@
 <template>
 	<div class="seventv-chat-badge">
-		<img
-			ref="imgRef"
-			:src="badge.image1x"
-			:srcset="srcset"
-			:alt="badge.title"
-			@mouseenter="show(imgRef)"
-			@mouseleave="hide()"
-		/>
+		<img ref="imgRef" :srcset="srcset" :alt="alt" @mouseenter="show(imgRef)" @mouseleave="hide()" />
 	</div>
 </template>
 
@@ -17,10 +10,16 @@ import { ref } from "vue";
 import ChatBadgeTooltip from "./ChatBadgeTooltip.vue";
 
 const props = defineProps<{
-	badge: Twitch.ChatBadge;
+	alt: string;
+	type: "twitch" | "app";
+	badge: Twitch.ChatBadge | SevenTV.Cosmetic<"BADGE">;
 }>();
 
-const srcset = `${props.badge.image1x} 1x, ${props.badge.image2x} 2x, ${props.badge.image4x} 4x`;
+const srcset = {
+	twitch: (badge: Twitch.ChatBadge) => `${badge.image1x} 1x, ${badge.image2x} 2x, ${badge.image4x} 4x`,
+	app: (badge: SevenTV.Cosmetic<"BADGE">) =>
+		badge.data.host.files.map((fi, i) => `https:${badge.data.host.url}/${fi.name} ${i + 1}x`).join(", "),
+}[props.type](props.badge as SevenTV.Cosmetic<"BADGE"> & Twitch.ChatBadge);
 
 const imgRef = ref<HTMLElement>();
 

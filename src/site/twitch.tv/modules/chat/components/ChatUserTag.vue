@@ -1,8 +1,21 @@
 <template>
 	<span v-if="user && user.userDisplayName" class="seventv-chat-user" :style="{ color: color }">
 		<!--Badge List -->
-		<span v-if="badges.length" class="seventv-chat-user-badge-list">
-			<ChatBadge v-for="(badge, index) of badges" :key="index" :badge="badge" />
+		<span v-if="twitchBadges.length || badges.length" class="seventv-chat-user-badge-list">
+			<ChatBadge
+				v-for="(badge, index) of twitchBadges"
+				:key="index"
+				:badge="badge"
+				:alt="badge.title"
+				type="twitch"
+			/>
+			<ChatBadge
+				v-for="(badge, index) of badges"
+				:key="index"
+				:badge="badge"
+				:alt="badge.data.tooltip"
+				type="app"
+			/>
 		</span>
 
 		<!-- Message Author -->
@@ -14,17 +27,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import ChatBadge from "./ChatBadge.vue";
 import { normalizeUsername } from "@/site/twitch.tv/modules/chat/ChatBackend";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { convertTwitchEmote } from "@/common/Transform";
 const props = defineProps<{
 	user: Twitch.ChatUser;
+
 	badges?: Record<string, string>;
 }>();
 
-const { twitchBadgeSets } = useChatAPI();
-const badges = ref([] as Twitch.ChatBadge[]);
+const { twitchBadgeSets, cosmetics, entitledUsers } = useChatAPI();
+const twitchBadges = ref([] as Twitch.ChatBadge[]);
+
+// 7TV Badges
+const badges = computed<SevenTV.Cosmetic<"BADGE">[]>(() => {
+	const ids = entitledUsers.value[props.user.userID]?.BADGE;
+	if (!ids || !ids.length) return [];
+
+	return (ids ? ids.map((id) => cosmetics.value[id]) : [])
+		.filter((cos) => cos && cos.kind === "BADGE")
+		.map((cos) => cos as SevenTV.Cosmetic<"BADGE">);
+});
 
 const color = ref(props.user.color);
 
@@ -46,7 +71,9 @@ if (props.badges && twitchBadgeSets.value) {
 			const badge = set.get(badgeID);
 			if (!badge) continue;
 
-			badges.value.push(badge);
+			twitchBadges.value.push(badge);
+
+			convertTwitchEmote;
 			break;
 		}
 	}

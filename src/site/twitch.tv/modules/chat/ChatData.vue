@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { db } from "@/db/IndexedDB";
+import { db } from "@/db/idb";
 import { useStore } from "@/store/main";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { useLiveQuery } from "@/composable/useLiveQuery";
 import { storeToRefs } from "pinia";
 
 const { channel } = storeToRefs(useStore());
-const { emoteMap, emoteProviders } = useChatAPI();
+const { emoteMap, emoteProviders, cosmetics } = useChatAPI();
 
 // query the channel's emote set bindings
 const channelSets = useLiveQuery(
@@ -16,10 +16,21 @@ const channelSets = useLiveQuery(
 			.equals(channel.value?.id ?? "")
 			.first()
 			.then((c) => c?.set_ids ?? []),
-	() => void 0,
+	() => {
+		// reset the third-party emote providers
+		emoteProviders.value["7TV"] = {};
+		emoteProviders.value["FFZ"] = {};
+		emoteProviders.value["BTTV"] = {};
+	},
 	{
 		reactives: [channel],
 	},
+);
+
+// query available cosmetics
+useLiveQuery(
+	() => db.cosmetics.toArray(),
+	(res) => (cosmetics.value = res.reduce((a, b) => ({ ...a, [b.id]: b }), {})),
 );
 
 // query the channel's active emote sets
@@ -49,7 +60,7 @@ useLiveQuery(
 		emoteMap.value = o;
 	},
 	{
-		reactives: [channel, channelSets],
+		reactives: [channelSets],
 	},
 );
 </script>
