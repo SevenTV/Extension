@@ -32,7 +32,7 @@
 		<template v-for="(emoteSet, i) of emoteSets" :key="i">
 			<div
 				v-if="emoteSet.emotes.length"
-				class="set-sidebar-icon"
+				class="set-sidebar-icon-container"
 				:selected="selectedSet == i"
 				@click="
 					{
@@ -41,8 +41,10 @@
 					}
 				"
 			>
-				<img v-if="emoteSet.owner && emoteSet.owner.avatar_url" :src="emoteSet.owner.avatar_url" />
-				<Logo v-else class="logo" :provider="emoteSet.provider" />
+				<div class="set-sidebar-icon">
+					<img v-if="emoteSet.owner && emoteSet.owner.avatar_url" :src="emoteSet.owner.avatar_url" />
+					<Logo v-else class="logo" :provider="emoteSet.provider" />
+				</div>
 			</div>
 		</template>
 	</div>
@@ -50,10 +52,10 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, reactive, ref } from "vue";
-import Logo from "@/common/Logo.vue";
-import { determineRatio } from "./EmoteMenuBackend";
+import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
+import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
+import Logo from "@/assets/svg/Logo.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import ChatEmote from "../chat/components/ChatEmote.vue";
 
 defineProps<{
 	emoteSets: SevenTV.EmoteSet[];
@@ -87,6 +89,7 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .scroll-area {
 	width: 28rem;
+	flex-shrink: 0;
 }
 
 .emote-set-container {
@@ -103,10 +106,9 @@ onBeforeUnmount(() => {
 	height: 3rem;
 	padding: 0.5rem 1.25rem;
 	position: sticky;
-	top: 0;
+	top: -1px;
 	display: flex;
-	background: var(--color-background-base);
-	box-shadow: 0 1px 3px #000;
+	background: var(--seventv-background-transparent-2);
 }
 
 .set-header-icon {
@@ -119,14 +121,14 @@ onBeforeUnmount(() => {
 
 .emote-container {
 	display: grid;
-	background: rgba(217, 217, 217, 3%);
+	background: hsla(0deg, 0%, 50%, 6%);
 	border-radius: 0.5rem;
 	height: 4rem;
 	margin: 0.25rem;
 	cursor: pointer;
 
 	&:hover {
-		background: hsla(0deg, 0%, 100%, 16%);
+		background: hsla(0deg, 0%, 50%, 32%);
 	}
 }
 
@@ -147,10 +149,10 @@ onBeforeUnmount(() => {
 }
 
 .sidebar {
-	width: 4rem;
 	height: 100%;
-	background: rgba(217, 217, 217, 3%);
-	border-left: 1px solid black;
+	width: 100%;
+	background: hsla(0deg, 0%, 50%, 6%);
+	border-left: 1px solid var(--seventv-border-transparent-1);
 	overflow-y: scroll;
 	scrollbar-width: none;
 
@@ -160,17 +162,22 @@ onBeforeUnmount(() => {
 	}
 }
 
+.set-sidebar-icon-container {
+	width: 100%;
+	padding: 0.5rem 0;
+
+	&[selected="true"] {
+		background: hsla(0deg, 0%, 50%, 32%);
+	}
+}
+
 .set-sidebar-icon {
 	width: 2.8rem;
 	height: 2.8rem;
-	margin: 0.5rem auto;
 	border-radius: 0.5rem;
 	overflow: clip;
+	margin: auto;
 	cursor: pointer;
-
-	&[selected="true"] {
-		background: hsla(0deg, 0%, 100%, 16%);
-	}
 }
 
 .logo {

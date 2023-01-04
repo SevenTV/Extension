@@ -33,7 +33,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { onClickOutside } from "@vueuse/core";
-import Logo from "@/common/Logo.vue";
 import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineFunctionHook,
@@ -42,9 +41,10 @@ import {
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
-import { determineRatio } from "./EmoteMenuBackend";
-import EmoteMenuTab from "./EmoteMenuTab.vue";
-import { useChatAPI } from "../../ChatAPI";
+import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
+import EmoteMenuTab from "@/site/twitch.tv/modules/emote-menu/EmoteMenuTab.vue";
+import Logo from "@/assets/svg/Logo.vue";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;
@@ -225,16 +225,19 @@ onUnmounted(() => {
 
 .emote-menu {
 	width: 32rem;
-	border-radius: 0.6rem !important;
-	background-color: var(--color-background-float);
-	box-shadow: var(--color-hinted-grey-3);
+	border-top-left-radius: 0.6rem;
+	border-top-right-radius: 0.6rem;
+	background-color: var(--seventv-background-transparent-1);
+	backdrop-filter: blur(16px);
+	overflow: clip;
+	outline: 1px solid var(--seventv-border-transparent-1);
 }
 
 .header {
 	display: flex;
 	height: 4.5rem;
-	background: rgba(217, 217, 217, 3%);
-	box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+	background: hsla(0deg, 0%, 50%, 6%);
+	border-bottom: 1px solid var(--seventv-border-transparent-1);
 	border-radius: 0.6rem 0.6rem 0 0;
 	justify-content: space-evenly;
 	padding: 0.75rem;
@@ -246,10 +249,17 @@ onUnmounted(() => {
 	display: flex;
 	user-select: none;
 	justify-content: center;
+	background: hsla(0deg, 0%, 50%, 6%);
+	color: var(--seventv-text-color-secondary);
+	border-radius: 0.2rem;
+
+	&:hover {
+		background: #80808029;
+	}
 
 	&[selected="true"] {
-		background: hsla(0deg, 0%, 100%, 16%);
-		border-radius: 0.2rem;
+		background: var(--seventv-highlight-neutral-1);
+		color: var(--seventv-text-color-normal);
 	}
 }
 
