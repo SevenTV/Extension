@@ -20,7 +20,8 @@
 </template>
 
 <script setup lang="ts">
-import { Component, markRaw, onMounted, ref } from "vue";
+import type { Component } from "vue";
+import { markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
 import { tooltip } from "@/composable/useTooltip";
 import { useWorker } from "@/composable/useWorker";

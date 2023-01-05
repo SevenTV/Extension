@@ -34,9 +34,19 @@ export default defineConfig(({ mode }) => {
 	const isDev = mode === "dev";
 	process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
+	if (isDev) {
+		process.env.SITE_SCRIPT_URL = "http://localhost:4777/src/site/site.ts";
+	}
+
 	return {
 		server: {
 			port: 4777,
+			strictPort: true,
+			https: false,
+			hmr: {
+				port: 4778,
+				protocol: "ws",
+			},
 		},
 		mode: "module",
 		base: isDev ? "http://localhost:4777/" : undefined,

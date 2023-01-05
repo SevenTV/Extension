@@ -2,7 +2,7 @@
 const inject = () => {
 	// Script
 	const script = document.createElement("script");
-	script.src = chrome.runtime.getURL("site.js");
+	script.src = import.meta.env.DEV ? import.meta.env.BASE_URL + "src/site/site.ts" : chrome.runtime.getURL("site.js");
 	script.id = "seventv";
 	script.type = "module";
 	script.setAttribute("worker_url", chrome.runtime.getURL("worker.js"));
