@@ -29,6 +29,8 @@ const chunks = {
 	tw_mod_settings: ["./src/site/twitch.tv/modules/settings/SettingsModule.vue"],
 };
 
+const ignoreHMR = ["App.vue", "TwitchSite.vue", "ChatModule.vue", "ChatInputModule.vue"];
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const isDev = mode === "dev";
@@ -86,6 +88,19 @@ export default defineConfig(({ mode }) => {
 
 		plugins: [
 			vue(),
+
+			{
+				name: "hmr-ignore",
+				handleHotUpdate(this, ctx) {
+					const base = path.basename(ctx.file);
+					// Ignore specific files in HMR
+					if (ignoreHMR.includes(base)) {
+						return [];
+					}
+
+					return null;
+				},
+			},
 
 			{
 				name: "compile-manifest",
