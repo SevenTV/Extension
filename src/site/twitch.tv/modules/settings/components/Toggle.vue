@@ -24,6 +24,8 @@ const setting = useConfig<boolean>(props.node.key);
 </script>
 
 <style scoped lang="scss">
+@import "@/assets/style/shape.scss";
+
 .toggle-outer {
 	display: flex;
 	flex-wrap: nowrap;
@@ -54,7 +56,7 @@ const setting = useConfig<boolean>(props.node.key);
 	position: absolute;
 	right: 0;
 	top: 0;
-	transition: 0.4s;
+	transition: 0.25s;
 }
 
 .slider:before {
@@ -64,7 +66,7 @@ const setting = useConfig<boolean>(props.node.key);
 	height: 1.4rem;
 	left: 0.3rem;
 	position: absolute;
-	transition: 0.4s;
+	transition: 0.25s;
 	width: 1.4rem;
 }
 
@@ -77,10 +79,10 @@ input:checked + .slider:before {
 }
 
 .slider.round {
-	border-radius: 2rem;
+	clip-path: create-bevel(0.33rem);
 }
 
 .slider.round:before {
-	border-radius: 50%;
+	clip-path: create-bevel(0.5rem);
 }
 </style>

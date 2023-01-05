@@ -5,7 +5,7 @@ import { db } from "@/db/idb";
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode<SevenTV.SettingType>>);
 
-function toSettingRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
+function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
 	return customRef<T>((track, trigger) => {
 		return {
 			get() {
@@ -39,8 +39,9 @@ db.ready().then(() =>
 );
 
 export function useConfig<T extends SevenTV.SettingType>(key: string) {
-	return toSettingRef<T>(key);
+	return toConfigRef<T>(key);
 }
+
 export function useSettings() {
 	function getNodes() {
 		return nodes;

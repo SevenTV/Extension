@@ -13,6 +13,16 @@ import ChatController from "./ChatController.vue";
 const { dependenciesMet, markAsReady } = useModule("chat", {
 	name: "Chat",
 	depends_on: [],
+	config: [
+		{
+			key: "general.blur_unlisted_emotes",
+			label: "Unlisted Emotes",
+			hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
+			type: "TOGGLE",
+			options: ["Show", "Blur"],
+			defaultValue: false,
+		},
+	],
 });
 
 const chatList = useComponentHook<Twitch.ChatListComponent>(

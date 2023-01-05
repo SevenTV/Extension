@@ -1,0 +1,16 @@
+@function create-bevel($angle: 0.5em) {
+	@return polygon(
+		$angle 0%,
+		calc(100% - $angle) 0%,
+		100% $angle,
+		100% calc(100% - $angle),
+		calc(100% - $angle) 100%,
+		$angle 100%,
+		0% calc(100% - $angle),
+		0% $angle
+	);
+}
+
+@function create-diamond($angle: 0.5em) {
+	@return polygon($angle 0%, calc(100% - $angle) $angle, $angle calc(100% - $angle), 0% $angle);
+}

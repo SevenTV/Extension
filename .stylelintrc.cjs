@@ -25,6 +25,7 @@ module.exports = {
 		"value-keyword-case": null,
 		"function-no-unknown": null,
 		"annotation-no-unknown": null,
+		"import-notation": null,
 	},
 	ignoreFiles: ["locale/*.ts"],
 };
