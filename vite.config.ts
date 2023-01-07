@@ -29,7 +29,14 @@ const chunks = {
 	tw_mod_settings: ["./src/site/twitch.tv/modules/settings/SettingsModule.vue"],
 };
 
-const ignoreHMR = ["App.vue", "TwitchSite.vue", "ChatModule.vue", "ChatInputModule.vue"];
+const ignoreHMR = [
+	"App.vue",
+	"TwitchSite.vue",
+	"ChatModule.vue",
+	"ChatInputModule.vue",
+	"EmoteMenuModule.vue",
+	"SettingsModule.vue",
+];
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -95,6 +102,8 @@ export default defineConfig(({ mode }) => {
 					const base = path.basename(ctx.file);
 					// Ignore specific files in HMR
 					if (ignoreHMR.includes(base)) {
+						ctx.server.ws.send("full-reload");
+
 						return [];
 					}
 

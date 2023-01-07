@@ -28,6 +28,11 @@ import { useWorker } from "@/composable/useWorker";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
 import { db } from "@/db/idb";
 
+import.meta.hot?.on("full-reload", () => {
+	log.info("Full reload triggered by vite server");
+	window.location.reload();
+});
+
 const wg = ref(2);
 
 log.info("7TV is loading");
