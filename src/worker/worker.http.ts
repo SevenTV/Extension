@@ -131,7 +131,12 @@ export const seventv = {
 		const data = (await resp.json()) as SevenTV.UserConnection;
 
 		const set = structuredClone(data.emote_set) as SevenTV.EmoteSet;
-		set.emotes = set.emotes ?? [];
+		set.emotes =
+			set.emotes.map((ae) => {
+				ae.provider = "7TV";
+
+				return ae;
+			}) ?? [];
 		set.provider = "7TV";
 		set.priority = ProviderPriority.SEVENTV;
 
@@ -148,7 +153,12 @@ export const seventv = {
 
 		const set = (await resp.json()) as SevenTV.EmoteSet;
 
-		set.emotes = set.emotes ?? [];
+		set.emotes =
+			set.emotes.map((ae) => {
+				ae.provider = "7TV";
+
+				return ae;
+			}) ?? [];
 		set.provider = "7TV/G" as SevenTV.Provider;
 
 		db.emoteSets.put(set).catch(() => db.emoteSets.where({ id: set.id, provider: "7TV" }).modify(set));

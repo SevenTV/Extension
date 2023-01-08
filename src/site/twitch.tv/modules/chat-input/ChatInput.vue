@@ -1,6 +1,8 @@
+<!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useStore } from "@/store/main";
+import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
 import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineFunctionHook,
@@ -310,7 +312,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 			current: str,
 			element: [
 				{
-					$typeof: Symbol.for("react.element"),
+					[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
 					ref: null,
 					key: `emote-img-${emote.id}`,
 					type: "img",
@@ -322,12 +324,12 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 					},
 				},
 				{
-					$typeof: Symbol.for("react.element"),
+					[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
 					ref: null,
 					key: `emote-text-${emote.id}`,
 					type: "span",
 					props: {
-						children: `${emote.name}`,
+						children: `${emote.name} (${emote.provider})`,
 					},
 				},
 			],

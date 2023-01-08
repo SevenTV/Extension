@@ -57,7 +57,6 @@ export default defineConfig(({ mode }) => {
 				protocol: "ws",
 			},
 		},
-		mode: "module",
 		base: isDev ? "http://localhost:4777/" : undefined,
 		resolve: {
 			alias: {

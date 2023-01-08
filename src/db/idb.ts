@@ -16,6 +16,7 @@ export class Dexie7 extends Dexie {
 
 	constructor() {
 		const dbName = ["seventv"];
+
 		if (import.meta.env.MODE && import.meta.env.MODE !== "production") {
 			dbName.push(import.meta.env.MODE);
 		}
