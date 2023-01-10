@@ -4,11 +4,12 @@ import { useConfig } from "@/composable/useSettings";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
 
 const scrollduration = useConfig<number>("chat.smooth_scroll_duration");
+const lineLimit = useConfig<number>("chat.line_limit");
 
 const data = reactive({
 	// Message Data
-	messages: [] as Twitch.ChatMessage[],
-	messageBuffer: [] as Twitch.ChatMessage[],
+	messages: [] as Twitch.DisplayableMessage[],
+	messageBuffer: [] as Twitch.DisplayableMessage[],
 	chatters: {} as Record<string, object>,
 
 	// Emote Data
@@ -21,18 +22,22 @@ const data = reactive({
 	// User State Data
 	isModerator: false,
 	isVIP: false,
+	isDarkTheme: 1,
+	primaryColorHex: "#000000",
+	useHighContrastColors: true,
+	showTimestamps: false,
 	currentChannel: {} as CurrentChannel,
 
 	// Scroll Data
 	userInput: 0,
-	lineLimit: 150,
+	lineLimit: lineLimit,
 	init: false,
 	sys: true,
 	visible: true,
 	paused: false, // whether or not scrolling is paused
 	duration: scrollduration,
 
-	scrollBuffer: [] as Twitch.ChatMessage[], // twitch chat message buffe when scrolling is paused
+	scrollBuffer: [] as Twitch.DisplayableMessage[], // twitch chat message buffe when scrolling is paused
 	scrollClear: () => {
 		return;
 	},
@@ -61,10 +66,10 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		}
 	});
 
-	function addMessage(message: Twitch.ChatMessage): void {
+	function addMessage(message: Twitch.DisplayableMessage): void {
 		if (data.paused) {
 			// if scrolling is paused, buffer the message
-			data.scrollBuffer.push(message as Twitch.ChatMessage);
+			data.scrollBuffer.push(message as Twitch.DisplayableMessage);
 			if (data.scrollBuffer.length > data.lineLimit) data.scrollBuffer.shift();
 
 			return;
@@ -220,8 +225,12 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		duration,
 		isModerator,
 		isVIP,
+		isDarkTheme,
 		sendMessage,
 		currentChannel,
+		primaryColorHex,
+		useHighContrastColors,
+		showTimestamps,
 	} = toRefs(data);
 
 	return {
@@ -234,6 +243,10 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 
 		isModerator: isModerator,
 		isVIP: isVIP,
+		isDarkTheme: isDarkTheme,
+		primaryColorHex: primaryColorHex,
+		useHighContrastColors: useHighContrastColors,
+		showTimestamps: showTimestamps,
 		currentChannel: currentChannel,
 
 		scrollSys: sys,

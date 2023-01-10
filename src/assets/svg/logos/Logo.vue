@@ -3,10 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import Logo7TV from "@/assets/svg/Logo7TV.vue";
-import LogoBTTV from "@/assets/svg/LogoBTTV.vue";
-import LogoFFZ from "@/assets/svg/LogoFFZ.vue";
-import LogoTwitch from "@/assets/svg/LogoTwitch.vue";
+import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
+import LogoBTTV from "@/assets/svg/logos/LogoBTTV.vue";
+import LogoFFZ from "@/assets/svg/logos/LogoFFZ.vue";
+import LogoTwitch from "@/assets/svg/logos/LogoTwitch.vue";
 
 const props = withDefaults(
 	defineProps<{

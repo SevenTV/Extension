@@ -58,13 +58,30 @@ declare namespace SevenTV {
 		value: T;
 	}
 
-	interface SettingNode<T extends SettingType> {
+	interface SettingNode<T extends SettingType, K extends SettingNode.ComponentType = "CUSTOM"> {
 		key: string;
 		label: string;
 		hint?: string;
 		type: SettingNode.ComponentType;
 		component?: Raw<object>;
-		options?: SettingType[];
+		options?: {
+			SELECT: [string, T][];
+			DROPDOWN: [string, T][];
+			CHECKBOX: never;
+			INPUT: string;
+			TOGGLE: {
+				left: string;
+				right: string;
+			};
+			SLIDER: {
+				min: number;
+				max: number;
+				step: number;
+				unit: string;
+			};
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			CUSTOM: any;
+		}[K];
 		predicate?: (p: T) => boolean;
 
 		value?: T;

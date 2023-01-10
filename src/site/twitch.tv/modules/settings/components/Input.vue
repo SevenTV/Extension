@@ -1,12 +1,6 @@
 <template>
 	<div class="inputbox">
-		<input
-			:id="node.key"
-			v-model="setting"
-			type="inputbox"
-			:valid="isValid"
-			:placeholder="(node.options?.at(0) as string | undefined)"
-		/>
+		<input :id="node.key" v-model="setting" type="inputbox" :valid="isValid" :placeholder="node.options" />
 	</div>
 </template>
 
@@ -15,7 +9,7 @@ import { computed } from "vue";
 import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
-	node: SevenTV.SettingNode<string>;
+	node: SevenTV.SettingNode<string, "INPUT">;
 }>();
 
 const setting = useConfig<string>(props.node.key);

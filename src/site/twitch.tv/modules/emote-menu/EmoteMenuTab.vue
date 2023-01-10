@@ -21,7 +21,7 @@
 							:emote-id="emote.id"
 							@click="emit('emoteClick', emote)"
 						>
-							<ChatEmote :emote="emote" :image-format="imageFormat" :unload="!loaded[emote.id]" />
+							<Emote :emote="emote" :image-format="imageFormat" :unload="!loaded[emote.id]" />
 						</div>
 					</div>
 				</div>
@@ -52,10 +52,10 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, reactive, ref } from "vue";
-import ChatEmote from "@/site/twitch.tv/modules/chat/components/ChatEmote.vue";
 import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
-import Logo from "@/assets/svg/Logo.vue";
+import Logo from "@/assets/svg/logos/Logo.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
+import Emote from "../chat/components/message/Emote.vue";
 
 defineProps<{
 	emoteSets: SevenTV.EmoteSet[];

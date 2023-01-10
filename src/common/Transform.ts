@@ -57,6 +57,39 @@ export function convertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.E
 	};
 }
 
+export function convertCheerEmote(data: Twitch.ChatMessage.Part.EmoteContent): SevenTV.Emote {
+	return {
+		id: data.emoteID ?? "",
+		name: `${data.alt} ${data.cheerAmount}`,
+		flags: 0,
+		tags: [],
+		lifecycle: 3,
+		listed: true,
+		owner: null,
+		host: {
+			url: data.images?.dark["1x"].split("/").slice(0, -1).join("/") ?? "",
+			files: [
+				{
+					name: "1.gif",
+					format: "GIF",
+				},
+				{
+					name: "2.gif",
+					format: "GIF",
+				},
+				{
+					name: "3.gif",
+					format: "GIF",
+				},
+				{
+					name: "4.gif",
+					format: "GIF",
+				},
+			],
+		},
+	};
+}
+
 export function convertBttvEmoteSet(data: BTTV.UserResponse, channelID: string): SevenTV.EmoteSet {
 	const channelEmotes = data.channelEmotes ?? [];
 	const sharedEmotes = data.sharedEmotes ?? [];

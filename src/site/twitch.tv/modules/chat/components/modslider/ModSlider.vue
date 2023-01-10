@@ -1,6 +1,6 @@
 <template>
 	<div
-		v-if="shouldModerate(props.msg)"
+		v-if="canModerate"
 		class="seventv-ban-slider"
 		:style="{
 			transform: 'translateX(' + data.pos + ')',
@@ -15,13 +15,15 @@
 		</div>
 		<div class="grabbable-wrapper">
 			<div class="grabbable-outer" @pointerdown="handleDown" @pointerup="handleRelease" @pointermove="update">
-				<div class="grabbable-inner">
+				<div class="grabbable-inner" :highlighted="hasHighlight">
 					<div class="dots" />
 				</div>
 			</div>
 		</div>
 		<!-- The wrapped object-->
-		<slot />
+		<div class="wrapped">
+			<slot />
+		</div>
 		<div class="unban-background" :style="{ width: 'calc(-1 *' + data.pos + ')' }">
 			<span class="text" :style="{ opacity: data.unbanVis }"> Unban </span>
 		</div>
@@ -30,14 +32,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import { MessageType } from "@/site/twitch.tv";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
-import { maxVal, sliderData } from "./BanSliderBackend";
+import { maxVal, sliderData } from "./ModSliderBackend";
 
 const props = defineProps<{
-	msg: Twitch.ChatMessage;
+	msg: Twitch.DisplayableMessage;
 }>();
-const chatAPI = useChatAPI();
+
+const { isModerator, sendMessage } = useChatAPI();
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -45,19 +49,24 @@ const tracking = ref(false);
 const data = ref(new sliderData(0));
 let initial = 0;
 
-function shouldModerate(msg: Twitch.ChatMessage) {
+const canModerate = computed(() => {
+	const badges = props.msg.badges ?? props.msg.message?.badges;
 	return (
-		(chatAPI.isModerator.value &&
-			msg.badges &&
-			!("moderator" in msg.badges) &&
-			!("broadcaster" in msg.badges) &&
-			!("staff" in msg.badges)) ??
+		(isModerator.value &&
+			badges &&
+			!("moderator" in badges) &&
+			!("broadcaster" in badges) &&
+			!("staff" in badges)) ??
 		false
 	);
-}
+});
+
+const hasHighlight = computed(() => {
+	return props.msg.type == MessageType.SUBSCRIPTION || props.msg.type == MessageType.RESUBSCRIPTION;
+});
 
 function executeModAction(message: string, name: string, id: string) {
-	chatAPI.sendMessage.value(message.replace("{user}", name).replace("{id}", id));
+	sendMessage.value(message.replace("{user}", name).replace("{id}", id));
 }
 
 const handleDown = (e: PointerEvent) => {
@@ -96,10 +105,14 @@ const update = (e: PointerEvent): void => {
 	transition: transform 0.3s ease;
 }
 
+.wrapped > :first-child {
+	border-left-color: transparent;
+}
+
 %background {
 	position: absolute;
 	top: 0;
-	box-shadow: inset 0.1em 0.1em 0.4em black;
+	box-shadow: inset 0.1em 0.1em 0.4em hsla(0deg, 0%, 0%, 70%);
 	display: flex;
 	align-items: center;
 	overflow: hidden;
@@ -137,7 +150,6 @@ const update = (e: PointerEvent): void => {
 		width: 2rem;
 		pointer-events: all;
 		cursor: grab;
-
 		.grabbable-inner {
 			height: 100%;
 			border: 0.1rem outset var(--color-border-input);
@@ -145,7 +157,11 @@ const update = (e: PointerEvent): void => {
 			display: inline-flex;
 			align-items: center;
 			border-left: none;
-			box-shadow: 0 0 0.4rem black;
+			box-shadow: 0 0 0.4rem hsla(0deg, 0%, 0%, 50%);
+
+			&[highlighted="true"] {
+				background-color: var(--seventv-primary-color);
+			}
 			.dots {
 				background-image: radial-gradient(circle, var(--color-border-input) 0.1rem, transparent 0.2rem);
 				background-size: 100% 33.33%;

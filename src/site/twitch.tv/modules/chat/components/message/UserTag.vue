@@ -2,20 +2,14 @@
 	<span v-if="user && user.userDisplayName" class="seventv-chat-user" :style="{ color: color }">
 		<!--Badge List -->
 		<span v-if="twitchBadges.length || badges.length" class="seventv-chat-user-badge-list">
-			<ChatBadge
+			<Badge
 				v-for="(badge, index) of twitchBadges"
 				:key="index"
 				:badge="badge"
 				:alt="badge.title"
 				type="twitch"
 			/>
-			<ChatBadge
-				v-for="(badge, index) of badges"
-				:key="index"
-				:badge="badge"
-				:alt="badge.data.tooltip"
-				type="app"
-			/>
+			<Badge v-for="(badge, index) of badges" :key="index" :badge="badge" :alt="badge.data.tooltip" type="app" />
 		</span>
 
 		<!-- Message Author -->
@@ -38,13 +32,12 @@
 import { computed, ref } from "vue";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
-import { normalizeUsername } from "@/site/twitch.tv/modules/chat/ChatBackend";
-import ChatBadge from "@/site/twitch.tv/modules/chat/components/ChatBadge.vue";
+import Badge from "./Badge.vue";
 import UiPaint from "@/ui/UiPaint.vue";
 
 const props = defineProps<{
 	user: Twitch.ChatUser;
-
+	color: string;
 	badges?: Record<string, string>;
 }>();
 
@@ -52,12 +45,7 @@ const { twitchBadgeSets } = useChatAPI();
 const { badges, paints } = useCosmetics(props.user.userID);
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
-const color = ref(props.user.color);
 const paint = computed(() => (paints.value && paints.value.length ? paints.value[0] : null));
-
-// Get these from twitch settings
-const readableColors = true;
-color.value = normalizeUsername(color.value, readableColors);
 
 if (props.badges && twitchBadgeSets.value) {
 	for (const [key, value] of Object.entries(props.badges)) {

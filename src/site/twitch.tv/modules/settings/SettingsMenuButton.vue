@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import Logo7TV from "@/assets/svg/Logo7TV.vue";
+import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 
 const emit = defineEmits<{
 	(event: "toggle"): void;
@@ -40,8 +40,8 @@ if (menuButtons) {
 		background-color: var(--color-text-base);
 		color: var(--color-text-tooltip);
 		text-align: center;
-		padding: 2px 0;
-		border-radius: 4px;
+		padding: 0.2rem 0;
+		border-radius: 0.4rem;
 		font-weight: 600;
 
 		position: absolute;
@@ -58,8 +58,11 @@ if (menuButtons) {
 			content: "";
 			position: absolute;
 			left: 50%;
-			margin-left: -5px;
-			border-width: 5px;
+			margin: -0.4rem -0.5rem -0.5rem -0.4rem;
+			border-width: 0.4rem;
+			transform: rotate(45deg);
+			border-radius: 0.2rem;
+			border-color: var(--color-text-base);
 			border-style: solid;
 			pointer-events: none;
 		}
@@ -71,7 +74,6 @@ if (menuButtons) {
 
 		&:after {
 			bottom: 100%;
-			border-color: transparent transparent var(--color-text-base) transparent;
 		}
 	}
 
@@ -81,7 +83,6 @@ if (menuButtons) {
 
 		&:after {
 			top: 100%;
-			border-color: var(--color-text-base) transparent transparent transparent;
 		}
 	}
 

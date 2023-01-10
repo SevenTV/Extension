@@ -44,7 +44,7 @@ import {
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
 import EmoteMenuTab from "@/site/twitch.tv/modules/emote-menu/EmoteMenuTab.vue";
-import Logo from "@/assets/svg/Logo.vue";
+import Logo from "@/assets/svg/logos/Logo.vue";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;

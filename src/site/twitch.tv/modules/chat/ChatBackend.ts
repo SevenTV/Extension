@@ -1,4 +1,4 @@
-import { getChatController, getEmoteButton } from "@/site/twitch.tv";
+import { getEmoteButton } from "@/site/twitch.tv";
 import { darken, hasBadContrast, parseToRgba } from "color2k";
 
 export const tools = {
@@ -58,39 +58,33 @@ export const sendDummyMessage = (controller: Twitch.ChatControllerComponent) => 
 	});
 };
 
-// Temporary solution
-const darkTheme = getChatController()?.props.theme === 1;
+const calculated = { 0: {}, 1: {} } as Record<0 | 1, Record<string, string>>;
 
-const calculated = new Map<boolean, Map<string, string>>();
-calculated.set(true, new Map<string, string>());
-calculated.set(false, new Map<string, string>());
+export function normalizeUsername(color: string, theme: 0 | 1): string {
+	let temp = color.toLowerCase();
+	const backgroundColor = theme ? "#0f0e11" : "#faf9fa";
 
-export function normalizeUsername(colour: string, readableColors: boolean): string {
-	let temp = colour.toLowerCase();
-	const shouldShiftUp = readableColors === darkTheme;
-	const backgroundColor = shouldShiftUp ? "#0f0e11" : "#faf9fa";
-
-	if (!hasBadContrast(temp, "readable", backgroundColor)) return temp;
+	if (!hasBadContrast(temp, "aa", backgroundColor)) return temp;
 
 	// See if we have calculated the value
-	const stored = calculated.get(shouldShiftUp)?.get(colour);
+	const stored = calculated[theme][color];
 	if (stored) return stored;
 
 	const rgb = parseToRgba(temp).slice(0, 3);
 
-	if (shouldShiftUp && rgb.every((e) => e < 36)) {
-		calculated.get(shouldShiftUp)?.set(colour, "#7a7a7a");
+	if (theme && rgb.every((e) => e < 36)) {
+		calculated[theme][color] = "#7a7a7a";
 		return "#7a7a7a";
 	}
 
 	let i = 0;
 
-	while (hasBadContrast(temp, "readable", backgroundColor) && i < 50) {
-		temp = darken(temp, 0.1 * (shouldShiftUp ? -1 : 1));
+	while (hasBadContrast(temp, "aa", backgroundColor) && i < 50) {
+		temp = darken(temp, 0.1 * (theme ? -1 : 1));
 		i++;
 	}
 
-	calculated.get(shouldShiftUp)?.set(colour, temp);
+	calculated[theme][color] = temp;
 
 	return temp;
 }

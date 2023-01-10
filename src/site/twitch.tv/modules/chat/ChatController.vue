@@ -39,12 +39,13 @@ import UiScrollable from "@/ui/UiScrollable.vue";
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
 	controller: HookedInstance<Twitch.ChatControllerComponent>;
+	room: HookedInstance<Twitch.ChatRoomComponent>;
 }>();
 
 const store = useStore();
 const { channel } = storeToRefs(store);
 
-const { list, controller } = toRefs(props);
+const { list, controller, room } = toRefs(props);
 
 const el = document.createElement("seventv-container");
 el.id = "seventv-chat-controller";
@@ -65,7 +66,7 @@ watch(channel, (channel) => {
 });
 
 const chatAPI = useChatAPI(scroller, bounds);
-const { scrollBuffer, scrollPaused, messages, lineLimit, twitchBadgeSets, clear } = chatAPI;
+const { scrollBuffer, scrollPaused, messages, lineLimit, twitchBadgeSets, clear, primaryColorHex } = chatAPI;
 
 const dataSets = reactive({
 	badges: false,
@@ -103,11 +104,11 @@ watch(
 		if (handler !== old && old) {
 			unsetPropertyHook(old, "handleMessage");
 		} else if (handler) {
-			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.Message) {
+			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
 				const t = Date.now() + getRandomInt(0, 1000);
 				const msgData = Object.create({ seventv: true, t });
 				for (const k of Object.keys(msg)) {
-					msgData[k] = msg[k as keyof Twitch.Message];
+					msgData[k] = msg[k as keyof Twitch.AnyMessage];
 				}
 
 				const ok = onMessage(msgData);
@@ -148,6 +149,14 @@ const onTwitchEmotes = debounceFn((emoteSets: Twitch.TwitchEmoteSet[]) => {
 	chatAPI.emoteProviders.value.TWITCH = temp;
 }, 1000);
 
+definePropertyHook(room.value.component, "props", {
+	value(v: typeof room.value.component.props) {
+		chatAPI.primaryColorHex.value = "#" + v.primaryColorHex ?? "755ebc";
+		chatAPI.useHighContrastColors.value = v.useHighContrastColors;
+		chatAPI.showTimestamps.value = v.showTimestamps;
+	},
+});
+
 definePropertyHook(controller.value.component, "props", {
 	value(v: typeof controller.value.component.props) {
 		if (v.channelID) {
@@ -165,6 +174,7 @@ definePropertyHook(controller.value.component, "props", {
 		chatAPI.isModerator.value = v.isCurrentUserModerator;
 		chatAPI.isVIP.value = v.isCurrentUserVIP;
 		chatAPI.sendMessage.value = v.chatConnectionAPI.sendMessage;
+		chatAPI.isDarkTheme.value = v.theme;
 
 		// Parse twitch emote sets
 		const data = v.emoteSetsData;
@@ -196,7 +206,7 @@ watch(list.value.domNodes, (nodes) => {
 		chatAPI.addMessage({
 			id: nodeId + "-unhandled",
 			element: node,
-		} as Twitch.ChatMessage);
+		} as Twitch.DisplayableMessage);
 
 		nodeMap.set(nodeId, node);
 	}
@@ -206,17 +216,22 @@ watch(list.value.domNodes, (nodes) => {
 	}
 });
 
-// Push a message
-const msgTypes = [MessageType.MESSAGE, MessageType.MODERATION];
-const onMessage = (msg: Twitch.Message): boolean => {
+// Determine if the message should performe some action or be sendt to the chatAPI for rendering
+const onMessage = (msg: Twitch.AnyMessage): boolean => {
 	if (msg.id === "seventv-hook-message") {
 		return false;
 	}
-	if (!msgTypes.includes(msg.type)) return false;
 
 	switch (msg.type) {
 		case MessageType.MESSAGE:
-			onChatMessage(msg as Twitch.ChatMessage);
+		case MessageType.SUBSCRIPTION:
+		case MessageType.RESUBSCRIPTION:
+		case MessageType.SUBGIFT:
+		case MessageType.RAID:
+		case MessageType.SUBMYSTERYGIFT:
+		case MessageType.CHANNELPOINTSREWARD:
+		case MessageType.ANNOUNCEMENTMESSAGE:
+			onChatMessage(msg as Twitch.DisplayableMessage);
 			break;
 		case MessageType.MODERATION:
 			onModerationMessage(msg as Twitch.ModerationMessage);
@@ -227,20 +242,24 @@ const onMessage = (msg: Twitch.Message): boolean => {
 	return true;
 };
 
-function onChatMessage(msg: Twitch.ChatMessage) {
+function onChatMessage(msg: Twitch.DisplayableMessage) {
 	// Add message to store
 	// it will be rendered on the next tick
-	chatAPI.addMessage(msg as Twitch.ChatMessage);
+	chatAPI.addMessage(msg);
 }
 
 function onModerationMessage(msg: Twitch.ModerationMessage) {
 	if (msg.moderationType == ModerationType.DELETE) {
 		const found = messages.value.find((m) => m.id == msg.targetMessageID);
-		if (found) found.deleted = true;
+		if (found) {
+			if (found.deleted !== undefined) found.deleted = true;
+			if (found.message?.deleted !== undefined) found.message.deleted = true;
+		}
 	} else {
 		messages.value.forEach((m) => {
-			if (!m.seventv || m.user.userLogin != msg.userLogin) return;
-			m.banned = true;
+			if (!m.seventv || m.user?.userLogin != msg.userLogin) return;
+			if (m.banned !== undefined) m.banned = true;
+			if (m.message?.banned !== undefined) m.message.banned = true;
 		});
 	}
 }
@@ -263,6 +282,7 @@ onUnmounted(() => {
 	unsetPropertyHook(list.value.component.props, "messageHandlerAPI");
 	unsetPropertyHook(list.value.component, "props");
 	unsetPropertyHook(controller.value.component, "props");
+	unsetPropertyHook(room.value.component, "props");
 });
 </script>
 
@@ -282,6 +302,8 @@ seventv-container.seventv-chat-list {
 	.seventv-message-container {
 		padding: 1em 0;
 		line-height: 1.5em;
+
+		--seventv-primary-color: v-bind(primaryColorHex);
 	}
 
 	// Chat padding
@@ -330,9 +352,9 @@ seventv-container.seventv-chat-list {
 }
 
 .community-highlight {
-	opacity: 0.75;
+	background-color: var(--seventv-background-transparent-1) !important;
 	backdrop-filter: blur(1em);
-	transition: opacity 0.25s;
+	transition: background-color 0.25s;
 
 	&:hover {
 		opacity: 1;

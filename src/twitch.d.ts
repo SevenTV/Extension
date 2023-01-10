@@ -175,6 +175,12 @@ declare module Twitch {
 		messageHandlerAPI: MessageHandlerAPI;
 	}>;
 
+	export type ChatRoomComponent = ReactExtended.WritableComponent<{
+		primaryColorHex: string;
+		useHighContrastColors: boolean;
+		showTimestamps: boolean;
+	}>;
+
 	export interface MessageHandlerAPI {
 		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
 		removeMessageHandler: (event: (msg: ChatMessage) => void) => void;
@@ -508,44 +514,59 @@ declare module Twitch {
 		replies: [];
 	}
 
-	export interface Message {
+	export interface AnyMessage {
 		id: string;
 		type: number;
+
+		seventv?: boolean;
+		t?: number;
+		element?: HTMLElement;
 	}
 
-	export interface ChatMessage {
+	export interface DisplayableMessage extends AnyMessage {
+		user: ChatUser;
+		message?: ChatMessage;
+		messageParts?: ChatMessage.Part[];
+		badges?: Record<string, string>;
+		deleted?: boolean;
+		banned?: boolean;
+	}
+
+	export interface ChatMessage extends AnyMessage {
+		user: ChatUser;
 		badgeDynamicData: {};
 		badges: Record<string, string>;
 		banned: boolean;
 		bits: number;
 		deleted: boolean;
 		hidden: boolean;
-		id: string;
 		isHistorical: unknown;
 		message: string | ChatMessage;
 		messageBody: string;
 		messageParts: ChatMessage.Part[];
 		messageType: number;
-		type: number;
-		reply: unknown;
-		user: ChatUser;
-		state?: {
-			broadcasterLanguage: string | null;
-			emoteOnly: boolean;
-			followersOnly: boolean;
-			followersOnlyRequirement: number;
-			r9k: boolean;
-			mercury: boolean;
-			slowMode: boolean;
-			slowModeDuration: number;
-			subsOnly: boolean;
-		};
 		emotes?: any;
-
-		seventv?: boolean;
-		t?: number;
-		element?: HTMLElement;
+		timestamp: number;
 	}
+
+	export interface SubMessage extends AnyMessage {
+		user: ChatUser;
+		channel: string;
+		methods?: {
+			plan: string;
+			planName: string;
+			prime: boolean;
+		};
+		message?: ChatMessage;
+		months?: number;
+		cumulativeMonths?: number;
+		shouldShareStreakTenure: boolean;
+		wasGift: boolean;
+		recipientDisplayName?: string;
+		giftMonths?: number;
+		streakMonths?: number;
+	}
+
 	export namespace ChatMessage {
 		export interface Part {
 			content: string | EmoteRef | LinkContent | { [key: string]: any };
@@ -587,21 +608,58 @@ declare module Twitch {
 			content?: string | { [key: string]: any };
 		}
 	}
-	export interface ModerationMessage {
+
+	export interface ModerationMessage extends AnyMessage {
 		duration: number;
-		id: string;
 		moderationType: number;
 		reason: string;
-		type: number;
 		userLogin: string;
 		targetMessageID?: string;
+	}
+
+	export interface ChannelPointsRewardMessage extends AnyMessage {
+		displayName: string;
+		login: string;
+		message: ChatMessage;
+		reward: {
+			cost: number;
+			isHighlighted: boolean;
+			name: string;
+		};
+		userID: string;
+	}
+
+	export interface MassGiftMessage extends AnyMessage {
+		user: ChatUser;
+		channel: string;
+		massGiftCount: number;
+		plan: string;
+		senderCount: number;
+	}
+
+	export interface RaidMessage extends AnyMessage {
+		channel: string;
+		userLogin: string;
+		params: {
+			displayName: string;
+			login: string;
+			msgId: string;
+			userID: string;
+			viewerCount: string;
+		};
+	}
+
+	export interface AnnouncementMessage extends AnyMessage {
+		color: "PRIMARY" | "BLUE" | "GREEN" | "ORANGE" | "PURPLE";
+		message: ChatMessage;
 	}
 
 	export interface ChatUser {
 		color: string;
 		isIntl: boolean;
 		isSubscriber: boolean;
-		userDisplayName: string;
+		userDisplayName?: string;
+		displayName?: string;
 		userID: string;
 		userLogin: string;
 		userType: string;

@@ -1,14 +1,14 @@
 <template>
 	<div class="toggle-outer">
-		<span v-if="node.options?.at(0)" class="slider-option">
-			{{ node.options.at(0) }}
+		<span v-if="node.options?.left" class="slider-option">
+			{{ node.options.left }}
 		</span>
 		<label class="switch" :for="node.key">
 			<input :id="node.key" v-model="setting" type="checkbox" />
 			<div class="slider round"></div>
 		</label>
-		<span v-if="node.options?.at(1)" class="slider-option">
-			{{ node.options.at(1) }}
+		<span v-if="node.options?.right" class="slider-option">
+			{{ node.options.right }}
 		</span>
 	</div>
 </template>
@@ -17,7 +17,7 @@
 import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
-	node: SevenTV.SettingNode<boolean>;
+	node: SevenTV.SettingNode<boolean, "TOGGLE">;
 }>();
 
 const setting = useConfig<boolean>(props.node.key);
@@ -30,6 +30,7 @@ const setting = useConfig<boolean>(props.node.key);
 	display: flex;
 	flex-wrap: nowrap;
 	align-items: center;
+	gap: 1rem;
 }
 .slider-option {
 	font-size: 1.4rem;
@@ -37,7 +38,6 @@ const setting = useConfig<boolean>(props.node.key);
 	vertical-align: center;
 }
 .switch {
-	margin: 0 1rem;
 	display: inline-block;
 	height: 2rem;
 	position: relative;

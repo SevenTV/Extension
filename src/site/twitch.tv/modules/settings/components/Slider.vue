@@ -4,12 +4,13 @@
 			:id="node.key"
 			v-model="setting"
 			type="range"
-			:min="(node.options?.at(0) as number)"
-			:max="(node.options?.at(1) as number)"
+			:min="node.options?.min"
+			:max="node.options?.max"
+			:step="node.options?.step"
 			class="slider"
 		/>
 		{{ setting }}
-		{{ node.options?.at(2) }}
+		{{ node.options?.unit }}
 	</div>
 </template>
 
@@ -17,7 +18,7 @@
 import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
-	node: SevenTV.SettingNode<number>;
+	node: SevenTV.SettingNode<number, "SLIDER">;
 }>();
 
 const setting = useConfig<number>(props.node.key);

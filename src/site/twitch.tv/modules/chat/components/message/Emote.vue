@@ -27,7 +27,7 @@ import { computed, ref } from "vue";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
 import { tools } from "@/site/twitch.tv/modules/chat/ChatBackend";
-import ChatEmoteTooltip from "@/site/twitch.tv/modules/chat/components/ChatEmoteTooltip.vue";
+import EmoteTooltip from "@/site/twitch.tv/modules/chat/components/message/EmoteTooltip.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -52,7 +52,7 @@ function getSrcSet(emote: SevenTV.ActiveEmote) {
 
 const imgRef = ref<HTMLElement>();
 
-const { show, hide } = useTooltip(ChatEmoteTooltip, {
+const { show, hide } = useTooltip(EmoteTooltip, {
 	emote: props.emote,
 });
 

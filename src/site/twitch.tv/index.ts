@@ -115,7 +115,7 @@ export namespace Selectors {
 	export const ChatMessageTimestamp = ".chat-line__timestamp";
 }
 
-export const enum MessageType {
+export enum MessageType {
 	MESSAGE = 0,
 	EXTENSIONMESSAGE,
 	MODERATION,

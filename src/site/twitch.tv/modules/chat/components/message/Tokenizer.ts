@@ -1,4 +1,4 @@
-import { convertTwitchEmote } from "@/common/Transform";
+import { convertCheerEmote, convertTwitchEmote } from "@/common/Transform";
 import { MessagePartType, Regex } from "@/site/twitch.tv";
 
 export class Tokenizer {
@@ -94,16 +94,30 @@ function linkToSevenTVLink(content: Twitch.ChatMessage.Part.LinkContent, emoteID
 }
 
 function twitchEmoteToPart(emote: Twitch.ChatMessage.Part.EmoteContent): Twitch.ChatMessage.Part {
-	return {
-		type: MessagePartType.SEVENTVEMOTE,
-		content: {
-			id: emote.emoteID,
-			name: emote.alt,
-			flags: 0,
-			data: convertTwitchEmote({ id: emote.emoteID, token: emote.alt }),
-			provider: "TWITCH",
-		} as SevenTV.ActiveEmote,
-	};
+	if (emote.cheerAmount !== undefined)
+		return {
+			type: MessagePartType.SEVENTVEMOTE,
+			content: {
+				id: emote.emoteID,
+				name: `${emote.alt} ${emote.cheerAmount}`,
+				flags: 0,
+				data: convertCheerEmote(emote),
+				provider: "TWITCH",
+				cheerAmount: emote.cheerAmount,
+				cheerColor: emote.cheerColor,
+			} as SevenTV.ActiveEmote,
+		};
+	else
+		return {
+			type: MessagePartType.SEVENTVEMOTE,
+			content: {
+				id: emote.emoteID,
+				name: emote.alt,
+				flags: 0,
+				data: convertTwitchEmote({ id: emote.emoteID, token: emote.alt }),
+				provider: "TWITCH",
+			} as SevenTV.ActiveEmote,
+		};
 }
 
 function sevenTVEmoteToPart(emote: SevenTV.ActiveEmote, zeroWidth?: SevenTV.ActiveEmote): Twitch.ChatMessage.Part {
