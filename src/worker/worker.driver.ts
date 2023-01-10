@@ -15,6 +15,9 @@ export class WorkerDriver extends EventTarget {
 	log: Logger;
 
 	ports = new Map<symbol, WorkerPort>();
+	portSeq = 0;
+
+	cache: Cache | null = null;
 
 	constructor(public w: SharedWorkerGlobalScope) {
 		super();
@@ -40,11 +43,12 @@ export class WorkerDriver extends EventTarget {
 		this.eventAPI.connect("WebSocket");
 
 		db.ready().then(async () => {
-			// Fetch global emotes
+			// Fetch global emotes & cosmetics
 			const sets = [] as SevenTV.EmoteSet[];
 			let emoteCount = 0;
 
-			await Promise.allSettled<SevenTV.EmoteSet>([
+			Promise.allSettled<SevenTV.EmoteSet>([
+				// Global Emotes
 				this.http.API().seventv.loadGlobalSet(),
 				this.http.API().frankerfacez.loadGlobalEmoteSet(),
 				this.http.API().betterttv.loadGlobalEmoteSet(),
@@ -64,15 +68,6 @@ export class WorkerDriver extends EventTarget {
 					);
 				})
 				.catch((e) => log.error("<API>", "Failed to fetch global emotes:", e));
-
-			// Do DB cleanup for unused data
-			setTimeout(() => {
-				const exemptions = Array.from(this.ports.values())
-					.filter((p) => p.channel)
-					.map((p) => p.channel!.id);
-
-				db.expireDocuments(exemptions);
-			}, getRandomInt(2500, 15000));
 		});
 
 		// Track new connections
@@ -81,8 +76,19 @@ export class WorkerDriver extends EventTarget {
 			if (port) {
 				const p = new WorkerPort(this, port);
 				this.ports.set(p.id, p);
+
+				// Do DB cleanup for unused data
+				setTimeout(() => {
+					const exemptions = Array.from(this.ports.values())
+						.filter((p) => p.channel)
+						.map((p) => p.channel!.id);
+
+					db.expireDocuments(exemptions);
+				}, getRandomInt(2500, 15000));
 			}
 		};
+
+		w.caches.open("SEVENTV#CACHE").then((c) => (this.cache = c));
 
 		this.log.info("Worker has spawned. Logs will be piped to the UI thread");
 	}

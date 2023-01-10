@@ -55,7 +55,7 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): 
 	if (twitchSets) {
 		for (const set of twitchSets) {
 			for (const emote of set.emotes) {
-				if (!usedTokens.has(emote.token) && emote.token.toLowerCase().startsWith(prefix)) {
+				if (!usedTokens.has(emote.token) && emote.token.toLowerCase().includes(prefix)) {
 					usedTokens.add(emote.token);
 					matches.push({
 						token: emote.token,
@@ -67,7 +67,7 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): 
 	}
 
 	for (const [token] of Object.entries(emoteMap.value)) {
-		if (!usedTokens.has(token) && token.toLowerCase().startsWith(prefix)) {
+		if (!usedTokens.has(token) && token.toLowerCase().includes(prefix)) {
 			usedTokens.add(token);
 			matches.push({
 				token,

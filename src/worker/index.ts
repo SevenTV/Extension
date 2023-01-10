@@ -15,6 +15,9 @@ export enum workerMessageType {
 	CLOSE,
 	CHANNEL_FETCHED,
 	CHANNEL_ACTIVE_CHATTER,
+	ENTITLEMENT_CREATED,
+	ENTITLEMENT_DELETED,
+	STATIC_COSMETICS_FETCHED,
 }
 
 export type WorkerMessageType = keyof typeof workerMessageType;
@@ -39,6 +42,13 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	};
 	CHANNEL_ACTIVE_CHATTER: {
 		channel_id: string;
+	};
+	ENTITLEMENT_CREATED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	ENTITLEMENT_DELETED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	STATIC_COSMETICS_FETCHED: {
+		provider: SevenTV.Provider;
+		badges: SevenTV.Cosmetic<"BADGE">[];
+		paints: SevenTV.Cosmetic<"PAINT">[];
 	};
 }[T];
 
@@ -71,6 +81,7 @@ export enum EventAPIOpCode {
 export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 	DISPATCH: {
 		type: string;
+		matches: number[];
 		body: ChangeMap<SevenTV.ObjectKind>;
 	};
 	HELLO: {
@@ -82,6 +93,7 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 	};
 	RECONNECT: void;
 	ACK: {
+		id: number;
 		command: string;
 		data: unknown;
 	};
@@ -141,6 +153,7 @@ export interface ChangeField {
 }
 
 export interface SubscriptionData {
+	id?: number;
 	type: string;
 	condition: Record<string, string>;
 }

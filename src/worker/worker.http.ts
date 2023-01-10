@@ -1,13 +1,14 @@
 // REST Helpers
 // Fetches initial data from API
 import { log } from "@/common/Logger";
-import { convertBttvEmoteSet, convertFFZEmoteSet } from "@/common/Transform";
+import { convertBttvEmoteSet, convertFFZEmoteSet, convertSeventvOldCosmetics } from "@/common/Transform";
 import type { WorkerDriver } from "./worker.driver";
 import type { WorkerPort } from "./worker.port";
 import { db } from "@/db/idb";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API_REST;
+	export const SEVENTV_OLD = import.meta.env.VITE_APP_API_REST_OLD;
 	export const FFZ = "https://api.frankerfacez.com/v1";
 	export const BTTV = "https://api.betterttv.net/3";
 }
@@ -20,10 +21,14 @@ enum ProviderPriority {
 }
 
 export class WorkerHttp {
+	private lastPresenceAt = 0;
+
 	constructor(private driver: WorkerDriver) {
 		this.driver = driver;
 
-		driver.addEventListener("start_watching_channel", (ev) => this.fetchChannelData(ev.detail, ev.port));
+		driver.addEventListener("start_watching_channel", (ev) =>
+			ev.port ? this.fetchChannelData(ev.detail, ev.port) : undefined,
+		);
 		driver.addEventListener("identity_updated", async (ev) => {
 			const user = await this.API().seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id);
 			if (user && ev.port) {
@@ -32,19 +37,28 @@ export class WorkerHttp {
 		});
 		driver.addEventListener("set_channel_presence", (ev) => {
 			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.port.channel) return;
+			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1000) {
+				return;
+			}
 
+			this.lastPresenceAt = Date.now();
 			this.API().seventv.writePresence(ev.port.platform, ev.port.user.id, ev.port.channel.id);
 		});
 	}
 
-	public async fetchChannelData(channel: CurrentChannel, port?: WorkerPort) {
+	public async fetchChannelData(channel: CurrentChannel, port: WorkerPort) {
 		await this.driver.db.ready();
 
 		this.driver.log.debug(`<Net/Http> fetching channel data for #${channel.username}`);
 
 		// store the channel into IDB
-		await db.withErrorFallback(db.channels.put({ id: channel.id, set_ids: [] }), () =>
-			db.channels.where("id").equals(channel.id).modify(channel),
+		await db.withErrorFallback(
+			db.channels.put({
+				id: channel.id,
+				platform: port.platform as Platform,
+				set_ids: [],
+			}),
+			() => db.channels.where("id").equals(channel.id).modify(channel),
 		);
 
 		// setup fetching promises
@@ -93,9 +107,13 @@ export class WorkerHttp {
 
 		// begin subscriptions to channel emote sets
 		for (const set of sets) {
-			this.driver.eventAPI.subscribe("emote_set.*", {
-				object_id: set.id,
-			});
+			this.driver.eventAPI.subscribe(
+				"emote_set.*",
+				{
+					object_id: set.id,
+				},
+				port,
+			);
 		}
 
 		// begin subscriptions to personal events in the channel
@@ -105,9 +123,26 @@ export class WorkerHttp {
 			id: channel.id,
 		};
 
-		this.driver.eventAPI.subscribe("entitlement.*", cond);
-		this.driver.eventAPI.subscribe("cosmetic.*", cond);
-		this.driver.eventAPI.subscribe("emote_set.*", cond);
+		this.driver.eventAPI.subscribe("entitlement.*", cond, port);
+		this.driver.eventAPI.subscribe("cosmetic.*", cond, port);
+		this.driver.eventAPI.subscribe("emote_set.*", cond, port);
+
+		// Send the legacy static cosmetics to the port
+		this.API()
+			.seventv.loadOldCosmetics("twitch_id", this.driver.cache)
+			.then((data) => {
+				const cos = convertSeventvOldCosmetics(data);
+				port.postMessage("STATIC_COSMETICS_FETCHED", {
+					provider: "7TV",
+					badges: cos[0],
+					paints: cos[1],
+				});
+
+				log.info(
+					"<API/Old>",
+					`Loaded ${data.badges.length + data.paints.length} cosmetics from legacy endpoint`,
+				);
+			});
 	}
 
 	public API() {
@@ -186,7 +221,33 @@ export const seventv = {
 				platform,
 				id: channelID,
 			},
-		}).then(() => log.info("<Net/Http> Presence sent"));
+		}).then(() => log.debug("<API> Presence sent"));
+	},
+
+	async loadOldCosmetics(
+		identifier: "twitch_id" | "login" | "object_id",
+		cache?: Cache | null,
+	): Promise<SevenTV.OldCosmeticsResponse> {
+		if (cache) {
+			const cached = await cache.match(API_BASE.SEVENTV_OLD + `/cosmetics?user_identifier=${identifier}`);
+			if (cached) {
+				log.debug("<API/Old> Old Cosmetics cache hit");
+				return Promise.resolve<SevenTV.OldCosmeticsResponse>(await cached.json());
+			}
+		}
+
+		const resp = await doRequest(API_BASE.SEVENTV_OLD, `cosmetics?user_identifier=${identifier}`).catch((err) =>
+			Promise.reject(err),
+		);
+		if (!resp || resp.status !== 200) {
+			return Promise.reject(resp);
+		}
+
+		if (cache) {
+			cache.add(resp.url);
+		}
+
+		return Promise.resolve<SevenTV.OldCosmeticsResponse>(await resp.json());
 	},
 };
 

@@ -116,6 +116,23 @@ function useHandlers(mp: MessagePort) {
 				events.emit("channel_fetched", channel);
 				break;
 			}
+			case "ENTITLEMENT_CREATED": {
+				const entitlement = data as TypedWorkerMessage<"ENTITLEMENT_CREATED">;
+
+				events.emit("entitlement_created", entitlement);
+				break;
+			}
+			case "ENTITLEMENT_DELETED": {
+				const entitlement = data as TypedWorkerMessage<"ENTITLEMENT_DELETED">;
+
+				events.emit("entitlement_deleted", entitlement);
+				break;
+			}
+			case "STATIC_COSMETICS_FETCHED": {
+				const { badges, paints } = data as TypedWorkerMessage<"STATIC_COSMETICS_FETCHED">;
+
+				events.emit("static_cosmetics_fetched", { badges, paints });
+			}
 		}
 	});
 }
@@ -150,11 +167,19 @@ class WorkletTarget extends EventTarget {
 	}
 }
 
-type WorkletEventName = "ready" | "channel_fetched";
+type WorkletEventName =
+	| "ready"
+	| "channel_fetched"
+	| "entitlement_created"
+	| "entitlement_deleted"
+	| "static_cosmetics_fetched";
 
 type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	ready: object;
 	channel_fetched: CurrentChannel;
+	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	entitlement_deleted: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	static_cosmetics_fetched: Pick<TypedWorkerMessage<"STATIC_COSMETICS_FETCHED">, "badges" | "paints">;
 }[EVN];
 
 export class WorkletEvent<T extends WorkletEventName> extends CustomEvent<WorkletTypedEvent<T>> {

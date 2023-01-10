@@ -1,12 +1,12 @@
 <template>
 	<div ref="tooltip" class="seventv-tooltip" tooltip-type="badge">
-		<h3>{{ badge.title }}</h3>
+		<h3>{{ alt }}</h3>
 	</div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
-	badge: Twitch.ChatBadge;
+	alt: string;
 }>();
 </script>
 

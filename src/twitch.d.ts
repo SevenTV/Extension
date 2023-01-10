@@ -79,6 +79,15 @@ declare module Twitch {
 		};
 	}>;
 
+	export type SessionUserComponent = ReactExtended.WritableComponent<{
+		sessionUser: {
+			authToken: string;
+			displayName: string;
+			id: string;
+			login: string;
+		};
+	}>;
+
 	export type UserComponent = ReactExtended.WritableComponent<{
 		user: {
 			id: string;

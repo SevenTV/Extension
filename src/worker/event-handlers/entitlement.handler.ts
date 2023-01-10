@@ -1,25 +1,65 @@
-import { log } from "@/common/Logger";
 import { ChangeMap, EventContext } from "..";
+import type { WorkerPort } from "../worker.port";
 
-export async function onEntitlementCreate(ctx: EventContext, cm: ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>) {
-	if (!cm.object) return;
+export async function onEntitlementCreate(
+	ctx: EventContext,
+	cm: ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>,
+	ports: WorkerPort[],
+) {
+	if (!cm.object || !ports.length) return;
 
-	const platform = ctx.eventAPI.platform;
-	if (!platform) return; // no platform set
+	for (const port of ports) {
+		const platform = port.platform;
+		if (!platform) return; // no platform set
 
-	// Mutate the entitlement
-	// Map out connection IDs
-	const obj = cm.object;
-	if (!cm.object || !obj.user || !obj.user.connections?.length) return;
+		const obj: typeof cm.object = structuredClone(cm.object);
+		if (!obj || !obj.user || !obj.user.connections?.length) return;
 
-	obj.cid = obj.user.connections.find((x) => x.platform === platform)?.id ?? "";
+		const cid = obj.user.connections.find((x) => x.platform === platform)?.id ?? "";
 
-	delete obj.user;
+		// Write to IDB
+		delete obj.user;
+		ctx.db.entitlements.put({
+			...obj,
+			scope: `${platform}:${port.channel?.id ?? "X"}`,
+			user_id: cid,
+		});
 
-	// Insert the cosmetic into the database
-	await ctx.db
-		.withErrorFallback(ctx.db.entitlements.put(obj), () =>
-			ctx.db.entitlements.where("id").equals(obj.id).modify(obj),
-		)
-		.catch((err) => log.error("Net/EventAPI", "Failed to insert entitlement", err));
+		// Send the entitlement to the client
+		port.postMessage("ENTITLEMENT_CREATED", {
+			id: obj.id,
+			kind: obj.kind,
+			ref_id: obj.ref_id,
+			user_id: cid,
+		});
+	}
+}
+
+export async function onEntitlementDelete(
+	ctx: EventContext,
+	cm: ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>,
+	ports: WorkerPort[],
+) {
+	if (!cm.object || !ports.length) return;
+
+	for (const port of ports) {
+		const platform = port.platform;
+		if (!platform) return; // no platform set
+
+		const obj: typeof cm.object = structuredClone(cm.object);
+		if (!obj || !obj.user || !obj.user.connections?.length) return;
+
+		const cid = obj.user.connections.find((x) => x.platform === platform)?.id ?? "";
+
+		// Write to IDB
+		ctx.db.entitlements.delete(obj.id);
+
+		// Send the entitlement to the client
+		port.postMessage("ENTITLEMENT_DELETED", {
+			id: obj.id,
+			kind: obj.kind,
+			ref_id: obj.ref_id,
+			user_id: cid,
+		});
+	}
 }

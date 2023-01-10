@@ -68,6 +68,7 @@ const setting = useConfig<boolean>(props.node.key);
 	position: absolute;
 	transition: 0.25s;
 	width: 1.4rem;
+	transform: rotate(-45deg);
 }
 
 input:checked + .slider {
@@ -75,7 +76,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-	transform: translateX(2rem);
+	transform: translateX(2rem) rotate(45deg);
 }
 
 .slider.round {

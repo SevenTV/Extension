@@ -4,6 +4,7 @@ import { log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
 import { handleDispatchedEvent } from "./event-handlers/handler";
 import type { WorkerDriver } from "./worker.driver";
+import { WorkerPort } from "./worker.port";
 import { EventAPIMessage, EventAPIOpCode, EventContext, SubscriptionData } from ".";
 
 export class EventAPI {
@@ -93,7 +94,11 @@ export class EventAPI {
 	}
 
 	private onDispatch(msg: EventAPIMessage<"DISPATCH">): void {
-		handleDispatchedEvent(this.ctx, msg.data.type, msg.data.body);
+		const subs = msg.data.matches
+			.map((id) => this.findSubscriptionByID(id))
+			.filter((x) => x) as SubscriptionRecord[];
+
+		handleDispatchedEvent(this.ctx, msg.data.type, msg.data.body, subs);
 
 		log.debugWithObjects(["<EventAPI>", "Dispatch received"], [msg.data]);
 	}
@@ -101,11 +106,12 @@ export class EventAPI {
 	private onAck(msg: EventAPIMessage<"ACK">): void {
 		switch (msg.data.command) {
 			case "SUBSCRIBE": {
-				const { type, condition } = msg.data.data as SubscriptionData;
+				const { id, type, condition } = msg.data.data as SubscriptionData;
 
-				const sub = this.getSubscription(type, condition);
+				const sub = this.findSubscription(type, condition);
 				if (sub) {
 					sub.confirmed = true;
+					sub.id = id;
 					break;
 				}
 				break;
@@ -119,10 +125,11 @@ export class EventAPI {
 		log.error("<EventAPI>", "Error received", msg.data.message);
 	}
 
-	subscribe(type: string, condition: Record<string, string>) {
-		const sub = this.getSubscription(type, condition);
+	subscribe(type: string, condition: Record<string, string>, port: WorkerPort) {
+		const sub = this.findSubscription(type, condition);
 		if (sub) {
 			sub.count++;
+			sub.ports.set(port.id, port);
 			return;
 		}
 
@@ -133,6 +140,7 @@ export class EventAPI {
 		this.subscriptions[type].push({
 			condition,
 			count: 1,
+			ports: new Map([[port.id, port]]),
 		});
 
 		this.sendMessage({
@@ -144,11 +152,12 @@ export class EventAPI {
 		});
 	}
 
-	unsubscribe(type: string, condition: Record<string, string>) {
-		const sub = this.getSubscription(type, condition);
+	unsubscribe(type: string, condition: Record<string, string>, port: WorkerPort) {
+		const sub = this.findSubscription(type, condition);
 		if (!sub) return;
 
 		sub.count--;
+		sub.ports.delete(port.id);
 		if (sub.count <= 0) {
 			this.subscriptions[type] = this.subscriptions[type].filter((c) => c !== sub);
 
@@ -162,11 +171,23 @@ export class EventAPI {
 		}
 	}
 
-	getSubscription(type: string, condition: Record<string, string>): SubscriptionRecord | null {
+	findSubscription(type: string, condition: Record<string, string>): SubscriptionRecord | null {
 		const sub = this.subscriptions[type];
 		if (!sub) return null;
 
 		return sub.find((c) => Object.entries(condition).every(([key, value]) => c.condition[key] === value)) ?? null;
+	}
+
+	findSubscriptionByID(id: number): SubscriptionRecord | null {
+		for (const type in this.subscriptions) {
+			const sub = this.subscriptions[type];
+			if (!sub) continue;
+
+			const found = sub.find((c) => c.id === id);
+			if (found) return found;
+		}
+
+		return null;
 	}
 
 	sendMessage<O extends keyof typeof EventAPIOpCode>(msg: EventAPIMessage<O>): void {
@@ -214,9 +235,11 @@ export class EventAPI {
 	}
 }
 
-interface SubscriptionRecord {
+export interface SubscriptionRecord {
+	id?: number;
 	condition: Record<string, string>;
 	count: number;
+	ports: Map<symbol, WorkerPort>;
 	confirmed?: boolean;
 }
 

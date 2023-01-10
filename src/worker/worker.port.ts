@@ -12,7 +12,7 @@ export class WorkerPort {
 
 	constructor(private driver: WorkerDriver, private port: MessagePort) {
 		this.id = Symbol("seventv-worker-port");
-		this.seq = driver.ports.size + 1;
+		this.seq = driver.portSeq++ + 1;
 		this.driver.log.debug(`Port opened: #${this.seq.toString()}`);
 
 		port.addEventListener("message", (ev) => this.onMessage(ev));

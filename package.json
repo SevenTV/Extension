@@ -7,6 +7,7 @@
 	"scripts": {
 		"setup": "vite build --mode dev --minify esnext && vite build -c worker.vite.config.ts --mode dev",
 		"dev": "vite --mode dev",
+		"dev:worker": "vite build -c worker.vite.config.ts --watch --mode dev",
 		"build:dev": "vite build --mode dev --minify terser",
 		"build:stage": "vue-tsc --noEmit && vite build --minify terser --mode stage",
 		"build:prod": "vue-tsc --noEmit && vite build --minify terser && vite build -c worker.vite.config.ts --minify terser",

@@ -24,7 +24,7 @@ const srcset = {
 const imgRef = ref<HTMLElement>();
 
 const { show, hide } = useTooltip(ChatBadgeTooltip, {
-	badge: props.badge,
+	alt: props.alt,
 });
 </script>
 

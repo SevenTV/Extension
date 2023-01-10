@@ -11,7 +11,7 @@ export class Dexie7 extends Dexie {
 	emoteSets!: Table<SevenTV.EmoteSet & WithTimestamp, SevenTV.ObjectID>;
 	emotes!: Table<SevenTV.Emote & WithTimestamp, SevenTV.ObjectID>;
 	cosmetics!: Table<SevenTV.Cosmetic & WithTimestamp, SevenTV.ObjectID>;
-	entitlements!: Table<SevenTV.Entitlement & WithTimestamp, SevenTV.ObjectID>;
+	entitlements!: Table<SevenTV.Entitlement & ScopedEntitlement & WithTimestamp, SevenTV.ObjectID>;
 	settings!: Table<SevenTV.Setting<SevenTV.SettingType>>;
 
 	constructor() {
@@ -69,7 +69,7 @@ export class Dexie7 extends Dexie {
 
 				// VersionError: delete the DB
 				if ((err as DexieError).name === "VersionError") {
-					log.error("<IDB>", `!! Versioning issue detected. This will not work. (IndexedDB/${db.name}) !!`);
+					log.error("<IDB>", `!! Versioning issue detected. That's a big problem. (IndexedDB/${db.name}) !!`);
 				}
 			};
 
@@ -118,6 +118,9 @@ export class Dexie7 extends Dexie {
 				.anyOf(channels.map((c) => c.set_ids).reduce((a, b) => a.concat(b), []))
 				.delete();
 
+			// Clean up entitlements
+			this.entitlements.filter((e) => !exemptChannels?.includes(e.scope?.split(":")[1] ?? "")).delete();
+
 			// Delete channels
 			this.channels
 				.where("id")
@@ -131,6 +134,7 @@ export const db = new Dexie7();
 
 export interface ChannelMapping {
 	id: string;
+	platform: Platform;
 	set_ids: SevenTV.ObjectID[];
 }
 
@@ -142,4 +146,8 @@ interface Transaction<T> {
 	trans: DBCoreMutateRequest["trans"];
 	type: DBCoreMutateRequest["type"];
 	values?: T[];
+}
+
+interface ScopedEntitlement {
+	scope?: string;
 }

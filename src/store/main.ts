@@ -28,6 +28,12 @@ export const useStore = defineStore("main", {
 		setIdentity<T extends Platform>(platform: T, identity: PlatformIdentity<T> | null) {
 			this.platform = platform;
 			this.identity = identity;
+
+			const { sendMessage } = useWorker();
+
+			sendMessage("STATE", {
+				identity: identity,
+			});
 		},
 
 		setLocation(location: Twitch.Location | null) {
@@ -60,7 +66,6 @@ export const useStore = defineStore("main", {
 
 			// Tell the worker we're now watching a new channel
 			sendMessage("STATE", {
-				identity: { ...this.identity } as TwitchIdentity | YouTubeIdentity,
 				platform: this.platform,
 				channel: this.channel && this.channel.id ? { ...this.channel } : null,
 			});
