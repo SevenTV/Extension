@@ -1,10 +1,10 @@
 <template>
 	<div class="emote-box">
 		<img
-			v-if="srcset"
+			v-if="emote.data && emote.data.host"
 			ref="imgRef"
 			class="chat-emote"
-			:srcset="srcset"
+			:srcset="imageHostToSrcset(emote.data.host)"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
 			@click="openCard"
@@ -14,9 +14,10 @@
 		/>
 		<template v-for="(e, index) of emote.overlaid" :key="index">
 			<img
+				v-if="e.data && e.data.host"
 				class="chat-emote zero-width-emote"
 				:class="{ blur: hideUnlisted && e.data?.listed === false }"
-				:srcset="srcset"
+				:srcset="imageHostToSrcset(e.data.host)"
 				:alt="' ' + e.name"
 			/>
 		</template>
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
@@ -39,8 +40,6 @@ const props = withDefaults(
 	}>(),
 	{ unload: false, imageFormat: "WEBP" },
 );
-
-const srcset = computed(() => (props.emote.data ? (props.unload ? "" : imageHostToSrcset(props.emote.data.host)) : ""));
 
 const imgRef = ref<HTMLImageElement>();
 

@@ -1,12 +1,18 @@
 <template>
 	<div ref="tooltip" class="seventv-tooltip" tooltip-type="emote">
-		<img ref="imgRef" class="tooltip-emote" :srcset="srcSet" :alt="emote.name" />
+		<img ref="imgRef" class="tooltip-emote" :srcset="srcset" :alt="emote.name" />
 
 		<div class="details">
 			<h3 class="emote-name">{{ emote.name }}</h3>
-			<div class="spacer"></div>
 			<Logo class="logo" :provider="emote.provider" />
 		</div>
+
+		<!-- Alias Labels -->
+		<div v-if="emote.data && emote.data.name !== emote.name" class="alias-label">
+			aka <span>{{ emote.data?.name }}</span>
+		</div>
+
+		<div class="divider" />
 
 		<!-- Creator -->
 		<div v-if="emote.data?.owner" class="creator-label">
@@ -14,8 +20,17 @@
 			<span class="creator-name">{{ emote.data.owner.display_name }}</span>
 		</div>
 
+		<!-- Zero Width -->
+		<div v-if="emote.overlaid?.length" class="zero-width-label">
+			<template v-for="e of emote.overlaid" :key="e.id">
+				—
+				<img v-if="e.data" class="overlaid-emote-icon" :srcset="imageHostToSrcset(e.data.host)" />
+				<span>{{ e.name }}</span>
+			</template>
+		</div>
+
 		<!-- Labels -->
-		<div class="labels">
+		<div class="scope-labels">
 			<div v-if="isGlobal" class="label-global">Global Emote</div>
 			<div v-if="isSubscriber" class="label-subscriber">Subscriber Emote</div>
 			<div v-if="isChannel" class="label-channel">Channel Emote</div>
@@ -41,9 +56,9 @@ const props = withDefaults(
 	{ unload: false, imageFormat: "WEBP" },
 );
 
-const srcSet = computed(() => (props.unload ? "" : imageHostToSrcset(props.emote.data!.host, props.imageFormat)));
-const width = computed(() => `${props.width * 3}px`);
-const height = computed(() => `${props.height * 3}px`);
+const srcset = computed(() => (props.unload ? "" : imageHostToSrcset(props.emote.data!.host, props.imageFormat)));
+const width = computed(() => `${props.width * 2}px`);
+const height = computed(() => `${props.height * 2}px`);
 
 const isGlobal = computed(() => props.emote.scope === "GLOBAL");
 const isSubscriber = computed(() => props.emote.scope === "SUB");
@@ -90,12 +105,20 @@ img.tooltip-emote {
 
 .details {
 	display: flex;
-	column-gap: 0.25rem;
+	column-gap: 0.5rem;
 	flex: 1;
 
 	> h3 {
 		font-weight: 600;
 	}
+}
+
+.divider {
+	width: 100%;
+	height: 0.01em;
+	background-color: currentColor;
+	opacity: 0.5;
+	margin: 0.25rem 0;
 }
 
 .creator-label {
@@ -106,7 +129,19 @@ img.tooltip-emote {
 	}
 }
 
-.labels {
+.zero-width-label {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.25rem;
+	font-size: 0.9rem;
+
+	.overlaid-emote-icon {
+		width: 1.5rem;
+	}
+}
+
+.scope-labels {
 	font-size: 0.9rem;
 	> .label-global {
 		color: rgb(70, 220, 100);
