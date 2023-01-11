@@ -1,14 +1,8 @@
 <template>
-	<svg overflow="visible" version="1.1" viewBox="10 8 20 28">
-		<g>
-			<polygon points="13 8 8 13 8 31 14 31 14 36 19 31 23 31 32 22 32 8" style="fill: #a970ff" />
-			<polygon points="26 25 30 21 30 10 14 10 14 25 18 25 18 29 22 25" style="fill: white" />
-			<g>
-				<path
-					d="M20,14 L22,14 L22,20 L20,20 L20,14 Z M27,14 L27,20 L25,20 L25,14 L27,14 Z"
-					style="fill: #a970ff"
-				/>
-			</g>
-		</g>
+	<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path
+			d="M38.7818 25.362H43.6208V39.914H38.7818M52.0805 25.362H56.9195V39.914H52.0805M23.0805 12L11 24.138V67.862H25.4831V80L37.5974 67.862H47.2415L69 46V12M64.161 43.586L54.5169 53.276H44.839L36.3792 61.776V53.276H25.4831V16.862H64.161V43.586Z"
+			fill="currentColor"
+		/>
 	</svg>
 </template>

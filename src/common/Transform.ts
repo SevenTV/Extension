@@ -34,7 +34,7 @@ export function convertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.E
 		listed: true,
 		owner: null,
 		host: {
-			url: "https://static-cdn.jtvnw.net/emoticons/v2/" + data.id + "/default/dark",
+			url: "//static-cdn.jtvnw.net/emoticons/v2/" + data.id + "/default/dark",
 			files: [
 				{
 					name: "1.0",
@@ -127,7 +127,7 @@ export function convertBttvEmote(data: BTTV.Emote): SevenTV.Emote {
 		listed: true,
 		owner: null,
 		host: {
-			url: "https://cdn.betterttv.net/emote/" + data.id,
+			url: "//cdn.betterttv.net/emote/" + data.id,
 			files: [
 				{
 					name: "1x",

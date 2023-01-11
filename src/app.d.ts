@@ -103,8 +103,11 @@ declare namespace SevenTV {
 		data?: Emote;
 
 		provider?: Provider;
+		scope?: ActiveEmoteScope;
 		overlaid?: ActiveEmote[];
 	}
+
+	type ActiveEmoteScope = "GLOBAL" | "CHANNEL" | "FOLLOWER" | "PERSONAL" | "SUB";
 
 	interface User {
 		id: ObjectID;
@@ -113,7 +116,13 @@ declare namespace SevenTV {
 		display_name: string;
 		avatar_url: string;
 		biography?: string;
+		style?: UserStyle;
 		connections?: UserConnection[];
+	}
+
+	interface UserStyle {
+		color: number;
+		paint?: CosmeticPaint;
 	}
 
 	interface UserConnection {

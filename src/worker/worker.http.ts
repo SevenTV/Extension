@@ -166,13 +166,14 @@ export const seventv = {
 		const data = (await resp.json()) as SevenTV.UserConnection;
 
 		const set = structuredClone(data.emote_set) as SevenTV.EmoteSet;
+		set.provider = "7TV";
 		set.emotes =
 			set.emotes.map((ae) => {
-				ae.provider = "7TV";
+				ae.provider = set.provider;
+				ae.scope = "CHANNEL";
 
 				return ae;
 			}) ?? [];
-		set.provider = "7TV";
 		set.priority = ProviderPriority.SEVENTV;
 
 		data.emote_set = null;
@@ -188,13 +189,14 @@ export const seventv = {
 
 		const set = (await resp.json()) as SevenTV.EmoteSet;
 
+		set.provider = "7TV/G" as SevenTV.Provider;
 		set.emotes =
 			set.emotes.map((ae) => {
-				ae.provider = "7TV";
+				ae.provider = set.provider;
+				ae.scope = "GLOBAL";
 
 				return ae;
 			}) ?? [];
-		set.provider = "7TV/G" as SevenTV.Provider;
 
 		db.emoteSets.put(set).catch(() => db.emoteSets.where({ id: set.id, provider: "7TV" }).modify(set));
 		return Promise.resolve(set);
@@ -262,6 +264,10 @@ export const frankerfacez = {
 
 		const set = convertFFZEmoteSet(ffz_data, channelID);
 		set.priority = ProviderPriority.FFZ;
+		set.emotes.forEach((e) => {
+			e.provider = set.provider;
+			e.scope = "CHANNEL";
+		});
 
 		return Promise.resolve(set);
 	},
@@ -276,6 +282,10 @@ export const frankerfacez = {
 
 		const set = convertFFZEmoteSet({ sets: { emoticons: ffz_data.sets["3"] } }, "GLOBAL");
 		set.provider = "FFZ/G" as SevenTV.Provider;
+		set.emotes.forEach((e) => {
+			e.provider = set.provider;
+			e.scope = "GLOBAL";
+		});
 
 		db.emoteSets.put(set).catch(() => {
 			db.emoteSets.where({ id: set.id, provider: "FFZ" }).modify(set);
@@ -319,6 +329,7 @@ export const betterttv = {
 
 		const set = convertBttvEmoteSet(data, data.id);
 		set.provider = "BTTV/G" as SevenTV.Provider;
+		set.emotes.forEach((e) => (e.provider = set.provider));
 
 		db.emoteSets.put(set).catch(() => {
 			db.emoteSets.where({ id: set.id, provider: "BTTV" }).modify(set);
