@@ -27,9 +27,10 @@ import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
-import { HookedInstance } from "@/common/ReactHooks";
+import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { convertTwitchEmoteSet } from "@/common/Transform";
+import { tools } from "@/composable/useCardOpeners";
 import { MessageType, ModerationType } from "@/site/twitch.tv";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
@@ -263,6 +264,16 @@ function onModerationMessage(msg: Twitch.ModerationMessage) {
 		});
 	}
 }
+
+awaitComponents<Twitch.ViewerCardComponent>({
+	parentSelector: ".stream-chat",
+	predicate: (n) => n.onShowViewerCard && n.onShowExtensionMessageCard,
+}).then(([c]) => {
+	if (!c) return;
+	tools.onShowViewerCard = c.onShowViewerCard;
+	tools.onShowEmoteCard = c.onShowEmoteCard;
+	tools.setViewerCardPage = c.setViewerCardPage;
+});
 
 // Apply new boundaries when the window is resized
 const resizeObserver = new ResizeObserver(() => {

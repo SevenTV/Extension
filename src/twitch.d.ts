@@ -181,6 +181,24 @@ declare module Twitch {
 		showTimestamps: boolean;
 	}>;
 
+	export type ViewerCardComponent = ReactExtended.WritableComponent<{}> & {
+		onShowViewerCard: (
+			userLogin: string,
+			type: number,
+			messageID: string,
+			initialTopOffset: number,
+			initialLeftOffset?: number,
+		) => void;
+		onShowEmoteCard: (emote: {
+			emoteID: string;
+			emoteCode: string;
+			sourceID: "chat";
+			initialTopOffset: number;
+			initialBottomOffset: number;
+		}) => void;
+		setViewerCardPage: (v: any) => void;
+	};
+
 	export interface MessageHandlerAPI {
 		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
 		removeMessageHandler: (event: (msg: ChatMessage) => void) => void;

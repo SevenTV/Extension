@@ -8,12 +8,13 @@
 				:badge="badge"
 				:alt="badge.title"
 				type="twitch"
+				@click="(e) => emit('badgeClick', e, badge)"
 			/>
 			<Badge v-for="(badge, index) of badges" :key="index" :badge="badge" :alt="badge.data.tooltip" type="app" />
 		</span>
 
 		<!-- Message Author -->
-		<span class="seventv-chat-user-username">
+		<span class="seventv-chat-user-username" @click="(e) => emit('nameClick', e)">
 			<span v-if="!paint">
 				<span>{{ user.userDisplayName }}</span>
 				<span v-if="user.isIntl"> ({{ user.userLogin }})</span>
@@ -39,6 +40,11 @@ const props = defineProps<{
 	user: Twitch.ChatUser;
 	color: string;
 	badges?: Record<string, string>;
+}>();
+
+const emit = defineEmits<{
+	(event: "nameClick", e: MouseEvent): void;
+	(event: "badgeClick", e: MouseEvent, badge: Twitch.ChatBadge): void;
 }>();
 
 const { twitchBadgeSets } = useChatAPI();

@@ -7,7 +7,7 @@
 			:srcset="imageHostToSrcset(emote.data.host)"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
-			@click="openCard"
+			@click="(e) => emit('emoteClick', e, emote)"
 			@load="onImageLoad"
 			@mouseenter="show(imgRef)"
 			@mouseleave="hide()"
@@ -29,7 +29,6 @@ import { ref } from "vue";
 import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
-import { tools } from "@/site/twitch.tv/modules/chat/ChatBackend";
 import EmoteTooltip from "@/site/twitch.tv/modules/chat/components/message/EmoteTooltip.vue";
 
 const props = withDefaults(
@@ -41,12 +40,17 @@ const props = withDefaults(
 	{ unload: false, imageFormat: "WEBP" },
 );
 
+const emit = defineEmits<{
+	(event: "emoteClick", e: MouseEvent, emote: SevenTV.ActiveEmote): void;
+}>();
+
 const imgRef = ref<HTMLImageElement>();
 
 const hideUnlisted = useConfig<boolean>("general.blur_unlisted_emotes");
 
 const width = ref(0);
 const height = ref(0);
+
 const onImageLoad = (event: Event) => {
 	if (!(event.target instanceof HTMLImageElement)) return;
 
@@ -59,18 +63,6 @@ const { show, hide } = useTooltip(EmoteTooltip, {
 	width: width,
 	height: height,
 });
-const openCard = (ev: MouseEvent) => {
-	if (!props.emote.id || props.emote.provider !== "TWITCH") return;
-
-	const rect = (ev.target as HTMLElement).getBoundingClientRect();
-	tools.emoteClick({
-		emoteID: props.emote.id,
-		emoteCode: props.emote.name,
-		sourceID: "chat",
-		initialTopOffset: rect.bottom,
-		initialBottomOffset: rect.top,
-	});
-};
 </script>
 
 <style scoped lang="scss">
