@@ -5,9 +5,11 @@
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { useLiveQuery } from "@/composable/useLiveQuery";
+import { useWorker } from "@/composable/useWorker";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { db } from "@/db/idb";
 
+const { target } = useWorker();
 const { channel } = storeToRefs(useStore());
 const chatAPI = useChatAPI();
 
@@ -60,4 +62,13 @@ useLiveQuery(
 		reactives: [channelSets],
 	},
 );
+
+// Receive twitch emote sets from the worker
+target.addEventListener("twitch_emote_set_data", (ev) => {
+	if (!chatAPI.emoteProviders.value.TWITCH) {
+		chatAPI.emoteProviders.value.TWITCH = {};
+	}
+
+	chatAPI.emoteProviders.value.TWITCH[ev.detail.id] = ev.detail;
+});
 </script>

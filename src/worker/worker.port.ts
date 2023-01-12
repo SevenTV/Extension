@@ -1,3 +1,4 @@
+import { convertTwitchEmoteSet } from "@/common/Transform";
 import { WorkerDriver } from "./worker.driver";
 import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from ".";
 
@@ -50,6 +51,14 @@ export class WorkerPort {
 			}
 			case "CHANNEL_ACTIVE_CHATTER": {
 				this.driver.emit("set_channel_presence", {}, this);
+				break;
+			}
+			case "SYNC_TWITCH_SET": {
+				const { input } = data as TypedWorkerMessage<"SYNC_TWITCH_SET">;
+				if (!input) break;
+
+				const set = convertTwitchEmoteSet(input);
+				this.postMessage("SYNC_TWITCH_SET", { out: set });
 				break;
 			}
 			case "CLOSE":

@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { until, useTimeout } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
@@ -29,8 +30,8 @@ import { log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
-import { convertTwitchEmoteSet } from "@/common/Transform";
 import { tools } from "@/composable/useCardOpeners";
+import { useWorker } from "@/composable/useWorker";
 import { MessageType, ModerationType } from "@/site/twitch.tv";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
@@ -45,6 +46,7 @@ const props = defineProps<{
 
 const store = useStore();
 const { channel } = storeToRefs(store);
+const { sendMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);
 
@@ -141,15 +143,26 @@ definePropertyHook(list.value.component, "props", {
 	},
 });
 
-const onTwitchEmotes = debounceFn((emoteSets: Twitch.TwitchEmoteSet[]) => {
-	const temp = {} as Record<string, SevenTV.EmoteSet>;
-	for (const set of emoteSets) {
-		temp[set.id] = convertTwitchEmoteSet(set);
-	}
+// Retrieve and convert Twitch Emotes
+//
+// This processed is deferred to the worker asynchronously
+// in order to reduce the load on the main thread.
+const twitchEmoteSets = ref<Twitch.TwitchEmoteSet[]>([]);
+watch(twitchEmoteSets, (sets) => {
+	if (!sets.length) return;
 
-	chatAPI.emoteProviders.value.TWITCH = temp;
+	onTwitchEmotes();
+});
+
+const onTwitchEmotes = debounceFn(async () => {
+	for (const set of twitchEmoteSets.value) {
+		await until(useTimeout(50)).toBeTruthy(); // reduce the rate of conversion
+
+		sendMessage("SYNC_TWITCH_SET", { input: set });
+	}
 }, 1000);
 
+// Keep track of user chat config
 definePropertyHook(room.value.component, "props", {
 	value(v: typeof room.value.component.props) {
 		chatAPI.primaryColorHex.value = "#" + v.primaryColorHex ?? "755ebc";
@@ -158,6 +171,7 @@ definePropertyHook(room.value.component, "props", {
 	},
 });
 
+// Keep track of chat state
 definePropertyHook(controller.value.component, "props", {
 	value(v: typeof controller.value.component.props) {
 		if (v.channelID) {
@@ -181,7 +195,7 @@ definePropertyHook(controller.value.component, "props", {
 		const data = v.emoteSetsData;
 		if (!data || !data.emoteSets || data.loading) return;
 
-		onTwitchEmotes(data.emoteSets);
+		twitchEmoteSets.value = data.emoteSets;
 
 		// Add the current user & channel owner to active chatters
 		if (v.userID) {
