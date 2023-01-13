@@ -80,6 +80,16 @@ export class EventAPI {
 
 	private onOpen(): void {
 		log.info("<EventAPI>", "Connected", `url=${this.url}`);
+
+		for (const [t, rec] of Object.entries(this.subscriptions)) {
+			delete this.subscriptions[t];
+
+			for (const sub of rec) {
+				for (const port of sub.ports.values()) {
+					this.subscribe(t, sub.condition, port);
+				}
+			}
+		}
 	}
 
 	private onHello(msg: EventAPIMessage<"HELLO">): void {

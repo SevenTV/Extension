@@ -10,6 +10,18 @@ export function imageHostToSrcset(host: SevenTV.ImageHost, imageF: SevenTV.Image
 		.join(", ");
 }
 
+export function imageHostToSrcsetWithsize(height: number, width: number, host: SevenTV.ImageHost): string {
+	const format = host.files.some((fi) => fi.format === imageFormat.value) ? imageFormat.value : host.files[0]?.format;
+	return host.files
+		.filter((f) => f.format === format)
+		.map((f, i) => {
+			const fileName = isNaN(Number(f.name.at(0))) ? i : parseInt(f.name.at(0)!);
+
+			return `https:${host.url}/${f.name} ${width * fileName}w ${height * fileName}h`;
+		})
+		.join(", ");
+}
+
 export function determineRatio(emote: SevenTV.ActiveEmote) {
 	const { width, height } = emote.data?.host.files.at(-1) ?? {};
 

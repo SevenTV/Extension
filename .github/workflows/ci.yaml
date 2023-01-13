@@ -54,10 +54,10 @@ jobs:
 
             - name: Install Dependencies
               run: |
-                  make deps
+                  yarn
 
             - name: Run Linter
-              run: make lint
+              run: yarn lint
 
             - name: Build App
-              run: make ${{ (env.DEPLOY_PROD == 'true' && 'prod') || 'stage' }}
+              run: yarn build:${{ (env.DEPLOY_PROD == 'true' && 'prod') || 'stage' }}

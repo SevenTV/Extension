@@ -1,6 +1,6 @@
 import { log } from "@/common/Logger";
 import { onCosmeticCreate } from "./cosmetic.handler";
-import { onEmoteSetUpdate } from "./emote-set.handler";
+import { onEmoteSetCreate, onEmoteSetUpdate } from "./emote-set.handler";
 import { onEntitlementCreate, onEntitlementDelete } from "./entitlement.handler";
 import type { ChangeMap, EventContext, ObjectTypeOfKind } from "../";
 import { SubscriptionRecord } from "../worker.events";
@@ -19,6 +19,7 @@ export function handleDispatchedEvent(
 			onEntitlementCreate(ctx, structuredClone(cm) as ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>, ports),
 		"entitlement.delete": () =>
 			onEntitlementDelete(ctx, structuredClone(cm) as ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>, ports),
+		"emote_set.create": () => onEmoteSetCreate(ctx, cm as ChangeMap<SevenTV.ObjectKind.EMOTE_SET>),
 		"emote_set.update": () => onEmoteSetUpdate(ctx, cm as ChangeMap<SevenTV.ObjectKind.EMOTE_SET>),
 	}[type];
 

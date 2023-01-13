@@ -19,11 +19,13 @@ export async function onEntitlementCreate(
 
 		// Write to IDB
 		delete obj.user;
-		ctx.db.entitlements.put({
-			...obj,
-			scope: `${platform}:${port.channel?.id ?? "X"}`,
-			user_id: cid,
-		});
+		ctx.db.entitlements
+			.put({
+				...obj,
+				scope: `${platform}:${port.channel?.id ?? "X"}`,
+				user_id: cid,
+			})
+			.catch(() => ctx.db.entitlements.update(obj.id, obj));
 
 		// Send the entitlement to the client
 		port.postMessage("ENTITLEMENT_CREATED", {

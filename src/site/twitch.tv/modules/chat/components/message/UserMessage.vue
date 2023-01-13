@@ -61,6 +61,7 @@
 import { computed } from "vue";
 import { normalizeUsername } from "@/common/Color";
 import { useCardOpeners } from "@/composable/useCardOpeners";
+import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import { MessagePartType } from "@/site/twitch.tv";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
@@ -76,6 +77,8 @@ const props = defineProps<{
 	msg: Twitch.ChatMessage;
 }>();
 
+const { emoteMap, showTimestamps, useHighContrastColors, isDarkTheme } = useChatAPI();
+
 // Get this from twitch settings instead?
 const emoteMargin = useConfig<number>("chat.emote_margin");
 const mentionStyle = useConfig<number>("chat.slash_me_style");
@@ -85,16 +88,16 @@ const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
-// Tokenize the message
-const { emoteMap, showTimestamps } = useChatAPI();
+// Personal Emotes
+const { emotes: userEmoteMap } = useCosmetics(props.msg.user.userID);
 
+// Tokenize the message
 const tokenizer = new Tokenizer(props.msg.messageParts);
 const tokens = computed(() => {
-	return tokenizer.getParts(emoteMap.value);
+	return tokenizer.getParts(emoteMap.value, userEmoteMap.value);
 });
 
 // TODO: Get the get the readableChatColors from somewhere and return uncomputed name
-const { isDarkTheme, useHighContrastColors } = useChatAPI();
 const adjustedColor = computed(() => {
 	return useHighContrastColors.value
 		? normalizeUsername(props.msg.user.color, isDarkTheme.value as 0 | 1)

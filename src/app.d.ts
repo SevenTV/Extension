@@ -44,6 +44,7 @@ declare namespace SevenTV {
 		tags: string[];
 		immutable: boolean;
 		privileged: boolean;
+		flags: number;
 		emotes: ActiveEmote[];
 		owner?: User;
 

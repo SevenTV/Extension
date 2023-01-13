@@ -33,10 +33,15 @@ export function useLiveQuery<T>(
 
 	onUnmounted(() => sub.unsubscribe());
 
+	if (opt.until) {
+		opt.until.then(() => sub.unsubscribe());
+	}
+
 	return value;
 }
 
 export interface LiveQueryOptions {
 	count?: number;
 	reactives?: Ref[];
+	until?: Promise<boolean>;
 }

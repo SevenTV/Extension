@@ -11,6 +11,7 @@ import {
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
+import { useCosmetics } from "@/composable/useCosmetics";
 import { useWorker } from "@/composable/useWorker";
 import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 
@@ -20,6 +21,7 @@ const props = defineProps<{
 
 const store = useStore();
 const { emoteMap, messageHandlers } = useChatAPI();
+const { emotes: personalEmoteMap } = useCosmetics(store.identity?.id ?? "");
 const { sendMessage } = useWorker();
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
@@ -53,6 +55,26 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): 
 
 	const prefix = str.toLowerCase();
 
+	for (const [token] of Object.entries(personalEmoteMap.value)) {
+		if (!usedTokens.has(token) && token.toLowerCase().includes(prefix)) {
+			usedTokens.add(token);
+			matches.push({
+				token,
+				fromTwitch: false,
+			});
+		}
+	}
+
+	for (const [token] of Object.entries(emoteMap.value)) {
+		if (!usedTokens.has(token) && token.toLowerCase().includes(prefix)) {
+			usedTokens.add(token);
+			matches.push({
+				token,
+				fromTwitch: false,
+			});
+		}
+	}
+
 	if (twitchSets) {
 		for (const set of twitchSets) {
 			for (const emote of set.emotes) {
@@ -64,16 +86,6 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): 
 					});
 				}
 			}
-		}
-	}
-
-	for (const [token] of Object.entries(emoteMap.value)) {
-		if (!usedTokens.has(token) && token.toLowerCase().includes(prefix)) {
-			usedTokens.add(token);
-			matches.push({
-				token,
-				fromTwitch: false,
-			});
 		}
 	}
 
@@ -296,7 +308,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	const results = native?.call(this, str, ...args) ?? [];
 
-	const emotes = emoteMap.value;
+	const emotes = { ...personalEmoteMap.value, ...emoteMap.value };
 	const tokens = findMatchingTokens(str.substring(1));
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;
@@ -307,6 +319,18 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 			.filter((f) => f.format === host.files[0].format)
 			.map((f, i) => `${host.url}/${f.name} ${i + 1}x`)
 			.join(", ");
+
+		const providerData = emote.provider?.split("/") ?? ["", ""];
+		let provider = providerData?.[0] ?? emote.provider;
+
+		switch (emote.scope) {
+			case "GLOBAL":
+				provider = provider?.concat(" Global");
+				break;
+			case "PERSONAL":
+				provider = provider?.concat(" Personal");
+				break;
+		}
 
 		results.unshift({
 			type: "emote",
@@ -330,7 +354,18 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 					key: `emote-text-${emote.id}`,
 					type: "span",
 					props: {
-						children: `${emote.name} (${emote.provider})`,
+						children: `${emote.name}`,
+						style: { "margin-right": "0.25rem" },
+					},
+				},
+				{
+					[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
+					ref: null,
+					key: `emote-provider-${emote.id}`,
+					type: "span",
+					props: {
+						children: `(${provider})`,
+						class: [`brand-color-${providerData[0].toLowerCase()}`],
 					},
 				},
 			],

@@ -7,6 +7,7 @@ export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Emot
 		immutable: true,
 		privileged: true,
 		tags: [],
+		flags: 0,
 		provider: "TWITCH",
 		owner: {
 			id: data.owner?.id ?? data.id,
@@ -100,6 +101,7 @@ export function convertBttvEmoteSet(data: BTTV.UserResponse, channelID: string):
 		immutable: true,
 		privileged: true,
 		tags: [],
+		flags: 0,
 		provider: "BTTV",
 		owner: {
 			id: channelID,
@@ -155,6 +157,7 @@ export function convertFFZEmoteSet(data: FFZ.RoomResponse, channelID: string): S
 		immutable: true,
 		privileged: true,
 		tags: [],
+		flags: 0,
 		provider: "FFZ",
 		owner: {
 			id: channelID,

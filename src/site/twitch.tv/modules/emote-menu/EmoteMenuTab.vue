@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref } from "vue";
+import { until, useTimeout } from "@vueuse/core";
 import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
@@ -70,8 +71,32 @@ const selectedSet = ref(0);
 const refs = [] as HTMLElement[];
 const loaded = reactive<Record<string, number>>({});
 const observer = new IntersectionObserver((entries) => {
-	entries.forEach((entry) => {
-		loaded[entry.target.getAttribute("emote-id") as string] = entry.isIntersecting ? 1 : 0;
+	entries.forEach(async (entry) => {
+		const eid = entry.target.getAttribute("emote-id") as string;
+
+		// if the element is intersecting, wait 350ms before loading it
+		if (entry.isIntersecting && !loaded[eid]) {
+			const previouslyLoaded = loaded[eid] === -1;
+			loaded[eid] = 0;
+			if (!previouslyLoaded) await until(useTimeout(350)).toBeTruthy();
+		}
+
+		// if the element was intersecting, but not anymore, delete it from the loaded map
+		if (loaded[eid] === 0 && !entry.isIntersecting) {
+			delete loaded[eid];
+			return;
+		}
+
+		// if the element has been intersecting for 350ms, load it
+		if (entry.isIntersecting && loaded[eid] === 0) {
+			loaded[eid] = 1;
+			return;
+		}
+
+		// if the element is not intersecting anymore, delete it from the loaded map
+		if (!entry.isIntersecting && loaded[eid] >= 0) {
+			loaded[eid] = loaded[eid] === 1 ? -1 : 0;
+		}
 	});
 });
 
