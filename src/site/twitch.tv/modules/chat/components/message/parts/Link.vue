@@ -6,6 +6,6 @@
 
 <script setup lang="ts">
 defineProps<{
-	part: Twitch.ChatMessage.Part;
+	part: Twitch.ChatMessage.LinkPart;
 }>();
 </script>

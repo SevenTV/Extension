@@ -25,7 +25,7 @@ import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
-import { debounceFn } from "@/common/Async";
+import { ObserverPromise, debounceFn } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
@@ -283,15 +283,26 @@ function onModerationMessage(msg: Twitch.ModerationMessage) {
 	}
 }
 
-awaitComponents<Twitch.ViewerCardComponent>({
+const a = awaitComponents<Twitch.ViewerCardComponent>({
 	parentSelector: ".stream-chat",
 	predicate: (n) => n.onShowViewerCard && n.onShowExtensionMessageCard,
-}).then(([c]) => {
-	if (!c) return;
-	tools.onShowViewerCard = c.onShowViewerCard;
-	tools.onShowEmoteCard = c.onShowEmoteCard;
-	tools.setViewerCardPage = c.setViewerCardPage;
 });
+
+a.then(
+	([c]) => {
+		if (!c) return;
+		tools.onShowViewerCard = c.onShowViewerCard;
+		tools.onShowEmoteCard = c.onShowEmoteCard;
+		tools.setViewerCardPage = c.setViewerCardPage;
+	},
+	() => null,
+);
+
+if (a instanceof ObserverPromise) {
+	until(useTimeout(10e3))
+		.toBeTruthy()
+		.then(() => a.disconnect());
+}
 
 // Apply new boundaries when the window is resized
 const resizeObserver = new ResizeObserver(() => {

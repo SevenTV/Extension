@@ -104,7 +104,7 @@ declare namespace SevenTV {
 
 		provider?: Provider;
 		scope?: ActiveEmoteScope;
-		overlaid?: ActiveEmote[];
+		overlaid?: Record<string, ActiveEmote>;
 	}
 
 	type ActiveEmoteScope = "GLOBAL" | "CHANNEL" | "FOLLOWER" | "PERSONAL" | "SUB";

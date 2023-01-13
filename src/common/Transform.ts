@@ -57,7 +57,7 @@ export function convertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.E
 	};
 }
 
-export function convertCheerEmote(data: Twitch.ChatMessage.Part.EmoteContent): SevenTV.Emote {
+export function convertCheerEmote(data: Twitch.ChatMessage.EmotePart["content"]): SevenTV.Emote {
 	return {
 		id: data.emoteID ?? "",
 		name: `${data.alt} ${data.cheerAmount}`,
@@ -67,7 +67,7 @@ export function convertCheerEmote(data: Twitch.ChatMessage.Part.EmoteContent): S
 		listed: true,
 		owner: null,
 		host: {
-			url: data.images?.dark["1x"].split("/").slice(0, -1).join("/") ?? "",
+			url: data.images?.dark["1x"].split("/").slice(0, -1).join("/").replace("https:", "") ?? "",
 			files: [
 				{
 					name: "1.gif",

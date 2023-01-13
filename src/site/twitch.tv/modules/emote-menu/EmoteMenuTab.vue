@@ -1,7 +1,7 @@
 <template>
 	<UiScrollable class="scroll-area">
 		<div class="emote-area">
-			<template v-for="(emoteSet, i) of emoteSets" :key="i">
+			<template v-for="(emoteSet, i) of concatenated" :key="i">
 				<div v-if="emoteSet.emotes.length" :ref="'set-' + i.toString()" class="emote-set-container">
 					<div class="set-header">
 						<div class="set-header-icon">
@@ -21,7 +21,7 @@
 							:emote-id="emote.id"
 							@click="emit('emoteClick', emote)"
 						>
-							<Emote :emote="emote" :image-format="imageFormat" :unload="!loaded[emote.id]" />
+							<Emote :emote="emote" :unload="!loaded[emote.id]" />
 						</div>
 					</div>
 				</div>
@@ -29,7 +29,7 @@
 		</div>
 	</UiScrollable>
 	<div class="sidebar">
-		<template v-for="(emoteSet, i) of emoteSets" :key="i">
+		<template v-for="(emoteSet, i) of concatenated" :key="i">
 			<div
 				v-if="emoteSet.emotes.length"
 				class="set-sidebar-icon-container"
@@ -51,15 +51,14 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, reactive, ref } from "vue";
 import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import Emote from "../chat/components/message/Emote.vue";
 
-defineProps<{
+const props = defineProps<{
 	emoteSets: SevenTV.EmoteSet[];
-	imageFormat: SevenTV.ImageFormat;
 }>();
 
 const emit = defineEmits<{
@@ -74,6 +73,15 @@ const observer = new IntersectionObserver((entries) => {
 	entries.forEach((entry) => {
 		loaded[entry.target.getAttribute("emote-id") as string] = entry.isIntersecting ? 1 : 0;
 	});
+});
+
+const concatenated = computed(() => {
+	const temp = new Map<string, SevenTV.EmoteSet>();
+	for (const s of props.emoteSets) {
+		const e = temp.get(s.name);
+		e ? temp.set(s.name, { ...s, emotes: [...e.emotes, ...s.emotes] }) : temp.set(s.name, s);
+	}
+	return Array.from(temp.values());
 });
 // gather all card elements and observe them
 const setCardRef = (el: HTMLElement) => {

@@ -48,15 +48,13 @@ export class Tokenizer {
 		for (const part of this.parts) {
 			switch (part.type) {
 				case MessagePartType.TEXT:
-				case MessagePartType.MODERATEDTEXT:
-					this.tokenizeText(part.content as string, emoteMap);
-
+					this.tokenizeText(part.content, emoteMap);
 					break;
 				case MessagePartType.EMOTE:
-					this.newParts.push(twitchEmoteToPart(part.content as Twitch.ChatMessage.Part.EmoteContent));
+					this.newParts.push(twitchEmoteToPart(part.content));
 					break;
 				case MessagePartType.LINK:
-					this.newParts.push(matchLink(part.content as Twitch.ChatMessage.Part.LinkContent));
+					this.newParts.push(matchLink(part.content));
 					break;
 				default:
 					this.newParts.push(part);
@@ -83,7 +81,7 @@ function stringToPart(content: string): Twitch.ChatMessage.Part {
 }
 
 // Use type instead
-function linkToSevenTVLink(content: Twitch.ChatMessage.Part.LinkContent, emoteID: string): Twitch.ChatMessage.Part {
+function linkToSevenTVLink(content: Twitch.ChatMessage.LinkPart["content"], emoteID: string): Twitch.ChatMessage.Part {
 	return {
 		type: MessagePartType.SEVENTVLINK,
 		content: {
@@ -93,7 +91,7 @@ function linkToSevenTVLink(content: Twitch.ChatMessage.Part.LinkContent, emoteID
 	};
 }
 
-function twitchEmoteToPart(emote: Twitch.ChatMessage.Part.EmoteContent): Twitch.ChatMessage.Part {
+function twitchEmoteToPart(emote: Twitch.ChatMessage.EmotePart["content"]): Twitch.ChatMessage.Part {
 	if (emote.cheerAmount !== undefined)
 		return {
 			type: MessagePartType.SEVENTVEMOTE,
@@ -127,13 +125,13 @@ function sevenTVEmoteToPart(emote: SevenTV.ActiveEmote, zeroWidth?: SevenTV.Acti
 			content: emote,
 		};
 
-	const arr = emote.overlaid ?? [];
-	arr.push(zeroWidth);
+	const o = emote.overlaid ?? {};
+	o[zeroWidth.name] = zeroWidth;
 	return {
 		type: MessagePartType.SEVENTVEMOTE,
 		content: {
 			...emote,
-			overlaid: arr,
+			overlaid: o,
 		},
 	};
 }

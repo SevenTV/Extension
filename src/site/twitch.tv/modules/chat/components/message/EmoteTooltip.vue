@@ -21,7 +21,7 @@
 		</div>
 
 		<!-- Zero Width -->
-		<div v-if="emote.overlaid?.length" class="zero-width-label">
+		<div v-if="Object.keys(emote.overlaid ?? {}).length" class="zero-width-label">
 			<template v-for="e of emote.overlaid" :key="e.id">
 				—
 				<img v-if="e.data" class="overlaid-emote-icon" :srcset="imageHostToSrcset(e.data.host)" />
@@ -48,15 +48,14 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 const props = withDefaults(
 	defineProps<{
 		emote: SevenTV.ActiveEmote;
-		imageFormat?: SevenTV.ImageFormat;
 		unload?: boolean;
 		height: number;
 		width: number;
 	}>(),
-	{ unload: false, imageFormat: "WEBP" },
+	{ unload: false },
 );
 
-const srcset = computed(() => (props.unload ? "" : imageHostToSrcset(props.emote.data!.host, props.imageFormat)));
+const srcset = computed(() => (props.unload ? "" : imageHostToSrcset(props.emote.data!.host)));
 const width = computed(() => `${props.width * 2}px`);
 const height = computed(() => `${props.height * 2}px`);
 
