@@ -388,8 +388,8 @@ declare module Twitch {
 		text?: string;
 	};
 
-	export type ChatAutocompleteProvider = {
-		autocompleteType: string;
+	export type ChatAutocompleteProvider<T extends "emote" | "mention" | "command" | string = unknown> = {
+		autocompleteType: T;
 		canBeTriggeredByTab: boolean;
 		getMatches: (
 			string: string,
@@ -404,11 +404,30 @@ declare module Twitch {
 			  }[]
 			| undefined;
 		props: {
-			emotes: TwitchEmoteSet[];
-			isEmoteAnimationsEnabled: boolean;
 			registerAutocompleteProvider: (p: ChatAutocompleteProvider) => void;
-			theme: Theme;
-		};
+		} & {
+			emote: {
+				emotes: TwitchEmoteSet[];
+				isEmoteAnimationsEnabled: boolean;
+				theme: Theme;
+			};
+			mention: {
+				activeChattersAPI: {
+					getActiveChatterLoginFromDisplayName: () => void;
+					getActiveChatters: () => void;
+					handleMessage: (m: AnyMessage) => void;
+				};
+				showReplyPrompt: boolean;
+				channelID: string;
+				currentUserLogin: string;
+			};
+			command: {
+				getCommands: () => any[];
+				isCurrentUserEditor: boolean;
+				permissionLevel: number;
+			};
+			unknown: undefined;
+		}[T];
 	};
 
 	export enum Theme {

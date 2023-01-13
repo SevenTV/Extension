@@ -7,6 +7,7 @@ import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineFunctionHook,
 	defineNamedEventHandler,
+	definePropertyHook,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
@@ -18,7 +19,7 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
-const { emoteMap } = useChatAPI();
+const { emoteMap, messageHandlers } = useChatAPI();
 const { sendMessage } = useWorker();
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
@@ -388,6 +389,11 @@ onMounted(() => {
 	if (mentionProvider) {
 		providers.value.mention = mentionProvider;
 		mentionProvider.canBeTriggeredByTab = false;
+		definePropertyHook(mentionProvider as Twitch.ChatAutocompleteProvider<"mention">, "props", {
+			value(v: Twitch.ChatAutocompleteProvider<"mention">["props"]) {
+				messageHandlers.value.add(v.activeChattersAPI.handleMessage);
+			},
+		});
 	}
 
 	const emoteProvider = component.providers.find((provider) => provider.autocompleteType == "emote");
@@ -411,6 +417,7 @@ onUnmounted(() => {
 
 	if (providerList.mention) {
 		providerList.mention.canBeTriggeredByTab = true;
+		unsetPropertyHook(providerList.mention, "props");
 	}
 
 	if (providerList.emote) {

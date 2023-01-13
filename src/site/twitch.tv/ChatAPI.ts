@@ -37,6 +37,8 @@ const data = reactive({
 	paused: false, // whether or not scrolling is paused
 	duration: scrollduration,
 
+	messageHandlers: new Set<(v: Twitch.AnyMessage) => void>(),
+
 	scrollBuffer: [] as Twitch.DisplayableMessage[], // twitch chat message buffe when scrolling is paused
 	scrollClear: () => {
 		return;
@@ -231,6 +233,7 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		primaryColorHex,
 		useHighContrastColors,
 		showTimestamps,
+		messageHandlers,
 	} = toRefs(data);
 
 	return {
@@ -248,6 +251,8 @@ export function useChatAPI(scroller?: Ref<InstanceType<typeof UiScrollableVue> |
 		useHighContrastColors: useHighContrastColors,
 		showTimestamps: showTimestamps,
 		currentChannel: currentChannel,
+
+		messageHandlers: messageHandlers,
 
 		scrollSys: sys,
 		scrollInit: init,

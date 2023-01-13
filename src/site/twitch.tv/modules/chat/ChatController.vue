@@ -69,7 +69,8 @@ watch(channel, (channel) => {
 });
 
 const chatAPI = useChatAPI(scroller, bounds);
-const { scrollBuffer, scrollPaused, messages, lineLimit, twitchBadgeSets, clear, primaryColorHex } = chatAPI;
+const { scrollBuffer, scrollPaused, messages, lineLimit, twitchBadgeSets, clear, primaryColorHex, messageHandlers } =
+	chatAPI;
 
 const dataSets = reactive({
 	badges: false,
@@ -254,6 +255,9 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 		default:
 			return false;
 	}
+
+	//Send message to our registered message handlers
+	messageHandlers.value.forEach((h) => h(msg));
 	return true;
 };
 
