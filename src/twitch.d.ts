@@ -558,6 +558,8 @@ declare module Twitch {
 		seventv?: boolean;
 		t?: number;
 		element?: HTMLElement;
+		sendState?: "sending" | "sent" | "failed";
+		notifySent?: () => void;
 	}
 
 	export interface DisplayableMessage extends AnyMessage {
@@ -567,6 +569,7 @@ declare module Twitch {
 		badges?: Record<string, string>;
 		deleted?: boolean;
 		banned?: boolean;
+		nonce?: string;
 	}
 
 	export interface ChatMessage extends AnyMessage {
@@ -710,6 +713,11 @@ declare module Twitch {
 	export interface AnnouncementMessage extends AnyMessage {
 		color: "PRIMARY" | "BLUE" | "GREEN" | "ORANGE" | "PURPLE";
 		message: ChatMessage;
+	}
+
+	export interface IDUpdateMessage extends AnyMessage {
+		nonce: string;
+		userLogin: string;
 	}
 
 	export interface ChatUser {

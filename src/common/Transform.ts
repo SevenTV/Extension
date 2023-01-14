@@ -127,7 +127,14 @@ export function convertBttvEmote(data: BTTV.Emote): SevenTV.Emote {
 		tags: [],
 		lifecycle: 3,
 		listed: true,
-		owner: null,
+		owner: data.user
+			? {
+					id: data.user.id,
+					username: data.user.name,
+					display_name: data.user.displayName,
+					avatar_url: "",
+			  }
+			: null,
 		host: {
 			url: "//cdn.betterttv.net/emote/" + data.id,
 			files: [

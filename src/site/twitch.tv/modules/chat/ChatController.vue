@@ -22,10 +22,10 @@
 
 <script setup lang="ts">
 import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
-import { until, useTimeout } from "@vueuse/core";
+import { refDebounced, until, useTimeout, useTimeoutFn } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
-import { ObserverPromise, debounceFn } from "@/common/Async";
+import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
@@ -149,19 +149,14 @@ definePropertyHook(list.value.component, "props", {
 // This processed is deferred to the worker asynchronously
 // in order to reduce the load on the main thread.
 const twitchEmoteSets = ref<Twitch.TwitchEmoteSet[]>([]);
-watch(twitchEmoteSets, (sets) => {
+const twitchEmoteSetsDbc = refDebounced(twitchEmoteSets, 1000);
+watch(twitchEmoteSetsDbc, (sets) => {
 	if (!sets.length) return;
 
-	onTwitchEmotes();
-});
-
-const onTwitchEmotes = debounceFn(async () => {
 	for (const set of twitchEmoteSets.value) {
-		await until(useTimeout(50)).toBeTruthy(); // reduce the rate of conversion
-
 		sendMessage("SYNC_TWITCH_SET", { input: set });
 	}
-}, 1000);
+});
 
 // Keep track of user chat config
 definePropertyHook(room.value.component, "props", {
@@ -252,6 +247,9 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 		case MessageType.MODERATION:
 			onModerationMessage(msg as Twitch.ModerationMessage);
 			break;
+		case MessageType.MESSAGEIDUPDATE:
+			onMessageIdUpdate(msg as Twitch.IDUpdateMessage);
+			break;
 		default:
 			return false;
 	}
@@ -262,6 +260,21 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 };
 
 function onChatMessage(msg: Twitch.DisplayableMessage) {
+	// Set sending state if author is the current user
+	if (msg.user && store.identity && msg.user.userID === store.identity.id) {
+		const msgRef = ref(msg);
+
+		// Set the message to a sending state
+		msgRef.value.sendState = "sending";
+
+		// Set a timeout, beyond which we'll consider the message failed to send
+		const { stop } = useTimeoutFn(() => {
+			msgRef.value.sendState = "failed";
+		}, 10e3);
+
+		msgRef.value.notifySent = stop;
+	}
+
 	// Add message to store
 	// it will be rendered on the next tick
 	chatAPI.addMessage(msg);
@@ -280,6 +293,15 @@ function onModerationMessage(msg: Twitch.ModerationMessage) {
 			if (m.banned !== undefined) m.banned = true;
 			if (m.message?.banned !== undefined) m.message.banned = true;
 		});
+	}
+}
+
+function onMessageIdUpdate(msg: Twitch.IDUpdateMessage) {
+	const found = messages.value.find((m) => m.nonce == msg.nonce);
+	if (found) {
+		found.id = msg.id;
+		found.sendState = "sent";
+		found.notifySent?.();
 	}
 }
 

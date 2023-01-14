@@ -303,6 +303,12 @@ declare namespace BTTV {
 		code: string;
 		imageType: "png" | "gif";
 		userId: string;
+		user?: {
+			displayName: string;
+			id: string;
+			name: string;
+			providerId: string;
+		};
 	}
 
 	type SetType = "Global" | "Channel" | "Shared";

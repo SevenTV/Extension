@@ -1,4 +1,4 @@
-import { getManifest } from "./manifest.config";
+import { BranchName, getManifest } from "./manifest.config";
 import vue from "@vitejs/plugin-vue";
 import { spawn } from "child_process";
 import fs from "fs-extra";
@@ -121,7 +121,10 @@ export default defineConfig(({ mode }) => {
 				apply: "build",
 				async buildEnd() {
 					const man = await getManifest(
-						isDev || !!process.env.MV2,
+						{
+							branch: process.env.BRANCH as BranchName,
+							mv2: isDev || !!process.env.MV2,
+						},
 						Object.keys(chunks)
 							.map((key) => [`assets/${key}.js`, `assets/${key}.js.map`])
 							.reduce((a, b) => [...a, ...b], []),

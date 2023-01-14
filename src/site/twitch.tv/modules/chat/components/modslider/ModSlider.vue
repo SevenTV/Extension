@@ -50,15 +50,15 @@ const data = ref(new sliderData(0));
 let initial = 0;
 
 const canModerate = computed(() => {
+	// Return false if the user is not a moderator
+	if (!isModerator.value) return false;
+
+	// If the state is sent, it was our own message, which we can moderate
+	if (props.msg.sendState === "sent") return true;
+
+	// Check if the target is of type we cant moderate
 	const badges = props.msg.badges ?? props.msg.message?.badges;
-	return (
-		(isModerator.value &&
-			badges &&
-			!("moderator" in badges) &&
-			!("broadcaster" in badges) &&
-			!("staff" in badges)) ??
-		false
-	);
+	return badges && !("moderator" in badges) && !("broadcaster" in badges) && !("staff" in badges);
 });
 
 const hasHighlight = computed(() => {

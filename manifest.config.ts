@@ -6,14 +6,27 @@ interface MV3HostPermissions {
 	optional_host_permissions?: string[];
 }
 
-export async function getManifest(mv2?: boolean, chunkResources?: string[]): Promise<Manifest.WebExtensionManifest> {
+interface ManifestOptions {
+	mv2?: boolean;
+	branch?: BranchName;
+}
+
+export type BranchName = "beta" | "dev";
+
+export async function getManifest(
+	opt: ManifestOptions,
+	chunkResources?: string[],
+): Promise<Manifest.WebExtensionManifest> {
+	const iconName = "".concat(opt.branch ? opt.branch + "-" : "", "icon-512.png");
+
 	const manifest = {
 		manifest_version: 3,
-		name: displayName || name,
+		name: (displayName || name) + (opt.branch ? ` ${opt.branch.toUpperCase()}` : ""),
 		version: version,
+		version_name: version + (opt.branch ? ` ${opt.branch}` : ""),
 		description: description,
 		action: {
-			default_icon: "./icon/icon-512.png",
+			default_icon: `./icon/${iconName}`,
 		},
 
 		background: {
@@ -26,12 +39,10 @@ export async function getManifest(mv2?: boolean, chunkResources?: string[]): Pro
 			},
 		],
 		icons: {
-			16: "./icon/icon-512.png",
-			48: "./icon/icon-512.png",
-			128: "./icon/icon-512.png",
+			16: `./icon/${iconName}`,
+			48: `./icon/${iconName}`,
+			128: `./icon/${iconName}`,
 		},
-
-		permissions: ["tabs", "storage", "activeTab"],
 
 		// By default the extension is enabled only on Twitch
 		host_permissions: ["*://*.twitch.tv/*"],
@@ -54,7 +65,7 @@ export async function getManifest(mv2?: boolean, chunkResources?: string[]): Pro
 		],
 	} as Manifest.WebExtensionManifest & MV3HostPermissions;
 
-	if (mv2) {
+	if (opt.mv2) {
 		// if dev set manifest to version 2
 		manifest.manifest_version = 2;
 

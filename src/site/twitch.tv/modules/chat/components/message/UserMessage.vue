@@ -4,6 +4,7 @@
 		:class="{
 			deleted: msg.banned || msg.deleted,
 		}"
+		:state="msg.sendState"
 		:style="{
 			'font-style': msg.messageType === 1 && mentionStyle & 1 ? 'italic' : '',
 			color: msg.messageType === 1 && mentionStyle & 2 ? adjustedColor : '',
@@ -37,12 +38,7 @@
 		<span class="seventv-chat-message-body">
 			<template v-for="(part, index) of tokens" :key="index">
 				<span v-if="part.type === MessagePartType.SEVENTVEMOTE">
-					<span
-						class="emote-part"
-						:style="{
-							margin: `${emoteMargin}rem`,
-						}"
-					>
+					<span class="emote-part">
 						<Emote :emote="part.content" @emote-click="emoteClick" />
 					</span>
 					<span v-if="part.content.cheerAmount" :style="{ color: part.content.cheerColor }">
@@ -79,8 +75,8 @@ const props = defineProps<{
 
 const { emoteMap, showTimestamps, useHighContrastColors, isDarkTheme } = useChatAPI();
 
-// Get this from twitch settings instead?
 const emoteMargin = useConfig<number>("chat.emote_margin");
+const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);
 const mentionStyle = useConfig<number>("chat.slash_me_style");
 
 const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
@@ -97,7 +93,6 @@ const tokens = computed(() => {
 	return tokenizer.getParts(emoteMap.value, userEmoteMap.value);
 });
 
-// TODO: Get the get the readableChatColors from somewhere and return uncomputed name
 const adjustedColor = computed(() => {
 	return useHighContrastColors.value
 		? normalizeUsername(props.msg.user.color, isDarkTheme.value as 0 | 1)
@@ -131,6 +126,7 @@ function getPart(part: Twitch.ChatMessage.Part) {
 	.emote-part {
 		display: inline-grid;
 		vertical-align: middle;
+		margin: v-bind("emoteMarginValue");
 		margin-left: 0 !important;
 		margin-right: 0 !important;
 	}
@@ -138,6 +134,15 @@ function getPart(part: Twitch.ChatMessage.Part) {
 	.mention-part {
 		padding: 0.2rem;
 		font-weight: bold;
+	}
+
+	&[state="sending"] {
+		opacity: 0.5;
+	}
+
+	&[state="failed"] {
+		opacity: 0.5;
+		color: var(--seventv-warning);
 	}
 }
 

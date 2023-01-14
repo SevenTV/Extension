@@ -329,7 +329,10 @@ export const betterttv = {
 
 		const set = convertBttvEmoteSet(data, data.id);
 		set.provider = "BTTV/G" as SevenTV.Provider;
-		set.emotes.forEach((e) => (e.provider = set.provider));
+		set.emotes.forEach((e) => {
+			e.provider = set.provider;
+			e.scope = "GLOBAL";
+		});
 
 		db.emoteSets.put(set).catch(() => {
 			db.emoteSets.where({ id: set.id, provider: "BTTV" }).modify(set);

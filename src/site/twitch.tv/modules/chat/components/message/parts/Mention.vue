@@ -1,5 +1,5 @@
 <template>
-	<span :class="{ 'mention-part': part.content.currentUserMentionRelation === 1 }">
+	<span class="mention-part">
 		{{ "@" + part.content.recipient }}
 	</span>
 </template>
