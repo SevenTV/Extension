@@ -30,7 +30,7 @@ let flushTimeout: number | null = null;
  * Set up cosmetics
  */
 db.ready().then(async () => {
-	const { platform, channel } = toRefs(useStore());
+	const { channel } = toRefs(useStore());
 	const { target } = useWorker();
 
 	const cosmeticsFetched = ref(false);
@@ -233,40 +233,36 @@ db.ready().then(async () => {
 	});
 
 	// Assign stored entitlementsdb.entitlements
-	db.entitlements
-		.where("scope")
-		.equals(`${platform.value}:${channel.value!.id ?? "X"}`)
-		.toArray()
-		.then((ents) => {
-			for (const ent of ents) {
-				let assigned = false;
+	db.entitlements.toArray().then((ents) => {
+		for (const ent of ents) {
+			let assigned = false;
 
-				const isLegacy = !!data.staticallyAssigned[ent.user_id];
-				switch (ent.kind) {
-					case "BADGE":
-						if (!isLegacy && data.userBadges[ent.user_id]) continue;
+			const isLegacy = !!data.staticallyAssigned[ent.user_id];
+			switch (ent.kind) {
+				case "BADGE":
+					if (!isLegacy && data.userBadges[ent.user_id]?.length) continue;
 
-						data.userBadges[ent.user_id] = [data.cosmetics[ent.ref_id] as SevenTV.Cosmetic<"BADGE">];
-						assigned = true;
-						break;
-					case "PAINT":
-						if (!isLegacy && data.userPaints[ent.user_id]) continue;
+					data.userBadges[ent.user_id] = [data.cosmetics[ent.ref_id] as SevenTV.Cosmetic<"BADGE">];
+					assigned = true;
+					break;
+				case "PAINT":
+					if (!isLegacy && data.userPaints[ent.user_id]?.length) continue;
 
-						data.userPaints[ent.user_id] = [data.cosmetics[ent.ref_id] as SevenTV.Cosmetic<"PAINT">];
-						assigned = true;
-						break;
-					case "EMOTE_SET":
-						bindUserEmotes(ent.user_id, ent.ref_id);
-						break;
-				}
-
-				log.debug("<Cosmetics>", "Assigned", ents.length.toString(), "stored entitlements");
-
-				if (assigned) {
-					data.staticallyAssigned[ent.user_id] = {};
-				}
+					data.userPaints[ent.user_id] = [data.cosmetics[ent.ref_id] as SevenTV.Cosmetic<"PAINT">];
+					assigned = true;
+					break;
+				case "EMOTE_SET":
+					bindUserEmotes(ent.user_id, ent.ref_id);
+					break;
 			}
-		});
+
+			log.debug("<Cosmetics>", "Assigned", ents.length.toString(), "stored entitlements");
+
+			if (assigned) {
+				data.staticallyAssigned[ent.user_id] = {};
+			}
+		}
+	});
 });
 
 export function useCosmetics(userID: string) {

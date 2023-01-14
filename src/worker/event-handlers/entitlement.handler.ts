@@ -1,14 +1,9 @@
 import { ChangeMap, EventContext } from "..";
-import type { WorkerPort } from "../worker.port";
 
-export async function onEntitlementCreate(
-	ctx: EventContext,
-	cm: ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>,
-	ports: WorkerPort[],
-) {
-	if (!cm.object || !ports.length) return;
+export async function onEntitlementCreate(ctx: EventContext, cm: ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>) {
+	if (!cm.object) return;
 
-	for (const port of ports) {
+	for (const port of ctx.driver.ports.values()) {
 		const platform = port.platform;
 		if (!platform) return; // no platform set
 
@@ -37,14 +32,10 @@ export async function onEntitlementCreate(
 	}
 }
 
-export async function onEntitlementDelete(
-	ctx: EventContext,
-	cm: ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>,
-	ports: WorkerPort[],
-) {
-	if (!cm.object || !ports.length) return;
+export async function onEntitlementDelete(ctx: EventContext, cm: ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>) {
+	if (!cm.object) return;
 
-	for (const port of ports) {
+	for (const port of ctx.driver.ports.values()) {
 		const platform = port.platform;
 		if (!platform) return; // no platform set
 

@@ -104,11 +104,7 @@ export class EventAPI {
 	}
 
 	private onDispatch(msg: EventAPIMessage<"DISPATCH">): void {
-		const subs = msg.data.matches
-			.map((id) => this.findSubscriptionByID(id))
-			.filter((x) => x) as SubscriptionRecord[];
-
-		handleDispatchedEvent(this.ctx, msg.data.type, msg.data.body, subs);
+		handleDispatchedEvent(this.ctx, msg.data.type, msg.data.body);
 
 		log.debugWithObjects(["<EventAPI>", "Dispatch received"], [msg.data]);
 	}

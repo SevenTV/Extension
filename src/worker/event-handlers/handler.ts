@@ -3,22 +3,14 @@ import { onCosmeticCreate } from "./cosmetic.handler";
 import { onEmoteSetCreate, onEmoteSetUpdate } from "./emote-set.handler";
 import { onEntitlementCreate, onEntitlementDelete } from "./entitlement.handler";
 import type { ChangeMap, EventContext, ObjectTypeOfKind } from "../";
-import { SubscriptionRecord } from "../worker.events";
 
-export function handleDispatchedEvent(
-	ctx: EventContext,
-	type: string,
-	cm: ChangeMap<SevenTV.ObjectKind>,
-	subs: SubscriptionRecord[],
-) {
-	const ports = subs.map((x) => x.ports).flatMap((x) => Array.from(x.values()));
-
+export function handleDispatchedEvent(ctx: EventContext, type: string, cm: ChangeMap<SevenTV.ObjectKind>) {
 	const h = {
 		"cosmetic.create": () => onCosmeticCreate(ctx, cm as ChangeMap<SevenTV.ObjectKind.COSMETIC>),
 		"entitlement.create": () =>
-			onEntitlementCreate(ctx, structuredClone(cm) as ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>, ports),
+			onEntitlementCreate(ctx, structuredClone(cm) as ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>),
 		"entitlement.delete": () =>
-			onEntitlementDelete(ctx, structuredClone(cm) as ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>, ports),
+			onEntitlementDelete(ctx, structuredClone(cm) as ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>),
 		"emote_set.create": () => onEmoteSetCreate(ctx, cm as ChangeMap<SevenTV.ObjectKind.EMOTE_SET>),
 		"emote_set.update": () => onEmoteSetUpdate(ctx, cm as ChangeMap<SevenTV.ObjectKind.EMOTE_SET>),
 	}[type];
