@@ -11,16 +11,18 @@ import {
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useWorker } from "@/composable/useWorker";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
 const store = useStore();
-const { emoteMap, messageHandlers } = useChatAPI();
+const { messageHandlers } = useChatMessages();
+const { emoteMap } = useChatEmotes();
 const { emotes: personalEmoteMap } = useCosmetics(store.identity?.id ?? "");
 const { sendMessage } = useWorker();
 

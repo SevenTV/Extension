@@ -44,8 +44,9 @@ import {
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
+import { useChatContext } from "@/composable/chat/useChatContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import EmoteMenuTab from "@/site/twitch.tv/modules/emote-menu/EmoteMenuTab.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 
@@ -54,7 +55,8 @@ const props = defineProps<{
 }>();
 
 const { identity } = useStore();
-const { emoteProviders, currentChannel } = useChatAPI();
+const { emoteProviders } = useChatEmotes();
+const { channel: currentChatChannel } = useChatContext();
 const { emoteSets: personalEmoteSets, emotes: personalEmotes } = useCosmetics(identity?.id ?? "");
 
 const containerEl = ref();
@@ -120,7 +122,7 @@ function specialCases(s: SevenTV.EmoteSet) {
 	if (s.provider?.endsWith("/G") || s.name == "Other emotes") return 1;
 
 	// Clauses that should place at top
-	if (s.name == currentChannel.value.display_name) return -1;
+	if (currentChatChannel.value && s.name == currentChatChannel.value.display_name) return -1;
 	if (s.flags & 4) return -2;
 	return 0;
 }

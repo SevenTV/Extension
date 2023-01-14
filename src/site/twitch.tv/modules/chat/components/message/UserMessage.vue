@@ -56,11 +56,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { normalizeUsername } from "@/common/Color";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCardOpeners } from "@/composable/useCardOpeners";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import { MessagePartType } from "@/site/twitch.tv";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
 import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
 import { Tokenizer } from "./Tokenizer";
@@ -73,7 +74,8 @@ const props = defineProps<{
 	msg: Twitch.ChatMessage;
 }>();
 
-const { emoteMap, showTimestamps, useHighContrastColors, isDarkTheme } = useChatAPI();
+const { emoteMap } = useChatEmotes();
+const { showTimestamps, useHighContrastColors, isDarkTheme } = useChatProperties();
 
 const emoteMargin = useConfig<number>("chat.emote_margin");
 const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);

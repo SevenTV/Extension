@@ -8,15 +8,15 @@
 <script setup lang="ts">
 import { useStore } from "@/store/main";
 import { useComponentHook } from "@/common/ReactHooks";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { getRouter } from "@/site/twitch.tv";
-import { useChatAPI } from "./ChatAPI";
 import ChatInputModule from "./modules/chat-input/ChatInputModule.vue";
 import ChatModule from "./modules/chat/ChatModule.vue";
 import EmoteMenuModule from "./modules/emote-menu/EmoteMenuModule.vue";
 import SettingsModule from "./modules/settings/SettingsModule.vue";
 
 const store = useStore();
-const { imageFormat } = useChatAPI();
+const { imageFormat } = useChatProperties();
 imageFormat.value = store.avifSupported ? "AVIF" : "WEBP";
 
 // Retrieve twitch's internal router

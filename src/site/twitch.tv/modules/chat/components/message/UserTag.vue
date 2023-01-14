@@ -31,8 +31,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import Badge from "./Badge.vue";
 import UiPaint from "@/ui/UiPaint.vue";
 
@@ -47,7 +47,7 @@ const emit = defineEmits<{
 	(event: "badgeClick", e: MouseEvent, badge: Twitch.ChatBadge): void;
 }>();
 
-const { twitchBadgeSets } = useChatAPI();
+const { twitchBadgeSets } = useChatProperties();
 const { badges, paints } = useCosmetics(props.user.userID);
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 

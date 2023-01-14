@@ -1,6 +1,6 @@
 <template>
 	<Teleport v-if="channel && channel.id" :to="containerEl">
-		<UiScrollable ref="scroller" @container-scroll="chatAPI.onScroll" @container-wheel="chatAPI.onWheel">
+		<UiScrollable ref="scroller" @container-scroll="onScroll" @container-wheel="onWheel">
 			<div id="seventv-message-container" class="seventv-message-container">
 				<ChatList :messages="messages" :controller="controller.component" />
 			</div>
@@ -13,7 +13,7 @@
 		<div
 			v-if="scrollPaused && scrollBuffer.length > 0"
 			class="seventv-message-buffer-notice"
-			@click="chatAPI.unpauseScrolling"
+			@click="unpauseScrolling"
 		>
 			<span>{{ scrollBuffer.length }}{{ scrollBuffer.length >= lineLimit ? "+" : "" }} new messages</span>
 		</div>
@@ -30,10 +30,14 @@ import { log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { useChatContext } from "@/composable/chat/useChatContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatMessages } from "@/composable/chat/useChatMessages";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
+import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { tools } from "@/composable/useCardOpeners";
 import { useWorker } from "@/composable/useWorker";
 import { MessageType, ModerationType } from "@/site/twitch.tv";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
@@ -46,7 +50,7 @@ const props = defineProps<{
 
 const store = useStore();
 const { channel } = storeToRefs(store);
-const { sendMessage } = useWorker();
+const { sendMessage: sendWorkerMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);
 
@@ -68,9 +72,22 @@ watch(channel, (channel) => {
 	log.info("<ChatController>", `Joining #${channel.username}`);
 });
 
-const chatAPI = useChatAPI(scroller, bounds);
-const { scrollBuffer, scrollPaused, messages, lineLimit, twitchBadgeSets, clear, primaryColorHex, messageHandlers } =
-	chatAPI;
+const {
+	lineLimit,
+	buffer: scrollBuffer,
+	paused: scrollPaused,
+	onScroll,
+	onWheel,
+	unpause: unpauseScrolling,
+} = useChatScroller({
+	scroller: scroller,
+	bounds: bounds,
+});
+const { channel: currentChatChannel } = useChatContext();
+const { addMessage, messages, clear, messageHandlers, sendMessage, chatters } = useChatMessages();
+const { twitchBadgeSets, primaryColorHex, useHighContrastColors, showTimestamps, isModerator, isVIP, isDarkTheme } =
+	useChatProperties();
+const { resetProviders } = useChatEmotes();
 
 const dataSets = reactive({
 	badges: false,
@@ -92,11 +109,12 @@ watchEffect(() => {
 });
 
 // Update current channel globally
-watchEffect(() => {
-	if (currentChannel.value) {
-		if (store.setChannel(currentChannel.value)) clear();
-	}
-});
+function onUpdateChannel() {
+	if (!store.setChannel(currentChannel.value)) return;
+
+	clear();
+	resetProviders();
+}
 
 // The message handler is hooked to render messages and prevent
 // the native twitch renderer from rendering them
@@ -154,16 +172,16 @@ watch(twitchEmoteSetsDbc, (sets) => {
 	if (!sets.length) return;
 
 	for (const set of twitchEmoteSets.value) {
-		sendMessage("SYNC_TWITCH_SET", { input: set });
+		sendWorkerMessage("SYNC_TWITCH_SET", { input: set });
 	}
 });
 
 // Keep track of user chat config
 definePropertyHook(room.value.component, "props", {
 	value(v: typeof room.value.component.props) {
-		chatAPI.primaryColorHex.value = "#" + v.primaryColorHex ?? "755ebc";
-		chatAPI.useHighContrastColors.value = v.useHighContrastColors;
-		chatAPI.showTimestamps.value = v.showTimestamps;
+		primaryColorHex.value = "#" + v.primaryColorHex ?? "755ebc";
+		useHighContrastColors.value = v.useHighContrastColors;
+		showTimestamps.value = v.showTimestamps;
 	},
 });
 
@@ -178,14 +196,15 @@ definePropertyHook(controller.value.component, "props", {
 				loaded: false,
 			};
 
-			chatAPI.currentChannel.value = currentChannel.value;
+			currentChatChannel.value = currentChannel.value;
+			onUpdateChannel();
 		}
 
 		// Keep track of chat props
-		chatAPI.isModerator.value = v.isCurrentUserModerator;
-		chatAPI.isVIP.value = v.isCurrentUserVIP;
-		chatAPI.sendMessage.value = v.chatConnectionAPI.sendMessage;
-		chatAPI.isDarkTheme.value = v.theme;
+		isModerator.value = v.isCurrentUserModerator;
+		isVIP.value = v.isCurrentUserVIP;
+		sendMessage.value = v.chatConnectionAPI.sendMessage;
+		isDarkTheme.value = v.theme;
 
 		// Parse twitch emote sets
 		const data = v.emoteSetsData;
@@ -195,8 +214,8 @@ definePropertyHook(controller.value.component, "props", {
 
 		// Add the current user & channel owner to active chatters
 		if (v.userID) {
-			chatAPI.chatters.value[v.userID] = {};
-			chatAPI.chatters.value[v.channelID] = {};
+			chatters.value[v.userID] = {};
+			chatters.value[v.channelID] = {};
 		}
 	},
 });
@@ -214,7 +233,7 @@ watch(list.value.domNodes, (nodes) => {
 
 		if (nodeMap.has(nodeId)) continue;
 
-		chatAPI.addMessage({
+		addMessage({
 			id: nodeId + "-unhandled",
 			element: node,
 		} as Twitch.DisplayableMessage);
@@ -277,7 +296,7 @@ function onChatMessage(msg: Twitch.DisplayableMessage) {
 
 	// Add message to store
 	// it will be rendered on the next tick
-	chatAPI.addMessage(msg);
+	addMessage(msg);
 }
 
 function onModerationMessage(msg: Twitch.ModerationMessage) {

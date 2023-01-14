@@ -1,6 +1,6 @@
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
 
-const { imageFormat } = useChatAPI();
+const { imageFormat } = useChatProperties();
 
 export function imageHostToSrcset(host: SevenTV.ImageHost, imageF: SevenTV.ImageFormat = imageFormat.value): string {
 	const format = host.files.some((fi) => fi.format === imageF) ? imageF : host.files[0]?.format;

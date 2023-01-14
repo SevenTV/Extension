@@ -4,14 +4,14 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useLiveQuery } from "@/composable/useLiveQuery";
 import { useWorker } from "@/composable/useWorker";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { db } from "@/db/idb";
 
 const { target } = useWorker();
 const { channel } = storeToRefs(useStore());
-const chatAPI = useChatAPI();
+const { emoteProviders, emoteMap } = useChatEmotes();
 
 // query the channel's emote set bindings
 const channelSets = useLiveQuery(
@@ -23,9 +23,9 @@ const channelSets = useLiveQuery(
 			.then((c) => c?.set_ids ?? []),
 	() => {
 		// reset the third-party emote providers
-		chatAPI.emoteProviders.value["7TV"] = {};
-		chatAPI.emoteProviders.value["FFZ"] = {};
-		chatAPI.emoteProviders.value["BTTV"] = {};
+		emoteProviders.value["7TV"] = {};
+		emoteProviders.value["FFZ"] = {};
+		emoteProviders.value["BTTV"] = {};
 	},
 	{
 		reactives: [channel],
@@ -46,8 +46,8 @@ useLiveQuery(
 
 		for (const set of sets) {
 			const provider = (set.provider?.replace("/G", "") ?? "UNKNOWN") as SevenTV.Provider;
-			if (!chatAPI.emoteProviders.value[provider]) chatAPI.emoteProviders.value[provider] = {};
-			chatAPI.emoteProviders.value[provider][set.id] = set;
+			if (!emoteProviders.value[provider]) emoteProviders.value[provider] = {};
+			emoteProviders.value[provider][set.id] = set;
 		}
 
 		const o = {} as Record<SevenTV.ObjectID, SevenTV.ActiveEmote>;
@@ -56,7 +56,7 @@ useLiveQuery(
 			o[emote.name] = emote;
 		}
 
-		chatAPI.emoteMap.value = o;
+		emoteMap.value = o;
 	},
 	{
 		reactives: [channelSets],
@@ -65,10 +65,10 @@ useLiveQuery(
 
 // Receive twitch emote sets from the worker
 target.addEventListener("twitch_emote_set_data", (ev) => {
-	if (!chatAPI.emoteProviders.value.TWITCH) {
-		chatAPI.emoteProviders.value.TWITCH = {};
+	if (!emoteProviders.value.TWITCH) {
+		emoteProviders.value.TWITCH = {};
 	}
 
-	chatAPI.emoteProviders.value.TWITCH[ev.detail.id] = ev.detail;
+	emoteProviders.value.TWITCH[ev.detail.id] = ev.detail;
 });
 </script>

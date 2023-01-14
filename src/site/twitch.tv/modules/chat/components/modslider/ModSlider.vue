@@ -33,15 +33,17 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useChatMessages } from "@/composable/chat/useChatMessages";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { MessageType } from "@/site/twitch.tv";
-import { useChatAPI } from "@/site/twitch.tv/ChatAPI";
 import { maxVal, sliderData } from "./ModSliderBackend";
 
 const props = defineProps<{
 	msg: Twitch.DisplayableMessage;
 }>();
 
-const { isModerator, sendMessage } = useChatAPI();
+const { isModerator } = useChatProperties();
+const { sendMessage } = useChatMessages();
 
 const transition = ref(false);
 const tracking = ref(false);
