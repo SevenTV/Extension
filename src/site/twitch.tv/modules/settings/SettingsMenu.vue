@@ -19,7 +19,7 @@
 				<div class="sidebar"></div>
 				<div class="settings-area">
 					<template v-for="[key, node] of Object.entries(getNodes())" :key="key">
-						<SettingsNode :node="node" />
+						<SettingsNode v-if="node.type !== 'NONE'" :node="node" />
 					</template>
 				</div>
 			</div>

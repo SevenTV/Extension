@@ -6,18 +6,7 @@
 
 	<!-- Render tooltip -->
 	<Teleport to="#root">
-		<div
-			id="seventv-tooltip-container"
-			ref="tooltipContainer"
-			:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
-		>
-			<template v-if="typeof tooltip.content === 'string'">
-				{{ tooltip.content }}
-			</template>
-			<template v-else>
-				<component :is="tooltip.content" v-bind="tooltip.contentProps" />
-			</template>
-		</div>
+		<Global v-if="!wg" />
 	</Teleport>
 </template>
 
@@ -26,8 +15,8 @@ import type { Component } from "vue";
 import { inject } from "vue";
 import { markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
-import { tooltip } from "@/composable/useTooltip";
 import { useWorker } from "@/composable/useWorker";
+import Global from "./global/Global.vue";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
 import { db } from "@/db/idb";
 
@@ -65,14 +54,7 @@ const platformComponent = ref<Component>();
 
 log.setContextName(`site/${domain}`);
 
-// Tooltip positioning data
-const tooltipContainer = ref<HTMLDivElement | null>(null);
-
 onMounted(() => {
-	if (tooltipContainer.value) {
-		tooltip.container = tooltipContainer.value;
-	}
-
 	// Define site controller for the platform
 	platformComponent.value = {
 		"twitch.tv": markRaw(TwitchSite),

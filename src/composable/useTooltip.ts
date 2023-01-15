@@ -1,5 +1,5 @@
 import { Component, markRaw, nextTick, reactive } from "vue";
-import { computePosition, offset } from "@floating-ui/dom";
+import { computePosition, shift } from "@floating-ui/dom";
 
 export const tooltip = reactive({
 	x: 0,
@@ -31,7 +31,7 @@ export function useTooltip(content?: string | Component, props?: Record<string, 
 		nextTick(() => {
 			computePosition(el, tooltip.container as HTMLElement, {
 				placement: "top",
-				middleware: [offset(12)],
+				middleware: [shift({ padding: 8 })],
 			}).then(({ x: xVal, y: yVal }) => {
 				tooltip.x = xVal;
 				tooltip.y = yVal;

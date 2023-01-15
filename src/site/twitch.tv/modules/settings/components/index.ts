@@ -13,6 +13,7 @@ const standard = {
 	TOGGLE: Toggle,
 	SLIDER: Slider,
 	CUSTOM: undefined,
+	NONE: undefined,
 };
 
 export function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {

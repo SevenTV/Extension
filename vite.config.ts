@@ -1,4 +1,5 @@
 import { BranchName, getManifest } from "./manifest.config";
+import { version } from "./package.json";
 import vue from "@vitejs/plugin-vue";
 import { spawn } from "child_process";
 import fs from "fs-extra";
@@ -46,11 +47,12 @@ const ignoreHMR = [
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const isDev = mode === "dev";
-	process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
-	if (isDev) {
-		process.env.SITE_SCRIPT_URL = "http://localhost:4777/src/site/site.ts";
-	}
+	process.env = {
+		...process.env,
+		...loadEnv(mode, process.cwd()),
+		VITE_APP_VERSION: version,
+	};
 
 	return {
 		server: {

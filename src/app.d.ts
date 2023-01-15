@@ -83,6 +83,7 @@ declare namespace SevenTV {
 			};
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			CUSTOM: any;
+			NONE: never;
 		}[K];
 		predicate?: (p: T) => boolean;
 
@@ -93,7 +94,7 @@ declare namespace SevenTV {
 	type SettingType = boolean | number | string | object;
 
 	namespace SettingNode {
-		type ComponentType = "SELECT" | "DROPDOWN" | "CHECKBOX" | "INPUT" | "TOGGLE" | "SLIDER" | "CUSTOM";
+		type ComponentType = "SELECT" | "DROPDOWN" | "CHECKBOX" | "INPUT" | "TOGGLE" | "SLIDER" | "CUSTOM" | "NONE";
 	}
 
 	interface ActiveEmote {

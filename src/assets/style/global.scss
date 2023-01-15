@@ -2,19 +2,6 @@
 	z-index: 1;
 }
 
-#seventv-tooltip-container {
-	all: unset;
-	z-index: 99999;
-	position: absolute;
-	pointer-events: none;
-	top: 0;
-	left: 0;
-	background-color: var(--seventv-background-transparent-2);
-	backdrop-filter: blur(0.88em);
-	outline: 0.1em solid var(--seventv-border-transparent-1);
-	border-radius: 0.25em;
-}
-
 .tw-root--theme-dark {
 	--seventv-text-color-normal: #f0f0f0;
 	--seventv-text-color-secondary: #f0f0f078;
@@ -22,6 +9,7 @@
 	--seventv-background-transparent-1: #161616c4;
 	--seventv-background-transparent-2: #1b1b1bc4;
 	--seventv-border-transparent-1: #ffffff1a;
+	--seventv-primary: #29b6f6;
 	--seventv-warning: #df4545;
 }
 
@@ -32,9 +20,10 @@
 	--seventv-background-transparent-1: #f7f7f7c4;
 	--seventv-background-transparent-2: #e7e7e7c4;
 	--seventv-border-transparent-1: #0000001a;
+	--seventv-primary: #29b6f6;
 	--seventv-warning: #ec3535;
 }
 
 .brand-color-7tv {
-	color: #29b6f6;
+	color: var(--seventv-primary);
 }
