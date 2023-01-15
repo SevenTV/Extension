@@ -1,3 +1,5 @@
+import { imageHostToSrcset } from "./Image";
+
 const BTTV_ZeroWidth = ["SoSnowy", "IceCold", "SantaHat", "TopHat", "ReinDeer", "CandyCane", "cvMask", "cvHazmat"];
 
 export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.EmoteSet {
@@ -9,23 +11,32 @@ export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Emot
 		tags: [],
 		flags: 0,
 		provider: "TWITCH",
-		owner: {
-			id: data.owner?.id ?? data.id,
-			username: data.owner?.displayName ?? data.id,
-			display_name: data.owner?.displayName ?? data.id,
-			avatar_url: data.owner?.profileImageURL ?? "",
-		},
-		emotes: data.emotes.map((e) => ({
-			id: e.id,
-			name: e.token,
-			flags: 0,
-			provider: "TWITCH",
-			data: convertTwitchEmote(e),
-		})),
+		owner: data.owner?.displayName
+			? {
+					id: data.owner.id,
+					username: data.owner.displayName,
+					display_name: data.owner.displayName,
+					avatar_url: data.owner.profileImageURL,
+			  }
+			: undefined,
+		emotes: data.emotes.map((e) => {
+			const d = convertTwitchEmote(e, data.owner);
+			d.host.srcset = imageHostToSrcset(d.host, "TWITCH");
+			return {
+				id: e.id,
+				name: e.token,
+				flags: 0,
+				provider: "TWITCH",
+				data: d,
+			};
+		}),
 	};
 }
 
-export function convertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.Emote {
+export function convertTwitchEmote(
+	data: Partial<Twitch.TwitchEmote>,
+	owner?: Twitch.TwitchEmoteSet["owner"],
+): SevenTV.Emote {
 	return {
 		id: data.id ?? "",
 		name: data.token ?? "",
@@ -33,7 +44,14 @@ export function convertTwitchEmote(data: Partial<Twitch.TwitchEmote>): SevenTV.E
 		tags: [],
 		lifecycle: 3,
 		listed: true,
-		owner: null,
+		owner: owner
+			? {
+					id: owner.id,
+					username: owner.displayName,
+					display_name: owner.displayName,
+					avatar_url: owner.profileImageURL,
+			  }
+			: null,
 		host: {
 			url: "//static-cdn.jtvnw.net/emoticons/v2/" + data.id + "/default/dark",
 			files: [
@@ -109,13 +127,17 @@ export function convertBttvEmoteSet(data: BTTV.UserResponse, channelID: string):
 			display_name: channelID,
 			avatar_url: data.avatar ?? "",
 		},
-		emotes: [...channelEmotes, ...sharedEmotes].map((e) => ({
-			id: e.id,
-			name: e.code,
-			flags: 0,
-			provider: "BTTV",
-			data: convertBttvEmote(e),
-		})),
+		emotes: [...channelEmotes, ...sharedEmotes].map((e) => {
+			const data = convertBttvEmote(e);
+			data.host.srcset = imageHostToSrcset(data.host, "BTTV");
+			return {
+				id: e.id,
+				name: e.code,
+				flags: 0,
+				provider: "BTTV",
+				data: data,
+			};
+		}),
 	};
 }
 
@@ -177,12 +199,14 @@ export function convertFFZEmoteSet(data: FFZ.RoomResponse, channelID: string): S
 					return [
 						...con,
 						...(set.emoticons.map((e) => {
+							const data = convertFFZEmote(e);
+							data.host.srcset = imageHostToSrcset(data.host, "FFZ");
 							return {
 								id: e.id.toString(),
 								name: e.name,
 								flags: 0,
 								provider: "FFZ",
-								data: convertFFZEmote(e) as SevenTV.Emote,
+								data: data,
 							};
 						}) as SevenTV.ActiveEmote[]),
 					];

@@ -38,14 +38,14 @@ useLiveQuery(
 		db.emoteSets
 			.where("id")
 			.anyOf(channelSets.value ?? [])
-			.or("provider")
-			.anyOf("7TV/G", "FFZ/G", "BTTV/G")
+			.or("scope")
+			.equals("GLOBAL")
 			.sortBy("priority"),
 	(sets) => {
 		if (!sets) return;
 
 		for (const set of sets) {
-			const provider = (set.provider?.replace("/G", "") ?? "UNKNOWN") as SevenTV.Provider;
+			const provider = (set.provider ?? "UNKNOWN") as SevenTV.Provider;
 			if (!emoteProviders.value[provider]) emoteProviders.value[provider] = {};
 			emoteProviders.value[provider][set.id] = set;
 		}

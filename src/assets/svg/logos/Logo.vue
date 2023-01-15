@@ -20,5 +20,5 @@ const c = {
 	FFZ: LogoFFZ,
 	BTTV: LogoBTTV,
 	TWITCH: LogoTwitch,
-}[props.provider.replace("/G", "")];
+}[props.provider];
 </script>

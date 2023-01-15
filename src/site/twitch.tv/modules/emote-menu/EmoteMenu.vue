@@ -119,7 +119,7 @@ function sortEmotes(a: SevenTV.ActiveEmote, b: SevenTV.ActiveEmote) {
 
 function specialCases(s: SevenTV.EmoteSet) {
 	// Clauses that should place at bottom
-	if (s.provider?.endsWith("/G") || s.name == "Other emotes") return 1;
+	if (s.scope == "GLOBAL" || s.name == "Other emotes") return 1;
 
 	// Clauses that should place at top
 	if (currentChatChannel.value && s.name == currentChatChannel.value.display_name) return -1;

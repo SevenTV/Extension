@@ -51,6 +51,7 @@ declare namespace SevenTV {
 		// Non-structural
 		provider?: Provider;
 		priority?: number;
+		scope?: SevenTV.ActiveEmoteScope;
 	}
 
 	interface Setting<T extends SettingType> {
@@ -244,6 +245,7 @@ declare namespace SevenTV {
 	interface ImageHost {
 		url: string;
 		files: ImageFile[];
+		srcset?: string;
 	}
 
 	interface ImageFile {

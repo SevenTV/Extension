@@ -21,13 +21,9 @@ const { dependenciesMet, markAsReady } = useModule("chat", {
 	config: [
 		{
 			key: "general.blur_unlisted_emotes",
-			label: "Unlisted Emotes",
+			label: "Hide Unlisted Emotes",
 			hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
 			type: "TOGGLE",
-			options: {
-				left: "Show",
-				right: "Blur",
-			},
 			defaultValue: false,
 		},
 		{
@@ -41,7 +37,7 @@ const { dependenciesMet, markAsReady } = useModule("chat", {
 				step: 0.1,
 				unit: "rem",
 			},
-			defaultValue: -1,
+			defaultValue: -0.5,
 		},
 		{
 			key: "chat.mod_slider",
@@ -88,6 +84,13 @@ const { dependenciesMet, markAsReady } = useModule("chat", {
 				unit: "lines",
 			},
 			defaultValue: 150,
+		},
+		{
+			key: "ui.compact_tooltips",
+			label: "Compact tooltips",
+			hint: "Make the tooltips compact instead of showing the full emote",
+			type: "TOGGLE",
+			defaultValue: false,
 		},
 	],
 });

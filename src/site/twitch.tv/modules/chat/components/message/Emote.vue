@@ -18,7 +18,7 @@
 				v-if="e.data && e.data.host"
 				class="chat-emote zero-width-emote"
 				:class="{ blur: hideUnlisted && e.data?.listed === false }"
-				:srcset="imageHostToSrcset(e.data.host)"
+				:srcset="e.data.host.srcset ?? imageHostToSrcset(e.data.host, emote.provider)"
 				:alt="' ' + e.name"
 			/>
 		</template>
@@ -47,7 +47,11 @@ const emit = defineEmits<{
 const imgRef = ref<HTMLImageElement>();
 
 const hideUnlisted = useConfig<boolean>("general.blur_unlisted_emotes");
-const srcset = computed(() => (props.unload ? "" : imageHostToSrcset(props.emote.data!.host)));
+const srcset = computed(() =>
+	props.unload
+		? ""
+		: props.emote.data!.host.srcset ?? imageHostToSrcset(props.emote.data!.host, props.emote.provider),
+);
 
 const width = ref(0);
 const height = ref(0);

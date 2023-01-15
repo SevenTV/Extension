@@ -1,5 +1,6 @@
 // REST Helpers
 // Fetches initial data from API
+import { imageHostToSrcset } from "@/common/Image";
 import { log } from "@/common/Logger";
 import { convertBttvEmoteSet, convertFFZEmoteSet, convertSeventvOldCosmetics } from "@/common/Transform";
 import type { WorkerDriver } from "./worker.driver";
@@ -14,6 +15,9 @@ namespace API_BASE {
 }
 
 enum ProviderPriority {
+	BTTV_GLOBAL,
+	FFZ_GLOBAL,
+	SEVENTV_GLOBAL,
 	BTTV,
 	FFZ,
 	SEVENTV,
@@ -166,15 +170,18 @@ export const seventv = {
 		const data = (await resp.json()) as SevenTV.UserConnection;
 
 		const set = structuredClone(data.emote_set) as SevenTV.EmoteSet;
-		set.provider = "7TV";
-		set.emotes =
-			set.emotes.map((ae) => {
-				ae.provider = set.provider;
-				ae.scope = "CHANNEL";
 
-				return ae;
-			}) ?? [];
+		set.provider = "7TV";
+		set.scope = "CHANNEL";
 		set.priority = ProviderPriority.SEVENTV;
+
+		set.emotes.map((ae) => {
+			ae.provider = set.provider;
+			ae.scope = "CHANNEL";
+
+			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV");
+			return ae;
+		});
 
 		data.emote_set = null;
 
@@ -189,14 +196,17 @@ export const seventv = {
 
 		const set = (await resp.json()) as SevenTV.EmoteSet;
 
-		set.provider = "7TV/G" as SevenTV.Provider;
-		set.emotes =
-			set.emotes.map((ae) => {
-				ae.provider = set.provider;
-				ae.scope = "GLOBAL";
+		set.provider = "7TV";
+		set.scope = "GLOBAL";
+		set.priority = ProviderPriority.SEVENTV_GLOBAL;
 
-				return ae;
-			}) ?? [];
+		set.emotes.map((ae) => {
+			ae.provider = set.provider;
+			ae.scope = "GLOBAL";
+			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV");
+
+			return ae;
+		});
 
 		db.emoteSets.put(set).catch(() => db.emoteSets.where({ id: set.id, provider: "7TV" }).modify(set));
 		return Promise.resolve(set);
@@ -263,9 +273,11 @@ export const frankerfacez = {
 		const ffz_data = (await resp.json()) as FFZ.RoomResponse;
 
 		const set = convertFFZEmoteSet(ffz_data, channelID);
+
+		set.scope = "CHANNEL";
 		set.priority = ProviderPriority.FFZ;
+
 		set.emotes.forEach((e) => {
-			e.provider = set.provider;
 			e.scope = "CHANNEL";
 		});
 
@@ -281,9 +293,11 @@ export const frankerfacez = {
 		const ffz_data = (await resp.json()) as FFZ.RoomResponse;
 
 		const set = convertFFZEmoteSet({ sets: { emoticons: ffz_data.sets["3"] } }, "GLOBAL");
-		set.provider = "FFZ/G" as SevenTV.Provider;
+
+		set.scope = "GLOBAL";
+		set.priority = ProviderPriority.FFZ_GLOBAL;
+
 		set.emotes.forEach((e) => {
-			e.provider = set.provider;
 			e.scope = "GLOBAL";
 		});
 
@@ -307,7 +321,13 @@ export const betterttv = {
 		const bttv_data = (await resp.json()) as BTTV.UserResponse;
 
 		const set = convertBttvEmoteSet(bttv_data, channelID);
+
+		set.scope = "CHANNEL";
 		set.priority = ProviderPriority.BTTV;
+
+		set.emotes.forEach((e) => {
+			e.scope = "CHANNEL";
+		});
 
 		return Promise.resolve(set);
 	},
@@ -328,9 +348,10 @@ export const betterttv = {
 		} as BTTV.UserResponse;
 
 		const set = convertBttvEmoteSet(data, data.id);
-		set.provider = "BTTV/G" as SevenTV.Provider;
+		set.scope = "GLOBAL";
+		set.priority = ProviderPriority.BTTV_GLOBAL;
+
 		set.emotes.forEach((e) => {
-			e.provider = set.provider;
 			e.scope = "GLOBAL";
 		});
 

@@ -191,7 +191,7 @@ watch(twitchEmoteSetsDbc, (sets) => {
 // Keep track of user chat config
 definePropertyHook(room.value.component, "props", {
 	value(v) {
-		primaryColorHex.value = "#" + v.primaryColorHex ?? "755ebc";
+		primaryColorHex.value = "#" + (v.primaryColorHex ?? "755ebc");
 		useHighContrastColors.value = v.useHighContrastColors;
 		showTimestamps.value = v.showTimestamps;
 	},
