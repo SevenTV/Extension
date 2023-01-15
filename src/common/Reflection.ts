@@ -102,10 +102,10 @@ export function defineFunctionHook<T extends object>(
  * @param hooks.get Callback to call when the defined property is accessed, argument passed contains the stored value of the property, returns the passed value to the accessor.
  * @param hooks.value Callback to call when the defined property is set similarly to the `set` hook, however the `value` hook also gets called initially for the current value upon hook definition.
  */
-export function definePropertyHook<T extends object>(
+export function definePropertyHook<T extends object, K extends keyof T>(
 	object: T,
-	prop: keyof T,
-	hooks: { set?: (newVal: any, oldVal: any) => any; get?: (v: any) => any; value?: (v: any) => void },
+	prop: K,
+	hooks: { set?: (newVal: any, oldVal: any) => any; get?: (v: any) => any; value?: (v: T[K]) => void },
 ) {
 	const store = getPropStore(object);
 

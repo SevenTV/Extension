@@ -199,6 +199,12 @@ declare module Twitch {
 		setViewerCardPage: (v: any) => void;
 	};
 
+	export type MessageBufferComponent = ReactExtended.WritableComponent<{
+		isLoadingHistoricalMessages: boolean;
+	}> & {
+		buffer: DisplayableMessage[];
+	};
+
 	export interface MessageHandlerAPI {
 		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
 		removeMessageHandler: (event: (msg: ChatMessage) => void) => void;

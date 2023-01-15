@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { nextTick, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout, useTimeoutFn } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
@@ -79,6 +79,7 @@ const {
 	onScroll,
 	onWheel,
 	unpause: unpauseScrolling,
+	scrollToLive,
 } = useChatScroller({
 	scroller: scroller,
 	bounds: bounds,
@@ -111,6 +112,8 @@ watchEffect(() => {
 // Update current channel globally
 function onUpdateChannel() {
 	if (!store.setChannel(currentChannel.value)) return;
+
+	handleMessageHistory();
 
 	clear();
 	resetProviders();
@@ -146,7 +149,7 @@ watch(
 
 // Keep track of props
 definePropertyHook(list.value.component, "props", {
-	value(v: typeof list.value.component.props) {
+	value(v) {
 		messageHandler.value = v.messageHandlerAPI;
 
 		if (!dataSets.badges) {
@@ -178,7 +181,7 @@ watch(twitchEmoteSetsDbc, (sets) => {
 
 // Keep track of user chat config
 definePropertyHook(room.value.component, "props", {
-	value(v: typeof room.value.component.props) {
+	value(v) {
 		primaryColorHex.value = "#" + v.primaryColorHex ?? "755ebc";
 		useHighContrastColors.value = v.useHighContrastColors;
 		showTimestamps.value = v.showTimestamps;
@@ -220,32 +223,6 @@ definePropertyHook(controller.value.component, "props", {
 	},
 });
 
-// Keep track of unhandled nodes
-const nodeMap = new Map<string, Element>();
-
-// Watch for updated dom nodes on unhandled message components
-watch(list.value.domNodes, (nodes) => {
-	const missingIds = new Set<string>(nodeMap.keys()); // ids of messages that are no longer rendered
-
-	for (const [nodeId, node] of Object.entries(nodes)) {
-		if (nodeId === "root") continue;
-		missingIds.delete(nodeId);
-
-		if (nodeMap.has(nodeId)) continue;
-
-		addMessage({
-			id: nodeId + "-unhandled",
-			element: node,
-		} as Twitch.DisplayableMessage);
-
-		nodeMap.set(nodeId, node);
-	}
-
-	for (const nodeId of missingIds) {
-		nodeMap.delete(nodeId);
-	}
-});
-
 // Determine if the message should performe some action or be sendt to the chatAPI for rendering
 const onMessage = (msg: Twitch.AnyMessage): boolean => {
 	if (msg.id === "seventv-hook-message") {
@@ -279,8 +256,8 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 };
 
 function onChatMessage(msg: Twitch.DisplayableMessage) {
-	// Set sending state if author is the current user
-	if (msg.user && store.identity && msg.user.userID === store.identity.id) {
+	// The message is our own if it has a nonce
+	if (msg.nonce) {
 		const msgRef = ref(msg);
 
 		// Set the message to a sending state
@@ -343,6 +320,81 @@ if (a instanceof ObserverPromise) {
 	until(useTimeout(10e3))
 		.toBeTruthy()
 		.then(() => a.disconnect());
+}
+
+// Keep track of unhandled nodes
+const nodeMap = new Map<string, Element>();
+
+function beginWatching() {
+	// Watch for updated dom nodes on unhandled message components
+	watch(list.value.domNodes, (nodes) => {
+		const missingIds = new Set<string>(nodeMap.keys()); // ids of messages that are no longer rendered
+
+		for (const [nodeId, node] of Object.entries(nodes)) {
+			if (nodeId === "root") continue;
+			missingIds.delete(nodeId);
+
+			if (nodeMap.has(nodeId)) continue;
+
+			addMessage({
+				id: nodeId + "-unhandled",
+				element: node,
+			} as Twitch.DisplayableMessage);
+
+			nodeMap.set(nodeId, node);
+		}
+
+		for (const nodeId of missingIds) {
+			nodeMap.delete(nodeId);
+		}
+	});
+}
+
+function handleMessageHistory() {
+	const messageBufferComponent = awaitComponents<Twitch.MessageBufferComponent>({
+		parentSelector: ".stream-chat",
+		predicate: (n) => n.prependHistoricalMessages,
+	});
+
+	messageBufferComponent.then(
+		([i]) => {
+			definePropertyHook(i, "buffer", {
+				value(buffer) {
+					// Wait until historical messages have loaded
+					if (i.props.isLoadingHistoricalMessages) return;
+
+					const historical = [] as Twitch.DisplayableMessage[];
+
+					for (const msg of buffer) {
+						// If the message is historical we add it to the array and continue
+						if ((msg as Twitch.ChatMessage).isHistorical) {
+							historical.push(msg);
+							nodeMap.set(msg.id, {} as Element);
+							continue;
+						}
+
+						if (onMessage(msg)) nodeMap.set(msg.id, {} as Element);
+					}
+
+					messages.value = historical.concat(messages.value);
+					beginWatching();
+
+					nextTick(() => {
+						//Instantly scroll to the bottom and stop hooking the buffer
+						scrollToLive(0);
+						unsetPropertyHook(i, "buffer");
+					});
+				},
+			});
+		},
+		() => beginWatching(),
+	);
+
+	if (messageBufferComponent instanceof ObserverPromise) {
+		until(useTimeout(10e3))
+			.toBeTruthy()
+			.then(() => messageBufferComponent.disconnect());
+	}
 }
 
 // Apply new boundaries when the window is resized

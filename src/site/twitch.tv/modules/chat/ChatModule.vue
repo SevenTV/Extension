@@ -121,11 +121,7 @@ const chatController = useComponentHook<Twitch.ChatControllerComponent>({
 	predicate: (n) => n.pushMessage && n.props?.messageHandlerAPI,
 });
 
-const isHookable = computed(
-	() =>
-		chatController.instances.length === chatList.instances.length &&
-		chatController.instances.length === chatRoom.instances.length,
-);
+const isHookable = computed(() => chatController.instances.length === chatList.instances.length);
 
 markAsReady();
 </script>

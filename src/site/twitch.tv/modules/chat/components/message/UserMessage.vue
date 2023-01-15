@@ -10,12 +10,13 @@
 			color: msg.messageType === 1 && mentionStyle & 2 ? adjustedColor : '',
 		}"
 	>
-		<template v-if="showTimestamps">
+		<template v-if="showTimestamps || msg.isHistorical">
 			<span class="chat-line__timestamp">
 				{{
 					new Date(props.msg.timestamp).toLocaleTimeString(locale, {
 						hour: "numeric",
 						minute: "numeric",
+						hour12: false,
 					})
 				}}
 			</span>
