@@ -50,7 +50,7 @@ interface TabToken {
 	fromTwitch: boolean;
 }
 
-function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): TabToken[] {
+function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[], startsWith?: boolean): TabToken[] {
 	const usedTokens = new Set<string>();
 
 	const matches: TabToken[] = [];
@@ -58,7 +58,7 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): 
 	const prefix = str.toLowerCase();
 
 	for (const [token] of Object.entries(personalEmoteMap.value)) {
-		if (!usedTokens.has(token) && token.toLowerCase().includes(prefix)) {
+		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
 			usedTokens.add(token);
 			matches.push({
 				token,
@@ -68,7 +68,7 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): 
 	}
 
 	for (const [token] of Object.entries(emoteMap.value)) {
-		if (!usedTokens.has(token) && token.toLowerCase().includes(prefix)) {
+		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
 			usedTokens.add(token);
 			matches.push({
 				token,
@@ -80,7 +80,10 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[]): 
 	if (twitchSets) {
 		for (const set of twitchSets) {
 			for (const emote of set.emotes) {
-				if (!usedTokens.has(emote.token) && emote.token.toLowerCase().includes(prefix)) {
+				if (
+					!usedTokens.has(emote.token) &&
+					emote.token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)
+				) {
 					usedTokens.add(emote.token);
 					matches.push({
 						token: emote.token,
@@ -106,6 +109,9 @@ function handleTabPress(ev: KeyboardEvent): void {
 
 	const cursorLocation = slate.selection?.anchor;
 	if (!cursorLocation) return;
+
+	ev.preventDefault();
+	ev.stopImmediatePropagation();
 
 	let currentNode: { children: Twitch.ChatSlateLeaf[] } & Partial<Twitch.ChatSlateLeaf> = slate;
 	for (const i of cursorLocation.path) {
@@ -152,7 +158,7 @@ function handleTabPress(ev: KeyboardEvent): void {
 			state.expectedWord != currentWord
 		) {
 			const searchWord = currentWord.endsWith(" ") ? currentWord.slice(0, -1) : currentWord;
-			matches = findMatchingTokens(searchWord, component.props.emotes);
+			matches = findMatchingTokens(searchWord, component.props.emotes, true);
 			match = matches[matchIndex];
 		} else {
 			matches = state.matches;
@@ -181,9 +187,6 @@ function handleTabPress(ev: KeyboardEvent): void {
 				expectedPath: cursorLocation.path,
 				expectedWord: replacement,
 			};
-
-			ev.preventDefault();
-			ev.stopImmediatePropagation();
 		} else {
 			tabState.value = undefined;
 		}
