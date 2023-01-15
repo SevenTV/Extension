@@ -24,7 +24,7 @@ export function useWorker() {
 		// Fetch worker data
 		if (!ok) {
 			// Get the offline URL passed by the loader
-			workerURL = document.querySelector("script#seventv")?.getAttribute("worker_url") ?? null;
+			workerURL = document.querySelector("script#seventv-extension")?.getAttribute("worker_url") ?? null;
 			if (!workerURL) {
 				log.error("Unable to find address to worker");
 			}

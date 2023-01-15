@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
 import type { Component } from "vue";
+import { inject } from "vue";
 import { markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
 import { tooltip } from "@/composable/useTooltip";
@@ -38,8 +39,9 @@ if (import.meta.hot) {
 }
 
 const wg = ref(2);
+const appID = inject<string>("app-id") ?? null;
 
-log.info("7TV is loading");
+log.info(`7TV (inst: ${appID}) is loading`);
 
 db.ready().then(() => {
 	log.info("IndexedDB ready");
