@@ -16,7 +16,6 @@ const data = reactive({
 	paused: false, // whether or not scrolling is paused
 	duration: scrollDuration,
 
-	buffer: [] as Twitch.DisplayableMessage[], // twitch chat message buffe when scrolling is paused
 	scrollClear: () => {
 		return;
 	},
@@ -34,7 +33,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 	const container = toRef(data, "container");
 	const bounds = toRef(data, "bounds");
 
-	const { messages } = useChatMessages();
+	const { messages, pauseBuffer } = useChatMessages();
 
 	if (initWith) {
 		watchEffect(() => {
@@ -106,8 +105,8 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		data.paused = false;
 		data.init = true;
 
-		messages.value.push(...data.buffer);
-		data.buffer.length = 0;
+		messages.value.push(...pauseBuffer.value);
+		pauseBuffer.value.length = 0;
 
 		nextTick(() => {
 			data.init = false;
@@ -147,11 +146,10 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		if (e.deltaY < 0) data.userInput++;
 	}
 
-	const { init, buffer, paused, lineLimit, duration } = toRefs(data);
+	const { init, paused, lineLimit, duration } = toRefs(data);
 
 	return {
 		init: init,
-		buffer: buffer,
 		paused: paused,
 		lineLimit: lineLimit,
 		duration: duration,

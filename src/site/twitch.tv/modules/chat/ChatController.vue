@@ -11,11 +11,11 @@
 
 		<!-- New Messages during Scrolling Pause -->
 		<div
-			v-if="scrollPaused && scrollBuffer.length > 0"
+			v-if="scrollPaused && pauseBuffer.length > 0"
 			class="seventv-message-buffer-notice"
 			@click="unpauseScrolling"
 		>
-			<span>{{ scrollBuffer.length }}{{ scrollBuffer.length >= lineLimit ? "+" : "" }} new messages</span>
+			<span>{{ pauseBuffer.length }}{{ pauseBuffer.length >= lineLimit ? "+" : "" }} new messages</span>
 		</div>
 	</Teleport>
 </template>
@@ -74,7 +74,6 @@ watch(channel, (channel) => {
 
 const {
 	lineLimit,
-	buffer: scrollBuffer,
 	paused: scrollPaused,
 	onScroll,
 	onWheel,
@@ -85,7 +84,17 @@ const {
 	bounds: bounds,
 });
 const { channel: currentChatChannel } = useChatContext();
-const { addMessage, messages, clear, messageHandlers, sendMessage, chatters } = useChatMessages();
+const {
+	addMessage,
+	messages,
+	pauseBuffer,
+	clear,
+	messageHandlers,
+	sendMessage,
+	find: findMessages,
+	messagesByUser,
+	chatters,
+} = useChatMessages();
 const { twitchBadgeSets, primaryColorHex, useHighContrastColors, showTimestamps, isModerator, isVIP, isDarkTheme } =
 	useChatProperties();
 const { resetProviders } = useChatEmotes();
@@ -278,22 +287,23 @@ function onChatMessage(msg: Twitch.DisplayableMessage) {
 
 function onModerationMessage(msg: Twitch.ModerationMessage) {
 	if (msg.moderationType == ModerationType.DELETE) {
-		const found = messages.value.find((m) => m.id == msg.targetMessageID);
+		const found = findMessages((m) => m.id == msg.targetMessageID);
 		if (found) {
 			if (found.deleted !== undefined) found.deleted = true;
 			if (found.message?.deleted !== undefined) found.message.deleted = true;
 		}
 	} else {
-		messages.value.forEach((m) => {
-			if (!m.seventv || m.user?.userLogin != msg.userLogin) return;
+		const messages = messagesByUser(msg.userLogin);
+		for (const m of messages) {
+			if (!m.seventv || m.user?.userLogin != msg.userLogin) continue;
 			if (m.banned !== undefined) m.banned = true;
 			if (m.message?.banned !== undefined) m.message.banned = true;
-		});
+		}
 	}
 }
 
 function onMessageIdUpdate(msg: Twitch.IDUpdateMessage) {
-	const found = messages.value.find((m) => m.nonce == msg.nonce);
+	const found = findMessages((m) => m.nonce == msg.nonce);
 	if (found) {
 		found.id = msg.id;
 		found.sendState = "sent";
