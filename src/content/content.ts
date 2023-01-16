@@ -23,4 +23,49 @@ const inject = () => {
 
 (() => {
 	inject();
+
+	// Listen for requests to set up an extension permission
+	window.addEventListener("message", (ev) => {
+		switch (ev.data.type) {
+			case "seventv-create-permission-listener": {
+				const { selector, id, origins, permissions } = ev.data.data as PermissionRequestEvent;
+
+				const btn = document.querySelector<HTMLElement>(selector);
+				if (!btn) return;
+
+				btn.addEventListener("click", () => {
+					chrome.runtime.sendMessage(
+						{
+							type: "permission-request",
+							data: {
+								id,
+								origins,
+								permissions,
+							},
+						},
+						{},
+						(response: { id: string; granted: boolean }) => {
+							if (!response) return;
+
+							window.postMessage({
+								type: "seventv-permission-granted",
+								data: {
+									id: response.id,
+									granted: response.granted,
+								},
+							});
+						},
+					);
+				});
+				break;
+			}
+		}
+	});
 })();
+
+interface PermissionRequestEvent {
+	selector: string;
+	id: string;
+	origins: [];
+	permissions: [];
+}

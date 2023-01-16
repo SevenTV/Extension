@@ -48,7 +48,7 @@ export async function getManifest(
 		host_permissions: ["*://*.twitch.tv/*"],
 
 		// Declare YouTube as an optional host permission
-		optional_host_permissions: ["*://*.youtube.com/*"],
+		optional_host_permissions: ["*://*.youtube.com/*", "*://*.7tv.app/*", "*://*.7tv.io/*"],
 
 		web_accessible_resources: [
 			{
