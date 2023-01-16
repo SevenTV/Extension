@@ -35,6 +35,7 @@ export const useStore = defineStore("main", {
 
 			sendMessage("STATE", {
 				identity: identity,
+				imageFormat: this.avifSupported ? "AVIF" : "WEBP",
 			});
 		},
 

@@ -30,6 +30,7 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 		identity: TwitchIdentity | YouTubeIdentity | null;
 		user: SevenTV.User | null;
 		channel: CurrentChannel | null;
+		imageFormat: SevenTV.ImageFormat | null;
 	}>;
 	LOG: {
 		type: LogType;

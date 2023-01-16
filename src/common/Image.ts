@@ -9,11 +9,14 @@ const layout = {
 	BTTV: [1, 2, 4],
 };
 
-export function imageHostToSrcset(host: SevenTV.ImageHost, provider: SevenTV.Provider = "7TV"): string {
-	return (provider === "7TV" ? host.files.filter((f) => f.format === imageFormat.value) : host.files).reduce(
-		(pre, cur, i) => pre + `https:${host.url}/${cur.name} ${layout[provider][i]}x, `,
-		"",
-	);
+export function imageHostToSrcset(
+	host: SevenTV.ImageHost,
+	provider: SevenTV.Provider = "7TV",
+	format?: SevenTV.ImageFormat,
+): string {
+	return (
+		provider === "7TV" ? host.files.filter((f) => f.format === format ?? imageFormat.value) : host.files
+	).reduce((pre, cur, i) => pre + `https:${host.url}/${cur.name} ${layout[provider][i]}x, `, "");
 }
 
 export function imageHostToSrcsetWithsize(

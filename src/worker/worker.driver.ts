@@ -133,7 +133,8 @@ type WorkerEventName =
 	| "stop_watching_channel"
 	| "set_channel_presence"
 	| "identity_updated"
-	| "user_updated";
+	| "user_updated"
+	| "imageformat_updated";
 
 type WorkerTypedEvent<EVN extends WorkerEventName> = {
 	open: void;
@@ -145,6 +146,7 @@ type WorkerTypedEvent<EVN extends WorkerEventName> = {
 	channel_data_fetched: CurrentChannel;
 	identity_updated: TwitchIdentity | YouTubeIdentity;
 	user_updated: SevenTV.User;
+	imageformat_updated: string;
 }[EVN];
 
 export class WorkerEvent<T extends WorkerEventName> extends CustomEvent<WorkerTypedEvent<T>> {

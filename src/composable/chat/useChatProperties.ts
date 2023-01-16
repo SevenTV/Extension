@@ -8,7 +8,7 @@ const data = reactive({
 	useHighContrastColors: true,
 	showTimestamps: false,
 	currentChannel: {} as CurrentChannel,
-	imageFormat: "AVIF" as SevenTV.ImageFormat,
+	imageFormat: "WEBP" as SevenTV.ImageFormat,
 	twitchBadgeSets: {} as Twitch.BadgeSets | null,
 	blockedUsers: new Set<string>(),
 });

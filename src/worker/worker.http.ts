@@ -26,6 +26,7 @@ enum ProviderPriority {
 
 export class WorkerHttp {
 	private lastPresenceAt = 0;
+	static imageFormat: SevenTV.ImageFormat = "WEBP";
 
 	constructor(private driver: WorkerDriver) {
 		this.driver = driver;
@@ -47,6 +48,10 @@ export class WorkerHttp {
 
 			this.lastPresenceAt = Date.now();
 			this.API().seventv.writePresence(ev.port.platform, ev.port.user.id, ev.port.channel.id);
+		});
+		driver.addEventListener("imageformat_updated", async (ev) => {
+			if (!ev.port) return;
+			WorkerHttp.imageFormat = ev.port.imageFormat!;
 		});
 	}
 
@@ -179,7 +184,7 @@ export const seventv = {
 			ae.provider = set.provider;
 			ae.scope = "CHANNEL";
 
-			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV");
+			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat);
 			return ae;
 		});
 
@@ -203,7 +208,7 @@ export const seventv = {
 		set.emotes.map((ae) => {
 			ae.provider = set.provider;
 			ae.scope = "GLOBAL";
-			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV");
+			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat);
 
 			return ae;
 		});

@@ -10,6 +10,7 @@ export class WorkerPort {
 	channel: CurrentChannel | null = null;
 	identity: TwitchIdentity | YouTubeIdentity | null = null;
 	user: SevenTV.User | null = null;
+	imageFormat: SevenTV.ImageFormat | null = null;
 
 	constructor(private driver: WorkerDriver, private port: MessagePort) {
 		this.id = Symbol("seventv-worker-port");
@@ -27,7 +28,7 @@ export class WorkerPort {
 
 		switch (type) {
 			case "STATE": {
-				const { platform, identity, channel, user } = data as TypedWorkerMessage<"STATE">;
+				const { platform, identity, channel, user, imageFormat } = data as TypedWorkerMessage<"STATE">;
 
 				if (platform) this.platform = platform;
 				if (identity) {
@@ -45,6 +46,10 @@ export class WorkerPort {
 					this.user = user;
 
 					this.driver.emit("user_updated", this.user, this);
+				}
+				if (imageFormat) {
+					this.imageFormat = imageFormat;
+					this.driver.emit("imageformat_updated", this.imageFormat, this);
 				}
 
 				break;
