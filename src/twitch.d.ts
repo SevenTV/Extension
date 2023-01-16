@@ -203,6 +203,7 @@ declare module Twitch {
 		isLoadingHistoricalMessages: boolean;
 	}> & {
 		buffer: DisplayableMessage[];
+		blockedUsers: Set<string>;
 	};
 
 	export interface MessageHandlerAPI {

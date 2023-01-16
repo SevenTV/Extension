@@ -1,5 +1,9 @@
 <template>
+	<a v-if="isBlocked && !unhidden" class="seventv-blocked-message" @click="unhidden = true">
+		Message by blocked user
+	</a>
 	<span
+		v-else
 		class="seventv-chat-message"
 		:class="{
 			deleted: msg.banned || msg.deleted,
@@ -55,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { normalizeUsername } from "@/common/Color";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -76,11 +80,13 @@ const props = defineProps<{
 }>();
 
 const { emoteMap } = useChatEmotes();
-const { showTimestamps, useHighContrastColors, isDarkTheme } = useChatProperties();
+const { showTimestamps, useHighContrastColors, isDarkTheme, blockedUsers } = useChatProperties();
 
 const emoteMargin = useConfig<number>("chat.emote_margin");
 const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);
 const mentionStyle = useConfig<number>("chat.slash_me_style");
+
+const unhidden = ref(false);
 
 const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
 
@@ -101,6 +107,8 @@ const adjustedColor = computed(() => {
 		? normalizeUsername(props.msg.user.color, isDarkTheme.value as 0 | 1)
 		: props.msg.user.color;
 });
+
+const isBlocked = computed(() => blockedUsers.value.has(props.msg.user.userID));
 
 function getPart(part: Twitch.ChatMessage.Part) {
 	switch (part.type) {
@@ -124,6 +132,9 @@ function getPart(part: Twitch.ChatMessage.Part) {
 </script>
 
 <style scoped lang="scss">
+.seventv-blocked-message {
+	cursor: pointer;
+}
 .seventv-chat-message {
 	vertical-align: baseline;
 	.emote-part {

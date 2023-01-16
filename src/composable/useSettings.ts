@@ -30,13 +30,15 @@ function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
 db.ready().then(() =>
 	useLiveQuery(
 		() => db.settings.toArray(),
-		(s) => {
-			for (const { key, value } of s) {
-				raw[key] = value;
-			}
-		},
+		(s) => fillSettings(s),
 	),
 );
+
+export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
+	for (const { key, value } of s) {
+		raw[key] = value;
+	}
+}
 
 export function useConfig<T extends SevenTV.SettingType>(key: string) {
 	return toConfigRef<T>(key);
@@ -50,7 +52,10 @@ export function useSettings() {
 	function register(newNodes: SevenTV.SettingNode<SevenTV.SettingType>[]) {
 		for (const node of newNodes) {
 			nodes[node.key] = node;
-			if (!raw[node.key]) raw[node.key] = node.defaultValue;
+
+			if (["string", "boolean", "object", "number", "undefined"].includes(typeof raw[node.key])) {
+				raw[node.key] = raw[node.key] ?? node.defaultValue;
+			}
 		}
 	}
 

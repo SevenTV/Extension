@@ -15,6 +15,7 @@ import type { Component } from "vue";
 import { inject } from "vue";
 import { markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
+import { fillSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
@@ -27,13 +28,24 @@ if (import.meta.hot) {
 	});
 }
 
-const wg = ref(2);
+const wg = ref(3);
 const appID = inject<string>("app-id") ?? null;
 
 log.info(`7TV (inst: ${appID}) is loading`);
 
-db.ready().then(() => {
+db.ready().then(async () => {
 	log.info("IndexedDB ready");
+
+	db.settings
+		.toArray()
+		.then((s) => {
+			fillSettings(s);
+
+			wg.value--;
+			log.info("User Settings loaded");
+		})
+		.catch((err) => log.error("failed to fetch settings", err.message));
+
 	wg.value--;
 });
 

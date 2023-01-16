@@ -26,6 +26,8 @@ export const useStore = defineStore("main", {
 
 	actions: {
 		setIdentity<T extends Platform>(platform: T, identity: PlatformIdentity<T> | null) {
+			if (this.identity && identity && this.identity.id === identity.id) return; // no change.
+
 			this.platform = platform;
 			this.identity = identity;
 

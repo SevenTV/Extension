@@ -39,6 +39,7 @@ const ignoreHMR = [
 	"App.vue",
 	"TwitchSite.vue",
 	"ChatModule.vue",
+	"ChatController.vue",
 	"ChatInputModule.vue",
 	"EmoteMenuModule.vue",
 	"SettingsModule.vue",

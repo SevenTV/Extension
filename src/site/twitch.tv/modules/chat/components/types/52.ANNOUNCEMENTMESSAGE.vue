@@ -1,5 +1,5 @@
 <template>
-	<div class="seventv-announce-message-container" :class="'announcement-line--' + msg.color.toLowerCase()">
+	<div class="seventv-announce-message-container" :class="className">
 		<div class="announce-header">
 			<div class="announce-icon">
 				<TwAnnounce />
@@ -13,12 +13,22 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
 import TwAnnounce from "@/assets/svg/twitch/TwAnnounce.vue";
 import UserMessage from "../message/UserMessage.vue";
 
-defineProps<{
+const props = defineProps<{
 	msg: Twitch.AnnouncementMessage;
 }>();
+
+const { primaryColorHex } = useChatProperties();
+
+const className = computed(
+	() =>
+		"announcement-line--" +
+		(props.msg.color == "PRIMARY" && primaryColorHex.value == null ? "purple" : props.msg.color.toLowerCase()),
+);
 </script>
 
 <style scoped lang="scss">

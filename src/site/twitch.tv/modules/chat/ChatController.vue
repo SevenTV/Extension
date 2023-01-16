@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { computed, nextTick, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout, useTimeoutFn } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
@@ -61,7 +61,6 @@ const containerEl = ref<HTMLElement>(el);
 const replacedEl = ref<Element | null>(null);
 
 const bounds = ref<DOMRect>(el.getBoundingClientRect());
-
 const scroller = ref<InstanceType<typeof UiScrollable> | undefined>();
 
 watch(channel, (channel) => {
@@ -95,8 +94,16 @@ const {
 	messagesByUser,
 	chatters,
 } = useChatMessages();
-const { twitchBadgeSets, primaryColorHex, useHighContrastColors, showTimestamps, isModerator, isVIP, isDarkTheme } =
-	useChatProperties();
+const {
+	twitchBadgeSets,
+	primaryColorHex,
+	useHighContrastColors,
+	showTimestamps,
+	isModerator,
+	isVIP,
+	isDarkTheme,
+	blockedUsers,
+} = useChatProperties();
 const { resetProviders } = useChatEmotes();
 
 const dataSets = reactive({
@@ -122,7 +129,7 @@ watchEffect(() => {
 function onUpdateChannel() {
 	if (!store.setChannel(currentChannel.value)) return;
 
-	handleMessageHistory();
+	hookMessageBuffer();
 
 	clear();
 	resetProviders();
@@ -191,7 +198,7 @@ watch(twitchEmoteSetsDbc, (sets) => {
 // Keep track of user chat config
 definePropertyHook(room.value.component, "props", {
 	value(v) {
-		primaryColorHex.value = "#" + (v.primaryColorHex ?? "755ebc");
+		primaryColorHex.value = v.primaryColorHex;
 		useHighContrastColors.value = v.useHighContrastColors;
 		showTimestamps.value = v.showTimestamps;
 	},
@@ -234,10 +241,6 @@ definePropertyHook(controller.value.component, "props", {
 
 // Determine if the message should performe some action or be sendt to the chatAPI for rendering
 const onMessage = (msg: Twitch.AnyMessage): boolean => {
-	if (msg.id === "seventv-hook-message") {
-		return false;
-	}
-
 	switch (msg.type) {
 		case MessageType.MESSAGE:
 		case MessageType.SUBSCRIPTION:
@@ -265,6 +268,11 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 };
 
 function onChatMessage(msg: Twitch.DisplayableMessage) {
+	// If the message is from a blocked user and we are not moderator
+	if (!isModerator.value && msg.user && blockedUsers.value.has(msg.user.userID)) {
+		return;
+	}
+
 	// The message is our own if it has a nonce
 	if (msg.nonce) {
 		const msgRef = ref(msg);
@@ -335,9 +343,12 @@ if (a instanceof ObserverPromise) {
 // Keep track of unhandled nodes
 const nodeMap = new Map<string, Element>();
 
-function beginWatching() {
+let unhandledStopper: () => void;
+function watchUnhandled() {
+	if (unhandledStopper) unhandledStopper();
+
 	// Watch for updated dom nodes on unhandled message components
-	watch(list.value.domNodes, (nodes) => {
+	unhandledStopper = watch(list.value.domNodes, (nodes) => {
 		const missingIds = new Set<string>(nodeMap.keys()); // ids of messages that are no longer rendered
 
 		for (const [nodeId, node] of Object.entries(nodes)) {
@@ -360,50 +371,68 @@ function beginWatching() {
 	});
 }
 
-function handleMessageHistory() {
-	const messageBufferComponent = awaitComponents<Twitch.MessageBufferComponent>({
-		parentSelector: ".stream-chat",
-		predicate: (n) => n.prependHistoricalMessages,
-	});
+const messageBufferComponent = ref<Twitch.MessageBufferComponent | null>(null);
+const messageBufferComponentDbc = refDebounced(messageBufferComponent, 200);
 
-	messageBufferComponent.then(
-		([i]) => {
-			definePropertyHook(i, "buffer", {
-				value(buffer) {
-					// Wait until historical messages have loaded
-					if (i.props.isLoadingHistoricalMessages) return;
+watch(messageBufferComponentDbc, (msgBuf, old) => {
+	if (old && msgBuf !== old) {
+		unsetPropertyHook(old, "buffer");
+		unsetPropertyHook(old, "blockedUsers");
+	} else if (msgBuf) {
+		definePropertyHook(msgBuf, "buffer", {
+			value(buffer) {
+				// Wait until historical messages have loaded
+				if (msgBuf.props.isLoadingHistoricalMessages) return;
 
-					const historical = [] as Twitch.DisplayableMessage[];
+				const historical = [] as Twitch.DisplayableMessage[];
 
-					for (const msg of buffer) {
-						// If the message is historical we add it to the array and continue
-						if ((msg as Twitch.ChatMessage).isHistorical) {
-							historical.push(msg);
-							nodeMap.set(msg.id, {} as Element);
-							continue;
-						}
-
-						if (onMessage(msg)) nodeMap.set(msg.id, {} as Element);
+				for (const msg of buffer) {
+					// If the message is historical we add it to the array and continue
+					if ((msg as Twitch.ChatMessage).isHistorical) {
+						historical.push(msg);
+						nodeMap.set(msg.id, {} as Element);
+						continue;
 					}
 
-					messages.value = historical.concat(messages.value);
-					beginWatching();
+					if (onMessage(msg)) nodeMap.set(msg.id, {} as Element);
+				}
 
-					nextTick(() => {
-						//Instantly scroll to the bottom and stop hooking the buffer
-						scrollToLive(0);
-						unsetPropertyHook(i, "buffer");
-					});
-				},
-			});
+				messages.value = historical.concat(messages.value);
+
+				watchUnhandled();
+
+				nextTick(() => {
+					// Instantly scroll to the bottom and stop hooking the buffer
+					scrollToLive(0);
+					unsetPropertyHook(msgBuf, "buffer");
+				});
+			},
+		});
+		definePropertyHook(msgBuf, "blockedUsers", {
+			value(users) {
+				blockedUsers.value = users;
+			},
+		});
+	}
+});
+
+async function hookMessageBuffer() {
+	const result = awaitComponents<Twitch.MessageBufferComponent>({
+		parentSelector: ".stream-chat",
+		predicate: (n) => n.prependHistoricalMessages && n.buffer && n.blockedUsers,
+	}).then(
+		([i]) => {
+			if (!i) return;
+
+			messageBufferComponent.value = i;
 		},
-		() => beginWatching(),
+		() => watchUnhandled(),
 	);
 
-	if (messageBufferComponent instanceof ObserverPromise) {
+	if (result instanceof ObserverPromise) {
 		until(useTimeout(10e3))
 			.toBeTruthy()
-			.then(() => messageBufferComponent.disconnect());
+			.then(() => result.disconnect());
 	}
 }
 
@@ -427,6 +456,8 @@ onUnmounted(() => {
 	unsetPropertyHook(controller.value.component, "props");
 	unsetPropertyHook(room.value.component, "props");
 });
+
+const primaryColor = computed(() => `#${primaryColorHex.value ?? "755ebc"}`);
 </script>
 
 <style lang="scss">
@@ -446,7 +477,7 @@ seventv-container.seventv-chat-list {
 		padding: 1em 0;
 		line-height: 1.5em;
 
-		--seventv-primary-color: v-bind(primaryColorHex);
+		--seventv-primary-color: v-bind(primaryColor);
 	}
 
 	// Chat padding
