@@ -42,7 +42,7 @@ onClickOutside(changelogContainer, () => {
 watchEffect(() => {
 	content.value = marked.parse(
 		DOMPurify.sanitize(changelogRaw.value, {
-			ALLOWED_TAGS: [],
+			ALLOWED_TAGS: ["img"],
 		}),
 		{
 			gfm: true,
@@ -112,6 +112,13 @@ watchEffect(() => {
 
 	:deep(ul) {
 		list-style: square;
+	}
+
+	:deep(hr) {
+		margin: 1em 0;
+		height: 0.1em;
+		width: 100%;
+		background-color: currentColor;
 	}
 }
 </style>
