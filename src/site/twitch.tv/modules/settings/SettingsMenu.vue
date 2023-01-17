@@ -16,12 +16,14 @@
 				</div>
 			</div>
 			<div class="body">
-				<div class="sidebar"></div>
-				<div class="settings-area">
-					<template v-for="[key, node] of Object.entries(getNodes())" :key="key">
-						<SettingsNode v-if="node.type !== 'NONE'" :node="node" />
-					</template>
-				</div>
+				<div class="sidebar" />
+				<UiScrollable>
+					<div class="settings-area">
+						<template v-for="[key, node] of Object.entries(getNodes())">
+							<SettingsNode v-if="node.type !== 'NONE'" :key="key" :node="node" />
+						</template>
+					</div>
+				</UiScrollable>
 			</div>
 		</div>
 	</div>
@@ -29,26 +31,20 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { onClickOutside } from "@vueuse/core";
 import { useSettings } from "@/composable/useSettings";
 import Close from "@/assets/svg/Icons/Close.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import SettingsMenuButton from "./SettingsMenuButton.vue";
 import SettingsNode from "./SettingsNode.vue";
+import UiScrollable from "@/ui/UiScrollable.vue";
 
 const { getNodes } = useSettings();
 
 const show = ref(false);
 const el = ref(null);
 
-let unsub: (() => void) | undefined;
-
 function toggle() {
-	unsub?.();
 	show.value = !show.value;
-	if (show.value) {
-		unsub = onClickOutside(el.value, toggle, { ignore: ["button"] });
-	}
 }
 </script>
 
@@ -72,7 +68,6 @@ function toggle() {
 	background: var(--seventv-background-transparent-1);
 	border-radius: 0.6rem;
 	border: 1px solid var(--seventv-border-transparent-1);
-	overflow: clip;
 }
 
 .header {
@@ -102,9 +97,11 @@ function toggle() {
 .body {
 	height: 60rem;
 	display: flex;
+	overflow: auto;
 }
 
 .sidebar {
+	position: sticky;
 	height: 100%;
 	width: 20rem;
 	flex-grow: 0;
@@ -114,6 +111,5 @@ function toggle() {
 
 .settings-area {
 	height: 100%;
-	background: hsla(0deg, 0%, 50%, 6%);
 }
 </style>

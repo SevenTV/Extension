@@ -92,6 +92,15 @@ const { dependenciesMet, markAsReady } = useModule("chat", {
 			type: "TOGGLE",
 			defaultValue: false,
 		},
+		{
+			category: "Chat",
+			key: "chat.alternating_background",
+			ffz_key: "chat.lines.alternate",
+			label: "Alternating Background",
+			hint: "Display chat lines with alternating background colors",
+			type: "TOGGLE",
+			defaultValue: false,
+		},
 	],
 });
 

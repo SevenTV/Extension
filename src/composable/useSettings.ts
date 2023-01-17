@@ -1,9 +1,12 @@
 import { Ref, customRef, reactive } from "vue";
+import { useFrankerFaceZ } from "./useFrankerFaceZ";
 import { useLiveQuery } from "./useLiveQuery";
 import { db } from "@/db/idb";
 
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode<SevenTV.SettingType>>);
+
+const { getConfigChanges: getFFZConfigChanges } = useFrankerFaceZ();
 
 function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
 	return customRef<T>((track, trigger) => {
@@ -13,14 +16,14 @@ function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
 				return raw[key] as T;
 			},
 			set(newVal) {
-				//Only write the setting if it passes the optional predicate
+				// Only write the setting if it passes the optional predicate
 				const predicate = nodes[key].predicate;
 				if (predicate && !predicate(newVal)) return;
 
 				raw[key] = newVal;
 				trigger();
 
-				//Write changes to the db
+				// Write changes to the db
 				db.settings.put({ key: key, type: typeof newVal, value: newVal }, key);
 			},
 		};
@@ -44,6 +47,17 @@ export function useConfig<T extends SevenTV.SettingType>(key: string) {
 	return toConfigRef<T>(key);
 }
 
+function synchronizeFrankerFaceZ<T extends SevenTV.SettingType>(key: string) {
+	if (!nodes[key]) return;
+
+	const ffzKey = nodes[key].ffz_key;
+	if (!ffzKey) return;
+
+	getFFZConfigChanges<T>(ffzKey, (v) => {
+		raw[key] = v;
+	});
+}
+
 export function useSettings() {
 	function getNodes() {
 		return nodes;
@@ -56,6 +70,8 @@ export function useSettings() {
 			if (["string", "boolean", "object", "number", "undefined"].includes(typeof raw[node.key])) {
 				raw[node.key] = raw[node.key] ?? node.defaultValue;
 			}
+
+			synchronizeFrankerFaceZ(node.key);
 		}
 	}
 

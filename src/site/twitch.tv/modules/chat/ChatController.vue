@@ -187,10 +187,11 @@ definePropertyHook(list.value.component, "props", {
 // in order to reduce the load on the main thread.
 const twitchEmoteSets = ref<Twitch.TwitchEmoteSet[]>([]);
 const twitchEmoteSetsDbc = refDebounced(twitchEmoteSets, 1000);
-watch(twitchEmoteSetsDbc, (sets) => {
+watch(twitchEmoteSetsDbc, async (sets) => {
 	if (!sets.length) return;
 
 	for (const set of twitchEmoteSets.value) {
+		await until(useTimeout(25)).toBeTruthy();
 		sendWorkerMessage("SYNC_TWITCH_SET", { input: set });
 	}
 });

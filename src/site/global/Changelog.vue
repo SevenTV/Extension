@@ -47,7 +47,6 @@ watchEffect(() => {
 		{
 			gfm: true,
 			breaks: true,
-			sanitize: true,
 		},
 	);
 });

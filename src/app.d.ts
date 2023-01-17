@@ -61,7 +61,9 @@ declare namespace SevenTV {
 	}
 
 	interface SettingNode<T extends SettingType, K extends SettingNode.ComponentType = "CUSTOM"> {
+		category?: string;
 		key: string;
+		ffz_key?: string;
 		label: string;
 		hint?: string;
 		type: SettingNode.ComponentType;
@@ -81,8 +83,7 @@ declare namespace SevenTV {
 				step: number;
 				unit: string;
 			};
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			CUSTOM: any;
+			CUSTOM: unknown;
 			NONE: never;
 		}[K];
 		predicate?: (p: T) => boolean;
