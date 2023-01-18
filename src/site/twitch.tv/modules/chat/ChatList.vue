@@ -50,6 +50,7 @@ const canModerateType = [MessageType.MESSAGE, MessageType.SUBSCRIPTION, MessageT
 </script>
 <style scoped lang="scss">
 .seventv-chat-list[alternating-background="true"] {
+	padding: 0.5em 0;
 	.seventv-message.even {
 		background-color: var(--seventv-background-shade-1);
 	}
@@ -57,5 +58,9 @@ const canModerateType = [MessageType.MESSAGE, MessageType.SUBSCRIPTION, MessageT
 	.seventv-message.odd {
 		background-color: var(--seventv-background-shade-2);
 	}
+}
+
+.seventv-chat-list.seventv-chat-list[alternating-background="false"] {
+	padding: 1em 0;
 }
 </style>

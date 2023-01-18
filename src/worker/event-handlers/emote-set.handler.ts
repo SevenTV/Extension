@@ -1,7 +1,7 @@
 import { imageHostToSrcset } from "@/common/Image";
 import { log } from "@/common/Logger";
 import { iterateChangeMap } from "./handler";
-import { ChangeMap, EventContext } from "..";
+import { ChangeMap, EventContext, TypedWorkerMessage } from "..";
 import { WorkerHttp } from "../worker.http";
 
 export function onEmoteSetCreate(ctx: EventContext, cm: ChangeMap<SevenTV.ObjectKind.EMOTE_SET>) {
@@ -21,11 +21,18 @@ export function onEmoteSetCreate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 	ctx.db.emoteSets.put(cm.object).catch((err) => log.error("<EventAPI>", "failed to insert emote set", err));
 }
 
-export function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.ObjectKind.EMOTE_SET>) {
-	iterateChangeMap<SevenTV.ObjectKind.EMOTE_SET>(cm, {
+export async function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.ObjectKind.EMOTE_SET>) {
+	const emission = {
+		id: cm.id,
+		user: cm.actor,
+		emotes_added: [] as SevenTV.ActiveEmote[],
+		emotes_removed: [] as SevenTV.ActiveEmote[],
+	} as TypedWorkerMessage<"EMOTE_SET_UPDATED">;
+
+	await iterateChangeMap<SevenTV.ObjectKind.EMOTE_SET>(cm, {
 		emotes: {
-			pushed: (v: SevenTV.ActiveEmote) => {
-				ctx.db.emoteSets
+			pushed: async (v: SevenTV.ActiveEmote) => {
+				return ctx.db.emoteSets
 					.where("id")
 					.equals(cm.id)
 					.modify((es) => {
@@ -36,10 +43,12 @@ export function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 						}
 
 						es.emotes.push(v);
-					});
+						emission.emotes_added.push(v);
+					})
+					.then(() => void 0);
 			},
-			pulled: (_: SevenTV.ActiveEmote, old: SevenTV.ActiveEmote) => {
-				ctx.db.emoteSets
+			pulled: async (_: SevenTV.ActiveEmote, old: SevenTV.ActiveEmote) => {
+				return ctx.db.emoteSets
 					.where("id")
 					.equals(cm.id)
 					.modify((es) => {
@@ -48,9 +57,15 @@ export function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 							if (i < 0) break;
 
 							es.emotes.splice(i, 1);
+							emission.emotes_removed.push(old);
 						}
-					});
+					})
+					.then(() => void 0);
 			},
 		},
 	});
+
+	for (const port of ctx.driver.ports.values()) {
+		port.postMessage("EMOTE_SET_UPDATED", emission);
+	}
 }

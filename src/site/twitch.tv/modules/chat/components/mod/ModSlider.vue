@@ -81,7 +81,7 @@ const handleDown = (e: PointerEvent) => {
 const handleRelease = (e: PointerEvent): void => {
 	tracking.value = false;
 
-	if (data.value.command) {
+	if (data.value.command && props.msg.user) {
 		executeModAction(data.value.command, props.msg.user.userLogin, props.msg.id);
 	}
 

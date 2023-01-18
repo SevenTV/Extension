@@ -19,19 +19,30 @@ export function handleDispatchedEvent(ctx: EventContext, type: string, cm: Chang
 	else log.warn("<Net/EventAPI>", `Received dispatch '${type}' but no handler was found`);
 }
 
-export function iterateChangeMap<T extends SevenTV.ObjectKind>(cm: ChangeMap<T>, h: ChangeMapHandler<T>) {
+export async function iterateChangeMap<T extends SevenTV.ObjectKind>(cm: ChangeMap<T>, h: ChangeMapHandler<T>) {
+	const promises = [] as Promise<void>[];
 	for (const v of Object.values(h)) {
 		const hook = v as ChangeMapHook;
 
 		for (const x of cm.pulled ?? []) {
-			hook.pulled?.(x.value, x.old_value);
+			const p = hook.pulled?.(x.value, x.old_value);
+			if (p instanceof Promise) {
+				promises.push(p);
+			}
+
 			log.debug("Net/EventAPI", `PULL (${cm.kind}) ${cm.id}/${String(x.key)}`, JSON.stringify(x.old_value));
 		}
 		for (const x of cm.pushed ?? []) {
-			hook.pushed?.(x.value, x.old_value);
+			const p = hook.pushed?.(x.value, x.old_value);
+			if (p instanceof Promise) {
+				promises.push(p);
+			}
+
 			log.debug("Net/EventAPI", `PUSH (${cm.kind}) ${cm.id}/${String(x.key)}`, JSON.stringify(x.value));
 		}
 	}
+
+	await Promise.allSettled(promises);
 }
 
 export type ChangeMapHandler<T extends SevenTV.ObjectKind> = {
@@ -40,6 +51,6 @@ export type ChangeMapHandler<T extends SevenTV.ObjectKind> = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ChangeMapHook {
-	pulled?: (newValue: any, oldValue: any) => void;
-	pushed?: (newValue: any, oldValue: any) => void;
+	pulled?: (newValue: any, oldValue: any) => void | Promise<void>;
+	pushed?: (newValue: any, oldValue: any) => void | Promise<void>;
 }

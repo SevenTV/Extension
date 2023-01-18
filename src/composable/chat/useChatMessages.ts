@@ -29,10 +29,10 @@ const { init, paused, lineLimit, scrollToLive, duration } = useChatScroller();
  *
  * @param message the message to queue up
  */
-function addMessage(message: Twitch.DisplayableMessage): void {
+function addMessage<T extends Twitch.DisplayableMessage>(message: T): void {
 	if (paused.value) {
 		// if scrolling is paused, buffer the message
-		data.pauseBuffer.push(message as Twitch.DisplayableMessage);
+		data.pauseBuffer.push(message);
 		if (data.pauseBuffer.length > lineLimit.value) data.pauseBuffer.shift();
 
 		return;

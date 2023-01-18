@@ -19,6 +19,7 @@ export enum workerMessageType {
 	ENTITLEMENT_DELETED,
 	STATIC_COSMETICS_FETCHED,
 	SYNC_TWITCH_SET,
+	EMOTE_SET_UPDATED,
 }
 
 export type WorkerMessageType = keyof typeof workerMessageType;
@@ -53,6 +54,12 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 		paints: SevenTV.Cosmetic<"PAINT">[];
 	};
 	SYNC_TWITCH_SET: Either<{ input: Twitch.TwitchEmoteSet }, { out: SevenTV.EmoteSet }>;
+	EMOTE_SET_UPDATED: {
+		id: SevenTV.ObjectID;
+		emotes_added: SevenTV.ActiveEmote[];
+		emotes_removed: SevenTV.ActiveEmote[];
+		user: SevenTV.User;
+	};
 }[T];
 
 export interface EventAPIMessage<O extends keyof typeof EventAPIOpCode> {

@@ -101,6 +101,17 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 			type: "TOGGLE",
 			defaultValue: false,
 		},
+		{
+			key: "chat.padding",
+			label: "Padding Style",
+			hint: "Change the padding style of chat lines",
+			type: "DROPDOWN",
+			options: [
+				["Full-Width", 0],
+				["Native (Twitch-like)", 1],
+			],
+			defaultValue: 1,
+		},
 	],
 });
 

@@ -253,17 +253,17 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 		case MessageType.MESSAGE:
 		case MessageType.SUBSCRIPTION:
 		case MessageType.RESUBSCRIPTION:
-		case MessageType.SUBGIFT:
+		case MessageType.SUB_GIFT:
 		case MessageType.RAID:
-		case MessageType.SUBMYSTERYGIFT:
-		case MessageType.CHANNELPOINTSREWARD:
-		case MessageType.ANNOUNCEMENTMESSAGE:
+		case MessageType.SUB_MYSTERY_GIFT:
+		case MessageType.CHANNEL_POINTS_REWARD:
+		case MessageType.ANNOUNCEMENT_MESSAGE:
 			onChatMessage(msg as Twitch.DisplayableMessage);
 			break;
 		case MessageType.MODERATION:
 			onModerationMessage(msg as Twitch.ModerationMessage);
 			break;
-		case MessageType.MESSAGEIDUPDATE:
+		case MessageType.MESSAGE_ID_UPDATE:
 			onMessageIdUpdate(msg as Twitch.IDUpdateMessage);
 			break;
 		default:
@@ -482,7 +482,6 @@ seventv-container.seventv-chat-list {
 	}
 
 	.seventv-message-container {
-		padding: 1em 0;
 		line-height: 1.5em;
 
 		--seventv-primary-color: v-bind(primaryColor);
