@@ -7,8 +7,8 @@ const data = reactive({
 	modules: {} as Record<ModuleID, Module>,
 });
 
-export function getModule(id: ModuleID) {
-	return data.modules[id] ?? null;
+export function getModule<T extends ModuleID>(id: T): Module<T> | null {
+	return (data.modules[id] ?? null) as Module<T> | null;
 }
 
 export function declareModule(id: ModuleID, opt: ModuleOptions) {

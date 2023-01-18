@@ -18,6 +18,8 @@
 			<span>{{ pauseBuffer.length }}{{ pauseBuffer.length >= lineLimit ? "+" : "" }} new messages</span>
 		</div>
 	</Teleport>
+
+	<ChatTray />
 </template>
 
 <script setup lang="ts">
@@ -40,6 +42,7 @@ import { useWorker } from "@/composable/useWorker";
 import { MessageType, ModerationType } from "@/site/twitch.tv";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
+import ChatTray from "./ChatTray.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
@@ -89,9 +92,9 @@ const {
 	pauseBuffer,
 	clear,
 	messageHandlers,
-	sendMessage,
 	find: findMessages,
 	messagesByUser,
+	setMessageSender,
 	chatters,
 } = useChatMessages();
 const {
@@ -223,8 +226,8 @@ definePropertyHook(controller.value.component, "props", {
 		// Keep track of chat props
 		isModerator.value = v.isCurrentUserModerator;
 		isVIP.value = v.isCurrentUserVIP;
-		sendMessage.value = v.chatConnectionAPI.sendMessage;
 		isDarkTheme.value = v.theme;
+		setMessageSender(v.chatConnectionAPI.sendMessage);
 
 		// Parse twitch emote sets
 		const data = v.emoteSetsData;

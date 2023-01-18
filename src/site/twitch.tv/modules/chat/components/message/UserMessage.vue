@@ -4,14 +4,15 @@
 	</a>
 	<span
 		v-else
-		class="seventv-chat-message"
+		class="seventv-user-message"
 		:class="{
 			deleted: msg.banned || msg.deleted,
+			'has-mention': as == 'Chat' && hasMention,
 		}"
 		:state="msg.sendState"
 		:style="{
-			'font-style': msg.messageType === 1 && mentionStyle & 1 ? 'italic' : '',
-			color: msg.messageType === 1 && mentionStyle & 2 ? adjustedColor : '',
+			'font-style': msg.messageType === 1 && meStyle & 1 ? 'italic' : '',
+			color: msg.messageType === 1 && meStyle & 2 ? adjustedColor : '',
 		}"
 	>
 		<template v-if="showTimestamps || msg.isHistorical">
@@ -75,16 +76,21 @@ import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
 import Text from "./parts/Text.vue";
 
-const props = defineProps<{
-	msg: Twitch.ChatMessage;
-}>();
+const props = withDefaults(
+	defineProps<{
+		msg: Twitch.ChatMessage;
+		as?: "Chat" | "Reply";
+	}>(),
+	{ as: "Chat" },
+);
 
 const { emoteMap } = useChatEmotes();
 const { showTimestamps, useHighContrastColors, isDarkTheme, blockedUsers } = useChatProperties();
 
 const emoteMargin = useConfig<number>("chat.emote_margin");
 const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);
-const mentionStyle = useConfig<number>("chat.slash_me_style");
+
+const meStyle = useConfig<number>("chat.slash_me_style");
 
 const unhidden = ref(false);
 
@@ -108,17 +114,21 @@ const adjustedColor = computed(() => {
 		: props.msg.user.color;
 });
 
+const hasMention = ref(false);
 const isBlocked = computed(() => blockedUsers.value.has(props.msg.user.userID));
 
 function getPart(part: Twitch.ChatMessage.Part) {
 	switch (part.type) {
 		case MessagePartType.TEXT:
 		case MessagePartType.MODERATEDTEXT:
+			return Text;
 		case MessagePartType.CURRENTUSERHIGHLIGHT:
+			hasMention.value = true;
 			return Text;
 		case MessagePartType.FLAGGEDSEGMENT:
 			return FlaggedSegment;
 		case MessagePartType.MENTION:
+			if (part.content.currentUserMentionRelation == 1) hasMention.value = true;
 			return Mention;
 		case MessagePartType.LINK:
 		case MessagePartType.CLIPLINK:
@@ -132,11 +142,25 @@ function getPart(part: Twitch.ChatMessage.Part) {
 </script>
 
 <style scoped lang="scss">
-.seventv-blocked-message {
-	cursor: pointer;
-}
-.seventv-chat-message {
-	vertical-align: baseline;
+.seventv-user-message {
+	display: block;
+	&.has-mention {
+		margin: -0.5rem -1rem;
+		padding: 0.5rem 1rem;
+		box-shadow: inset 0 0 0.1rem 0.1rem red;
+		background-color: #ff000040;
+		border-radius: 0.5rem;
+	}
+
+	&[state="sending"] {
+		opacity: 0.5;
+	}
+
+	&[state="failed"] {
+		opacity: 0.5;
+		color: var(--seventv-warning);
+	}
+
 	.emote-part {
 		display: inline-grid;
 		vertical-align: middle;
@@ -149,19 +173,6 @@ function getPart(part: Twitch.ChatMessage.Part) {
 		padding: 0.2rem;
 		font-weight: bold;
 	}
-
-	&[state="sending"] {
-		opacity: 0.5;
-	}
-
-	&[state="failed"] {
-		opacity: 0.5;
-		color: var(--seventv-warning);
-	}
-}
-
-.slash-me-italic {
-	font-style: italic;
 }
 .deleted:not(:hover) {
 	opacity: 0.5;

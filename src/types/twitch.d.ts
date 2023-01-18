@@ -319,6 +319,7 @@ declare module Twitch {
 			channelID: string;
 			channelLogin: string;
 			clearModifierTray: () => void;
+			clearTray: () => void;
 			clearReplyToList: () => void;
 			closeCard: () => void;
 			closeKeyboardReplyTray: () => void;
@@ -338,7 +339,7 @@ declare module Twitch {
 			setInputValue: (v: any) => any;
 			setModifierTray: (v: any) => any;
 			setReplyToList: (v: any) => any;
-			setTray: (v: any) => any;
+			setTray: (v?: ChatTray) => any;
 			showModerationIcons: boolean;
 			showTimestamps: boolean;
 			tray: any;
@@ -358,6 +359,104 @@ declare module Twitch {
 		getValue: () => string;
 		setValue: (v: string) => void;
 	};
+
+	export interface ChatTray<T extends keyof ChatTray.Type> {
+		type: ChatTray.Type[T];
+		header?: ReactExtended.ReactRuntimeElement | Component;
+		body?: ReactExtended.ReactRuntimeElement | Component;
+		inputValueOverride?: string;
+		sendButtonOverride: string;
+		disableCommands?: boolean;
+		disableBits?: boolean;
+		disablePaidPinnedChat?: boolean;
+		onClose?: (v?: any) => any;
+		disableChat?: boolean;
+		sendMessageHandler?: ChatTray.SendMessageHandler;
+	}
+
+	export namespace ChatTray {
+		export type props<T extends keyof Twitch.ChatTray.Type> = {
+			Reply: {
+				msg: ChatMessage;
+			};
+		}[T] & {
+			close?: () => void;
+		};
+
+		export interface Type {
+			AliasBannedFromChannelBanner: "alias-banned-from-channel-banner";
+			AliasBannedFromChannelWarning: "alias-banned-from-channel-warning";
+			AutocompleteTray: "autocomplete-tray";
+			CharacterLimitError: "character-limit-error";
+			CharacterLimitWarning: "character-limit-warning";
+			CheerCard: "cheer-card";
+			CommandInfo: "command-info";
+			CommandWarning: "command-warning";
+			CommunityMomentClaimError: "community-moment-claim-error";
+			Connecting: "connecting";
+			CreatorAnniversariesCallout: "creator-anniversaries-callout";
+			CustomReward: "custom-reward";
+			CustomViewerIntroduction: "custom-viewer-introduction";
+			DropsClaim: "drops-claim";
+			DropsError: "drops-error";
+			DuplicatedMessageError: "duplicated-message-error";
+			EmoteOnlyBanner: "emote-only-banner";
+			EmoteOnlyInfo: "emote-only-info";
+			EmoteOnlyWarning: "emote-only-warning";
+			FollowerModeBanner: "follower-mode-banner";
+			FollowerModeInfo: "follower-mode-info";
+			FollowerModeWarning: "follower-mode-warning";
+			GenericPrivateCallout: "generic-private-callout";
+			HighlightedMessage: "highlighted-message";
+			HypeTrainRewards: "hype-train-rewards";
+			MegaRewardsRecipient: "mega-rewards-recipient";
+			MessageThroughputError: "message-throughput-error";
+			MobilePhoneVerificationBanner: "mobile-phone-verification-banner";
+			MobilePhoneVerificationInfo: "mobile-phone-verification-info";
+			MobilePhoneVerificationSuccess: "mobile-phone-verification-success";
+			MobilePhoneVerificationWarning: "mobile-phone-verification-warning";
+			MobilePhoneVerificationWarningMessageFail: "mobile-phone-verification-warning-message-fail";
+			PaidPinnedChatCard: "paid-pinned-chat-card";
+			Reply: "reply";
+			ShareBitsBadgeTier: "share-bits-badge-tier";
+			ShareEmote: "share-emote";
+			ShareResub: "share-resub";
+			ShieldModeActiveBanner: "shield-mode-active-banner";
+			ShieldModeActiveInfo: "shield-mode-active-info";
+			SlowModeBanner: "slow-mode-banner";
+			SlowModeInfo: "slow-mode-info";
+			SubsOnlyBanner: "subs-only-banner";
+			SubsOnlyInfo: "subs-only-info";
+			SubsOnlyMessage: "subs-only-message";
+			SubsOnlyWarning: "subs-only-warning";
+			ThankSubGifter: "thank-sub-gifter";
+			VerifiedOnlyModeBanner: "verified-only-mode-banner";
+			VerifiedOnlyModeInfo: "verified-only-mode-info";
+			VerifiedOnlyModeWarning: "verified-only-mode-warning";
+			ViewerIntroduction: "viewer-introduction";
+		}
+
+		export interface SendMessageHandler<T extends SendMessageHandler.Type> {
+			type: SendMessageHandler.Type[T];
+			additionalMetadata: Partial<ChatMessage>;
+		}
+
+		export namespace SendMessageHandler {
+			export type Type = {
+				BuyAndCheer: "buy-and-cheer";
+				BuyBitsCheckout: "buy-bits-checkout";
+				BuyPaidPinnedMessage: "buy-paid-pinned-message";
+				CommunityPointsSpend: "community-points-spend";
+				NoOverride: "no-override";
+				Reply: "reply";
+				ShareBitsBadgeTier: "share-bits-badge-tier";
+				ShareDrop: "share-drop";
+				ShareEmoteReward: "share-emote-reward";
+				ShareResub: "share-resub";
+				ThankSubGifter: "thank-sub-gifter";
+			};
+		}
+	}
 
 	export type ChatSlate = {
 		children: ChatStateLeaf[];
@@ -594,6 +693,14 @@ declare module Twitch {
 		messageType: number;
 		emotes?: any;
 		timestamp: number;
+		reply?: {
+			parentDeleted: boolean;
+			parentMsgId: string;
+			parentMessageBody: string;
+			parentUid: string;
+			parentUserLogin: string;
+			parentDisplayName: string;
+		};
 	}
 
 	export interface SubMessage extends AnyMessage {

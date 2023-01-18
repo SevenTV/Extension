@@ -16,12 +16,14 @@ import {
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useCosmetics } from "@/composable/useCosmetics";
+import { getModule } from "@/composable/useModule";
 import { useWorker } from "@/composable/useWorker";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
+const module = getModule("chat-input");
 const store = useStore();
 const { messageHandlers } = useChatMessages();
 const { emoteMap } = useChatEmotes();
@@ -427,12 +429,22 @@ onMounted(() => {
 		},
 	);
 
+	definePropertyHook(component, "props", {
+		value(v) {
+			if (!module?.instance) return;
+
+			module.instance.setTray = v.setTray;
+			module.instance.setModifierTray = v.setModifierTray;
+			module.instance.clearModifierTray = v.clearModifierTray;
+		},
+	});
+
 	const mentionProvider = component.providers.find((provider) => provider.autocompleteType == "mention");
 	if (mentionProvider) {
 		providers.value.mention = mentionProvider;
 		mentionProvider.canBeTriggeredByTab = false;
 		definePropertyHook(mentionProvider as Twitch.ChatAutocompleteProvider<"mention">, "props", {
-			value(v: Twitch.ChatAutocompleteProvider<"mention">["props"]) {
+			value(v) {
 				messageHandlers.value.add(v.activeChattersAPI.handleMessage);
 			},
 		});
@@ -449,6 +461,7 @@ onUnmounted(() => {
 	const component = props.instance.component;
 
 	unsetPropertyHook(component, "onEditableValueUpdate");
+	unsetPropertyHook(component, "props");
 
 	const rootNode = props.instance.domNodes.root;
 	if (rootNode instanceof HTMLElement) {

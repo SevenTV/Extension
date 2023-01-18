@@ -25,4 +25,10 @@ const AutocompleteProvider = useComponentHook<Twitch.ChatAutocompleteComponent>(
 );
 
 markAsReady();
+
+defineExpose({
+	setTray: null as Twitch.ChatAutocompleteComponent["props"]["setTray"] | null,
+	setModifierTray: null as Twitch.ChatAutocompleteComponent["props"]["setModifierTray"] | null,
+	clearModifierTray: null as Twitch.ChatAutocompleteComponent["props"]["clearModifierTray"] | null,
+});
 </script>

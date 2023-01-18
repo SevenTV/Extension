@@ -6,7 +6,6 @@
 			:msg-id="msg.id"
 			class="seventv-message"
 			:class="{
-				mention: hasMention(msg),
 				// Even-odd alternating background
 				...(isAlternatingBackground
 					? {
@@ -27,7 +26,6 @@
 <script setup lang="ts">
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { useConfig } from "@/composable/useSettings";
-import { MessagePartType } from "@/site/twitch.tv/";
 import { MessageType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
 import ModSlider from "./components/modslider/ModSlider.vue";
@@ -48,27 +46,9 @@ function getMessageComponent(type: MessageType) {
 	return types[`./components/types/${type}.${MessageType[type]}.vue`] ?? ChatMessageUnhandled;
 }
 
-function hasMention(msg: Twitch.DisplayableMessage) {
-	const parts = msg.messageParts ?? msg.message?.messageParts;
-	if (!parts) return false;
-	return parts.some(
-		(p) =>
-			p.type == MessagePartType.CURRENTUSERHIGHLIGHT ||
-			(p.type == MessagePartType.MENTION && p.content.currentUserMentionRelation === 1),
-	);
-}
-
 const canModerateType = [MessageType.MESSAGE, MessageType.SUBSCRIPTION, MessageType.RESUBSCRIPTION];
 </script>
 <style scoped lang="scss">
-.seventv-message.mention {
-	box-shadow: inset 0 0 0.1rem 0.1rem red;
-	background-color: #ff000040;
-	border-radius: 0.5rem;
-	margin-top: 0.5rem;
-	margin-bottom: 0.5rem;
-}
-
 .seventv-chat-list[alternating-background="true"] {
 	.seventv-message.even {
 		background-color: var(--seventv-background-shade-1);

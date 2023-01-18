@@ -11,7 +11,7 @@
 				</div>
 				<div class="header-right">
 					<button class="header-icon header-button" @click.prevent="toggle">
-						<Close />
+						<TwClose />
 					</button>
 				</div>
 			</div>
@@ -32,8 +32,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useSettings } from "@/composable/useSettings";
-import Close from "@/assets/svg/Icons/Close.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
+import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import SettingsMenuButton from "./SettingsMenuButton.vue";
 import SettingsNode from "./SettingsNode.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
@@ -80,7 +80,7 @@ function toggle() {
 .header-icon {
 	height: 100%;
 	margin: auto;
-	padding: 1rem;
+	padding: 0.5rem;
 
 	& > svg {
 		height: 100%;
@@ -89,6 +89,8 @@ function toggle() {
 }
 .header-button {
 	cursor: pointer;
+	fill: currentColor;
+
 	&:hover {
 		background: hsla(0deg, 0%, 50%, 32%);
 	}

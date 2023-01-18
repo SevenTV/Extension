@@ -8,7 +8,7 @@
 					<span>Changelog - 7TV Beta</span>
 				</h3>
 
-				<Close class="close-button" @click="emit('close')" />
+				<TwClose class="close-button" @click="emit('close')" />
 			</div>
 
 			<div class="seventv-change-notes">
@@ -21,8 +21,8 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import { onClickOutside } from "@vueuse/core";
-import Close from "@/assets/svg/Icons/Close.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import Changelog from "@/../CHANGELOG.md?raw";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
@@ -88,6 +88,7 @@ watchEffect(() => {
 			cursor: pointer;
 			margin: 0.5em;
 			font-size: 2rem;
+			fill: currentColor;
 		}
 
 		> h3 {

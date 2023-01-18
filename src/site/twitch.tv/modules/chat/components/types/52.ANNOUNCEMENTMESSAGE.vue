@@ -57,7 +57,7 @@ const className = computed(
 	}
 
 	.announce-message {
-		padding: 0.5rem 2rem;
+		padding: 0.5rem 1.2rem;
 	}
 }
 

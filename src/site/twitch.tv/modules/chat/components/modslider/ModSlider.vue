@@ -42,8 +42,8 @@ const props = defineProps<{
 	msg: Twitch.DisplayableMessage;
 }>();
 
-const { isModerator } = useChatProperties();
 const { sendMessage } = useChatMessages();
+const { isModerator } = useChatProperties();
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -68,7 +68,7 @@ const hasHighlight = computed(() => {
 });
 
 function executeModAction(message: string, name: string, id: string) {
-	sendMessage.value(message.replace("{user}", name).replace("{id}", id));
+	sendMessage(message.replace("{user}", name).replace("{id}", id));
 }
 
 const handleDown = (e: PointerEvent) => {
@@ -144,6 +144,7 @@ const update = (e: PointerEvent): void => {
 .grabbable-wrapper {
 	width: 0;
 	height: 100%;
+	z-index: 999;
 	position: absolute;
 	.grabbable-outer {
 		height: 100%;

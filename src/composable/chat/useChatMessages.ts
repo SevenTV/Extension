@@ -153,18 +153,23 @@ function messagesByUser(userLogin: string): Twitch.DisplayableMessage[] {
 	return Object.values(umap);
 }
 
+function setMessageSender(fn: (msg: string) => void) {
+	data.sendMessage = fn;
+}
+
 export function useChatMessages() {
-	const { messages, messageHandlers, chatters, sendMessage, pauseBuffer } = toRefs(data);
+	const { messages, messageHandlers, chatters, pauseBuffer } = toRefs(data);
 
 	return {
 		messages: messages,
 		messageHandlers: messageHandlers,
 		chatters: chatters,
-		sendMessage: sendMessage,
 		pauseBuffer: pauseBuffer,
+		sendMessage: data.sendMessage,
 		find,
 		messagesByUser,
 		addMessage,
+		setMessageSender,
 		clear,
 	};
 }

@@ -1,5 +1,5 @@
 <template>
-	<span v-if="user && user.userDisplayName" class="seventv-chat-user" :style="{ color: color }">
+	<div v-if="user && user.userDisplayName" class="seventv-chat-user" :style="{ color: color }">
 		<!--Badge List -->
 		<span v-if="twitchBadges.length || badges.length" class="seventv-chat-user-badge-list">
 			<Badge
@@ -26,7 +26,7 @@
 				</UiPaint>
 			</span>
 		</span>
-	</span>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -76,24 +76,32 @@ if (props.badges && twitchBadgeSets.value) {
 
 <style scoped lang="scss">
 .seventv-chat-user {
-	display: inline;
+	display: inline-block;
 	cursor: pointer;
 	word-break: break-all;
-}
-
-.seventv-chat-user-badge-list {
-	margin-right: 0.25em;
-
-	.seventv-chat-badge ~ .seventv-chat-badge {
-		margin-left: 0.25em;
-	}
-}
-
-.seventv-chat-user-username {
-	font-weight: 700;
+	vertical-align: baseline;
+	margin: -0.2rem;
+	padding: 0.2rem;
 
 	&:hover {
-		text-decoration: underline;
+		border-radius: 0.4rem;
+		background: hsla(0deg, 0%, 70%, 32%);
+	}
+
+	.seventv-chat-user-badge-list {
+		margin-right: 0.25em;
+
+		:deep(img) {
+			vertical-align: middle;
+		}
+
+		.seventv-chat-badge ~ .seventv-chat-badge {
+			margin-left: 0.25em;
+		}
+	}
+
+	.seventv-chat-user-username {
+		font-weight: 700;
 	}
 }
 </style>

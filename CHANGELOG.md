@@ -1,5 +1,6 @@
 ### Version 3.0.0.4000 (Beta 4)
 
+- Added support for Replies & Threads
 - The emote menu button will now take the form of the 7TV Logo
 - Fixed an issue which caused this changelog to become impossible to close if multiple tabs were open
 
