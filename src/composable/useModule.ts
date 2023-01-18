@@ -1,18 +1,24 @@
 import { computed, nextTick, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { log } from "@/common/Logger";
 import { useSettings } from "@/composable/useSettings";
+import type { ModuleComponentMap, ModuleID } from "@/types/module";
 
 const data = reactive({
-	modules: {} as Record<string, Module>,
+	modules: {} as Record<ModuleID, Module>,
 });
 
-export function useModule(id: string, opt: ModuleOptions) {
+export function getModule(id: ModuleID) {
+	return data.modules[id] ?? null;
+}
+
+export function declareModule(id: ModuleID, opt: ModuleOptions) {
 	data.modules[id] = {
 		id,
 		name: opt.name,
 		enabled: true,
 		depends_on: opt.depends_on,
 		config: opt.config ?? [],
+		instance: null,
 	};
 
 	const mod = toRef(data.modules, id);
@@ -79,17 +85,19 @@ export function useModule(id: string, opt: ModuleOptions) {
 
 interface ModuleOptions {
 	name: string;
-	depends_on: string[];
+	depends_on: ModuleID[];
 	config?: SevenTV.SettingNode<SevenTV.SettingType>[];
 }
 
-export interface Module {
-	id: string;
+export interface Module<T extends keyof ModuleComponentMap = keyof ModuleComponentMap> {
+	id: T;
 	name: string;
 	enabled: boolean;
-	depends_on: string[];
+	depends_on: ModuleID[];
 	config: SevenTV.SettingNode<SevenTV.SettingType>[];
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	instance: InstanceType<ModuleComponentMap[T]> | null;
 	configurable?: boolean;
 	ready?: boolean;
 }

@@ -9,6 +9,7 @@ interface MV3HostPermissions {
 interface ManifestOptions {
 	mv2?: boolean;
 	branch?: BranchName;
+	dev?: boolean;
 }
 
 export type BranchName = "beta" | "dev";
@@ -88,7 +89,13 @@ export async function getManifest(
 			.reduce((a, b) => [...(a ?? []), ...(b ?? [])]);
 
 		// this is required on dev for Vite script to load
-		manifest.content_security_policy = `script-src-elem 'self' 'unsafe-eval' http://localhost:${4777}; object-src 'self'`;
+		if (opt.dev) {
+			manifest.content_security_policy = `script-src-elem 'self' 'unsafe-eval' http://localhost:${4777}; object-src 'self'`;
+		}
+
+		delete manifest.host_permissions;
+		delete manifest.optional_host_permissions;
+		delete manifest.action;
 	}
 
 	return manifest;

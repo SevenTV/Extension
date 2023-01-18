@@ -11,7 +11,7 @@
 		"build:dev": "vite build --mode dev --minify terser",
 		"build:stage": "vue-tsc --noEmit && vite build --minify terser --mode stage",
 		"build:prod": "vue-tsc --noEmit && vite build --minify terser && vite build -c worker.vite.config.ts --minify terser",
-		"build:mv2:prod": "vue-tsc --noEmit && MV2=true vite build --minify terser && vite build -c worker.vite.config.ts --minify terser",
+		"build:mv2:prod": "vue-tsc --noEmit && MV2=true vite build --minify es2021 && vite build -c worker.vite.config.ts --minify es2021",
 		"build:worker": "vite build -c worker.vite.config.ts",
 		"dev:web": "vite",
 		"format": "prettier -w .",

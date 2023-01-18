@@ -1,6 +1,4 @@
-<template>
-	<div />
-</template>
+<template />
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";

@@ -1,26 +1,20 @@
 <template>
-	<ChatModule />
-	<ChatInputModule />
-	<EmoteMenuModule />
-	<SettingsModule />
+	<template v-for="[key, mod] of Object.entries(modules)" :key="key">
+		<component :is="mod" ref="renderedModules" />
+	</template>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import { useStore } from "@/store/main";
 import { useComponentHook } from "@/common/ReactHooks";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
-import { getRouter } from "@/site/twitch.tv";
-import ChatInputModule from "./modules/chat-input/ChatInputModule.vue";
-import ChatModule from "./modules/chat/ChatModule.vue";
-import EmoteMenuModule from "./modules/emote-menu/EmoteMenuModule.vue";
-import SettingsModule from "./modules/settings/SettingsModule.vue";
+import { getModule } from "@/composable/useModule";
+import type { ModuleID } from "@/types/module";
 
 const store = useStore();
 const { imageFormat } = useChatProperties();
 imageFormat.value = store.avifSupported ? "AVIF" : "WEBP";
-
-// Retrieve twitch's internal router
-const router = getRouter();
 
 // Session User
 useComponentHook<Twitch.SessionUserComponent>(
@@ -44,14 +38,32 @@ useComponentHook<Twitch.SessionUserComponent>(
 	},
 );
 
-if (router) {
-	// router may be undefined in certain places, such as popout chat
-	const route = router.props.location;
+// Import modules
+const modules = import.meta.glob("./modules/**/*Module.vue", { eager: true, import: "default" });
+for (const key in modules) {
+	const modPath = key.split("/");
+	const modKey = modPath.splice(modPath.length - 2, 1).pop();
 
-	router.props.history.listen((loc) => {
-		store.setLocation(loc);
-	});
-
-	store.setLocation(route);
+	modules[modKey!] = modules[key];
+	delete modules[key];
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const renderedModules = ref<Record<string, InstanceType<any>>>();
+
+onMounted(() => {
+	if (!renderedModules.value) return;
+	for (let i = 0; i < renderedModules.value.length; i++) {
+		const rmod = renderedModules.value[i];
+		if (!rmod) continue;
+
+		const modID = Object.keys(modules)[i];
+		if (!modID) continue;
+
+		const mod = getModule(modID as ModuleID);
+		if (!mod) continue;
+
+		mod.instance = rmod;
+	}
+});
 </script>

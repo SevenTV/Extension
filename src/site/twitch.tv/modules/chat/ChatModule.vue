@@ -12,10 +12,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { getTrackedNode, useComponentHook } from "@/common/ReactHooks";
-import { useModule } from "@/composable/useModule";
+import { declareModule } from "@/composable/useModule";
 import ChatController from "./ChatController.vue";
 
-const { dependenciesMet, markAsReady } = useModule("chat", {
+const { dependenciesMet, markAsReady } = declareModule("chat", {
 	name: "Chat",
 	depends_on: [],
 	config: [
@@ -136,4 +136,10 @@ const chatController = useComponentHook<Twitch.ChatControllerComponent>({
 const isHookable = computed(() => chatController.instances.length === chatList.instances.length);
 
 markAsReady();
+
+defineExpose({
+	chatController,
+	chatList,
+	chatRoom,
+});
 </script>

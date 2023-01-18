@@ -6,10 +6,10 @@
 
 <script setup lang="ts">
 import { useComponentHook } from "@/common/ReactHooks";
-import { useModule } from "@/composable/useModule";
+import { declareModule } from "@/composable/useModule";
 import ChatInput from "./ChatInput.vue";
 
-const { markAsReady } = useModule("chat-input", {
+const { markAsReady } = declareModule("chat-input", {
 	name: "Chat Input",
 	depends_on: [],
 });

@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { useConfig, useSettings } from "@/composable/useSettings";
 import Changelog from "./Changelog.vue";
 import Tooltip from "./Tooltip.vue";
@@ -24,13 +24,15 @@ register([
 const runtimeVersion = import.meta.env.VITE_APP_VERSION;
 const version = useConfig("app.version");
 
-watch(
+const stop = watch(
 	version,
 	(v) => {
 		if (version.value === null || runtimeVersion === v) return;
 
 		version.value = runtimeVersion;
 		showChangelog.value = true;
+
+		nextTick(() => stop());
 	},
 	{ immediate: true },
 );

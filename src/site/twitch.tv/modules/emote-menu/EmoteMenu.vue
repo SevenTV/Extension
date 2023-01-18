@@ -28,10 +28,15 @@
 			</div>
 		</div>
 	</Teleport>
+
+	<!-- Replace the emote menu button -->
+	<Teleport v-if="buttonEl" :to="buttonEl">
+		<Logo class="seventv-emote-menu-button" :class="{ 'menu-open': isVisible }" provider="7TV" />
+	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import { onClickOutside } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
@@ -52,6 +57,7 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;
+	buttonEl?: HTMLButtonElement;
 }>();
 
 const { identity } = useStore();
@@ -59,8 +65,10 @@ const { emoteProviders } = useChatEmotes();
 const { channel: currentChatChannel } = useChatContext();
 const { emoteSets: personalEmoteSets, emotes: personalEmotes } = useCosmetics(identity?.id ?? "");
 
-const containerEl = ref();
-containerEl.value = document.querySelector(".chat-input__textarea") ?? undefined;
+const containerEl = ref<HTMLElement | undefined>();
+containerEl.value = document.querySelector<HTMLElement>(".chat-input__textarea") ?? undefined;
+
+const buttonEl = toRef(props, "buttonEl");
 
 const isVisible = ref(false);
 const loaded = ref(false);
@@ -234,6 +242,15 @@ onUnmounted(() => {
 
 	&[visible="false"] {
 		display: none;
+	}
+}
+
+.seventv-emote-menu-button {
+	font-size: 2rem;
+
+	transition: color 250ms ease-in-out;
+	&.menu-open {
+		color: var(--seventv-primary);
 	}
 }
 

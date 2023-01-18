@@ -26,6 +26,7 @@ module.exports = {
 		"@typescript-eslint/no-unused-vars": "error",
 		"@typescript-eslint/explicit-module-boundary-types": "off",
 		"@typescript-eslint/no-namespace": "off",
+		"vue/valid-template-root": "off",
 		"vue/multi-word-component-names": "off",
 		"vue/require-default-prop": "off",
 		"@typescript-eslint/no-non-null-assertion": "off",

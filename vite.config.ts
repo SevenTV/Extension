@@ -125,6 +125,7 @@ export default defineConfig(({ mode }) => {
 				async buildEnd() {
 					const man = await getManifest(
 						{
+							dev: isDev,
 							branch: process.env.BRANCH as BranchName,
 							mv2: isDev || !!process.env.MV2,
 						},

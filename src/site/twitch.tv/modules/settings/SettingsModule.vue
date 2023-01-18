@@ -3,10 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { useModule } from "@/composable/useModule";
+import { declareModule } from "@/composable/useModule";
 import SettingsMenu from "./SettingsMenu.vue";
 
-const { markAsReady } = useModule("settings", {
+const { markAsReady } = declareModule("settings", {
 	name: "Settings",
 	depends_on: [],
 });

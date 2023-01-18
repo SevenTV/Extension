@@ -18,6 +18,13 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": ["src/*.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "manifest.config.ts"],
+	"include": [
+		"src/*.ts",
+		"src/**/*.ts",
+		"src/types/*.d.ts",
+		"src/**/*.vue",
+		"manifest.config.ts",
+		"src/site/twitch.tv/modules/**/*.d.ts"
+	],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }
