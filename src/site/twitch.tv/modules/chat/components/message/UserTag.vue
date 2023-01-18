@@ -83,11 +83,6 @@ if (props.badges && twitchBadgeSets.value) {
 	margin: -0.2rem;
 	padding: 0.2rem;
 
-	&:hover {
-		border-radius: 0.4rem;
-		background: hsla(0deg, 0%, 70%, 32%);
-	}
-
 	.seventv-chat-user-badge-list {
 		margin-right: 0.25em;
 

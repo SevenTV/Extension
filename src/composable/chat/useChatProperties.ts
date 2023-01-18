@@ -7,6 +7,7 @@ const data = reactive({
 	primaryColorHex: null as string | null,
 	useHighContrastColors: true,
 	showTimestamps: false,
+	showModerationIcons: false,
 	currentChannel: {} as CurrentChannel,
 	imageFormat: "WEBP" as SevenTV.ImageFormat,
 	twitchBadgeSets: {} as Twitch.BadgeSets | null,

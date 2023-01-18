@@ -179,6 +179,12 @@ declare module Twitch {
 		primaryColorHex: string | null;
 		useHighContrastColors: boolean;
 		showTimestamps: boolean;
+		showAutomodActions: boolean;
+		showModerationActions: boolean;
+		showModerationIcons: boolean;
+		isWatchPartyActive: boolean;
+		isShowingCommunityHighlightList: boolean;
+		deletedMessageDisplay: "BRIEF" | "DETAILED" | "LEGACY";
 	}>;
 
 	export type ViewerCardComponent = ReactExtended.WritableComponent<{}> & {
@@ -665,6 +671,7 @@ declare module Twitch {
 		t?: number;
 		element?: HTMLElement;
 		sendState?: "sending" | "sent" | "failed";
+		channelID?: string;
 		notifySent?: () => void;
 	}
 

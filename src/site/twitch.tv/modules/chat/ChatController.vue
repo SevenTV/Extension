@@ -102,6 +102,7 @@ const {
 	primaryColorHex,
 	useHighContrastColors,
 	showTimestamps,
+	showModerationIcons,
 	isModerator,
 	isVIP,
 	isDarkTheme,
@@ -205,6 +206,7 @@ definePropertyHook(room.value.component, "props", {
 		primaryColorHex.value = v.primaryColorHex;
 		useHighContrastColors.value = v.useHighContrastColors;
 		showTimestamps.value = v.showTimestamps;
+		showModerationIcons.value = v.showModerationIcons;
 	},
 });
 
@@ -245,6 +247,8 @@ definePropertyHook(controller.value.component, "props", {
 
 // Determine if the message should performe some action or be sendt to the chatAPI for rendering
 const onMessage = (msg: Twitch.AnyMessage): boolean => {
+	msg.channelID = channel.value?.id ?? "";
+
 	switch (msg.type) {
 		case MessageType.MESSAGE:
 		case MessageType.SUBSCRIPTION:

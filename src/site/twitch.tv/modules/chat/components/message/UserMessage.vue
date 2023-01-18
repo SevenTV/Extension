@@ -26,6 +26,17 @@
 				}}
 			</span>
 		</template>
+
+		<!-- Mod Icons -->
+		<template v-if="isModerator && showModerationIcons">
+			<ModIcons
+				:msg="msg"
+				@ban="banUserFromChat(null)"
+				@timeout="banUserFromChat('10m')"
+				@delete="deleteChatMessage(msg.id)"
+			/>
+		</template>
+
 		<!-- Chat Author -->
 		<UserTag
 			v-if="msg.user"
@@ -63,6 +74,7 @@
 import { computed, ref } from "vue";
 import { normalizeUsername } from "@/common/Color";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCardOpeners } from "@/composable/useCardOpeners";
 import { useCosmetics } from "@/composable/useCosmetics";
@@ -75,6 +87,7 @@ import FlaggedSegment from "./parts/FlaggedSegment.vue";
 import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
 import Text from "./parts/Text.vue";
+import ModIcons from "../mod/ModIcons.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -85,7 +98,8 @@ const props = withDefaults(
 );
 
 const { emoteMap } = useChatEmotes();
-const { showTimestamps, useHighContrastColors, isDarkTheme, blockedUsers } = useChatProperties();
+const { showTimestamps, showModerationIcons, useHighContrastColors, isDarkTheme, isModerator, blockedUsers } =
+	useChatProperties();
 
 const emoteMargin = useConfig<number>("chat.emote_margin");
 const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);
@@ -139,6 +153,9 @@ function getPart(part: Twitch.ChatMessage.Part) {
 			return new Error("Unknown part");
 	}
 }
+
+// Moderation
+const { banUserFromChat, deleteChatMessage } = useChatModeration(props.msg.channelID!, props.msg.user.userLogin);
 </script>
 
 <style scoped lang="scss">

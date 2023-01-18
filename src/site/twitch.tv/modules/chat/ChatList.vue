@@ -28,7 +28,7 @@ import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { useConfig } from "@/composable/useSettings";
 import { MessageType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
-import ModSlider from "./components/modslider/ModSlider.vue";
+import ModSlider from "./components/mod/ModSlider.vue";
 
 defineProps<{
 	controller: Twitch.ChatControllerComponent | undefined;

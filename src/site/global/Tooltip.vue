@@ -5,7 +5,7 @@
 		:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
 	>
 		<template v-if="typeof tooltip.content === 'string'">
-			{{ tooltip.content }}
+			<span class="text-only-tooltip">{{ tooltip.content }}</span>
 		</template>
 		<template v-else>
 			<component :is="tooltip.content" v-bind="tooltip.contentProps" />
@@ -32,6 +32,7 @@ onMounted(() => {
 <style scoped lang="scss">
 #seventv-tooltip-container {
 	all: unset;
+	display: grid;
 	z-index: 99999;
 	position: absolute;
 	pointer-events: none;
@@ -41,6 +42,10 @@ onMounted(() => {
 	backdrop-filter: blur(0.88em);
 	outline: 0.1em solid var(--seventv-border-transparent-1);
 	border-radius: 0.25em;
+
+	.text-only-tooltip {
+		padding: 0.25em;
+	}
 }
 
 #seventv-tooltip-arrow {
