@@ -19,6 +19,7 @@ export class EventAPI {
 	url = import.meta.env.VITE_APP_API_EVENTS;
 	private socket: WebSocket | null = null;
 	private eventSource: EventSource | null = null;
+	private shouldResubscribe = false;
 
 	get platform(): Platform {
 		return "TWITCH";
@@ -80,21 +81,23 @@ export class EventAPI {
 
 	private onOpen(): void {
 		log.info("<EventAPI>", "Connected", `url=${this.url}`);
-
-		for (const [t, rec] of Object.entries(this.subscriptions)) {
-			delete this.subscriptions[t];
-
-			for (const sub of rec) {
-				for (const port of sub.ports.values()) {
-					this.subscribe(t, sub.condition, port);
-				}
-			}
-		}
 	}
 
 	private onHello(msg: EventAPIMessage<"HELLO">): void {
 		this.sessionID = msg.data.session_id;
 		this.heartbeatInterval = msg.data.heartbeat_interval;
+
+		if (this.shouldResubscribe) {
+			for (const [t, rec] of Object.entries(this.subscriptions)) {
+				delete this.subscriptions[t];
+
+				for (const sub of rec) {
+					for (const port of sub.ports.values()) {
+						this.subscribe(t, sub.condition, port);
+					}
+				}
+			}
+		}
 
 		log.info(
 			"<EventAPI>",
@@ -218,6 +221,8 @@ export class EventAPI {
 	private onClose(): void {
 		this.socket = null;
 		const n = this.reconnect();
+
+		this.shouldResubscribe = true;
 
 		log.debug("<EventAPI>", "Disconnected", `url=${this.url}, reconnect=${n}`);
 	}

@@ -1,3 +1,7 @@
+### Version 3.0.0.5000 (Beta 5)
+
+- Fixed an issue which caused EventAPI subscription commands to be sent twice
+
 ### Version 3.0.0.4000 (Beta 4)
 
 - Added support for Replies & Threads
