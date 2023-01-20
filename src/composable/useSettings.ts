@@ -47,15 +47,16 @@ export function useConfig<T extends SevenTV.SettingType>(key: string) {
 	return toConfigRef<T>(key);
 }
 
-function synchronizeFrankerFaceZ<T extends SevenTV.SettingType>(key: string) {
-	if (!nodes[key]) return;
+export function synchronizeFrankerFaceZ() {
+	const keys = Object.keys(nodes);
+	for (let i = 0; i < keys.length; i++) {
+		const n = nodes[Object.keys(nodes)[i]];
+		if (!n.ffz_key) continue;
 
-	const ffzKey = nodes[key].ffz_key;
-	if (!ffzKey) return;
-
-	getFFZConfigChanges<T>(ffzKey, (v) => {
-		raw[key] = v;
-	});
+		getFFZConfigChanges(n.ffz_key, (v) => {
+			raw[n.key] = v as SevenTV.SettingType;
+		});
+	}
 }
 
 export function useSettings() {
@@ -70,8 +71,6 @@ export function useSettings() {
 			if (["string", "boolean", "object", "number", "undefined"].includes(typeof raw[node.key])) {
 				raw[node.key] = raw[node.key] ?? node.defaultValue;
 			}
-
-			synchronizeFrankerFaceZ(node.key);
 		}
 	}
 

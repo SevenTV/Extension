@@ -1,4 +1,5 @@
 import { reactive, toRef } from "vue";
+import { log } from "@/common/Logger";
 import { definePropertyHook } from "@/common/Reflection";
 
 const data = reactive({
@@ -12,6 +13,9 @@ definePropertyHook(window as Window & { ffz?: FFZGlobalScope }, "ffz", {
 
 		data.active = true;
 		data.ffz = v;
+
+		disableChatProcessing();
+		log.info("FrankerFaceZ detected—patching for compatibility. woof");
 	},
 });
 
@@ -39,11 +43,21 @@ function getConfigChanges<T = unknown>(key: string, cb: (val: T) => void): void 
 	return settings.getChanges<T>(key, cb);
 }
 
+function disableChatProcessing() {
+	if (!data.ffz) return;
+
+	const settings = data.ffz.resolve<FFZSettingsManager>("settings");
+	if (!settings || typeof settings.main_context.updateContext !== "function") return;
+
+	settings.main_context.updateContext({ "disable-chat-processing": true });
+}
+
 export function useFrankerFaceZ() {
 	return {
 		active: toRef(data, "active"),
 		getConfig,
 		getConfigChanges,
+		disableChatProcessing,
 	};
 }
 
@@ -55,4 +69,7 @@ export interface FFZGlobalScope {
 export interface FFZSettingsManager {
 	get<T = unknown>(key: string): T;
 	getChanges<T = unknown>(key: string, cb: (val: T) => void): void;
+	main_context: {
+		updateContext(ctx: Record<string, unknown>): void;
+	};
 }

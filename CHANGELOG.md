@@ -1,5 +1,6 @@
 ### Version 3.0.0.5000 (Beta 5)
 
+- Fixed a conflict with FrankerFaceZ where some message types did not render properly
 - Fixed an issue which caused EventAPI subscription commands to be sent twice
 
 ### Version 3.0.0.4000 (Beta 4)
