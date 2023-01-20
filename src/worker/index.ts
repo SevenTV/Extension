@@ -113,7 +113,9 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 	};
 	ENDOFSTREAM: void;
 	IDENTIFY: void;
-	RESUME: void;
+	RESUME: {
+		session_id: string;
+	};
 	SUBSCRIBE: {
 		type: string;
 		condition: Record<string, string>;

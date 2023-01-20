@@ -19,13 +19,13 @@ export class EventAPI {
 	url = import.meta.env.VITE_APP_API_EVENTS;
 	private socket: WebSocket | null = null;
 	private eventSource: EventSource | null = null;
-	private shouldResubscribe = false;
+	private shouldResume = false;
 
 	get platform(): Platform {
 		return "TWITCH";
 	}
 
-	constructor(private driver: WorkerDriver) {
+	constructor(driver: WorkerDriver) {
 		this.ctx = {
 			db: driver.db,
 			driver,
@@ -84,20 +84,14 @@ export class EventAPI {
 	}
 
 	private onHello(msg: EventAPIMessage<"HELLO">): void {
+		if (this.shouldResume) {
+			this.resume(this.sessionID);
+		}
+
 		this.sessionID = msg.data.session_id;
 		this.heartbeatInterval = msg.data.heartbeat_interval;
 
-		if (this.shouldResubscribe) {
-			for (const [t, rec] of Object.entries(this.subscriptions)) {
-				delete this.subscriptions[t];
-
-				for (const sub of rec) {
-					for (const port of sub.ports.values()) {
-						this.subscribe(t, sub.condition, port);
-					}
-				}
-			}
-		}
+		this.shouldResume = false;
 
 		log.info(
 			"<EventAPI>",
@@ -125,6 +119,35 @@ export class EventAPI {
 				}
 				break;
 			}
+			case "RESUME": {
+				const { success, dispatches_replayed, subscriptions_restored } = msg.data.data as {
+					success: boolean;
+					dispatches_replayed: number;
+					subscriptions_restored: number;
+				};
+
+				if (success) {
+					log.info(
+						"<EventAPI>",
+						"Successfully resumed",
+						`dispatchesReplayed=${dispatches_replayed} subscriptionsRestored=${subscriptions_restored}`,
+					);
+				} else {
+					log.error("<EventAPI>", "Resume failed, manually reconfiguring...");
+
+					this.shouldResume = false;
+
+					for (const [t, rec] of Object.entries(this.subscriptions)) {
+						delete this.subscriptions[t];
+
+						for (const sub of rec) {
+							for (const port of sub.ports.values()) {
+								this.subscribe(t, sub.condition, port);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		log.debugWithObjects(["<EventAPI>", "Ack received"], [msg.data]);
@@ -132,6 +155,17 @@ export class EventAPI {
 
 	private onError(msg: EventAPIMessage<"ERROR">): void {
 		log.error("<EventAPI>", "Error received", msg.data.message);
+	}
+
+	resume(sessionID: string): void {
+		this.sendMessage({
+			op: "RESUME",
+			data: {
+				session_id: sessionID,
+			},
+		});
+
+		log.debug("<EventAPI>", "Attempting to resume...", `sessionID=${sessionID}`);
 	}
 
 	subscribe(type: string, condition: Record<string, string>, port: WorkerPort) {
@@ -222,7 +256,7 @@ export class EventAPI {
 		this.socket = null;
 		const n = this.reconnect();
 
-		this.shouldResubscribe = true;
+		this.shouldResume = true;
 
 		log.debug("<EventAPI>", "Disconnected", `url=${this.url}, reconnect=${n}`);
 	}
