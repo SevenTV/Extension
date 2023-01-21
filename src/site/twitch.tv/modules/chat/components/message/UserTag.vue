@@ -1,7 +1,7 @@
 <template>
 	<div v-if="user && user.userDisplayName" class="seventv-chat-user" :style="{ color: color }">
 		<!--Badge List -->
-		<span v-if="twitchBadges.length || badges.length" class="seventv-chat-user-badge-list">
+		<span v-if="twitchBadges.length || cosmetics.badges.length" class="seventv-chat-user-badge-list">
 			<Badge
 				v-for="(badge, index) of twitchBadges"
 				:key="index"
@@ -10,7 +10,13 @@
 				type="twitch"
 				@click="(e) => emit('badgeClick', e, badge)"
 			/>
-			<Badge v-for="(badge, index) of badges" :key="index" :badge="badge" :alt="badge.data.tooltip" type="app" />
+			<Badge
+				v-for="(badge, index) of cosmetics.badges"
+				:key="index"
+				:badge="badge"
+				:alt="badge.data.tooltip"
+				type="app"
+			/>
 		</span>
 
 		<!-- Message Author -->
@@ -47,18 +53,18 @@ const emit = defineEmits<{
 	(event: "badgeClick", e: MouseEvent, badge: Twitch.ChatBadge): void;
 }>();
 
-const { twitchBadgeSets } = useChatProperties();
-const { badges, paints } = useCosmetics(props.user.userID);
+const properties = useChatProperties();
+const cosmetics = useCosmetics(props.user.userID);
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
-const paint = computed(() => (paints.value && paints.value.length ? paints.value[0] : null));
+const paint = computed(() => (cosmetics.paints && cosmetics.paints.length ? cosmetics.paints[0] : null));
 
-if (props.badges && twitchBadgeSets.value) {
+if (props.badges && properties.twitchBadgeSets) {
 	for (const [key, value] of Object.entries(props.badges)) {
 		const setID = key;
 		const badgeID = value;
 
-		for (const setGroup of [twitchBadgeSets.value.channelsBySet, twitchBadgeSets.value.globalsBySet]) {
+		for (const setGroup of [properties.twitchBadgeSets.channelsBySet, properties.twitchBadgeSets.globalsBySet]) {
 			if (!setGroup) continue;
 
 			const set = setGroup.get(setID);

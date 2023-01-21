@@ -1,27 +1,27 @@
 <template>
 	<UiScrollable class="scroll-area">
 		<div class="emote-area">
-			<template v-for="(emoteSet, i) of concatenated" :key="i">
-				<div v-if="emoteSet.emotes.length" :ref="'set-' + i.toString()" class="emote-set-container">
+			<template v-for="es of sortedSets" :key="es.id">
+				<div v-if="filteredEmotes[es.id]?.length" :ref="'es-' + es.id" class="emote-set-container">
 					<div class="set-header">
 						<div class="set-header-icon">
-							<img v-if="emoteSet.owner && emoteSet.owner.avatar_url" :src="emoteSet.owner.avatar_url" />
-							<Logo v-else class="logo" :provider="emoteSet.provider" />
+							<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
+							<Logo v-else class="logo" :provider="es.provider" />
 						</div>
-						{{ emoteSet.name }}
+						{{ es.name }}
 					</div>
 					<div class="emote-set">
 						<div
-							v-for="emote of emoteSet.emotes"
-							:key="emote.id"
+							v-for="ae of filteredEmotes[es.id]"
+							:key="ae.id"
 							:ref="(el) => setCardRef(el as HTMLElement)"
 							class="emote-container"
-							:class="`ratio-${determineRatio(emote)}`"
-							:visible="loaded[emote.id]"
-							:emote-id="emote.id"
-							@click="emit('emoteClick', emote)"
+							:class="`ratio-${determineRatio(ae)}`"
+							:visible="loaded[ae.id]"
+							:emote-id="ae.id"
+							@click="emit('emote-clicked', ae)"
 						>
-							<Emote :emote="emote" :unload="!loaded[emote.id]" />
+							<Emote :emote="ae" :unload="!loaded[ae.id]" />
 						</div>
 					</div>
 				</div>
@@ -29,21 +29,16 @@
 		</div>
 	</UiScrollable>
 	<div class="sidebar">
-		<template v-for="(emoteSet, i) of concatenated" :key="i">
+		<template v-for="es in sortedSets" :key="es.id">
 			<div
-				v-if="emoteSet.emotes.length"
+				v-if="es.emotes.length"
 				class="set-sidebar-icon-container"
-				:selected="selectedSet == i"
-				@click="
-					{
-						selectedSet = i;
-						($refs['set-' + i.toString()] as HTMLDivElement[])[0].scrollIntoView({ behavior: 'smooth' });
-					}
-				"
+				:selected="selectedSet == es.id"
+				@click="select(es.id, $refs['es-' + es.id] as HTMLDivElement[])"
 			>
 				<div class="set-sidebar-icon">
-					<img v-if="emoteSet.owner && emoteSet.owner.avatar_url" :src="emoteSet.owner.avatar_url" />
-					<Logo v-else class="logo" :provider="emoteSet.provider" />
+					<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
+					<Logo v-else class="logo" :provider="es.provider" />
 				</div>
 			</div>
 		</template>
@@ -51,24 +46,121 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, reactive, ref } from "vue";
-import { until, useTimeout } from "@vueuse/core";
+import { onBeforeUnmount, reactive, ref, toRaw } from "vue";
+import { until, useTimeout, watchDebounced, watchThrottled } from "@vueuse/core";
+import { useChatContext } from "@/composable/chat/useChatContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import Emote from "../chat/components/message/Emote.vue";
 
 const props = defineProps<{
-	emoteSets: SevenTV.EmoteSet[];
+	provider: SevenTV.Provider;
+	filter?: string;
 }>();
 
 const emit = defineEmits<{
-	(event: "emoteClick", emote: SevenTV.ActiveEmote): void;
+	(event: "emote-clicked", emote: SevenTV.ActiveEmote): void;
+	(event: "provider-visible", state: boolean): void;
 }>();
 
-const selectedSet = ref(0);
+const context = useChatContext();
+const emotes = useChatEmotes();
+const selectedSet = ref("");
 
-const refs = [] as HTMLElement[];
+// The source emote sets from this emote provider
+const sets = emotes.byProvider(props.provider);
+
+const sortedSets = ref([] as SevenTV.EmoteSet[]);
+const filteredEmotes = ref<Record<string, SevenTV.ActiveEmote[]>>({});
+
+// Select an Emote Set to jump-scroll to
+function select(setID: string, els: HTMLDivElement[] | null | undefined) {
+	if (!els || !els.length) return;
+	const el = els[0];
+
+	selectedSet.value = setID;
+	el.scrollIntoView({ behavior: "auto" });
+}
+
+function sortCase(es: SevenTV.EmoteSet) {
+	if (es.scope === "GLOBAL") return 1;
+
+	if (context.channel && context.channel.id && es.owner && es.owner.id === context.channel.id) return -1;
+	if (es.flags & 4) return -2;
+	return 0;
+}
+
+function sortFn(a: SevenTV.EmoteSet, b: SevenTV.EmoteSet) {
+	const c1 = sortCase(a);
+	const c2 = sortCase(b);
+
+	return c1 == c2 ? a.name.localeCompare(b.name) : c1 > c2 ? 1 : -1;
+}
+
+// Filter active emotes with query
+function filterEmotes(filter: string) {
+	const x = {} as Record<string, SevenTV.ActiveEmote[]>;
+
+	let total = 0;
+	for (const set of sortedSets.value) {
+		if (!filter) {
+			x[set.id] = set.emotes;
+
+			total += set.emotes.length;
+			continue;
+		}
+
+		const res = set.emotes.filter((e) => e.name.toLowerCase().includes(filter!.toLowerCase()));
+		x[set.id] = res;
+		total += res.length;
+	}
+
+	filteredEmotes.value = x;
+	emit("provider-visible", !!total);
+}
+
+// Watch for changes to the emote sets and perform sorting operations
+watchDebounced(
+	sets,
+	() => {
+		const ary = Object.values(structuredClone(toRaw(sets.value))) as SevenTV.EmoteSet[];
+
+		if (props.provider === "TWITCH") {
+			const res = ary.reduce((prev, cur) => {
+				const p = prev[cur.name];
+				if (p) {
+					p.emotes.push(...cur.emotes);
+				} else {
+					prev[cur.name] = cur;
+				}
+				return prev;
+			}, {} as Record<string, SevenTV.EmoteSet>);
+
+			ary.splice(0, ary.length, ...Object.values(res));
+		}
+
+		for (const set of ary) {
+			set.emotes.sort((a, b) => {
+				const ra = determineRatio(a);
+				const rb = determineRatio(b);
+				return ra == rb ? a.name.localeCompare(b.name) : ra > rb ? 1 : -1;
+			});
+		}
+
+		// Sort emote sets
+		sortedSets.value.splice(0, sortedSets.value.length, ...ary.sort(sortFn));
+		filterEmotes(props.filter ?? "");
+	},
+	{ debounce: 150, immediate: true },
+);
+
+// Listen for user search query
+watchThrottled(props, ({ filter }) => filterEmotes(filter ?? ""), { throttle: 250 });
+
+// IntersectionObserver to hide out-of-view emotes and throttle loading to view
+const cards = [] as HTMLElement[];
 const loaded = reactive<Record<string, number>>({});
 const observer = new IntersectionObserver((entries) => {
 	entries.forEach(async (entry) => {
@@ -100,18 +192,10 @@ const observer = new IntersectionObserver((entries) => {
 	});
 });
 
-const concatenated = computed(() => {
-	const temp = new Map<string, SevenTV.EmoteSet>();
-	for (const s of props.emoteSets) {
-		const e = temp.get(s.name);
-		e ? temp.set(s.name, { ...s, emotes: [...e.emotes, ...s.emotes] }) : temp.set(s.name, s);
-	}
-	return Array.from(temp.values());
-});
 // gather all card elements and observe them
 const setCardRef = (el: HTMLElement) => {
 	if (el instanceof Element) {
-		refs.push(el as HTMLElement);
+		cards.push(el as HTMLElement);
 		observer.observe(el);
 	}
 };

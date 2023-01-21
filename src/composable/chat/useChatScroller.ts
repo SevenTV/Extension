@@ -33,7 +33,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 	const container = toRef(data, "container");
 	const bounds = toRef(data, "bounds");
 
-	const { messages, pauseBuffer } = useChatMessages();
+	const messages = useChatMessages();
 
 	if (initWith) {
 		watchEffect(() => {
@@ -105,8 +105,8 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		data.paused = false;
 		data.init = true;
 
-		messages.value.push(...pauseBuffer.value);
-		pauseBuffer.value.length = 0;
+		messages.displayed.push(...messages.pauseBuffer);
+		messages.pauseBuffer.length = 0;
 
 		nextTick(() => {
 			data.init = false;

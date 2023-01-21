@@ -15,7 +15,7 @@
 			color: msg.messageType === 1 && meStyle & 2 ? adjustedColor : '',
 		}"
 	>
-		<template v-if="showTimestamps || msg.isHistorical">
+		<template v-if="properties.showTimestamps || msg.isHistorical">
 			<span class="chat-line__timestamp">
 				{{
 					new Date(props.msg.timestamp).toLocaleTimeString(locale, {
@@ -28,7 +28,7 @@
 		</template>
 
 		<!-- Mod Icons -->
-		<template v-if="isModerator && showModerationIcons">
+		<template v-if="properties.isModerator && properties.showModerationIcons">
 			<ModIcons
 				:msg="msg"
 				@ban="banUserFromChat(null)"
@@ -97,9 +97,8 @@ const props = withDefaults(
 	{ as: "Chat" },
 );
 
-const { emoteMap } = useChatEmotes();
-const { showTimestamps, showModerationIcons, useHighContrastColors, isDarkTheme, isModerator, blockedUsers } =
-	useChatProperties();
+const emotes = useChatEmotes();
+const properties = useChatProperties();
 
 const emoteMargin = useConfig<number>("chat.emote_margin");
 const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);
@@ -114,22 +113,22 @@ const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
 // Personal Emotes
-const { emotes: userEmoteMap } = useCosmetics(props.msg.user.userID);
+const cosmetics = useCosmetics(props.msg.user.userID);
 
 // Tokenize the message
 const tokenizer = new Tokenizer(props.msg.messageParts);
 const tokens = computed(() => {
-	return tokenizer.getParts(emoteMap.value, userEmoteMap.value);
+	return tokenizer.getParts(emotes.active, cosmetics.emotes);
 });
 
 const adjustedColor = computed(() => {
-	return useHighContrastColors.value
-		? normalizeUsername(props.msg.user.color, isDarkTheme.value as 0 | 1)
+	return properties.useHighContrastColors
+		? normalizeUsername(props.msg.user.color, properties.isDarkTheme as 0 | 1)
 		: props.msg.user.color;
 });
 
 const hasMention = ref(false);
-const isBlocked = computed(() => blockedUsers.value.has(props.msg.user.userID));
+const isBlocked = computed(() => properties.blockedUsers.has(props.msg.user.userID));
 
 function getPart(part: Twitch.ChatMessage.Part) {
 	switch (part.type) {

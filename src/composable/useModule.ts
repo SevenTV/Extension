@@ -80,7 +80,11 @@ export function declareModule(id: ModuleID, opt: ModuleOptions) {
 
 	onUnmounted(() => (data.modules[id].ready = false));
 
-	return { ready, dependenciesMet, markAsReady };
+	return {
+		ready,
+		dependenciesMet,
+		markAsReady,
+	};
 }
 
 interface ModuleOptions {

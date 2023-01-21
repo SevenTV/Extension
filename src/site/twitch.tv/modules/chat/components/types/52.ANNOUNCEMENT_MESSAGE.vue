@@ -22,12 +22,12 @@ const props = defineProps<{
 	msg: Twitch.AnnouncementMessage;
 }>();
 
-const { primaryColorHex } = useChatProperties();
+const properties = useChatProperties();
 
 const className = computed(
 	() =>
 		"announcement-line--" +
-		(props.msg.color == "PRIMARY" && primaryColorHex.value == null ? "purple" : props.msg.color.toLowerCase()),
+		(props.msg.color == "PRIMARY" && properties.primaryColorHex == null ? "purple" : props.msg.color.toLowerCase()),
 );
 </script>
 

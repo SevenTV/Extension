@@ -43,7 +43,7 @@ const props = defineProps<{
 }>();
 
 const { sendMessage } = useChatMessages();
-const { isModerator } = useChatProperties();
+const properties = useChatProperties();
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -53,7 +53,7 @@ let initial = 0;
 
 const canModerate = computed(() => {
 	// Return false if the user is not a moderator
-	if (!isModerator.value) return false;
+	if (!properties.isModerator) return false;
 
 	// If the state is sent, it was our own message, which we can moderate
 	if (props.msg.sendState === "sent") return true;

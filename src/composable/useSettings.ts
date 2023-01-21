@@ -6,7 +6,7 @@ import { db } from "@/db/idb";
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode<SevenTV.SettingType>>);
 
-const { getConfigChanges: getFFZConfigChanges } = useFrankerFaceZ();
+const ffzSettings = useFrankerFaceZ();
 
 function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
 	return customRef<T>((track, trigger) => {
@@ -53,7 +53,7 @@ export function synchronizeFrankerFaceZ() {
 		const n = nodes[Object.keys(nodes)[i]];
 		if (!n.ffz_key) continue;
 
-		getFFZConfigChanges(n.ffz_key, (v) => {
+		ffzSettings.getConfigChanges(n.ffz_key, (v) => {
 			raw[n.key] = v as SevenTV.SettingType;
 		});
 	}

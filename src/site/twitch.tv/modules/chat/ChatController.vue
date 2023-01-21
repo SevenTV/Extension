@@ -2,7 +2,7 @@
 	<Teleport v-if="channel && channel.id" :to="containerEl">
 		<UiScrollable ref="scroller" @container-scroll="onScroll" @container-wheel="onWheel">
 			<div id="seventv-message-container" class="seventv-message-container">
-				<ChatList :messages="messages" :controller="controller.component" />
+				<ChatList :controller="controller.component" />
 			</div>
 		</UiScrollable>
 
@@ -11,11 +11,13 @@
 
 		<!-- New Messages during Scrolling Pause -->
 		<div
-			v-if="scrollPaused && pauseBuffer.length > 0"
+			v-if="scrollPaused && messages.pauseBuffer.length > 0"
 			class="seventv-message-buffer-notice"
 			@click="unpauseScrolling"
 		>
-			<span>{{ pauseBuffer.length }}{{ pauseBuffer.length >= lineLimit ? "+" : "" }} new messages</span>
+			<span
+				>{{ messages.pauseBuffer.length }}{{ messages.pauseBuffer.length >= lineLimit ? "+" : "" }} new messages
+			</span>
 		</div>
 	</Teleport>
 
@@ -33,7 +35,7 @@ import { getRandomInt } from "@/common/Rand";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { useChatContext } from "@/composable/chat/useChatContext";
-import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { resetProviders } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
@@ -85,30 +87,9 @@ const {
 	scroller: scroller,
 	bounds: bounds,
 });
-const { channel: currentChatChannel } = useChatContext();
-const {
-	addMessage,
-	messages,
-	pauseBuffer,
-	clear,
-	messageHandlers,
-	find: findMessages,
-	messagesByUser,
-	setMessageSender,
-	chatters,
-} = useChatMessages();
-const {
-	twitchBadgeSets,
-	primaryColorHex,
-	useHighContrastColors,
-	showTimestamps,
-	showModerationIcons,
-	isModerator,
-	isVIP,
-	isDarkTheme,
-	blockedUsers,
-} = useChatProperties();
-const { resetProviders } = useChatEmotes();
+const context = useChatContext();
+const messages = useChatMessages();
+const properties = useChatProperties();
 
 const dataSets = reactive({
 	badges: false,
@@ -135,7 +116,7 @@ function onUpdateChannel() {
 
 	hookMessageBuffer();
 
-	clear();
+	messages.clear();
 	resetProviders();
 }
 
@@ -178,7 +159,7 @@ definePropertyHook(list.value.component, "props", {
 			const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
 			if (!msgItem?.badgeSets?.count) return;
 
-			twitchBadgeSets.value = msgItem.badgeSets;
+			properties.twitchBadgeSets = msgItem.badgeSets;
 
 			dataSets.badges = true;
 		}
@@ -195,7 +176,6 @@ watch(twitchEmoteSetsDbc, async (sets) => {
 	if (!sets.length) return;
 
 	for (const set of twitchEmoteSets.value) {
-		await until(useTimeout(25)).toBeTruthy();
 		sendWorkerMessage("SYNC_TWITCH_SET", { input: set });
 	}
 });
@@ -203,10 +183,10 @@ watch(twitchEmoteSetsDbc, async (sets) => {
 // Keep track of user chat config
 definePropertyHook(room.value.component, "props", {
 	value(v) {
-		primaryColorHex.value = v.primaryColorHex;
-		useHighContrastColors.value = v.useHighContrastColors;
-		showTimestamps.value = v.showTimestamps;
-		showModerationIcons.value = v.showModerationIcons;
+		properties.primaryColorHex = v.primaryColorHex;
+		properties.useHighContrastColors = v.useHighContrastColors;
+		properties.showTimestamps = v.showTimestamps;
+		properties.showModerationIcons = v.showModerationIcons;
 	},
 });
 
@@ -221,15 +201,15 @@ definePropertyHook(controller.value.component, "props", {
 				loaded: false,
 			};
 
-			currentChatChannel.value = currentChannel.value;
+			context.channel = currentChannel.value;
 			onUpdateChannel();
 		}
 
 		// Keep track of chat props
-		isModerator.value = v.isCurrentUserModerator;
-		isVIP.value = v.isCurrentUserVIP;
-		isDarkTheme.value = v.theme;
-		setMessageSender(v.chatConnectionAPI.sendMessage);
+		properties.isModerator = v.isCurrentUserModerator;
+		properties.isVIP = v.isCurrentUserVIP;
+		properties.isDarkTheme = v.theme;
+		messages.setMessageSender(v.chatConnectionAPI.sendMessage);
 
 		// Parse twitch emote sets
 		const data = v.emoteSetsData;
@@ -239,8 +219,8 @@ definePropertyHook(controller.value.component, "props", {
 
 		// Add the current user & channel owner to active chatters
 		if (v.userID) {
-			chatters.value[v.userID] = {};
-			chatters.value[v.channelID] = {};
+			messages.chatters[v.userID] = {};
+			messages.chatters[v.channelID] = {};
 		}
 	},
 });
@@ -271,13 +251,13 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 	}
 
 	//Send message to our registered message handlers
-	messageHandlers.value.forEach((h) => h(msg));
+	messages.handlers.forEach((h) => h(msg));
 	return true;
 };
 
 function onChatMessage(msg: Twitch.DisplayableMessage) {
 	// If the message is from a blocked user and we are not moderator
-	if (!isModerator.value && msg.user && blockedUsers.value.has(msg.user.userID)) {
+	if (!properties.isModerator && msg.user && properties.blockedUsers.has(msg.user.userID)) {
 		return;
 	}
 
@@ -298,19 +278,19 @@ function onChatMessage(msg: Twitch.DisplayableMessage) {
 
 	// Add message to store
 	// it will be rendered on the next tick
-	addMessage(msg);
+	messages.add(msg);
 }
 
 function onModerationMessage(msg: Twitch.ModerationMessage) {
 	if (msg.moderationType == ModerationType.DELETE) {
-		const found = findMessages((m) => m.id == msg.targetMessageID);
+		const found = messages.find((m) => m.id == msg.targetMessageID);
 		if (found) {
 			if (found.deleted !== undefined) found.deleted = true;
 			if (found.message?.deleted !== undefined) found.message.deleted = true;
 		}
 	} else {
-		const messages = messagesByUser(msg.userLogin);
-		for (const m of messages) {
+		const msgList = messages.messagesByUser(msg.userLogin);
+		for (const m of msgList) {
 			if (!m.seventv || m.user?.userLogin != msg.userLogin) continue;
 			if (m.banned !== undefined) m.banned = true;
 			if (m.message?.banned !== undefined) m.message.banned = true;
@@ -319,7 +299,7 @@ function onModerationMessage(msg: Twitch.ModerationMessage) {
 }
 
 function onMessageIdUpdate(msg: Twitch.IDUpdateMessage) {
-	const found = findMessages((m) => m.nonce == msg.nonce);
+	const found = messages.find((m) => m.nonce == msg.nonce);
 	if (found) {
 		found.id = msg.id;
 		found.sendState = "sent";
@@ -365,7 +345,7 @@ function watchUnhandled() {
 
 			if (nodeMap.has(nodeId)) continue;
 
-			addMessage({
+			messages.add({
 				id: nodeId + "-unhandled",
 				element: node,
 			} as Twitch.DisplayableMessage);
@@ -405,7 +385,7 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 					if (onMessage(msg)) nodeMap.set(msg.id, {} as Element);
 				}
 
-				messages.value = historical.concat(messages.value);
+				messages.displayed = historical.concat(messages.displayed);
 
 				watchUnhandled();
 
@@ -418,7 +398,7 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 		});
 		definePropertyHook(msgBuf, "blockedUsers", {
 			value(users) {
-				blockedUsers.value = users;
+				properties.blockedUsers = users;
 			},
 		});
 	}
@@ -465,7 +445,7 @@ onUnmounted(() => {
 	unsetPropertyHook(room.value.component, "props");
 });
 
-const primaryColor = computed(() => `#${primaryColorHex.value ?? "755ebc"}`);
+const primaryColor = computed(() => `#${properties.primaryColorHex ?? "755ebc"}`);
 </script>
 
 <style lang="scss">

@@ -3,14 +3,17 @@ import { imageHostToSrcset } from "./Image";
 const BTTV_ZeroWidth = ["SoSnowy", "IceCold", "SantaHat", "TopHat", "ReinDeer", "CandyCane", "cvMask", "cvHazmat"];
 
 export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.EmoteSet {
+	const isGlobalSet = !data.owner;
+
 	return {
 		id: "TWITCH#" + data.id,
-		name: data.owner?.displayName ?? "Other emotes",
+		name: data.owner?.displayName ?? "Global Emotes",
 		immutable: true,
 		privileged: true,
 		tags: [],
 		flags: 0,
 		provider: "TWITCH",
+		scope: isGlobalSet ? "GLOBAL" : "CHANNEL",
 		owner: data.owner?.displayName
 			? {
 					id: data.owner.id,

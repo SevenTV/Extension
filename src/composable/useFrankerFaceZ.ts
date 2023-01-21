@@ -1,4 +1,4 @@
-import { reactive, toRef } from "vue";
+import { reactive } from "vue";
 import { log } from "@/common/Logger";
 import { definePropertyHook } from "@/common/Reflection";
 
@@ -53,12 +53,12 @@ function disableChatProcessing() {
 }
 
 export function useFrankerFaceZ() {
-	return {
-		active: toRef(data, "active"),
+	return reactive({
+		active: data,
 		getConfig,
 		getConfigChanges,
 		disableChatProcessing,
-	};
+	});
 }
 
 export interface FFZGlobalScope {

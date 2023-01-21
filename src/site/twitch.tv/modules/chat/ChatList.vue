@@ -1,7 +1,7 @@
 <template>
 	<main class="seventv-chat-list" :alternating-background="isAlternatingBackground">
 		<div
-			v-for="(msg, index) of messages"
+			v-for="(msg, index) of messages.displayed"
 			:key="msg.id"
 			:msg-id="msg.id"
 			class="seventv-message"
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
+import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useConfig } from "@/composable/useSettings";
 import { MessageType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
@@ -32,10 +32,9 @@ import ModSlider from "./components/mod/ModSlider.vue";
 
 defineProps<{
 	controller: Twitch.ChatControllerComponent | undefined;
-	messages: Twitch.DisplayableMessage[];
 }>();
 
-useFrankerFaceZ();
+const messages = useChatMessages();
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");

@@ -13,8 +13,8 @@ import { v4 as uuidv4 } from "uuid";
 
 const { target } = useWorker();
 const { channel } = storeToRefs(useStore());
-const { emoteProviders, emoteMap } = useChatEmotes();
-const { addMessage } = useChatMessages();
+const messages = useChatMessages();
+const emotes = useChatEmotes();
 
 // query the channel's emote set bindings
 const channelSets = useLiveQuery(
@@ -26,9 +26,9 @@ const channelSets = useLiveQuery(
 			.then((c) => c?.set_ids ?? []),
 	() => {
 		// reset the third-party emote providers
-		emoteProviders.value["7TV"] = {};
-		emoteProviders.value["FFZ"] = {};
-		emoteProviders.value["BTTV"] = {};
+		emotes.providers["7TV"] = {};
+		emotes.providers["FFZ"] = {};
+		emotes.providers["BTTV"] = {};
 	},
 	{
 		reactives: [channel],
@@ -49,8 +49,8 @@ useLiveQuery(
 
 		for (const set of sets) {
 			const provider = (set.provider ?? "UNKNOWN") as SevenTV.Provider;
-			if (!emoteProviders.value[provider]) emoteProviders.value[provider] = {};
-			emoteProviders.value[provider][set.id] = set;
+			if (!emotes.providers[provider]) emotes.providers[provider] = {};
+			emotes.providers[provider][set.id] = set;
 		}
 
 		const o = {} as Record<SevenTV.ObjectID, SevenTV.ActiveEmote>;
@@ -59,7 +59,7 @@ useLiveQuery(
 			o[emote.name] = emote;
 		}
 
-		emoteMap.value = o;
+		emotes.active = o;
 	},
 	{
 		reactives: [channelSets],
@@ -72,20 +72,20 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 
 	// Handle added emotes
 	for (const emote of emotes_added) {
-		emoteMap.value[emote.name] = emote;
+		emotes.active[emote.name] = emote;
 	}
 
 	// Handle removed emotes
 	for (let i = 0; i < emotes_removed.length; i++) {
 		const emote = emotes_removed[i];
-		const e = emoteMap.value[emote.name];
+		const e = emotes.active[emote.name];
 		if (e.id !== emote.id) continue;
 
 		emotes_removed[i].data = e.data;
-		delete emoteMap.value[emote.name];
+		delete emotes.active[emote.name];
 	}
 
-	addMessage<Twitch.SeventvEmoteSetUpdateMessage>({
+	messages.add<Twitch.SeventvEmoteSetUpdateMessage>({
 		id: uuidv4(),
 		type: MessageType.SEVENTV_EMOTE_SET_UPDATE,
 		user: null,
@@ -96,11 +96,11 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 }
 
 function onTwitchEmoteSetData(ev: WorkletEvent<"twitch_emote_set_data">) {
-	if (!emoteProviders.value.TWITCH) {
-		emoteProviders.value.TWITCH = {};
+	if (!emotes.providers.TWITCH) {
+		emotes.providers.TWITCH = {};
 	}
 
-	emoteProviders.value.TWITCH[ev.detail.id] = ev.detail;
+	emotes.providers.TWITCH[ev.detail.id] = ev.detail;
 }
 
 target.addEventListener("emote_set_updated", onEmoteSetUpdated);

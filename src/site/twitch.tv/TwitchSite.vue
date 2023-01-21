@@ -14,8 +14,8 @@ import { synchronizeFrankerFaceZ } from "@/composable/useSettings";
 import type { ModuleID } from "@/types/module";
 
 const store = useStore();
-const { imageFormat } = useChatProperties();
-imageFormat.value = store.avifSupported ? "AVIF" : "WEBP";
+const chatProperties = useChatProperties();
+chatProperties.imageFormat = store.avifSupported ? "AVIF" : "WEBP";
 
 // Session User
 useComponentHook<Twitch.SessionUserComponent>(
@@ -39,11 +39,18 @@ useComponentHook<Twitch.SessionUserComponent>(
 	},
 );
 
+const disabled = [] as ModuleID[];
+
 // Import modules
 const modules = import.meta.glob("./modules/**/*Module.vue", { eager: true, import: "default" });
 for (const key in modules) {
 	const modPath = key.split("/");
 	const modKey = modPath.splice(modPath.length - 2, 1).pop();
+
+	if (disabled.includes(modKey as ModuleID)) {
+		delete modules[key];
+		continue;
+	}
 
 	modules[modKey!] = modules[key];
 	delete modules[key];

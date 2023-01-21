@@ -1,22 +1,33 @@
-import { reactive, toRefs } from "vue";
+import { reactive, toRef } from "vue";
 
 const data = reactive({
 	// Emote Data
-	emoteMap: {} as Record<string, SevenTV.ActiveEmote>,
-	emoteProviders: {} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>,
+	active: {} as Record<string, SevenTV.ActiveEmote>,
+	providers: {
+		"7TV": {},
+		FFZ: {},
+		BTTV: {},
+		TWITCH: {},
+	} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>,
 });
 
-function resetProviders() {
-	data.emoteProviders = {} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>;
+export function resetProviders() {
+	data.providers = {
+		"7TV": {},
+		FFZ: {},
+		BTTV: {},
+		TWITCH: {},
+	} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>;
+}
+
+function byProvider(provider: SevenTV.Provider) {
+	return toRef(data.providers, provider);
 }
 
 export function useChatEmotes() {
-	const { emoteMap, emoteProviders } = toRefs(data);
-
-	return {
-		emoteMap,
-		emoteProviders,
-
-		resetProviders,
-	};
+	return reactive({
+		active: toRef(data, "active"),
+		providers: toRef(data, "providers"),
+		byProvider,
+	});
 }

@@ -1,6 +1,6 @@
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 
-const { imageFormat } = useChatProperties();
+const properties = useChatProperties();
 
 const layout = {
 	TWITCH: [1, 2, 3, 4],
@@ -15,7 +15,7 @@ export function imageHostToSrcset(
 	format?: SevenTV.ImageFormat,
 ): string {
 	return (
-		provider === "7TV" ? host.files.filter((f) => f.format === format ?? imageFormat.value) : host.files
+		provider === "7TV" ? host.files.filter((f) => f.format === format ?? properties.imageFormat) : host.files
 	).reduce((pre, cur, i) => pre + `https:${host.url}/${cur.name} ${layout[provider][i]}x, `, "");
 }
 
@@ -25,7 +25,7 @@ export function imageHostToSrcsetWithsize(
 	host: SevenTV.ImageHost,
 	provider: SevenTV.Provider = "7TV",
 ): string {
-	return (provider == "7TV" ? host.files.filter((f) => f.format === imageFormat.value) : host.files).reduce(
+	return (provider == "7TV" ? host.files.filter((f) => f.format === properties.imageFormat) : host.files).reduce(
 		(pre, cur, i) =>
 			pre + `https:${host.url}/${cur.name} ${width * layout[provider][i]}w ${height * layout[provider][i]}h, `,
 		"",

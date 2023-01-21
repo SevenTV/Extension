@@ -2,7 +2,7 @@
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
 import { HookedInstance } from "@/common/ReactHooks";
@@ -23,11 +23,11 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
-const module = getModule("chat-input");
+const mod = getModule("chat-input");
 const store = useStore();
-const { messageHandlers } = useChatMessages();
-const { emoteMap } = useChatEmotes();
-const { emotes: personalEmoteMap } = useCosmetics(store.identity?.id ?? "");
+const messages = useChatMessages();
+const emotes = useChatEmotes();
+const cosmetics = useCosmetics(store.identity?.id ?? "");
 const { sendMessage } = useWorker();
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
@@ -61,7 +61,7 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[], s
 
 	const prefix = str.toLowerCase();
 
-	for (const [token] of Object.entries(personalEmoteMap.value)) {
+	for (const [token] of Object.entries(cosmetics.emotes)) {
 		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
 			usedTokens.add(token);
 			matches.push({
@@ -71,7 +71,7 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[], s
 		}
 	}
 
-	for (const [token] of Object.entries(emoteMap.value)) {
+	for (const [token] of Object.entries(emotes.active)) {
 		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
 			usedTokens.add(token);
 			matches.push({
@@ -317,11 +317,11 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	const results = native?.call(this, str, ...args) ?? [];
 
-	const emotes = { ...personalEmoteMap.value, ...emoteMap.value };
+	const allEmotes = { ...cosmetics.emotes, ...emotes.active };
 	const tokens = findMatchingTokens(str.substring(1));
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;
-		const emote = emotes[token];
+		const emote = allEmotes[token];
 
 		const host = emote?.data?.host ?? { url: "", files: [] };
 		const srcset = host.files
@@ -400,61 +400,61 @@ watch(
 	},
 	{ immediate: true },
 );
+defineFunctionHook(
+	props.instance.component,
+	"onEditableValueUpdate",
+	function (old, value: string, sendOnUpdate?: boolean, ...args: unknown[]) {
+		if (sendOnUpdate) {
+			pushHistory();
 
-onMounted(() => {
-	const component = props.instance.component;
-
-	defineFunctionHook(
-		component,
-		"onEditableValueUpdate",
-		function (old, value: string, sendOnUpdate?: boolean, ...args: unknown[]) {
-			if (sendOnUpdate) {
-				pushHistory();
-
-				// Tell the worker to write presence
-				if (store.channel) {
-					sendMessage("CHANNEL_ACTIVE_CHATTER", {
-						channel_id: store.channel.id,
-					});
-				}
+			// Tell the worker to write presence
+			if (store.channel) {
+				sendMessage("CHANNEL_ACTIVE_CHATTER", {
+					channel_id: store.channel.id,
+				});
 			}
+		}
 
-			if (!awaitingUpdate.value) {
-				resetState();
-			}
+		if (!awaitingUpdate.value) {
+			resetState();
+		}
 
-			awaitingUpdate.value = false;
+		awaitingUpdate.value = false;
 
-			return old?.call(this, value, sendOnUpdate, ...args);
-		},
-	);
+		return old?.call(this, value, sendOnUpdate, ...args);
+	},
+);
 
-	definePropertyHook(component, "props", {
+const mentionProvider = props.instance.component.providers.find((provider) => provider.autocompleteType == "mention");
+if (mentionProvider) {
+	providers.value.mention = mentionProvider;
+	mentionProvider.canBeTriggeredByTab = false;
+	definePropertyHook(mentionProvider as Twitch.ChatAutocompleteProvider<"mention">, "props", {
 		value(v) {
-			if (!module?.instance) return;
-
-			module.instance.setTray = v.setTray;
-			module.instance.setModifierTray = v.setModifierTray;
-			module.instance.clearModifierTray = v.clearModifierTray;
+			messages.handlers.add(v.activeChattersAPI.handleMessage);
 		},
 	});
+}
 
-	const mentionProvider = component.providers.find((provider) => provider.autocompleteType == "mention");
-	if (mentionProvider) {
-		providers.value.mention = mentionProvider;
-		mentionProvider.canBeTriggeredByTab = false;
-		definePropertyHook(mentionProvider as Twitch.ChatAutocompleteProvider<"mention">, "props", {
-			value(v) {
-				messageHandlers.value.add(v.activeChattersAPI.handleMessage);
-			},
-		});
+const emoteProvider = props.instance.component.providers.find((provider) => provider.autocompleteType == "emote");
+if (emoteProvider) {
+	providers.value.emote = emoteProvider;
+	defineFunctionHook(emoteProvider, "getMatches", getMatchesHook);
+}
+
+defineFunctionHook(props.instance.component, "componentDidUpdate", function (this, ...args: unknown[]) {
+	if (mod?.instance && typeof this.props.setTray === "function") {
+		mod.instance.setTray = this.props.setTray;
+		mod.instance.setModifierTray = this.props.setModifierTray;
+		mod.instance.clearModifierTray = this.props.clearModifierTray;
 	}
 
-	const emoteProvider = component.providers.find((provider) => provider.autocompleteType == "emote");
-	if (emoteProvider) {
-		providers.value.emote = emoteProvider;
-		defineFunctionHook(emoteProvider, "getMatches", getMatchesHook);
+	const fn = args[0];
+	if (typeof fn === "function") {
+		return fn.call(this, ...args.slice(1));
 	}
+
+	return args;
 });
 
 onUnmounted(() => {

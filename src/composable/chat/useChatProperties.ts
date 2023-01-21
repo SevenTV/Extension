@@ -1,4 +1,4 @@
-import { reactive, toRefs } from "vue";
+import { reactive } from "vue";
 
 const data = reactive({
 	isModerator: false,
@@ -15,5 +15,5 @@ const data = reactive({
 });
 
 export function useChatProperties() {
-	return toRefs(data);
+	return data;
 }
