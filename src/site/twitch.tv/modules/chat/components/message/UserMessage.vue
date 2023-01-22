@@ -1,9 +1,5 @@
 <template>
-	<a v-if="isBlocked && !unhidden" class="seventv-blocked-message" @click="unhidden = true">
-		Message by blocked user
-	</a>
 	<span
-		v-else
 		class="seventv-user-message"
 		:class="{
 			deleted: msg.banned || msg.deleted,
@@ -12,7 +8,7 @@
 		:state="msg.sendState"
 		:style="{
 			'font-style': msg.messageType === 1 && meStyle & 1 ? 'italic' : '',
-			color: msg.messageType === 1 && meStyle & 2 ? adjustedColor : '',
+			color: msg.messageType === 1 && meStyle & 2 ? color : '',
 		}"
 	>
 		<template v-if="properties.showTimestamps || msg.isHistorical">
@@ -42,7 +38,7 @@
 			v-if="msg.user"
 			:user="msg.user"
 			:badges="msg.badges"
-			:color="adjustedColor"
+			:color="color"
 			@name-click="nameClick"
 			@badge-click="badgeClick"
 		/>
@@ -53,7 +49,7 @@
 
 		<!-- Message Content -->
 		<span class="seventv-chat-message-body">
-			<template v-for="(part, index) of tokens" :key="index">
+			<template v-for="part of tokens" :key="part.key">
 				<span v-if="part.type === MessagePartType.SEVENTVEMOTE">
 					<span class="emote-part">
 						<Emote :emote="part.content" @emote-click="emoteClick" />
@@ -99,36 +95,26 @@ const props = withDefaults(
 
 const emotes = useChatEmotes();
 const properties = useChatProperties();
+const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
 
 const emoteMargin = useConfig<number>("chat.emote_margin");
 const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);
-
 const meStyle = useConfig<number>("chat.slash_me_style");
-
-const unhidden = ref(false);
-
-const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
 // Personal Emotes
+const color = properties.useHighContrastColors
+	? normalizeUsername(props.msg.user.color, properties.isDarkTheme as 0 | 1)
+	: props.msg.user.color;
 const cosmetics = useCosmetics(props.msg.user.userID);
 
 // Tokenize the message
 const tokenizer = new Tokenizer(props.msg.messageParts);
-const tokens = computed(() => {
-	return tokenizer.getParts(emotes.active, cosmetics.emotes);
-});
-
-const adjustedColor = computed(() => {
-	return properties.useHighContrastColors
-		? normalizeUsername(props.msg.user.color, properties.isDarkTheme as 0 | 1)
-		: props.msg.user.color;
-});
+const tokens = computed(() => tokenizer.getParts(emotes.active, cosmetics.emotes));
 
 const hasMention = ref(false);
-const isBlocked = computed(() => properties.blockedUsers.has(props.msg.user.userID));
 
 function getPart(part: Twitch.ChatMessage.Part) {
 	switch (part.type) {

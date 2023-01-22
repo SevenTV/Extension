@@ -1,3 +1,4 @@
+import { getRandomInt } from "@/common/Rand";
 import { convertCheerEmote, convertTwitchEmote } from "@/common/Transform";
 import { MessagePartType, Regex } from "@/site/twitch.tv";
 
@@ -50,6 +51,8 @@ export class Tokenizer {
 	public getParts(emoteMap: Record<string, SevenTV.ActiveEmote>, localEmoteMap: Record<string, SevenTV.ActiveEmote>) {
 		this.newParts = [];
 		for (const part of this.parts) {
+			part.key = getRandomInt(1000, 9999).toString();
+
 			switch (part.type) {
 				case MessagePartType.TEXT:
 					this.tokenizeText(part.content, emoteMap, localEmoteMap);

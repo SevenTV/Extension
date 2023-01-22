@@ -3,16 +3,16 @@
 		<!--Badge List -->
 		<span v-if="twitchBadges.length || cosmetics.badges.length" class="seventv-chat-user-badge-list">
 			<Badge
-				v-for="(badge, index) of twitchBadges"
-				:key="index"
+				v-for="badge of twitchBadges"
+				:key="badge.id"
 				:badge="badge"
 				:alt="badge.title"
 				type="twitch"
 				@click="(e) => emit('badgeClick', e, badge)"
 			/>
 			<Badge
-				v-for="(badge, index) of cosmetics.badges"
-				:key="index"
+				v-for="badge of cosmetics.badges"
+				:key="badge.id"
 				:badge="badge"
 				:alt="badge.data.tooltip"
 				type="app"

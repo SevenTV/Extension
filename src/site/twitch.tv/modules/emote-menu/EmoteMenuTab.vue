@@ -46,10 +46,12 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, reactive, ref, toRaw } from "vue";
+import { onBeforeUnmount, reactive, ref, toRaw, toRef } from "vue";
 import { until, useTimeout, watchDebounced, watchThrottled } from "@vueuse/core";
+import { useStore } from "@/store/main";
 import { useChatContext } from "@/composable/chat/useChatContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useCosmetics } from "@/composable/useCosmetics";
 import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
@@ -71,6 +73,9 @@ const selectedSet = ref("");
 
 // The source emote sets from this emote provider
 const sets = emotes.byProvider(props.provider);
+const store = useStore();
+const cosmetics = useCosmetics(store.identity?.id ?? "");
+const personalEmotes = toRef(cosmetics, "emotes");
 
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const filteredEmotes = ref<Record<string, SevenTV.ActiveEmote[]>>({});
@@ -123,9 +128,10 @@ function filterEmotes(filter: string) {
 
 // Watch for changes to the emote sets and perform sorting operations
 watchDebounced(
-	sets,
+	[sets, personalEmotes],
 	() => {
 		const ary = Object.values(structuredClone(toRaw(sets.value))) as SevenTV.EmoteSet[];
+		if (cosmetics.emoteSets?.length) ary.push(...structuredClone(toRaw(cosmetics.emoteSets)));
 
 		if (props.provider === "TWITCH") {
 			const res = ary.reduce((prev, cur) => {

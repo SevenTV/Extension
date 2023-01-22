@@ -8,12 +8,12 @@
 			:srcset="srcset"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
-			@click="(e) => emit('emoteClick', e, emote)"
+			@click="(e) => emit('emote-click', e, emote)"
 			@load="onImageLoad"
 			@mouseenter="show(imgRef)"
 			@mouseleave="hide()"
 		/>
-		<template v-for="(e, index) of emote.overlaid" :key="index">
+		<template v-for="e of emote.overlaid" :key="e.id">
 			<img
 				v-if="e.data && e.data.host"
 				class="chat-emote zero-width-emote"
@@ -41,7 +41,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-	(event: "emoteClick", e: MouseEvent, emote: SevenTV.ActiveEmote): void;
+	(event: "emote-click", ev: MouseEvent, ae: SevenTV.ActiveEmote): void;
 }>();
 
 const imgRef = ref<HTMLImageElement>();

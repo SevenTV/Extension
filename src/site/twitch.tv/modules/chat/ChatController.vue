@@ -1,6 +1,6 @@
 <template>
 	<Teleport v-if="channel && channel.id" :to="containerEl">
-		<UiScrollable ref="scroller" @container-scroll="onScroll" @container-wheel="onWheel">
+		<UiScrollable ref="scrollerRef" @container-scroll="scroller.onScroll" @container-wheel="scroller.onWheel">
 			<div id="seventv-message-container" class="seventv-message-container">
 				<ChatList :controller="controller.component" />
 			</div>
@@ -11,12 +11,13 @@
 
 		<!-- New Messages during Scrolling Pause -->
 		<div
-			v-if="scrollPaused && messages.pauseBuffer.length > 0"
+			v-if="scroller.paused && messages.pauseBuffer.length > 0"
 			class="seventv-message-buffer-notice"
-			@click="unpauseScrolling"
+			@click="scroller.unpause"
 		>
 			<span
-				>{{ messages.pauseBuffer.length }}{{ messages.pauseBuffer.length >= lineLimit ? "+" : "" }} new messages
+				>{{ messages.pauseBuffer.length }}{{ messages.pauseBuffer.length >= scroller.lineLimit ? "+" : "" }} new
+				messages
 			</span>
 		</div>
 	</Teleport>
@@ -25,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { computed, nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout, useTimeoutFn } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
@@ -66,7 +67,7 @@ const containerEl = ref<HTMLElement>(el);
 const replacedEl = ref<Element | null>(null);
 
 const bounds = ref<DOMRect>(el.getBoundingClientRect());
-const scroller = ref<InstanceType<typeof UiScrollable> | undefined>();
+const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
 
 watch(channel, (channel) => {
 	if (!channel) {
@@ -76,15 +77,8 @@ watch(channel, (channel) => {
 	log.info("<ChatController>", `Joining #${channel.username}`);
 });
 
-const {
-	lineLimit,
-	paused: scrollPaused,
-	onScroll,
-	onWheel,
-	unpause: unpauseScrolling,
-	scrollToLive,
-} = useChatScroller({
-	scroller: scroller,
+const scroller = useChatScroller({
+	scroller: scrollerRef,
 	bounds: bounds,
 });
 const context = useChatContext();
@@ -114,10 +108,12 @@ watchEffect(() => {
 function onUpdateChannel() {
 	if (!store.setChannel(currentChannel.value)) return;
 
-	hookMessageBuffer();
-
 	messages.clear();
-	resetProviders();
+
+	nextTick(() => {
+		resetProviders();
+		hookMessageBuffer();
+	});
 }
 
 // The message handler is hooked to render messages and prevent
@@ -391,7 +387,7 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 
 				nextTick(() => {
 					// Instantly scroll to the bottom and stop hooking the buffer
-					scrollToLive(0);
+					scroller.scrollToLive(0);
 					unsetPropertyHook(msgBuf, "buffer");
 				});
 			},
@@ -429,6 +425,10 @@ const resizeObserver = new ResizeObserver(() => {
 	bounds.value = containerEl.value.getBoundingClientRect();
 });
 resizeObserver.observe(containerEl.value);
+
+onBeforeUnmount(() => {
+	messages.clear();
+});
 
 onUnmounted(() => {
 	resizeObserver.disconnect();

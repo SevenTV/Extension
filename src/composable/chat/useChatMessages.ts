@@ -1,9 +1,12 @@
-import { nextTick, reactive, toRef } from "vue";
+import { computed, nextTick, reactive, toRef } from "vue";
+import { useChatProperties } from "./useChatProperties";
 import { useChatScroller } from "./useChatScroller";
+import { useConfig } from "../useSettings";
 
 const data = reactive({
 	// Message Data
 	displayed: [] as Twitch.DisplayableMessage[],
+	displayedMap: {} as Record<string, Twitch.DisplayableMessage>,
 	buffer: [] as Twitch.DisplayableMessage[],
 	pauseBuffer: [] as Twitch.DisplayableMessage[], // twitch chat message buffe when scrolling is paused
 	byUser: {} as Record<string, Record<string, Twitch.DisplayableMessage>>,
@@ -19,7 +22,10 @@ const data = reactive({
 
 let flushTimeout: number | undefined;
 
-const { init, paused, lineLimit, scrollToLive, duration } = useChatScroller();
+const scroller = useChatScroller();
+const properties = useChatProperties();
+const overflowLimit = computed(() => scroller.lineLimit * 1.25);
+const batchTimeMs = useConfig<number>("chat.message_batch_duration");
 
 /**
  * Add a message to the chat
@@ -30,16 +36,19 @@ const { init, paused, lineLimit, scrollToLive, duration } = useChatScroller();
  * @param message the message to queue up
  */
 function add<T extends Twitch.DisplayableMessage>(message: T): void {
-	if (paused.value) {
+	if (scroller.paused) {
 		// if scrolling is paused, buffer the message
 		data.pauseBuffer.push(message);
-		if (data.pauseBuffer.length > lineLimit.value) data.pauseBuffer.shift();
+		if (data.pauseBuffer.length > scroller.lineLimit) data.pauseBuffer.shift();
 
 		return;
 	}
 
 	// check user/message author data
 	if (message.user) {
+		// check blocked state and ignore if blocked
+		if (properties.blockedUsers.has(message.user.userID)) return;
+
 		if (!data.chatters[message.user.userID]) data.chatters[message.user.userID] = {}; // set as active chatter
 		if (!data.byUser[message.user.userLogin]) data.byUser[message.user.userLogin] = {}; // create user message map
 
@@ -49,6 +58,8 @@ function add<T extends Twitch.DisplayableMessage>(message: T): void {
 
 	// push message to buffer, and trigger flush
 	data.buffer.push(message);
+	data.displayedMap[message.id] = message;
+
 	flush();
 }
 
@@ -56,8 +67,8 @@ function add<T extends Twitch.DisplayableMessage>(message: T): void {
  * Clears the chat messages
  */
 function clear() {
-	data.displayed = [];
-	data.buffer = [];
+	data.displayed.length = 0;
+	data.buffer.length = 0;
 }
 
 /**
@@ -68,46 +79,49 @@ function flush(): void {
 	if (flushTimeout) return;
 
 	flushTimeout = window.setTimeout(() => {
-		if (paused.value) {
+		if (scroller.paused) {
 			flushTimeout = undefined;
 			return;
 		}
 
-		init.value = false;
+		scroller.init = false;
 
-		// remove messages beyond the buffer
-		const overflowLimit = lineLimit.value * 1.25;
-		if (data.displayed.length > overflowLimit) {
-			const removed = data.displayed.splice(0, data.displayed.length - lineLimit.value);
-			for (const msg of removed) {
-				if (!msg.user) continue;
+		// push new messages
+		if (data.buffer.length > 0) {
+			const unbuf = data.buffer.splice(0, data.buffer.length);
 
-				// retrieve the user's message map
-				const umap = data.byUser[msg.user.userLogin];
-				if (!umap) continue;
-
-				// delete this specific message from the user's message map
-				delete umap[msg.id];
+			// push to the render queue all unbuffered messages
+			for (const msg of unbuf) {
+				data.displayed.push(msg);
 			}
 		}
 
-		// push new messages
-		flushTimeout = window.setTimeout(() => {
-			if (data.buffer.length > 0) {
-				const unbuf = data.buffer.splice(0, data.buffer.length);
+		// scroll to the bottom on the next tick
+		nextTick(() => scroller.scrollToLive(scroller.duration));
 
-				// push to the render queue all unbuffered messages
-				for (const msg of unbuf) {
-					data.displayed.push(msg);
+		// remove messages beyond the buffer
+		if (data.displayed.length > overflowLimit.value) {
+			flushTimeout = window.setTimeout(() => {
+				const removed = data.displayed.splice(0, data.displayed.length - scroller.lineLimit);
+				for (const msg of removed) {
+					if (!msg.user) continue;
+
+					// retrieve the user's message map
+					const umap = data.byUser[msg.user.userLogin];
+					if (!umap) continue;
+
+					// delete this specific message from the user's message map
+					delete umap[msg.id];
+
+					delete data.displayedMap[msg.id];
 				}
-			}
 
-			// scroll to the bottom on the next tick
-			nextTick(() => scrollToLive(duration.value));
-
+				flushTimeout = undefined;
+			}, batchTimeMs.value / 1.5);
+		} else {
 			flushTimeout = undefined;
-		}, 25);
-	}, 25);
+		}
+	}, batchTimeMs.value / 2);
 }
 
 /**
@@ -160,6 +174,7 @@ function setMessageSender(fn: (msg: string) => void) {
 export function useChatMessages() {
 	return reactive({
 		displayed: toRef(data, "displayed"),
+		displayedMap: toRef(data, "displayedMap"),
 		handlers: data.handlers,
 		chatters: data.chatters,
 		pauseBuffer: data.pauseBuffer,

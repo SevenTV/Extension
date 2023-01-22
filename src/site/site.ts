@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "@/site/App.vue";
+import "fastdom";
 
 const appID = Date.now().toString();
 

@@ -1,7 +1,7 @@
 <template>
 	<template v-for="(inst, i) of chatList.instances" :key="inst.identifier">
 		<ChatController
-			v-if="dependenciesMet && isHookable"
+			v-if="dependenciesMet && isHookableDbc"
 			:list="inst"
 			:controller="chatController.instances[i]"
 			:room="chatRoom.instances[0] ?? undefined"
@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { refDebounced } from "@vueuse/shared";
 import { getTrackedNode, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import ChatController from "./ChatController.vue";
@@ -62,7 +63,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		{
 			key: "chat.smooth_scroll_duration",
 			label: "Smooth scroll chat",
-			hint: "How smooth should the chat scroll on new messages. 0 is instant",
+			hint: "Smoothly scroll new messages into view. Turning on this setting may impact performance.",
 			type: "SLIDER",
 			options: {
 				min: 0,
@@ -75,11 +76,11 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		{
 			key: "chat.line_limit",
 			label: "Line Limit",
-			hint: "The max number of lines that will be displayed in chat. Higher numbers may affect performance",
+			hint: "The maximum amount of lines that will be displayed in chat. Higher values may affect performance",
 			type: "SLIDER",
 			options: {
-				min: 50,
-				max: 1000,
+				min: 10,
+				max: 500,
 				step: 10,
 				unit: "lines",
 			},
@@ -111,6 +112,19 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 				["Native (Twitch-like)", 1],
 			],
 			defaultValue: 1,
+		},
+		{
+			key: "chat.message_batch_duration",
+			label: "Message Batching",
+			hint: "The time to wait between rendering new messages. Higher values may improve performance and readability, at the cost of chat feeling less responsive",
+			type: "SLIDER",
+			options: {
+				min: 25,
+				max: 1000,
+				step: 25,
+				unit: "ms",
+			},
+			defaultValue: 150,
 		},
 	],
 });
@@ -145,6 +159,7 @@ const chatController = useComponentHook<Twitch.ChatControllerComponent>({
 });
 
 const isHookable = computed(() => chatController.instances.length === chatList.instances.length);
+const isHookableDbc = refDebounced(isHookable, 2500);
 
 markAsReady();
 

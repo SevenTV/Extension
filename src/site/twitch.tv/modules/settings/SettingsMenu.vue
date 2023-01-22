@@ -1,5 +1,5 @@
 <template>
-	<SettingsMenuButton ref="button" @toggle="toggle" />
+	<SettingsMenuButton @toggle="toggle" />
 
 	<div v-show="show" ref="el" class="seventv-settings-menu-container">
 		<div class="settings-menu">
@@ -7,6 +7,7 @@
 				<div class="header-left">
 					<div class="header-icon">
 						<Logo7TV />
+						<h4>{{ appName }} Settings</h4>
 					</div>
 				</div>
 				<div class="header-right">
@@ -16,7 +17,14 @@
 				</div>
 			</div>
 			<div class="body">
-				<div class="sidebar" />
+				<div class="seventv-settings-sidebar">
+					<div />
+					<div class="seventv-settings-app-info">
+						<p>{{ appName }} ({{ appContainer }})</p>
+						<p class="seventv-version">v{{ version }}</p>
+						<p>API: {{ appServer }}</p>
+					</div>
+				</div>
 				<UiScrollable>
 					<div class="settings-area">
 						<template v-for="[key, node] of Object.entries(getNodes())">
@@ -39,6 +47,11 @@ import SettingsNode from "./SettingsNode.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const { getNodes } = useSettings();
+
+const appName = import.meta.env.VITE_APP_NAME;
+const appContainer = import.meta.env.VITE_APP_CONTAINER ?? "Extension";
+const appServer = import.meta.env.VITE_APP_API_REST ?? "Offline";
+const version = import.meta.env.VITE_APP_VERSION;
 
 const show = ref(false);
 const el = ref(null);
@@ -78,9 +91,17 @@ function toggle() {
 }
 
 .header-icon {
+	display: grid;
+	grid-template-columns: 3em auto auto;
+	column-gap: 0.25em;
+	align-items: center;
 	height: 100%;
 	margin: auto;
 	padding: 0.5rem;
+
+	> .seventv-version {
+		font-size: 0.75em;
+	}
 
 	& > svg {
 		height: 100%;
@@ -102,13 +123,29 @@ function toggle() {
 	overflow: auto;
 }
 
-.sidebar {
+.seventv-settings-sidebar {
 	position: sticky;
 	height: 100%;
 	width: 20rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 	flex-grow: 0;
 	flex-shrink: 0;
 	border-right: 1px solid var(--seventv-border-transparent-1);
+
+	.seventv-settings-app-info {
+		padding: 0.35em;
+		border-top: 1px solid currentColor;
+
+		> p {
+			&:first-child {
+				font-weight: bold;
+			}
+
+			font-size: 1rem;
+		}
+	}
 }
 
 .settings-area {

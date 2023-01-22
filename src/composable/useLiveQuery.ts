@@ -1,5 +1,6 @@
-import { onUnmounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import type { Ref } from "vue";
+import { tryOnUnmounted } from "@vueuse/core";
 import { liveQuery } from "dexie";
 
 export function useLiveQuery<T>(
@@ -31,7 +32,7 @@ export function useLiveQuery<T>(
 		},
 	});
 
-	onUnmounted(() => sub.unsubscribe());
+	tryOnUnmounted(() => sub.unsubscribe());
 
 	if (opt.until) {
 		opt.until.then(() => sub.unsubscribe());

@@ -35,8 +35,8 @@
 
 	<!-- Replace the emote menu button -->
 	<Teleport v-if="buttonEl" :to="buttonEl">
-		<div class="seventv-emote-menu-button" @click.stop="toggle">
-			<Logo :class="{ 'menu-open': open }" provider="7TV" />
+		<div class="seventv-emote-menu-button" :class="{ 'menu-open': open }" @click.stop="toggle">
+			<Logo provider="7TV" />
 		</div>
 	</Teleport>
 </template>
@@ -136,7 +136,7 @@ onUnmounted(() => {
 	height: 100%;
 	font-size: 2rem;
 
-	transition: color 250ms ease-in-out;
+	transition: color 150ms ease-in-out;
 	&.menu-open {
 		color: var(--seventv-primary);
 	}

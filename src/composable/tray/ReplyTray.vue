@@ -15,9 +15,14 @@
 		</div>
 	</div>
 	<div class="seventv-tray-user-message-container">
-		<template v-for="(m, index) of thread" :key="index">
-			<UserMessage :msg="m" :as="'Reply'" class="thread-msg" :class="{ 'is-root-msg': rootMsgID === m.id }" />
-		</template>
+		<UserMessage
+			v-for="m of thread"
+			:key="m.id"
+			:msg="m"
+			:as="'Reply'"
+			class="thread-msg"
+			:class="{ 'is-root-msg': rootMsgID === m.id }"
+		/>
 	</div>
 </template>
 

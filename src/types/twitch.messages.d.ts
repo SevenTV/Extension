@@ -19,6 +19,8 @@ declare namespace Twitch {
 		deleted?: boolean;
 		banned?: boolean;
 		nonce?: string;
+
+		height?: number;
 	}
 
 	export interface ChatMessage extends AnyMessage {
@@ -70,6 +72,7 @@ declare namespace Twitch {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			content: any;
 			type: number;
+			key?: string;
 		}
 
 		export interface TextPart extends Part {

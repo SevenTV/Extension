@@ -1,5 +1,13 @@
 ### Version 3.0.0.5000 (Beta 5)
 
+- Colon auto-complete ( :emote ) should now work again
+- Added new config option ("Message Batching") to change the rate of message rendering batches
+- Significantly improved the performance of the Emote Menu
+- The jump buttons in the Emote Menu should now work properly on Chrome
+- Made tentative performance improvements to the chat. Please report any regressions
+- The page should no longer substantially freeze when tabbing in after a few seconds out of focus
+- The page should no longer occasionally freeze when switching between channels
+- The page should no longer feel sluggish for the first few seconds after loading into a channel
 - Fixed a conflict with FrankerFaceZ where some message types did not render properly
 - Fixed an issue which caused EventAPI subscription commands to be sent twice
 

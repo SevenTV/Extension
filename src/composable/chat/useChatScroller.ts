@@ -1,7 +1,8 @@
-import { Ref, nextTick, reactive, toRef, toRefs, watchEffect } from "vue";
+import { Ref, nextTick, reactive, toRef, watchEffect } from "vue";
 import { useConfig } from "@/composable/useSettings";
 import { useChatMessages } from "./useChatMessages";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
+import fastdom from "fastdom";
 
 const scrollDuration = useConfig<number>("chat.smooth_scroll_duration");
 const lineLimit = useConfig<number>("chat.line_limit");
@@ -12,6 +13,7 @@ const data = reactive({
 	lineLimit: lineLimit,
 	init: false,
 	sys: true,
+	live: false,
 	visible: true,
 	paused: false, // whether or not scrolling is paused
 	duration: scrollDuration,
@@ -54,7 +56,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 	/**
 	 * Scrolls the chat to the bottom
 	 */
-	function scrollToLive(duration = 0): void {
+	async function scrollToLive(duration = 0): Promise<void> {
 		if (!container.value || !bounds?.value || data.paused) return;
 
 		data.scrollClear();
@@ -67,7 +69,14 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 			return;
 		}
 
-		const from = container.value.scrollTop;
+		const from = await new Promise<number>((resolve) => {
+			fastdom.measure(() => {
+				if (!container.value) return 0;
+
+				resolve(container.value.scrollTop);
+			});
+		});
+
 		const start = Date.now();
 
 		let shouldClear = false;
@@ -94,7 +103,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 	/**
 	 * Pauses the scrolling of the chat
 	 */
-	function pauseScrolling(): void {
+	function pause(): void {
 		data.paused = true;
 	}
 
@@ -105,7 +114,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		data.paused = false;
 		data.init = true;
 
-		messages.displayed.push(...messages.pauseBuffer);
+		for (const msg of messages.pauseBuffer) messages.add(msg);
 		messages.pauseBuffer.length = 0;
 
 		nextTick(() => {
@@ -114,14 +123,20 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		});
 	}
 
-	function onScroll() {
-		if (!container.value || !bounds?.value) return;
+	async function onScroll() {
+		const { top, h } = await new Promise<{ top: number; h: number }>((resolve) => {
+			fastdom.measure(() => {
+				if (!container.value || !bounds?.value) return { top: 0, h: 0 };
 
-		const top = Math.floor(container.value.scrollTop);
-		const h = Math.floor(container.value.scrollHeight - bounds.value.height);
+				const top = Math.floor(container.value.scrollTop);
+				const h = Math.floor(container.value.scrollHeight - bounds.value.height);
+
+				resolve({ top, h });
+			});
+		});
 
 		// Whether or not the scrollbar is at the bottom
-		const live = top >= h - 1;
+		const live = (data.live = top >= h - 1);
 
 		if (data.init) {
 			return;
@@ -133,7 +148,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 
 		if (data.userInput > 0) {
 			data.userInput = 0;
-			pauseScrolling();
+			pause();
 		}
 
 		// Check if the user has scrolled back down to live mode
@@ -146,17 +161,17 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		if (e.deltaY < 0) data.userInput++;
 	}
 
-	const { init, paused, lineLimit, duration } = toRefs(data);
-
-	return {
-		init: init,
-		paused: paused,
-		lineLimit: lineLimit,
-		duration: duration,
+	return reactive({
+		init: toRef(data, "init"),
+		paused: toRef(data, "paused"),
+		lineLimit: toRef(data, "lineLimit"),
+		duration: toRef(data, "duration"),
+		live: toRef(data, "live"),
 
 		scrollToLive,
-		unpause: unpause,
+		pause,
+		unpause,
 		onScroll,
 		onWheel,
-	};
+	});
 }

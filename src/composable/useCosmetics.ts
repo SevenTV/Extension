@@ -1,4 +1,4 @@
-import { Ref, reactive, ref, toRefs } from "vue";
+import { Ref, reactive, ref, toRef, toRefs } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
@@ -271,9 +271,9 @@ export function useCosmetics(userID: string) {
 	if (!data.userEmoteMap[userID]) data.userEmoteMap[userID] = {};
 
 	return reactive({
-		paints: data.userPaints[userID],
-		badges: data.userBadges[userID],
-		emotes: data.userEmoteMap[userID],
-		emoteSets: data.userEmoteSets[userID],
+		paints: toRef(data.userPaints, userID),
+		badges: toRef(data.userBadges, userID),
+		emotes: toRef(data.userEmoteMap, userID),
+		emoteSets: toRef(data.userEmoteSets, userID),
 	});
 }

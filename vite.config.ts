@@ -1,5 +1,5 @@
 import { BranchName, getManifest } from "./manifest.config";
-import { version } from "./package.json";
+import { displayName as name, version } from "./package.json";
 import vue from "@vitejs/plugin-vue";
 import { spawn } from "child_process";
 import fs from "fs-extra";
@@ -52,6 +52,7 @@ export default defineConfig(({ mode }) => {
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
+		VITE_APP_NAME: name,
 		VITE_APP_VERSION: version,
 	};
 

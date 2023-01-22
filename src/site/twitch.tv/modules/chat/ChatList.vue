@@ -1,8 +1,9 @@
 <template>
-	<main class="seventv-chat-list" :alternating-background="isAlternatingBackground">
+	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
 		<div
 			v-for="(msg, index) of messages.displayed"
 			:key="msg.id"
+			v-memo="[msg]"
 			:msg-id="msg.id"
 			class="seventv-message"
 			:class="{
@@ -15,16 +16,23 @@
 					: {}),
 			}"
 		>
-			<ModSlider v-if="isModSliderEnabled && canModerateType.includes(msg.type)" :msg="msg">
+			<ModSlider
+				v-if="isModSliderEnabled && properties.isModerator && canModerateType.includes(msg.type)"
+				:msg="msg"
+			>
 				<component :is="getMessageComponent(msg.type)" :msg="msg" />
 			</ModSlider>
-			<component :is="getMessageComponent(msg.type)" v-else :msg="msg" />
+			<component :is="getMessageComponent(msg.type)" v-else v-once :msg="msg" />
 		</div>
 	</main>
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from "vue";
+import { useDocumentVisibility } from "@vueuse/core";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
+import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { useConfig } from "@/composable/useSettings";
 import { MessageType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
@@ -35,9 +43,27 @@ defineProps<{
 }>();
 
 const messages = useChatMessages();
+const scroller = useChatScroller();
+const properties = useChatProperties();
+const pageVisibility = useDocumentVisibility();
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
+
+// Pause scrolling when page is not visible
+const pausedByVisibility = ref(false);
+watch(pageVisibility, (state) => {
+	if (state === "hidden") {
+		scroller.pause();
+		pausedByVisibility.value = true;
+	} else if (pausedByVisibility.value) {
+		scroller.unpause();
+		pausedByVisibility.value = false;
+	}
+});
+
+// Unrender messages out of view
+const chatListEl = ref<HTMLElement>();
 
 const types = import.meta.glob<object>("./components/types/*.vue", { eager: true, import: "default" });
 

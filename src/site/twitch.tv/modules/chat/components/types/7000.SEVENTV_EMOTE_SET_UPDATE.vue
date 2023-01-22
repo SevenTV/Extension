@@ -17,7 +17,7 @@
 				<span>added the emote </span>
 			</template>
 
-			<template v-for="(ae, index) of msg.add" :key="index">
+			<template v-for="ae of msg.add" :key="ae.id">
 				<span class="referenced-emote">
 					<Emote :emote="ae" />
 					{{ ae.name }}
@@ -35,7 +35,7 @@
 				<span>removed the emote </span>
 			</template>
 
-			<template v-for="(ae, index) of msg.remove" :key="index">
+			<template v-for="ae of msg.remove" :key="ae.id">
 				<span class="referenced-emote">
 					<Emote :emote="ae" />
 					<span>{{ ae.name }}</span>
