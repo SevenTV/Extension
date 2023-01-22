@@ -54,7 +54,7 @@ export function synchronizeFrankerFaceZ() {
 		if (!n.ffz_key) continue;
 
 		ffzSettings.getConfigChanges(n.ffz_key, (v) => {
-			raw[n.key] = v as SevenTV.SettingType;
+			raw[n.key] = typeof n.ffz_transform === "function" ? n.ffz_transform(v) : (v as SevenTV.SettingType);
 		});
 	}
 }

@@ -1,10 +1,10 @@
 <template>
-	<div class="emote-box">
+	<div class="seventv-emote-box">
 		<img
 			v-if="emote.data && emote.data.host"
 			v-show="srcset"
 			ref="imgRef"
-			class="chat-emote"
+			class="seventv-chat-emote"
 			:srcset="srcset"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
@@ -16,7 +16,7 @@
 		<template v-for="e of emote.overlaid" :key="e.id">
 			<img
 				v-if="e.data && e.data.host"
-				class="chat-emote zero-width-emote"
+				class="seventv-chat-emote zero-width-emote"
 				:class="{ blur: hideUnlisted && e.data?.listed === false }"
 				:srcset="e.data.host.srcset ?? imageHostToSrcset(e.data.host, emote.provider)"
 				:alt="' ' + e.name"
@@ -71,11 +71,11 @@ const { show, hide } = useTooltip(EmoteTooltip, {
 </script>
 
 <style scoped lang="scss">
-.emote-box {
+.seventv-emote-box {
 	display: grid;
 	overflow: clip;
 }
-img.chat-emote {
+img.seventv-chat-emote {
 	font-weight: 900;
 	grid-column: 1;
 	grid-row: 1;

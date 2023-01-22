@@ -61,13 +61,33 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 			defaultValue: 2,
 		},
 		{
+			key: "chat.message_batch_duration",
+			label: "Message Batching",
+			hint: "The time to wait between rendering new messages. Higher values may improve performance and readability, at the cost of chat feeling less responsive",
+			type: "SLIDER",
+			options: {
+				min: 25,
+				max: 1000,
+				step: 25,
+				unit: "ms",
+				named_thresolds: [
+					[0, 50, "Instant"],
+					[50, 250, "Fast"],
+					[250, 500, "Balanced"],
+					[500, 999, "Slow"],
+					[1000, 1000, "PowerPoint Presentation"],
+				],
+			},
+			defaultValue: 150,
+		},
+		{
 			key: "chat.smooth_scroll_duration",
 			label: "Smooth scroll chat",
-			hint: "Smoothly scroll new messages into view. Turning on this setting may impact performance.",
+			hint: "Smoothly scroll new messages into view. This may impact performance.",
 			type: "SLIDER",
 			options: {
 				min: 0,
-				max: 3000,
+				max: 1500,
 				step: 100,
 				unit: "ms",
 			},
@@ -79,7 +99,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 			hint: "The maximum amount of lines that will be displayed in chat. Higher values may affect performance",
 			type: "SLIDER",
 			options: {
-				min: 10,
+				min: 50,
 				max: 500,
 				step: 10,
 				unit: "lines",
@@ -105,6 +125,10 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		{
 			key: "chat.padding",
 			label: "Padding Style",
+			ffz_key: "chat.lines.padding",
+			ffz_transform(v) {
+				return v ? 1 : 0;
+			},
 			hint: "Change the padding style of chat lines",
 			type: "DROPDOWN",
 			options: [
@@ -112,19 +136,6 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 				["Native (Twitch-like)", 1],
 			],
 			defaultValue: 1,
-		},
-		{
-			key: "chat.message_batch_duration",
-			label: "Message Batching",
-			hint: "The time to wait between rendering new messages. Higher values may improve performance and readability, at the cost of chat feeling less responsive",
-			type: "SLIDER",
-			options: {
-				min: 25,
-				max: 1000,
-				step: 25,
-				unit: "ms",
-			},
-			defaultValue: 150,
 		},
 	],
 });

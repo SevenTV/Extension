@@ -22,7 +22,7 @@
 			>
 				<component :is="getMessageComponent(msg.type)" :msg="msg" />
 			</ModSlider>
-			<component :is="getMessageComponent(msg.type)" v-else v-once :msg="msg" />
+			<component :is="getMessageComponent(msg.type)" v-else :msg="msg" />
 		</div>
 	</main>
 </template>
@@ -76,6 +76,7 @@ const canModerateType = [MessageType.MESSAGE, MessageType.SUBSCRIPTION, MessageT
 <style scoped lang="scss">
 .seventv-chat-list[alternating-background="true"] {
 	padding: 0.5em 0;
+
 	.seventv-message.even {
 		background-color: var(--seventv-background-shade-1);
 	}

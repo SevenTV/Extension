@@ -1,7 +1,7 @@
 ### Version 3.0.0.5000 (Beta 5)
 
 - Colon auto-complete ( :emote ) should now work again
-- Added new config option ("Message Batching") to change the rate of message rendering batches
+- Added new config option ("Message Batching") to change the rate at which new messages appear
 - Significantly improved the performance of the Emote Menu
 - The jump buttons in the Emote Menu should now work properly on Chrome
 - Made tentative performance improvements to the chat. Please report any regressions

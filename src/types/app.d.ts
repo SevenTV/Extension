@@ -4,6 +4,7 @@ declare namespace SevenTV {
 		name: string;
 		flags: EmoteFlags;
 		tags: string[];
+		state: string[];
 		lifecycle: EmoteLifecycle;
 		listed?: boolean;
 		animated?: boolean;
@@ -64,6 +65,7 @@ declare namespace SevenTV {
 		category?: string;
 		key: string;
 		ffz_key?: string;
+		ffz_transform?: (v: unknown) => T;
 		label: string;
 		hint?: string;
 		type: SettingNode.ComponentType;
@@ -82,6 +84,7 @@ declare namespace SevenTV {
 				max: number;
 				step: number;
 				unit: string;
+				named_thresolds?: [number, number, string][];
 			};
 			CUSTOM: unknown;
 			NONE: never;

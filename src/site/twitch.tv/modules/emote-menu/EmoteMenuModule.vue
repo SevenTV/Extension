@@ -1,6 +1,6 @@
 <template>
 	<template v-for="inst in chatInputController.instances" :key="inst.identifier">
-		<EmoteMenu2 :instance="inst" :button-el="buttonEl" />
+		<EmoteMenu :instance="inst" :button-el="buttonEl" />
 	</template>
 </template>
 
@@ -8,7 +8,7 @@
 import { ref } from "vue";
 import { useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
-import EmoteMenu2 from "./EmoteMenu.vue";
+import EmoteMenu from "./EmoteMenu.vue";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",

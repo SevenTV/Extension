@@ -10,12 +10,15 @@ export function onEmoteSetCreate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 	const es = cm.object;
 	if (!es.emotes) es.emotes = [];
 
+	es.provider = "7TV";
+	es.scope = es.flags & 4 ? "PERSONAL" : "CHANNEL";
+
 	for (const ae of es.emotes) {
 		if (!ae.data) continue;
 
 		ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat);
-		ae.provider = "7TV";
-		ae.scope = "PERSONAL";
+		ae.provider = es.provider;
+		ae.scope = es.scope;
 	}
 
 	ctx.db.emoteSets.put(cm.object).catch((err) => log.error("<EventAPI>", "failed to insert emote set", err));
@@ -39,7 +42,7 @@ export async function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.
 						if (v.data) {
 							v.data.host.srcset = imageHostToSrcset(v.data.host, "7TV", WorkerHttp.imageFormat);
 							v.provider = "7TV";
-							v.scope = "PERSONAL";
+							if (!v.scope) v.scope = es.flags & 4 ? "PERSONAL" : "CHANNEL";
 						}
 
 						es.emotes.push(v);

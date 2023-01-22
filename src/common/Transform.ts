@@ -45,6 +45,7 @@ export function convertTwitchEmote(
 		name: data.token ?? "",
 		flags: 0,
 		tags: [],
+		state: [],
 		lifecycle: 3,
 		listed: true,
 		owner: owner
@@ -85,6 +86,7 @@ export function convertCheerEmote(data: Twitch.ChatMessage.EmotePart["content"])
 		name: `${data.alt} ${data.cheerAmount}`,
 		flags: 0,
 		tags: [],
+		state: [],
 		lifecycle: 3,
 		listed: true,
 		owner: null,
@@ -150,6 +152,7 @@ export function convertBttvEmote(data: BTTV.Emote): SevenTV.Emote {
 		name: data.code,
 		flags: BTTV_ZeroWidth.indexOf(data.code) > -1 ? 256 : 0,
 		tags: [],
+		state: [],
 		lifecycle: 3,
 		listed: true,
 		owner: data.user
@@ -224,6 +227,7 @@ export function convertFFZEmote(data: FFZ.Emote): SevenTV.Emote {
 		name: data.name,
 		flags: 0,
 		tags: [],
+		state: [],
 		lifecycle: 3,
 		listed: true,
 		owner: null,

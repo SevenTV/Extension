@@ -24,6 +24,7 @@
 						<EmoteMenuTab
 							:provider="key"
 							:filter="filter"
+							:selected="key === activeProvider"
 							@emote-clicked="onEmoteClick"
 							@provider-visible="onProviderVisibilityChange(key, $event)"
 						/>
@@ -104,7 +105,7 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 watchEffect(() => {
 	if (!containerEl.value && props.instance.domNodes.root) {
 		const n = props.instance.domNodes.root.querySelector(".chat-input__textarea");
-		containerEl.value = n as HTMLElement;
+		containerEl.value = (n?.parentElement?.parentElement ?? n) as HTMLElement;
 	}
 });
 

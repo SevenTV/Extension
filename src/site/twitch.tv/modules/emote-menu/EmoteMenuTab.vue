@@ -16,10 +16,13 @@
 							:key="ae.id"
 							:ref="(el) => setCardRef(el as HTMLElement)"
 							class="emote-container"
-							:class="`ratio-${determineRatio(ae)}`"
+							:class="{
+								[`ratio-${determineRatio(ae)}`]: true,
+								'emote-disabled': isEmoteDisabled(es, ae),
+							}"
 							:visible="loaded[ae.id]"
 							:emote-id="ae.id"
-							@click="emit('emote-clicked', ae)"
+							@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
 						>
 							<Emote :emote="ae" :unload="!loaded[ae.id]" />
 						</div>
@@ -46,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, reactive, ref, toRaw, toRef } from "vue";
+import { onBeforeUnmount, reactive, ref, toRaw, toRef, watchEffect } from "vue";
 import { until, useTimeout, watchDebounced, watchThrottled } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { useChatContext } from "@/composable/chat/useChatContext";
@@ -60,6 +63,7 @@ import Emote from "../chat/components/message/Emote.vue";
 const props = defineProps<{
 	provider: SevenTV.Provider;
 	filter?: string;
+	selected?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -76,7 +80,6 @@ const sets = emotes.byProvider(props.provider);
 const store = useStore();
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const personalEmotes = toRef(cosmetics, "emotes");
-
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const filteredEmotes = ref<Record<string, SevenTV.ActiveEmote[]>>({});
 
@@ -110,14 +113,15 @@ function filterEmotes(filter: string) {
 
 	let total = 0;
 	for (const set of sortedSets.value) {
-		if (!filter) {
-			x[set.id] = set.emotes;
+		const res = [] as SevenTV.ActiveEmote[];
+		for (const e of set.emotes) {
+			if (filter && !e.name.toLowerCase().includes(filter.toLowerCase())) {
+				continue;
+			}
 
-			total += set.emotes.length;
-			continue;
+			res.push(e);
 		}
 
-		const res = set.emotes.filter((e) => e.name.toLowerCase().includes(filter!.toLowerCase()));
 		x[set.id] = res;
 		total += res.length;
 	}
@@ -126,12 +130,18 @@ function filterEmotes(filter: string) {
 	emit("provider-visible", !!total);
 }
 
+function isEmoteDisabled(set: SevenTV.EmoteSet, ae: SevenTV.ActiveEmote) {
+	return set.scope === "PERSONAL" && ae.data && ae.data.state && !ae.data.state.includes("PERSONAL");
+}
+
 // Watch for changes to the emote sets and perform sorting operations
 watchDebounced(
 	[sets, personalEmotes],
 	() => {
 		const ary = Object.values(structuredClone(toRaw(sets.value))) as SevenTV.EmoteSet[];
-		if (cosmetics.emoteSets?.length) ary.push(...structuredClone(toRaw(cosmetics.emoteSets)));
+		if (cosmetics.emoteSets?.length) {
+			ary.push(...structuredClone(toRaw(cosmetics.emoteSets).filter((e) => e.provider === props.provider)));
+		}
 
 		if (props.provider === "TWITCH") {
 			const res = ary.reduce((prev, cur) => {
@@ -168,45 +178,63 @@ watchThrottled(props, ({ filter }) => filterEmotes(filter ?? ""), { throttle: 25
 // IntersectionObserver to hide out-of-view emotes and throttle loading to view
 const cards = [] as HTMLElement[];
 const loaded = reactive<Record<string, number>>({});
-const observer = new IntersectionObserver((entries) => {
-	entries.forEach(async (entry) => {
-		const eid = entry.target.getAttribute("emote-id") as string;
+const debounceCards = ref(false);
+let observer: IntersectionObserver;
 
-		// if the element is intersecting, wait 350ms before loading it
-		if (entry.isIntersecting && !loaded[eid]) {
-			const previouslyLoaded = loaded[eid] === -1;
-			loaded[eid] = 0;
-			if (!previouslyLoaded) await until(useTimeout(350)).toBeTruthy();
-		}
+function setupObserver() {
+	observer = new IntersectionObserver((entries) => {
+		entries.forEach(async (entry) => {
+			const eid = entry.target.getAttribute("emote-id") as string;
 
-		// if the element was intersecting, but not anymore, delete it from the loaded map
-		if (loaded[eid] === 0 && !entry.isIntersecting) {
-			delete loaded[eid];
-			return;
-		}
+			// if the element is intersecting, wait 350ms before loading it
+			if (entry.isIntersecting && !loaded[eid]) {
+				const previouslyLoaded = loaded[eid] === -1;
+				loaded[eid] = 0;
 
-		// if the element has been intersecting for 350ms, load it
-		if (entry.isIntersecting && loaded[eid] === 0) {
-			loaded[eid] = 1;
-			return;
-		}
+				if (!previouslyLoaded && debounceCards.value) await until(useTimeout(350)).toBeTruthy();
+			}
 
-		// if the element is not intersecting anymore, delete it from the loaded map
-		if (!entry.isIntersecting && loaded[eid] >= 0) {
-			loaded[eid] = loaded[eid] === 1 ? -1 : 0;
-		}
+			// if the element was intersecting, but not anymore, delete it from the loaded map
+			if (loaded[eid] === 0 && !entry.isIntersecting) {
+				delete loaded[eid];
+				return;
+			}
+
+			// if the element has been intersecting for 350ms, load it
+			if (entry.isIntersecting && loaded[eid] === 0) {
+				loaded[eid] = 1;
+				return;
+			}
+
+			// if the element is not intersecting anymore, delete it from the loaded map
+			if (!entry.isIntersecting && loaded[eid] >= 0) {
+				loaded[eid] = loaded[eid] === 1 ? -1 : 0;
+			}
+		});
+
+		debounceCards.value = true;
 	});
+}
+
+watchEffect(() => {
+	if (!props.selected) {
+		debounceCards.value = false;
+
+		if (observer) observer.disconnect();
+	} else {
+		setupObserver();
+	}
 });
 
 // gather all card elements and observe them
 const setCardRef = (el: HTMLElement) => {
 	if (el instanceof Element) {
 		cards.push(el as HTMLElement);
-		observer.observe(el);
+		if (observer) observer.observe(el);
 	}
 };
 onBeforeUnmount(() => {
-	observer.disconnect();
+	if (observer) observer.disconnect();
 });
 </script>
 <style scoped lang="scss">
@@ -252,6 +280,16 @@ onBeforeUnmount(() => {
 
 	&:hover {
 		background: hsla(0deg, 0%, 50%, 32%);
+	}
+
+	&.emote-disabled {
+		cursor: not-allowed;
+		filter: grayscale(100%);
+		opacity: 0.5;
+
+		> :first-child {
+			pointer-events: none;
+		}
 	}
 }
 
