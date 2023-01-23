@@ -70,8 +70,8 @@ const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
 });
 
 // Shortcut (shift+e)
-const isCtrl = useKeyModifier("Shift", { initial: false });
-onKeyStroke("E", (ev) => {
+const isCtrl = useKeyModifier("Control", { initial: false });
+onKeyStroke("e", (ev) => {
 	if (!isCtrl) return;
 
 	toggle();
