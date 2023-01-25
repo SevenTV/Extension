@@ -23,6 +23,7 @@
 	</Teleport>
 
 	<ChatTray />
+	<ChatPubSub />
 </template>
 
 <script setup lang="ts">
@@ -45,6 +46,7 @@ import { useWorker } from "@/composable/useWorker";
 import { MessageType, ModerationType } from "@/site/twitch.tv";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
+import ChatPubSub from "./ChatPubSub.vue";
 import ChatTray from "./ChatTray.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
@@ -148,7 +150,6 @@ watch(
 definePropertyHook(list.value.component, "props", {
 	value(v) {
 		messageHandler.value = v.messageHandlerAPI;
-
 		if (!dataSets.badges) {
 			// Find message to grab some data
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -234,6 +235,7 @@ const onMessage = (msg: Twitch.AnyMessage): boolean => {
 		case MessageType.SUB_MYSTERY_GIFT:
 		case MessageType.CHANNEL_POINTS_REWARD:
 		case MessageType.ANNOUNCEMENT_MESSAGE:
+		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
 			onChatMessage(msg as Twitch.DisplayableMessage);
 			break;
 		case MessageType.MODERATION:

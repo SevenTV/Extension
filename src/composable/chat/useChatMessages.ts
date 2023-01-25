@@ -1,4 +1,5 @@
 import { computed, nextTick, reactive, toRef } from "vue";
+import { useTimeoutFn } from "@vueuse/core";
 import { useChatProperties } from "./useChatProperties";
 import { useChatScroller } from "./useChatScroller";
 import { useConfig } from "../useSettings";
@@ -6,10 +7,10 @@ import { useConfig } from "../useSettings";
 const data = reactive({
 	// Message Data
 	displayed: [] as Twitch.DisplayableMessage[],
-	displayedMap: {} as Record<string, Twitch.DisplayableMessage>,
+	displayedByUser: {} as Record<string, Record<string, Twitch.DisplayableMessage>>,
+	awaited: new Map<string, (v: Twitch.DisplayableMessage) => void>(),
 	buffer: [] as Twitch.DisplayableMessage[],
 	pauseBuffer: [] as Twitch.DisplayableMessage[], // twitch chat message buffe when scrolling is paused
-	byUser: {} as Record<string, Record<string, Twitch.DisplayableMessage>>,
 	chatters: {} as Record<string, Record<string, never>>,
 
 	handlers: new Set<(v: Twitch.AnyMessage) => void>(),
@@ -50,15 +51,19 @@ function add<T extends Twitch.DisplayableMessage>(message: T): void {
 		if (properties.blockedUsers.has(message.user.userID)) return;
 
 		if (!data.chatters[message.user.userID]) data.chatters[message.user.userID] = {}; // set as active chatter
-		if (!data.byUser[message.user.userLogin]) data.byUser[message.user.userLogin] = {}; // create user message map
+		if (!data.displayedByUser[message.user.userLogin]) data.displayedByUser[message.user.userLogin] = {}; // create user message map
 
 		// add message to user message map
-		data.byUser[message.user.userLogin][message.id] = message;
+		data.displayedByUser[message.user.userLogin][message.id] = message;
 	}
 
 	// push message to buffer, and trigger flush
 	data.buffer.push(message);
-	data.displayedMap[message.id] = message;
+
+	if (data.awaited.has(message.id)) {
+		data.awaited.get(message.id)!(message);
+		data.awaited.delete(message.id);
+	}
 
 	flush();
 }
@@ -107,13 +112,11 @@ function flush(): void {
 					if (!msg.user) continue;
 
 					// retrieve the user's message map
-					const umap = data.byUser[msg.user.userLogin];
+					const umap = data.displayedByUser[msg.user.userLogin];
 					if (!umap) continue;
 
 					// delete this specific message from the user's message map
 					delete umap[msg.id];
-
-					delete data.displayedMap[msg.id];
 				}
 
 				flushTimeout = undefined;
@@ -161,10 +164,30 @@ function find<A extends boolean = false>(predicate: (msg: Twitch.DisplayableMess
  * @returns list of messages by the user
  */
 function messagesByUser(userLogin: string): Twitch.DisplayableMessage[] {
-	const umap = data.byUser[userLogin];
+	const umap = data.displayedByUser[userLogin];
 	if (!umap) return [];
 
 	return Object.values(umap);
+}
+
+/**
+ *
+ * @param id the ID of the message to wait for
+ * @param timeout the maximum amount of time we will wait
+ * @returns
+ */
+async function awaitMessage(id: string, timeout = 10e3): Promise<Twitch.DisplayableMessage> {
+	return new Promise((resolve, reject) => {
+		const { stop } = useTimeoutFn(() => {
+			data.awaited.delete(id);
+			reject(Error("Timed out waiting for message"));
+		}, timeout);
+
+		data.awaited.set(id, (msg) => {
+			resolve(msg);
+			stop();
+		});
+	});
 }
 
 function setMessageSender(fn: (msg: string) => void) {
@@ -174,13 +197,13 @@ function setMessageSender(fn: (msg: string) => void) {
 export function useChatMessages() {
 	return reactive({
 		displayed: toRef(data, "displayed"),
-		displayedMap: toRef(data, "displayedMap"),
 		handlers: data.handlers,
 		chatters: data.chatters,
 		pauseBuffer: data.pauseBuffer,
 		sendMessage: data.sendMessage,
 		find,
 		messagesByUser,
+		awaitMessage,
 		add,
 		setMessageSender,
 		clear,

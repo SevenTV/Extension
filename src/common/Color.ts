@@ -12,6 +12,16 @@ export const DecimalToStringRGBA = (num: number): string => {
 export const RGBAToDecimal = (r: number, g: number, b: number, a: number): number =>
 	(r << 24) | (g << 16) | (b << 8) | a;
 
+export const SetHexAlpha = (alpha: number): string => {
+	if (alpha > 1 || alpha < 0 || isNaN(alpha)) {
+		throw Error("alpha must be between 0 and 1");
+	}
+
+	return Math.ceil(255 * alpha)
+		.toString(16)
+		.toUpperCase();
+};
+
 const calculated = { 0: {}, 1: {} } as Record<0 | 1, Record<string, string>>;
 
 export function normalizeUsername(color: string, theme: 0 | 1): string {

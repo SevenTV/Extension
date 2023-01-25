@@ -672,6 +672,7 @@ declare module Twitch {
 		userID: string;
 		userLogin: string;
 		userType: string;
+		badges?: { id: string }[];
 	}
 
 	export interface TwitchEmote {

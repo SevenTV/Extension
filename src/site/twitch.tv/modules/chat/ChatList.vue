@@ -29,6 +29,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import type { Component } from "vue";
 import { useDocumentVisibility } from "@vueuse/core";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -66,12 +67,29 @@ watch(pageVisibility, (state) => {
 const chatListEl = ref<HTMLElement>();
 
 const types = import.meta.glob<object>("./components/types/*.vue", { eager: true, import: "default" });
+const typeMap = {} as Record<number, Component>;
 
-function getMessageComponent(type: MessageType) {
-	return types[`./components/types/${type}.${MessageType[type]}.vue`] ?? ChatMessageUnhandled;
+const componentRegexp = /\.\/components\/types\/(\d+)\.(\w+)\.vue$/;
+for (const [path, component] of Object.entries(types)) {
+	const [, type] = path.match(componentRegexp) ?? [];
+	if (!type) continue;
+
+	const t = parseInt(type);
+	if (Number.isNaN(t)) continue;
+
+	typeMap[t] = component;
 }
 
-const canModerateType = [MessageType.MESSAGE, MessageType.SUBSCRIPTION, MessageType.RESUBSCRIPTION];
+function getMessageComponent(type: MessageType) {
+	return typeMap[type] ?? ChatMessageUnhandled;
+}
+
+const canModerateType = [
+	MessageType.MESSAGE,
+	MessageType.SUBSCRIPTION,
+	MessageType.RESUBSCRIPTION,
+	MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE,
+];
 </script>
 <style scoped lang="scss">
 .seventv-chat-list[alternating-background="true"] {

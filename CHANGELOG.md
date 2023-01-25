@@ -1,3 +1,8 @@
+### Version 3.0.0.6000 (Beta 6)
+
+- Added Message Highlights for First-Time Chatter, Returning Chatter & Suspicious Users
+
+
 ### Version 3.0.0.5000 (Beta 5)
 
 - Colon auto-complete ( :emote ) should now work again

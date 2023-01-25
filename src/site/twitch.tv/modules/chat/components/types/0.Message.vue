@@ -33,8 +33,6 @@ const props = defineProps<{
 }>();
 
 const paddingStyle = useConfig<number>("chat.padding");
-
-// (paddingStyle.value ? "0rem" : "1rem")
 const sidePadding = computed(
 	() =>
 		({

@@ -1,9 +1,11 @@
 <template>
 	<span
 		class="seventv-user-message"
+		:msg-id="msg.id"
 		:class="{
 			deleted: msg.banned || msg.deleted,
 			'has-mention': as == 'Chat' && hasMention,
+			'has-highlight': as == 'Chat' && msg.highlight,
 		}"
 		:state="msg.sendState"
 		:style="{
@@ -11,6 +13,14 @@
 			color: msg.messageType === 1 && meStyle & 2 ? color : '',
 		}"
 	>
+		<!-- Highlight Label -->
+		<div
+			v-if="msg.highlight"
+			class="seventv-chat-message-highlight-label"
+			:data-highlight-label="msg.highlight.label"
+		/>
+
+		<!-- Timestamp -->
 		<template v-if="properties.showTimestamps || msg.isHistorical">
 			<span class="chat-line__timestamp">
 				{{
@@ -67,8 +77,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { normalizeUsername } from "@/common/Color";
+import { computed, ref, toRef } from "vue";
+import { SetHexAlpha, normalizeUsername } from "@/common/Color";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -89,9 +99,15 @@ const props = withDefaults(
 	defineProps<{
 		msg: Twitch.ChatMessage;
 		as?: "Chat" | "Reply";
+		highlight?: {
+			label: string;
+			color: string;
+		};
 	}>(),
 	{ as: "Chat" },
 );
+
+const msg = toRef(props, "msg");
 
 const emotes = useChatEmotes();
 const properties = useChatProperties();
@@ -114,7 +130,22 @@ const cosmetics = useCosmetics(props.msg.user.userID);
 const tokenizer = new Tokenizer(props.msg.messageParts);
 const tokens = computed(() => tokenizer.getParts(emotes.active, cosmetics.emotes));
 
+const highlightColorDim = computed(() => msg.value.highlight?.color.concat(SetHexAlpha(0.1)));
 const hasMention = ref(false);
+
+if (props.highlight) {
+	msg.value.highlight = props.highlight ?? {};
+} else if (props.msg.isFirstMsg) {
+	msg.value.highlight = {
+		label: "First Message",
+		color: "#c832c8",
+	};
+} else if (props.msg.isReturningChatter) {
+	msg.value.highlight = {
+		label: "Returning Chatter",
+		color: "#3296e6",
+	};
+}
 
 function getPart(part: Twitch.ChatMessage.Part) {
 	switch (part.type) {
@@ -127,7 +158,15 @@ function getPart(part: Twitch.ChatMessage.Part) {
 		case MessagePartType.FLAGGEDSEGMENT:
 			return FlaggedSegment;
 		case MessagePartType.MENTION:
-			if (part.content.currentUserMentionRelation == 1) hasMention.value = true;
+			if (part.content.currentUserMentionRelation == 1) {
+				hasMention.value = true;
+				if (!msg.value.highlight) {
+					msg.value.highlight = {
+						label: "Mentions You",
+						color: "#e11919",
+					};
+				}
+			}
 			return Mention;
 		case MessagePartType.LINK:
 		case MessagePartType.CLIPLINK:
@@ -146,12 +185,31 @@ const { banUserFromChat, deleteChatMessage } = useChatModeration(props.msg.chann
 <style scoped lang="scss">
 .seventv-user-message {
 	display: block;
-	&.has-mention {
-		margin: -0.5rem -1rem;
-		padding: 0.5rem 1rem;
-		box-shadow: inset 0 0 0.1rem 0.1rem red;
-		background-color: #ff000040;
-		border-radius: 0.5rem;
+
+	&.has-highlight {
+		border: 0.25em solid;
+		border-color: v-bind("msg.highlight?.color");
+		border-top: none;
+		border-bottom: none;
+		background-color: v-bind("highlightColorDim");
+		padding: 1rem 0.25rem;
+		margin: 0 -0.5em;
+
+		.seventv-chat-message-highlight-label {
+			&::after {
+				height: 0;
+				content: attr(data-highlight-label);
+				display: grid;
+				width: 100%;
+				justify-content: end;
+				color: v-bind("msg.highlight?.color");
+				transform: translateY(-1.5em);
+
+				font-weight: 600;
+				text-transform: uppercase;
+				font-size: 0.88rem;
+			}
+		}
 	}
 
 	&[state="sending"] {

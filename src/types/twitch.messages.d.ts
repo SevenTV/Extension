@@ -32,6 +32,9 @@ declare namespace Twitch {
 		deleted: boolean;
 		hidden: boolean;
 		isHistorical: unknown;
+		isFirstMsg: boolean;
+		isReturningChatter: boolean;
+		isVip: boolean;
 		message: string | ChatMessage;
 		messageBody: string;
 		messageParts: ChatMessage.Part[];
@@ -46,6 +49,18 @@ declare namespace Twitch {
 			parentUid: string;
 			parentUserLogin: string;
 			parentDisplayName: string;
+		};
+
+		highlight?: {
+			label: string;
+			color: string;
+		};
+		monitored?: {
+			channel_id: string;
+			treatment: string;
+			ban_evasion_evaluation: string;
+			updated_by: ChatUser;
+			types: string[];
 		};
 	}
 
@@ -181,6 +196,11 @@ declare namespace Twitch {
 	export interface IDUpdateMessage extends AnyMessage {
 		nonce: string;
 		userLogin: string;
+	}
+
+	export interface RestrictedLowTrustUserMessage extends DisplayableMessage {
+		sent_at: string;
+		sender: ChatUser;
 	}
 
 	export interface SeventvEmoteSetUpdateMessage extends DisplayableMessage {
