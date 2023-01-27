@@ -11,6 +11,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public componentProps?: InstanceType<C>["$props"] | null = null;
 	public highlight: Highlight | null = null;
 	public flags = new Set<string>();
+	public mentions = new Set<string>();
 	public badges = {} as Record<string, string>;
 	public nonce = "";
 	public deliveryState: MessageDeliveryState = "IDLE";
@@ -113,8 +114,8 @@ export type FlaggedSegmentToken = ChatMessageToken<
 export type MentionToken = ChatMessageToken<
 	"MENTION",
 	{
+		displayText: string;
 		recipient: string;
-		mentionsActor?: boolean;
 	}
 >;
 export type EmoteToken = ChatMessageToken<

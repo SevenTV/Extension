@@ -1,7 +1,10 @@
 ### Version 3.0.0.6000 (Beta 6)
 
 - Added Message Highlights for First-Time Chatter, Returning Chatter & Suspicious Users
+- Added a search bar in the Emote Menu
+- Updated the look of the Settings Menu
 
+---
 
 ### Version 3.0.0.5000 (Beta 5)
 
@@ -16,6 +19,8 @@
 - Fixed a conflict with FrankerFaceZ where some message types did not render properly
 - Fixed an issue which caused EventAPI subscription commands to be sent twice
 
+---
+
 ### Version 3.0.0.4000 (Beta 4)
 
 - Added support for Replies & Threads
@@ -24,6 +29,8 @@
 - Added an option to change the chat padding style (full-width or native)
 - The emote menu button will now take the form of the 7TV Logo
 - Fixed an issue which caused this changelog to become impossible to close if multiple tabs were open
+
+---
 
 ### Version 3.0.0.3000 (Beta 3)
 

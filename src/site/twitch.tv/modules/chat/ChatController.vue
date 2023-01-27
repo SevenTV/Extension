@@ -404,13 +404,17 @@ seventv-container.seventv-chat-list {
 		border-radius: 0.33em;
 		color: #fff;
 		background-color: rgba(0, 0, 0, 50%);
-		backdrop-filter: blur(0.05em);
+		@at-root .seventv-transparent & {
+			backdrop-filter: blur(0.05em);
+		}
 	}
 }
 
 .community-highlight {
 	background-color: var(--seventv-background-transparent-1) !important;
-	backdrop-filter: blur(1em);
+	@at-root .seventv-transparent & {
+		backdrop-filter: blur(1em);
+	}
 	transition: background-color 0.25s;
 
 	&:hover {

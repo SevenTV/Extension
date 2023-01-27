@@ -61,15 +61,20 @@ declare namespace SevenTV {
 		value: T;
 	}
 
-	interface SettingNode<T extends SettingType, K extends SettingNode.ComponentType = "CUSTOM"> {
-		category?: string;
+	interface SettingNode<T = SettingType, K = SettingNode.ComponentType> {
+		type: K;
 		key: string;
-		ffz_key?: string;
-		ffz_transform?: (v: unknown) => T;
 		label: string;
 		hint?: string;
-		type: SettingNode.ComponentType;
+		path?: [string, string];
+
 		component?: Raw<object>;
+
+		value?: T;
+		defaultValue: T;
+		predicate?: (p: T) => boolean;
+		disabledIf?: () => boolean;
+
 		options?: {
 			SELECT: [string, T][];
 			DROPDOWN: [string, T][];
@@ -89,11 +94,10 @@ declare namespace SevenTV {
 			CUSTOM: unknown;
 			NONE: never;
 		}[K];
-		predicate?: (p: T) => boolean;
 
-		value?: T;
-		defaultValue: T;
-		disabledIf?: () => boolean;
+		// FFZ compatability
+		ffz_key?: string;
+		ffz_transform?: (v: unknown) => T;
 	}
 	type SettingType = boolean | number | string | object;
 
@@ -270,13 +274,14 @@ declare namespace SevenTV {
 
 declare interface TwitchIdentity {
 	id: string;
-	login: string;
+	username: string;
 	displayName: string;
 	color?: string;
 }
 
 declare interface YouTubeIdentity {
 	id: string;
+	username: string;
 }
 
 declare type Platform = "TWITCH" | "YOUTUBE" | "UNKNOWN";

@@ -3,6 +3,12 @@ chrome.runtime.onInstalled.addListener(() => {
 	console.log("extension installed");
 });
 
+const data = { token: undefined as string | undefined };
+
+let listener = (v: { token: string }) => {
+	v;
+};
+
 chrome.runtime.onMessage.addListener((msg, _, reply) => {
 	switch (msg.type) {
 		case "permission-request": {
@@ -18,6 +24,20 @@ chrome.runtime.onMessage.addListener((msg, _, reply) => {
 					data: { id },
 				});
 			});
+			break;
+		}
+		case "get-auth-token": {
+			const token = data.token;
+			if (token) setTimeout(() => reply({ token: token }), 1);
+			else listener = (v: { token: string }) => reply(v);
+
+			break;
+		}
+		case "set-auth-token": {
+			if (!msg.data.token) return;
+
+			listener(msg.data);
+			data.token = msg.data.token;
 			break;
 		}
 	}

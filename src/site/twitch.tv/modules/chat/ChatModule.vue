@@ -22,6 +22,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 	config: [
 		{
 			key: "general.blur_unlisted_emotes",
+			path: ["General", ""],
 			label: "Hide Unlisted Emotes",
 			hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
 			type: "TOGGLE",
@@ -29,6 +30,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "chat.emote_margin",
+			path: ["Chat", "Style"],
 			label: "Emote Spacing",
 			hint: "Choose the margin around emotes in chat. Negative values lets them overlap and keep the chatlines inline. 0 Makes the emotes not overlap at all",
 			type: "SLIDER",
@@ -42,6 +44,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "chat.mod_slider",
+			path: ["Chat", "Moderation"],
 			label: "Mod Slider",
 			hint: "Enable the mod slider in channels where you are moderator",
 			type: "TOGGLE",
@@ -49,6 +52,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "chat.slash_me_style",
+			path: ["Chat", "Style"],
 			label: "/me Style",
 			hint: "How the /me type messages should be displayed",
 			type: "DROPDOWN",
@@ -62,6 +66,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "chat.message_batch_duration",
+			path: ["Chat", "Performance"],
 			label: "Message Batching",
 			hint: "The time to wait between rendering new messages. Higher values may improve performance and readability, at the cost of chat feeling less responsive",
 			type: "SLIDER",
@@ -82,6 +87,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "chat.smooth_scroll_duration",
+			path: ["Chat", "Performance"],
 			label: "Smooth scroll chat",
 			hint: "Smoothly scroll new messages into view. This may impact performance.",
 			type: "SLIDER",
@@ -95,6 +101,7 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "chat.line_limit",
+			path: ["Chat", "Performance"],
 			label: "Line Limit",
 			hint: "The maximum amount of lines that will be displayed in chat. Higher values may affect performance",
 			type: "SLIDER",
@@ -108,14 +115,15 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "ui.compact_tooltips",
+			path: ["Appearance", "Style"],
 			label: "Compact tooltips",
 			hint: "Make the tooltips compact instead of showing the full emote",
 			type: "TOGGLE",
 			defaultValue: false,
 		},
 		{
-			category: "Chat",
 			key: "chat.alternating_background",
+			path: ["Chat", "Style"],
 			ffz_key: "chat.lines.alternate",
 			label: "Alternating Background",
 			hint: "Display chat lines with alternating background colors",
@@ -124,9 +132,10 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 		},
 		{
 			key: "chat.padding",
+			path: ["Chat", "Style"],
 			label: "Padding Style",
 			ffz_key: "chat.lines.padding",
-			ffz_transform(v) {
+			ffz_transform(v: unknown) {
 				return v ? 1 : 0;
 			},
 			hint: "Change the padding style of chat lines",

@@ -4,7 +4,7 @@ import { useLiveQuery } from "./useLiveQuery";
 import { db } from "@/db/idb";
 
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
-const nodes = reactive({} as Record<string, SevenTV.SettingNode<SevenTV.SettingType>>);
+const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
 
 const ffzSettings = useFrankerFaceZ();
 
@@ -64,7 +64,7 @@ export function useSettings() {
 		return nodes;
 	}
 
-	function register(newNodes: SevenTV.SettingNode<SevenTV.SettingType>[]) {
+	function register(newNodes: SevenTV.SettingNode[]) {
 		for (const node of newNodes) {
 			nodes[node.key] = node;
 

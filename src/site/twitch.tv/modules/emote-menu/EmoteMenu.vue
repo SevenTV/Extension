@@ -4,18 +4,26 @@
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
 				<div class="seventv-emote-menu-header">
-					<template v-for="(b, key) in visibleProviders">
-						<div
-							v-if="b"
-							:key="key"
-							class="seventv-emote-menu-provider-icon"
-							:selected="key === activeProvider"
-							@click="activeProvider = key"
-						>
-							<Logo :provider="key" />
-							{{ key }}
+					<div class="seventv-emote-menu-header-providers">
+						<template v-for="(b, key) in visibleProviders">
+							<div
+								v-if="b"
+								:key="key"
+								class="seventv-emote-menu-provider-icon"
+								:selected="key === activeProvider"
+								@click="activeProvider = key"
+							>
+								<Logo :provider="key" />
+								{{ key }}
+							</div>
+						</template>
+					</div>
+					<div v-if="!inputSearch" class="emote-search">
+						<input v-model="filter" class="emote-search-input" />
+						<div class="search-icon">
+							<SearchIcon />
 						</div>
-					</template>
+					</div>
 				</div>
 
 				<!-- Emote menu body -->
@@ -27,6 +35,7 @@
 							:selected="key === activeProvider"
 							@emote-clicked="onEmoteClick"
 							@provider-visible="onProviderVisibilityChange(key, $event)"
+							@toggle-settings="settingsToggle"
 						/>
 					</div>
 				</template>
@@ -47,7 +56,10 @@ import { onUnmounted, reactive, ref, watchEffect } from "vue";
 import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
-import { definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { getModule } from "@/composable/useModule";
+import { useConfig } from "@/composable/useSettings";
+import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 
@@ -61,6 +73,10 @@ const containerEl = ref<HTMLElement | undefined>();
 const open = ref(false);
 const filter = ref("");
 
+const settingsModule = getModule("settings");
+
+const inputSearch = useConfig<boolean>("ui.emote_menu_search");
+
 const activeProvider = ref<SevenTV.Provider | null>("7TV");
 const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
 	"7TV": true,
@@ -69,7 +85,7 @@ const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
 	TWITCH: true,
 });
 
-// Shortcut (shift+e)
+// Shortcut (ctrl+e)
 const isCtrl = useKeyModifier("Control", { initial: false });
 onKeyStroke("e", (ev) => {
 	if (!isCtrl.value) return;
@@ -78,8 +94,23 @@ onKeyStroke("e", (ev) => {
 	ev.preventDefault();
 });
 
+// Toggle the settings menu
+function settingsToggle() {
+	settingsModule!.instance?.toggle?.();
+}
+
 // Toggle the menu's visibility
 const toggle = () => {
+	//Close other stuff if we open the emote menu
+	const t = props.instance.component;
+	if (open.value) {
+		t.props.closeEmotePicker();
+	} else {
+		t.props.clearMenus();
+		t.closeBitsCard();
+		t.closePaidPinnedChatCardForEmotePicker();
+		t.closeCheerCard();
+	}
 	open.value = !open.value;
 };
 
@@ -109,6 +140,11 @@ watchEffect(() => {
 	}
 });
 
+defineFunctionHook(props.instance.component, "onBitsIconClick", function (old) {
+	old?.();
+	open.value = false;
+});
+
 // This captures the current input typed by the user
 definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 	value(v: typeof props.instance.component.autocompleteInputRef.state) {
@@ -117,6 +153,8 @@ definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 
 			return;
 		}
+
+		if (!inputSearch.value) return;
 
 		filter.value = v.value.split(" ").at(-1) ?? "";
 	},
@@ -143,64 +181,111 @@ onUnmounted(() => {
 	}
 }
 
-.seventv-emote-menu {
-	width: 32rem;
-	border-top-left-radius: 0.6rem;
-	border-top-right-radius: 0.6rem;
-	background-color: var(--seventv-background-transparent-1);
-	backdrop-filter: blur(16px);
-	overflow: clip;
-	outline: 1px solid var(--seventv-border-transparent-1);
-}
-
 .seventv-emote-menu-container {
 	position: absolute;
 	inset: auto 0 100% auto;
 	max-width: 100%;
-}
+	.seventv-emote-menu {
+		max-height: calc(100vh - 15rem);
+		display: flex;
+		flex-direction: column;
+		width: 32rem;
+		overflow: clip;
+		border-top-left-radius: 0.6rem;
+		border-top-right-radius: 0.6rem;
+		background-color: var(--seventv-background-transparent-1);
+		@at-root .seventv-transparent & {
+			backdrop-filter: blur(16px);
+		}
+		outline: 1px solid var(--seventv-border-transparent-1);
 
-.seventv-emote-menu-header {
-	display: flex;
-	height: 4.5rem;
-	background: hsla(0deg, 0%, 50%, 6%);
-	border-bottom: 1px solid var(--seventv-border-transparent-1);
-	border-radius: 0.6rem 0.6rem 0 0;
-	justify-content: space-evenly;
-	padding: 0.75rem;
-}
+		.seventv-emote-menu-header {
+			border-bottom: 1px solid var(--seventv-border-transparent-1);
+			border-radius: 0.6rem 0.6rem 0 0;
+			background: hsla(0deg, 0%, 50%, 6%);
 
-.seventv-emote-menu-provider-icon {
-	padding: 0.5rem;
-	cursor: pointer;
-	display: flex;
-	user-select: none;
-	justify-content: center;
-	background: hsla(0deg, 0%, 50%, 6%);
-	color: var(--seventv-text-color-secondary);
-	border-radius: 0.2rem;
+			.seventv-emote-menu-header-providers {
+				display: flex;
+				height: 4.5rem;
+				justify-content: space-evenly;
+				column-gap: 0.5rem;
+				padding: 0.75rem;
 
-	&:hover {
-		background: #80808029;
-	}
+				.seventv-emote-menu-provider-icon {
+					padding: 0.5rem;
+					cursor: pointer;
+					display: flex;
+					user-select: none;
+					justify-content: center;
+					background: hsla(0deg, 0%, 50%, 6%);
+					color: var(--seventv-text-color-secondary);
+					border-radius: 0.2rem;
+					flex-grow: 1;
+					max-width: 12rem;
 
-	&[selected="true"] {
-		background: var(--seventv-highlight-neutral-1);
-		color: var(--seventv-text-color-normal);
-	}
+					&:hover {
+						background: #80808029;
+					}
 
-	> svg {
-		width: 2rem;
-		height: 2rem;
-		margin-right: 0.5rem;
-	}
-}
+					&[selected="true"] {
+						background: var(--seventv-highlight-neutral-1);
+						color: var(--seventv-text-color-normal);
+					}
 
-.seventv-emote-menu-body {
-	display: flex;
-	height: 40rem;
+					> svg {
+						width: 2rem;
+						height: 2rem;
+						margin-right: 0.5rem;
+					}
+				}
+			}
 
-	&[selected="false"] {
-		display: none;
+			.emote-search {
+				padding: 0 0.75rem 0.75rem;
+				width: 100%;
+				position: relative;
+
+				.search-icon {
+					position: absolute;
+					display: flex;
+					align-items: center;
+					top: 0;
+					left: 1rem;
+					height: 3rem;
+					width: 3rem;
+					user-select: none;
+					pointer-events: none;
+					padding: 0.85rem;
+					color: var(--seventv-border-transparent-1);
+
+					> svg {
+						height: 100%;
+						width: 100%;
+					}
+				}
+
+				.emote-search-input {
+					background-color: var(--seventv-background-shade-1);
+					border-radius: 0.4rem;
+					height: 3rem;
+					width: 100%;
+					border: 1px solid var(--seventv-border-transparent-1);
+					padding-left: 3rem;
+					color: currentColor;
+				}
+			}
+		}
+
+		.seventv-emote-menu-body {
+			display: flex;
+			height: 40rem;
+			overflow: hidden;
+			flex-shrink: 1;
+
+			&[selected="false"] {
+				display: none;
+			}
+		}
 	}
 }
 </style>

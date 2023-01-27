@@ -1,15 +1,13 @@
 <template>
 	<Tooltip />
-	<Changelog v-if="showChangelog" @close="showChangelog = false" />
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { nextTick, watch } from "vue";
+import { until } from "@vueuse/shared";
+import { getModule } from "@/composable/useModule";
 import { useConfig, useSettings } from "@/composable/useSettings";
-import Changelog from "./Changelog.vue";
 import Tooltip from "./Tooltip.vue";
-
-const showChangelog = ref(false);
 
 const { register } = useSettings();
 register([
@@ -23,6 +21,7 @@ register([
 
 const runtimeVersion = import.meta.env.VITE_APP_VERSION;
 const version = useConfig("app.version");
+const mod = getModule("settings");
 
 const stop = watch(
 	version,
@@ -30,7 +29,12 @@ const stop = watch(
 		if (version.value === null || runtimeVersion === v) return;
 
 		version.value = runtimeVersion;
-		showChangelog.value = true;
+
+		until(mod)
+			.toMatch((v) => !!v?.instance)
+			.then(() => {
+				nextTick(() => mod!.instance!.setFrontpageArea?.());
+			});
 
 		nextTick(() => stop());
 	},

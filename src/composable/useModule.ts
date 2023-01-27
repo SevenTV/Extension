@@ -90,7 +90,7 @@ export function declareModule(id: ModuleID, opt: ModuleOptions) {
 interface ModuleOptions {
 	name: string;
 	depends_on: ModuleID[];
-	config?: SevenTV.SettingNode<SevenTV.SettingType>[];
+	config?: SevenTV.SettingNode[];
 }
 
 export interface Module<T extends keyof ModuleComponentMap = keyof ModuleComponentMap> {

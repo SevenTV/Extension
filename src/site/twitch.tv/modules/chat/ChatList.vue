@@ -1,21 +1,6 @@
 <template>
 	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
-		<div
-			v-for="(msg, index) of messages.displayed"
-			:key="msg.id"
-			v-memo="[msg]"
-			:msg-id="msg.id"
-			class="seventv-message"
-			:class="{
-				// Even-odd alternating background
-				...(isAlternatingBackground
-					? {
-							even: index % 2 == 0,
-							odd: index % 2 == 1,
-					  }
-					: {}),
-			}"
-		>
+		<div v-for="msg of messages.displayed" :key="msg.id" v-memo="[msg]" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
 				<ModSlider v-if="isModSliderEnabled && properties.isModerator && msg.author" :msg="msg">
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
@@ -35,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch } from "vue";
+import { computed, ref, toRef, watch } from "vue";
 import { until, useDocumentVisibility, useTimeoutFn } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { getRandomInt } from "@/common/Rand";
@@ -64,7 +49,9 @@ const scroller = useChatScroller();
 const properties = useChatProperties();
 const pageVisibility = useDocumentVisibility();
 
-const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
+const actorRegexp = computed(() => (store.identity ? new RegExp(`\\b${store.identity?.username}\\b`) : null));
+
+const isModSliderEnabled = useConfig<boolean>("chat.moderation.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 
 // Keep track of props
@@ -178,6 +165,11 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		// message is /me
 		if (msgData.messageType === 1) {
 			msg.slashMe = true;
+		}
+
+		// message mentions the actor
+		if (actorRegexp.value && actorRegexp.value.test(msg.body)) {
+			msg.setHighlight("#e13232", "Mentions You");
 		}
 
 		// assign native emotes
@@ -318,19 +310,13 @@ defineExpose({
 });
 </script>
 <style scoped lang="scss">
-.seventv-chat-list[alternating-background="true"] {
-	padding: 0.5em 0;
-
-	.seventv-message.even {
-		background-color: var(--seventv-background-shade-1);
-	}
-
-	.seventv-message.odd {
-		background-color: var(--seventv-background-shade-2);
-	}
+.seventv-chat-list {
+	padding: 0.1rem 0;
 }
 
-.seventv-chat-list.seventv-chat-list[alternating-background="false"] {
-	padding: 1em 0;
+.seventv-chat-list[alternating-background="true"] {
+	.seventv-message:nth-child(even) {
+		background-color: hsla(0deg, 0%, 50%, 6%);
+	}
 }
 </style>

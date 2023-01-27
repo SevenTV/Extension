@@ -291,11 +291,17 @@ declare module Twitch {
 			},
 		) => any;
 		showEmotePicker: (v: any) => void;
+		clearMenus: () => void;
+		closeEmotePicker: () => void;
 	}> & {
 		autocompleteInputRef: ChatAutocompleteComponent;
 		chatInputRef: ChatInputComponent;
 		onEmotePickerButtonClick: () => void;
 		onEmotePickerToggle: () => void;
+		closeBitsCard: () => void;
+		closePaidPinnedChatCardForEmotePicker: () => void;
+		closeCheerCard: () => void;
+		onBitsIconClick: () => void;
 	};
 
 	export type ChatInputComponent = ReactExtended.WritableComponent<
@@ -359,7 +365,7 @@ declare module Twitch {
 		selectionStart: number;
 		setSelectionRange: (start: number, end: number) => void;
 		componentRef: Twitch.ChatInputComponent;
-		getMatches: (v: string) => object[];
+		getMatches: (v: string, ...args: []) => object[];
 		providers: ChatAutocompleteProvider[];
 		onEditableValueUpdate: (value: string, sendOnUpdate: boolean | undefined) => void;
 		getValue: () => string;
@@ -499,6 +505,7 @@ declare module Twitch {
 			string: string,
 			unk: unknown,
 			index: number,
+			...args: unknown[]
 		) =>
 			| {
 					current: string;

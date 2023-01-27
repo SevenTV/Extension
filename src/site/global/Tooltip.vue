@@ -39,7 +39,10 @@ onMounted(() => {
 	top: 0;
 	left: 0;
 	background-color: var(--seventv-background-transparent-2);
-	backdrop-filter: blur(0.88em);
+
+	@at-root .seventv-transparent & {
+		backdrop-filter: blur(0.88em);
+	}
 	outline: 0.1em solid var(--seventv-border-transparent-1);
 	border-radius: 0.25em;
 

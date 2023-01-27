@@ -64,6 +64,31 @@ const inject = () => {
 			}
 		}
 	});
+
+	window.addEventListener("message", (ev) => {
+		switch (ev.data.type) {
+			case "seventv-get-auth-token": {
+				chrome.runtime.sendMessage(
+					{
+						type: "get-auth-token",
+					},
+					{},
+					(response: { token: string }) => {
+						if (!response) return;
+
+						window.postMessage({
+							type: "seventv-auth-token-set",
+							data: {
+								token: response.token,
+							},
+						});
+					},
+				);
+
+				break;
+			}
+		}
+	});
 })();
 
 interface PermissionRequestEvent {

@@ -53,6 +53,7 @@ export class Tokenizer {
 				lastEmoteToken = undefined;
 			}
 
+			// Check link
 			if (part.match(Regex.Link)) {
 				tokens.push({
 					kind: "LINK",
@@ -64,15 +65,20 @@ export class Tokenizer {
 				} as LinkToken);
 			}
 
+			// Check mention
 			if (part.match(Regex.Mention)) {
+				const username = part.slice(1);
+
 				tokens.push({
 					kind: "MENTION",
 					range: [cursor + 1, next - 1],
 					content: {
-						recipient: part,
-						mentionsActor: false, // TODO
+						displayText: part,
+						recipient: username,
 					} as MentionToken["content"],
 				});
+
+				this.msg.mentions.add(username);
 			}
 
 			cursor = next;
@@ -88,4 +94,5 @@ export interface TokenizeOptions {
 	emoteMap: Record<string, SevenTV.ActiveEmote>;
 	localEmoteMap?: Record<string, SevenTV.ActiveEmote>;
 	filteredWords?: string[];
+	actorUsername?: string;
 }

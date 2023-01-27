@@ -12,7 +12,17 @@ import EmoteMenu from "./EmoteMenu.vue";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
-	depends_on: [],
+	depends_on: ["settings"],
+	config: [
+		{
+			key: "ui.emote_menu_search",
+			path: ["Appearance", "Interface"],
+			label: "Search with input box",
+			hint: "Use the normal chat inputbox to search in the emote menu instead of the dedicated search box",
+			type: "TOGGLE",
+			defaultValue: false,
+		},
+	],
 });
 
 const buttonEl = ref<HTMLButtonElement | undefined>();

@@ -1,16 +1,19 @@
 <template>
-	<div>
-		<input
-			:id="node.key"
-			v-model="setting"
-			type="range"
-			:min="node.options?.min"
-			:max="node.options?.max"
-			:step="node.options?.step"
-			class="slider"
-		/>
-		{{ setting }}
-		{{ node.options?.unit }}
+	<div class="seventv-slider-container">
+		<div class="seventv-slider">
+			<div class="values"></div>
+			{{ setting }}
+			{{ node.options?.unit }}
+			<input
+				:id="node.key"
+				v-model="setting"
+				type="range"
+				:min="node.options?.min"
+				:max="node.options?.max"
+				:step="node.options?.step"
+				class="slider"
+			/>
+		</div>
 		<span v-if="thresoldName" class="thresold-name"> ({{ thresoldName }}) </span>
 	</div>
 </template>
@@ -38,10 +41,21 @@ const thresoldName = computed(() => {
 	return thresolds[match][2];
 });
 </script>
-
 <style scoped lang="scss">
+.seventv-slider {
+	display: flex;
+	align-items: center;
+	column-gap: 1rem;
+	justify-content: space-between;
+
+	> input {
+		cursor: pointer;
+	}
+}
+
 .thresold-name {
-	font-size: 0.8em;
-	font-weight: 600;
+	display: flex;
+	align-items: center;
+	float: right;
 }
 </style>

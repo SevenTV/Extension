@@ -4,7 +4,7 @@
 		:msg-id="msg.id"
 		:class="{
 			deleted: msg.banned || msg.deleted,
-			'has-mention': as == 'Chat' && hasMention,
+			'has-mention': as == 'Chat' && msg.mentions.has('#actor'),
 			'has-highlight': as == 'Chat' && msg.highlight,
 		}"
 		:state="msg.deliveryState"
@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef } from "vue";
+import { computed, toRef } from "vue";
 import { SetHexAlpha, normalizeUsername } from "@/common/Color";
 import { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
@@ -169,7 +169,6 @@ const tokens = computed<MessageTokenOrText[]>(() => {
 });
 
 const highlightColorDim = computed(() => msg.value.highlight?.color.concat(SetHexAlpha(0.1)) ?? "");
-const hasMention = ref(false);
 
 function getPart(part: AnyToken) {
 	if (IsEmotePart(part)) {

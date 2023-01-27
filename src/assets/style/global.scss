@@ -6,26 +6,40 @@
 	--seventv-text-color-normal: #f0f0f0;
 	--seventv-text-color-secondary: #f0f0f078;
 	--seventv-highlight-neutral-1: #8080803b;
-	--seventv-background-transparent-1: #161616c4;
-	--seventv-background-transparent-2: #1b1b1bc4;
+	--seventv-background-transparent-1: #161616;
+	--seventv-background-lesser-transparent-1: #161616;
+	--seventv-background-transparent-2: #1b1b1b;
 	--seventv-border-transparent-1: #ffffff1a;
 	--seventv-background-shade-1: #1a1a1a;
 	--seventv-background-shade-2: #161616;
 	--seventv-primary: #29b6f6;
 	--seventv-warning: #df4545;
+
+	&.seventv-transparent {
+		--seventv-background-transparent-1: #161616c4;
+		--seventv-background-lesser-transparent-1: #161616f2;
+		--seventv-background-transparent-2: #1b1b1bc4;
+	}
 }
 
 .tw-root--theme-light {
 	--seventv-text-color-normal: #161616;
 	--seventv-text-color-secondary: #161616b3;
 	--seventv-highlight-neutral-1: #cfcfcf9e;
-	--seventv-background-transparent-1: #f7f7f7c4;
-	--seventv-background-transparent-2: #e7e7e7c4;
+	--seventv-background-transparent-1: #f7f7f7;
+	--seventv-background-lesser-transparent-1: #f7f7f7;
+	--seventv-background-transparent-2: #e7e7e7;
 	--seventv-border-transparent-1: #0000001a;
 	--seventv-background-shade-1: #f7f7f7;
 	--seventv-background-shade-2: #e7e7e7;
 	--seventv-primary: #29b6f6;
 	--seventv-warning: #ec3535;
+
+	&.seventv-transparent {
+		--seventv-background-transparent-1: #f7f7f7c4;
+		--seventv-background-lesser-transparent-1: #f7f7f7f2;
+		--seventv-background-transparent-2: #e7e7e7c4;
+	}
 }
 
 .brand-color-7tv {

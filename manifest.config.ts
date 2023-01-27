@@ -38,6 +38,10 @@ export async function getManifest(
 				matches: ["*://*.twitch.tv/*"],
 				js: ["content.js"],
 			},
+			{
+				matches: ["*://*.7tv.app/*"],
+				js: ["authcontent.js"],
+			},
 		],
 		icons: {
 			16: `./icon/${iconName}`,

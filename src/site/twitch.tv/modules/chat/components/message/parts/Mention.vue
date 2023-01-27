@@ -1,6 +1,6 @@
 <template>
 	<span class="mention-part">
-		{{ token.content.recipient }}
+		{{ token.content.displayText }}
 	</span>
 </template>
 

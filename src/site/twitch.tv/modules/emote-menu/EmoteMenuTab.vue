@@ -1,50 +1,59 @@
 <template>
-	<UiScrollable class="scroll-area">
-		<div class="emote-area">
-			<template v-for="es of sortedSets" :key="es.id">
-				<div v-if="filteredEmotes[es.id]?.length" :ref="'es-' + es.id" class="emote-set-container">
-					<div class="set-header">
-						<div class="set-header-icon">
+	<div class="emote-area-container">
+		<UiScrollable class="scroll-area">
+			<div class="emote-area">
+				<template v-for="es of sortedSets" :key="es.id">
+					<div v-if="filteredEmotes[es.id]?.length" :ref="'es-' + es.id" class="emote-set-container">
+						<div class="set-header">
+							<div class="set-header-icon">
+								<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
+								<Logo v-else class="logo" :provider="es.provider" />
+							</div>
+							{{ es.name }}
+						</div>
+						<div class="emote-set">
+							<div
+								v-for="ae of filteredEmotes[es.id]"
+								:key="ae.id"
+								:ref="(el) => setCardRef(el as HTMLElement)"
+								class="emote-container"
+								:class="{
+									[`ratio-${determineRatio(ae)}`]: true,
+									'emote-disabled': isEmoteDisabled(es, ae),
+								}"
+								:visible="loaded[ae.id]"
+								:emote-id="ae.id"
+								@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
+							>
+								<Emote :emote="ae" :unload="!loaded[ae.id]" />
+							</div>
+						</div>
+					</div>
+				</template>
+			</div>
+		</UiScrollable>
+		<div class="sidebar">
+			<div class="sidebar-icons">
+				<template v-for="es in sortedSets" :key="es.id">
+					<div
+						v-if="es.emotes.length"
+						class="set-sidebar-icon-container"
+						:selected="selectedSet == es.id"
+						@click="select(es.id, $refs['es-' + es.id] as HTMLDivElement[])"
+					>
+						<div class="set-sidebar-icon">
 							<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
 							<Logo v-else class="logo" :provider="es.provider" />
 						</div>
-						{{ es.name }}
 					</div>
-					<div class="emote-set">
-						<div
-							v-for="ae of filteredEmotes[es.id]"
-							:key="ae.id"
-							:ref="(el) => setCardRef(el as HTMLElement)"
-							class="emote-container"
-							:class="{
-								[`ratio-${determineRatio(ae)}`]: true,
-								'emote-disabled': isEmoteDisabled(es, ae),
-							}"
-							:visible="loaded[ae.id]"
-							:emote-id="ae.id"
-							@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
-						>
-							<Emote :emote="ae" :unload="!loaded[ae.id]" />
-						</div>
-					</div>
-				</div>
-			</template>
-		</div>
-	</UiScrollable>
-	<div class="sidebar">
-		<template v-for="es in sortedSets" :key="es.id">
-			<div
-				v-if="es.emotes.length"
-				class="set-sidebar-icon-container"
-				:selected="selectedSet == es.id"
-				@click="select(es.id, $refs['es-' + es.id] as HTMLDivElement[])"
-			>
-				<div class="set-sidebar-icon">
-					<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
-					<Logo v-else class="logo" :provider="es.provider" />
+				</template>
+			</div>
+			<div class="settings-button-container">
+				<div class="settings-button" @click="emit('toggle-settings')">
+					<GearsIcon :provider="'7TV'" />
 				</div>
 			</div>
-		</template>
+		</div>
 	</div>
 </template>
 
@@ -52,10 +61,11 @@
 import { onBeforeUnmount, reactive, ref, toRaw, toRef, watchEffect } from "vue";
 import { until, useTimeout, watchDebounced, watchThrottled } from "@vueuse/core";
 import { useStore } from "@/store/main";
+import { determineRatio } from "@/common/Image";
 import { useChatContext } from "@/composable/chat/useChatContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
-import { determineRatio } from "@/site/twitch.tv/modules/emote-menu/EmoteMenuBackend";
+import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import Emote from "../chat/components/message/Emote.vue";
@@ -69,6 +79,7 @@ const props = defineProps<{
 const emit = defineEmits<{
 	(event: "emote-clicked", emote: SevenTV.ActiveEmote): void;
 	(event: "provider-visible", state: boolean): void;
+	(event: "toggle-settings"): void;
 }>();
 
 const context = useChatContext();
@@ -238,6 +249,10 @@ onBeforeUnmount(() => {
 });
 </script>
 <style scoped lang="scss">
+.emote-area-container {
+	flex-shrink: 1;
+	display: flex;
+}
 .scroll-area {
 	width: 28rem;
 	flex-shrink: 0;
@@ -310,16 +325,50 @@ onBeforeUnmount(() => {
 }
 
 .sidebar {
+	display: flex;
+	flex-direction: column;
 	height: 100%;
 	width: 100%;
 	background: hsla(0deg, 0%, 50%, 6%);
 	border-left: 1px solid var(--seventv-border-transparent-1);
-	overflow-y: scroll;
-	scrollbar-width: none;
 
-	&::-webkit-scrollbar {
-		width: 0;
-		height: 0;
+	.sidebar-icons {
+		overflow-y: scroll;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			width: 0;
+			height: 0;
+		}
+	}
+
+	.settings-button-container {
+		justify-content: center;
+		width: 100%;
+		margin-top: auto;
+		float: bottom;
+		height: 4rem;
+		flex-shrink: 0;
+		padding: auto;
+		border-top: 1px solid var(--seventv-border-transparent-1);
+
+		.settings-button {
+			display: flex;
+			margin: 0.5rem;
+			padding: 0.5rem;
+			border-radius: 0.5rem;
+			justify-content: center;
+			cursor: pointer;
+
+			&:hover {
+				background: hsla(0deg, 0%, 50%, 32%);
+			}
+
+			> svg {
+				height: 2rem;
+				width: 2rem;
+			}
+		}
 	}
 }
 

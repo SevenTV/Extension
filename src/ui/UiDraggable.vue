@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch, watchEffect } from "vue";
+import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
 import { onClickOutside, useDraggable } from "@vueuse/core";
 import { Middleware, Placement, ReferenceElement, autoUpdate, computePosition, shift } from "@floating-ui/dom";
 
@@ -15,6 +15,7 @@ const props = defineProps<{
 	initialMiddleware?: Middleware[];
 	initialPlacement?: Placement;
 	emitClickout?: boolean;
+	handle?: HTMLDivElement;
 }>();
 
 const emit = defineEmits<{
@@ -24,6 +25,8 @@ const emit = defineEmits<{
 const el = ref<HTMLDivElement>();
 
 const middleware = [shift({ crossAxis: true, mainAxis: true })];
+
+const handle = computed(() => props.handle ?? el.value);
 
 let positionOwner: symbol | undefined;
 const x = ref(0);
@@ -86,6 +89,7 @@ useDraggable(el, {
 			});
 		}
 	},
+	handle: handle,
 	preventDefault: true,
 });
 
@@ -160,7 +164,5 @@ onBeforeUnmount(() => {
 .draggable-container {
 	position: fixed;
 	z-index: 9999;
-
-	cursor: pointer;
 }
 </style>

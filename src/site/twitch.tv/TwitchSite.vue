@@ -5,16 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useStore } from "@/store/main";
 import { useComponentHook } from "@/common/ReactHooks";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { getModule } from "@/composable/useModule";
-import { synchronizeFrankerFaceZ } from "@/composable/useSettings";
+import { synchronizeFrankerFaceZ, useConfig } from "@/composable/useSettings";
 import type { ModuleID } from "@/types/module";
 
 const store = useStore();
 const chatProperties = useChatProperties();
+
+const useTransparency = useConfig("ui.transparent_backgrounds");
 chatProperties.imageFormat = store.avifSupported ? "AVIF" : "WEBP";
 
 // Session User
@@ -30,7 +32,7 @@ useComponentHook<Twitch.SessionUserComponent>(
 				if (inst.component && inst.component.props && inst.component.props.sessionUser) {
 					store.setIdentity("TWITCH", {
 						id: inst.component.props.sessionUser.id,
-						login: inst.component.props.sessionUser.displayName,
+						username: inst.component.props.sessionUser.login,
 						displayName: inst.component.props.sessionUser.displayName,
 					});
 				}
@@ -55,6 +57,14 @@ for (const key in modules) {
 	modules[modKey!] = modules[key];
 	delete modules[key];
 }
+const rootClasses = document.documentElement.classList;
+watch(
+	useTransparency,
+	() => {
+		useTransparency.value ? rootClasses.add("seventv-transparent") : rootClasses.remove("seventv-transparent");
+	},
+	{ immediate: true },
+);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderedModules = ref<Record<string, InstanceType<any>>>();
