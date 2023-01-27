@@ -7,10 +7,10 @@
 			'has-mention': as == 'Chat' && hasMention,
 			'has-highlight': as == 'Chat' && msg.highlight,
 		}"
-		:state="msg.sendState"
+		:state="msg.deliveryState"
 		:style="{
-			'font-style': msg.messageType === 1 && meStyle & 1 ? 'italic' : '',
-			color: msg.messageType === 1 && meStyle & 2 ? color : '',
+			'font-style': msg.slashMe && meStyle & 1 ? 'italic' : '',
+			color: msg.slashMe && meStyle & 2 ? color : '',
 		}"
 	>
 		<!-- Highlight Label -->
@@ -21,7 +21,7 @@
 		/>
 
 		<!-- Timestamp -->
-		<template v-if="properties.showTimestamps || msg.isHistorical">
+		<template v-if="properties.showTimestamps || msg.historical">
 			<span class="chat-line__timestamp">
 				{{
 					new Date(props.msg.timestamp).toLocaleTimeString(locale, {
@@ -45,31 +45,35 @@
 
 		<!-- Chat Author -->
 		<UserTag
-			v-if="msg.user"
-			:user="msg.user"
-			:badges="msg.badges"
+			v-if="msg.author"
+			:user="msg.author"
 			:color="color"
+			:badges="msg.badges"
 			@name-click="nameClick"
 			@badge-click="badgeClick"
 		/>
 
 		<span>
-			{{ msg.messageType === 0 ? ": " : " " }}
+			{{ !msg.slashMe ? ": " : " " }}
 		</span>
 
 		<!-- Message Content -->
 		<span class="seventv-chat-message-body">
-			<template v-for="part of tokens" :key="part.key">
-				<span v-if="part.type === MessagePartType.SEVENTVEMOTE">
-					<span class="emote-part">
-						<Emote :emote="part.content" @emote-click="emoteClick" />
-					</span>
-					<span v-if="part.content.cheerAmount" :style="{ color: part.content.cheerColor }">
-						{{ part.content.cheerAmount }}
+			<template v-for="(token, index) of tokens" :key="index">
+				<span v-if="typeof token === 'string'" class="text-token">{{ token }}</span>
+				<span v-else-if="IsEmotePart(token)">
+					<Emote
+						class="emote-token"
+						:emote="token.content.emote"
+						:overlaid="token.content.overlaid"
+						@emote-click="emoteClick"
+					/>
+					<span v-if="token.content" :style="{ color: token.content.cheerColor }">
+						{{ token.content.cheerAmount }}
 					</span>
 				</span>
 				<template v-else>
-					<Component :is="getPart(part)" :part="part" />
+					<Component :is="getPart(token)" :token="token" />
 				</template>
 			</template>
 		</span>
@@ -79,25 +83,23 @@
 <script setup lang="ts">
 import { computed, ref, toRef } from "vue";
 import { SetHexAlpha, normalizeUsername } from "@/common/Color";
+import { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
+import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCardOpeners } from "@/composable/useCardOpeners";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
-import { MessagePartType } from "@/site/twitch.tv";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
 import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
-import { Tokenizer } from "./Tokenizer";
-import FlaggedSegment from "./parts/FlaggedSegment.vue";
 import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
-import Text from "./parts/Text.vue";
 import ModIcons from "../mod/ModIcons.vue";
 
 const props = withDefaults(
 	defineProps<{
-		msg: Twitch.ChatMessage;
+		msg: ChatMessage;
 		as?: "Chat" | "Reply";
 		highlight?: {
 			label: string;
@@ -120,66 +122,70 @@ const meStyle = useConfig<number>("chat.slash_me_style");
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
+const color = props.msg.author
+	? properties.useHighContrastColors
+		? normalizeUsername(props.msg.author.color, properties.isDarkTheme as 0 | 1)
+		: props.msg.author.color
+	: "inherit";
+
 // Personal Emotes
-const color = properties.useHighContrastColors
-	? normalizeUsername(props.msg.user.color, properties.isDarkTheme as 0 | 1)
-	: props.msg.user.color;
-const cosmetics = useCosmetics(props.msg.user.userID);
+const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };
 
 // Tokenize the message
-const tokenizer = new Tokenizer(props.msg.messageParts);
-const tokens = computed(() => tokenizer.getParts(emotes.active, cosmetics.emotes));
+type MessageTokenOrText = AnyToken | string;
+const tokenizer = props.msg.getTokenizer();
+const tokens = computed<MessageTokenOrText[]>(() => {
+	if (!tokenizer) return [];
 
-const highlightColorDim = computed(() => msg.value.highlight?.color.concat(SetHexAlpha(0.1)));
+	const newTokens = tokenizer.tokenize({
+		emoteMap: emotes.active,
+		localEmoteMap: { ...cosmetics.emotes, ...props.msg.nativeEmotes },
+	});
+
+	const result: MessageTokenOrText[] = [];
+	const text = props.msg.body;
+
+	let lastOffset = 0;
+	for (const tok of newTokens) {
+		const start = tok.range[0];
+		const end = tok.range[1];
+
+		const before = text.substring(lastOffset, start);
+		if (before) {
+			result.push(before);
+		}
+
+		result.push(tok);
+
+		lastOffset = end + 1;
+	}
+
+	const after = text.substring(lastOffset);
+	if (after) {
+		result.push(after);
+	}
+
+	return result;
+});
+
+const highlightColorDim = computed(() => msg.value.highlight?.color.concat(SetHexAlpha(0.1)) ?? "");
 const hasMention = ref(false);
 
-if (props.highlight) {
-	msg.value.highlight = props.highlight ?? {};
-} else if (props.msg.isFirstMsg) {
-	msg.value.highlight = {
-		label: "First Message",
-		color: "#c832c8",
-	};
-} else if (props.msg.isReturningChatter) {
-	msg.value.highlight = {
-		label: "Returning Chatter",
-		color: "#3296e6",
-	};
-}
-
-function getPart(part: Twitch.ChatMessage.Part) {
-	switch (part.type) {
-		case MessagePartType.TEXT:
-		case MessagePartType.MODERATEDTEXT:
-			return Text;
-		case MessagePartType.CURRENTUSERHIGHLIGHT:
-			hasMention.value = true;
-			return Text;
-		case MessagePartType.FLAGGEDSEGMENT:
-			return FlaggedSegment;
-		case MessagePartType.MENTION:
-			if (part.content.currentUserMentionRelation == 1) {
-				hasMention.value = true;
-				if (!msg.value.highlight) {
-					msg.value.highlight = {
-						label: "Mentions You",
-						color: "#e11919",
-					};
-				}
-			}
-			return Mention;
-		case MessagePartType.LINK:
-		case MessagePartType.CLIPLINK:
-		case MessagePartType.VIDEOLINK:
-		case MessagePartType.SEVENTVLINK:
-			return Link;
-		default:
-			return new Error("Unknown part");
+function getPart(part: AnyToken) {
+	if (IsEmotePart(part)) {
+		return Emote;
+	} else if (IsMentionPart(part)) {
+		return Mention;
+	} else if (IsLinkPart(part)) {
+		return Link;
 	}
 }
 
 // Moderation
-const { banUserFromChat, deleteChatMessage } = useChatModeration(props.msg.channelID!, props.msg.user.userLogin);
+const { banUserFromChat, deleteChatMessage } =
+	props.msg.channelID && props.msg.author
+		? useChatModeration(props.msg.channelID!, props.msg.author?.username)
+		: { banUserFromChat: () => void 0, deleteChatMessage: () => void 0 };
 </script>
 
 <style scoped lang="scss">
@@ -212,16 +218,16 @@ const { banUserFromChat, deleteChatMessage } = useChatModeration(props.msg.chann
 		}
 	}
 
-	&[state="sending"] {
+	&[state="IN_FLIGHT"] {
 		opacity: 0.5;
 	}
 
-	&[state="failed"] {
+	&[state="FAILED"] {
 		opacity: 0.5;
 		color: var(--seventv-warning);
 	}
 
-	.emote-part {
+	.emote-token {
 		display: inline-grid;
 		vertical-align: middle;
 		margin: v-bind("emoteMarginValue");

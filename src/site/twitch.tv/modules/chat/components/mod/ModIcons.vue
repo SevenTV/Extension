@@ -1,9 +1,9 @@
 <template>
 	<span class="seventv-chat-mod-buttons">
 		<span
-			v-if="msg.user"
+			v-if="msg.author"
 			ref="banRef"
-			@click="emit('ban', msg.user.userLogin)"
+			@click="emit('ban', msg.author!.username)"
 			@mouseenter="banTooltip.show(banRef)"
 			@mouseleave="banTooltip.hide()"
 		>
@@ -11,9 +11,9 @@
 		</span>
 
 		<span
-			v-if="msg.user"
+			v-if="msg.author"
 			ref="timeoutRef"
-			@click="emit('timeout', msg.user.userLogin)"
+			@click="emit('timeout', msg.author!.username)"
 			@mouseenter="timeoutTooltip.show(timeoutRef)"
 			@mouseleave="timeoutTooltip.hide()"
 		>
@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useTooltip } from "@/composable/useTooltip";
 import TwChatModBan from "@/assets/svg/twitch/TwChatModBan.vue";
 import TwChatModDelete from "@/assets/svg/twitch/TwChatModDelete.vue";
@@ -45,17 +46,17 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps<{
-	msg: Twitch.ChatMessage;
+	msg: ChatMessage;
 }>();
 
 const banRef = ref();
-const banTooltip = useTooltip(`Ban ${props.msg.user?.userLogin ?? "???"}`);
+const banTooltip = useTooltip(`Ban ${props.msg.author?.username ?? "???"}`);
 
 const timeoutRef = ref();
-const timeoutTooltip = useTooltip(`Timeout ${props.msg.user?.userLogin ?? "???"}`);
+const timeoutTooltip = useTooltip(`Timeout ${props.msg.author?.username ?? "???"}`);
 
 const deleteRef = ref();
-const deleteTooltip = useTooltip(`Delete message by ${props.msg.user?.userLogin ?? "???"}`);
+const deleteTooltip = useTooltip(`Delete message by ${props.msg.author?.username ?? "???"}`);
 </script>
 
 <style scoped lang="scss">

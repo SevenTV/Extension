@@ -1,11 +1,13 @@
 <template>
-	<a :href="part.content.url" target="_blank" class="link-part">
-		{{ part.content.displayText }}
+	<a :href="token.content.url" target="_blank" class="link-part">
+		{{ token.content.displayText }}
 	</a>
 </template>
 
 <script setup lang="ts">
+import { LinkToken } from "@/common/chat/ChatMessage";
+
 defineProps<{
-	part: Twitch.ChatMessage.LinkPart;
+	token: LinkToken;
 }>();
 </script>

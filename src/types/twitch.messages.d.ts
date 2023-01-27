@@ -2,6 +2,10 @@ declare namespace Twitch {
 	export interface AnyMessage {
 		id: string;
 		type: number;
+		user?: ChatUser | null;
+		message?: ChatMessage;
+		badges?: Record<string, string>;
+		nonce?: string;
 
 		seventv?: boolean;
 		t?: number;
@@ -12,13 +16,22 @@ declare namespace Twitch {
 	}
 
 	export interface DisplayableMessage extends AnyMessage {
-		user: ChatUser | null;
-		message?: ChatMessage;
 		messageParts?: ChatMessage.Part[];
-		badges?: Record<string, string>;
+		messageBody?: string;
 		deleted?: boolean;
 		banned?: boolean;
-		nonce?: string;
+		isHistorical: unknown;
+		isFirstMsg: boolean;
+		isReturningChatter: boolean;
+		messageType: number;
+		reply?: {
+			parentDeleted: boolean;
+			parentMsgId: string;
+			parentMessageBody: string;
+			parentUid: string;
+			parentUserLogin: string;
+			parentDisplayName: string;
+		};
 
 		height?: number;
 	}
@@ -35,7 +48,7 @@ declare namespace Twitch {
 		isFirstMsg: boolean;
 		isReturningChatter: boolean;
 		isVip: boolean;
-		message: string | ChatMessage;
+		message: ChatMessage;
 		messageBody: string;
 		messageParts: ChatMessage.Part[];
 		messageType: number;
@@ -201,11 +214,5 @@ declare namespace Twitch {
 	export interface RestrictedLowTrustUserMessage extends DisplayableMessage {
 		sent_at: string;
 		sender: ChatUser;
-	}
-
-	export interface SeventvEmoteSetUpdateMessage extends DisplayableMessage {
-		app_user: SevenTV.User;
-		add: SevenTV.ActiveEmote[];
-		remove: SevenTV.ActiveEmote[];
 	}
 }

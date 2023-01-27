@@ -3,7 +3,6 @@
 <script setup lang="ts">
 import { onUnmounted, ref, watchEffect } from "vue";
 import { log } from "@/common/Logger";
-import { IsChatMessage } from "@/common/type-predicates/Messages";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { PubSubMessage, PubSubMessageData, usePubSub } from "@/composable/usePubSub";
 
@@ -57,12 +56,10 @@ async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMe
 	const matchedMsg = await messages.awaitMessage(msg.message_id).catch((err) => {
 		log.debug("failed to find new message for low trust user", err.message);
 	});
-	if (!matchedMsg || !IsChatMessage(matchedMsg)) return;
+	if (!matchedMsg) return;
 
 	const rmsg = ref(matchedMsg);
-	rmsg.value.monitored = {
-		...ctx,
-	};
+
 	rmsg.value.highlight = {
 		label: "Monitored Suspicious User",
 		color: "#ff7d00",

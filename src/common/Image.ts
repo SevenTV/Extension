@@ -28,11 +28,14 @@ export function imageHostToSrcsetWithsize(
 	host: SevenTV.ImageHost,
 	provider: SevenTV.Provider = "7TV",
 ): string {
-	return (provider == "7TV" ? host.files.filter((f) => f.format === properties.imageFormat) : host.files).reduce(
-		(pre, cur, i) =>
-			pre + `https:${host.url}/${cur.name} ${width * layout[provider][i]}w ${height * layout[provider][i]}h, `,
-		"",
-	);
+	return (provider == "7TV" ? host.files.filter((f) => f.format === properties.imageFormat) : host.files)
+		.slice(0, layout[provider][layout[provider].length - 1])
+		.reduce(
+			(pre, cur, i) =>
+				pre +
+				`https:${host.url}/${cur.name} ${width * layout[provider][i]}w ${height * layout[provider][i]}h, `,
+			"",
+		);
 }
 
 export function determineRatio(emote: SevenTV.ActiveEmote) {

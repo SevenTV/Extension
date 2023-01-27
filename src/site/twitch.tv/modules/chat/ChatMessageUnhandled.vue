@@ -1,19 +1,20 @@
 <template>
-	<span :id="msg.id" ref="msgContainer" class="seventv-unhandled-message-ref"></span>
+	<span :id="msg.id" ref="msgContainer" class="seventv-unhandled-message-ref" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 
 const props = defineProps<{
-	msg: Twitch.ChatMessage;
+	msg: ChatMessage;
 }>();
 
 const msgContainer = ref<HTMLSpanElement | null>(null);
 
 onMounted(() => {
-	if (!msgContainer.value || !props.msg.element) return;
+	if (!msgContainer.value || !props.msg.wrappedNode) return;
 
-	msgContainer.value.appendChild(props.msg.element);
+	msgContainer.value.appendChild(props.msg.wrappedNode);
 });
 </script>

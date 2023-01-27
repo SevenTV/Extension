@@ -7,7 +7,7 @@
 			<div class="announce-title">Announcement</div>
 		</div>
 		<div class="announce-message">
-			<UserMessage :msg="msg.message" />
+			<slot />
 		</div>
 	</div>
 </template>
@@ -16,10 +16,9 @@
 import { computed } from "vue";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import TwAnnounce from "@/assets/svg/twitch/TwAnnounce.vue";
-import UserMessage from "../message/UserMessage.vue";
 
 const props = defineProps<{
-	msg: Twitch.AnnouncementMessage;
+	msgData: Twitch.AnnouncementMessage;
 }>();
 
 const properties = useChatProperties();
@@ -27,7 +26,9 @@ const properties = useChatProperties();
 const className = computed(
 	() =>
 		"announcement-line--" +
-		(props.msg.color == "PRIMARY" && properties.primaryColorHex == null ? "purple" : props.msg.color.toLowerCase()),
+		(props.msgData.color == "PRIMARY" && properties.primaryColorHex == null
+			? "purple"
+			: props.msgData.color.toLowerCase()),
 );
 </script>
 

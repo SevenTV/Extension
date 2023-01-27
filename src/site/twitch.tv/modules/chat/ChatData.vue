@@ -3,12 +3,13 @@
 import { onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useLiveQuery } from "@/composable/useLiveQuery";
 import { WorkletEvent, useWorker } from "@/composable/useWorker";
+import EmoteSetUpdateMessage from "./components/types/EmoteSetUpdateMessage.vue";
 import { db } from "@/db/idb";
-import { MessageType } from "../..";
 import { v4 as uuidv4 } from "uuid";
 
 const { target } = useWorker();
@@ -85,14 +86,13 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 		delete emotes.active[emote.name];
 	}
 
-	messages.add<Twitch.SeventvEmoteSetUpdateMessage>({
-		id: uuidv4(),
-		type: MessageType.SEVENTV_EMOTE_SET_UPDATE,
-		user: null,
-		app_user: user,
+	const msg = new ChatMessage(uuidv4());
+	msg.setComponent(EmoteSetUpdateMessage, {
+		appUser: user,
 		add: emotes_added,
 		remove: emotes_removed,
 	});
+	messages.add(msg);
 }
 
 function onTwitchEmoteSetData(ev: WorkletEvent<"twitch_emote_set_data">) {

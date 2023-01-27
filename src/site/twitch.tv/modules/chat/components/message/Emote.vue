@@ -13,7 +13,7 @@
 			@mouseenter="show(imgRef)"
 			@mouseleave="hide()"
 		/>
-		<template v-for="e of emote.overlaid" :key="e.id">
+		<template v-for="e of overlaid" :key="e.id">
 			<img
 				v-if="e.data && e.data.host"
 				class="seventv-chat-emote zero-width-emote"
@@ -35,6 +35,7 @@ import EmoteTooltip from "@/site/twitch.tv/modules/chat/components/message/Emote
 const props = withDefaults(
 	defineProps<{
 		emote: SevenTV.ActiveEmote;
+		overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
 		unload?: boolean;
 	}>(),
 	{ unload: false },
@@ -65,6 +66,7 @@ const onImageLoad = (event: Event) => {
 
 const { show, hide } = useTooltip(EmoteTooltip, {
 	emote: props.emote,
+	overlaid: props.overlaid,
 	width: width,
 	height: height,
 });

@@ -35,7 +35,7 @@
 			<!-- Zero Width -->
 			<div v-if="overlayEmotes.length" class="divider" />
 			<div v-if="overlayEmotes.length" class="zero-width-label">
-				<template v-for="e of overlayEmotes" :key="e.id">
+				<div v-for="e of overlayEmotes" :key="e.id" class="zero-width-emote">
 					<img
 						v-if="e.data"
 						class="overlaid-emote-icon"
@@ -43,7 +43,7 @@
 					/>
 					—
 					<span>{{ e.name }}</span>
-				</template>
+				</div>
 			</div>
 		</div>
 	</template>
@@ -59,6 +59,7 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 const props = withDefaults(
 	defineProps<{
 		emote: SevenTV.ActiveEmote;
+		overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
 		unload?: boolean;
 		height: number;
 		width: number;
@@ -73,7 +74,8 @@ const srcset = computed(() =>
 		? ""
 		: imageHostToSrcsetWithsize(props.height, props.width, props.emote.data!.host, props.emote.provider),
 );
-const overlayEmotes = computed(() => Object.values(props.emote.overlaid ?? {}));
+
+const overlayEmotes = computed(() => Object.values(props.overlaid ?? {}));
 const width = computed(() => `${props.width * 2}px`);
 const height = computed(() => `${props.height * 2}px`);
 
@@ -143,8 +145,8 @@ img.tooltip-emote {
 	height: 0.01em;
 	background-color: currentColor;
 	opacity: 0.15;
-	margin-top: 0.85rem;
-	margin-bottom: 1.25rem;
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
 }
 
 .creator-label {
@@ -155,13 +157,18 @@ img.tooltip-emote {
 }
 
 .zero-width-label {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
+	display: block;
 	gap: 0.25rem;
 	font-size: 1.3rem;
 	font-weight: 600;
+
+	.zero-width-emote {
+		display: flex;
+	}
+
 	.overlaid-emote-icon {
+		display: flex;
+		flex-direction: row;
 		width: 1.5rem;
 	}
 }

@@ -5,8 +5,8 @@
 			<TwChatReply v-else />
 		</div>
 		<div class="seventv-tray-header-text">
-			<span v-if="thread.length <= 1">
-				{{ `Replying to @${msg.user.userDisplayName}:` }}
+			<span v-if="thread.length <= 1 && msg.author">
+				{{ `Replying to @${msg.author.displayName}:` }}
 			</span>
 			<span v-else> Thread </span>
 		</div>
@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { MessageType } from "@/site/twitch.tv";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMessage.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
@@ -37,23 +37,23 @@ import { useChatMessages } from "../chat/useChatMessages";
 
 const props = defineProps<{
 	close: () => void;
-	msg: Twitch.ChatMessage;
+	msg: ChatMessage;
 }>();
 
 const rootMsgID = ref("");
-const thread = ref<Twitch.ChatMessage[]>([props.msg]);
+const thread = ref<ChatMessage[]>([props.msg]);
 
 const { find } = useChatMessages();
 onMounted(() => {
-	let currentMsg: Twitch.ChatMessage | undefined = props.msg;
+	let currentMsg: ChatMessage | undefined = props.msg;
 	for (;;) {
 		if (!currentMsg) break;
 
-		const parentID = currentMsg.reply?.parentMsgId as string | undefined;
+		const parentID = currentMsg.parent?.id as string | undefined;
 		if (!parentID) break;
 
 		const parentMsg = find((m) => m.id === parentID);
-		if (!parentMsg || !isChatMessage(parentMsg)) break;
+		if (!parentMsg) break;
 
 		thread.value.push(parentMsg);
 		currentMsg = parentMsg;
@@ -61,10 +61,6 @@ onMounted(() => {
 
 	rootMsgID.value = currentMsg?.id as string;
 });
-
-function isChatMessage(msg: Twitch.AnyMessage): msg is Twitch.ChatMessage {
-	return (msg as Twitch.ChatMessage).messageType === MessageType.MESSAGE;
-}
 </script>
 
 <style scoped lang="scss">

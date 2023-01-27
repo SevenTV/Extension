@@ -112,6 +112,10 @@ declare namespace SevenTV {
 		provider?: Provider;
 		scope?: ActiveEmoteScope;
 		overlaid?: Record<string, ActiveEmote>;
+		isTwitchCheer?: {
+			amount: number;
+			color: string;
+		};
 	}
 
 	type ActiveEmoteScope = "GLOBAL" | "CHANNEL" | "FOLLOWER" | "PERSONAL" | "SUB";
@@ -357,3 +361,6 @@ type Only<T, U> = {
 };
 
 type Either<T, U> = Only<T, U> | Only<U, T>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare type ComponentFactory = abstract new (...args: any) => any;

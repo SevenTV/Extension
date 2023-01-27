@@ -1,11 +1,13 @@
 <template>
 	<span class="mention-part">
-		{{ "@" + part.content.recipient }}
+		{{ token.content.recipient }}
 	</span>
 </template>
 
 <script setup lang="ts">
+import { MentionToken } from "@/common/chat/ChatMessage";
+
 defineProps<{
-	part: Twitch.ChatMessage.MentionPart;
+	token: MentionToken;
 }>();
 </script>

@@ -1,5 +1,5 @@
 <template>
-	<div v-if="user && user.userDisplayName" class="seventv-chat-user" :style="{ color: color }">
+	<div v-if="user && user.displayName" class="seventv-chat-user" :style="{ color: color }">
 		<!--Badge List -->
 		<span v-if="twitchBadges.length || cosmetics.badges.length" class="seventv-chat-user-badge-list">
 			<Badge
@@ -22,13 +22,13 @@
 		<!-- Message Author -->
 		<span class="seventv-chat-user-username" @click="(e) => emit('nameClick', e)">
 			<span v-if="!paint">
-				<span>{{ user.userDisplayName }}</span>
-				<span v-if="user.isIntl"> ({{ user.userLogin }})</span>
+				<span>{{ user.displayName }}</span>
+				<span v-if="user.intl"> ({{ user.username }})</span>
 			</span>
 			<span v-else>
 				<UiPaint :paint="paint" :text="true">
-					<span>{{ user.userDisplayName }}</span>
-					<span v-if="user.isIntl"> ({{ user.userLogin }})</span>
+					<span>{{ user.displayName }}</span>
+					<span v-if="user.intl"> ({{ user.username }})</span>
 				</UiPaint>
 			</span>
 		</span>
@@ -37,13 +37,14 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { ChatUser } from "@/common/chat/ChatMessage";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
 import Badge from "./Badge.vue";
 import UiPaint from "@/ui/UiPaint.vue";
 
 const props = defineProps<{
-	user: Twitch.ChatUser;
+	user: ChatUser;
 	color: string;
 	badges?: Record<string, string>;
 }>();
@@ -54,7 +55,7 @@ const emit = defineEmits<{
 }>();
 
 const properties = useChatProperties();
-const cosmetics = useCosmetics(props.user.userID);
+const cosmetics = useCosmetics(props.user.id);
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const paint = computed(() => (cosmetics.paints && cosmetics.paints.length ? cosmetics.paints[0] : null));

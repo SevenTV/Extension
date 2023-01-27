@@ -4,20 +4,20 @@
 			<Logo provider="7TV" />
 		</span>
 
-		<span v-if="msg.app_user" class="seventv-author">
-			{{ msg.app_user.display_name }}
+		<span v-if="appUser" class="seventv-author">
+			{{ appUser.display_name }}
 		</span>
 
 		<span class="seventv-change-detail">
 			<!-- Add -->
-			<template v-if="msg.add.length > 1">
-				<span>added {{ msg.add.length }} emotes </span>
+			<template v-if="add.length > 1">
+				<span>added {{ add.length }} emotes </span>
 			</template>
-			<template v-else-if="msg.add.length">
+			<template v-else-if="add.length">
 				<span>added the emote </span>
 			</template>
 
-			<template v-for="ae of msg.add" :key="ae.id">
+			<template v-for="ae of add" :key="ae.id">
 				<span class="referenced-emote">
 					<Emote :emote="ae" />
 					{{ ae.name }}
@@ -25,17 +25,17 @@
 			</template>
 
 			<!-- Remove -->
-			<template v-if="msg.add.length && msg.remove.length">
+			<template v-if="add.length && remove.length">
 				<span> and </span>
 			</template>
-			<template v-if="msg.remove.length > 1">
-				<span>removed {{ msg.remove.length }} emotes </span>
+			<template v-if="remove.length > 1">
+				<span>removed {{ remove.length }} emotes </span>
 			</template>
-			<template v-else-if="msg.remove.length">
+			<template v-else-if="remove.length">
 				<span>removed the emote </span>
 			</template>
 
-			<template v-for="ae of msg.remove" :key="ae.id">
+			<template v-for="ae of remove" :key="ae.id">
 				<span class="referenced-emote">
 					<Emote :emote="ae" />
 					<span>{{ ae.name }}</span>
@@ -50,7 +50,9 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 import Emote from "../message/Emote.vue";
 
 defineProps<{
-	msg: Twitch.SeventvEmoteSetUpdateMessage;
+	appUser: SevenTV.User;
+	add: SevenTV.ActiveEmote[];
+	remove: SevenTV.ActiveEmote[];
 }>();
 </script>
 

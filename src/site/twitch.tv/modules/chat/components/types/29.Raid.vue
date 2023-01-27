@@ -1,12 +1,12 @@
 <template>
 	<span class="seventv-raid-message-container">
-		{{ msg.params.displayName }} raided with a viewer count of {{ msg.params.viewerCount }}.
+		{{ msgData.params.displayName }} raided with a viewer count of {{ msgData.params.viewerCount }}.
 	</span>
 </template>
 
 <script setup lang="ts">
 defineProps<{
-	msg: Twitch.RaidMessage;
+	msgData: Twitch.RaidMessage;
 }>();
 </script>
 

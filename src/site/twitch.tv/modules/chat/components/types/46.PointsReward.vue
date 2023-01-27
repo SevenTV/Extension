@@ -3,30 +3,28 @@
 		<div class="reward-part">
 			<div class="reward-left">
 				<span class="reward-username bold">
-					{{ msg.displayName }}
+					{{ msgData.displayName }}
 				</span>
 				redeemed
 				<div class="reward-name bold">
-					{{ msg.reward.name }}
+					{{ msgData.reward.name }}
 				</div>
 			</div>
 			<span class="reward-cost bold">
-				{{ msg.reward.cost }}
+				{{ msgData.reward.cost }}
 			</span>
 		</div>
 
 		<!-- Message part -->
-		<div v-if="msg.message" class="message-part" :highlight="msg.reward.isHighlighted">
-			<UserMessage :msg="msg.message" />
+		<div v-if="msgData.message" class="message-part" :highlight="msgData.reward.isHighlighted">
+			<slot />
 		</div>
 	</span>
 </template>
 
 <script setup lang="ts">
-import UserMessage from "../message/UserMessage.vue";
-
 defineProps<{
-	msg: Twitch.ChannelPointsRewardMessage;
+	msgData: Twitch.ChannelPointsRewardMessage;
 }>();
 </script>
 

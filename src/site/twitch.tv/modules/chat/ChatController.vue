@@ -1,8 +1,9 @@
+<!-- eslint-disable no-fallthrough -->
 <template>
 	<Teleport v-if="channel && channel.id" :to="containerEl">
 		<UiScrollable ref="scrollerRef" @container-scroll="scroller.onScroll" @container-wheel="scroller.onWheel">
 			<div id="seventv-message-container" class="seventv-message-container">
-				<ChatList :controller="controller.component" />
+				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
 			</div>
 		</UiScrollable>
 
@@ -28,14 +29,14 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
-import { refDebounced, until, useTimeout, useTimeoutFn } from "@vueuse/core";
+import { refDebounced, until, useTimeout } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
-import { getRandomInt } from "@/common/Rand";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
-import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChatContext } from "@/composable/chat/useChatContext";
 import { resetProviders } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -43,7 +44,6 @@ import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { tools } from "@/composable/useCardOpeners";
 import { useWorker } from "@/composable/useWorker";
-import { MessageType, ModerationType } from "@/site/twitch.tv";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import ChatPubSub from "./ChatPubSub.vue";
@@ -65,6 +65,7 @@ const { list, controller, room } = toRefs(props);
 const el = document.createElement("seventv-container");
 el.id = "seventv-chat-controller";
 
+const chatList = ref<InstanceType<typeof ChatList> | undefined>();
 const containerEl = ref<HTMLElement>(el);
 const replacedEl = ref<Element | null>(null);
 
@@ -87,10 +88,6 @@ const context = useChatContext();
 const messages = useChatMessages();
 const properties = useChatProperties();
 
-const dataSets = reactive({
-	badges: false,
-});
-
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
 
@@ -106,48 +103,12 @@ watchEffect(() => {
 	containerEl.value = rootNode as HTMLElement;
 });
 
-// Update current channel globally
-function onUpdateChannel() {
-	if (!store.setChannel(currentChannel.value)) return;
+const dataSets = reactive({
+	badges: false,
+});
 
-	messages.clear();
-
-	nextTick(() => {
-		resetProviders();
-		hookMessageBuffer();
-	});
-}
-
-// The message handler is hooked to render messages and prevent
-// the native twitch renderer from rendering them
 const messageHandler = ref<Twitch.MessageHandlerAPI | null>(null);
-
-watch(
-	messageHandler,
-	(handler, old) => {
-		if (handler !== old && old) {
-			unsetPropertyHook(old, "handleMessage");
-		} else if (handler) {
-			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
-				const t = Date.now() + getRandomInt(0, 1000);
-				const msgData = Object.create({ seventv: true, t });
-				for (const k of Object.keys(msg)) {
-					msgData[k] = msg[k as keyof Twitch.AnyMessage];
-				}
-
-				const ok = onMessage(msgData);
-				if (ok) return ""; // message was rendered by the extension
-
-				// message was not rendered by the extension
-				return old?.call(this, msg);
-			});
-		}
-	},
-	{ immediate: true },
-);
-
-// Keep track of props
-definePropertyHook(list.value.component, "props", {
+definePropertyHook(props.list.component, "props", {
 	value(v) {
 		messageHandler.value = v.messageHandlerAPI;
 		if (!dataSets.badges) {
@@ -162,6 +123,18 @@ definePropertyHook(list.value.component, "props", {
 		}
 	},
 });
+
+// Update current channel globally
+function onUpdateChannel() {
+	if (!store.setChannel(currentChannel.value)) return;
+
+	messages.clear();
+
+	nextTick(() => {
+		resetProviders();
+		hookMessageBuffer();
+	});
+}
 
 // Retrieve and convert Twitch Emotes
 //
@@ -222,89 +195,6 @@ definePropertyHook(controller.value.component, "props", {
 	},
 });
 
-// Determine if the message should performe some action or be sendt to the chatAPI for rendering
-const onMessage = (msg: Twitch.AnyMessage): boolean => {
-	msg.channelID = channel.value?.id ?? "";
-
-	switch (msg.type) {
-		case MessageType.MESSAGE:
-		case MessageType.SUBSCRIPTION:
-		case MessageType.RESUBSCRIPTION:
-		case MessageType.SUB_GIFT:
-		case MessageType.RAID:
-		case MessageType.SUB_MYSTERY_GIFT:
-		case MessageType.CHANNEL_POINTS_REWARD:
-		case MessageType.ANNOUNCEMENT_MESSAGE:
-		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
-			onChatMessage(msg as Twitch.DisplayableMessage);
-			break;
-		case MessageType.MODERATION:
-			onModerationMessage(msg as Twitch.ModerationMessage);
-			break;
-		case MessageType.MESSAGE_ID_UPDATE:
-			onMessageIdUpdate(msg as Twitch.IDUpdateMessage);
-			break;
-		default:
-			return false;
-	}
-
-	//Send message to our registered message handlers
-	messages.handlers.forEach((h) => h(msg));
-	return true;
-};
-
-function onChatMessage(msg: Twitch.DisplayableMessage) {
-	// If the message is from a blocked user and we are not moderator
-	if (!properties.isModerator && msg.user && properties.blockedUsers.has(msg.user.userID)) {
-		return;
-	}
-
-	// The message is our own if it has a nonce
-	if (msg.nonce) {
-		const msgRef = ref(msg);
-
-		// Set the message to a sending state
-		msgRef.value.sendState = "sending";
-
-		// Set a timeout, beyond which we'll consider the message failed to send
-		const { stop } = useTimeoutFn(() => {
-			msgRef.value.sendState = "failed";
-		}, 10e3);
-
-		msgRef.value.notifySent = stop;
-	}
-
-	// Add message to store
-	// it will be rendered on the next tick
-	messages.add(msg);
-}
-
-function onModerationMessage(msg: Twitch.ModerationMessage) {
-	if (msg.moderationType == ModerationType.DELETE) {
-		const found = messages.find((m) => m.id == msg.targetMessageID);
-		if (found) {
-			if (found.deleted !== undefined) found.deleted = true;
-			if (found.message?.deleted !== undefined) found.message.deleted = true;
-		}
-	} else {
-		const msgList = messages.messagesByUser(msg.userLogin);
-		for (const m of msgList) {
-			if (!m.seventv || m.user?.userLogin != msg.userLogin) continue;
-			if (m.banned !== undefined) m.banned = true;
-			if (m.message?.banned !== undefined) m.message.banned = true;
-		}
-	}
-}
-
-function onMessageIdUpdate(msg: Twitch.IDUpdateMessage) {
-	const found = messages.find((m) => m.nonce == msg.nonce);
-	if (found) {
-		found.id = msg.id;
-		found.sendState = "sent";
-		found.notifySent?.();
-	}
-}
-
 const a = awaitComponents<Twitch.ViewerCardComponent>({
 	parentSelector: ".stream-chat",
 	predicate: (n) => n.onShowViewerCard && n.onShowExtensionMessageCard,
@@ -343,10 +233,9 @@ function watchUnhandled() {
 
 			if (nodeMap.has(nodeId)) continue;
 
-			messages.add({
-				id: nodeId + "-unhandled",
-				element: node,
-			} as Twitch.DisplayableMessage);
+			const m = new ChatMessage(nodeId + "-unhandled");
+			m.wrappedNode = node;
+			messages.add(m);
 
 			nodeMap.set(nodeId, node);
 		}
@@ -370,17 +259,22 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 				// Wait until historical messages have loaded
 				if (msgBuf.props.isLoadingHistoricalMessages) return;
 
-				const historical = [] as Twitch.DisplayableMessage[];
+				const historical = [] as ChatMessage[];
 
 				for (const msg of buffer) {
+					const m = new ChatMessage(msg.id);
+
 					// If the message is historical we add it to the array and continue
 					if ((msg as Twitch.ChatMessage).isHistorical) {
-						historical.push(msg);
+						m.historical = true;
+						chatList.value?.onChatMessage(m, msg as Twitch.ChatMessage, false);
+
+						historical.push(m);
 						nodeMap.set(msg.id, {} as Element);
 						continue;
 					}
 
-					if (onMessage(msg)) nodeMap.set(msg.id, {} as Element);
+					if (chatList.value && chatList.value.onMessage(msg)) nodeMap.set(msg.id, {} as Element);
 				}
 
 				messages.displayed = historical.concat(messages.displayed);

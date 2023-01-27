@@ -2,12 +2,12 @@
 	<span class="seventv-sub-message-container seventv-highlight">
 		<div class="sub-part">
 			<div class="sub-message-icon">
-				<TwPrime v-if="msg.methods?.plan == 'Prime'" />
+				<TwPrime v-if="plan == 'Prime'" />
 				<TwStar v-else />
 			</div>
 			<div class="sub-message-text">
-				<span class="sub-name bold">
-					{{ msg.user.displayName }}
+				<span v-if="msg.author" class="sub-name bold">
+					{{ msg.author.displayName }}
 				</span>
 				<span class="bold">Subscribed</span>
 				with
@@ -15,23 +15,21 @@
 			</div>
 		</div>
 
-		<!-- Message part -->
-		<div v-if="msg.message" class="message-part">
-			<UserMessage :msg="msg.message" />
-		</div>
+		<slot />
 	</span>
 </template>
 
 <script setup lang="ts">
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import TwPrime from "@/assets/svg/twitch/TwPrime.vue";
 import TwStar from "@/assets/svg/twitch/TwStar.vue";
-import UserMessage from "../message/UserMessage.vue";
 
 const props = defineProps<{
-	msg: Twitch.SubMessage;
+	msg: ChatMessage;
+	msgData: Twitch.SubMessage;
 }>();
 
-const plan = props.msg.methods?.plan == "Prime" ? "Prime" : "Tier " + props.msg.methods?.plan.charAt(0);
+const plan = props.msgData.methods?.plan == "Prime" ? "Prime" : "Tier " + props.msgData.methods?.plan.charAt(0);
 </script>
 
 <style scoped lang="scss">

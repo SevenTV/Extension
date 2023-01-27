@@ -381,14 +381,6 @@ declare module Twitch {
 	}
 
 	export namespace ChatTray {
-		export type props<T extends keyof Twitch.ChatTray.Type> = {
-			Reply: {
-				msg: ChatMessage;
-			};
-		}[T] & {
-			close?: () => void;
-		};
-
 		export interface Type {
 			AliasBannedFromChannelBanner: "alias-banned-from-channel-banner";
 			AliasBannedFromChannelWarning: "alias-banned-from-channel-warning";

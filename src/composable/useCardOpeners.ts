@@ -1,4 +1,5 @@
 import { reactive } from "vue";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 
 export const tools = reactive({
 	onShowEmoteCard: (() => null) as Twitch.ViewerCardComponent["onShowEmoteCard"],
@@ -6,11 +7,11 @@ export const tools = reactive({
 	setViewerCardPage: (() => null) as Twitch.ViewerCardComponent["setViewerCardPage"],
 });
 
-export function useCardOpeners(msg: Twitch.ChatMessage) {
+export function useCardOpeners(msg: ChatMessage) {
 	function nameClick(e: MouseEvent) {
-		if (!e || !e.currentTarget) return false;
+		if (!e || !e.currentTarget || !msg.author) return false;
 		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-		tools.onShowViewerCard(msg.user.userLogin, 0, msg.id, rect.bottom);
+		tools.onShowViewerCard(msg.author.username, 0, msg.id, rect.bottom);
 		return true;
 	}
 

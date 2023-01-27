@@ -24,7 +24,6 @@ export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Emot
 			: undefined,
 		emotes: data.emotes.map((e) => {
 			const d = convertTwitchEmote(e, data.owner);
-			d.host.srcset = imageHostToSrcset(d.host, "TWITCH");
 			return {
 				id: e.id,
 				name: e.token,
@@ -40,7 +39,7 @@ export function convertTwitchEmote(
 	data: Partial<Twitch.TwitchEmote>,
 	owner?: Twitch.TwitchEmoteSet["owner"],
 ): SevenTV.Emote {
-	return {
+	const emote: SevenTV.Emote = {
 		id: data.id ?? "",
 		name: data.token ?? "",
 		flags: 0,
@@ -78,6 +77,9 @@ export function convertTwitchEmote(
 			],
 		},
 	};
+
+	emote.host.srcset = imageHostToSrcset(emote.host, "TWITCH");
+	return emote;
 }
 
 export function convertCheerEmote(data: Twitch.ChatMessage.EmotePart["content"]): SevenTV.Emote {

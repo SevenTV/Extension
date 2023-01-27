@@ -1,19 +1,20 @@
 import { computed, nextTick, reactive, toRef } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChatProperties } from "./useChatProperties";
 import { useChatScroller } from "./useChatScroller";
 import { useConfig } from "../useSettings";
 
 const data = reactive({
 	// Message Data
-	displayed: [] as Twitch.DisplayableMessage[],
-	displayedByUser: {} as Record<string, Record<string, Twitch.DisplayableMessage>>,
-	awaited: new Map<string, (v: Twitch.DisplayableMessage) => void>(),
-	buffer: [] as Twitch.DisplayableMessage[],
-	pauseBuffer: [] as Twitch.DisplayableMessage[], // twitch chat message buffe when scrolling is paused
+	displayed: [] as ChatMessage[],
+	displayedByUser: {} as Record<string, Record<string, ChatMessage>>,
+	awaited: new Map<string, (v: ChatMessage) => void>(),
+	buffer: [] as ChatMessage[],
+	pauseBuffer: [] as ChatMessage[], // twitch chat message buffe when scrolling is paused
 	chatters: {} as Record<string, Record<string, never>>,
 
-	handlers: new Set<(v: Twitch.AnyMessage) => void>(),
+	twitchHandlers: new Set<(v: Twitch.AnyMessage) => void>(),
 
 	// Functions
 	sendMessage: (() => {
@@ -36,7 +37,7 @@ const batchTimeMs = useConfig<number>("chat.message_batch_duration");
  *
  * @param message the message to queue up
  */
-function add<T extends Twitch.DisplayableMessage>(message: T): void {
+function add<T extends ChatMessage>(message: T): void {
 	if (scroller.paused) {
 		// if scrolling is paused, buffer the message
 		data.pauseBuffer.push(message);
@@ -46,15 +47,15 @@ function add<T extends Twitch.DisplayableMessage>(message: T): void {
 	}
 
 	// check user/message author data
-	if (message.user) {
+	if (message.author) {
 		// check blocked state and ignore if blocked
-		if (properties.blockedUsers.has(message.user.userID)) return;
+		if (properties.blockedUsers.has(message.author.id)) return;
 
-		if (!data.chatters[message.user.userID]) data.chatters[message.user.userID] = {}; // set as active chatter
-		if (!data.displayedByUser[message.user.userLogin]) data.displayedByUser[message.user.userLogin] = {}; // create user message map
+		if (!data.chatters[message.author.id]) data.chatters[message.author.id] = {}; // set as active chatter
+		if (!data.displayedByUser[message.author.username]) data.displayedByUser[message.author.username] = {}; // create user message map
 
 		// add message to user message map
-		data.displayedByUser[message.user.userLogin][message.id] = message;
+		data.displayedByUser[message.author.username][message.id] = message;
 	}
 
 	// push message to buffer, and trigger flush
@@ -109,10 +110,10 @@ function flush(): void {
 			flushTimeout = window.setTimeout(() => {
 				const removed = data.displayed.splice(0, data.displayed.length - scroller.lineLimit);
 				for (const msg of removed) {
-					if (!msg.user) continue;
+					if (!msg.author) continue;
 
 					// retrieve the user's message map
-					const umap = data.displayedByUser[msg.user.userLogin];
+					const umap = data.displayedByUser[msg.author.username];
 					if (!umap) continue;
 
 					// delete this specific message from the user's message map
@@ -136,11 +137,11 @@ function flush(): void {
  * @returns list of messages that match the predicate
  * @returns null if no message matches the predicate
  */
-function find<A extends boolean = false>(predicate: (msg: Twitch.DisplayableMessage) => boolean, all?: A) {
+function find<A extends boolean = false>(predicate: (msg: ChatMessage) => boolean, all?: A) {
 	const len = data.displayed.length + data.pauseBuffer.length;
 	const bufferStart = data.displayed.length;
 
-	const result = [] as Twitch.DisplayableMessage[];
+	const result = [] as ChatMessage[];
 
 	for (let i = len - 1; i >= 0; i--) {
 		const msg = i >= bufferStart ? data.pauseBuffer[i - bufferStart] : data.displayed[i];
@@ -152,9 +153,7 @@ function find<A extends boolean = false>(predicate: (msg: Twitch.DisplayableMess
 		}
 	}
 
-	return (all ? result : result[0] ?? null) as A extends true
-		? Twitch.DisplayableMessage[]
-		: Twitch.DisplayableMessage | null;
+	return (all ? result : result[0] ?? null) as A extends true ? ChatMessage[] : ChatMessage | null;
 }
 
 /**
@@ -163,7 +162,7 @@ function find<A extends boolean = false>(predicate: (msg: Twitch.DisplayableMess
  * @param userLogin user's login name
  * @returns list of messages by the user
  */
-function messagesByUser(userLogin: string): Twitch.DisplayableMessage[] {
+function messagesByUser(userLogin: string): ChatMessage[] {
 	const umap = data.displayedByUser[userLogin];
 	if (!umap) return [];
 
@@ -176,7 +175,7 @@ function messagesByUser(userLogin: string): Twitch.DisplayableMessage[] {
  * @param timeout the maximum amount of time we will wait
  * @returns
  */
-async function awaitMessage(id: string, timeout = 10e3): Promise<Twitch.DisplayableMessage> {
+async function awaitMessage(id: string, timeout = 10e3): Promise<ChatMessage> {
 	return new Promise((resolve, reject) => {
 		const { stop } = useTimeoutFn(() => {
 			data.awaited.delete(id);
@@ -197,7 +196,7 @@ function setMessageSender(fn: (msg: string) => void) {
 export function useChatMessages() {
 	return reactive({
 		displayed: toRef(data, "displayed"),
-		handlers: data.handlers,
+		handlers: data.twitchHandlers,
 		chatters: data.chatters,
 		pauseBuffer: data.pauseBuffer,
 		sendMessage: data.sendMessage,

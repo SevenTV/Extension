@@ -6,12 +6,12 @@
 			</div>
 			<div class="sub-message-text">
 				<span class="sub-name bold">
-					{{ msg.user.displayName }}
+					{{ msgData.user.displayName }}
 				</span>
 				Gifted a
-				<span class="bold"> Tier {{ msg.methods?.plan.charAt(0) }} </span>
+				<span class="bold"> Tier {{ msgData.methods?.plan.charAt(0) }} </span>
 				sub to
-				<span class="bold"> {{ msg.recipientDisplayName }} </span>
+				<span class="bold"> {{ msgData.recipientDisplayName }} </span>
 			</div>
 		</div>
 	</span>
@@ -21,7 +21,7 @@
 import TwGift from "@/assets/svg/twitch/TwGift.vue";
 
 defineProps<{
-	msg: Twitch.SubMessage;
+	msgData: Twitch.SubMessage;
 }>();
 </script>
 

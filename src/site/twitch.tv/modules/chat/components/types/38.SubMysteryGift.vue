@@ -6,16 +6,16 @@
 			</div>
 			<div class="sub-message-text">
 				<span class="sub-name-big">
-					{{ msg.user.displayName }}
+					{{ msgData.user.displayName }}
 				</span>
-				is gifting {{ msg.massGiftCount }} Tier {{ msg.plan.charAt(0) }} Sub{{
-					msg.massGiftCount > 1 ? "s" : ""
+				is gifting {{ msgData.massGiftCount }} Tier {{ msgData.plan.charAt(0) }} Sub{{
+					msgData.massGiftCount > 1 ? "s" : ""
 				}}
-				to {{ msg.channel }}'s community.
-				<template v-if="msg.senderCount == msg.massGiftCount">
+				to {{ msgData.channel }}'s community.
+				<template v-if="msgData.senderCount == msgData.massGiftCount">
 					It's their first Gift Sub in the channel!
 				</template>
-				<template v-else> They've gifted a total of {{ msg.senderCount }} Subs in the channel! </template>
+				<template v-else> They've gifted a total of {{ msgData.senderCount }} Subs in the channel! </template>
 			</div>
 		</div>
 	</span>
@@ -25,7 +25,7 @@
 import TwMassGift from "@/assets/svg/twitch/TwMassGift.vue";
 
 defineProps<{
-	msg: Twitch.MassGiftMessage;
+	msgData: Twitch.MassGiftMessage;
 }>();
 </script>
 

@@ -1,6 +1,7 @@
 import { Component, Raw, markRaw, reactive, ref, watch } from "vue";
 import { REACT_ELEMENT_SYMBOL } from "@/common/ReactHooks";
 import ReplyTray from "./ReplyTray.vue";
+import { TrayProps } from "./tray";
 import { getModule } from "../useModule";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,13 +38,11 @@ function toReactComponent<P extends object, T extends Component<P>>(
 	};
 }
 
-function isReplyTray(
-	props: Twitch.ChatTray.props<keyof Twitch.ChatTray.Type>,
-): props is Twitch.ChatTray.props<"Reply"> {
-	return !!(props as Twitch.ChatTray.props<"Reply">).msg;
+function isReplyTray(props: TrayProps<keyof Twitch.ChatTray.Type>): props is TrayProps<"Reply"> {
+	return !!(props as TrayProps<"Reply">).msg;
 }
 
-function getReplyTray(props: Twitch.ChatTray.props<"Reply">): Twitch.ChatTray<"Reply"> {
+function getReplyTray(props: TrayProps<"Reply">): Twitch.ChatTray<"Reply"> {
 	return {
 		body: ReplyTray,
 		inputValueOverride: "",
@@ -57,10 +56,14 @@ function getReplyTray(props: Twitch.ChatTray.props<"Reply">): Twitch.ChatTray<"R
 				reply: {
 					parentDeleted: props.msg.deleted,
 					parentMsgId: props.msg.id,
-					parentMessageBody: props.msg.messageBody,
-					parentUid: props.msg.user.userID,
-					parentUserLogin: props.msg.user.userLogin,
-					parentDisplayName: props.msg.user.userDisplayName,
+					parentMessageBody: props.msg.body,
+					...(props.msg.author
+						? {
+								parentUid: props.msg.author.id,
+								parentUserLogin: props.msg.author.username,
+								parentDisplayName: props.msg.author.displayName,
+						  }
+						: {}),
 				},
 			},
 		},
@@ -68,10 +71,7 @@ function getReplyTray(props: Twitch.ChatTray.props<"Reply">): Twitch.ChatTray<"R
 	};
 }
 
-function getDefaultTray<T extends keyof Twitch.ChatTray.Type>(
-	type: T,
-	props: Twitch.ChatTray.props<T>,
-): Twitch.ChatTray<T> | null {
+function getDefaultTray<T extends keyof Twitch.ChatTray.Type>(type: T, props: TrayProps<T>): Twitch.ChatTray<T> | null {
 	let result: Twitch.ChatTray<keyof Twitch.ChatTray.Type> | null = null;
 
 	switch (type) {
@@ -86,7 +86,7 @@ function getDefaultTray<T extends keyof Twitch.ChatTray.Type>(
 
 export function useTray<T extends keyof Twitch.ChatTray.Type>(
 	type: T,
-	props?: Twitch.ChatTray.props<T>,
+	props?: TrayProps<T>,
 	tray?: Twitch.ChatTray<T>,
 ) {
 	const mod = getModule("chat-input");
@@ -94,7 +94,7 @@ export function useTray<T extends keyof Twitch.ChatTray.Type>(
 
 	const { setTray } = mod.instance;
 
-	const p = { ...props, close: () => setTray?.() } as Twitch.ChatTray.props<T>;
+	const p = { ...props, close: () => setTray?.() } as TrayProps<T>;
 
 	function set() {
 		const trayObject = tray ?? getDefaultTray(type, p);

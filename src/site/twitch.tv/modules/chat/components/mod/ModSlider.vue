@@ -15,7 +15,7 @@
 		</div>
 		<div class="grabbable-wrapper">
 			<div class="grabbable-outer" @pointerdown="handleDown" @pointerup="handleRelease" @pointermove="update">
-				<div class="grabbable-inner" :highlighted="hasHighlight">
+				<div class="grabbable-inner">
 					<div class="dots" />
 				</div>
 			</div>
@@ -33,13 +33,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
-import { MessageType } from "@/site/twitch.tv";
 import { maxVal, sliderData } from "./ModSliderBackend";
 
 const props = defineProps<{
-	msg: Twitch.DisplayableMessage;
+	msg: ChatMessage;
 }>();
 
 const { sendMessage } = useChatMessages();
@@ -56,15 +56,12 @@ const canModerate = computed(() => {
 	if (!properties.isModerator) return false;
 
 	// If the state is sent, it was our own message, which we can moderate
-	if (props.msg.sendState === "sent") return true;
+	if (props.msg.deliveryState === "SENT") return true;
 
 	// Check if the target is of type we cant moderate
-	const badges = props.msg.badges ?? props.msg.message?.badges;
-	return badges && !("moderator" in badges) && !("broadcaster" in badges) && !("staff" in badges);
-});
-
-const hasHighlight = computed(() => {
-	return props.msg.type == MessageType.SUBSCRIPTION || props.msg.type == MessageType.RESUBSCRIPTION;
+	// const badges = props.msg.badges ?? props.msg.message?.badges;
+	// return badges && !("moderator" in badges) && !("broadcaster" in badges) && !("staff" in badges);
+	return true;
 });
 
 function executeModAction(message: string, name: string, id: string) {
@@ -81,8 +78,8 @@ const handleDown = (e: PointerEvent) => {
 const handleRelease = (e: PointerEvent): void => {
 	tracking.value = false;
 
-	if (data.value.command && props.msg.user) {
-		executeModAction(data.value.command, props.msg.user.userLogin, props.msg.id);
+	if (data.value.command && props.msg.author) {
+		executeModAction(data.value.command, props.msg.author.username, props.msg.id);
 	}
 
 	transition.value = true;
@@ -162,9 +159,6 @@ const update = (e: PointerEvent): void => {
 			border-left: none;
 			box-shadow: 0 0 0.4rem hsla(0deg, 0%, 0%, 50%);
 
-			&[highlighted="true"] {
-				background-color: var(--seventv-primary-color);
-			}
 			.dots {
 				background-image: radial-gradient(circle, var(--color-border-input) 0.1rem, transparent 0.2rem);
 				background-size: 100% 33.33%;

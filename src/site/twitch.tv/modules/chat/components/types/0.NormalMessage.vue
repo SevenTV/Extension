@@ -3,33 +3,34 @@
 		<!-- Reply button-->
 		<div class="seventv-reply-button-container" @click="set">
 			<div class="seventv-reply-button">
-				<component :is="msg.reply ? TwChatReply : TwReply" />
+				<component :is="msgData.reply ? TwChatReply : TwReply" />
 			</div>
 		</div>
 		<div class="seventv-chat-message-background" tabindex="0">
-			<div v-if="msg.reply" class="seventv-reply-part">
+			<div v-if="msgData.reply" class="seventv-reply-part">
 				<div class="seventv-chat-reply-icon">
 					<TwChatReply />
 				</div>
 				<div class="seventv-reply-message-part">
-					{{ `Replying to @${msg.reply.parentDisplayName}: ${msg.reply.parentMessageBody}` }}
+					{{ `Replying to @${msgData.reply.parentDisplayName}: ${msgData.reply.parentMessageBody}` }}
 				</div>
 			</div>
-			<UserMessage :msg="msg" />
+			<slot />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useTray } from "@/composable/tray/useTray";
 import { useConfig } from "@/composable/useSettings";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
-import UserMessage from "../message/UserMessage.vue";
 
 const props = defineProps<{
-	msg: Twitch.ChatMessage;
+	msg: ChatMessage;
+	msgData: Twitch.ChatMessage;
 }>();
 
 const paddingStyle = useConfig<number>("chat.padding");
