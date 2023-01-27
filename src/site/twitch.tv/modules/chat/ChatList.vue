@@ -311,7 +311,7 @@ defineExpose({
 </script>
 <style scoped lang="scss">
 .seventv-chat-list {
-	padding: 0.1rem 0;
+	padding: 1rem 0;
 }
 
 .seventv-chat-list[alternating-background="true"] {
