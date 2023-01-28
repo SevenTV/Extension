@@ -8,13 +8,28 @@ workerLog.setContextName("Worker/Pipe");
 
 let worker: SharedWorker | null = null;
 
+type WorkerAddrMap = Record<string, string>;
+
 export function useWorker() {
 	async function init(bc: BroadcastChannel): Promise<SharedWorker> {
 		let sw: SharedWorker;
 
 		// Check for existing url
 		// If it exists, we'll connect to it
-		let workerURL: string | null = localStorage.getItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
+		const appVersion = import.meta.env.VITE_APP_VERSION;
+		const workerAddrData: string | null = localStorage.getItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
+		let workerAddr: WorkerAddrMap | null = null;
+
+		try {
+			workerAddr = workerAddrData ? JSON.parse(workerAddrData) : null;
+		} catch (err) {
+			log.error("Unable to parse worker address data", String(err));
+			localStorage.removeItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
+		}
+
+		let workerURL: string | null =
+			typeof workerAddr === "object" && workerAddr !== null ? workerAddr[appVersion] : null;
+
 		const ok =
 			workerURL &&
 			(await fetch(workerURL)
@@ -39,7 +54,10 @@ export function useWorker() {
 
 			// Create BLOB URL for worker & set it into local storage
 			workerURL = URL.createObjectURL(data);
-			localStorage.setItem(LOCAL_STORAGE_KEYS.WORKER_ADDR, workerURL);
+			localStorage.setItem(
+				LOCAL_STORAGE_KEYS.WORKER_ADDR,
+				JSON.stringify({ ...(workerAddr ?? {}), [appVersion]: workerURL }),
+			);
 		} else {
 			log.info("Connecting to existing worker", `addr=${workerURL}`);
 		}

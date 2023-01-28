@@ -60,10 +60,7 @@ async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMe
 
 	const rmsg = ref(matchedMsg);
 
-	rmsg.value.highlight = {
-		label: "Monitored Suspicious User",
-		color: "#ff7d00",
-	};
+	rmsg.value.setHighlight("#ff7d00", "Monitored Suspicious User");
 }
 
 onUnmounted(() => {

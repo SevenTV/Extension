@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { computed, toRef } from "vue";
-import { SetHexAlpha, normalizeUsername } from "@/common/Color";
+import { normalizeUsername } from "@/common/Color";
 import { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
@@ -168,8 +168,6 @@ const tokens = computed<MessageTokenOrText[]>(() => {
 	return result;
 });
 
-const highlightColorDim = computed(() => msg.value.highlight?.color.concat(SetHexAlpha(0.1)) ?? "");
-
 function getPart(part: AnyToken) {
 	if (IsEmotePart(part)) {
 		return Emote;
@@ -196,7 +194,7 @@ const { banUserFromChat, deleteChatMessage } =
 		border-color: v-bind("msg.highlight?.color");
 		border-top: none;
 		border-bottom: none;
-		background-color: v-bind("highlightColorDim");
+		background-color: v-bind("msg.highlight?.dimColor");
 		padding: 1rem 0.25rem;
 		margin: 0 -0.5em;
 
