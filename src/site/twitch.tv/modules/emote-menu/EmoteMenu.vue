@@ -127,9 +127,15 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	const inputRef = props.instance.component.autocompleteInputRef;
 	if (!inputRef) return log.warn("ref to input not found, cannot insert emote");
 
-	const current = inputRef.getValue();
+	let current = inputRef.getValue();
 
-	inputRef.setValue(current.slice(0, filter.value.length ? filter.value.length * -1 : Infinity) + emote.name + " ");
+	if (inputSearch.value) {
+		current = current.slice(0, filter.value.length ? filter.value.length * -1 : Infinity);
+	} else {
+		current = current.at(-1) === " " ? current : current + " ";
+	}
+
+	inputRef.setValue(current + emote.name + " ");
 	props.instance.component.chatInputRef.focus();
 }
 
