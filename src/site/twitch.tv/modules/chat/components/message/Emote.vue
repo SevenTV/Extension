@@ -8,6 +8,7 @@
 			:srcset="srcset"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
+			sizes="auto"
 			@click="(e) => emit('emote-click', e, emote)"
 			@load="onImageLoad"
 			@mouseenter="show(imgRef)"
@@ -48,6 +49,8 @@ const emit = defineEmits<{
 const imgRef = ref<HTMLImageElement>();
 
 const hideUnlisted = useConfig<boolean>("general.blur_unlisted_emotes");
+
+const src = ref("");
 const srcset = computed(() =>
 	props.unload
 		? ""
@@ -60,12 +63,14 @@ const height = ref(0);
 const onImageLoad = (event: Event) => {
 	if (!(event.target instanceof HTMLImageElement)) return;
 
-	width.value = event.target.naturalWidth;
-	height.value = event.target.naturalHeight;
+	width.value = event.target.clientWidth;
+	height.value = event.target.clientHeight;
+	src.value = event.target.currentSrc;
 };
 
 const { show, hide } = useTooltip(EmoteTooltip, {
 	emote: props.emote,
+	initSrc: src,
 	overlaid: props.overlaid,
 	width: width,
 	height: height,

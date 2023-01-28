@@ -13,9 +13,10 @@ export function imageHostToSrcset(
 	host: SevenTV.ImageHost,
 	provider: SevenTV.Provider = "7TV",
 	format?: SevenTV.ImageFormat,
+	maxSize?: number,
 ): string {
 	return (provider === "7TV" ? host.files.filter((f) => f.format === format ?? properties.imageFormat) : host.files)
-		.slice(0, layout[provider][layout[provider].length - 1])
+		.slice(0, maxSize || layout[provider][layout[provider].length - 1])
 		.reduce(
 			(pre, cur, i, a) => pre + `https:${host.url}/${cur.name} ${layout[provider][i]}x` + (a[i + 1] ? ", " : ""),
 			"",

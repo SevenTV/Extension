@@ -184,7 +184,7 @@ export const seventv = {
 			ae.provider = set.provider;
 			ae.scope = "CHANNEL";
 
-			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat);
+			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat, 2);
 			return ae;
 		});
 
@@ -208,7 +208,7 @@ export const seventv = {
 		set.emotes.map((ae) => {
 			ae.provider = set.provider;
 			ae.scope = "GLOBAL";
-			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat);
+			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat, 2);
 
 			return ae;
 		});

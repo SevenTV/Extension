@@ -35,7 +35,14 @@ export const useStore = defineStore("main", {
 
 			sendMessage("STATE", {
 				identity: identity,
-				imageFormat: this.avifSupported ? "AVIF" : "WEBP",
+			});
+		},
+
+		setPreferredImageFormat(format: SevenTV.ImageFormat) {
+			const { sendMessage } = useWorker();
+
+			sendMessage("STATE", {
+				imageFormat: format,
 			});
 		},
 

@@ -6,7 +6,7 @@
 	</template>
 	<template v-else>
 		<div ref="tooltip" class="seventv-tooltip" tooltip-type="emote">
-			<img ref="imgRef" class="tooltip-emote" :srcset="srcset" :alt="emote.name" />
+			<img ref="imgRef" class="tooltip-emote" :src="initSrc" :srcset="srcset" :alt="emote.name" sizes="auto" />
 
 			<div class="details">
 				<h3 class="emote-name">{{ emote.name }}</h3>
@@ -50,7 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import { useTimeoutFn } from "@vueuse/shared";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { imageHostToSrcset, imageHostToSrcsetWithsize } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
@@ -59,6 +60,7 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 const props = withDefaults(
 	defineProps<{
 		emote: SevenTV.ActiveEmote;
+		initSrc?: string;
 		overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
 		unload?: boolean;
 		height: number;
@@ -69,15 +71,22 @@ const props = withDefaults(
 
 const compactTooltips = useConfig("ui.compact_tooltips");
 
+const shouldLoad = ref(false);
 const srcset = computed(() =>
-	props.unload
+	props.unload || !shouldLoad.value
 		? ""
 		: imageHostToSrcsetWithsize(props.height, props.width, props.emote.data!.host, props.emote.provider),
 );
 
+// set a time buffer before loading the full size
+// (this is to prevent the tooltip from loading the full size image when the user is just moving the cursor around)
+useTimeoutFn(() => {
+	shouldLoad.value = true;
+}, 250);
+
 const overlayEmotes = computed(() => Object.values(props.overlaid ?? {}));
-const width = computed(() => `${props.width * 2}px`);
-const height = computed(() => `${props.height * 2}px`);
+const width = computed(() => `${props.width * 3}px`);
+const height = computed(() => `${props.height * 3}px`);
 
 const isGlobal = computed(() => props.emote.scope === "GLOBAL");
 const isSubscriber = computed(() => props.emote.scope === "SUB");
