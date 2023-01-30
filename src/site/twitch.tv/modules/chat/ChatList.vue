@@ -28,7 +28,7 @@ import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
 import { convertCheerEmote, convertTwitchEmote } from "@/common/Transform";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { IsDisplayableMessage, IsModerationMessage } from "@/common/type-predicates/Messages";
+import { IsChatMessage, IsDisplayableMessage, IsModerationMessage } from "@/common/type-predicates/Messages";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
@@ -84,7 +84,7 @@ watch(
 	{ immediate: true },
 );
 
-// Determine if the message should performe some action or be sendt to the chatAPI for rendering
+// Determine if the message should perform some action or be sent to the chatAPI for rendering
 const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 	const msg = new ChatMessage(msgData.id);
 	const c = getMessageComponent(msgData.type);
@@ -243,6 +243,9 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 		until(ref(msg.deliveryState)).toBe("SENT").then(stop);
 	}
+
+	if (IsChatMessage(msgData)) msg.setTimestamp(msgData.timestamp);
+	else msg.setTimestamp(msgData.message?.timestamp ?? 0);
 
 	// Add message to store
 	// it will be rendered on the next tick

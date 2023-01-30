@@ -77,6 +77,10 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 
 		return this as unknown as ChatMessage<DEF_C>;
 	}
+
+	public setTimestamp(time: number) {
+		this.timestamp = time;
+	}
 }
 
 export interface ChatUser {
