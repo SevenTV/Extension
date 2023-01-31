@@ -1,3 +1,7 @@
+### Version 3.0.0.7000 (Beta 7)
+
+- Fixed an issue which broke the Mod Slider
+
 ### Version 3.0.0.6000 (Beta 6)
 
 - Added Message Highlights for First-Time Chatter, Returning Chatter & Suspicious Users

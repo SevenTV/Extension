@@ -51,7 +51,7 @@ const pageVisibility = useDocumentVisibility();
 
 const actorRegexp = computed(() => (store.identity ? new RegExp(`\\b${store.identity?.username}\\b`) : null));
 
-const isModSliderEnabled = useConfig<boolean>("chat.moderation.mod_slider");
+const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 
 // Keep track of props
