@@ -372,6 +372,17 @@ declare module Twitch {
 		setValue: (v: string) => void;
 	};
 
+	export interface UserAvatar extends ReactExtended.ReactRuntimeElement {
+		props: {
+			alt: string;
+			borderRadius: string;
+			"data-a-target": string;
+			size: number;
+			src: string;
+			userLogin: string;
+		};
+	}
+
 	export interface ChatTray<T extends keyof ChatTray.Type> {
 		type: ChatTray.Type[T];
 		header?: ReactExtended.ReactRuntimeElement | Component;

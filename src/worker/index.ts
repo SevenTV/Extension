@@ -9,23 +9,47 @@ export interface WorkerMessage<T extends WorkerMessageType> {
 }
 
 export enum workerMessageType {
-	INIT,
-	STATE,
-	LOG,
-	CLOSE,
-	CHANNEL_FETCHED,
 	CHANNEL_ACTIVE_CHATTER,
+	CHANNEL_FETCHED,
+	CLOSE,
+	EMOTE_SET_UPDATED,
+	COSMETIC_CREATED,
 	ENTITLEMENT_CREATED,
 	ENTITLEMENT_DELETED,
+	INIT,
+	LOG,
+	STATE,
 	STATIC_COSMETICS_FETCHED,
 	SYNC_TWITCH_SET,
-	EMOTE_SET_UPDATED,
+	REQUEST_USER_COSMETICS,
 }
 
 export type WorkerMessageType = keyof typeof workerMessageType;
 
 export type TypedWorkerMessage<T extends WorkerMessageType> = {
+	CHANNEL_ACTIVE_CHATTER: {
+		channel_id: string;
+	};
+	CHANNEL_FETCHED: {
+		channel: CurrentChannel;
+	};
+	CLOSE: object;
+	EMOTE_SET_UPDATED: {
+		id: SevenTV.ObjectID;
+		emotes_added: SevenTV.ActiveEmote[];
+		emotes_removed: SevenTV.ActiveEmote[];
+		user: SevenTV.User;
+	};
+	COSMETIC_CREATED: SevenTV.Cosmetic<"BADGE" | "PAINT" | "AVATAR">;
+	ENTITLEMENT_CREATED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	ENTITLEMENT_DELETED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
 	INIT: object;
+	LOG: {
+		type: LogType;
+		text: string[];
+		css: string[];
+		objects: object[];
+	};
 	STATE: Partial<{
 		platform: Platform;
 		identity: TwitchIdentity | YouTubeIdentity | null;
@@ -33,32 +57,15 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 		channel: CurrentChannel | null;
 		imageFormat: SevenTV.ImageFormat | null;
 	}>;
-	LOG: {
-		type: LogType;
-		text: string[];
-		css: string[];
-		objects: object[];
-	};
-	CLOSE: object;
-	CHANNEL_FETCHED: {
-		channel: CurrentChannel;
-	};
-	CHANNEL_ACTIVE_CHATTER: {
-		channel_id: string;
-	};
-	ENTITLEMENT_CREATED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
-	ENTITLEMENT_DELETED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
 	STATIC_COSMETICS_FETCHED: {
 		provider: SevenTV.Provider;
 		badges: SevenTV.Cosmetic<"BADGE">[];
 		paints: SevenTV.Cosmetic<"PAINT">[];
 	};
 	SYNC_TWITCH_SET: Either<{ input: Twitch.TwitchEmoteSet }, { out: SevenTV.EmoteSet }>;
-	EMOTE_SET_UPDATED: {
-		id: SevenTV.ObjectID;
-		emotes_added: SevenTV.ActiveEmote[];
-		emotes_removed: SevenTV.ActiveEmote[];
-		user: SevenTV.User;
+	REQUEST_USER_COSMETICS: {
+		identifiers: ["id" | "username", string][];
+		kinds: SevenTV.CosmeticKind[];
 	};
 }[T];
 
@@ -84,6 +91,7 @@ export enum EventAPIOpCode {
 	RESUME = 34,
 	SUBSCRIBE = 35,
 	UNSUBSCRIBE = 36,
+	BRIDGE = 38,
 
 	UNKNOWN = 1001,
 }
@@ -123,6 +131,14 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 	UNSUBSCRIBE: {
 		type: string;
 		condition: Record<string, string>;
+	};
+	BRIDGE: {
+		command: string;
+		body: {
+			platform: Platform;
+			identifiers: string[];
+			kinds: SevenTV.CosmeticKind[];
+		};
 	};
 	UNKNOWN: unknown;
 }[O];

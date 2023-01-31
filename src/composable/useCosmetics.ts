@@ -56,28 +56,32 @@ db.ready().then(async () => {
 
 			// Assign legacy static badges
 			for (const badge of badges) {
-				for (const u of badge.user_ids) {
+				for (const u of badge.user_ids ?? []) {
 					if (data.userBadges[u]) continue;
 
 					data.userBadges[u] = [badge];
 					data.staticallyAssigned[u] = {};
 				}
 
-				badge.user_ids.length = 0;
+				if (badge.user_ids) {
+					badge.user_ids.length = 0;
+				}
 
 				data.cosmetics[badge.id] = badge;
 			}
 
 			// Assign legacy static paints
 			for (const paint of paints) {
-				for (const u of paint.user_ids) {
+				for (const u of paint.user_ids ?? []) {
 					if (data.userPaints[u]) continue;
 
 					data.userPaints[u] = [paint];
 					data.staticallyAssigned[u] = {};
 				}
 
-				paint.user_ids.length = 0;
+				if (paint.user_ids) {
+					paint.user_ids.length = 0;
+				}
 
 				data.cosmetics[paint.id] = paint;
 			}

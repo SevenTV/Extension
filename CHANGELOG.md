@@ -1,5 +1,6 @@
 ### Version 3.0.0.7000 (Beta 7)
 
+- Added support for Animated Avatars
 - Fixed an issue which broke the Mod Slider
 
 ### Version 3.0.0.6000 (Beta 6)

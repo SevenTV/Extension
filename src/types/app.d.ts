@@ -157,8 +157,9 @@ declare namespace SevenTV {
 		id: ObjectID;
 		kind: K;
 		name: string;
-		user_ids: string[];
+		user_ids?: string[];
 		data: {
+			AVATAR: CosmeticAvatar;
 			BADGE: CosmeticBadge;
 			PAINT: CosmeticPaint;
 			unknown: never;
@@ -192,6 +193,12 @@ declare namespace SevenTV {
 		y_offset: number;
 		radius: number;
 		color: number;
+	}
+
+	interface CosmeticAvatar {
+		id: ObjectID;
+		user: Pick<User, "id" | "username" | "display_name" | "connections">;
+		host: ImageHost;
 	}
 
 	interface Entitlement {
@@ -251,7 +258,7 @@ declare namespace SevenTV {
 		COSMETIC = 10,
 	}
 
-	type CosmeticKind = "BADGE" | "PAINT";
+	type CosmeticKind = "BADGE" | "PAINT" | "AVATAR";
 
 	type EntitlementKind = "BADGE" | "PAINT" | "EMOTE_SET";
 

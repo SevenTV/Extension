@@ -46,6 +46,16 @@ export const useStore = defineStore("main", {
 			});
 		},
 
+		setPlatform(platform: Platform) {
+			this.platform = platform;
+
+			const { sendMessage } = useWorker();
+
+			sendMessage("STATE", {
+				platform: platform,
+			});
+		},
+
 		setLocation(location: Twitch.Location | null) {
 			this.location = location;
 		},
@@ -76,7 +86,6 @@ export const useStore = defineStore("main", {
 
 			// Tell the worker we're now watching a new channel
 			sendMessage("STATE", {
-				platform: this.platform,
 				channel: this.channel && this.channel.id ? { ...this.channel } : null,
 			});
 

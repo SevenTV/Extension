@@ -1,3 +1,4 @@
+import { log } from "@/common/Logger";
 import { convertTwitchEmoteSet } from "@/common/Transform";
 import { WorkerDriver } from "./worker.driver";
 import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from ".";
@@ -64,6 +65,24 @@ export class WorkerPort {
 
 				const set = convertTwitchEmoteSet(input);
 				this.postMessage("SYNC_TWITCH_SET", { out: set });
+				break;
+			}
+			case "REQUEST_USER_COSMETICS": {
+				const { identifiers, kinds } = data as TypedWorkerMessage<"REQUEST_USER_COSMETICS">;
+				if (!Array.isArray(identifiers) || !this.platform || !kinds.length) break;
+
+				log.debugWithObjects(["Requesting cosmetics"], [identifiers, kinds]);
+				this.driver.eventAPI.sendMessage({
+					op: "BRIDGE",
+					data: {
+						command: "cosmetics",
+						body: {
+							identifiers: identifiers.map(([idType, id]) => `${idType}:${id}`),
+							platform: this.platform,
+							kinds,
+						},
+					},
+				});
 				break;
 			}
 			case "CLOSE":

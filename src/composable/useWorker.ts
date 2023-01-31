@@ -134,6 +134,12 @@ function useHandlers(mp: MessagePort) {
 				events.emit("channel_fetched", channel);
 				break;
 			}
+			case "COSMETIC_CREATED": {
+				const cosmetic = data as TypedWorkerMessage<"COSMETIC_CREATED">;
+
+				events.emit("cosmetic_created", cosmetic);
+				break;
+			}
 			case "ENTITLEMENT_CREATED": {
 				const entitlement = data as TypedWorkerMessage<"ENTITLEMENT_CREATED">;
 
@@ -198,6 +204,7 @@ class WorkletTarget extends EventTarget {
 type WorkletEventName =
 	| "ready"
 	| "channel_fetched"
+	| "cosmetic_created"
 	| "entitlement_created"
 	| "entitlement_deleted"
 	| "static_cosmetics_fetched"
@@ -207,6 +214,7 @@ type WorkletEventName =
 type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	ready: object;
 	channel_fetched: CurrentChannel;
+	cosmetic_created: Pick<SevenTV.Cosmetic, "id" | "data" | "kind">;
 	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
 	entitlement_deleted: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
 	static_cosmetics_fetched: Pick<TypedWorkerMessage<"STATIC_COSMETICS_FETCHED">, "badges" | "paints">;

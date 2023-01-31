@@ -10,4 +10,8 @@ export function onCosmeticCreate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 			ctx.db.cosmetics.where("id").equals(cm.object.id).modify(cm.object),
 		)
 		.catch((err) => log.error("<EventAPI>", "Failed to insert cosmetic", err));
+
+	for (const port of ctx.driver.ports.values()) {
+		port.postMessage("COSMETIC_CREATED", cm.object as SevenTV.Cosmetic<"AVATAR" | "BADGE" | "PAINT">);
+	}
 }

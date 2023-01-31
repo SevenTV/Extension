@@ -19,6 +19,7 @@ const chatProperties = useChatProperties();
 const useTransparency = useConfig("ui.transparent_backgrounds");
 chatProperties.imageFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(chatProperties.imageFormat);
+store.setPlatform("TWITCH");
 
 // Session User
 useComponentHook<Twitch.SessionUserComponent>(
