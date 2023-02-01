@@ -147,19 +147,26 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 		// assign parent message data
 		if (msgData.reply) {
+			const parentMsgAuthor =
+				msgData.reply.parentUserLogin && msgData.reply.parentDisplayName
+					? {
+							username: msgData.reply.parentUserLogin,
+							displayName: msgData.reply.parentDisplayName,
+					  }
+					: null;
+
 			msg.parent = {
 				id: msgData.reply.parentMsgId,
 				uid: msgData.reply.parentUid,
 				deleted: msgData.reply.parentDeleted,
 				body: msgData.reply.parentMessageBody,
-				author:
-					msgData.reply.parentUserLogin && msgData.reply.parentDisplayName
-						? {
-								username: msgData.reply.parentUserLogin,
-								displayName: msgData.reply.parentDisplayName,
-						  }
-						: null,
+				author: parentMsgAuthor,
 			};
+
+			// Highlight as a reply to the actor
+			if (parentMsgAuthor && actorRegexp.value && actorRegexp.value.test(parentMsgAuthor.username)) {
+				msg.setHighlight("#e13232", "Replying to You");
+			}
 		}
 
 		// message is /me
@@ -167,8 +174,8 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 			msg.slashMe = true;
 		}
 
-		// message mentions the actor
-		if (actorRegexp.value && actorRegexp.value.test(msg.body)) {
+		// highlight when message mentions the actor
+		if (actorRegexp.value && actorRegexp.value.test(msg.body.toLowerCase())) {
 			msg.setHighlight("#e13232", "Mentions You");
 		}
 
