@@ -4,8 +4,8 @@ This is a complete rewrite of the [Web Extension](https://github.com/seventv/sev
 
 ### Building
 
-- make deps
-- make production
+-   make deps
+-   make production
 
 For a beta build, set `BRANCH=beta` in your environment variables.
 

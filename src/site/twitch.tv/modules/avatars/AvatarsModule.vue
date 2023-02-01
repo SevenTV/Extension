@@ -6,9 +6,9 @@ import { watchDebounced } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import { getVNodeFromDOM } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
+import { db } from "@/db/idb";
 import { declareModule } from "@/composable/useModule";
 import { useWorker } from "@/composable/useWorker";
-import { db } from "@/db/idb";
 
 const { markAsReady } = declareModule("avatars", {
 	name: "Animated Avatars",

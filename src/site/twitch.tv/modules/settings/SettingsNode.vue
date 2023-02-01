@@ -1,5 +1,5 @@
 <template>
-	<div class="settings-node" tabindex="0">
+	<div class="settings-node" tabindex="0" :disabled="node.disabledIf?.()">
 		<div class="wrapper">
 			<div class="setting-items">
 				<div class="label">
@@ -45,6 +45,11 @@ defineProps<{
 		border-radius: 0.4rem;
 		background: hsla(0deg, 0%, 60%, 16%);
 		background-size: 100% 25rem;
+	}
+
+	&[disabled="true"] {
+		opacity: 0.35;
+		pointer-events: none;
 	}
 }
 

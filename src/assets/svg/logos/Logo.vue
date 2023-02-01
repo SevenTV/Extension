@@ -7,6 +7,7 @@ import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import LogoBTTV from "@/assets/svg/logos/LogoBTTV.vue";
 import LogoFFZ from "@/assets/svg/logos/LogoFFZ.vue";
 import LogoTwitch from "@/assets/svg/logos/LogoTwitch.vue";
+import EmojiIcon from "../icons/EmojiIcon.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -20,5 +21,6 @@ const c = {
 	FFZ: LogoFFZ,
 	BTTV: LogoBTTV,
 	TWITCH: LogoTwitch,
+	EMOJI: EmojiIcon,
 }[props.provider];
 </script>

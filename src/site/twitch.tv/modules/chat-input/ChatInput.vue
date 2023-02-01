@@ -17,6 +17,7 @@ import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { getModule } from "@/composable/useModule";
+import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 
 const props = defineProps<{
@@ -29,6 +30,9 @@ const messages = useChatMessages();
 const emotes = useChatEmotes();
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const { sendMessage } = useWorker();
+
+const shouldUseColonComplete = useConfig("chat_input.autocomplete.colon");
+const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -72,6 +76,16 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[], s
 	}
 
 	for (const [token] of Object.entries(emotes.active)) {
+		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
+			usedTokens.add(token);
+			matches.push({
+				token,
+				fromTwitch: false,
+			});
+		}
+	}
+
+	for (const [token] of Object.entries(emotes.emojis)) {
 		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
 			usedTokens.add(token);
 			matches.push({
@@ -314,14 +328,19 @@ function onKeyDown(ev: KeyboardEvent) {
 
 function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]) | null, str: string, ...args: []) {
 	if (!str.startsWith(":") || str.length < 3) return;
+	if (!shouldUseColonComplete.value) return;
 
 	const results = native?.call(this, str, ...args) ?? [];
 
-	const allEmotes = { ...cosmetics.emotes, ...emotes.active };
+	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
 	const tokens = findMatchingTokens(str.substring(1));
+
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;
 		const emote = allEmotes[token];
+		if (!shouldColonCompleteEmoji.value && emote.provider == "EMOJI") {
+			continue;
+		}
 
 		const host = emote?.data?.host ?? { url: "", files: [] };
 		const srcset = host.files
@@ -345,18 +364,44 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 			type: "emote",
 			current: str,
 			element: [
-				{
-					[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
-					ref: null,
-					key: `emote-img-${emote.id}`,
-					type: "img",
-					props: {
-						style: {
-							padding: "0.5rem",
-						},
-						srcset: srcset,
-					},
-				},
+				emote.provider === "EMOJI"
+					? {
+							[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
+							ref: null,
+							key: `emote-icon-${emote.id}`,
+							type: "svg",
+							props: {
+								style: {
+									width: "3em",
+									height: "3em",
+									padding: "0.5rem",
+								},
+								viewBox: "0 0 36 36",
+								children: [
+									{
+										[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
+										ref: null,
+										key: `emote-text-${emote.id}-text`,
+										type: "use",
+										props: {
+											href: `#${emote.id}`,
+										},
+									},
+								],
+							},
+					  }
+					: {
+							[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
+							ref: null,
+							key: `emote-img-${emote.id}`,
+							type: "img",
+							props: {
+								style: {
+									padding: "0.5rem",
+								},
+								srcset: srcset,
+							},
+					  },
 				{
 					[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
 					ref: null,
@@ -378,7 +423,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 					},
 				},
 			],
-			replacement: token,
+			replacement: emote.unicode ?? token,
 		});
 	}
 

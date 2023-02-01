@@ -2,34 +2,36 @@
 	<div class="emote-area-container">
 		<UiScrollable class="scroll-area">
 			<div class="emote-area">
-				<template v-for="es of sortedSets" :key="es.id">
-					<div v-if="filteredEmotes[es.id]?.length" :ref="'es-' + es.id" class="emote-set-container">
-						<div class="set-header">
-							<div class="set-header-icon">
-								<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
-								<Logo v-else class="logo" :provider="es.provider" />
+				<div v-for="es of sortedSets" :key="es.id">
+					<template v-if="filteredEmotes[es.id]?.length">
+						<div :ref="'es-' + es.id" class="emote-set-container">
+							<div class="set-header">
+								<div class="set-header-icon">
+									<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
+									<Logo v-else class="logo" :provider="es.provider" />
+								</div>
+								{{ es.name }}
 							</div>
-							{{ es.name }}
-						</div>
-						<div class="emote-set">
-							<div
-								v-for="ae of filteredEmotes[es.id]"
-								:key="ae.id"
-								:ref="(el) => setCardRef(el as HTMLElement)"
-								class="emote-container"
-								:class="{
-									[`ratio-${determineRatio(ae)}`]: true,
-									'emote-disabled': isEmoteDisabled(es, ae),
-								}"
-								:visible="loaded[ae.id]"
-								:emote-id="ae.id"
-								@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
-							>
-								<Emote :emote="ae" :unload="!loaded[ae.id]" />
+
+							<div v-element-lifecycle="onObserve" class="emote-set">
+								<div
+									v-for="ae of filteredEmotes[es.id]"
+									:key="ae.id"
+									class="emote-container"
+									:class="{
+										[`ratio-${determineRatio(ae)}`]: true,
+										'emote-disabled': isEmoteDisabled(es, ae),
+									}"
+									:visible="loaded[ae.id]"
+									:emote-id="ae.id"
+									@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
+								>
+									<Emote :emote="ae" :unload="!loaded[ae.id]" />
+								</div>
 							</div>
 						</div>
-					</div>
-				</template>
+					</template>
+				</div>
 			</div>
 		</UiScrollable>
 		<div class="sidebar">
@@ -59,7 +61,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, reactive, ref, toRaw, toRef, watchEffect } from "vue";
-import { until, useTimeout, watchDebounced, watchThrottled } from "@vueuse/core";
+import { until, useTimeout, watchDebounced } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { determineRatio } from "@/common/Image";
 import { useChatContext } from "@/composable/chat/useChatContext";
@@ -67,6 +69,10 @@ import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import {
+	ElementLifecycle,
+	ElementLifecycleDirective as vElementLifecycle,
+} from "@/directive/ElementLifecycleDirective";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import Emote from "../chat/components/message/Emote.vue";
 
@@ -184,15 +190,16 @@ watchDebounced(
 );
 
 // Listen for user search query
-watchThrottled(props, ({ filter }) => filterEmotes(filter ?? ""), { throttle: 250 });
+watchDebounced(props, ({ filter }) => filterEmotes(filter ?? ""), { debounce: 250 });
 
 // IntersectionObserver to hide out-of-view emotes and throttle loading to view
-const cards = [] as HTMLElement[];
 const loaded = reactive<Record<string, number>>({});
 const debounceCards = ref(false);
 let observer: IntersectionObserver;
 
 function setupObserver() {
+	if (observer) return;
+
 	observer = new IntersectionObserver((entries) => {
 		entries.forEach(async (entry) => {
 			const eid = entry.target.getAttribute("emote-id") as string;
@@ -230,20 +237,27 @@ function setupObserver() {
 watchEffect(() => {
 	if (!props.selected) {
 		debounceCards.value = false;
-
-		if (observer) observer.disconnect();
 	} else {
 		setupObserver();
 	}
 });
 
-// gather all card elements and observe them
-const setCardRef = (el: HTMLElement) => {
-	if (el instanceof Element) {
-		cards.push(el as HTMLElement);
-		if (observer) observer.observe(el);
+function onObserve(lifecycle: ElementLifecycle, el: HTMLElement) {
+	if (!observer) return;
+
+	for (let i = 0; i < el.children.length; i++) {
+		const child = el.children.item(i) as HTMLElement;
+		if (!child) continue;
+
+		const eid = child.getAttribute("emote-id");
+		if (!eid || loaded[eid]) continue;
+
+		if (lifecycle === "mounted" || lifecycle === "updated") {
+			observer.observe(child);
+		}
 	}
-};
+}
+
 onBeforeUnmount(() => {
 	if (observer) observer.disconnect();
 });

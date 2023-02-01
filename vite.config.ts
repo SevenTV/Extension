@@ -28,6 +28,7 @@ const chunks = {
 	tw_mod_chat_input: ["./src/site/twitch.tv/modules/chat-input/ChatInputModule.vue"],
 	tw_mod_emote_menu: ["./src/site/twitch.tv/modules/emote-menu/EmoteMenuModule.vue"],
 	tw_mod_settings: ["./src/site/twitch.tv/modules/settings/SettingsModule.vue"],
+	emoji: ["./src/site/EmojiContainer.vue"],
 };
 
 const ignoreHMR = [
@@ -81,7 +82,7 @@ export default defineConfig(({ mode }) => {
 			cssCodeSplit: false,
 			write: true,
 			sourcemap: isDev,
-			chunkSizeWarningLimit: 1000,
+			chunkSizeWarningLimit: 10000,
 			rollupOptions: {
 				input: {
 					background: r("src/background.ts"),

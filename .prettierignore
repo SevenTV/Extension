@@ -1,3 +1,5 @@
 /dist
 /node_modules
 /Typings
+/src/assets/blob/emoji.json
+

@@ -59,6 +59,7 @@ export async function getManifest(
 					"content.js.map",
 					"worker.js",
 					"assets/style.css",
+					"blob/emoji.svg",
 					...(chunkResources ?? []),
 				],
 				matches: ["*://*.twitch.tv/*"],

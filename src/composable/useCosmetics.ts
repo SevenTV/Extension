@@ -2,9 +2,9 @@ import { Ref, reactive, ref, toRef, toRefs } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
+import { db } from "@/db/idb";
 import { useLiveQuery } from "./useLiveQuery";
 import { useWorker } from "./useWorker";
-import { db } from "@/db/idb";
 
 const data = reactive({
 	cosmetics: {} as Record<SevenTV.ObjectID, SevenTV.Cosmetic>,

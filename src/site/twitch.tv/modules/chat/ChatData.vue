@@ -4,12 +4,12 @@ import { onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { ChatMessage } from "@/common/chat/ChatMessage";
+import { db } from "@/db/idb";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useLiveQuery } from "@/composable/useLiveQuery";
 import { WorkletEvent, useWorker } from "@/composable/useWorker";
 import EmoteSetUpdateMessage from "./components/types/EmoteSetUpdateMessage.vue";
-import { db } from "@/db/idb";
 import { v4 as uuidv4 } from "uuid";
 
 const { target } = useWorker();
@@ -58,6 +58,13 @@ useLiveQuery(
 		for (const emote of sets.flatMap((set) => set.emotes)) {
 			if (!emote) return;
 			o[emote.name] = emote;
+		}
+
+		for (const e in emotes.emojis) {
+			const emoji = emotes.emojis[e];
+			if (!emoji || !emoji.unicode) continue;
+
+			o[emoji.unicode] = emoji;
 		}
 
 		emotes.active = o;

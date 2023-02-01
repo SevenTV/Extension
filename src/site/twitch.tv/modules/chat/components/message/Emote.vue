@@ -1,9 +1,8 @@
 <template>
-	<div class="seventv-emote-box">
+	<div ref="boxRef" class="seventv-emote-box" @mouseenter="show(boxRef)" @mouseleave="hide()">
 		<img
-			v-if="emote.data && emote.data.host"
+			v-if="!emote.unicode && emote.data && emote.data.host"
 			v-show="srcset"
-			ref="imgRef"
 			class="seventv-chat-emote"
 			:srcset="srcset"
 			:alt="emote.name"
@@ -11,9 +10,9 @@
 			sizes="auto"
 			@click="(e) => emit('emote-click', e, emote)"
 			@load="onImageLoad"
-			@mouseenter="show(imgRef)"
-			@mouseleave="hide()"
 		/>
+		<SingleEmoji v-else :id="emote.id" ref="boxRef" :alt="emote.name" class="seventv-chat-emote seventv-emoji" />
+
 		<template v-for="e of overlaid" :key="e.id">
 			<img
 				v-if="e.data && e.data.host"
@@ -32,6 +31,7 @@ import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
 import EmoteTooltip from "@/site/twitch.tv/modules/chat/components/message/EmoteTooltip.vue";
+import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -46,7 +46,7 @@ const emit = defineEmits<{
 	(event: "emote-click", ev: MouseEvent, ae: SevenTV.ActiveEmote): void;
 }>();
 
-const imgRef = ref<HTMLImageElement>();
+const boxRef = ref<HTMLImageElement | HTMLUnknownElement>();
 
 const hideUnlisted = useConfig<boolean>("general.blur_unlisted_emotes");
 
@@ -82,7 +82,13 @@ const { show, hide } = useTooltip(EmoteTooltip, {
 	display: grid;
 	overflow: clip;
 }
-img.seventv-chat-emote {
+
+svg.seventv-emoji {
+	width: 2rem;
+	height: 2rem;
+}
+
+.seventv-chat-emote {
 	font-weight: 900;
 	grid-column: 1;
 	grid-row: 1;

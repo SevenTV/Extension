@@ -108,6 +108,7 @@ declare namespace SevenTV {
 	interface ActiveEmote {
 		id: ObjectID;
 		name: string;
+		unicode?: string;
 		flags: number;
 		timestamp?: number;
 		actor_id?: ObjectID;
@@ -243,7 +244,7 @@ declare namespace SevenTV {
 
 	type ObjectID = string;
 
-	type Provider = "7TV" | "TWITCH" | "BTTV" | "FFZ";
+	type Provider = "7TV" | "TWITCH" | "BTTV" | "FFZ" | "EMOJI";
 
 	enum ObjectKind {
 		USER = 1,

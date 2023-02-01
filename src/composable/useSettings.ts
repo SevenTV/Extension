@@ -1,7 +1,7 @@
 import { Ref, customRef, reactive } from "vue";
+import { db } from "@/db/idb";
 import { useFrankerFaceZ } from "./useFrankerFaceZ";
 import { useLiveQuery } from "./useLiveQuery";
-import { db } from "@/db/idb";
 
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode>);

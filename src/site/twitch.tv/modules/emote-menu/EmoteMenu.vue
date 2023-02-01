@@ -14,7 +14,7 @@
 								@click="activeProvider = key"
 							>
 								<Logo :provider="key" />
-								{{ key }}
+								<span v-show="key === activeProvider">{{ key }}</span>
 							</div>
 						</template>
 					</div>
@@ -83,6 +83,7 @@ const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
 	FFZ: true,
 	BTTV: true,
 	TWITCH: true,
+	EMOJI: true,
 });
 
 // Shortcut (ctrl+e)
@@ -135,7 +136,7 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 		current = current.at(-1) === " " ? current : current + " ";
 	}
 
-	inputRef.setValue(current + emote.name + " ");
+	inputRef.setValue(current + (emote.unicode ?? emote.name) + " ");
 	props.instance.component.chatInputRef.focus();
 }
 
@@ -223,25 +224,27 @@ onUnmounted(() => {
 					display: flex;
 					user-select: none;
 					justify-content: center;
+					column-gap: 0.5em;
 					background: hsla(0deg, 0%, 50%, 6%);
 					color: var(--seventv-text-color-secondary);
 					border-radius: 0.2rem;
 					flex-grow: 1;
-					max-width: 12rem;
+					width: 2rem;
 
 					&:hover {
 						background: #80808029;
 					}
 
+					transition: width 90ms ease-in-out, background 150ms ease-in-out;
 					&[selected="true"] {
 						background: var(--seventv-highlight-neutral-1);
 						color: var(--seventv-text-color-normal);
+						width: 6em;
 					}
 
 					> svg {
 						width: 2rem;
 						height: 2rem;
-						margin-right: 0.5rem;
 					}
 				}
 			}

@@ -3,9 +3,9 @@
 import { imageHostToSrcset } from "@/common/Image";
 import { log } from "@/common/Logger";
 import { convertBttvEmoteSet, convertFFZEmoteSet, convertSeventvOldCosmetics } from "@/common/Transform";
+import { db } from "@/db/idb";
 import type { WorkerDriver } from "./worker.driver";
 import type { WorkerPort } from "./worker.port";
-import { db } from "@/db/idb";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API_REST;

@@ -1,10 +1,10 @@
 import type { TypedEventListenerOrEventListenerObject } from "@/common/EventTarget";
 import { Logger, log } from "@/common/Logger";
 import { getRandomInt } from "@/common/Rand";
+import { Dexie7, db } from "@/db/idb";
 import { EventAPI } from "./worker.events";
 import { WorkerHttp } from "./worker.http";
 import { WorkerPort } from "./worker.port";
-import { Dexie7, db } from "@/db/idb";
 import { TypedWorkerMessage, WorkerMessageType } from ".";
 
 export class WorkerDriver extends EventTarget {

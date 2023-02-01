@@ -6,7 +6,16 @@
 	</template>
 	<template v-else>
 		<div ref="tooltip" class="seventv-tooltip" tooltip-type="emote">
-			<img ref="imgRef" class="tooltip-emote" :src="initSrc" :srcset="srcset" :alt="emote.name" sizes="auto" />
+			<img
+				v-if="emote.provider !== 'EMOJI'"
+				ref="imgRef"
+				class="tooltip-emote"
+				:src="initSrc"
+				:srcset="srcset"
+				:alt="emote.name"
+				sizes="auto"
+			/>
+			<SingleEmoji v-else :id="emote.id" class="tooltip-emoji" />
 
 			<div class="details">
 				<h3 class="emote-name">{{ emote.name }}</h3>
@@ -32,6 +41,11 @@
 				<div v-if="isPersonal" class="label-personal">Personal Emote</div>
 			</div>
 
+			<!-- Emoji Data -->
+			<div v-if="emojiData">
+				<div>Emoji - {{ emojiData.group }}</div>
+			</div>
+
 			<!-- Zero Width -->
 			<div v-if="overlayEmotes.length" class="divider" />
 			<div v-if="overlayEmotes.length" class="zero-width-label">
@@ -54,7 +68,9 @@ import { computed, ref } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { imageHostToSrcset, imageHostToSrcsetWithsize } from "@/common/Image";
+import { Emoji, useEmoji } from "@/composable/useEmoji";
 import { useConfig } from "@/composable/useSettings";
+import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 
 const props = withDefaults(
@@ -88,10 +104,17 @@ const overlayEmotes = computed(() => Object.values(props.overlaid ?? {}));
 const width = computed(() => `${props.width * 3}px`);
 const height = computed(() => `${props.height * 3}px`);
 
-const isGlobal = computed(() => props.emote.scope === "GLOBAL");
-const isSubscriber = computed(() => props.emote.scope === "SUB");
-const isChannel = computed(() => props.emote.scope === "CHANNEL");
-const isPersonal = computed(() => props.emote.scope === "PERSONAL");
+const isGlobal = props.emote.scope === "GLOBAL";
+const isSubscriber = props.emote.scope === "SUB";
+const isChannel = props.emote.scope === "CHANNEL";
+const isPersonal = props.emote.scope === "PERSONAL";
+
+const emojiData = ref<Emoji | null>(null);
+if (props.emote.unicode) {
+	const { emojiByCode } = useEmoji();
+
+	emojiData.value = emojiByCode.get(props.emote.unicode) ?? null;
+}
 
 const creatorColor = computed(() => {
 	if (!props.emote.data || !props.emote.data.owner) return "inherit";
@@ -139,6 +162,11 @@ img.tooltip-emote {
 	margin-bottom: 1rem;
 	width: v-bind(width);
 	height: v-bind(height);
+}
+
+svg.tooltip-emoji {
+	max-width: 8rem;
+	max-height: 8rem;
 }
 
 .details {

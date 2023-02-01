@@ -1,0 +1,7 @@
+{
+	"compilerOptions": {
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true
+	}
+}

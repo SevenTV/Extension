@@ -2,6 +2,11 @@
 	<!-- Spawn Platform-specific Logic -->
 	<template v-if="!wg">
 		<component :is="platformComponent" v-if="platformComponent" />
+
+		<div class="xd">
+			<SingleEmoji id="1f17f" />
+		</div>
+		<component :is="EmojiContainer" id="seventv-emoji-container" />
 	</template>
 
 	<!-- Render tooltip -->
@@ -12,14 +17,16 @@
 
 <script setup lang="ts">
 import type { Component } from "vue";
+import { defineAsyncComponent } from "vue";
 import { inject } from "vue";
 import { markRaw, onMounted, ref } from "vue";
 import { log } from "@/common/Logger";
+import { db } from "@/db/idb";
 import { fillSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
+import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 import Global from "./global/Global.vue";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
-import { db } from "@/db/idb";
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {
@@ -30,6 +37,8 @@ if (import.meta.hot) {
 
 const wg = ref(3);
 const appID = inject<string>("app-id") ?? null;
+
+const EmojiContainer = defineAsyncComponent(() => import("@/site/EmojiContainer.vue"));
 
 log.info(`7TV (inst: ${appID}) is loading`);
 
@@ -76,4 +85,22 @@ onMounted(() => {
 
 <style lang="scss">
 @import "@/assets/style/global.scss";
+
+.xd {
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	> svg {
+		height: 18px;
+		width: 18px;
+	}
+}
+
+#seventv-emoji-container {
+	position: fixed;
+	top: -1px;
+	left: -1px;
+	display: none;
+}
 </style>

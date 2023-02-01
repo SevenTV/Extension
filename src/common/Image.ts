@@ -7,6 +7,7 @@ const layout = {
 	"7TV": [1, 2, 3],
 	FFZ: [1, 2, 4],
 	BTTV: [1, 2, 4],
+	EMOJI: [],
 };
 
 export function imageHostToSrcset(
