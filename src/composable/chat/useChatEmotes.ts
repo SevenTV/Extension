@@ -6,6 +6,7 @@ const { emojiList } = useEmoji();
 const data = reactive({
 	// Emote Data
 	active: {} as Record<string, SevenTV.ActiveEmote>,
+	sets: {} as Record<string, SevenTV.EmoteSet>,
 	emojis: {} as Record<string, SevenTV.ActiveEmote>,
 	providers: {
 		"7TV": {},
@@ -54,6 +55,7 @@ emojiList.forEach((e) => populateEmoji(e));
 export function useChatEmotes() {
 	return reactive({
 		active: toRef(data, "active"),
+		sets: toRef(data, "sets"),
 		providers: toRef(data, "providers"),
 		emojis: toRef(data, "emojis"),
 		byProvider,

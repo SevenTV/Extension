@@ -2,6 +2,7 @@
 	<div
 		id="seventv-tooltip-container"
 		ref="tooltipContainer"
+		:active="!!tooltip.content"
 		:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
 	>
 		<template v-if="typeof tooltip.content === 'string'">
@@ -43,8 +44,11 @@ onMounted(() => {
 	@at-root .seventv-transparent & {
 		backdrop-filter: blur(0.88em);
 	}
-	outline: 0.1em solid var(--seventv-border-transparent-1);
 	border-radius: 0.25em;
+
+	&[active="true"] {
+		outline: 0.1em solid var(--seventv-border-transparent-1);
+	}
 
 	.text-only-tooltip {
 		padding: 0.25em;

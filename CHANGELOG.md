@@ -1,3 +1,8 @@
+### Version 3.0.0.8000 (Beta 8)
+
+-   Improved the performance of the Emote Menu on highly populated tabs
+-   Fixed an issue which caused a stray pixel to stay in view after viewing a tooltip
+
 ### Version 3.0.0.7000 (Beta 7)
 
 -	Added support for Emojis in chat & auto-completion

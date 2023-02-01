@@ -3,34 +3,12 @@
 		<UiScrollable class="scroll-area">
 			<div class="emote-area">
 				<div v-for="es of sortedSets" :key="es.id">
-					<template v-if="filteredEmotes[es.id]?.length">
-						<div :ref="'es-' + es.id" class="emote-set-container">
-							<div class="set-header">
-								<div class="set-header-icon">
-									<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
-									<Logo v-else class="logo" :provider="es.provider" />
-								</div>
-								{{ es.name }}
-							</div>
-
-							<div v-element-lifecycle="onObserve" class="emote-set">
-								<div
-									v-for="ae of filteredEmotes[es.id]"
-									:key="ae.id"
-									class="emote-container"
-									:class="{
-										[`ratio-${determineRatio(ae)}`]: true,
-										'emote-disabled': isEmoteDisabled(es, ae),
-									}"
-									:visible="loaded[ae.id]"
-									:emote-id="ae.id"
-									@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
-								>
-									<Emote :emote="ae" :unload="!loaded[ae.id]" />
-								</div>
-							</div>
-						</div>
-					</template>
+					<EmoteMenuSet
+						:ref="'es-' + es.id"
+						:es="es"
+						:emotes="filteredEmotes[es.id]"
+						@emote-clicked="(ae) => emit('emote-clicked', ae)"
+					/>
 				</div>
 			</div>
 		</UiScrollable>
@@ -41,7 +19,7 @@
 						v-if="es.emotes.length"
 						class="set-sidebar-icon-container"
 						:selected="selectedSet == es.id"
-						@click="select(es.id, $refs['es-' + es.id] as HTMLDivElement[])"
+						@click="select(es.id, $refs['es-' + es.id] as InstanceType<typeof EmoteMenuSet>[])"
 					>
 						<div class="set-sidebar-icon">
 							<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
@@ -60,8 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, reactive, ref, toRaw, toRef, watchEffect } from "vue";
-import { until, useTimeout, watchDebounced } from "@vueuse/core";
+import { ref, toRaw, toRef } from "vue";
+import { watchDebounced } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { determineRatio } from "@/common/Image";
 import { useChatContext } from "@/composable/chat/useChatContext";
@@ -69,12 +47,8 @@ import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import {
-	ElementLifecycle,
-	ElementLifecycleDirective as vElementLifecycle,
-} from "@/directive/ElementLifecycleDirective";
+import EmoteMenuSet from "./EmoteMenuSet.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import Emote from "../chat/components/message/Emote.vue";
 
 const props = defineProps<{
 	provider: SevenTV.Provider;
@@ -101,12 +75,13 @@ const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const filteredEmotes = ref<Record<string, SevenTV.ActiveEmote[]>>({});
 
 // Select an Emote Set to jump-scroll to
-function select(setID: string, els: HTMLDivElement[] | null | undefined) {
-	if (!els || !els.length) return;
-	const el = els[0];
+function select(setID: string, coms: InstanceType<typeof EmoteMenuSet>[] | null | undefined) {
+	if (!coms || !coms.length) return;
+	const com = coms[0];
+	if (!com.containerEl) return;
 
 	selectedSet.value = setID;
-	el.scrollIntoView({ behavior: "auto" });
+	com.containerEl.scrollIntoView({ behavior: "auto" });
 }
 
 function sortCase(es: SevenTV.EmoteSet) {
@@ -147,120 +122,44 @@ function filterEmotes(filter: string) {
 	emit("provider-visible", !!total);
 }
 
-function isEmoteDisabled(set: SevenTV.EmoteSet, ae: SevenTV.ActiveEmote) {
-	return set.scope === "PERSONAL" && ae.data && ae.data.state && !ae.data.state.includes("PERSONAL");
+function filterSets(): void {
+	const ary = Object.values(structuredClone(toRaw(sets.value))) as SevenTV.EmoteSet[];
+	if (cosmetics.emoteSets?.length) {
+		ary.push(...structuredClone(toRaw(cosmetics.emoteSets).filter((e) => e.provider === props.provider)));
+	}
+
+	if (props.provider === "TWITCH") {
+		const res = ary.reduce((prev, cur) => {
+			const p = prev[cur.name];
+			if (p) {
+				p.emotes.push(...cur.emotes);
+			} else {
+				prev[cur.name] = cur;
+			}
+			return prev;
+		}, {} as Record<string, SevenTV.EmoteSet>);
+
+		ary.splice(0, ary.length, ...Object.values(res));
+	}
+
+	for (const set of ary) {
+		set.emotes.sort((a, b) => {
+			const ra = determineRatio(a);
+			const rb = determineRatio(b);
+			return ra == rb ? a.name.localeCompare(b.name) : ra > rb ? 1 : -1;
+		});
+	}
+
+	// Sort emote sets
+	sortedSets.value.splice(0, sortedSets.value.length, ...ary.sort(sortFn));
+	filterEmotes(props.filter ?? "");
 }
 
 // Watch for changes to the emote sets and perform sorting operations
-watchDebounced(
-	[sets, personalEmotes],
-	() => {
-		const ary = Object.values(structuredClone(toRaw(sets.value))) as SevenTV.EmoteSet[];
-		if (cosmetics.emoteSets?.length) {
-			ary.push(...structuredClone(toRaw(cosmetics.emoteSets).filter((e) => e.provider === props.provider)));
-		}
-
-		if (props.provider === "TWITCH") {
-			const res = ary.reduce((prev, cur) => {
-				const p = prev[cur.name];
-				if (p) {
-					p.emotes.push(...cur.emotes);
-				} else {
-					prev[cur.name] = cur;
-				}
-				return prev;
-			}, {} as Record<string, SevenTV.EmoteSet>);
-
-			ary.splice(0, ary.length, ...Object.values(res));
-		}
-
-		for (const set of ary) {
-			set.emotes.sort((a, b) => {
-				const ra = determineRatio(a);
-				const rb = determineRatio(b);
-				return ra == rb ? a.name.localeCompare(b.name) : ra > rb ? 1 : -1;
-			});
-		}
-
-		// Sort emote sets
-		sortedSets.value.splice(0, sortedSets.value.length, ...ary.sort(sortFn));
-		filterEmotes(props.filter ?? "");
-	},
-	{ debounce: 150, immediate: true },
-);
+watchDebounced([sets, emotes.active, personalEmotes], filterSets, { debounce: 150, immediate: true });
 
 // Listen for user search query
 watchDebounced(props, ({ filter }) => filterEmotes(filter ?? ""), { debounce: 250 });
-
-// IntersectionObserver to hide out-of-view emotes and throttle loading to view
-const loaded = reactive<Record<string, number>>({});
-const debounceCards = ref(false);
-let observer: IntersectionObserver;
-
-function setupObserver() {
-	if (observer) return;
-
-	observer = new IntersectionObserver((entries) => {
-		entries.forEach(async (entry) => {
-			const eid = entry.target.getAttribute("emote-id") as string;
-
-			// if the element is intersecting, wait 350ms before loading it
-			if (entry.isIntersecting && !loaded[eid]) {
-				const previouslyLoaded = loaded[eid] === -1;
-				loaded[eid] = 0;
-
-				if (!previouslyLoaded && debounceCards.value) await until(useTimeout(350)).toBeTruthy();
-			}
-
-			// if the element was intersecting, but not anymore, delete it from the loaded map
-			if (loaded[eid] === 0 && !entry.isIntersecting) {
-				delete loaded[eid];
-				return;
-			}
-
-			// if the element has been intersecting for 350ms, load it
-			if (entry.isIntersecting && loaded[eid] === 0) {
-				loaded[eid] = 1;
-				return;
-			}
-
-			// if the element is not intersecting anymore, delete it from the loaded map
-			if (!entry.isIntersecting && loaded[eid] >= 0) {
-				loaded[eid] = loaded[eid] === 1 ? -1 : 0;
-			}
-		});
-
-		debounceCards.value = true;
-	});
-}
-
-watchEffect(() => {
-	if (!props.selected) {
-		debounceCards.value = false;
-	} else {
-		setupObserver();
-	}
-});
-
-function onObserve(lifecycle: ElementLifecycle, el: HTMLElement) {
-	if (!observer) return;
-
-	for (let i = 0; i < el.children.length; i++) {
-		const child = el.children.item(i) as HTMLElement;
-		if (!child) continue;
-
-		const eid = child.getAttribute("emote-id");
-		if (!eid || loaded[eid]) continue;
-
-		if (lifecycle === "mounted" || lifecycle === "updated") {
-			observer.observe(child);
-		}
-	}
-}
-
-onBeforeUnmount(() => {
-	if (observer) observer.disconnect();
-});
 </script>
 <style scoped lang="scss">
 .emote-area-container {
@@ -270,72 +169,6 @@ onBeforeUnmount(() => {
 .scroll-area {
 	width: 28rem;
 	flex-shrink: 0;
-}
-
-.emote-set-container {
-	position: relative;
-}
-
-.emote-set {
-	display: inline-flex;
-	flex-wrap: wrap;
-	margin: 0.5rem;
-}
-
-.set-header {
-	height: 3rem;
-	padding: 0.5rem 1.25rem;
-	position: sticky;
-	top: -1px;
-	display: flex;
-	background: var(--seventv-background-transparent-2);
-}
-
-.set-header-icon {
-	height: 2rem;
-	width: 2rem;
-	border-radius: 0.5rem;
-	margin-right: 1rem;
-	overflow: clip;
-}
-
-.emote-container {
-	display: grid;
-	background: hsla(0deg, 0%, 50%, 6%);
-	border-radius: 0.5rem;
-	height: 4rem;
-	margin: 0.25rem;
-	cursor: pointer;
-
-	&:hover {
-		background: hsla(0deg, 0%, 50%, 32%);
-	}
-
-	&.emote-disabled {
-		cursor: not-allowed;
-		filter: grayscale(100%);
-		opacity: 0.5;
-
-		> :first-child {
-			pointer-events: none;
-		}
-	}
-}
-
-.ratio-1 {
-	width: 4rem;
-}
-
-.ratio-2 {
-	width: 6.25rem;
-}
-
-.ratio-3 {
-	width: 8.5rem;
-}
-
-.ratio-4 {
-	width: 13rem;
 }
 
 .sidebar {

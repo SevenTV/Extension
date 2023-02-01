@@ -11,7 +11,13 @@
 			@click="(e) => emit('emote-click', e, emote)"
 			@load="onImageLoad"
 		/>
-		<SingleEmoji v-else :id="emote.id" ref="boxRef" :alt="emote.name" class="seventv-chat-emote seventv-emoji" />
+		<SingleEmoji
+			v-else-if="!unload"
+			:id="emote.id"
+			ref="boxRef"
+			:alt="emote.name"
+			class="seventv-chat-emote seventv-emoji"
+		/>
 
 		<template v-for="e of overlaid" :key="e.id">
 			<img

@@ -50,8 +50,11 @@ useLiveQuery(
 
 		for (const set of sets) {
 			const provider = (set.provider ?? "UNKNOWN") as SevenTV.Provider;
+
 			if (!emotes.providers[provider]) emotes.providers[provider] = {};
 			emotes.providers[provider][set.id] = set;
+
+			emotes.sets[set.id] = set;
 		}
 
 		const o = {} as Record<SevenTV.ObjectID, SevenTV.ActiveEmote>;
@@ -78,19 +81,28 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 	const { id, emotes_added, emotes_removed, user } = ev.detail;
 	if (!channelSets.value?.includes(id)) return; // not a channel emote set
 
+	const set = emotes.sets[id];
+
 	// Handle added emotes
 	for (const emote of emotes_added) {
 		emotes.active[emote.name] = emote;
+		if (emotes.sets[id]) {
+			set.emotes.push(emote);
+		}
 	}
 
 	// Handle removed emotes
 	for (let i = 0; i < emotes_removed.length; i++) {
 		const emote = emotes_removed[i];
 		const e = emotes.active[emote.name];
-		if (e.id !== emote.id) continue;
+		if (!e || e.id !== emote.id) continue;
 
 		emotes_removed[i].data = e.data;
 		delete emotes.active[emote.name];
+		if (emotes.sets[id]) {
+			const i = set.emotes.findIndex((e) => e.id === emote.id);
+			if (i !== -1) set.emotes.splice(i, 1);
+		}
 	}
 
 	const msg = new ChatMessage(uuidv4());
