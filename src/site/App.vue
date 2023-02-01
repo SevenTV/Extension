@@ -3,10 +3,9 @@
 	<template v-if="!wg">
 		<component :is="platformComponent" v-if="platformComponent" />
 
-		<div class="xd">
-			<SingleEmoji id="1f17f" />
+		<div id="seventv-emoji-container">
+			<component :is="EmojiContainer" />
 		</div>
-		<component :is="EmojiContainer" id="seventv-emoji-container" />
 	</template>
 
 	<!-- Render tooltip -->
@@ -24,7 +23,6 @@ import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { fillSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
-import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 import Global from "./global/Global.vue";
 import TwitchSite from "./twitch.tv/TwitchSite.vue";
 
@@ -85,17 +83,6 @@ onMounted(() => {
 
 <style lang="scss">
 @import "@/assets/style/global.scss";
-
-.xd {
-	position: absolute;
-	top: 0;
-	left: 0;
-
-	> svg {
-		height: 18px;
-		width: 18px;
-	}
-}
 
 #seventv-emoji-container {
 	position: fixed;

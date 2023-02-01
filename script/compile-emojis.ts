@@ -64,14 +64,24 @@ function writeFinal(): void {
 
 	console.log("Writing final file...", OUT_DIR + "/" + "emojis.svg");
 
-	writeFile(
-		OUT_DIR + "/" + "emojis.svg",
-		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="1em" height="1em">
-		<defs>
-			${objectList.map(([id, objects]) => `<g id="${id}">${objects}</g>`).join("")}
-		</defs>
-		</svg>
-	`.replace(/\t/g, ""),
-		(err) => console.log("write: ", err ? err : "no error"),
-	);
+	const splitObjects = [] as [string, string][][];
+
+	while (objectList.length > 0) {
+		splitObjects.push(objectList.splice(0, 350));
+	}
+
+	for (let i = 0; i < splitObjects.length; i++) {
+		const ary = splitObjects[i];
+
+		writeFile(
+			OUT_DIR + "/" + `emojis${i}.svg`,
+			`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="1em" height="1em">
+			<defs>
+				${ary.map(([id, objects]) => `<g id="${id}">${objects}</g>`).join("")}
+			</defs>
+			</svg>
+		`.replace(/\t/g, ""),
+			(err) => console.log("write: ", err ? err : "no error"),
+		);
+	}
 }

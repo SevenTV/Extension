@@ -24,6 +24,7 @@ const chunks = {
 		"./src/composable/useLiveQuery.ts",
 		"./src/composable/useSettings.ts",
 	],
+	tw_mod_avatars: ["./src/site/twitch.tv/modules/avatars/AvatarsModule.vue"],
 	tw_mod_chat: ["./src/site/twitch.tv/modules/chat/ChatModule.vue"],
 	tw_mod_chat_input: ["./src/site/twitch.tv/modules/chat-input/ChatInputModule.vue"],
 	tw_mod_emote_menu: ["./src/site/twitch.tv/modules/emote-menu/EmoteMenuModule.vue"],
