@@ -1,5 +1,5 @@
 <template>
-	<div v-if="isEnabled" class="tw-button seventv-mod-logs-button" @click="onClick">
+	<div v-if="isEnabled" class="seventv-tw-button seventv-mod-logs-button" @click="onClick">
 		<button>
 			<ModLogsIcon class="icon" />
 		</button>

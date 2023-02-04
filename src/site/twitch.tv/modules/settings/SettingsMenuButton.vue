@@ -1,6 +1,6 @@
 <template>
 	<Teleport :to="containerEl">
-		<div class="tw-button seventv-menu-button">
+		<div class="seventv-tw-button seventv-menu-button">
 			<button class="seventv-settings-button" @click="emit('toggle')">
 				<Logo7TV class="logo" />
 			</button>
