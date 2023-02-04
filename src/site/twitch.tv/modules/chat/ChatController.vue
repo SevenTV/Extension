@@ -5,22 +5,24 @@
 			<div id="seventv-message-container" class="seventv-message-container">
 				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
 			</div>
+
+			<!-- New Messages during Scrolling Pause -->
+			<div
+				v-if="scroller.paused && messages.pauseBuffer.length > 0"
+				class="seventv-message-buffer-notice"
+				@click="scroller.unpause"
+			>
+				<PauseIcon />
+
+				<span :class="{ capped: messages.pauseBuffer.length >= scroller.lineLimit }">
+					{{ messages.pauseBuffer.length }}
+				</span>
+				<span>new messages</span>
+			</div>
 		</UiScrollable>
 
 		<!-- Data Logic -->
 		<ChatData />
-
-		<!-- New Messages during Scrolling Pause -->
-		<div
-			v-if="scroller.paused && messages.pauseBuffer.length > 0"
-			class="seventv-message-buffer-notice"
-			@click="scroller.unpause"
-		>
-			<span
-				>{{ messages.pauseBuffer.length }}{{ messages.pauseBuffer.length >= scroller.lineLimit ? "+" : "" }} new
-				messages
-			</span>
-		</div>
 	</Teleport>
 
 	<ChatTray />
@@ -46,6 +48,7 @@ import { tools } from "@/composable/useCardOpeners";
 import { useWorker } from "@/composable/useWorker";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
+import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import ChatPubSub from "./ChatPubSub.vue";
 import ChatTray from "./ChatTray.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
@@ -129,6 +132,7 @@ function onUpdateChannel() {
 	if (!store.setChannel(currentChannel.value)) return;
 
 	messages.clear();
+	scroller.unpause();
 
 	nextTick(() => {
 		resetProviders();
@@ -220,6 +224,7 @@ if (a instanceof ObserverPromise) {
 const nodeMap = new Map<string, Element>();
 
 let unhandledStopper: () => void;
+
 function watchUnhandled() {
 	if (unhandledStopper) unhandledStopper();
 
@@ -394,18 +399,38 @@ seventv-container.seventv-chat-list {
 	.seventv-message-buffer-notice {
 		cursor: pointer;
 		position: absolute;
-		bottom: 8em;
+		bottom: 1em;
 		left: 50%;
 		transform: translateX(-50%);
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		display: block;
+		white-space: nowrap;
 		padding: 0.5em;
 		border-radius: 0.33em;
 		color: #fff;
 		background-color: rgba(0, 0, 0, 50%);
+		outline: 0.25rem solid var(--seventv-muted);
+
+		span:nth-of-type(1) {
+			margin-right: 0.25rem;
+
+			&.capped::after {
+				content: "+";
+			}
+		}
+
+		span,
+		svg {
+			display: inline-block;
+			vertical-align: middle;
+		}
+
+		svg {
+			font-size: 1.5rem;
+			margin-right: 0.5em;
+		}
+
 		@at-root .seventv-transparent & {
-			backdrop-filter: blur(0.05em);
+			backdrop-filter: blur(0.5em);
 		}
 	}
 }
