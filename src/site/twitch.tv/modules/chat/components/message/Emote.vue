@@ -1,5 +1,5 @@
 <template>
-	<div ref="boxRef" class="seventv-emote-box" @mouseenter="show(boxRef)" @mouseleave="hide()">
+	<div ref="boxRef" class="seventv-emote-box" @mouseenter="onShowTooltip" @mouseleave="hide()">
 		<img
 			v-if="!emote.unicode && emote.data && emote.data.host"
 			v-show="srcset"
@@ -7,12 +7,11 @@
 			:srcset="srcset"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
-			sizes="auto"
 			@click="(e) => emit('emote-click', e, emote)"
 			@load="onImageLoad"
 		/>
 		<SingleEmoji
-			v-else-if="!unload"
+			v-else-if="!unload && emote.id"
 			:id="emote.id"
 			ref="boxRef"
 			:alt="emote.name"
@@ -63,16 +62,25 @@ const srcset = computed(() =>
 		: props.emote.data!.host.srcset ?? imageHostToSrcset(props.emote.data!.host, props.emote.provider),
 );
 
+const imgEl = ref<HTMLImageElement>();
 const width = ref(0);
 const height = ref(0);
 
 const onImageLoad = (event: Event) => {
 	if (!(event.target instanceof HTMLImageElement)) return;
 
-	width.value = event.target.clientWidth;
-	height.value = event.target.clientHeight;
-	src.value = event.target.currentSrc;
+	imgEl.value = event.target;
 };
+
+function onShowTooltip() {
+	if (imgEl.value && !(width.value && height.value)) {
+		width.value = imgEl.value.clientWidth;
+		height.value = imgEl.value.clientHeight;
+		src.value = imgEl.value.currentSrc;
+	}
+
+	show(boxRef.value);
+}
 
 const { show, hide } = useTooltip(EmoteTooltip, {
 	emote: props.emote,

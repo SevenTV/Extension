@@ -2,7 +2,6 @@ import { Ref, nextTick, reactive, toRef, watchEffect } from "vue";
 import { useConfig } from "@/composable/useSettings";
 import { useChatMessages } from "./useChatMessages";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
-import fastdom from "fastdom";
 
 const scrollDuration = useConfig<number>("chat.smooth_scroll_duration");
 const lineLimit = useConfig<number>("chat.line_limit");
@@ -70,7 +69,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		}
 
 		const from = await new Promise<number>((resolve) => {
-			fastdom.measure(() => {
+			nextTick(() => {
 				if (!container.value) return 0;
 
 				resolve(container.value.scrollTop);
@@ -125,7 +124,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 
 	async function onScroll() {
 		const { top, h } = await new Promise<{ top: number; h: number }>((resolve) => {
-			fastdom.measure(() => {
+			nextTick(() => {
 				if (!container.value || !bounds?.value) return { top: 0, h: 0 };
 
 				const top = Math.floor(container.value.scrollTop);

@@ -30,7 +30,7 @@ export function getRootVNode(): ReactExtended.ReactVNode | undefined {
 export function findComponentParents(
 	node: ReactExtended.ReactVNode,
 	predicate: ReactComponentPredicate,
-	maxTraversal = 1000,
+	maxTraversal = 350,
 	limit = Infinity,
 ): ReactExtended.AnyReactComponent[] {
 	const components: ReactExtended.AnyReactComponent[] = [];
@@ -64,7 +64,7 @@ export function findComponentParents(
 export function findComponentChildren<T extends ReactExtended.AnyReactComponent>(
 	node: ReactExtended.ReactVNode,
 	predicate: ReactComponentPredicate,
-	maxDepth = 1000,
+	maxDepth = 350,
 	limit = Infinity,
 ): T[] {
 	const components: T[] = [];

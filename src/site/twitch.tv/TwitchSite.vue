@@ -1,17 +1,18 @@
 <template>
 	<template v-for="[key, mod] of Object.entries(modules)" :key="key">
-		<component :is="mod" ref="renderedModules" />
+		<ModuleWrapper :mod="mod" @mounted="onModuleUpdate(key as unknown as keyof ModuleComponentMap, $event)" />
 	</template>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, watch } from "vue";
 import { useStore } from "@/store/main";
 import { useComponentHook } from "@/common/ReactHooks";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useConfig } from "@/composable/useSettings";
-import type { ModuleID } from "@/types/module";
+import ModuleWrapper from "./ModuleWrapper.vue";
+import type { ModuleComponentMap, ModuleID } from "@/types/module";
 
 const store = useStore();
 const chatProperties = useChatProperties();
@@ -68,24 +69,14 @@ watch(
 	{ immediate: true },
 );
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const renderedModules = ref<Record<string, InstanceType<any>>>();
+function onModuleUpdate(mod: ModuleID, inst: InstanceType<ComponentFactory>) {
+	const modInst = getModule(mod);
+	if (!modInst) return;
+
+	modInst.instance = inst;
+}
 
 onMounted(() => {
-	if (!renderedModules.value) return;
-	for (let i = 0; i < renderedModules.value.length; i++) {
-		const rmod = renderedModules.value[i];
-		if (!rmod) continue;
-
-		const modID = Object.keys(modules)[i];
-		if (!modID) continue;
-
-		const mod = getModule(modID as ModuleID);
-		if (!mod) continue;
-
-		mod.instance = rmod;
-	}
-
 	synchronizeFrankerFaceZ();
 });
 </script>

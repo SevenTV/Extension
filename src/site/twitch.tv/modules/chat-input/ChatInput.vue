@@ -85,13 +85,15 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[], s
 		}
 	}
 
-	for (const [token] of Object.entries(emotes.emojis)) {
-		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
-			usedTokens.add(token);
-			matches.push({
-				token,
-				fromTwitch: false,
-			});
+	if (!startsWith) {
+		for (const [token] of Object.entries(emotes.emojis)) {
+			if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
+				usedTokens.add(token);
+				matches.push({
+					token,
+					fromTwitch: false,
+				});
+			}
 		}
 	}
 

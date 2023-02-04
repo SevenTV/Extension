@@ -1,6 +1,6 @@
 <template>
 	<span class="seventv-reward-message-container seventv-highlight">
-		<div class="reward-part">
+		<div v-if="msgData.reward" class="reward-part">
 			<div class="reward-left">
 				<span class="reward-username bold">
 					{{ msgData.displayName }}

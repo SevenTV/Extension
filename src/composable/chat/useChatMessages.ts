@@ -1,6 +1,6 @@
 import { computed, nextTick, reactive, toRef } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
 import { useChatProperties } from "./useChatProperties";
 import { useChatScroller } from "./useChatScroller";
 import { useConfig } from "../useSettings";
@@ -12,6 +12,11 @@ const data = reactive({
 	awaited: new Map<string, (v: ChatMessage) => void>(),
 	buffer: [] as ChatMessage[],
 	pauseBuffer: [] as ChatMessage[], // twitch chat message buffe when scrolling is paused
+	moderated: [] as {
+		messages: ChatMessage[];
+		victim: ChatUser;
+		mod: ChatMessageModeration;
+	}[],
 	chatters: {} as Record<string, Record<string, never>>,
 
 	twitchHandlers: new Set<(v: Twitch.AnyMessage) => void>(),
@@ -175,7 +180,7 @@ function messagesByUser(userLogin: string): ChatMessage[] {
  * @param timeout the maximum amount of time we will wait
  * @returns
  */
-async function awaitMessage(id: string, timeout = 10e3): Promise<ChatMessage> {
+async function awaitMessage(id: string, timeout = 1e4): Promise<ChatMessage> {
 	return new Promise((resolve, reject) => {
 		const { stop } = useTimeoutFn(() => {
 			data.awaited.delete(id);
@@ -199,6 +204,7 @@ export function useChatMessages() {
 		handlers: data.twitchHandlers,
 		chatters: data.chatters,
 		pauseBuffer: data.pauseBuffer,
+		moderated: data.moderated,
 		sendMessage: data.sendMessage,
 		find,
 		messagesByUser,

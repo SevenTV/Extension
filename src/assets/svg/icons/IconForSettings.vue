@@ -8,6 +8,7 @@ import EmotesIcon from "./EmotesIcon.vue";
 import GearsIcon from "./GearsIcon.vue";
 import HomeIcon from "./HomeIcon.vue";
 import PaintIcon from "./PaintIcon.vue";
+import TvIcon from "./TvIcon.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -22,5 +23,6 @@ const c = {
 	Emotes: EmotesIcon,
 	Appearance: PaintIcon,
 	General: GearsIcon,
+	Channel: TvIcon,
 }[props.name];
 </script>

@@ -1,6 +1,6 @@
 <template>
 	<Teleport :to="containerEl">
-		<div class="seventv-menu-button">
+		<div class="tw-button seventv-menu-button">
 			<button class="seventv-settings-button" @click="emit('toggle')">
 				<Logo7TV class="logo" />
 			</button>
@@ -40,6 +40,8 @@ if (menuButtons) {
 }
 </script>
 <style scoped lang="scss">
+@import "@/assets/style/tw-tooltip.scss";
+
 .top-nav {
 	.seventv-menu-button {
 		margin: 0.5rem;
@@ -58,113 +60,6 @@ if (menuButtons) {
 	}
 }
 .seventv-menu-button {
-	cursor: pointer;
-	display: flex;
-	justify-content: center;
-	width: 3rem;
-	height: 3rem;
-	position: relative;
-
-	%tooltip {
-		background-color: var(--color-text-base);
-		color: var(--color-text-tooltip);
-		text-align: center;
-		padding: 0.2rem 0;
-		border-radius: 0.4rem;
-		display: flex;
-		font-weight: 600;
-		height: 2.6rem;
-		margin-top: -1.3rem;
-		align-items: center;
-		justify-content: center;
-
-		position: absolute;
-		width: 7em;
-
-		margin-left: -3.5em;
-		z-index: 9999;
-
-		visibility: hidden;
-		opacity: 0;
-
-		&:after {
-			content: "";
-			position: absolute;
-			margin: -0.4rem -0.5rem -0.5rem -0.4rem;
-			border-width: 0.4rem;
-			transform: rotate(45deg);
-			border-radius: 0.2rem;
-			border-color: var(--color-text-base);
-			border-style: solid;
-			pointer-events: none;
-		}
-	}
-
-	.tooltip-under {
-		@extend %tooltip;
-		top: 170%;
-		left: 50%;
-
-		&:after {
-			bottom: 100%;
-			left: 50%;
-		}
-	}
-
-	.tooltip-over {
-		@extend %tooltip;
-		bottom: 170%;
-		left: 50%;
-
-		&:after {
-			top: 100%;
-			left: 50%;
-		}
-	}
-	.tooltip-left {
-		@extend %tooltip;
-		right: 135%;
-		top: 50%;
-
-		&:after {
-			left: 100%;
-			top: 50%;
-		}
-	}
-	.tooltip-right {
-		@extend %tooltip;
-		left: 290%;
-		top: 50%;
-
-		&:after {
-			right: 100%;
-			top: 50%;
-		}
-	}
-
-	&:hover {
-		border-radius: 0.4rem;
-		background-color: var(--color-background-button-text-hover);
-		color: var(--color-fill-button-icon-hover);
-
-		%tooltip {
-			visibility: visible;
-			opacity: 1;
-		}
-	}
-
-	button {
-		border: 0;
-		background: transparent;
-		width: var(--button-size-default);
-		height: var(--button-size-default);
-		padding: 0.5rem;
-
-		&:hover {
-			color: var(--color-fill-button-icon-hover);
-		}
-	}
-
 	.logo {
 		width: 100%;
 		height: 100%;

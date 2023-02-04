@@ -3,7 +3,7 @@
 		class="seventv-user-message"
 		:msg-id="msg.id"
 		:class="{
-			deleted: msg.banned || msg.deleted,
+			deleted: !hideDeletionState && (msg.moderation.banned || msg.moderation.deleted),
 			'has-mention': as == 'Chat' && msg.mentions.has('#actor'),
 			'has-highlight': as == 'Chat' && msg.highlight,
 		}"
@@ -21,7 +21,7 @@
 		/>
 
 		<!-- Timestamp -->
-		<template v-if="properties.showTimestamps || msg.historical">
+		<template v-if="properties.showTimestamps || msg.historical || forceTimestamp">
 			<span class="chat-line__timestamp">
 				{{
 					new Date(props.msg.timestamp).toLocaleTimeString(locale, {
@@ -45,7 +45,7 @@
 
 		<!-- Chat Author -->
 		<UserTag
-			v-if="msg.author"
+			v-if="msg.author && !hideAuthor"
 			:user="msg.author"
 			:color="color"
 			:badges="msg.badges"
@@ -53,7 +53,7 @@
 			@badge-click="badgeClick"
 		/>
 
-		<span>
+		<span v-if="!hideAuthor">
 			{{ !msg.slashMe ? ": " : " " }}
 		</span>
 
@@ -77,6 +77,13 @@
 				</template>
 			</template>
 		</span>
+
+		<!-- Ban State -->
+		<template v-if="!hideModeration && msg.moderation.banned">
+			<span class="seventv-chat-message-moderated seventv-chat-message-banned">
+				{{ msg.moderation.banDuration ? `Timed out (${msg.moderation.banDuration}s)` : "Permanently Banned" }}
+			</span>
+		</template>
 	</span>
 </template>
 
@@ -105,6 +112,10 @@ const props = withDefaults(
 			label: string;
 			color: string;
 		};
+		hideAuthor?: boolean;
+		hideModeration?: boolean;
+		hideDeletionState?: boolean;
+		forceTimestamp?: boolean;
 	}>(),
 	{ as: "Chat" },
 );
@@ -122,11 +133,12 @@ const meStyle = useConfig<number>("chat.slash_me_style");
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
-const color = props.msg.author
-	? properties.useHighContrastColors
-		? normalizeUsername(props.msg.author.color, properties.isDarkTheme as 0 | 1)
-		: props.msg.author.color
-	: "inherit";
+const color =
+	props.msg.author && props.msg.author.color
+		? properties.useHighContrastColors
+			? normalizeUsername(props.msg.author.color, properties.isDarkTheme as 0 | 1)
+			: props.msg.author.color
+		: "inherit";
 
 // Personal Emotes
 const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };
@@ -237,8 +249,19 @@ const { banUserFromChat, deleteChatMessage } =
 		font-weight: bold;
 	}
 }
-.deleted:not(:hover) {
+.deleted:not(:hover) > .seventv-chat-message-body {
 	opacity: 0.5;
 	text-decoration: line-through;
+}
+
+.seventv-chat-message-moderated {
+	&::before {
+		content: "—";
+	}
+
+	display: inline-block;
+	font-style: italic;
+	vertical-align: center;
+	color: var(--seventv-muted);
 }
 </style>

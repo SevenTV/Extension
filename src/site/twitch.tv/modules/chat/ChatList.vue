@@ -20,14 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from "vue";
+import { computed, nextTick, ref, toRef, watch } from "vue";
 import { until, useDocumentVisibility, useTimeoutFn } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { getRandomInt } from "@/common/Rand";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
 import { convertCheerEmote, convertTwitchEmote } from "@/common/Transform";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
 import { IsChatMessage, IsDisplayableMessage, IsModerationMessage } from "@/common/type-predicates/Messages";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -246,13 +246,13 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		// Set a timeout, beyond which we'll consider the message failed to send
 		const { stop } = useTimeoutFn(() => {
 			msg.setDeliveryState("BOUNCED");
-		}, 10e3);
+		}, 1e4);
 
 		until(ref(msg.deliveryState)).toBe("SENT").then(stop);
 	}
 
 	if (IsChatMessage(msgData)) msg.setTimestamp(msgData.timestamp);
-	else msg.setTimestamp(msgData.message?.timestamp ?? 0);
+	else if (msgData.message) msg.setTimestamp(msgData.message.timestamp ?? 0);
 
 	// Add message to store
 	// it will be rendered on the next tick
@@ -263,12 +263,58 @@ function onModerationMessage(msgData: Twitch.ModerationMessage) {
 	if (msgData.moderationType === ModerationType.DELETE) {
 		const found = messages.find((m) => m.id == msgData.targetMessageID);
 		if (found) {
-			found.deleted = true;
+			found.moderation.deleted = true;
 		}
 	} else {
+		const prev = messages.moderated[0];
+		if (
+			prev &&
+			prev.victim &&
+			prev.victim.username === msgData.userLogin &&
+			prev.mod.banDuration === msgData.duration
+		) {
+			// skip duplicate moderation messages
+			return;
+		}
+
 		const msgList = messages.messagesByUser(msgData.userLogin);
+
+		const action = {
+			actionType: msgData.duration > 0 ? "TIMEOUT" : "BAN",
+			banDuration: msgData.duration,
+			banReason: msgData.reason,
+			actor: null,
+			banned: true,
+			deleted: false,
+			timestamp: Date.now(),
+		} as ChatMessageModeration;
+
+		let victim: null | ChatUser = null;
 		for (const m of msgList) {
-			m.banned = true;
+			m.moderation = action;
+
+			if (!victim) {
+				victim = m.author as ChatUser;
+			}
+		}
+
+		// add to moderation log
+		messages.moderated.unshift({
+			messages: msgList.reverse().slice(0, 10), // last 10 messages
+			mod: action,
+			victim: victim || {
+				id: msgData.userLogin,
+				username: msgData.userLogin,
+				displayName: msgData.userLogin,
+				color: "",
+			},
+		});
+
+		// cleanup old logs
+		if (messages.moderated.length > 125) {
+			nextTick(() => {
+				while (messages.moderated.length > 100) messages.moderated.pop();
+			});
 		}
 	}
 }

@@ -372,6 +372,17 @@ declare module Twitch {
 		setValue: (v: string) => void;
 	};
 
+	export type ChatChannelPointsClaimComponent = ReactExtended.WritableComponent<{
+		hidden: boolean;
+	}> & {
+		onClick: () => void;
+		claimErrorTimer: number;
+	};
+
+	export type ChatInputControllerComponent = ReactExtended.WritableComponent<{}> & {
+		container: HTMLDivElement;
+	};
+
 	export interface UserAvatar extends ReactExtended.ReactRuntimeElement {
 		props: {
 			alt: string;

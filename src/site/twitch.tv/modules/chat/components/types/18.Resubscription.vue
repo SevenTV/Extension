@@ -6,7 +6,7 @@
 				<TwStar v-else />
 			</div>
 			<div class="sub-message-text">
-				<span class="sub-name bold">
+				<span v-if="msgData.user" class="sub-name bold">
 					{{ msgData.user.displayName }}
 				</span>
 				<span class="bold">Subscribed</span>

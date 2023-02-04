@@ -377,3 +377,9 @@ type Either<T, U> = Only<T, U> | Only<U, T>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare type ComponentFactory = abstract new (...args: any) => any;
+
+type NestedKeyOf<ObjectType extends object> = {
+	[Key in keyof ObjectType]: ObjectType[Key] extends object
+		? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
+		: Key;
+}[keyof ObjectType];

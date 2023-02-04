@@ -108,4 +108,24 @@ export namespace PubSubMessageData {
 		message_id: string;
 		sent_at: string;
 	}
+
+	export interface ModAction {
+		args: string[];
+		created_at: string;
+		created_by: string;
+		created_by_user_id: string;
+		moderation_action:
+			| "ban"
+			| "unban"
+			| "timeout"
+			| "untimeout"
+			| "delete"
+			| "delete_notification"
+			| "add_blocked_term"
+			| "delete_blocked_term";
+		msg_id?: string;
+		target_user_id: string;
+		target_user_login: string;
+		type: "chat_login_moderation" | "chat_targeted_login_moderation";
+	}
 }

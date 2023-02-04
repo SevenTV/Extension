@@ -3,7 +3,7 @@
 	<template v-if="!wg">
 		<component :is="platformComponent" v-if="platformComponent" />
 
-		<div id="seventv-emoji-container">
+		<div id="seventv-emoji-container" :style="{ display: 'none' }">
 			<component :is="EmojiContainer" />
 		</div>
 	</template>

@@ -14,11 +14,12 @@
 	--seventv-background-shade-2: #161616;
 	--seventv-primary: #29b6f6;
 	--seventv-warning: #df4545;
+	--seventv-muted: #999;
 
 	&.seventv-transparent {
 		--seventv-background-transparent-1: #161616c4;
 		--seventv-background-lesser-transparent-1: #161616f2;
-		--seventv-background-transparent-2: #1b1b1bc4;
+		--seventv-background-transparent-2: #1b1b1b97;
 	}
 }
 
@@ -34,11 +35,12 @@
 	--seventv-background-shade-2: #e7e7e7;
 	--seventv-primary: #29b6f6;
 	--seventv-warning: #ec3535;
+	--seventv-muted: #777;
 
 	&.seventv-transparent {
 		--seventv-background-transparent-1: #f7f7f7c4;
 		--seventv-background-lesser-transparent-1: #f7f7f7f2;
-		--seventv-background-transparent-2: #e7e7e7c4;
+		--seventv-background-transparent-2: #e7e7e797;
 	}
 }
 

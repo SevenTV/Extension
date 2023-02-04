@@ -215,7 +215,7 @@ a.then(
 );
 
 if (a instanceof ObserverPromise) {
-	until(useTimeout(10e3))
+	until(useTimeout(1e4))
 		.toBeTruthy()
 		.then(() => a.disconnect());
 }
@@ -315,7 +315,7 @@ async function hookMessageBuffer() {
 	);
 
 	if (result instanceof ObserverPromise) {
-		until(useTimeout(10e3))
+		until(useTimeout(1e4))
 			.toBeTruthy()
 			.then(() => result.disconnect());
 	}

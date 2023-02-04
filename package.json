@@ -3,7 +3,7 @@
 	"displayName": "7TV",
 	"description": "The Official 7TV Web Extension",
 	"private": true,
-	"version": "3.0.0.7000",
+	"version": "3.0.0.8000",
 	"scripts": {
 		"setup": "vite build --mode dev --minify esnext && vite build -c worker.vite.config.ts --mode dev",
 		"dev": "vite --mode dev",
@@ -45,6 +45,7 @@
 		"@vueuse/core": "^9.10.0",
 		"chokidar": "^3.5.3",
 		"color2k": "^2.0.0",
+		"date-fns": "^2.29.3",
 		"dexie": "^3.2.2",
 		"dompurify": "^2.4.3",
 		"eslint": "^8.31.0",

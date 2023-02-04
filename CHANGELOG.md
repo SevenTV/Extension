@@ -1,8 +1,11 @@
 ### Version 3.0.0.8000 (Beta 8)
 
--   Improved the performance of the Emote Menu on highly populated tabs
--   Mention Highlights should now work again
+-   New Feature: Mod Logs, an interface to view recent moderator activity and active timeouts
+-   New Feature: Autoclaim, allows automatically claiming the channel point bonus when it's available
 -   Fixed an issue which caused a stray pixel to stay in view after viewing a tooltip
+-   Fixed an issue which caused emojis to be considered in tab-completion
+-   Improved the performance of the Emote Menu on highly populated tabs
+-   Mention & Reply Highlights should now work again
 
 ### Version 3.0.0.7000 (Beta 7)
 

@@ -49,12 +49,12 @@ function getReplyTray(props: TrayProps<"Reply">): Twitch.ChatTray<"Reply"> {
 		sendButtonOverride: "reply",
 		disableBits: true,
 		disablePaidPinnedChat: true,
-		disableChat: props.msg.deleted,
+		disableChat: props.msg.moderation.deleted,
 		sendMessageHandler: {
 			type: "reply",
 			additionalMetadata: {
 				reply: {
-					parentDeleted: props.msg.deleted,
+					parentDeleted: props.msg.moderation.deleted,
 					parentMsgId: props.msg.id,
 					parentMessageBody: props.msg.body,
 					...(props.msg.author
