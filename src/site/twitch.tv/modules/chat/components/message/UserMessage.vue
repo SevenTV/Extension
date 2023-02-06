@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from "vue";
+import { computed, ref, toRef, watch } from "vue";
 import { normalizeUsername } from "@/common/Color";
 import { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
@@ -146,8 +146,10 @@ const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emote
 // Tokenize the message
 type MessageTokenOrText = AnyToken | string;
 const tokenizer = props.msg.getTokenizer();
-const tokens = computed<MessageTokenOrText[]>(() => {
-	if (!tokenizer) return [];
+const tokens = ref([] as MessageTokenOrText[]);
+
+function doTokenize() {
+	if (!tokenizer) return;
 
 	const newTokens = tokenizer.tokenize({
 		emoteMap: emotes.active,
@@ -177,8 +179,14 @@ const tokens = computed<MessageTokenOrText[]>(() => {
 		result.push(after);
 	}
 
-	return result;
-});
+	tokens.value = result;
+}
+
+watch(
+	() => [cosmetics.emotes, props.msg.nativeEmotes],
+	() => doTokenize(),
+	{ immediate: true },
+);
 
 function getPart(part: AnyToken) {
 	if (IsEmotePart(part)) {

@@ -1,23 +1,28 @@
 <!-- eslint-disable no-fallthrough -->
 <template>
 	<Teleport v-if="channel && channel.id" :to="containerEl">
-		<UiScrollable ref="scrollerRef" @container-scroll="scroller.onScroll" @container-wheel="scroller.onWheel">
+		<UiScrollable
+			ref="scrollerRef"
+			@container-scroll="scroller.onScroll"
+			@container-wheel="scroller.onWheel"
+			@mouseenter="properties.hovering = true"
+			@mouseleave="properties.hovering = false"
+		>
 			<div id="seventv-message-container" class="seventv-message-container">
 				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
 			</div>
 
 			<!-- New Messages during Scrolling Pause -->
-			<div
-				v-if="scroller.paused && messages.pauseBuffer.length > 0"
-				class="seventv-message-buffer-notice"
-				@click="scroller.unpause"
-			>
+			<div v-if="scroller.paused" class="seventv-message-buffer-notice" @click="scroller.unpause">
 				<PauseIcon />
 
-				<span :class="{ capped: messages.pauseBuffer.length >= scroller.lineLimit }">
+				<span
+					v-if="messages.pauseBuffer.length"
+					:class="{ capped: messages.pauseBuffer.length >= scroller.lineLimit }"
+				>
 					{{ messages.pauseBuffer.length }}
 				</span>
-				<span>new messages</span>
+				<span>{{ messages.pauseBuffer.length > 0 ? "new messages" : "Chat Paused" }}</span>
 			</div>
 		</UiScrollable>
 
@@ -161,6 +166,21 @@ definePropertyHook(room.value.component, "props", {
 		properties.useHighContrastColors = v.useHighContrastColors;
 		properties.showTimestamps = v.showTimestamps;
 		properties.showModerationIcons = v.showModerationIcons;
+
+		properties.pauseReason.clear();
+		properties.pauseReason.add("SCROLL");
+		switch (v.chatPauseSetting) {
+			case "MOUSEOVER_ALTKEY":
+				properties.pauseReason.add("ALTKEY");
+				properties.pauseReason.add("MOUSEOVER");
+				break;
+			case "MOUSEOVER":
+				properties.pauseReason.add("MOUSEOVER");
+				break;
+			case "ALTKEY":
+				properties.pauseReason.add("ALTKEY");
+				break;
+		}
 	},
 });
 

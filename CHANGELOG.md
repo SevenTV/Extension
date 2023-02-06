@@ -7,6 +7,12 @@
 -   Improved the performance of the Emote Menu on highly populated tabs
 -   Mention & Reply Highlights should now work again
 
+#### Beta 8.1
+
+- Added support for chat pausing with Alt or Mouseover
+- Further improved the performance of the Emote Menu
+- Fixed freezing issues when opening the Mod Logs menu
+
 ### Version 3.0.0.7000 (Beta 7)
 
 -	Added support for Emojis in chat & auto-completion

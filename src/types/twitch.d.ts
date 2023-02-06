@@ -185,6 +185,7 @@ declare module Twitch {
 		isWatchPartyActive: boolean;
 		isShowingCommunityHighlightList: boolean;
 		deletedMessageDisplay: "BRIEF" | "DETAILED" | "LEGACY";
+		chatPauseSetting: "MOUSEOVER" | "SCROLL_ONLY" | "ALTKEY" | "MOUSEOVER_ALTKEY";
 	}>;
 
 	export type ViewerCardComponent = ReactExtended.WritableComponent<{}> & {

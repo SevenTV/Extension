@@ -19,7 +19,7 @@
 						</template>
 					</div>
 					<div v-if="!inputSearch" class="emote-search">
-						<input v-model="filter" class="emote-search-input" />
+						<input v-model="ctx.filter" class="emote-search-input" />
 						<div class="search-icon">
 							<SearchIcon />
 						</div>
@@ -27,18 +27,21 @@
 				</div>
 
 				<!-- Emote menu body -->
-				<template v-for="(_, key) in visibleProviders" :key="key">
-					<div v-show="key === activeProvider" class="seventv-emote-menu-body">
-						<EmoteMenuTab
-							:provider="key"
-							:filter="filter"
-							:selected="key === activeProvider"
-							@emote-clicked="onEmoteClick"
-							@provider-visible="onProviderVisibilityChange(key, $event)"
-							@toggle-settings="settingsToggle"
-						/>
-					</div>
-				</template>
+				<div
+					v-for="(_, key) in visibleProviders"
+					v-show="key === activeProvider"
+					:key="key"
+					v-memo="[activeProvider === key, visibleProviders, ctx.filter]"
+					class="seventv-emote-menu-body"
+				>
+					<EmoteMenuTab
+						:provider="key"
+						:selected="key === activeProvider"
+						@emote-clicked="onEmoteClick"
+						@provider-visible="onProviderVisibilityChange(key, $event)"
+						@toggle-settings="settingsToggle"
+					/>
+				</div>
 			</div>
 		</div>
 	</Teleport>
@@ -61,6 +64,7 @@ import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 
 const props = defineProps<{
@@ -70,9 +74,8 @@ const props = defineProps<{
 
 const containerEl = ref<HTMLElement | undefined>();
 
+const ctx = useEmoteMenuContext();
 const open = ref(false);
-const filter = ref("");
-
 const settingsModule = getModule("settings");
 
 const inputSearch = useConfig<boolean>("ui.emote_menu_search");
@@ -131,7 +134,7 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	let current = inputRef.getValue();
 
 	if (inputSearch.value) {
-		current = current.slice(0, filter.value.length ? filter.value.length * -1 : Infinity);
+		current = current.slice(0, ctx.filter.length ? ctx.filter.length * -1 : Infinity);
 	} else {
 		current = current.at(-1) === " " ? current : current + " ";
 	}
@@ -156,14 +159,14 @@ defineFunctionHook(props.instance.component, "onBitsIconClick", function (old) {
 definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 	value(v: typeof props.instance.component.autocompleteInputRef.state) {
 		if (!open.value) {
-			filter.value = "";
+			ctx.filter = "";
 
 			return;
 		}
 
 		if (!inputSearch.value) return;
 
-		filter.value = v.value.split(" ").at(-1) ?? "";
+		ctx.filter = v.value.split(" ").at(-1) ?? "";
 	},
 });
 

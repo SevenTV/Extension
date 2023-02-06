@@ -5,6 +5,7 @@ import { SetHexAlpha } from "../Color";
 export const NullComponent = defineComponent({});
 
 export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
+	public readonly sym = Symbol("seventv-message");
 	public body = "";
 	public author: ChatUser | null = null;
 	public channelID = "";
@@ -41,7 +42,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 		this.version++;
 	}
 
-	constructor(public readonly id: string) {
+	constructor(public id: string) {
 		this.tokenizer = new Tokenizer(this);
 	}
 
@@ -65,7 +66,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	}
 
 	public setID(id: string): void {
-		Object.defineProperty(this, "id", { value: id });
+		this.id = id;
 	}
 
 	public setHighlight(color: string, label: string): void {

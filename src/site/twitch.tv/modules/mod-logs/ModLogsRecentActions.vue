@@ -2,7 +2,9 @@
 	<main class="seventv-mod-log-recent-actions">
 		<template v-for="(item, index) of messages.moderated" :key="index">
 			<template v-if="item.mod">
-				<ModLogsRecentActionsItem :messages="item.messages" :victim="item.victim" :mod="item.mod" />
+				<UiLazyList :inst="listID" :incr="3">
+					<ModLogsRecentActionsItem :messages="item.messages" :victim="item.victim" :mod="item.mod" />
+				</UiLazyList>
 			</template>
 		</template>
 	</main>
@@ -11,8 +13,10 @@
 <script setup lang="ts">
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import ModLogsRecentActionsItem from "./ModLogsRecentActionsItem.vue";
+import UiLazyList from "@/ui/UiLazyList.vue";
 
 const messages = useChatMessages();
+const listID = Symbol("mod-logs-recent-actions");
 </script>
 
 <style scoped lang="scss">

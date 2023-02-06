@@ -1,6 +1,6 @@
 <template>
-	<div ref="containerEl" class="seventv-emote-set-container">
-		<div v-if="emotes.length" class="seventv-set-header">
+	<div v-if="emotes.length" ref="containerEl" class="seventv-emote-set-container">
+		<div class="seventv-set-header">
 			<div class="seventv-set-header-icon">
 				<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
 				<Logo v-else class="logo" :provider="es.provider" />
@@ -17,21 +17,26 @@
 					[`ratio-${determineRatio(ae)}`]: true,
 					'seventv-emote-disabled': isEmoteDisabled(es, ae),
 				}"
+				:load-state="loaded[ae.id]"
 				:set-id="es.id"
 				:emote-id="ae.id"
 				@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
 			>
-				<Emote :emote="ae" :unload="!loaded[ae.id]" />
+				<template v-if="loaded[ae.id]">
+					<Emote :emote="ae" :unload="!loaded[ae.id]" />
+				</template>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
-import { until, useTimeout, watchDebounced } from "@vueuse/core";
+import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from "vue";
+import { until, useTimeout } from "@vueuse/core";
+import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import { useEmoteMenuContext } from "./EmoteMenuContext";
 import {
 	ElementLifecycle,
 	ElementLifecycleDirective as vElementLifecycle,
@@ -40,35 +45,52 @@ import Emote from "../chat/components/message/Emote.vue";
 
 const props = defineProps<{
 	es: SevenTV.EmoteSet;
-	emotes: SevenTV.ActiveEmote[];
 }>();
 
 const emit = defineEmits<{
 	(e: "emote-clicked", ae: SevenTV.ActiveEmote): void;
-	(e: "observed", lifecycle: ElementLifecycle, el: HTMLElement): void;
+	(e: "emotes-updated", emotes: SevenTV.ActiveEmote[]): void;
 }>();
 
+const ctx = useEmoteMenuContext();
 const emotes = ref<SevenTV.ActiveEmote[]>([]);
-watchDebounced(
-	props,
-	(v) => {
-		emotes.value = v.emotes;
-	},
-	{ immediate: true, debounce: 75 },
-);
-
 const containerEl = ref<HTMLElement>();
 const observing = ref(false);
 
-// IntersectionObserver to hide out-of-view emotes and throttle loading to view
-const loaded = reactive<Record<string, number>>({});
-const debounceCards = ref(false);
-let observer: IntersectionObserver;
+// Filter active emotes with query
+const filterEmotes = debounceFn((filter = "") => {
+	const x = [] as SevenTV.ActiveEmote[];
+
+	for (const e of props.es.emotes) {
+		if (filter && !e.name.toLowerCase().includes(filter.toLowerCase())) {
+			continue;
+		}
+
+		x.push(e);
+	}
+
+	x.sort((a, b) => {
+		const ra = determineRatio(a);
+		const rb = determineRatio(b);
+		return ra == rb ? a.name.localeCompare(b.name) : ra > rb ? 1 : -1;
+	});
+
+	emotes.value = x;
+	emit("emotes-updated", x);
+}, 250);
 
 function isEmoteDisabled(set: SevenTV.EmoteSet, ae: SevenTV.ActiveEmote) {
 	return set.scope === "PERSONAL" && ae.data && ae.data.state && !ae.data.state.includes("PERSONAL");
 }
+
+watchEffect(() => filterEmotes(ctx.filter));
+
+// IntersectionObserver to hide out-of-view emotes and throttle loading to view
+const loaded = reactive<Record<string, number>>({});
+const debounceCards = ref(false);
 const shouldDebounceLoading = props.es.provider !== "EMOJI";
+
+let observer: IntersectionObserver;
 function setupObserver() {
 	if (observer) return;
 
@@ -147,8 +169,9 @@ defineExpose({
 }
 
 .seventv-set-header-icon {
-	height: 2rem;
-	width: 2rem;
+	font-size: 2rem;
+	max-width: 2rem;
+	max-height: 2rem;
 	border-radius: 0.5rem;
 	margin-right: 1rem;
 	overflow: clip;
@@ -178,6 +201,23 @@ defineExpose({
 
 	&:hover {
 		background: hsla(0deg, 0%, 50%, 32%);
+	}
+
+	&[load-state="0"] {
+		background: hsla(0deg, 0%, 50%, 6%);
+		animation: emote-loader 1s linear infinite;
+	}
+
+	@keyframes emote-loader {
+		0% {
+			background: hsla(0deg, 0%, 50%, 6%);
+		}
+		50% {
+			background: hsla(0deg, 0%, 50%, 12%);
+		}
+		100% {
+			background: hsla(0deg, 0%, 50%, 6%);
+		}
 	}
 
 	&.seventv-emote-disabled {

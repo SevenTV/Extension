@@ -98,7 +98,7 @@ const srcset = computed(() =>
 // (this is to prevent the tooltip from loading the full size image when the user is just moving the cursor around)
 useTimeoutFn(() => {
 	shouldLoad.value = true;
-}, 250);
+}, 90);
 
 const overlayEmotes = computed(() => Object.values(props.overlaid ?? {}));
 const width = computed(() => `${props.width * 3}px`);

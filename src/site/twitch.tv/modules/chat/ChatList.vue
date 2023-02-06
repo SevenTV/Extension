@@ -1,6 +1,6 @@
 <template>
 	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
-		<div v-for="msg of messages.displayed" :key="msg.id" v-memo="[msg]" :msg-id="msg.id" class="seventv-message">
+		<div v-for="msg of displayedMessages" :key="msg.sym" v-memo="[msg]" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
 				<ModSlider v-if="isModSliderEnabled && properties.isModerator && msg.author" :msg="msg">
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, toRef, watch } from "vue";
-import { until, useDocumentVisibility, useTimeoutFn } from "@vueuse/core";
+import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { getRandomInt } from "@/common/Rand";
 import { HookedInstance } from "@/common/ReactHooks";
@@ -45,44 +45,18 @@ const props = defineProps<{
 
 const store = useStore();
 const messages = useChatMessages();
+const displayedMessages = toRef(messages, "displayed");
 const scroller = useChatScroller();
 const properties = useChatProperties();
 const pageVisibility = useDocumentVisibility();
+const isHovering = toRef(properties, "hovering");
 
 const actorRegexp = computed(() => (store.identity ? new RegExp(`\\b${store.identity?.username}\\b`) : null));
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 
-// Keep track of props
-
-// The message handler is hooked to render messages and prevent
-// the native twitch renderer from rendering them
 const messageHandler = toRef(props, "messageHandler");
-
-watch(
-	messageHandler,
-	(handler, old) => {
-		if (handler !== old && old) {
-			unsetPropertyHook(old, "handleMessage");
-		} else if (handler) {
-			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
-				const t = Date.now() + getRandomInt(0, 1000);
-				const msgData = Object.create({ seventv: true, t });
-				for (const k of Object.keys(msg)) {
-					msgData[k] = msg[k as keyof Twitch.AnyMessage];
-				}
-
-				const ok = onMessage(msgData);
-				if (ok) return ""; // message was rendered by the extension
-
-				// message was not rendered by the extension
-				return old?.call(this, msg);
-			});
-		}
-	},
-	{ immediate: true },
-);
 
 // Determine if the message should perform some action or be sent to the chatAPI for rendering
 const onMessage = (msgData: Twitch.AnyMessage): boolean => {
@@ -327,10 +301,60 @@ function onMessageIdUpdate(msg: Twitch.IDUpdateMessage) {
 	}
 }
 
+// Keep track of props
+
+// The message handler is hooked to render messages and prevent
+// the native twitch renderer from rendering them
+watch(
+	messageHandler,
+	(handler, old) => {
+		if (handler !== old && old) {
+			unsetPropertyHook(old, "handleMessage");
+		} else if (handler) {
+			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
+				const t = Date.now() + getRandomInt(0, 1000);
+				const msgData = Object.create({ seventv: true, t });
+				for (const k of Object.keys(msg)) {
+					msgData[k] = msg[k as keyof Twitch.AnyMessage];
+				}
+
+				const ok = onMessage(msgData);
+				if (ok) return ""; // message was rendered by the extension
+
+				// message was not rendered by the extension
+				return old?.call(this, msg);
+			});
+		}
+	},
+	{ immediate: true },
+);
+
+// Scroll Pausing on hotkey / hover
+const { alt } = useMagicKeys();
+
+let pausedByHotkey = false;
+watch(
+	() => [alt, isHovering],
+	([isAlt, isHover]) => {
+		if (!scroller.paused) {
+			if (isHover && properties.pauseReason.has("MOUSEOVER")) {
+				scroller.pause();
+				pausedByHotkey = true;
+			} else if (isHover && isAlt && properties.pauseReason.has("ALTKEY")) {
+				scroller.pause();
+				pausedByHotkey = true;
+			}
+		} else if (pausedByHotkey) {
+			scroller.unpause();
+			pausedByHotkey = false;
+		}
+	},
+);
+
 // Pause scrolling when page is not visible
 const pausedByVisibility = ref(false);
 watch(pageVisibility, (state) => {
-	if (state === "hidden") {
+	if (state === "hidden" && !scroller.paused) {
 		scroller.pause();
 		pausedByVisibility.value = true;
 	} else if (pausedByVisibility.value) {

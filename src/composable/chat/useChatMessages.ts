@@ -42,7 +42,7 @@ const batchTimeMs = useConfig<number>("chat.message_batch_duration");
  *
  * @param message the message to queue up
  */
-function add<T extends ChatMessage>(message: T): void {
+function add<T extends ChatMessage>(message: T, now?: boolean): void {
 	if (scroller.paused) {
 		// if scrolling is paused, buffer the message
 		data.pauseBuffer.push(message);
@@ -71,7 +71,7 @@ function add<T extends ChatMessage>(message: T): void {
 		data.awaited.delete(message.id);
 	}
 
-	flush();
+	flush(now);
 }
 
 /**
@@ -86,7 +86,7 @@ function clear() {
  * Flushes the message buffer, pushing messages to the render queue
  * and removing rendered messages that have gone out of the live buffer's bounds
  */
-function flush(): void {
+function flush(force?: boolean): void {
 	if (flushTimeout) return;
 
 	flushTimeout = window.setTimeout(() => {
@@ -126,11 +126,11 @@ function flush(): void {
 				}
 
 				flushTimeout = undefined;
-			}, batchTimeMs.value / 1.5);
+			}, (force ? 5 : batchTimeMs.value) / 1.5);
 		} else {
 			flushTimeout = undefined;
 		}
-	}, batchTimeMs.value / 2);
+	}, (force ? 5 : batchTimeMs.value) / 2);
 }
 
 /**

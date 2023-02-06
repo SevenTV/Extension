@@ -2,12 +2,12 @@
 	<div class="emote-area-container">
 		<UiScrollable class="scroll-area">
 			<div class="emote-area">
-				<div v-for="es of sortedSets" :key="es.id">
+				<div v-for="es of sortedSets" :key="es.id" v-memo="[ctx.filter, es.emotes, selected]">
 					<EmoteMenuSet
 						:ref="'es-' + es.id"
 						:es="es"
-						:emotes="filteredEmotes[es.id]"
 						@emote-clicked="(ae) => emit('emote-clicked', ae)"
+						@emotes-updated="(emotes) => updateVisibility(es, !!emotes.length)"
 					/>
 				</div>
 			</div>
@@ -38,21 +38,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRaw, toRef } from "vue";
-import { watchDebounced } from "@vueuse/core";
+import { reactive, ref, watch } from "vue";
 import { useStore } from "@/store/main";
-import { determineRatio } from "@/common/Image";
+import { debounceFn } from "@/common/Async";
 import { useChatContext } from "@/composable/chat/useChatContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuSet from "./EmoteMenuSet.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
 	provider: SevenTV.Provider;
-	filter?: string;
 	selected?: boolean;
 }>();
 
@@ -62,6 +61,7 @@ const emit = defineEmits<{
 	(event: "toggle-settings"): void;
 }>();
 
+const ctx = useEmoteMenuContext();
 const context = useChatContext();
 const emotes = useChatEmotes();
 const selectedSet = ref("");
@@ -70,9 +70,8 @@ const selectedSet = ref("");
 const sets = emotes.byProvider(props.provider);
 const store = useStore();
 const cosmetics = useCosmetics(store.identity?.id ?? "");
-const personalEmotes = toRef(cosmetics, "emotes");
+const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
-const filteredEmotes = ref<Record<string, SevenTV.ActiveEmote[]>>({});
 
 // Select an Emote Set to jump-scroll to
 function select(setID: string, coms: InstanceType<typeof EmoteMenuSet>[] | null | undefined) {
@@ -99,67 +98,45 @@ function sortFn(a: SevenTV.EmoteSet, b: SevenTV.EmoteSet) {
 	return c1 == c2 ? a.name.localeCompare(b.name) : c1 > c2 ? 1 : -1;
 }
 
-// Filter active emotes with query
-function filterEmotes(filter: string) {
-	const x = {} as Record<string, SevenTV.ActiveEmote[]>;
-
-	let total = 0;
-	for (const set of sortedSets.value) {
-		const res = [] as SevenTV.ActiveEmote[];
-		for (const e of set.emotes) {
-			if (filter && !e.name.toLowerCase().includes(filter.toLowerCase())) {
-				continue;
-			}
-
-			res.push(e);
-		}
-
-		x[set.id] = res;
-		total += res.length;
+function updateVisibility(es: SevenTV.EmoteSet, state: boolean): void {
+	if (state) {
+		visibleSets.add(es);
+	} else {
+		visibleSets.delete(es);
 	}
 
-	filteredEmotes.value = x;
-	emit("provider-visible", !!total);
+	emit("provider-visible", !!visibleSets.size);
 }
 
-function filterSets(): void {
-	const ary = Object.values(structuredClone(toRaw(sets.value))) as SevenTV.EmoteSet[];
+const filterSets = debounceFn(() => {
+	const ary = Object.values(sets.value) as SevenTV.EmoteSet[];
 	if (cosmetics.emoteSets?.length) {
-		ary.push(...structuredClone(toRaw(cosmetics.emoteSets).filter((e) => e.provider === props.provider)));
+		ary.push(...cosmetics.emoteSets.filter((e) => e.provider === props.provider));
 	}
 
 	if (props.provider === "TWITCH") {
-		const res = ary.reduce((prev, cur) => {
-			const p = prev[cur.name];
+		const res = ary.reduce((accu, cur) => {
+			const p = accu[cur.name];
 			if (p) {
 				p.emotes.push(...cur.emotes);
 			} else {
-				prev[cur.name] = cur;
+				accu[cur.name] = { set: cur, emotes: [...cur.emotes] };
 			}
-			return prev;
-		}, {} as Record<string, SevenTV.EmoteSet>);
+			return accu;
+		}, {} as Record<string, { set: SevenTV.EmoteSet; emotes: SevenTV.ActiveEmote[] }>);
 
-		ary.splice(0, ary.length, ...Object.values(res));
-	}
-
-	for (const set of ary) {
-		set.emotes.sort((a, b) => {
-			const ra = determineRatio(a);
-			const rb = determineRatio(b);
-			return ra == rb ? a.name.localeCompare(b.name) : ra > rb ? 1 : -1;
-		});
+		ary.splice(0, ary.length, ...Object.values(res).map((e) => ({ ...e.set, emotes: e.emotes })));
 	}
 
 	// Sort emote sets
-	sortedSets.value.splice(0, sortedSets.value.length, ...ary.sort(sortFn));
-	filterEmotes(props.filter ?? "");
-}
+	ary.sort(sortFn);
+	sortedSets.value = ary;
+}, 250);
 
 // Watch for changes to the emote sets and perform sorting operations
-watchDebounced([sets, emotes.active, personalEmotes], filterSets, { debounce: 150, immediate: true });
-
-// Listen for user search query
-watchDebounced(props, ({ filter }) => filterEmotes(filter ?? ""), { debounce: 250 });
+watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
+	immediate: true,
+});
 </script>
 <style scoped lang="scss">
 .emote-area-container {

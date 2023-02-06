@@ -1,4 +1,5 @@
 import { Ref, nextTick, reactive, toRef, watchEffect } from "vue";
+import { useTimeoutFn } from "@vueuse/core";
 import { useConfig } from "@/composable/useSettings";
 import { useChatMessages } from "./useChatMessages";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
@@ -109,16 +110,26 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 	/**
 	 * Unpauses the scrolling of the chat
 	 */
-	function unpause(): void {
+	async function unpause(): Promise<void> {
 		data.paused = false;
 		data.init = true;
 
-		for (const msg of messages.pauseBuffer) messages.add(msg);
-		messages.pauseBuffer.length = 0;
+		// Lazily move the messages in the pause buffer to the main buffer
+		let n = 0;
+		while (messages.pauseBuffer.length) {
+			const unbuf = messages.pauseBuffer.splice(0, 5);
+			n += 50;
+
+			useTimeoutFn(() => {
+				for (const msg of unbuf) messages.add(msg, true);
+				nextTick(() => {
+					scrollToLive();
+				});
+			}, n);
+		}
 
 		nextTick(() => {
 			data.init = false;
-			scrollToLive();
 		});
 	}
 
