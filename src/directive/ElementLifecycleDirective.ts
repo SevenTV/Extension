@@ -1,4 +1,4 @@
-import { Directive, DirectiveBinding } from "vue";
+import type { Directive, DirectiveBinding } from "vue";
 
 export const ElementLifecycleDirective = {
 	mounted(el: HTMLElement, binding: DirectiveBinding<Callback>) {

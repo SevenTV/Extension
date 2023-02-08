@@ -5,35 +5,33 @@
 			:list="inst"
 			:controller="chatController.instances[i]"
 			:room="chatRoom.instances[0] ?? undefined"
+			:buffer="chatBuffer.instances[0] ?? undefined"
 		/>
 	</template>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { ref, watch } from "vue";
 import { refDebounced } from "@vueuse/shared";
 import { getTrackedNode, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
+import { declareConfig } from "@/composable/useSettings";
 import ChatController from "./ChatController.vue";
 
 const { dependenciesMet, markAsReady } = declareModule("chat", {
 	name: "Chat",
 	depends_on: [],
 	config: [
-		{
-			key: "general.blur_unlisted_emotes",
+		declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
 			path: ["General", ""],
 			label: "Hide Unlisted Emotes",
 			hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
-			type: "TOGGLE",
 			defaultValue: false,
-		},
-		{
-			key: "chat.emote_margin",
+		}),
+		declareConfig<number>("chat.emote_margin", "SLIDER", {
 			path: ["Chat", "Style"],
 			label: "Emote Spacing",
 			hint: "Choose the margin around emotes in chat. Negative values lets them overlap and keep the chatlines inline. 0 Makes the emotes not overlap at all",
-			type: "SLIDER",
 			options: {
 				min: -1,
 				max: 1,
@@ -41,21 +39,20 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 				unit: "rem",
 			},
 			defaultValue: -0.5,
-		},
-		{
-			key: "chat.mod_slider",
+			effect(v) {
+				document.documentElement.style.setProperty("--seventv-emote-margin", `${v}rem`);
+			},
+		}),
+		declareConfig("chat.mod_slider", "TOGGLE", {
 			path: ["Chat", "Moderation"],
 			label: "Mod Slider",
 			hint: "Enable the mod slider in channels where you are moderator",
-			type: "TOGGLE",
 			defaultValue: true,
-		},
-		{
-			key: "chat.slash_me_style",
+		}),
+		declareConfig("chat.slash_me_style", "DROPDOWN", {
 			path: ["Chat", "Style"],
 			label: "/me Style",
 			hint: "How the /me type messages should be displayed",
-			type: "DROPDOWN",
 			options: [
 				["Nothing", 0],
 				["Italic", 1],
@@ -63,13 +60,11 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 				["Italic + Colored", 3],
 			],
 			defaultValue: 2,
-		},
-		{
-			key: "chat.message_batch_duration",
+		}),
+		declareConfig("chat.message_batch_duration", "SLIDER", {
 			path: ["Chat", "Performance"],
 			label: "Message Batching",
 			hint: "The time to wait between rendering new messages. Higher values may improve performance and readability, at the cost of chat feeling less responsive",
-			type: "SLIDER",
 			options: {
 				min: 25,
 				max: 1000,
@@ -84,13 +79,11 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 				],
 			},
 			defaultValue: 150,
-		},
-		{
-			key: "chat.smooth_scroll_duration",
+		}),
+		declareConfig<number>("chat.smooth_scroll_duration", "SLIDER", {
 			path: ["Chat", "Performance"],
 			label: "Smooth scroll chat",
 			hint: "Smoothly scroll new messages into view. This may impact performance.",
-			type: "SLIDER",
 			options: {
 				min: 0,
 				max: 1500,
@@ -98,13 +91,11 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 				unit: "ms",
 			},
 			defaultValue: 0,
-		},
-		{
-			key: "chat.line_limit",
+		}),
+		declareConfig<number>("chat.line_limit", "SLIDER", {
 			path: ["Chat", "Performance"],
 			label: "Line Limit",
 			hint: "The maximum amount of lines that will be displayed in chat. Higher values may affect performance",
-			type: "SLIDER",
 			options: {
 				min: 50,
 				max: 500,
@@ -112,40 +103,43 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 				unit: "lines",
 			},
 			defaultValue: 150,
-		},
-		{
-			key: "ui.compact_tooltips",
+		}),
+		declareConfig("ui.compact_tooltips", "TOGGLE", {
 			path: ["Appearance", "Style"],
 			label: "Compact tooltips",
 			hint: "Make the tooltips compact instead of showing the full emote",
-			type: "TOGGLE",
 			defaultValue: false,
-		},
-		{
-			key: "chat.alternating_background",
+		}),
+		declareConfig<boolean>("chat.alternating_background", "TOGGLE", {
 			path: ["Chat", "Style"],
 			ffz_key: "chat.lines.alternate",
 			label: "Alternating Background",
 			hint: "Display chat lines with alternating background colors",
-			type: "TOGGLE",
 			defaultValue: false,
-		},
-		{
-			key: "chat.padding",
+		}),
+		declareConfig<number>("chat.padding", "DROPDOWN", {
 			path: ["Chat", "Style"],
 			label: "Padding Style",
 			ffz_key: "chat.lines.padding",
 			ffz_transform(v: unknown) {
 				return v ? 1 : 0;
 			},
+			effect(v) {
+				document.body.style.setProperty(
+					"--seventv-chat-padding",
+					{
+						0: "0",
+						1: "0.5rem",
+					}[v] ?? null,
+				);
+			},
 			hint: "Change the padding style of chat lines",
-			type: "DROPDOWN",
 			options: [
 				["Full-Width", 0],
 				["Native (Twitch-like)", 1],
 			],
 			defaultValue: 1,
-		},
+		}),
 	],
 });
 
@@ -178,8 +172,21 @@ const chatController = useComponentHook<Twitch.ChatControllerComponent>({
 	predicate: (n) => n.pushMessage && n.props?.messageHandlerAPI,
 });
 
-const isHookable = computed(() => chatController.instances.length === chatList.instances.length);
+const chatBuffer = useComponentHook<Twitch.MessageBufferComponent>({
+	parentSelector: ".stream-chat",
+	predicate: (n) => n.prependHistoricalMessages && n.buffer && n.blockedUsers,
+});
+
+const isHookable = ref(false);
 const isHookableDbc = refDebounced(isHookable, 2500);
+
+watch(
+	() => [chatController.instances, chatController.instances],
+	([a, b]) => (isHookable.value = a.length === b.length),
+	{
+		immediate: true,
+	},
+);
 
 markAsReady();
 

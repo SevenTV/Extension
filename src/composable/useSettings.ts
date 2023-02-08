@@ -16,8 +16,9 @@ function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
 				return raw[key] as T;
 			},
 			set(newVal) {
+				const n = nodes[key];
 				// Only write the setting if it passes the optional predicate
-				const predicate = nodes[key].predicate;
+				const predicate = n.predicate;
 				if (predicate && !predicate(newVal)) return;
 
 				raw[key] = newVal;
@@ -25,6 +26,10 @@ function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
 
 				// Write changes to the db
 				db.settings.put({ key: key, type: typeof newVal, value: newVal }, key);
+
+				if (typeof n.effect === "function") {
+					n.effect(newVal);
+				}
 			},
 		};
 	});
@@ -71,6 +76,10 @@ export function useSettings() {
 			if (["string", "boolean", "object", "number", "undefined"].includes(typeof raw[node.key])) {
 				raw[node.key] = raw[node.key] ?? node.defaultValue;
 			}
+
+			if (typeof node.effect === "function") {
+				node.effect(raw[node.key]);
+			}
 		}
 	}
 
@@ -78,4 +87,16 @@ export function useSettings() {
 		getNodes,
 		register,
 	};
+}
+
+export function declareConfig<T extends SevenTV.SettingType, C = SevenTV.SettingNode.ComponentType>(
+	key: string,
+	comType: C,
+	data: Omit<SevenTV.SettingNode<T, C>, "key" | "type">,
+): SevenTV.SettingNode<SevenTV.SettingType, SevenTV.SettingNode.ComponentType> {
+	return {
+		key,
+		type: comType,
+		...data,
+	} as SevenTV.SettingNode<SevenTV.SettingType, SevenTV.SettingNode.ComponentType>;
 }

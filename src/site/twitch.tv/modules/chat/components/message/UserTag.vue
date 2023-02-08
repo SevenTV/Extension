@@ -10,42 +10,30 @@
 				type="twitch"
 				@click="(e) => emit('badgeClick', e, badge)"
 			/>
-			<Badge
-				v-for="badge of cosmetics.badges"
-				:key="badge.id"
-				:badge="badge"
-				:alt="badge.data.tooltip"
-				type="app"
-			/>
+			<Badge v-for="badge of activeBadges" :key="badge.id" :badge="badge" :alt="badge.data.tooltip" type="app" />
 		</span>
 
 		<!-- Message Author -->
 		<span class="seventv-chat-user-username" @click="(e) => emit('nameClick', e)">
-			<span v-if="!paint">
+			<span v-cosmetic-paint="paint ? paint.id : null">
 				<span>{{ user.displayName }}</span>
 				<span v-if="user.intl"> ({{ user.username }})</span>
-			</span>
-			<span v-else>
-				<UiPaint :paint="paint" :text="true">
-					<span>{{ user.displayName }}</span>
-					<span v-if="user.intl"> ({{ user.username }})</span>
-				</UiPaint>
 			</span>
 		</span>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { ChatUser } from "@/common/chat/ChatMessage";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
 import Badge from "./Badge.vue";
-import UiPaint from "@/ui/UiPaint.vue";
 
 const props = defineProps<{
 	user: ChatUser;
 	color: string;
+	msgId?: symbol;
 	badges?: Record<string, string>;
 }>();
 
@@ -58,7 +46,8 @@ const properties = useChatProperties();
 const cosmetics = useCosmetics(props.user.id);
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
-const paint = computed(() => (cosmetics.paints && cosmetics.paints.length ? cosmetics.paints[0] : null));
+const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
+const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
 
 if (props.badges && properties.twitchBadgeSets) {
 	for (const [key, value] of Object.entries(props.badges)) {
@@ -79,6 +68,23 @@ if (props.badges && properties.twitchBadgeSets) {
 		}
 	}
 }
+
+const t = Date.now();
+const stop = watch(
+	[cosmetics.paints, cosmetics.badges],
+	([paints, badges]) => {
+		// condition to ignore
+		// msg is not the last message, or is older than a second
+		if (props.msgId && props.user.lastMsgId && props.msgId !== props.user.lastMsgId && Date.now() - t > 1000) {
+			nextTick(() => stop());
+			return;
+		}
+
+		paint.value = paints && paints.length ? paints[0] : null;
+		activeBadges.value = [...badges];
+	},
+	{ immediate: true },
+);
 </script>
 
 <style scoped lang="scss">

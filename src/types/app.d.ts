@@ -70,10 +70,11 @@ declare namespace SevenTV {
 
 		component?: Raw<object>;
 
-		value?: T;
 		defaultValue: T;
-		predicate?: (p: T) => boolean;
+		value?: T;
 		disabledIf?: () => boolean;
+		predicate?: (p: T) => boolean;
+		effect?: (v: T) => void;
 
 		options?: {
 			SELECT: [string, T][];
@@ -99,6 +100,7 @@ declare namespace SevenTV {
 		ffz_key?: string;
 		ffz_transform?: (v: unknown) => T;
 	}
+
 	type SettingType = boolean | number | string | object;
 
 	namespace SettingNode {

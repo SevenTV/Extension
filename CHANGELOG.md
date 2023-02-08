@@ -1,3 +1,8 @@
+### Version 3.0.0.9000 (Beta 9)
+
+- Fixed a major performance issue, greatly bringing down average CPU usage
+- Fixed the "Animated Avatars" toggle not actually doing anything
+
 ### Version 3.0.0.8000 (Beta 8)
 
 -   New Feature: Mod Logs, an interface to view recent moderator activity and active timeouts

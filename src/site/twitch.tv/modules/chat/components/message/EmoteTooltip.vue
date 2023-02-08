@@ -14,6 +14,10 @@
 				:srcset="srcset"
 				:alt="emote.name"
 				sizes="auto"
+				:style="{
+					width,
+					height,
+				}"
 			/>
 			<SingleEmoji v-else :id="emote.id" class="tooltip-emoji" />
 
@@ -30,7 +34,14 @@
 			<!-- Creator -->
 			<div v-if="emote.data?.owner" class="creator-label">
 				by
-				<span class="creator-name">{{ emote.data.owner.display_name }}</span>
+				<span
+					class="creator-name"
+					:style="{
+						color: creatorColor,
+					}"
+				>
+					{{ emote.data.owner.display_name }}
+				</span>
 			</div>
 
 			<!-- Labels -->
@@ -64,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { imageHostToSrcset, imageHostToSrcsetWithsize } from "@/common/Image";
@@ -73,36 +84,34 @@ import { useConfig } from "@/composable/useSettings";
 import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 
-const props = withDefaults(
-	defineProps<{
-		emote: SevenTV.ActiveEmote;
-		initSrc?: string;
-		overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
-		unload?: boolean;
-		height: number;
-		width: number;
-	}>(),
-	{ unload: false },
-);
+const props = defineProps<{
+	emote: SevenTV.ActiveEmote;
+	initSrc?: string;
+	overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
+	height: number;
+	width: number;
+}>();
 
 const compactTooltips = useConfig("ui.compact_tooltips");
 
-const shouldLoad = ref(false);
-const srcset = computed(() =>
-	props.unload || !shouldLoad.value
-		? ""
-		: imageHostToSrcsetWithsize(props.height, props.width, props.emote.data!.host, props.emote.provider),
-);
+const srcset = ref("");
 
 // set a time buffer before loading the full size
 // (this is to prevent the tooltip from loading the full size image when the user is just moving the cursor around)
-useTimeoutFn(() => {
-	shouldLoad.value = true;
-}, 90);
+if (props.emote && props.emote.data && props.emote.data.host.srcset) {
+	useTimeoutFn(() => {
+		srcset.value = imageHostToSrcsetWithsize(
+			props.height,
+			props.width,
+			props.emote.data!.host,
+			props.emote.provider,
+		);
+	}, 90);
+}
 
-const overlayEmotes = computed(() => Object.values(props.overlaid ?? {}));
-const width = computed(() => `${props.width * 3}px`);
-const height = computed(() => `${props.height * 3}px`);
+const overlayEmotes = ref(props.overlaid ?? {});
+const width = `${props.width * 3}px`;
+const height = `${props.height * 3}px`;
 
 const isGlobal = props.emote.scope === "GLOBAL";
 const isSubscriber = props.emote.scope === "SUB";
@@ -116,12 +125,10 @@ if (props.emote.unicode) {
 	emojiData.value = emojiByCode.get(props.emote.unicode) ?? null;
 }
 
-const creatorColor = computed(() => {
-	if (!props.emote.data || !props.emote.data.owner) return "inherit";
-	if (!props.emote.data.owner.style?.color) return "inherit";
-
-	return DecimalToStringRGBA(props.emote.data.owner.style.color);
-});
+const creatorColor = ref("inherit");
+if (props.emote.data?.owner?.style?.color) {
+	creatorColor.value = DecimalToStringRGBA(props.emote.data.owner.style.color);
+}
 </script>
 
 <style scoped lang="scss">
@@ -160,8 +167,6 @@ const creatorColor = computed(() => {
 
 img.tooltip-emote {
 	margin-bottom: 1rem;
-	width: v-bind(width);
-	height: v-bind(height);
 }
 
 svg.tooltip-emoji {
@@ -190,9 +195,6 @@ svg.tooltip-emoji {
 
 .creator-label {
 	font-size: 1.3rem;
-	.creator-name {
-		color: v-bind("creatorColor");
-	}
 }
 
 .zero-width-label {

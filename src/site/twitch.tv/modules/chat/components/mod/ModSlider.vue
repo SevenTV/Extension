@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref, watch } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -51,18 +51,15 @@ const tracking = ref(false);
 const data = ref(new sliderData(0));
 let initial = 0;
 
-const canModerate = computed(() => {
-	// Return false if the user is not a moderator
-	if (!properties.isModerator) return false;
+const canModerate = ref(false);
 
-	// If the state is sent, it was our own message, which we can moderate
-	if (props.msg.deliveryState === "SENT") return true;
-
-	// Check if the target is of type we cant moderate
-	// const badges = props.msg.badges ?? props.msg.message?.badges;
-	// return badges && !("moderator" in badges) && !("broadcaster" in badges) && !("staff" in badges);
-	return true;
-});
+watch(
+	() => [properties.isModerator, props.msg.deliveryState === "SENT"],
+	(a) => {
+		// check all array elems are true
+		canModerate.value = a.every((x) => x);
+	},
+);
 
 function executeModAction(message: string, name: string, id: string) {
 	sendMessage(message.replace("{user}", name).replace("{id}", id));

@@ -4,7 +4,7 @@
 			v-if="!emote.unicode && emote.data && emote.data.host"
 			v-show="srcset"
 			class="seventv-chat-emote"
-			:srcset="srcset"
+			:srcset="unload ? '' : srcset"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
 			@click="(e) => emit('emote-click', e, emote)"
@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
@@ -56,11 +56,10 @@ const boxRef = ref<HTMLImageElement | HTMLUnknownElement>();
 const hideUnlisted = useConfig<boolean>("general.blur_unlisted_emotes");
 
 const src = ref("");
-const srcset = computed(() =>
-	props.unload
-		? ""
-		: props.emote.data!.host.srcset ?? imageHostToSrcset(props.emote.data!.host, props.emote.provider),
-);
+const srcset = ref(props.emote.data?.host.srcset);
+if (!srcset.value && props.emote.data?.host) {
+	srcset.value = imageHostToSrcset(props.emote.data.host, props.emote.provider, undefined, 2);
+}
 
 const imgEl = ref<HTMLImageElement>();
 const width = ref(0);

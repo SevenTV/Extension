@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "@/site/App.vue";
-import "fastdom";
+import { TextPaintDirective } from "@/directive/TextPaintDirective";
 
 const appID = Date.now().toString();
 
@@ -42,4 +42,4 @@ document.body.append(root);
 const app = createApp(App);
 app.provide("app-id", appID);
 
-app.use(createPinia()).mount("#seventv-root");
+app.use(createPinia()).directive("cosmetic-paint", TextPaintDirective).mount("#seventv-root");

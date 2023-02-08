@@ -20,10 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, toRef, watch } from "vue";
-import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn } from "@vueuse/core";
+import { nextTick, reactive, ref, toRef, watch } from "vue";
+import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn, watchDebounced } from "@vueuse/core";
+import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
-import { getRandomInt } from "@/common/Rand";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
 import { convertCheerEmote, convertTwitchEmote } from "@/common/Transform";
@@ -43,7 +43,7 @@ const props = defineProps<{
 	messageHandler: Twitch.MessageHandlerAPI | null;
 }>();
 
-const store = useStore();
+const { identity, channel } = storeToRefs(useStore());
 const messages = useChatMessages();
 const displayedMessages = toRef(messages, "displayed");
 const scroller = useChatScroller();
@@ -51,22 +51,22 @@ const properties = useChatProperties();
 const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
 
-const actorRegexp = computed(() => (store.identity ? new RegExp(`\\b${store.identity?.username}\\b`) : null));
+const actorRegexp = ref<RegExp | null>();
+watch(identity, (identity) => (actorRegexp.value = identity ? new RegExp(`\\b${identity.username}\\b`) : null), {
+	immediate: true,
+});
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 
 const messageHandler = toRef(props, "messageHandler");
+const list = toRef(props, "list");
 
 // Determine if the message should perform some action or be sent to the chatAPI for rendering
 const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 	const msg = new ChatMessage(msgData.id);
-	const c = getMessageComponent(msgData.type);
-	if (c) {
-		msg.setComponent(c, { msgData: msgData });
-	}
 
-	msg.channelID = store.channel?.id ?? "";
+	msg.channelID = channel.value?.id ?? "";
 
 	switch (msgData.type) {
 		case MessageType.MESSAGE:
@@ -99,6 +99,11 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 };
 
 function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRender = true) {
+	const c = getMessageComponent(msgData.type);
+	if (c) {
+		msg.setComponent(c, { msgData: msgData });
+	}
+
 	if (!msg.instance) {
 		msg.setComponent(typeMap[0], { msgData: msgData });
 	}
@@ -199,12 +204,22 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 	// define message author
 	const authorData = msgData.user ?? msgData.message?.user ?? null;
 	if (authorData) {
-		msg.setAuthor({
-			id: authorData.userID,
-			username: authorData.userLogin,
-			displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
-			color: authorData.color,
-		});
+		const knownChatter = messages.chatters[authorData.userID];
+		if (knownChatter) {
+			knownChatter.username = authorData.userLogin;
+			knownChatter.displayName = authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin;
+			knownChatter.color = authorData.color;
+			knownChatter.intl = authorData.isIntl;
+		}
+
+		msg.setAuthor(
+			knownChatter ?? {
+				id: authorData.userID,
+				username: authorData.userLogin,
+				displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
+				color: authorData.color,
+			},
+		);
 
 		msg.badges = msgData.badges ?? msgData.message?.badges ?? {};
 
@@ -312,21 +327,44 @@ watch(
 			unsetPropertyHook(old, "handleMessage");
 		} else if (handler) {
 			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
-				const t = Date.now() + getRandomInt(0, 1000);
-				const msgData = Object.create({ seventv: true, t });
-				for (const k of Object.keys(msg)) {
-					msgData[k] = msg[k as keyof Twitch.AnyMessage];
-				}
-
-				const ok = onMessage(msgData);
+				const ok = onMessage(msg);
 				if (ok) return ""; // message was rendered by the extension
 
 				// message was not rendered by the extension
+				unhandled.set(msg.id, msg);
 				return old?.call(this, msg);
 			});
 		}
 	},
 	{ immediate: true },
+);
+
+// Keep track of unhandled nodes
+const unhandled = reactive<Map<string, Twitch.AnyMessage>>(new Map());
+const unhandledNodeMap = new Map<string, Element>();
+
+watchDebounced(
+	list.value.domNodes,
+	(nodes) => {
+		const missingIds = new Set<string>(unhandledNodeMap.keys()); // ids of messages that are no longer rendered
+
+		for (const [nodeId, node] of Object.entries(nodes)) {
+			if (nodeId === "root") continue;
+			missingIds.delete(nodeId);
+			if (unhandledNodeMap.has(nodeId) || !unhandled.has(nodeId)) continue;
+
+			const m = new ChatMessage(nodeId + "-unhandled");
+			m.wrappedNode = node;
+			messages.add(m);
+
+			unhandledNodeMap.set(nodeId, node);
+		}
+
+		for (const nodeId of missingIds) {
+			unhandledNodeMap.delete(nodeId);
+		}
+	},
+	{ debounce: 100, immediate: true },
 );
 
 // Scroll Pausing on hotkey / hover

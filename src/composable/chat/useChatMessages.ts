@@ -1,4 +1,4 @@
-import { computed, nextTick, reactive, toRef } from "vue";
+import { nextTick, reactive, toRef } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
 import { useChatProperties } from "./useChatProperties";
@@ -17,7 +17,7 @@ const data = reactive({
 		victim: ChatUser;
 		mod: ChatMessageModeration;
 	}[],
-	chatters: {} as Record<string, Record<string, never>>,
+	chatters: {} as Record<string, ChatUser>,
 
 	twitchHandlers: new Set<(v: Twitch.AnyMessage) => void>(),
 
@@ -31,7 +31,6 @@ let flushTimeout: number | undefined;
 
 const scroller = useChatScroller();
 const properties = useChatProperties();
-const overflowLimit = computed(() => scroller.lineLimit * 1.25);
 const batchTimeMs = useConfig<number>("chat.message_batch_duration");
 
 /**
@@ -56,7 +55,14 @@ function add<T extends ChatMessage>(message: T, now?: boolean): void {
 		// check blocked state and ignore if blocked
 		if (properties.blockedUsers.has(message.author.id)) return;
 
-		if (!data.chatters[message.author.id]) data.chatters[message.author.id] = {}; // set as active chatter
+		message.author.lastMsgId = message.sym;
+
+		const knownAuthor = data.chatters[message.author.id];
+		if (!knownAuthor) {
+			data.chatters[message.author.id] = message.author;
+		}
+
+		if (!data.chatters[message.author.id]) data.chatters[message.author.id] = message.author; // set as active chatter
 		if (!data.displayedByUser[message.author.username]) data.displayedByUser[message.author.username] = {}; // create user message map
 
 		// add message to user message map
@@ -111,7 +117,8 @@ function flush(force?: boolean): void {
 		nextTick(() => scroller.scrollToLive(scroller.duration));
 
 		// remove messages beyond the buffer
-		if (data.displayed.length > overflowLimit.value) {
+		const overflowLimit = scroller.lineLimit * 1.25;
+		if (data.displayed.length > overflowLimit) {
 			flushTimeout = window.setTimeout(() => {
 				const removed = data.displayed.splice(0, data.displayed.length - scroller.lineLimit);
 				for (const msg of removed) {

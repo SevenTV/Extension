@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
@@ -62,6 +62,7 @@ const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
 	controller: HookedInstance<Twitch.ChatControllerComponent>;
 	room: HookedInstance<Twitch.ChatRoomComponent>;
+	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 }>();
 
 const store = useStore();
@@ -79,6 +80,8 @@ const replacedEl = ref<Element | null>(null);
 
 const bounds = ref<DOMRect>(el.getBoundingClientRect());
 const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
+
+const primaryColor = ref("");
 
 watch(channel, (channel) => {
 	if (!channel) {
@@ -141,7 +144,6 @@ function onUpdateChannel() {
 
 	nextTick(() => {
 		resetProviders();
-		hookMessageBuffer();
 	});
 }
 
@@ -163,6 +165,8 @@ watch(twitchEmoteSetsDbc, async (sets) => {
 definePropertyHook(room.value.component, "props", {
 	value(v) {
 		properties.primaryColorHex = v.primaryColorHex;
+		primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
+
 		properties.useHighContrastColors = v.useHighContrastColors;
 		properties.showTimestamps = v.showTimestamps;
 		properties.showModerationIcons = v.showModerationIcons;
@@ -210,12 +214,6 @@ definePropertyHook(controller.value.component, "props", {
 		if (!data || !data.emoteSets || data.loading) return;
 
 		twitchEmoteSets.value = data.emoteSets;
-
-		// Add the current user & channel owner to active chatters
-		if (v.userID) {
-			messages.chatters[v.userID] = {};
-			messages.chatters[v.channelID] = {};
-		}
 	},
 });
 
@@ -240,37 +238,6 @@ if (a instanceof ObserverPromise) {
 		.then(() => a.disconnect());
 }
 
-// Keep track of unhandled nodes
-const nodeMap = new Map<string, Element>();
-
-let unhandledStopper: () => void;
-
-function watchUnhandled() {
-	if (unhandledStopper) unhandledStopper();
-
-	// Watch for updated dom nodes on unhandled message components
-	unhandledStopper = watch(list.value.domNodes, (nodes) => {
-		const missingIds = new Set<string>(nodeMap.keys()); // ids of messages that are no longer rendered
-
-		for (const [nodeId, node] of Object.entries(nodes)) {
-			if (nodeId === "root") continue;
-			missingIds.delete(nodeId);
-
-			if (nodeMap.has(nodeId)) continue;
-
-			const m = new ChatMessage(nodeId + "-unhandled");
-			m.wrappedNode = node;
-			messages.add(m);
-
-			nodeMap.set(nodeId, node);
-		}
-
-		for (const nodeId of missingIds) {
-			nodeMap.delete(nodeId);
-		}
-	});
-}
-
 const messageBufferComponent = ref<Twitch.MessageBufferComponent | null>(null);
 const messageBufferComponentDbc = refDebounced(messageBufferComponent, 200);
 
@@ -290,21 +257,16 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 					const m = new ChatMessage(msg.id);
 
 					// If the message is historical we add it to the array and continue
-					if ((msg as Twitch.ChatMessage).isHistorical) {
+					if ((msg as Twitch.ChatMessage).isHistorical || msg.type > 0) {
 						m.historical = true;
 						chatList.value?.onChatMessage(m, msg as Twitch.ChatMessage, false);
 
 						historical.push(m);
-						nodeMap.set(msg.id, {} as Element);
 						continue;
 					}
-
-					if (chatList.value && chatList.value.onMessage(msg)) nodeMap.set(msg.id, {} as Element);
 				}
 
 				messages.displayed = historical.concat(messages.displayed);
-
-				watchUnhandled();
 
 				nextTick(() => {
 					// Instantly scroll to the bottom and stop hooking the buffer
@@ -313,6 +275,7 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 				});
 			},
 		});
+
 		definePropertyHook(msgBuf, "blockedUsers", {
 			value(users) {
 				properties.blockedUsers = users;
@@ -321,25 +284,16 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 	}
 });
 
-async function hookMessageBuffer() {
-	const result = awaitComponents<Twitch.MessageBufferComponent>({
-		parentSelector: ".stream-chat",
-		predicate: (n) => n.prependHistoricalMessages && n.buffer && n.blockedUsers,
-	}).then(
-		([i]) => {
-			if (!i) return;
+watch(
+	() => props.buffer,
+	(msgBuffer) => {
+		const msgBuf = msgBuffer?.component;
+		if (!msgBuf) return;
 
-			messageBufferComponent.value = i;
-		},
-		() => watchUnhandled(),
-	);
-
-	if (result instanceof ObserverPromise) {
-		until(useTimeout(1e4))
-			.toBeTruthy()
-			.then(() => result.disconnect());
-	}
-}
+		messageBufferComponent.value = msgBuf;
+	},
+	{ immediate: true },
+);
 
 // Apply new boundaries when the window is resized
 const resizeObserver = new ResizeObserver(() => {
@@ -365,8 +319,6 @@ onUnmounted(() => {
 	unsetPropertyHook(controller.value.component, "props");
 	unsetPropertyHook(room.value.component, "props");
 });
-
-const primaryColor = computed(() => `#${properties.primaryColorHex ?? "755ebc"}`);
 </script>
 
 <style lang="scss">
@@ -384,8 +336,6 @@ seventv-container.seventv-chat-list {
 
 	.seventv-message-container {
 		line-height: 1.5em;
-
-		--seventv-primary-color: v-bind(primaryColor);
 	}
 
 	// Chat padding

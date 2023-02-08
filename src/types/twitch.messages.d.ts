@@ -5,6 +5,7 @@ declare namespace Twitch {
 		user?: ChatUser | null;
 		message?: ChatMessage;
 		badges?: Record<string, string>;
+		isHistorical: unknown;
 		nonce?: string;
 
 		seventv?: boolean;
@@ -20,7 +21,6 @@ declare namespace Twitch {
 		messageBody?: string;
 		deleted?: boolean;
 		banned?: boolean;
-		isHistorical: unknown;
 		isFirstMsg: boolean;
 		isReturningChatter: boolean;
 		messageType: number;

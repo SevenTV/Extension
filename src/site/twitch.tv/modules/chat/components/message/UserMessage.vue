@@ -1,5 +1,6 @@
 <template>
 	<span
+		ref="msgEl"
 		class="seventv-user-message"
 		:msg-id="msg.id"
 		:class="{
@@ -49,6 +50,7 @@
 			:user="msg.author"
 			:color="color"
 			:badges="msg.badges"
+			:msg-id="msg.sym"
 			@name-click="nameClick"
 			@badge-click="badgeClick"
 		/>
@@ -88,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from "vue";
+import { onMounted, ref, toRef, watch } from "vue";
 import { normalizeUsername } from "@/common/Color";
 import { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
@@ -121,13 +123,13 @@ const props = withDefaults(
 );
 
 const msg = toRef(props, "msg");
+const msgEl = ref<HTMLSpanElement | null>();
 
 const emotes = useChatEmotes();
 const properties = useChatProperties();
 const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
 
-const emoteMargin = useConfig<number>("chat.emote_margin");
-const emoteMarginValue = computed(() => `${emoteMargin.value}rem`);
+// TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");
 
 // Get the locale to format the timestamp
@@ -203,6 +205,15 @@ const { banUserFromChat, deleteChatMessage } =
 	props.msg.channelID && props.msg.author
 		? useChatModeration(props.msg.channelID!, props.msg.author?.username)
 		: { banUserFromChat: () => void 0, deleteChatMessage: () => void 0 };
+
+onMounted(() => {
+	if (!msg.value || !msgEl.value) return;
+
+	if (msg.value.highlight) {
+		msgEl.value.style.setProperty("--seventv-highlight-color", msg.value.highlight.color);
+		msgEl.value.style.setProperty("--seventv-highlight-dim-color", msg.value.highlight.dimColor);
+	}
+});
 </script>
 
 <style scoped lang="scss">
@@ -211,10 +222,10 @@ const { banUserFromChat, deleteChatMessage } =
 
 	&.has-highlight {
 		border: 0.25em solid;
-		border-color: v-bind("msg.highlight?.color");
 		border-top: none;
 		border-bottom: none;
-		background-color: v-bind("msg.highlight?.dimColor");
+		border-color: var(--seventv-highlight-color);
+		background-color: var(--seventv-highlight-dim-color);
 		padding: 1rem 0.25rem;
 		margin: 0 -0.5em;
 
@@ -225,7 +236,7 @@ const { banUserFromChat, deleteChatMessage } =
 				display: grid;
 				width: 100%;
 				justify-content: end;
-				color: v-bind("msg.highlight?.color");
+				color: var(--seventv-highlight-color);
 				transform: translateY(-1.5em);
 
 				font-weight: 600;
@@ -235,19 +246,10 @@ const { banUserFromChat, deleteChatMessage } =
 		}
 	}
 
-	&[state="IN_FLIGHT"] {
-		opacity: 0.5;
-	}
-
-	&[state="FAILED"] {
-		opacity: 0.5;
-		color: var(--seventv-warning);
-	}
-
 	.emote-token {
 		display: inline-grid;
 		vertical-align: middle;
-		margin: v-bind("emoteMarginValue");
+		margin: var(--seventv-emote-margin);
 		margin-left: 0 !important;
 		margin-right: 0 !important;
 	}

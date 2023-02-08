@@ -1,4 +1,4 @@
-import { computed, nextTick, onUnmounted, reactive, ref, toRef, watch } from "vue";
+import { nextTick, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { log } from "@/common/Logger";
 import { useSettings } from "@/composable/useSettings";
 import type { ModuleComponentMap, ModuleID } from "@/types/module";
@@ -22,7 +22,7 @@ export function declareModule(id: ModuleID, opt: ModuleOptions) {
 	};
 
 	const mod = toRef(data.modules, id);
-	const ready = computed(() => mod.value.ready);
+	const ready = toRef(mod.value, "ready");
 	const dependenciesMet = ref(false);
 
 	const depends = mod.value.depends_on;

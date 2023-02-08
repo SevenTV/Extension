@@ -8,6 +8,7 @@ import { getVNodeFromDOM } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
 import { db } from "@/db/idb";
 import { declareModule } from "@/composable/useModule";
+import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 
 const { markAsReady } = declareModule("avatars", {
@@ -40,6 +41,7 @@ const data = reactive({
 	pending: new Set<string>(),
 });
 
+const shouldRenderAvatars = useConfig<boolean>("avatars.animation");
 const avatars = reactive<Record<string, SevenTV.Cosmetic<"AVATAR">>>({});
 
 let fetchTimeout: number | undefined;
@@ -174,13 +176,15 @@ watch(avatarClass, (ac, oldAc) => {
 	if (oldAc) unsetPropertyHook(oldAc, "render");
 
 	defineFunctionHook(ac, "render", function (old, ...args) {
-		const { children } = args[0] ?? {};
+		if (shouldRenderAvatars.value) {
+			const { children } = args[0] ?? {};
 
-		if (Array.isArray(children)) {
-			for (const child of children) {
-				if (!child || !child.type || child.type.displayName != "ImageAvatar") continue;
+			if (Array.isArray(children)) {
+				for (const child of children) {
+					if (!child || !child.type || child.type.displayName != "ImageAvatar") continue;
 
-				patchImageAvatar(child);
+					patchImageAvatar(child);
+				}
 			}
 		}
 
@@ -209,6 +213,8 @@ watchDebounced(
 		debounce: 350,
 	},
 );
+
+watch(shouldRenderAvatars, doRerender);
 
 workerTarget.addEventListener("cosmetic_created", (ev) => {
 	if (ev.detail.kind !== "AVATAR") return;

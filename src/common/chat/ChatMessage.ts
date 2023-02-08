@@ -106,6 +106,7 @@ export interface ChatUser {
 	displayName: string;
 	color: string;
 	intl?: boolean;
+	lastMsgId?: symbol;
 }
 
 interface Highlight {

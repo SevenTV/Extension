@@ -21,10 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useTray } from "@/composable/tray/useTray";
-import { useConfig } from "@/composable/useSettings";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
 
@@ -33,15 +31,6 @@ const props = defineProps<{
 	msgData: Twitch.ChatMessage;
 }>();
 
-const paddingStyle = useConfig<number>("chat.padding");
-const sidePadding = computed(
-	() =>
-		({
-			0: "0",
-			1: "1rem",
-		}[paddingStyle.value]),
-);
-
 const { set } = useTray("Reply", { msg: props.msg });
 </script>
 <style scoped lang="scss">
@@ -49,7 +38,7 @@ const { set } = useTray("Reply", { msg: props.msg });
 	display: block;
 	position: relative;
 	overflow-wrap: anywhere;
-	padding: 0 v-bind(sidePadding);
+	padding: 0 var(--seventv-chat-padding);
 
 	&:hover,
 	&:focus-within {

@@ -50,6 +50,7 @@ function disableChatProcessing() {
 	if (!settings || typeof settings.main_context.updateContext !== "function") return;
 
 	settings.main_context.updateContext({ "disable-chat-processing": true });
+	log.info("Disabled chat processing in FrankerFaceZ (╯°□°）╯︵ ┻━┻)");
 }
 
 export function useFrankerFaceZ() {

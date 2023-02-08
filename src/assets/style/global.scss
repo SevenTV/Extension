@@ -47,3 +47,15 @@
 .brand-color-7tv {
 	color: var(--seventv-primary);
 }
+
+.seventv-painted-content {
+	background-size: cover !important;
+	background-color: currentColor;
+}
+
+.seventv-painted-content[data-seventv-painted-text="true"] {
+	-webkit-text-fill-color: transparent;
+	-webkit-background-clip: text !important;
+	background-clip: text !important;
+	font-weight: 700;
+}

@@ -9,6 +9,7 @@ import { onMounted, watch } from "vue";
 import { useStore } from "@/store/main";
 import { useComponentHook } from "@/common/ReactHooks";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
+import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useConfig } from "@/composable/useSettings";
 import ModuleWrapper from "./ModuleWrapper.vue";
@@ -16,6 +17,8 @@ import type { ModuleComponentMap, ModuleID } from "@/types/module";
 
 const store = useStore();
 const chatProperties = useChatProperties();
+const ffz = useFrankerFaceZ();
+ffz.disableChatProcessing();
 
 const useTransparency = useConfig("ui.transparent_backgrounds");
 chatProperties.imageFormat = store.avifSupported ? "AVIF" : "WEBP";

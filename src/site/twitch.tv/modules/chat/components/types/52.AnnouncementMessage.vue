@@ -13,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import TwAnnounce from "@/assets/svg/twitch/TwAnnounce.vue";
 
@@ -23,13 +22,11 @@ const props = defineProps<{
 
 const properties = useChatProperties();
 
-const className = computed(
-	() =>
-		"announcement-line--" +
-		(props.msgData.color == "PRIMARY" && properties.primaryColorHex == null
-			? "purple"
-			: props.msgData.color.toLowerCase()),
-);
+const className =
+	"announcement-line--" +
+	(props.msgData.color == "PRIMARY" && properties.primaryColorHex == null
+		? "purple"
+		: props.msgData.color.toLowerCase());
 </script>
 
 <style scoped lang="scss">

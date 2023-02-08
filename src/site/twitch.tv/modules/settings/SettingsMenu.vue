@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { until, watchThrottled } from "@vueuse/shared";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { getModule } from "@/composable/useModule";
@@ -205,9 +205,10 @@ watch(
 	{ immediate: true },
 );
 
-const profileColor = computed(() => {
-	return user.value?.style?.color ? DecimalToStringRGBA(user.value.style.color ?? 0) : "#888888c4";
-});
+document.body.style.setProperty(
+	"--seventv-current-user-profile-color",
+	user.value?.style?.color ? DecimalToStringRGBA(user.value.style.color ?? 0) : "#888888c4",
+);
 
 onMounted(() => {
 	until(mod)
@@ -381,7 +382,7 @@ onMounted(() => {
 			.sidebar-profile-picture {
 				height: 3rem;
 				width: 3rem;
-				border: 1px solid v-bind(profileColor);
+				border: 1px solid var("--seventv-current-user-profile-color");
 				border-radius: 3rem;
 				overflow: hidden;
 
