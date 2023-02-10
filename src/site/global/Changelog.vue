@@ -85,7 +85,7 @@ watchEffect(() => {
 	}
 
 	:deep(h3) {
-		margin: 1rem 0 0.5rem 0rem;
+		margin: 1rem 0 0.5rem;
 	}
 
 	:deep(p) {

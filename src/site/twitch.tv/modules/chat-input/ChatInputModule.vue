@@ -32,6 +32,14 @@ const { markAsReady } = declareModule("chat-input", {
 			type: "TOGGLE",
 			defaultValue: true,
 		},
+		{
+			key: "chat_input.autocomplete.chatters",
+			path: ["Chat", "Autocompletion"],
+			label: "Autocompleter chatters",
+			hint: "Whether or not to consider the usernames of active chatters when using tab-completion",
+			type: "TOGGLE",
+			defaultValue: true,
+		},
 	],
 });
 

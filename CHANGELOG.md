@@ -4,6 +4,8 @@
 
 - Improved the speed of the extension's initial load
 - Implemented an initial design for Emote Cards
+- Added an option to autocomplete the usernames of active chatters
+- Fixed an issue where up/down-arrow would navigate chat history even if the cursor was not at an end
 - Fixed an issue which prevented user cards from opening
 - Fixed a major performance issue, greatly bringing down average CPU usage
 - Fixed the "Animated Avatars" toggle not actually doing anything

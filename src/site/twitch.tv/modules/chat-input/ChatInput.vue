@@ -35,6 +35,7 @@ const { sendMessage } = useWorker();
 
 const shouldUseColonComplete = useConfig("chat_input.autocomplete.colon");
 const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
+const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -49,6 +50,7 @@ const tabState = ref<
 	| undefined
 >();
 
+const textValue = ref("");
 const awaitingUpdate = ref(false);
 
 const preHistory = ref<Twitch.ChatSlateLeaf[] | undefined>();
@@ -112,6 +114,21 @@ function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[], s
 						fromTwitch: true,
 					});
 				}
+			}
+		}
+	}
+
+	if (shouldAutocompleteChatters.value) {
+		const tokenStartsWithAt = prefix.startsWith("@");
+		const lPrefix = prefix.replace("@", "");
+
+		const chatters = Object.entries(messages.chatters);
+		for (const [, chatter] of chatters) {
+			if (!usedTokens.has(chatter.displayName) && chatter.displayName.toLowerCase().includes(lPrefix)) {
+				matches.push({
+					token: (tokenStartsWithAt ? "@" : "") + chatter.displayName,
+					fromTwitch: true,
+				});
 			}
 		}
 	}
@@ -263,6 +280,12 @@ function useHistory(backwards = true): boolean {
 
 	if (value) {
 		awaitingUpdate.value = true;
+
+		if (backwards && (slate.selection?.focus.offset ?? 0) > 1) {
+			return false;
+		} else if (!backwards && (slate.selection?.focus.offset ?? 0) < textValue.value.length) {
+			return false;
+		}
 
 		for (const i in slate.children) {
 			slate.apply({ type: "remove_node", path: [i], node: slate.children[i] });
@@ -469,6 +492,7 @@ defineFunctionHook(
 		}
 
 		awaitingUpdate.value = false;
+		textValue.value = value;
 
 		return old?.call(this, value, sendOnUpdate, ...args);
 	},
