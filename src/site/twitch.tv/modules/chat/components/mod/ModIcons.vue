@@ -3,7 +3,7 @@
 		<span
 			v-if="msg.author"
 			ref="banRef"
-			@click="emit('ban', msg.author!.username)"
+			@click="banUserFromChat(null)"
 			@mouseenter="banTooltip.show(banRef)"
 			@mouseleave="banTooltip.hide()"
 		>
@@ -13,7 +13,7 @@
 		<span
 			v-if="msg.author"
 			ref="timeoutRef"
-			@click="emit('timeout', msg.author!.username)"
+			@click="banUserFromChat('10m')"
 			@mouseenter="timeoutTooltip.show(timeoutRef)"
 			@mouseleave="timeoutTooltip.hide()"
 		>
@@ -22,7 +22,7 @@
 
 		<span
 			ref="deleteRef"
-			@click="emit('delete', msg.id)"
+			@click="deleteChatMessage(msg.id)"
 			@mouseenter="deleteTooltip.show(deleteRef)"
 			@mouseleave="deleteTooltip.hide()"
 		>
@@ -34,20 +34,19 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useTooltip } from "@/composable/useTooltip";
 import TwChatModBan from "@/assets/svg/twitch/TwChatModBan.vue";
 import TwChatModDelete from "@/assets/svg/twitch/TwChatModDelete.vue";
 import TwChatModTimeout from "@/assets/svg/twitch/TwChatModTimeout.vue";
 
-const emit = defineEmits<{
-	(event: "ban", userLogin: string): void;
-	(event: "timeout", userLogin: string): void;
-	(event: "delete", msgID: string): void;
-}>();
-
 const props = defineProps<{
 	msg: ChatMessage;
 }>();
+
+const ctx = useChannelContext();
+const { banUserFromChat, deleteChatMessage } = useChatModeration(ctx, props.msg.author?.username ?? "");
 
 const banRef = ref();
 const banTooltip = useTooltip(`Ban ${props.msg.author?.username ?? "???"}`);

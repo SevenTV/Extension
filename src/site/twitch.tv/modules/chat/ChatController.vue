@@ -1,6 +1,6 @@
 <!-- eslint-disable no-fallthrough -->
 <template>
-	<Teleport v-if="channel && channel.id" :to="containerEl">
+	<Teleport v-if="ctx.id" :to="containerEl">
 		<UiScrollable
 			ref="scrollerRef"
 			@container-scroll="scroller.onScroll"
@@ -17,12 +17,12 @@
 				<PauseIcon />
 
 				<span
-					v-if="messages.pauseBuffer.length"
-					:class="{ capped: messages.pauseBuffer.length >= scroller.lineLimit }"
+					v-if="scroller.pauseBuffer.length"
+					:class="{ capped: scroller.pauseBuffer.length >= scroller.lineLimit }"
 				>
-					{{ messages.pauseBuffer.length }}
+					{{ scroller.pauseBuffer.length }}
 				</span>
-				<span>{{ messages.pauseBuffer.length > 0 ? "new messages" : "Chat Paused" }}</span>
+				<span>{{ scroller.pauseBuffer.length > 0 ? "new messages" : "Chat Paused" }}</span>
 			</div>
 		</UiScrollable>
 
@@ -37,19 +37,17 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout } from "@vueuse/core";
-import { storeToRefs } from "pinia";
-import { useStore } from "@/store/main";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { useChatContext } from "@/composable/chat/useChatContext";
-import { resetProviders } from "@/composable/chat/useChatEmotes";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
-import { tools } from "@/composable/useCardOpeners";
+import { useChatTools } from "@/composable/chat/useChatTools";
 import { useWorker } from "@/composable/useWorker";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
@@ -65,8 +63,6 @@ const props = defineProps<{
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 }>();
 
-const store = useStore();
-const { channel } = storeToRefs(store);
 const { sendMessage: sendWorkerMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);
@@ -83,21 +79,15 @@ const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
 
 const primaryColor = ref("");
 
-watch(channel, (channel) => {
-	if (!channel) {
-		return;
-	}
-
-	log.info("<ChatController>", `Joining #${channel.username}`);
-});
-
-const scroller = useChatScroller({
+const ctx = useChannelContext(props.controller.component.props.channelID);
+const emotes = useChatEmotes(ctx);
+const messages = useChatMessages(ctx);
+const scroller = useChatScroller(ctx, {
 	scroller: scrollerRef,
 	bounds: bounds,
 });
-const context = useChatContext();
-const messages = useChatMessages();
-const properties = useChatProperties();
+const properties = useChatProperties(ctx);
+const tools = useChatTools(ctx);
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
@@ -134,18 +124,6 @@ definePropertyHook(props.list.component, "props", {
 		}
 	},
 });
-
-// Update current channel globally
-function onUpdateChannel() {
-	if (!store.setChannel(currentChannel.value)) return;
-
-	messages.clear();
-	scroller.unpause();
-
-	nextTick(() => {
-		resetProviders();
-	});
-}
 
 // Retrieve and convert Twitch Emotes
 //
@@ -195,12 +173,8 @@ definePropertyHook(controller.value.component, "props", {
 			currentChannel.value = {
 				id: v.channelID,
 				username: v.channelLogin,
-				display_name: v.channelDisplayName,
-				loaded: false,
+				displayName: v.channelDisplayName,
 			};
-
-			context.channel = currentChannel.value;
-			onUpdateChannel();
 		}
 
 		// Keep track of chat props
@@ -217,17 +191,15 @@ definePropertyHook(controller.value.component, "props", {
 	},
 });
 
-const a = awaitComponents<Twitch.ViewerCardComponent>({
+const a = awaitComponents<Twitch.MessageCardOpeners>({
 	parentSelector: ".stream-chat",
-	predicate: (n) => n.onShowViewerCard && n.onShowExtensionMessageCard,
+	predicate: (n) => n.props && n.props.onShowViewerCard,
 });
 
 a.then(
 	([c]) => {
 		if (!c) return;
-		tools.onShowViewerCard = c.onShowViewerCard;
-		tools.onShowEmoteCard = c.onShowEmoteCard;
-		tools.setViewerCardPage = c.setViewerCardPage;
+		tools.update("TWITCH", "onShowViewerCard", c.props.onShowViewerCard);
 	},
 	() => null,
 );
@@ -284,6 +256,21 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 	}
 });
 
+// Watch change of current channel
+watch(
+	currentChannel,
+	(chan) => {
+		if (!chan || !ctx.setCurrentChannel(chan)) return;
+
+		messages.clear();
+		scroller.unpause();
+
+		nextTick(() => emotes.resetProviders());
+	},
+	{ immediate: true },
+);
+
+// Capture the message buffer
 watch(
 	() => props.buffer,
 	(msgBuffer) => {

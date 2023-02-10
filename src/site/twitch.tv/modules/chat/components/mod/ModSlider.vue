@@ -34,21 +34,22 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { useChatMessages } from "@/composable/chat/useChatMessages";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
-import { maxVal, sliderData } from "./ModSliderBackend";
+import { ModSliderData, maxVal } from "./ModSliderBackend";
 
 const props = defineProps<{
 	msg: ChatMessage;
 }>();
 
-const { sendMessage } = useChatMessages();
-const properties = useChatProperties();
+const ctx = useChannelContext();
+const moderation = useChatModeration(ctx, props.msg.author?.id ?? "");
+const properties = useChatProperties(ctx);
 
 const transition = ref(false);
 const tracking = ref(false);
-
-const data = ref(new sliderData(0));
+const data = ref(new ModSliderData(0));
 let initial = 0;
 
 const canModerate = ref(false);
@@ -61,10 +62,6 @@ watch(
 	},
 );
 
-function executeModAction(message: string, name: string, id: string) {
-	sendMessage(message.replace("{user}", name).replace("{id}", id));
-}
-
 const handleDown = (e: PointerEvent) => {
 	e.stopPropagation();
 	initial = e.pageX;
@@ -76,13 +73,26 @@ const handleRelease = (e: PointerEvent): void => {
 	tracking.value = false;
 
 	if (data.value.command && props.msg.author) {
-		executeModAction(data.value.command, props.msg.author.username, props.msg.id);
+		switch (data.value.command) {
+			case "ban":
+				moderation.banUserFromChat(data.value.banDuration?.toString() ?? null);
+				break;
+			case "unban":
+				moderation.unbanUserFromChat();
+				break;
+			case "delete":
+				moderation.deleteChatMessage(props.msg.id);
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	transition.value = true;
 	setTimeout(() => (transition.value = false), 300);
 
-	data.value = new sliderData(0);
+	data.value = new ModSliderData(0);
 	(e.target as HTMLElement).releasePointerCapture(e.pointerId);
 };
 
@@ -91,8 +101,8 @@ const update = (e: PointerEvent): void => {
 	e.preventDefault();
 
 	const calcPos = Math.max(Math.min(e.pageX - initial, maxVal), -60);
-
-	data.value = new sliderData(calcPos);
+	ModSliderData;
+	data.value = new ModSliderData(calcPos);
 };
 </script>
 

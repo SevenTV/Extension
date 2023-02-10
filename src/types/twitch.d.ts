@@ -605,14 +605,10 @@ declare module Twitch {
 		};
 	}
 
-	export interface MessageCardOpeners {
-		onShowEmoteCard: (v: any) => void;
+	export type MessageCardOpeners = ReactExtended.WritableComponent<{
 		onShowViewerCard: (v: any) => void;
-		hideViewerCard: () => void;
-		props: {
-			onUsernameClick: (v: any) => void;
-		};
-	}
+		setViewerCardPage: (v: any) => void;
+	}>;
 
 	export interface TwitchEmoteSet {
 		id: string;

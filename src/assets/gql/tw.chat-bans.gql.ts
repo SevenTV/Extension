@@ -33,8 +33,14 @@ export namespace twitchBanUserQuery {
 		input: {
 			channelID: string;
 			bannedUserLogin: string;
-			expiresIn: number | null;
+			expiresIn: string | null;
 			reason?: string;
+		};
+	}
+	export interface Result {
+		ban: null | object;
+		error: null | {
+			code: string;
 		};
 	}
 }

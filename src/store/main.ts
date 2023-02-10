@@ -1,26 +1,27 @@
 import { defineStore } from "pinia";
-import { log } from "@/common/Logger";
-import { WorkletEvent, useWorker } from "@/composable/useWorker";
+import { useWorker } from "@/composable/useWorker";
 import { IBrowser, UAParser, UAParserInstance } from "ua-parser-js";
 
 export interface State {
 	platform: Platform;
+	theme: Theme;
 	identity: (TwitchIdentity | YouTubeIdentity) | null;
 	location: Twitch.Location | null;
-	channel: CurrentChannel | null;
 	workers: {
 		net: Worker | null;
 	};
 	agent: UAParserInstance;
 }
 
+type Theme = "LIGHT" | "DARK";
+
 export const useStore = defineStore("main", {
 	state: () =>
 		({
 			platform: "UNKNOWN",
+			theme: "DARK",
 			identity: null,
 			location: null,
-			channel: null,
 			agent: new UAParser(),
 		} as State),
 
@@ -58,38 +59,6 @@ export const useStore = defineStore("main", {
 
 		setLocation(location: Twitch.Location | null) {
 			this.location = location;
-		},
-
-		setChannel(channel: CurrentChannel | null): boolean {
-			if (
-				(channel === null && this.channel === null) ||
-				(this.channel && channel && this.channel.id === channel.id)
-			) {
-				return false; // no change.
-			}
-
-			this.channel = channel;
-			if (!this.channel) return true;
-
-			const { sendMessage, target } = useWorker();
-
-			// Set the "loaded" property once the worker has confirmed the channel has been fetched
-			const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
-				if (!this.channel || this.channel.id !== ev.detail.id) return;
-
-				this.channel.loaded = true;
-
-				log.info("Channel loaded:", this.channel.id);
-				target.removeEventListener("channel_fetched", onLoaded);
-			};
-			target.addEventListener("channel_fetched", onLoaded);
-
-			// Tell the worker we're now watching a new channel
-			sendMessage("STATE", {
-				channel: this.channel && this.channel.id ? { ...this.channel } : null,
-			});
-
-			return true;
 		},
 	},
 

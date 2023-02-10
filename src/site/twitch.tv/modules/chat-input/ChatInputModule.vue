@@ -1,11 +1,12 @@
 <template>
 	<template v-for="inst in AutocompleteProvider.instances" :key="inst.identifier">
-		<ChatInput :instance="inst" />
+		<ChatInput v-if="shouldMount.get(inst)" :instance="inst" />
 	</template>
 </template>
 
 <script setup lang="ts">
-import { useComponentHook } from "@/common/ReactHooks";
+import { reactive } from "vue";
+import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import ChatInput from "./ChatInput.vue";
@@ -34,6 +35,8 @@ const { markAsReady } = declareModule("chat-input", {
 	],
 });
 
+const shouldMount = reactive(new WeakMap<HookedInstance<Twitch.ChatAutocompleteComponent>, boolean>());
+
 const AutocompleteProvider = useComponentHook<Twitch.ChatAutocompleteComponent>(
 	{
 		parentSelector: ".chat-input__textarea",
@@ -41,10 +44,13 @@ const AutocompleteProvider = useComponentHook<Twitch.ChatAutocompleteComponent>(
 	},
 	{
 		trackRoot: true,
+		hooks: {
+			update(instance) {
+				shouldMount.set(instance, !!instance.component.componentRef?.props?.channelID);
+			},
+		},
 	},
 );
-
-markAsReady();
 
 defineExpose({
 	component: AutocompleteProvider,
@@ -52,4 +58,6 @@ defineExpose({
 	setModifierTray: null as Twitch.ChatAutocompleteComponent["props"]["setModifierTray"] | null,
 	clearModifierTray: null as Twitch.ChatAutocompleteComponent["props"]["clearModifierTray"] | null,
 });
+
+markAsReady();
 </script>

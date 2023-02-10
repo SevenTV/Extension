@@ -1,10 +1,9 @@
 <template />
 <script setup lang="ts">
-import { onUnmounted } from "vue";
-import { storeToRefs } from "pinia";
-import { useStore } from "@/store/main";
+import { onUnmounted, toRef } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { db } from "@/db/idb";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useLiveQuery } from "@/composable/useLiveQuery";
@@ -13,16 +12,17 @@ import EmoteSetUpdateMessage from "./components/types/EmoteSetUpdateMessage.vue"
 import { v4 as uuidv4 } from "uuid";
 
 const { target } = useWorker();
-const { channel } = storeToRefs(useStore());
-const messages = useChatMessages();
-const emotes = useChatEmotes();
+const ctx = useChannelContext();
+const channelID = toRef(ctx, "id");
+const messages = useChatMessages(ctx);
+const emotes = useChatEmotes(ctx);
 
 // query the channel's emote set bindings
 const channelSets = useLiveQuery(
 	() =>
 		db.channels
 			.where("id")
-			.equals(channel.value?.id ?? "")
+			.equals(ctx.id ?? "")
 			.first()
 			.then((c) => c?.set_ids ?? []),
 	() => {
@@ -32,7 +32,7 @@ const channelSets = useLiveQuery(
 		emotes.providers["BTTV"] = {};
 	},
 	{
-		reactives: [channel],
+		reactives: [channelID],
 	},
 );
 

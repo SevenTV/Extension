@@ -15,8 +15,9 @@ export function numberToTime(val: number): string {
 	}
 }
 
-export class sliderData {
-	command = "";
+export class ModSliderData {
+	command: "unban" | "ban" | "delete" = "ban";
+	banDuration: string | null = null;
 	text = "";
 	time = 0;
 	banVis = 0;
@@ -28,24 +29,26 @@ export class sliderData {
 		this.pos = `${pos}px`;
 
 		if (pos < -40) {
-			this.command = "/unban {user}";
+			this.command = "unban";
 			this.unbanVis = 1;
 		} else if (pos < minVal) {
 			return;
 		} else if (pos < delVal) {
-			this.command = "/delete {id}";
+			this.command = "delete";
 			this.text = "Delete";
 			this.color = "#FFFF00";
 			this.banVis = 1;
 		} else if (pos < maxVal) {
 			const time = Math.pow((pos + 0.25 * maxVal - delVal) / (1.25 * maxVal - delVal), 10) * maxSeconds;
 
-			this.command = `/timeout {user} ${Math.round(time)}`;
+			this.command = "ban";
+			this.banDuration = `${Math.round(time)}s`;
 			this.text = String(numberToTime(time));
 			this.color = "#FFA500";
 			this.banVis = 1;
 		} else {
-			this.command = "/ban {user}";
+			this.command = "ban";
+			this.banDuration = null;
 			this.text = "Ban";
 			this.color = "#C40000";
 			this.banVis = 1;

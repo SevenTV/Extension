@@ -8,21 +8,21 @@
 import { onMounted, watch } from "vue";
 import { useStore } from "@/store/main";
 import { useComponentHook } from "@/common/ReactHooks";
-import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useConfig } from "@/composable/useSettings";
+import { useUserAgent } from "@/composable/useUserAgent";
 import ModuleWrapper from "./ModuleWrapper.vue";
 import type { ModuleComponentMap, ModuleID } from "@/types/module";
 
 const store = useStore();
-const chatProperties = useChatProperties();
+const ua = useUserAgent();
 const ffz = useFrankerFaceZ();
 ffz.disableChatProcessing();
 
 const useTransparency = useConfig("ui.transparent_backgrounds");
-chatProperties.imageFormat = store.avifSupported ? "AVIF" : "WEBP";
-store.setPreferredImageFormat(chatProperties.imageFormat);
+ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
+store.setPreferredImageFormat(ua.preferredFormat);
 store.setPlatform("TWITCH");
 
 // Session User

@@ -41,7 +41,7 @@
 import { reactive, ref, watch } from "vue";
 import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
-import { useChatContext } from "@/composable/chat/useChatContext";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
@@ -62,8 +62,8 @@ const emit = defineEmits<{
 }>();
 
 const ctx = useEmoteMenuContext();
-const context = useChatContext();
-const emotes = useChatEmotes();
+const channelContext = useChannelContext(ctx.channelID);
+const emotes = useChatEmotes(channelContext);
 const selectedSet = ref("");
 
 // The source emote sets from this emote provider
@@ -86,7 +86,7 @@ function select(setID: string, coms: InstanceType<typeof EmoteMenuSet>[] | null 
 function sortCase(es: SevenTV.EmoteSet) {
 	if (es.scope === "GLOBAL") return 1;
 
-	if (context.channel && context.channel.id && es.owner && es.owner.id === context.channel.id) return -1;
+	if (channelContext.id && es.owner && es.owner.id === channelContext.id) return -1;
 	if (es.flags & 4) return -2;
 	return 0;
 }

@@ -18,7 +18,7 @@
 			<a
 				class="twitter-timeline"
 				data-height="580"
-				:data-theme="properties.isDarkTheme ? 'dark' : 'light'"
+				:data-theme="theme.toLowerCase()"
 				href="https://twitter.com/Official_7TV?ref_src=twsrc%5Etfw"
 				>Tweets by Official_7TV</a
 			>
@@ -26,16 +26,17 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { useChatProperties } from "@/composable/chat/useChatProperties";
+import { storeToRefs } from "pinia";
+import { useStore } from "@/store/main";
 import Changelog from "@/site/global/Changelog.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
+
+const { theme } = storeToRefs(useStore());
 
 const appName = import.meta.env.VITE_APP_NAME;
 const appContainer = import.meta.env.VITE_APP_CONTAINER ?? "Extension";
 const appServer = import.meta.env.VITE_APP_API_REST ?? "Offline";
 const version = import.meta.env.VITE_APP_VERSION;
-
-const properties = useChatProperties();
 
 const twitterScript = document.createElement("script");
 twitterScript.async = true;

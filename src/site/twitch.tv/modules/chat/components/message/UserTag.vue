@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
 import { ChatUser } from "@/common/chat/ChatMessage";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
 import Badge from "./Badge.vue";
@@ -42,7 +43,8 @@ const emit = defineEmits<{
 	(event: "badgeClick", e: MouseEvent, badge: Twitch.ChatBadge): void;
 }>();
 
-const properties = useChatProperties();
+const ctx = useChannelContext();
+const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 

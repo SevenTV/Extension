@@ -178,7 +178,7 @@ const chatBuffer = useComponentHook<Twitch.MessageBufferComponent>({
 });
 
 const isHookable = ref(false);
-const isHookableDbc = refDebounced(isHookable, 2500);
+const isHookableDbc = refDebounced(isHookable, 200);
 
 watch(
 	() => [chatController.instances, chatController.instances],

@@ -13,6 +13,7 @@ import {
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useCosmetics } from "@/composable/useCosmetics";
@@ -26,8 +27,9 @@ const props = defineProps<{
 
 const mod = getModule("chat-input");
 const store = useStore();
-const messages = useChatMessages();
-const emotes = useChatEmotes();
+const ctx = useChannelContext(props.instance.component.componentRef.props.channelID);
+const messages = useChatMessages(ctx);
+const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const { sendMessage } = useWorker();
 
@@ -455,9 +457,9 @@ defineFunctionHook(
 			pushHistory();
 
 			// Tell the worker to write presence
-			if (store.channel) {
+			if (ctx.id) {
 				sendMessage("CHANNEL_ACTIVE_CHATTER", {
-					channel_id: store.channel.id,
+					channel_id: ctx.id,
 				});
 			}
 		}

@@ -1,12 +1,12 @@
 <template>
 	<template v-for="inst in chatInputController.instances" :key="inst.identifier">
-		<EmoteMenu :instance="inst" :button-el="buttonEl" />
+		<EmoteMenu v-if="shouldMount.get(inst)" :instance="inst" :button-el="buttonEl" />
 	</template>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useComponentHook } from "@/common/ReactHooks";
+import { reactive, ref } from "vue";
+import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import EmoteMenu from "./EmoteMenu.vue";
 
@@ -26,6 +26,7 @@ const { markAsReady } = declareModule("emote-menu", {
 });
 
 const buttonEl = ref<HTMLButtonElement | undefined>();
+const shouldMount = reactive(new WeakMap<HookedInstance<Twitch.ChatInputController>, boolean>());
 
 const chatInputController = useComponentHook<Twitch.ChatInputController>(
 	{
@@ -36,6 +37,8 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 		trackRoot: true,
 		hooks: {
 			update(instance) {
+				shouldMount.set(instance, !!instance.component.chatInputRef?.props?.channelID);
+
 				// TODO: make a proper hook for this and drop DOM manipulations
 				for (const n of Object.values(instance.domNodes)) {
 					const btn = n.querySelector<HTMLButtonElement>("button[data-a-target='emote-picker-button']");

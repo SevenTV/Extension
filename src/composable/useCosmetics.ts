@@ -1,6 +1,5 @@
-import { Ref, reactive, ref, toRef, toRefs } from "vue";
+import { Ref, reactive, ref, toRef } from "vue";
 import { until, useTimeout } from "@vueuse/core";
-import { useStore } from "@/store/main";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
@@ -31,7 +30,6 @@ let flushTimeout: number | null = null;
  * Set up cosmetics
  */
 db.ready().then(async () => {
-	const { channel } = toRefs(useStore());
 	const { target } = useWorker();
 
 	const cosmeticsFetched = ref(false);
@@ -96,7 +94,6 @@ db.ready().then(async () => {
 	);
 
 	await until(cosmeticsFetched).toBeTruthy();
-	await until(channel).not.toBeNull();
 
 	/**
 	 * Bind or unbind an entitlement to a user

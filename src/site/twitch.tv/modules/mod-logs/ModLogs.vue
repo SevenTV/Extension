@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import { computed, markRaw, reactive, ref } from "vue";
 import { watchArray } from "@vueuse/shared";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useConfig } from "@/composable/useSettings";
 import BanIcon from "@/assets/svg/icons/BanIcon.vue";
@@ -80,6 +81,10 @@ import UiScrollable from "@/ui/UiScrollable.vue";
 const emit = defineEmits<{
 	(e: "close"): void;
 }>();
+
+const ctx = useChannelContext();
+const messages = useChatMessages(ctx);
+const localStore = useModLogsStore();
 
 const handle = ref<HTMLDivElement | undefined>();
 const isEnabled = useConfig<boolean>("chat.mod_logs.enabled");
@@ -115,9 +120,6 @@ function makeRiskDecision(choice: boolean) {
 
 	if (!choice) emit("close");
 }
-
-const messages = useChatMessages();
-const localStore = useModLogsStore();
 
 watchArray(messages.displayed, (a, b, added) => {
 	for (const item of added) {

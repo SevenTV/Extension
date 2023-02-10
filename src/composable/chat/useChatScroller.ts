@@ -1,41 +1,65 @@
 import { Ref, nextTick, reactive, toRef, watchEffect } from "vue";
-import { useTimeoutFn } from "@vueuse/core";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useConfig } from "@/composable/useSettings";
-import { useChatMessages } from "./useChatMessages";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
+import { ChannelContext } from "../channel/useChannelContext";
 
 const scrollDuration = useConfig<number>("chat.smooth_scroll_duration");
 const lineLimit = useConfig<number>("chat.line_limit");
-
-const data = reactive({
-	// Scroll Data
-	userInput: 0,
-	lineLimit: lineLimit,
-	init: false,
-	sys: true,
-	live: false,
-	visible: true,
-	paused: false, // whether or not scrolling is paused
-	duration: scrollDuration,
-
-	scrollClear: () => {
-		return;
-	},
-
-	container: undefined as HTMLElement | undefined,
-	bounds: undefined as DOMRect | undefined,
-});
 
 interface ChatScrollerInit {
 	scroller: Ref<InstanceType<typeof UiScrollableVue> | undefined>;
 	bounds: Ref<DOMRect>;
 }
 
-export function useChatScroller(initWith?: ChatScrollerInit) {
+interface ChatScroller {
+	// Scroll Data
+	userInput: number;
+	lineLimit: number;
+	init: boolean;
+	sys: boolean;
+	live: boolean;
+	visible: boolean;
+	paused: boolean; // whether or not scrolling is paused
+	duration: number;
+	pauseBuffer: ChatMessage[]; // twitch chat message buffe when scrolling is paused
+
+	scrollClear: () => void;
+
+	container: HTMLElement | undefined;
+	bounds: DOMRect | undefined;
+}
+
+const m = new WeakMap<ChannelContext, ChatScroller>();
+
+export function useChatScroller(ctx: ChannelContext, initWith?: ChatScrollerInit) {
+	let data = m.get(ctx)!;
+	if (!data) {
+		data = reactive<ChatScroller>({
+			// Scroll Data
+			userInput: 0,
+			lineLimit: lineLimit.value,
+			init: false,
+			sys: true,
+			live: false,
+			visible: true,
+			paused: false, // whether or not scrolling is paused
+			duration: scrollDuration.value,
+			pauseBuffer: [] as ChatMessage[], // twitch chat message buffe when scrolling is paused
+
+			scrollClear: () => {
+				return;
+			},
+
+			container: undefined as HTMLElement | undefined,
+			bounds: undefined as DOMRect | undefined,
+		});
+
+		m.set(ctx, data);
+	}
+
 	const container = toRef(data, "container");
 	const bounds = toRef(data, "bounds");
-
-	const messages = useChatMessages();
 
 	if (initWith) {
 		watchEffect(() => {
@@ -114,20 +138,6 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		data.paused = false;
 		data.init = true;
 
-		// Lazily move the messages in the pause buffer to the main buffer
-		let n = 0;
-		while (messages.pauseBuffer.length) {
-			const unbuf = messages.pauseBuffer.splice(0, 5);
-			n += 50;
-
-			useTimeoutFn(() => {
-				for (const msg of unbuf) messages.add(msg, true);
-				nextTick(() => {
-					scrollToLive();
-				});
-			}, n);
-		}
-
 		nextTick(() => {
 			data.init = false;
 		});
@@ -177,6 +187,7 @@ export function useChatScroller(initWith?: ChatScrollerInit) {
 		lineLimit: toRef(data, "lineLimit"),
 		duration: toRef(data, "duration"),
 		live: toRef(data, "live"),
+		pauseBuffer: toRef(data, "pauseBuffer"),
 
 		scrollToLive,
 		pause,

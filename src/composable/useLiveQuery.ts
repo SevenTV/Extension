@@ -1,6 +1,5 @@
 import { ref, watch } from "vue";
-import type { Ref } from "vue";
-import { tryOnUnmounted } from "@vueuse/core";
+import { MaybeRef, tryOnUnmounted } from "@vueuse/core";
 import { liveQuery } from "dexie";
 
 export function useLiveQuery<T>(
@@ -43,6 +42,7 @@ export function useLiveQuery<T>(
 
 export interface LiveQueryOptions {
 	count?: number;
-	reactives?: Ref[];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	reactives?: MaybeRef<any>[];
 	until?: Promise<boolean>;
 }

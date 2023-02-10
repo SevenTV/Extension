@@ -11,11 +11,13 @@
 </template>
 
 <script setup lang="ts">
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import ModLogsRecentActionsItem from "./ModLogsRecentActionsItem.vue";
 import UiLazyList from "@/ui/UiLazyList.vue";
 
-const messages = useChatMessages();
+const ctx = useChannelContext();
+const messages = useChatMessages(ctx);
 const listID = Symbol("mod-logs-recent-actions");
 </script>
 

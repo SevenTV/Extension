@@ -1,7 +1,7 @@
 <template>
 	<div class="seventv-chat-message-container">
 		<!-- Reply button-->
-		<div class="seventv-reply-button-container" @click="set">
+		<div class="seventv-reply-button-container" @click="openReplyTray">
 			<div class="seventv-reply-button">
 				<component :is="msgData.reply ? TwChatReply : TwReply" />
 			</div>
@@ -32,6 +32,10 @@ const props = defineProps<{
 }>();
 
 const { set } = useTray("Reply", { msg: props.msg });
+
+function openReplyTray(): void {
+	set();
+}
 </script>
 <style scoped lang="scss">
 .seventv-chat-message-container {

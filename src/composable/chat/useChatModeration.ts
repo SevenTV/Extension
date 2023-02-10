@@ -1,32 +1,28 @@
 import { twitchBanUserQuery, twitchUnbanUserQuery } from "@/assets/gql/tw.chat-bans.gql";
 import { useChatMessages } from "./useChatMessages";
+import { ChannelContext } from "../channel/useChannelContext";
 import { useApollo } from "../useApollo";
 
-function deleteChatMessage(msgID: string) {
-	const { sendMessage } = useChatMessages();
-	if (!sendMessage) return;
+export function useChatModeration(ctx: ChannelContext, victim: string) {
+	const messages = useChatMessages(ctx);
 
-	sendMessage(`/delete ${msgID}`);
-}
-
-export function useChatModeration(channelID: string, victim: string) {
 	/**
 	 * Ban the user from the chat room
 	 *
 	 * @param channelID the ID of channel where to ban this usert
 	 * @param victim the login of the user to ban
-	 * @param expiresIn the duration of the ban, in seconds (null for timeout)
+	 * @param expiresIn the duration of the ban, in seconds (null for permanent)
 	 * @param reason the reason for the ban
 	 */
 	function banUserFromChat(expiresIn: string | null, reason?: string) {
 		const apollo = useApollo();
 		if (!apollo) return null;
 
-		return apollo.mutate({
+		return apollo.mutate<twitchBanUserQuery.Result, twitchBanUserQuery.Variables>({
 			mutation: twitchBanUserQuery,
 			variables: {
 				input: {
-					channelID,
+					channelID: ctx.id,
 					bannedUserLogin: victim,
 					expiresIn,
 					reason,
@@ -49,11 +45,15 @@ export function useChatModeration(channelID: string, victim: string) {
 			mutation: twitchUnbanUserQuery,
 			variables: {
 				input: {
-					channelID,
+					channelID: ctx.id,
 					bannedUserLogin: victim,
 				},
 			},
 		});
+	}
+
+	function deleteChatMessage(msgID: string) {
+		messages.sendMessage(`/delete ${msgID}`);
 	}
 
 	return {

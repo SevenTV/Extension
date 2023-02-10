@@ -1,42 +1,16 @@
 import { reactive, toRef } from "vue";
-import { Emoji, useEmoji } from "../useEmoji";
+import type { ChannelContext } from "@/composable/channel/useChannelContext";
+import { useEmoji } from "@/composable/useEmoji";
 
 const { emojiList } = useEmoji();
-
-const data = reactive({
-	// Emote Data
-	active: {} as Record<string, SevenTV.ActiveEmote>,
-	sets: {} as Record<string, SevenTV.EmoteSet>,
-	emojis: {} as Record<string, SevenTV.ActiveEmote>,
-	providers: {
-		"7TV": {},
-		FFZ: {},
-		BTTV: {},
-		TWITCH: {},
-		EMOJI: {},
-	} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>,
-});
-
-export function resetProviders() {
-	data.providers = {
-		"7TV": {},
-		FFZ: {},
-		BTTV: {},
-		TWITCH: {},
-		EMOJI: data.providers.EMOJI,
-	} as Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>;
-}
-
-function byProvider(provider: SevenTV.Provider) {
-	return toRef(data.providers, provider);
-}
-
-function populateEmoji(emoji: Emoji): void {
-	const es = data.providers["EMOJI"][emoji.group];
+const emojiSets = {} as Record<string, SevenTV.EmoteSet>;
+const emojis = {} as Record<string, SevenTV.ActiveEmote>;
+emojiList.forEach((e) => {
+	const es = emojiSets[e.group];
 	if (!es) {
-		data.providers["EMOJI"][emoji.group] = {
-			id: emoji.group,
-			name: emoji.group,
+		emojiSets[e.group] = {
+			id: e.group,
+			name: e.group,
 			provider: "EMOJI",
 			emotes: [],
 			tags: [],
@@ -46,18 +20,46 @@ function populateEmoji(emoji: Emoji): void {
 		};
 	}
 
-	data.providers["EMOJI"][emoji.group].emotes.push(emoji.emote);
-	data.emojis[emoji.emote.name] = emoji.emote;
+	emojiSets[e.group].emotes.push(e.emote);
+	emojis[e.emote.name] = e.emote;
+});
+
+class ChatEmotes {
+	active: Record<string, SevenTV.ActiveEmote> = {};
+	sets: Record<string, SevenTV.EmoteSet> = {};
+	emojis: Record<string, SevenTV.ActiveEmote> = emojis;
+	providers: Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>> = {
+		"7TV": {},
+		FFZ: {},
+		BTTV: {},
+		TWITCH: {},
+		EMOJI: emojiSets,
+	};
+
+	resetProviders(): void {
+		this.providers = {
+			"7TV": {},
+			FFZ: {},
+			BTTV: {},
+			TWITCH: {},
+			EMOJI: emojiSets,
+		};
+	}
+
+	byProvider(provider: SevenTV.Provider) {
+		return toRef(this.providers, provider);
+	}
 }
 
-emojiList.forEach((e) => populateEmoji(e));
+const m = new WeakMap<ChannelContext, ChatEmotes>();
 
-export function useChatEmotes() {
-	return reactive({
-		active: toRef(data, "active"),
-		sets: toRef(data, "sets"),
-		providers: toRef(data, "providers"),
-		emojis: toRef(data, "emojis"),
-		byProvider,
-	});
+export function useChatEmotes(ctx: ChannelContext) {
+	let x = m.get(ctx);
+	if (!x) {
+		x = reactive(new ChatEmotes());
+
+		m.set(ctx, x);
+	}
+
+	return x;
 }

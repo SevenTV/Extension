@@ -33,6 +33,7 @@ import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMe
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
+import { useChannelContext } from "../channel/useChannelContext";
 import { useChatMessages } from "../chat/useChatMessages";
 
 const props = defineProps<{
@@ -43,7 +44,8 @@ const props = defineProps<{
 const rootMsgID = ref("");
 const thread = ref<ChatMessage[]>([props.msg]);
 
-const { find } = useChatMessages();
+const ctx = useChannelContext();
+const { find } = useChatMessages(ctx);
 onMounted(() => {
 	let currentMsg: ChatMessage | undefined = props.msg;
 	for (;;) {

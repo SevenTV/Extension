@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import TwAnnounce from "@/assets/svg/twitch/TwAnnounce.vue";
 
@@ -20,7 +21,8 @@ const props = defineProps<{
 	msgData: Twitch.AnnouncementMessage;
 }>();
 
-const properties = useChatProperties();
+const ctx = useChannelContext();
+const properties = useChatProperties(ctx);
 
 const className =
 	"announcement-line--" +

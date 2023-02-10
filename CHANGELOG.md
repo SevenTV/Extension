@@ -1,7 +1,13 @@
 ### Version 3.0.0.9000 (Beta 9)
 
+**This release includes major code refactors**. Please report any issues or regressions via our [Discord server](https://discord.gg/7tv) or [GitHub](https://github.com/seventv/extensionv3).
+
+- Improved the speed of the extension's initial load
+- Implemented an initial design for Emote Cards
+- Fixed an issue which prevented user cards from opening
 - Fixed a major performance issue, greatly bringing down average CPU usage
 - Fixed the "Animated Avatars" toggle not actually doing anything
+- Fixed an issue which caused messages to appear permanently greyed out
 
 ### Version 3.0.0.8000 (Beta 8)
 

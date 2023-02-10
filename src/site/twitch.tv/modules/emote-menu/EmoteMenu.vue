@@ -1,6 +1,6 @@
 <template>
 	<Teleport :to="containerEl">
-		<div v-if="open" class="seventv-emote-menu-container">
+		<div v-if="open && ctx.channelID" class="seventv-emote-menu-container">
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
 				<div class="seventv-emote-menu-header">
@@ -75,6 +75,8 @@ const props = defineProps<{
 const containerEl = ref<HTMLElement | undefined>();
 
 const ctx = useEmoteMenuContext();
+ctx.channelID = props.instance.component.chatInputRef.props.channelID ?? "";
+
 const open = ref(false);
 const settingsModule = getModule("settings");
 
@@ -174,6 +176,7 @@ onClickOutside(containerEl, () => (open.value = false));
 
 onUnmounted(() => {
 	unsetPropertyHook(props.instance.component.autocompleteInputRef, "state");
+	unsetPropertyHook(props.instance.component, "onBitsIconClick");
 });
 </script>
 

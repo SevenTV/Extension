@@ -36,12 +36,7 @@
 
 		<!-- Mod Icons -->
 		<template v-if="properties.isModerator && properties.showModerationIcons">
-			<ModIcons
-				:msg="msg"
-				@ban="banUserFromChat(null)"
-				@timeout="banUserFromChat('10m')"
-				@delete="deleteChatMessage(msg.id)"
-			/>
+			<ModIcons :msg="msg" />
 		</template>
 
 		<!-- Chat Author -->
@@ -51,8 +46,8 @@
 			:color="color"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
-			@name-click="nameClick"
-			@badge-click="badgeClick"
+			@name-click="(ev) => openViewerCard(ev, msg)"
+			@badge-click="(ev, badge) => openViewerCard(ev, msg)"
 		/>
 
 		<span v-if="!hideAuthor">
@@ -67,8 +62,8 @@
 					<Emote
 						class="emote-token"
 						:emote="token.content.emote"
+						:format="properties.imageFormat"
 						:overlaid="token.content.overlaid"
-						@emote-click="emoteClick"
 					/>
 					<span v-if="token.content" :style="{ color: token.content.cheerColor }">
 						{{ token.content.cheerAmount }}
@@ -92,12 +87,11 @@
 <script setup lang="ts">
 import { onMounted, ref, toRef, watch } from "vue";
 import { normalizeUsername } from "@/common/Color";
-import { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
+import type { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
-import { useChatEmotes } from "@/composable/chat/useChatEmotes";
-import { useChatModeration } from "@/composable/chat/useChatModeration";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
-import { useCardOpeners } from "@/composable/useCardOpeners";
+import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
@@ -114,6 +108,8 @@ const props = withDefaults(
 			label: string;
 			color: string;
 		};
+		emotes?: Record<string, SevenTV.ActiveEmote>;
+		isModerator?: boolean;
 		hideAuthor?: boolean;
 		hideModeration?: boolean;
 		hideDeletionState?: boolean;
@@ -125,9 +121,9 @@ const props = withDefaults(
 const msg = toRef(props, "msg");
 const msgEl = ref<HTMLSpanElement | null>();
 
-const emotes = useChatEmotes();
-const properties = useChatProperties();
-const { nameClick, emoteClick, badgeClick } = useCardOpeners(props.msg);
+const ctx = useChannelContext();
+const properties = useChatProperties(ctx);
+const { openViewerCard } = useChatTools(ctx);
 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");
@@ -154,7 +150,7 @@ function doTokenize() {
 	if (!tokenizer) return;
 
 	const newTokens = tokenizer.tokenize({
-		emoteMap: emotes.active,
+		emoteMap: props.emotes ?? {},
 		localEmoteMap: { ...cosmetics.emotes, ...props.msg.nativeEmotes },
 	});
 
@@ -199,12 +195,6 @@ function getPart(part: AnyToken) {
 		return Link;
 	}
 }
-
-// Moderation
-const { banUserFromChat, deleteChatMessage } =
-	props.msg.channelID && props.msg.author
-		? useChatModeration(props.msg.channelID!, props.msg.author?.username)
-		: { banUserFromChat: () => void 0, deleteChatMessage: () => void 0 };
 
 onMounted(() => {
 	if (!msg.value || !msgEl.value) return;

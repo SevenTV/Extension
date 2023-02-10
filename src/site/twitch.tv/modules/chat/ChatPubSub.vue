@@ -3,10 +3,12 @@
 <script setup lang="ts">
 import { onUnmounted, ref, watchEffect } from "vue";
 import { log } from "@/common/Logger";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { PubSubMessage, PubSubMessageData, usePubSub } from "@/composable/usePubSub";
 
-const messages = useChatMessages();
+const ctx = useChannelContext();
+const messages = useChatMessages(ctx);
 const pubsub = usePubSub();
 
 // Update the event listener in case the socket is updated

@@ -4,12 +4,12 @@
 			<template v-if="msg.instance">
 				<ModSlider v-if="isModSliderEnabled && properties.isModerator && msg.author" :msg="msg">
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
-						<UserMessage :msg="msg" />
+						<UserMessage :msg="msg" :emotes="emotes.active" />
 					</component>
 				</ModSlider>
 
 				<component :is="msg.instance" v-else v-bind="msg.componentProps" :msg="msg">
-					<UserMessage :msg="msg" />
+					<UserMessage :msg="msg" :emotes="emotes.active" />
 				</component>
 			</template>
 			<template v-else>
@@ -24,11 +24,14 @@ import { nextTick, reactive, ref, toRef, watch } from "vue";
 import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn, watchDebounced } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
+import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
 import { convertCheerEmote, convertTwitchEmote } from "@/common/Transform";
 import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
 import { IsChatMessage, IsDisplayableMessage, IsModerationMessage } from "@/common/type-predicates/Messages";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
@@ -43,11 +46,13 @@ const props = defineProps<{
 	messageHandler: Twitch.MessageHandlerAPI | null;
 }>();
 
-const { identity, channel } = storeToRefs(useStore());
-const messages = useChatMessages();
+const ctx = useChannelContext();
+const { identity } = storeToRefs(useStore());
+const emotes = useChatEmotes(ctx);
+const messages = useChatMessages(ctx);
 const displayedMessages = toRef(messages, "displayed");
-const scroller = useChatScroller();
-const properties = useChatProperties();
+const scroller = useChatScroller(ctx);
+const properties = useChatProperties(ctx);
 const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
 
@@ -66,7 +71,7 @@ const list = toRef(props, "list");
 const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 	const msg = new ChatMessage(msgData.id);
 
-	msg.channelID = channel.value?.id ?? "";
+	msg.channelID = ctx.id;
 
 	switch (msgData.type) {
 		case MessageType.MESSAGE:
@@ -220,6 +225,10 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 				color: authorData.color,
 			},
 		);
+		// check blocked state and ignore if blocked
+		if (msg.author && properties.blockedUsers.has(msg.author.id)) {
+			log.debug("Ignored message from blocked user", msg.author.id);
+		}
 
 		msg.badges = msgData.badges ?? msgData.message?.badges ?? {};
 

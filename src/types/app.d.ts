@@ -305,8 +305,7 @@ declare type PlatformIdentity<T extends Platform> = {
 interface CurrentChannel {
 	id: string;
 	username: string;
-	display_name: string;
-	loaded: boolean;
+	displayName: string;
 }
 
 declare namespace BTTV {

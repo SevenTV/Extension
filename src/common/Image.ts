@@ -1,6 +1,4 @@
-import { useChatProperties } from "@/composable/chat/useChatProperties";
-
-const properties = useChatProperties();
+import { useUserAgent } from "@/composable/useUserAgent";
 
 const layout = {
 	TWITCH: [1, 2, 3],
@@ -20,9 +18,9 @@ export function imageHostToSrcset(
 ): string {
 	if (known[host.url]) return known[host.url];
 
-	const v = (
-		provider === "7TV" ? host.files.filter((f) => f.format === format ?? properties.imageFormat) : host.files
-	)
+	const { preferredFormat } = useUserAgent();
+
+	const v = (provider === "7TV" ? host.files.filter((f) => f.format === format ?? preferredFormat) : host.files)
 		.slice(0, maxSize || layout[provider][layout[provider].length - 1])
 		.reduce(
 			(pre, cur, i, a) => pre + `https:${host.url}/${cur.name} ${layout[provider][i]}x` + (a[i + 1] ? ", " : ""),
@@ -39,7 +37,9 @@ export function imageHostToSrcsetWithsize(
 	host: SevenTV.ImageHost,
 	provider: SevenTV.Provider = "7TV",
 ): string {
-	return (provider == "7TV" ? host.files.filter((f) => f.format === properties.imageFormat) : host.files)
+	const { preferredFormat } = useUserAgent();
+
+	return (provider == "7TV" ? host.files.filter((f) => f.format === preferredFormat) : host.files)
 		.slice(0, layout[provider][layout[provider].length - 1])
 		.reduce(
 			(pre, cur, i) =>
