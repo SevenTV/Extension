@@ -83,5 +83,13 @@ watchEffect(() => {
 		width: 100%;
 		background-color: currentColor;
 	}
+
+	:deep(h3) {
+		margin: 1rem 0 0.5rem 0rem;
+	}
+
+	:deep(p) {
+		margin: 0.5rem 0;
+	}
 }
 </style>
