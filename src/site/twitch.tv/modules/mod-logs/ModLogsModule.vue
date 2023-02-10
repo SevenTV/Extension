@@ -1,11 +1,13 @@
 <template>
 	<template v-if="open && buttonRef.current">
 		<UiDraggable
+			v-for="con of chatController.instance?.chatController.instances ?? []"
+			:key="con.component.props.channelID"
 			:handle="com?.handle"
 			:initial-anchor="(buttonRef.current as HTMLDivElement)"
 			:initial-middleware="[shift({ padding: { bottom: 96, right: 8 }, crossAxis: true })]"
 		>
-			<ModLogs ref="com" @close="open = false" />
+			<ModLogs ref="com" :channel-id="con.component.props.channelID" @close="open = false" />
 		</UiDraggable>
 	</template>
 </template>
@@ -21,7 +23,7 @@ import { shift } from "@floating-ui/core";
 
 const { dependenciesMet, markAsReady } = declareModule("mod-logs", {
 	name: "Mod Logs",
-	depends_on: ["chat-input-controller"],
+	depends_on: ["chat", "chat-input-controller"],
 	config: [
 		{
 			key: "chat.mod_logs.enabled",
@@ -45,11 +47,14 @@ const com = ref<InstanceType<typeof ModLogs> | undefined>();
 
 await until(dependenciesMet).toBe(true);
 
-const controller = getModule("chat-input-controller");
-if (!controller?.instance) throw new Error("ChatInputController not found");
+const inputController = getModule("chat-input-controller");
+if (!inputController?.instance) throw new Error("ChatInputController not found");
+
+const chatController = getModule("chat");
+if (!chatController?.instance) throw new Error("ChatController not found");
 
 // insert button
-const buttonRef = controller.instance.addButton(
+const buttonRef = inputController.instance.addButton(
 	ModLogsButton,
 	{
 		onClick: () => {

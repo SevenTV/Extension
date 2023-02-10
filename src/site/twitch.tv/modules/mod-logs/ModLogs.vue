@@ -78,11 +78,15 @@ import ModLogsRecentActions from "./ModLogsRecentActions.vue";
 import { useModLogsStore } from "./ModLogsStore";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
+const props = defineProps<{
+	channelId: string;
+}>();
+
 const emit = defineEmits<{
 	(e: "close"): void;
 }>();
 
-const ctx = useChannelContext();
+const ctx = useChannelContext(props.channelId);
 const messages = useChatMessages(ctx);
 const localStore = useModLogsStore();
 
