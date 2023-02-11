@@ -62,63 +62,69 @@ interface TabToken {
 	fromTwitch: boolean;
 }
 
-function findMatchingTokens(str: string, twitchSets?: Twitch.TwitchEmoteSet[], startsWith?: boolean): TabToken[] {
+function findMatchingTokens(
+	str: string,
+	twitchSets?: Twitch.TwitchEmoteSet[],
+	mode: "tab" | "colon" = "tab",
+): TabToken[] {
 	const usedTokens = new Set<string>();
 
 	const matches: TabToken[] = [];
 
 	const prefix = str.toLowerCase();
+	const test = (token: string) =>
+		({
+			tab: token.toLowerCase().startsWith(prefix),
+			colon: token.toLowerCase().includes(prefix),
+		}[mode]);
 
 	for (const [token] of Object.entries(cosmetics.emotes)) {
-		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
-			usedTokens.add(token);
-			matches.push({
-				token,
-				fromTwitch: false,
-			});
-		}
+		if (usedTokens.has(token) || !test(prefix)) continue;
+
+		usedTokens.add(token);
+		matches.push({
+			token,
+			fromTwitch: false,
+		});
 	}
 
 	for (const [token] of Object.entries(emotes.active)) {
-		if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
-			usedTokens.add(token);
-			matches.push({
-				token,
-				fromTwitch: false,
-			});
-		}
-	}
+		if (usedTokens.has(token) || !test(token)) continue;
 
-	if (!startsWith) {
-		for (const [token] of Object.entries(emotes.emojis)) {
-			if (!usedTokens.has(token) && token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)) {
-				usedTokens.add(token);
-				matches.push({
-					token,
-					fromTwitch: false,
-				});
-			}
-		}
+		usedTokens.add(token);
+		matches.push({
+			token,
+			fromTwitch: false,
+		});
 	}
 
 	if (twitchSets) {
 		for (const set of twitchSets) {
 			for (const emote of set.emotes) {
-				if (
-					!usedTokens.has(emote.token) &&
-					emote.token.toLowerCase()[startsWith ? "startsWith" : "includes"](prefix)
-				) {
-					usedTokens.add(emote.token);
-					matches.push({
-						token: emote.token,
-						fromTwitch: true,
-					});
-				}
+				if (usedTokens.has(emote.token) || !test(emote.token)) continue;
+
+				usedTokens.add(emote.token);
+				matches.push({
+					token: emote.token,
+					fromTwitch: true,
+				});
 			}
 		}
 	}
 
-	if (shouldAutocompleteChatters.value) {
+	if (mode === "tab") {
+		for (const [token] of Object.entries(emotes.emojis)) {
+			if (usedTokens.has(token) || !test(token)) continue;
+
+			usedTokens.add(token);
+			matches.push({
+				token,
+				fromTwitch: false,
+			});
+		}
+	}
+
+	if (shouldAutocompleteChatters.value && mode === "tab") {
 		const tokenStartsWithAt = prefix.startsWith("@");
 		const lPrefix = prefix.replace("@", "");
 
@@ -197,7 +203,7 @@ function handleTabPress(ev: KeyboardEvent): void {
 			state.expectedWord != currentWord
 		) {
 			const searchWord = currentWord.endsWith(" ") ? currentWord.slice(0, -1) : currentWord;
-			matches = findMatchingTokens(searchWord, component.props.emotes, true);
+			matches = findMatchingTokens(searchWord, component.props.emotes, "colon");
 			match = matches[matchIndex];
 		} else {
 			matches = state.matches;
@@ -365,7 +371,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;
 		const emote = allEmotes[token];
-		if (!shouldColonCompleteEmoji.value && emote.provider == "EMOJI") {
+		if (!emote || (!shouldColonCompleteEmoji.value && emote.provider == "EMOJI")) {
 			continue;
 		}
 
