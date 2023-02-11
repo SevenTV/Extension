@@ -1,5 +1,9 @@
 ### Version 3.0.0.9000 (Beta 9)
 
+#### Beta 9.1
+
+- Fixed an input crash when using colon-completion
+
 **This release includes major code refactors**. Please report any issues or regressions via our [Discord server](https://discord.gg/7tv) or [GitHub](https://github.com/seventv/extensionv3).
 
 - Improved the speed of the extension's initial load
