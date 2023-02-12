@@ -18,6 +18,7 @@ export interface TwTypeUser {
 	stream: unknown;
 	channel: TwTypeChannel;
 	self: TwTypeUserSelfConnection;
+	blockedUsers: TwTypeUser[];
 }
 
 export interface TwTypeChannel {

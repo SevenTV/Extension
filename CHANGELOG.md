@@ -1,3 +1,7 @@
+### Version 3.0.0.10000 (Beta 10)
+
+-   Added support for chat in VODs
+
 ### Version 3.0.0.9000 (Beta 9)
 
 #### Beta 9.2
@@ -12,14 +16,14 @@
 
 **This release includes major code refactors**. Please report any issues or regressions via our [Discord server](https://discord.gg/7tv) or [GitHub](https://github.com/seventv/extensionv3).
 
-- Improved the speed of the extension's initial load
-- Implemented an initial design for Emote Cards
-- Added an option to autocomplete the usernames of active chatters
-- Fixed an issue where up/down-arrow would navigate chat history even if the cursor was not at an end
-- Fixed an issue which prevented user cards from opening
-- Fixed a major performance issue, greatly bringing down average CPU usage
-- Fixed the "Animated Avatars" toggle not actually doing anything
-- Fixed an issue which caused messages to appear permanently greyed out
+-   Improved the speed of the extension's initial load
+-   Implemented an initial design for Emote Cards
+-   Added an option to autocomplete the usernames of active chatters
+-   Fixed an issue where up/down-arrow would navigate chat history even if the cursor was not at an end
+-   Fixed an issue which prevented user cards from opening
+-   Fixed a major performance issue, greatly bringing down average CPU usage
+-   Fixed the "Animated Avatars" toggle not actually doing anything
+-   Fixed an issue which caused messages to appear permanently greyed out
 
 ### Version 3.0.0.8000 (Beta 8)
 
@@ -32,14 +36,14 @@
 
 #### Beta 8.1
 
-- Added support for chat pausing with Alt or Mouseover
-- Further improved the performance of the Emote Menu
-- Fixed freezing issues when opening the Mod Logs menu
+-   Added support for chat pausing with Alt or Mouseover
+-   Further improved the performance of the Emote Menu
+-   Fixed freezing issues when opening the Mod Logs menu
 
 ### Version 3.0.0.7000 (Beta 7)
 
--	Added support for Emojis in chat & auto-completion
--	Added a new tab for Emojis in the Emote Menu
+-   Added support for Emojis in chat & auto-completion
+-   Added a new tab for Emojis in the Emote Menu
 -   Added support for Animated Avatars
 -   Made some optimizations against bandwidth usage
 -   Fixed an issue which broke the insertion of emotes to the input via the emote menu

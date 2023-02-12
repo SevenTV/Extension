@@ -37,7 +37,7 @@
 				class="seventv-emote-card-float"
 				:anchor="boxRef"
 				placement="right-end"
-				:middleware="[shift({ mainAxis: true, crossAxis: true })]"
+				:middleware="[shift({ mainAxis: true, crossAxis: true }), autoPlacement()]"
 				:emit-clickout="true"
 				@clickout="showEmoteCard = false"
 			>
@@ -56,7 +56,7 @@ import EmoteCard from "@/site/global/components/EmoteCard.vue";
 import EmoteTooltip from "@/site/twitch.tv/modules/chat/components/message/EmoteTooltip.vue";
 import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 import UiFloating from "@/ui/UiFloating.vue";
-import { shift } from "@floating-ui/dom";
+import { autoPlacement, shift } from "@floating-ui/dom";
 
 const props = withDefaults(
 	defineProps<{

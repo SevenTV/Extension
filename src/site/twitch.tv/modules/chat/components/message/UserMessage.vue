@@ -23,7 +23,7 @@
 
 		<!-- Timestamp -->
 		<template v-if="properties.showTimestamps || msg.historical || forceTimestamp">
-			<span class="chat-line__timestamp">
+			<span class="seventv-chat-message-timestamp">
 				{{
 					new Date(props.msg.timestamp).toLocaleTimeString(locale, {
 						hour: "numeric",
@@ -263,6 +263,11 @@ onMounted(() => {
 	display: inline-block;
 	font-style: italic;
 	vertical-align: center;
+	color: var(--seventv-muted);
+}
+
+.seventv-chat-message-timestamp {
+	margin-right: 0.5rem;
 	color: var(--seventv-muted);
 }
 </style>

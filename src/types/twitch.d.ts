@@ -266,7 +266,22 @@ declare module Twitch {
 		onBanUser: (n: any) => void;
 		onCreate: (n: any) => void;
 		onDeleteComment: (n: any) => void;
+		canCurrentUserBan: boolean;
+		canCurrentUserDelete: boolean;
 		videoID: string;
+		data: {
+			badges: ChatBadge[];
+			video: {
+				id: string;
+				login: string;
+				lengthSeconds: number;
+				owner: {
+					id: string;
+					login: string;
+					broadcastBadges: ChatBadge[];
+				};
+			} | null;
+		};
 	}>;
 
 	export type ChatInputController = ReactExtended.WritableComponent<{

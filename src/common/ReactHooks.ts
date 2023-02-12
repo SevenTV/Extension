@@ -126,12 +126,13 @@ export function awaitComponents<T extends ReactExtended.WritableComponent>(
 		document.querySelectorAll(criteria.parentSelector).forEach((el) => {
 			const node = getVNodeFromDOM(el);
 			if (node) {
-				findComponentChildren<T>(node, criteria.predicate).forEach((c) => instances.add(c));
+				findComponentChildren<T>(node, criteria.predicate, criteria.maxDepth).forEach((c) => instances.add(c));
 			}
 		});
 	} else {
 		const root = getRootVNode();
-		if (root) findComponentChildren<T>(root, criteria.predicate).forEach((c) => instances.add(c));
+		if (root)
+			findComponentChildren<T>(root, criteria.predicate, criteria.maxDepth).forEach((c) => instances.add(c));
 	}
 
 	if (instances.size < 1) {
@@ -143,16 +144,16 @@ export function awaitComponents<T extends ReactExtended.WritableComponent>(
 							if (!criteria.parentSelector || node.matches(criteria.parentSelector)) {
 								const vnode = getVNodeFromDOM(node);
 								if (vnode) {
-									findComponentChildren<T>(vnode, criteria.predicate).forEach((c) =>
-										instances.add(c),
+									findComponentChildren<T>(vnode, criteria.predicate, criteria.maxDepth).forEach(
+										(c) => instances.add(c),
 									);
 								}
 							} else {
 								node.querySelectorAll(criteria.parentSelector).forEach((el) => {
 									const node = getVNodeFromDOM(el);
 									if (node) {
-										findComponentChildren<T>(node, criteria.predicate).forEach((c) =>
-											instances.add(c),
+										findComponentChildren<T>(node, criteria.predicate, criteria.maxDepth).forEach(
+											(c) => instances.add(c),
 										);
 									}
 								});
@@ -185,107 +186,118 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 	criteria: ComponentCriteria,
 	options: HookOptions<C> = {},
 ): ReactComponentHook<C> {
+	const retry = () => update();
+
 	const hook: ReactComponentHook<C> = reactive({
 		cls: undefined,
 		instances: [],
 		unhooked: false,
+		retry,
 	});
 
-	const components = awaitComponents(criteria);
-
-	if (components instanceof ObserverPromise) {
-		hook.watcher = components;
-	}
-
-	components.then(
-		(instances) => {
-			if (hook.unhooked) return;
-
+	const update = () => {
+		if (hook.watcher) {
+			hook.watcher.disconnect();
 			hook.watcher = undefined;
+		}
 
-			const [first] = instances;
-			if (!first) return;
+		const components = awaitComponents(criteria);
 
-			const cls = first.constructor as ComponentClass<C>;
-			if (!cls) return;
+		if (components instanceof ObserverPromise) {
+			hook.watcher = components;
+		}
 
-			hook.cls = cls;
+		components.then(
+			(instances) => {
+				if (hook.unhooked) return;
 
-			const proto = cls.prototype;
+				hook.watcher = undefined;
 
-			const createOrGetHook = function (component: C) {
-				let instance = Reflect.get(component, WRAPPER_ACCESSOR) as HookedInstance<C>;
+				const [first] = instances;
+				if (!first) return;
 
-				if (!instance) {
-					instance = new HookedInstance(component);
+				const cls = first.constructor as ComponentClass<C>;
+				if (!cls) return;
 
-					Reflect.set(component, WRAPPER_ACCESSOR, instance);
+				hook.cls = cls;
 
-					hook.instances.push(instance);
+				const proto = cls.prototype;
+
+				const createOrGetHook = function (component: C) {
+					let instance = Reflect.get(component, WRAPPER_ACCESSOR) as HookedInstance<C>;
+
+					if (!instance) {
+						instance = new HookedInstance(component);
+
+						Reflect.set(component, WRAPPER_ACCESSOR, instance);
+
+						hook.instances.push(instance);
+					}
+
+					return instance;
+				};
+
+				defineFunctionHook(proto, "componentDidMount", function (old, ...args: unknown[]) {
+					const instance = createOrGetHook(this);
+
+					options.hooks?.mount?.(instance);
+
+					return old?.apply(this, args);
+				});
+
+				defineFunctionHook(proto, "componentDidUpdate", function (old, ...args: unknown[]) {
+					const instance = createOrGetHook(this);
+
+					options.hooks?.update?.(instance);
+
+					return old?.apply(this, args);
+				});
+
+				defineFunctionHook(proto, "componentWillUnmount", function (old, ...args: unknown[]) {
+					const instance = Reflect.get(this, WRAPPER_ACCESSOR) as HookedInstance<C>;
+					if (instance) {
+						const index = hook.instances.findIndex((x) => x.identifier === instance.identifier);
+
+						if (index > -1) hook.instances.splice(index, 1);
+
+						Reflect.deleteProperty(this, WRAPPER_ACCESSOR);
+
+						options.hooks?.unmount?.(instance);
+					}
+
+					return old?.apply(this, args);
+				});
+
+				defineFunctionHook(proto, "render", function (old, ...args: unknown[]) {
+					const instance = createOrGetHook(this);
+
+					let jsx: React.ReactNode = options.replaceContents ? null : old?.apply(this, args);
+
+					if (options.hooks?.render) jsx = options.hooks.render(instance, jsx);
+
+					if (options.trackRoot) jsx = getTrackedNode(instance, "root", jsx);
+
+					return jsx;
+				});
+
+				defineFunctionHook(proto, "shouldComponentUpdate", function (old, ...args: unknown[]) {
+					const instance = createOrGetHook(this);
+
+					if (options.hooks?.shouldUpdate) {
+						return options.hooks.shouldUpdate(instance);
+					}
+
+					return options.replaceContents ? false : old?.apply(this, args) ?? true;
+				});
+
+				for (const instance of instances) {
+					instance.forceUpdate();
 				}
-
-				return instance;
-			};
-
-			defineFunctionHook(proto, "componentDidMount", function (old, ...args: unknown[]) {
-				const instance = createOrGetHook(this);
-
-				options.hooks?.mount?.(instance);
-
-				return old?.apply(this, args);
-			});
-
-			defineFunctionHook(proto, "componentDidUpdate", function (old, ...args: unknown[]) {
-				const instance = createOrGetHook(this);
-
-				options.hooks?.update?.(instance);
-
-				return old?.apply(this, args);
-			});
-
-			defineFunctionHook(proto, "componentWillUnmount", function (old, ...args: unknown[]) {
-				const instance = Reflect.get(this, WRAPPER_ACCESSOR) as HookedInstance<C>;
-				if (instance) {
-					const index = hook.instances.findIndex((x) => x.identifier === instance.identifier);
-
-					if (index > -1) hook.instances.splice(index, 1);
-
-					Reflect.deleteProperty(this, WRAPPER_ACCESSOR);
-
-					options.hooks?.unmount?.(instance);
-				}
-
-				return old?.apply(this, args);
-			});
-
-			defineFunctionHook(proto, "render", function (old, ...args: unknown[]) {
-				const instance = createOrGetHook(this);
-
-				let jsx: React.ReactNode = options.replaceContents ? null : old?.apply(this, args);
-
-				if (options.hooks?.render) jsx = options.hooks.render(instance, jsx);
-
-				if (options.trackRoot) jsx = getTrackedNode(instance, "root", jsx);
-
-				return jsx;
-			});
-
-			defineFunctionHook(proto, "shouldComponentUpdate", function (old, ...args: unknown[]) {
-				const instance = createOrGetHook(this);
-
-				if (options.hooks?.shouldUpdate) {
-					return options.hooks.shouldUpdate(instance);
-				}
-
-				return options.replaceContents ? false : old?.apply(this, args) ?? true;
-			});
-
-			for (const instance of instances) {
-				instance.forceUpdate();
-			}
-		},
-		() => undefined,
-	);
+			},
+			() => undefined,
+		);
+	};
+	update();
 
 	return hook;
 }
@@ -382,6 +394,7 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 interface ComponentCriteria {
 	parentSelector?: string;
 	predicate: ReactComponentPredicate;
+	maxDepth?: number;
 }
 
 interface HookOptions<C extends ReactExtended.WritableComponent> {
@@ -406,6 +419,7 @@ export interface ReactComponentHook<C extends ReactExtended.WritableComponent> {
 	instances: HookedInstance<C>[];
 	watcher?: ObserverPromise<Set<C>>;
 	unhooked: boolean;
+	retry: () => void;
 }
 
 export class HookedInstance<C extends ReactExtended.WritableComponent> {
