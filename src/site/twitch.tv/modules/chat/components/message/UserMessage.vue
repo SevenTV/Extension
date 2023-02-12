@@ -64,6 +64,7 @@
 						:emote="token.content.emote"
 						:format="properties.imageFormat"
 						:overlaid="token.content.overlaid"
+						:clickable="true"
 					/>
 					<span v-if="token.content" :style="{ color: token.content.cheerColor }">
 						{{ token.content.cheerAmount }}

@@ -58,9 +58,9 @@
 			</div>
 
 			<!-- Zero Width -->
-			<div v-if="overlayEmotes.length" class="divider" />
-			<div v-if="overlayEmotes.length" class="zero-width-label">
-				<div v-for="e of overlayEmotes" :key="e.id" class="zero-width-emote">
+			<div v-if="hasOverlayEmotes" class="divider" />
+			<div v-if="hasOverlayEmotes" class="zero-width-label">
+				<div v-for="e in overlayEmotes" :key="e.id" class="zero-width-emote">
 					<img
 						v-if="e.data"
 						class="overlaid-emote-icon"
@@ -110,6 +110,7 @@ if (props.emote && props.emote.data && props.emote.data.host.srcset) {
 }
 
 const overlayEmotes = ref(props.overlaid ?? {});
+const hasOverlayEmotes = ref(Object.keys(overlayEmotes.value).length > 0);
 const width = `${props.width * 3}px`;
 const height = `${props.height * 3}px`;
 

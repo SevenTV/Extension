@@ -61,6 +61,7 @@ import { shift } from "@floating-ui/dom";
 const props = withDefaults(
 	defineProps<{
 		emote: SevenTV.ActiveEmote;
+		clickable?: boolean;
 		format?: SevenTV.ImageFormat;
 		overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
 		unload?: boolean;
@@ -95,6 +96,8 @@ const onImageLoad = (event: Event) => {
 };
 
 function onShowEmoteCard(ev: MouseEvent) {
+	if (!props.clickable) return;
+
 	determineImageSize();
 	showEmoteCard.value = true;
 	cardPos.value = [ev.clientX, ev.clientY];

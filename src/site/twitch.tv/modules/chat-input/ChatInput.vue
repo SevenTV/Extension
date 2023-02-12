@@ -59,6 +59,7 @@ const historyLocation = ref(-1);
 
 interface TabToken {
 	token: string;
+	priority: number;
 	fromTwitch: boolean;
 }
 
@@ -79,11 +80,12 @@ function findMatchingTokens(
 		}[mode]);
 
 	for (const [token] of Object.entries(cosmetics.emotes)) {
-		if (usedTokens.has(token) || !test(prefix)) continue;
+		if (usedTokens.has(token) || !test(token)) continue;
 
 		usedTokens.add(token);
 		matches.push({
 			token,
+			priority: 4,
 			fromTwitch: false,
 		});
 	}
@@ -94,6 +96,7 @@ function findMatchingTokens(
 		usedTokens.add(token);
 		matches.push({
 			token,
+			priority: 3,
 			fromTwitch: false,
 		});
 	}
@@ -106,19 +109,21 @@ function findMatchingTokens(
 				usedTokens.add(emote.token);
 				matches.push({
 					token: emote.token,
+					priority: 2,
 					fromTwitch: true,
 				});
 			}
 		}
 	}
 
-	if (mode === "tab") {
+	if (mode === "colon") {
 		for (const [token] of Object.entries(emotes.emojis)) {
 			if (usedTokens.has(token) || !test(token)) continue;
 
 			usedTokens.add(token);
 			matches.push({
 				token,
+				priority: 1,
 				fromTwitch: false,
 			});
 		}
@@ -130,16 +135,17 @@ function findMatchingTokens(
 
 		const chatters = Object.entries(messages.chatters);
 		for (const [, chatter] of chatters) {
-			if (!usedTokens.has(chatter.displayName) && chatter.displayName.toLowerCase().includes(lPrefix)) {
-				matches.push({
-					token: (tokenStartsWithAt ? "@" : "") + chatter.displayName,
-					fromTwitch: true,
-				});
-			}
+			if (usedTokens.has(chatter.displayName) || !chatter.displayName.toLowerCase().startsWith(lPrefix)) continue;
+
+			matches.push({
+				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName + " ",
+				priority: 0,
+				fromTwitch: true,
+			});
 		}
 	}
 
-	matches.sort((a, b) => a.token.localeCompare(b.token));
+	matches.sort((a, b) => a.priority + b.priority - a.token.localeCompare(b.token));
 
 	return matches;
 }
@@ -203,7 +209,7 @@ function handleTabPress(ev: KeyboardEvent): void {
 			state.expectedWord != currentWord
 		) {
 			const searchWord = currentWord.endsWith(" ") ? currentWord.slice(0, -1) : currentWord;
-			matches = findMatchingTokens(searchWord, component.props.emotes, "colon");
+			matches = findMatchingTokens(searchWord, component.props.emotes, "tab");
 			match = matches[matchIndex];
 		} else {
 			matches = state.matches;
@@ -366,7 +372,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 	const results = native?.call(this, str, ...args) ?? [];
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
-	const tokens = findMatchingTokens(str.substring(1));
+	const tokens = findMatchingTokens(str.substring(1), undefined, "colon");
 
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;

@@ -1,5 +1,11 @@
 ### Version 3.0.0.9000 (Beta 9)
 
+#### Beta 9.2
+
+- Auto-completion should now work correctly again (oops)
+- Clicking emotes in the Emote Menu should no longer bring up the card
+- Overlay / Zero-Width Emotes should now show in tooltips again
+
 #### Beta 9.1
 
 - Fixed an input crash when using colon-completion
