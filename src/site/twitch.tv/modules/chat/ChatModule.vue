@@ -1,8 +1,8 @@
 <template>
-	<template v-for="(inst, i) of chatList.instances" :key="inst.identifier">
+	<template v-for="(inst, i) of chatController.instances" :key="inst.identifier">
 		<ChatController
-			v-if="dependenciesMet && isHookableDbc"
-			:list="inst"
+			v-if="dependenciesMet && isHookableDbc && shouldMount.get(inst)"
+			:list="chatList.instances[0] ?? undefined"
 			:controller="chatController.instances[i]"
 			:room="chatRoom.instances[0] ?? undefined"
 			:buffer="chatBuffer.instances[0] ?? undefined"
@@ -11,9 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import { refDebounced } from "@vueuse/shared";
-import { getTrackedNode, useComponentHook } from "@/common/ReactHooks";
+import { HookedInstance, getTrackedNode, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
 import ChatController from "./ChatController.vue";
@@ -143,6 +143,8 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 	],
 });
 
+const shouldMount = reactive(new WeakMap<HookedInstance<Twitch.ChatControllerComponent>, boolean>());
+
 const chatRoom = useComponentHook<Twitch.ChatRoomComponent>({
 	parentSelector: ".stream-chat",
 	predicate: (n) => n.props?.primaryColorHex !== undefined,
@@ -167,10 +169,19 @@ const chatList = useComponentHook<Twitch.ChatListComponent>(
 	},
 );
 
-const chatController = useComponentHook<Twitch.ChatControllerComponent>({
-	parentSelector: ".chat-shell, .stream-chat",
-	predicate: (n) => n.pushMessage && n.props?.messageHandlerAPI,
-});
+const chatController = useComponentHook<Twitch.ChatControllerComponent>(
+	{
+		parentSelector: ".chat-shell, .stream-chat",
+		predicate: (n) => n.pushMessage && n.props?.messageHandlerAPI,
+	},
+	{
+		hooks: {
+			update(inst) {
+				shouldMount.set(inst, !!inst.component.props.channelID);
+			},
+		},
+	},
+);
 
 const chatBuffer = useComponentHook<Twitch.MessageBufferComponent>({
 	parentSelector: ".stream-chat",

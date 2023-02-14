@@ -86,7 +86,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, toRef, watch } from "vue";
+import { onMounted, ref, toRef, watch, watchEffect } from "vue";
+import { useTimeoutFn } from "@vueuse/shared";
 import { normalizeUsername } from "@/common/Color";
 import type { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
@@ -186,6 +187,17 @@ watch(
 	() => doTokenize(),
 	{ immediate: true },
 );
+
+// For historical messages
+// Re-render emotes once they load in
+if (props.msg.historical) {
+	useTimeoutFn(
+		watchEffect(() => {
+			doTokenize();
+		}),
+		1e4,
+	);
+}
 
 function getPart(part: AnyToken) {
 	if (IsEmotePart(part)) {

@@ -1,4 +1,4 @@
-import { reactive, toRef } from "vue";
+import { reactive } from "vue";
 import type { ChannelContext } from "@/composable/channel/useChannelContext";
 import { useEmoji } from "@/composable/useEmoji";
 
@@ -24,31 +24,11 @@ emojiList.forEach((e) => {
 	emojis[e.emote.name] = e.emote;
 });
 
-class ChatEmotes {
-	active: Record<string, SevenTV.ActiveEmote> = {};
-	sets: Record<string, SevenTV.EmoteSet> = {};
-	emojis: Record<string, SevenTV.ActiveEmote> = emojis;
-	providers: Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>> = {
-		"7TV": {},
-		FFZ: {},
-		BTTV: {},
-		TWITCH: {},
-		EMOJI: emojiSets,
-	};
-
-	resetProviders(): void {
-		this.providers = {
-			"7TV": {},
-			FFZ: {},
-			BTTV: {},
-			TWITCH: {},
-			EMOJI: emojiSets,
-		};
-	}
-
-	byProvider(provider: SevenTV.Provider) {
-		return toRef(this.providers, provider);
-	}
+interface ChatEmotes {
+	active: Record<string, SevenTV.ActiveEmote>;
+	sets: Record<string, SevenTV.EmoteSet>;
+	emojis: Record<string, SevenTV.ActiveEmote>;
+	providers: Record<SevenTV.Provider, Record<string, SevenTV.EmoteSet>>;
 }
 
 const m = new WeakMap<ChannelContext, ChatEmotes>();
@@ -56,10 +36,48 @@ const m = new WeakMap<ChannelContext, ChatEmotes>();
 export function useChatEmotes(ctx: ChannelContext) {
 	let x = m.get(ctx);
 	if (!x) {
-		x = reactive(new ChatEmotes());
+		x = reactive<ChatEmotes>({
+			active: reactive({}),
+			sets: reactive({}),
+			emojis: reactive(emojis),
+			providers: {
+				"7TV": reactive({}),
+				FFZ: reactive({}),
+				BTTV: reactive({}),
+				TWITCH: reactive({}),
+				EMOJI: reactive(emojiSets),
+			},
+		});
 
 		m.set(ctx, x);
 	}
 
-	return x;
+	function resetProviders() {
+		if (!x) return;
+
+		for (const k in x.providers) {
+			if (k === "EMOJI") continue;
+
+			for (const k2 in x.providers[k as SevenTV.Provider]) {
+				delete x.providers[k as SevenTV.Provider][k2];
+			}
+		}
+	}
+
+	function byProvider(provider: SevenTV.Provider) {
+		if (!x) return {};
+
+		return x.providers[provider];
+	}
+
+	const r = reactive({
+		active: x.active,
+		sets: x.sets,
+		emojis: x.emojis,
+		providers: x.providers,
+		resetProviders,
+		byProvider,
+	});
+
+	return r;
 }

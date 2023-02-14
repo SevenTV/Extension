@@ -109,7 +109,7 @@ function updateVisibility(es: SevenTV.EmoteSet, state: boolean): void {
 }
 
 const filterSets = debounceFn(() => {
-	const ary = Object.values(sets.value) as SevenTV.EmoteSet[];
+	const ary = Object.values(sets) as SevenTV.EmoteSet[];
 	if (cosmetics.emoteSets?.length) {
 		ary.push(...cosmetics.emoteSets.filter((e) => e.provider === props.provider));
 	}

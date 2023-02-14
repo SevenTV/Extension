@@ -27,7 +27,7 @@
 		</UiScrollable>
 
 		<!-- Data Logic -->
-		<ChatData />
+		<ChatData v-if="ctx.loaded" />
 	</Teleport>
 
 	<ChatTray />
@@ -62,7 +62,6 @@ const props = defineProps<{
 	room: HookedInstance<Twitch.ChatRoomComponent>;
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 }>();
-
 const { sendMessage: sendWorkerMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);

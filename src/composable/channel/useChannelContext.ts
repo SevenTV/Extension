@@ -23,8 +23,8 @@ export class ChannelContext {
 		this.username = channel.username;
 		this.displayName = channel.displayName;
 
-		m.delete(oldID);
 		m.set(channel.id, this);
+		m.delete(oldID);
 
 		// Listen for worker confirmation of channel fetch
 		const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
@@ -50,6 +50,7 @@ export function useChannelContext(channelID?: string): ChannelContext {
 	let ctx = inject<ChannelContext | null>(CHANNEL_CTX, null);
 	if (!ctx) {
 		ctx = (channelID ? m.get(channelID) : null) ?? reactive<ChannelContext>(new ChannelContext());
+		if (channelID) ctx.setCurrentChannel({ id: channelID ?? "", username: "", displayName: "" });
 
 		const store = useStore();
 		ctx.platform = store.platform;

@@ -70,7 +70,9 @@ useLiveQuery(
 			o[emoji.unicode] = emoji;
 		}
 
-		emotes.active = o;
+		for (const e in o) {
+			emotes.active[e] = o[e];
+		}
 	},
 	{
 		reactives: [channelSets],

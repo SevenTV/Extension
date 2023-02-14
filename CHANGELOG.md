@@ -1,6 +1,11 @@
 ### Version 3.0.0.10000 (Beta 10)
 
 -   Added support for chat in VODs
+-   Fixed an issue where autocompletion stopped working after switching to another channel
+-   Fixed an issue where emotes wouldn't load after switching to another channel
+-   Fixed an issue where emotes wouldn't load in historical messages
+-   Fixed an issue where cosmetics wouldn't load after switching to another channel 
+-   Fixed an issue which led to chatters from the previous channel remaining available in autocompletion
 
 ### Version 3.0.0.9000 (Beta 9)
 

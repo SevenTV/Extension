@@ -135,6 +135,7 @@ export function useChatMessages(ctx: ChannelContext) {
 	function clear() {
 		data.displayed.length = 0;
 		data.buffer.length = 0;
+		data.chatters = {};
 	}
 
 	/**
