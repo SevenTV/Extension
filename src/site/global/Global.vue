@@ -4,10 +4,9 @@
 
 <script setup lang="ts">
 import { nextTick, watch } from "vue";
-import { until } from "@vueuse/shared";
-import { getModule } from "@/composable/useModule";
 import { useConfig, useSettings } from "@/composable/useSettings";
 import Tooltip from "./Tooltip.vue";
+import { useSettingsMenu } from "./settings/Settings";
 
 const { register } = useSettings();
 register([
@@ -21,7 +20,7 @@ register([
 
 const runtimeVersion = import.meta.env.VITE_APP_VERSION;
 const version = useConfig("app.version");
-const mod = getModule("settings");
+const settingsCtx = useSettingsMenu();
 
 const stop = watch(
 	version,
@@ -30,11 +29,7 @@ const stop = watch(
 
 		version.value = runtimeVersion;
 
-		until(mod)
-			.toMatch((v) => !!v?.instance)
-			.then(() => {
-				// nextTick(() => mod!.instance!.setFrontpageArea?.());
-			});
+		settingsCtx.open = true;
 
 		nextTick(() => stop());
 	},
