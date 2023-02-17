@@ -1,7 +1,7 @@
 <template>
 	<span class="seventv-chat-mod-buttons">
 		<span
-			v-if="msg.author"
+			v-if="msg.author && !msg.author.isActor"
 			ref="banRef"
 			@click="banUserFromChat(null)"
 			@mouseenter="banTooltip.show(banRef)"
@@ -11,7 +11,7 @@
 		</span>
 
 		<span
-			v-if="msg.author"
+			v-if="msg.author && !msg.author.isActor"
 			ref="timeoutRef"
 			@click="banUserFromChat('10m')"
 			@mouseenter="timeoutTooltip.show(timeoutRef)"

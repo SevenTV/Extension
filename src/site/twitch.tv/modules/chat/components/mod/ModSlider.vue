@@ -3,12 +3,12 @@
 		v-if="canModerate"
 		class="seventv-ban-slider"
 		:style="{
-			transform: 'translateX(' + data.pos + ')',
+			transform: 'translateX(' + pos + ')',
 			transition: transition ? 'transform 0.3s ease' : 'none',
 			boxShadow: tracking ? 'black 0px 0.1rem 0.2rem' : 'none',
 		}"
 	>
-		<div class="ban-background" :style="{ backgroundColor: data.color, width: data.pos }">
+		<div class="ban-background" :style="{ backgroundColor: data.color, width: pos }">
 			<span class="text" :style="{ opacity: data.banVis }">
 				{{ data.text }}
 			</span>
@@ -24,7 +24,7 @@
 		<div class="wrapped">
 			<slot />
 		</div>
-		<div class="unban-background" :style="{ width: 'calc(-1 *' + data.pos + ')' }">
+		<div class="unban-background" :style="{ width: 'calc(-1 *' + pos + ')' }">
 			<span class="text" :style="{ opacity: data.unbanVis }"> Unban </span>
 		</div>
 	</div>
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { reactive, ref, toRef, watch } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
@@ -44,22 +44,23 @@ const props = defineProps<{
 }>();
 
 const ctx = useChannelContext();
-const moderation = useChatModeration(ctx, props.msg.author?.id ?? "");
+const moderation = useChatModeration(ctx, props.msg.author?.username ?? "");
 const properties = useChatProperties(ctx);
 
 const transition = ref(false);
 const tracking = ref(false);
-const data = ref(new ModSliderData(0));
+const data = reactive(new ModSliderData(props.msg.author?.isActor ?? false));
+const pos = toRef(data, "pos");
 let initial = 0;
 
 const canModerate = ref(false);
 
 watch(
-	() => [properties.isModerator, props.msg.deliveryState === "SENT"],
+	() => [properties.isModerator],
 	(a) => {
-		// check all array elems are true
 		canModerate.value = a.every((x) => x);
 	},
+	{ immediate: true },
 );
 
 const handleDown = (e: PointerEvent) => {
@@ -72,10 +73,10 @@ const handleDown = (e: PointerEvent) => {
 const handleRelease = (e: PointerEvent): void => {
 	tracking.value = false;
 
-	if (data.value.command && props.msg.author) {
-		switch (data.value.command) {
+	if (data.command && props.msg.author) {
+		switch (data.command) {
 			case "ban":
-				moderation.banUserFromChat(data.value.banDuration?.toString() ?? null);
+				moderation.banUserFromChat(data.banDuration?.toString() ?? null);
 				break;
 			case "unban":
 				moderation.unbanUserFromChat();
@@ -92,7 +93,7 @@ const handleRelease = (e: PointerEvent): void => {
 	transition.value = true;
 	setTimeout(() => (transition.value = false), 300);
 
-	data.value = new ModSliderData(0);
+	data.calculate(0);
 	(e.target as HTMLElement).releasePointerCapture(e.pointerId);
 };
 
@@ -101,8 +102,8 @@ const update = (e: PointerEvent): void => {
 	e.preventDefault();
 
 	const calcPos = Math.max(Math.min(e.pageX - initial, maxVal), -60);
-	ModSliderData;
-	data.value = new ModSliderData(calcPos);
+
+	data.calculate(calcPos);
 };
 </script>
 

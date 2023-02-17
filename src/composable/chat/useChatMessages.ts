@@ -251,10 +251,6 @@ export function useChatMessages(ctx: ChannelContext) {
 		});
 	}
 
-	function setMessageSender(fn: (msg: string) => void) {
-		data.sendMessage = fn;
-	}
-
 	return reactive({
 		displayed: toRef(data, "displayed"),
 		handlers: data.twitchHandlers,
@@ -265,7 +261,6 @@ export function useChatMessages(ctx: ChannelContext) {
 		messagesByUser,
 		awaitMessage,
 		add,
-		setMessageSender,
 		clear,
 	});
 }

@@ -63,10 +63,8 @@ export class Tokenizer {
 						url: part.startsWith("https://") ? part : "https://" + part,
 					},
 				} as LinkToken);
-			}
-
-			// Check mention
-			if (part.match(Regex.Mention)) {
+			} else if (part.match(Regex.Mention)) {
+				//  Check mention
 				const username = part.slice(1);
 
 				tokens.push({

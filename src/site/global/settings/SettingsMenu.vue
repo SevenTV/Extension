@@ -6,23 +6,26 @@
 		:initial-placement="'top'"
 	>
 		<div v-if="ctx.open" class="seventv-settings-menu-container">
-			<div class="settings-menu">
-				<div class="header">
+			<div class="seventv-settings-menu">
+				<div class="seventv-settings-header">
 					<div ref="dragHandle" class="header-left">
-						<div class="header-icon">
+						<div class="seventv-settings-header-icon">
 							<Logo7TV />
 						</div>
 					</div>
-					<button class="header-icon header-button close-icon" @click.prevent="ctx.open = false">
+					<button
+						class="seventv-settings-header-icon seventv-header-button close-icon"
+						@click.prevent="ctx.open = false"
+					>
 						<TwClose />
 					</button>
 				</div>
 				<div class="body">
 					<!-- Sidebar -->
 					<div class="seventv-settings-sidebar">
-						<div class="settings-search">
-							<input v-model="filter" class="settings-search-input" />
-							<div class="search-icon">
+						<div class="seventv-settings-search">
+							<input v-model="filter" class="seventv-settings-search-input" />
+							<div class="seventv-settings-search-icon">
 								<SearchIcon />
 							</div>
 						</div>
@@ -41,24 +44,24 @@
 								/>
 							</template>
 						</UiScrollable>
-						<div class="sidebar-profile">
-							<div class="sidebar-profile-left" @click="ctx.switchView('profile')">
-								<div class="sidebar-profile-picture">
+						<div class="seventv-settings-sidebar-profile">
+							<div class="seventv-settings-sidebar-profile-left" @click="ctx.switchView('profile')">
+								<div class="seventv-settings-sidebar-profile-picture">
 									<template v-if="actor.user?.avatar_url">
 										<img :src="actor.user!.avatar_url" />
 									</template>
 								</div>
-								<span class="sidebar-profile-text expanded">
+								<span class="seventv-settings-sidebar-profile-text seventv-expanded">
 									{{ actor.user ? actor.user.display_name : "Login" }}
 								</span>
 							</div>
-							<div v-if="actor.user" class="sidebar-profile-logout expanded">
+							<div v-if="actor.user" class="seventv-settings-sidebar-profile-logout seventv-expanded">
 								<LogoutIcon />
 							</div>
 						</div>
 					</div>
 					<!-- Setting area -->
-					<div class="settings-area">
+					<div class="seventv-settings-settings-area">
 						<component :is="ctx.view" />
 					</div>
 				</div>
@@ -154,7 +157,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 
 <style scoped lang="scss">
 @media (max-width: 70rem) {
-	:deep(.expanded) {
+	:deep(.seventv-settings-expanded) {
 		display: none !important;
 	}
 
@@ -163,7 +166,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 		display: flex;
 		flex-direction: column;
 
-		.settings-search:focus-within {
+		.seventv-settings-search:focus-within {
 			width: 18rem;
 			margin-right: -18rem;
 		}
@@ -174,12 +177,12 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 	:deep(.area-compact) {
 		display: none !important;
 	}
-	.settings-area {
+	.seventv-settings-settings-area {
 		width: 27rem !important;
 	}
 }
 
-.settings-menu {
+.seventv-settings-menu {
 	display: flex;
 	flex-direction: column;
 	max-height: calc(100vh - 10rem);
@@ -190,7 +193,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 	border: 1px solid var(--seventv-border-transparent-1);
 }
 
-.header {
+.seventv-settings-header {
 	border-bottom: 1px solid var(--seventv-border-transparent-1);
 	display: flex;
 	width: 100%;
@@ -214,7 +217,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 		height: 4rem;
 		flex-grow: 1;
 	}
-	.header-icon {
+	.seventv-settings-header-icon {
 		display: flex;
 		height: 100%;
 		border-radius: 0.25rem;
@@ -225,7 +228,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 			width: 3rem;
 		}
 	}
-	.header-button {
+	.seventv-header-button {
 		cursor: pointer;
 		color: currentColor;
 
@@ -256,14 +259,14 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 	box-sizing: content-box;
 	border-right: 1px solid var(--seventv-border-transparent-1);
 
-	.settings-search {
+	.seventv-settings-search {
 		padding: 0.5rem 0.5rem 0;
 		width: 100%;
 		position: relative;
 		transition: width 0.2s ease;
 		z-index: 999;
 
-		.search-icon {
+		.seventv-settings-search-icon {
 			position: absolute;
 			display: flex;
 			align-items: center;
@@ -281,7 +284,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 			}
 		}
 
-		.settings-search-input {
+		.seventv-settings-search-input {
 			background-color: var(--seventv-background-shade-1);
 			border-radius: 0.25rem;
 			height: 4rem;
@@ -292,7 +295,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 		}
 	}
 
-	.sidebar-profile {
+	.seventv-settings-sidebar-profile {
 		display: flex;
 		height: 5rem;
 		border-top: 1px solid var(--seventv-border-transparent-1);
@@ -302,22 +305,22 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 		float: bottom;
 		padding: 1rem;
 
-		.sidebar-profile-left {
+		.seventv-settings-sidebar-profile-left {
 			cursor: pointer;
 			display: flex;
 			align-items: center;
-			.sidebar-profile-picture {
+			.seventv-settings-sidebar-profile-picture {
 				height: 3rem;
 				width: 3rem;
 				clip-path: circle(50% at 50% 50%);
 			}
-			.sidebar-profile-text {
+			.seventv-settings-sidebar-profile-text {
 				margin-left: 1rem;
 				font-size: 1.6rem;
 			}
 		}
 
-		.sidebar-profile-logout {
+		.seventv-settings-sidebar-profile-logout {
 			padding: 0.5rem 0;
 			display: flex;
 			margin-left: auto;
@@ -329,7 +332,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 		}
 	}
 }
-.settings-area {
+.seventv-settings-settings-area {
 	width: 80rem;
 	max-height: 60rem;
 }

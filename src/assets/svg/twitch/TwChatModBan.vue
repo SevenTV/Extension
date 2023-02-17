@@ -1,14 +1,5 @@
 <template>
-	<svg
-		type="color-fill-current"
-		width="1em"
-		height="1em"
-		version="1.1"
-		viewBox="0 0 20 20"
-		x="0px"
-		y="0px"
-		class="ScSvg-sc-1hrsqw6-1 hdNNzQ"
-	>
+	<svg width="1em" height="1em" version="1.1" viewBox="0 0 20 20" x="0px" y="0px" fill="currentColor">
 		<g>
 			<path
 				fill-rule="evenodd"

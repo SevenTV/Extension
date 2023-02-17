@@ -1,5 +1,19 @@
 ### Version 3.0.0.11000 (Beta 11)
 
+🎉 **This build completes twitch.tv Feature Parity with the old extension!**
+
+- Added an option to bypass the duplicate message restriction in chat
+- Added an option to quick-send the same message by keeping the current content in the input box
+- Fixed an issue that caused some links to duplicate themselves
+- Fixed an issue where links spelled out without the protocol wouldn't become clickable
+- Fixed an issue where foldable buttons in the settings menu only reacted when clicking the chevron icon
+- Fixed an issue which let messages from blocked users appear in chat
+- Fixed an issue where ban/timeout icons would appear on one's own messages
+- Fixed an issue which caused the Mod Slider to only appear on one's own messages
+- Fixed an issue with the Mod Slider where timeouts above a certain thresold wouldn't work
+- Fixed an issue where Mod Icons would appear discolored
+- Tentatively fixed an issue which occasionally caused a crash when chat is cleared by a moderator 
+
 ---
 
 ### Version 3.0.0.10000 (Beta 10)

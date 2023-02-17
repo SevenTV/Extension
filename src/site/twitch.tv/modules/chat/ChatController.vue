@@ -40,7 +40,7 @@ import { refDebounced, until, useTimeout } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
-import { definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
@@ -48,6 +48,7 @@ import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { useChatTools } from "@/composable/chat/useChatTools";
+import { getModule } from "@/composable/useModule";
 import { useWorker } from "@/composable/useWorker";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
@@ -62,6 +63,8 @@ const props = defineProps<{
 	room: HookedInstance<Twitch.ChatRoomComponent>;
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 }>();
+
+const mod = getModule("chat")!;
 const { sendMessage: sendWorkerMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);
@@ -79,6 +82,7 @@ const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
 const primaryColor = ref("");
 
 const ctx = useChannelContext(props.controller.component.props.channelID);
+const worker = useWorker();
 const emotes = useChatEmotes(ctx);
 const messages = useChatMessages(ctx);
 const scroller = useChatScroller(ctx, {
@@ -93,7 +97,7 @@ const currentChannel = ref<CurrentChannel | null>(null);
 
 // Capture the chat root node
 watchEffect(() => {
-	if (!list.value.domNodes) return;
+	if (!list.value || !list.value.domNodes) return;
 
 	const rootNode = list.value.domNodes.root;
 	if (!rootNode) return;
@@ -180,7 +184,21 @@ definePropertyHook(controller.value.component, "props", {
 		properties.isModerator = v.isCurrentUserModerator;
 		properties.isVIP = v.isCurrentUserVIP;
 		properties.isDarkTheme = v.theme;
-		messages.setMessageSender(v.chatConnectionAPI.sendMessage);
+
+		// Send presence upon message sent
+		messages.sendMessage = v.chatConnectionAPI.sendMessage;
+		defineFunctionHook(v.chatConnectionAPI, "sendMessage", function (old, ...args) {
+			worker.sendMessage("CHANNEL_ACTIVE_CHATTER", {
+				channel_id: ctx.id,
+			});
+
+			// Run message content patching middleware
+			for (const fn of mod.instance?.messageSendMiddleware ?? []) {
+				args[0] = fn(args[0]);
+			}
+
+			return old?.apply(this, args);
+		});
 
 		// Parse twitch emote sets
 		const data = v.emoteSetsData;

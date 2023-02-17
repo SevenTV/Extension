@@ -1,4 +1,4 @@
-import { nextTick, onUnmounted, reactive, ref, toRef, watch } from "vue";
+import { Ref, nextTick, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { log } from "@/common/Logger";
 import { useSettings } from "@/composable/useSettings";
 import type { ModuleComponentMap, ModuleID } from "@/types/module";
@@ -9,6 +9,23 @@ const data = reactive({
 
 export function getModule<T extends ModuleID>(id: T): Module<T> | null {
 	return (data.modules[id] ?? null) as Module<T> | null;
+}
+
+export function getModuleRef<T extends ModuleID>(id: T): Ref<Module<T>> {
+	const mod = ref<Module | null>(null);
+
+	if (data.modules[id]) {
+		mod.value = data.modules[id] as Module<T>;
+	}
+
+	if (!mod.value) {
+		const stop = watch(data.modules, (modules) => {
+			mod.value = modules[id] as Module<T> | null;
+			if (mod.value) stop();
+		});
+	}
+
+	return mod as Ref<Module<T>>;
 }
 
 export function declareModule(id: ModuleID, opt: ModuleOptions) {

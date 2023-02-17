@@ -107,6 +107,7 @@ export interface ChatUser {
 	color: string;
 	intl?: boolean;
 	lastMsgId?: symbol;
+	isActor?: boolean;
 }
 
 interface Highlight {

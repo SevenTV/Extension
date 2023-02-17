@@ -77,7 +77,7 @@ const stop = watch(
 	([paints, badges]) => {
 		// condition to ignore
 		// msg is not the last message, or is older than a second
-		if (props.msgId && props.user.lastMsgId && props.msgId !== props.user.lastMsgId && Date.now() - t > 1000) {
+		if (props.msgId && props.user.lastMsgId && props.msgId !== props.user.lastMsgId && Date.now() - t > 5000) {
 			nextTick(() => stop());
 			return;
 		}

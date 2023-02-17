@@ -1,19 +1,19 @@
 <template>
-	<div class="setting-category" :open="open">
-		<div tabindex="0" class="category-header" @click="onCategoryClick()">
-			<div class="category-icon">
+	<div class="seventv-settings-category" :open="open">
+		<div tabindex="0" class="settings-category-header" @click="onCategoryClick()">
+			<div class="seventv-settings-category-icon">
 				<IconForSettings :name="category" />
 			</div>
-			<span>
+			<span class="seventv-settings-expanded">
 				{{ category }}
 			</span>
-			<div v-if="Object.keys(subs).filter((s) => s).length" class="dropdown-icon">
+			<div v-if="Object.keys(subs).filter((s) => s).length" class="dropdown-icon seventv-settings-expanded">
 				<DropdownIcon />
 			</div>
 		</div>
-		<div class="category-dropdown">
+		<div class="seventv-settings-category-dropdown seventv-settings-expanded">
 			<template v-for="s of Object.keys(subs)" :key="s">
-				<div v-if="s" class="subcategory" @click="emit('open-subcategory', s)">
+				<div v-if="s" class="seventv-settings-subcategory" @click="emit('open-subcategory', s)">
 					{{ s }}
 				</div>
 			</template>
@@ -44,12 +44,12 @@ function onCategoryClick(): void {
 }
 </script>
 <style scoped lang="scss">
-.setting-category {
+.seventv-settings-category {
 	background-color: hsla(0deg, 0%, 30%, 6%);
 	border-radius: 0.4rem;
 	margin: 0.5rem;
 
-	.category-header {
+	.settings-category-header {
 		display: flex;
 		cursor: pointer;
 		border-radius: 0.4rem;
@@ -71,7 +71,7 @@ function onCategoryClick(): void {
 		}
 	}
 
-	.category-icon {
+	.seventv-settings-category-icon {
 		display: flex;
 		align-items: center;
 		margin: 0.5rem;
@@ -97,13 +97,13 @@ function onCategoryClick(): void {
 		}
 	}
 
-	.category-dropdown {
+	.seventv-settings-category-dropdown {
 		height: 0;
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;
 
-		.subcategory {
+		.seventv-settings-subcategory {
 			display: flex;
 			cursor: pointer;
 			height: 3rem;
@@ -117,7 +117,7 @@ function onCategoryClick(): void {
 	}
 
 	&[open="true"] {
-		.category-dropdown {
+		.seventv-settings-category-dropdown {
 			height: 100%;
 		}
 		.dropdown-icon {

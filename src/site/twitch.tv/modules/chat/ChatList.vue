@@ -227,14 +227,19 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		);
 		// check blocked state and ignore if blocked
 		if (msg.author && properties.blockedUsers.has(msg.author.id)) {
-			log.debug("Ignored message from blocked user", msg.author.id);
+			if (!properties.isModerator) {
+				log.debug("Ignored message from blocked user", msg.author.id);
+				return;
+			}
+
+			msg.setHighlight("#9488855A", "You Blocked This User");
+		}
+
+		if (identity.value && msg.author && msg.author.id === identity.value.id) {
+			msg.author.isActor = true;
 		}
 
 		msg.badges = msgData.badges ?? msgData.message?.badges ?? {};
-
-		if (!properties.isModerator && msg.author && properties.blockedUsers.has(msg.author.id)) {
-			msg.setHighlight("#ff0000", "Blocked User");
-		}
 	}
 
 	// message is sent by the current user

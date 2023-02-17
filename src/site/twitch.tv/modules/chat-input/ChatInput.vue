@@ -3,6 +3,7 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
 import { onUnmounted, ref, watch } from "vue";
+import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
 import { HookedInstance } from "@/common/ReactHooks";
@@ -19,7 +20,6 @@ import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
-import { useWorker } from "@/composable/useWorker";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
@@ -31,11 +31,11 @@ const ctx = useChannelContext(props.instance.component.componentRef.props.channe
 const messages = useChatMessages(ctx);
 const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
-const { sendMessage } = useWorker();
 
 const shouldUseColonComplete = useConfig("chat_input.autocomplete.colon");
 const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
+const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -56,6 +56,8 @@ const awaitingUpdate = ref(false);
 const preHistory = ref<Twitch.ChatSlateLeaf[] | undefined>();
 const history = ref<Twitch.ChatSlateLeaf[][]>([]);
 const historyLocation = ref(-1);
+
+const { ctrl: isCtrl } = useMagicKeys();
 
 interface TabToken {
 	token: string;
@@ -145,7 +147,7 @@ function findMatchingTokens(
 		}
 	}
 
-	matches.sort((a, b) => a.priority + b.priority - a.token.localeCompare(b.token));
+	matches.sort((a, b) => a.priority + b.priority + a.token.localeCompare(b.token));
 
 	return matches;
 }
@@ -484,6 +486,7 @@ watch(
 	},
 	{ immediate: true },
 );
+
 defineFunctionHook(
 	props.instance.component,
 	"onEditableValueUpdate",
@@ -491,11 +494,9 @@ defineFunctionHook(
 		if (sendOnUpdate) {
 			pushHistory();
 
-			// Tell the worker to write presence
-			if (ctx.id) {
-				sendMessage("CHANNEL_ACTIVE_CHATTER", {
-					channel_id: ctx.id,
-				});
+			// Put the previous input back in if the user was pressing control
+			if (mayUseControlEnter.value && isCtrl.value) {
+				setTimeout(() => useHistory(true), 0);
 			}
 		}
 
