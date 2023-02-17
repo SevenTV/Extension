@@ -1,8 +1,8 @@
 <template>
 	<div class="settings-area-container">
 		<UiScrollable>
-			<template v-if="nodes[category]">
-				<div v-for="[s, sn] of Object.entries(nodes[category])" :key="s" class="subcategory">
+			<template v-if="ctx.mappedNodes[ctx.category]">
+				<div v-for="[s, sn] of Object.entries(ctx.mappedNodes[ctx.category])" :key="s" class="subcategory">
 					<div class="testt">
 						<h3 v-if="s" :id="s" ref="subcategoryRefs" class="subcategory-header">
 							{{ s }}
@@ -18,22 +18,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch } from "vue";
+import { ref, watch } from "vue";
+import { useSettingsMenu } from "./Settings";
+import SettingsNode from "./SettingsNode.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import SettingsNode from "../SettingsNode.vue";
 
-const props = defineProps<{
-	category: string;
-	nodes: Record<string, Record<string, SevenTV.SettingNode[]>>;
-	scrollpoint?: string;
-}>();
-
-const scrollpoint = toRef(props, "scrollpoint");
+const ctx = useSettingsMenu();
 const subcategoryRefs = ref<HTMLElement[]>([]);
 
-watch(scrollpoint, () => {
-	subcategoryRefs.value.find((r) => r.id == props.scrollpoint)?.scrollIntoView();
-});
+watch(
+	() => ctx.scrollpoint,
+	() => {
+		subcategoryRefs.value.find((r) => r.id == ctx.scrollpoint)?.scrollIntoView();
+	},
+);
 </script>
 <style scoped lang="scss">
 .settings-area-container {

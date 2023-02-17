@@ -24,7 +24,7 @@ declareModule("chat-vod", {
 		{
 			key: "chat.vods",
 			label: "VOD Support",
-			path: ["Chat", ""],
+			path: ["Chat", "VODs"],
 			hint: "Enables 7TV rendering in the chat replay of VODs",
 			type: "TOGGLE",
 			defaultValue: true,

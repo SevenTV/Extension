@@ -1,7 +1,9 @@
-import { createApp } from "vue";
+import { createApp, h, provide } from "vue";
 import { createPinia } from "pinia";
 import App from "@/site/App.vue";
+import { apolloClient } from "@/apollo/apollo";
 import { TextPaintDirective } from "@/directive/TextPaintDirective";
+import { ApolloClients } from "@vue/apollo-composable";
 
 const appID = Date.now().toString();
 
@@ -39,7 +41,14 @@ root.setAttribute("data-app-id", appID);
 
 document.body.append(root);
 
-const app = createApp(App);
+const app = createApp({
+	setup() {
+		provide(ApolloClients, {
+			default: apolloClient,
+		});
+	},
+	render: () => h(App),
+});
 app.provide("app-id", appID);
 
 app.use(createPinia()).directive("cosmetic-paint", TextPaintDirective).mount("#seventv-root");

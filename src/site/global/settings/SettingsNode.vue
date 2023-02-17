@@ -20,11 +20,31 @@
 </template>
 
 <script setup lang="ts">
-import { getComponent } from "./components";
+import FormCheckbox from "@/site/global/components/FormCheckbox.vue";
+import FormDropdown from "@/site/global/components/FormDropdown.vue";
+import FormInput from "@/site/global/components/FormInput.vue";
+import FormSelect from "@/site/global/components/FormSelect.vue";
+import FormSlider from "@/site/global/components/FormSlider.vue";
+import FormToggle from "@/site/global/components/FormToggle.vue";
 
 defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
 }>();
+
+const standard = {
+	SELECT: FormSelect,
+	DROPDOWN: FormDropdown,
+	CHECKBOX: FormCheckbox,
+	INPUT: FormInput,
+	TOGGLE: FormToggle,
+	SLIDER: FormSlider,
+	CUSTOM: undefined,
+	NONE: undefined,
+};
+
+function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
+	return standard[node.type] ?? node.component;
+}
 </script>
 
 <style scoped lang="scss">

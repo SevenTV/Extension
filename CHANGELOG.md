@@ -1,3 +1,7 @@
+### Version 3.0.0.11000 (Beta 11)
+
+---
+
 ### Version 3.0.0.10000 (Beta 10)
 
 -   Added support for chat in VODs
@@ -6,6 +10,8 @@
 -   Fixed an issue where emotes wouldn't load in historical messages
 -   Fixed an issue where cosmetics wouldn't load after switching to another channel 
 -   Fixed an issue which led to chatters from the previous channel remaining available in autocompletion
+
+---
 
 ### Version 3.0.0.9000 (Beta 9)
 
@@ -30,6 +36,8 @@
 -   Fixed the "Animated Avatars" toggle not actually doing anything
 -   Fixed an issue which caused messages to appear permanently greyed out
 
+---
+
 ### Version 3.0.0.8000 (Beta 8)
 
 -   New Feature: Mod Logs, an interface to view recent moderator activity and active timeouts
@@ -39,11 +47,15 @@
 -   Improved the performance of the Emote Menu on highly populated tabs
 -   Mention & Reply Highlights should now work again
 
+---
+
 #### Beta 8.1
 
 -   Added support for chat pausing with Alt or Mouseover
 -   Further improved the performance of the Emote Menu
 -   Fixed freezing issues when opening the Mod Logs menu
+-   
+---
 
 ### Version 3.0.0.7000 (Beta 7)
 
@@ -55,6 +67,8 @@
 -   Fixed an issue which broke the Mod Slider
 -   Fixed an issue which caused timestamps to remain frozen in time
 -   Fixed incorrect vertical chat padding
+-   
+---
 
 ### Version 3.0.0.6000 (Beta 6)
 

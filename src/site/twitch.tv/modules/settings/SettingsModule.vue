@@ -1,19 +1,13 @@
 <template>
 	<SettingsMenu />
+	<SettingsMenuButton @toggle="ctx.open = !ctx.open" />
 </template>
 
 <script setup lang="ts">
 import { declareModule } from "@/composable/useModule";
-import { Area } from "./SettingNames";
-import SettingsMenu from "./SettingsMenu.vue";
-
-defineExpose({
-	toggle: undefined as (() => void) | undefined,
-	setArea: undefined as ((v: Area) => void) | undefined,
-	setFrontpageArea: undefined as (() => void) | undefined,
-	setSettingsArea: undefined as ((c: string, s: string) => void) | undefined,
-	setProfileArea: undefined as (() => void) | undefined,
-});
+import { useSettingsMenu } from "@/site/global/settings/Settings";
+import SettingsMenuButton from "./SettingsMenuButton.vue";
+import SettingsMenu from "../../../global/settings/SettingsMenu.vue";
 
 const { markAsReady } = declareModule("settings", {
 	name: "Settings",
@@ -36,6 +30,8 @@ const { markAsReady } = declareModule("settings", {
 		},
 	],
 });
+
+const ctx = useSettingsMenu();
 
 markAsReady();
 </script>

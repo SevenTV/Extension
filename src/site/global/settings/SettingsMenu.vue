@@ -1,22 +1,19 @@
 <template>
-	<SettingsMenuButton @toggle="toggle" />
-
 	<UiDraggable
 		:handle="dragHandle"
 		:initial-anchor="root"
 		:initial-middleware="[shift({ crossAxis: true, mainAxis: true, padding: { top: 50 } })]"
 		:initial-placement="'top'"
 	>
-		<div v-if="show" class="seventv-settings-menu-container">
+		<div v-if="ctx.open" class="seventv-settings-menu-container">
 			<div class="settings-menu">
 				<div class="header">
 					<div ref="dragHandle" class="header-left">
 						<div class="header-icon">
 							<Logo7TV />
 						</div>
-						<h4>{{ appName }} Settings</h4>
 					</div>
-					<button class="header-icon header-button close-icon" @click.prevent="toggle">
+					<button class="header-icon header-button close-icon" @click.prevent="ctx.open = false">
 						<TwClose />
 					</button>
 				</div>
@@ -30,46 +27,39 @@
 							</div>
 						</div>
 						<UiScrollable>
-							<CategoryDropdown category="Home" :subs="{}" @category-click="setViewToHome()" />
-							<template v-for="[category, subs] of Object.entries(mappedNodes)" :key="category">
+							<CategoryDropdown
+								category="Home"
+								:subs="{}"
+								@open-category="() => ctx.switchView('home')"
+							/>
+							<template v-for="[category, subs] of Object.entries(ctx.mappedNodes)" :key="category">
 								<CategoryDropdown
 									:category="category"
 									:subs="subs"
-									@category-click="setViewToSettings(category)"
-									@subcategory-click="(s) => setViewToSettings(category, s)"
+									@open-category="navigateToCategory(category)"
+									@open-subcategory="(s) => navigateToCategory(category, s)"
 								/>
 							</template>
 						</UiScrollable>
 						<div class="sidebar-profile">
-							<div class="sidebar-profile-left" @click="setViewToProfile">
+							<div class="sidebar-profile-left" @click="ctx.switchView('profile')">
 								<div class="sidebar-profile-picture">
-									<template v-if="user?.avatar_url">
-										<img :src="user!.avatar_url" />
+									<template v-if="actor.user?.avatar_url">
+										<img :src="actor.user!.avatar_url" />
 									</template>
 								</div>
 								<span class="sidebar-profile-text expanded">
-									{{ user ? "Profile" : "Login" }}
+									{{ actor.user ? actor.user.display_name : "Login" }}
 								</span>
 							</div>
-							<div v-if="user" class="sidebar-profile-logout expanded" @click="logOut">
+							<div v-if="actor.user" class="sidebar-profile-logout expanded">
 								<LogoutIcon />
 							</div>
 						</div>
 					</div>
 					<!-- Setting area -->
 					<div class="settings-area">
-						<KeepAlive>
-							<HomeView v-if="area.type == AreaTypes.FRONTPAGE" />
-						</KeepAlive>
-						<SettingsView
-							v-if="area.type == AreaTypes.SETTINGS"
-							:category="area.category!"
-							:scrollpoint="area.scrollpoint"
-							:nodes="mappedNodes"
-						/>
-						<KeepAlive>
-							<ProfileView v-if="area.type == AreaTypes.PROFILE" :user="user" />
-						</KeepAlive>
+						<component :is="ctx.view" />
 					</div>
 				</div>
 			</div>
@@ -78,84 +68,39 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
-import { until, watchThrottled } from "@vueuse/shared";
-import { DecimalToStringRGBA } from "@/common/Color";
-import { getModule } from "@/composable/useModule";
-import { useConfig, useSettings } from "@/composable/useSettings";
+import { ref, watch } from "vue";
+import { watchThrottled } from "@vueuse/shared";
+import { useActor } from "@/composable/useActor";
+import { useSettings } from "@/composable/useSettings";
+import CategoryDropdown from "@/site/global/settings/CategoryDropdown.vue";
 import LogoutIcon from "@/assets/svg/icons/LogoutIcon.vue";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
-import CategoryDropdown from "./CategoryDropdown.vue";
-import { Area, AreaTypes, getOrder } from "./SettingNames";
-import SettingsMenuButton from "./SettingsMenuButton.vue";
-import { HomeView, ProfileView, SettingsView } from "./areas";
-import { GetCurrentUser, sendRequest } from "./areas/profile/gql";
+import { useSettingsMenu } from "./Settings";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { shift } from "@floating-ui/core";
 
-const appName = import.meta.env.VITE_APP_NAME;
-
-const authToken = useConfig<string>("app.seventv_bearer_token");
-
-const mod = getModule("settings");
-
-const { getNodes } = useSettings();
-
-const allNodes = ref(getNodes());
-const sortedNodes = ref<SevenTV.SettingNode[]>([]);
-const mappedNodes = ref<Record<string, Record<string, SevenTV.SettingNode[]>>>({
-	Home: {},
-});
+const ctx = useSettingsMenu();
+const settings = useSettings();
+const actor = useActor();
 
 // The useDraggable needs an element to use middleware
 const root = document.getElementById("root") ?? undefined;
-const show = ref(false);
 const dragHandle = ref<HTMLDivElement | undefined>();
 
-const area = ref({ type: AreaTypes.FRONTPAGE } as Area);
 const filter = ref("");
 
-const user = ref<SevenTV.User>();
+function navigateToCategory(name: string, scrollpoint?: string) {
+	ctx.switchView("config");
+	ctx.category = name;
 
-function toggle() {
-	show.value = !show.value;
+	if (scrollpoint) ctx.scrollpoint = scrollpoint;
 }
 
-function setArea(newArea: Area) {
-	show.value = true;
-	area.value = newArea;
-}
-
-function setViewToHome() {
-	setArea({
-		type: AreaTypes.FRONTPAGE,
-	});
-}
-
-function setViewToSettings(c: string, s?: string) {
-	setArea({
-		type: AreaTypes.SETTINGS,
-		category: c,
-		scrollpoint: s,
-	});
-}
-
-function setViewToProfile() {
-	setArea({ type: AreaTypes.PROFILE });
-}
-
-function logOut() {
-	const confirmed = window.confirm("Are you sure you want to log out?");
-	if (!confirmed) return;
-	authToken.value = "";
-	user.value = undefined;
-}
-
-function sortNodes(nodes: typeof allNodes.value) {
-	sortedNodes.value = Object.values(nodes)
+function sortNodes(nodes: typeof settings.nodes) {
+	ctx.sortedNodes = Object.values(nodes)
 		.filter((node) => {
 			return node.type != "NONE" && node.path && node.path.length == 2;
 		})
@@ -172,7 +117,7 @@ function sortNodes(nodes: typeof allNodes.value) {
 function filterAndMapNodes(filter: string) {
 	const temp = {} as Record<string, Record<string, SevenTV.SettingNode[]>>;
 	const f = filter.toLowerCase();
-	for (const node of sortedNodes.value) {
+	for (const node of ctx.sortedNodes) {
 		// Search in label
 		// Search in hint
 		if (!node.label.toLowerCase().includes(f) && node.hint?.toLowerCase().includes(f) === false) continue;
@@ -185,44 +130,26 @@ function filterAndMapNodes(filter: string) {
 
 		temp[c][s].push(node);
 	}
-	mappedNodes.value = temp;
+
+	ctx.mappedNodes = temp;
 }
 
-watch(allNodes, sortNodes, { immediate: true });
+function getOrder(c: string | undefined) {
+	return c && isOrdered(c) ? categoryOrder[c] : -1;
+}
+
+function isOrdered(c: string): c is keyof typeof categoryOrder {
+	return c in categoryOrder;
+}
+
+const categoryOrder = {
+	General: 0,
+	Chat: 1,
+	Appearance: 2,
+};
+
+watch(settings.nodes, sortNodes, { immediate: true });
 watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
-
-watch(
-	authToken,
-	async () => {
-		if (!authToken.value) return;
-
-		const res = await sendRequest(authToken.value, GetCurrentUser, {});
-		if (!res) return;
-		const json = await res.json();
-
-		user.value = json.data.user as SevenTV.User;
-	},
-	{ immediate: true },
-);
-
-document.body.style.setProperty(
-	"--seventv-current-user-profile-color",
-	user.value?.style?.color ? DecimalToStringRGBA(user.value.style.color ?? 0) : "#888888c4",
-);
-
-onMounted(() => {
-	until(mod)
-		.toMatch((v) => !!v?.instance)
-		.then(() => {
-			if (!mod?.instance) return;
-
-			mod.instance.toggle = toggle;
-			mod.instance.setArea = setArea;
-			mod.instance.setFrontpageArea = setViewToHome;
-			mod.instance.setSettingsArea = setViewToSettings;
-			mod.instance.setProfileArea = setViewToProfile;
-		});
-});
 </script>
 
 <style scoped lang="scss">
@@ -382,14 +309,7 @@ onMounted(() => {
 			.sidebar-profile-picture {
 				height: 3rem;
 				width: 3rem;
-				border: 1px solid var("--seventv-current-user-profile-color");
-				border-radius: 3rem;
-				overflow: hidden;
-
-				> img {
-					height: 3rem;
-					width: 3rem;
-				}
+				clip-path: circle(50% at 50% 50%);
 			}
 			.sidebar-profile-text {
 				margin-left: 1rem;

@@ -65,10 +65,6 @@ export function synchronizeFrankerFaceZ() {
 }
 
 export function useSettings() {
-	function getNodes() {
-		return nodes;
-	}
-
 	function register(newNodes: SevenTV.SettingNode[]) {
 		for (const node of newNodes) {
 			nodes[node.key] = node;
@@ -84,7 +80,7 @@ export function useSettings() {
 	}
 
 	return {
-		getNodes,
+		nodes,
 		register,
 	};
 }

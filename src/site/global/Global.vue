@@ -33,7 +33,7 @@ const stop = watch(
 		until(mod)
 			.toMatch((v) => !!v?.instance)
 			.then(() => {
-				nextTick(() => mod!.instance!.setFrontpageArea?.());
+				// nextTick(() => mod!.instance!.setFrontpageArea?.());
 			});
 
 		nextTick(() => stop());

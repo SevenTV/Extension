@@ -20,8 +20,7 @@
 				data-height="580"
 				:data-theme="theme.toLowerCase()"
 				href="https://twitter.com/Official_7TV?ref_src=twsrc%5Etfw"
-				>Tweets by Official_7TV</a
-			>
+			/>
 		</div>
 	</div>
 </template>
@@ -35,7 +34,7 @@ const { theme } = storeToRefs(useStore());
 
 const appName = import.meta.env.VITE_APP_NAME;
 const appContainer = import.meta.env.VITE_APP_CONTAINER ?? "Extension";
-const appServer = import.meta.env.VITE_APP_API_REST ?? "Offline";
+const appServer = import.meta.env.VITE_APP_API ?? "Offline";
 const version = import.meta.env.VITE_APP_VERSION;
 
 const twitterScript = document.createElement("script");

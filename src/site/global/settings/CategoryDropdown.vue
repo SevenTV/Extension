@@ -1,32 +1,19 @@
 <template>
 	<div class="setting-category" :open="open">
-		<div
-			tabindex="0"
-			class="category-header"
-			@click="
-				() => {
-					emit('categoryClick', category);
-					open = true;
-				}
-			"
-		>
+		<div tabindex="0" class="category-header" @click="onCategoryClick()">
 			<div class="category-icon">
 				<IconForSettings :name="category" />
 			</div>
-			<span class="expanded">
+			<span>
 				{{ category }}
 			</span>
-			<div
-				v-if="Object.keys(subs).filter((s) => s).length"
-				class="dropdown-icon expanded"
-				@click.stop="open = !open"
-			>
+			<div v-if="Object.keys(subs).filter((s) => s).length" class="dropdown-icon">
 				<DropdownIcon />
 			</div>
 		</div>
-		<div class="category-dropdown expanded">
+		<div class="category-dropdown">
 			<template v-for="s of Object.keys(subs)" :key="s">
-				<div v-if="s" class="subcategory" @click="emit('subcategoryClick', s)">
+				<div v-if="s" class="subcategory" @click="emit('open-subcategory', s)">
 					{{ s }}
 				</div>
 			</template>
@@ -44,11 +31,17 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(event: "categoryClick", category: string): void;
-	(event: "subcategoryClick", subcategory: string): void;
+	(event: "open-category"): void;
+	(event: "open-subcategory", subcategory: string): void;
 }>();
 
 const open = ref(false);
+
+function onCategoryClick(): void {
+	if (!(open.value = !open.value)) return;
+
+	emit("open-category");
+}
 </script>
 <style scoped lang="scss">
 .setting-category {

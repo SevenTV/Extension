@@ -39,7 +39,7 @@
 						:selected="key === activeProvider"
 						@emote-clicked="onEmoteClick"
 						@provider-visible="onProviderVisibilityChange(key, $event)"
-						@toggle-settings="settingsToggle"
+						@toggle-settings="settingsContext.toggle()"
 					/>
 				</div>
 			</div>
@@ -60,8 +60,8 @@ import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
-import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
+import { useSettingsMenu } from "@/site/global/settings/Settings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
@@ -77,8 +77,9 @@ const containerEl = ref<HTMLElement | undefined>();
 const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.chatInputRef.props.channelID ?? "";
 
+const settingsContext = useSettingsMenu();
+
 const open = ref(false);
-const settingsModule = getModule("settings");
 
 const inputSearch = useConfig<boolean>("ui.emote_menu_search");
 
@@ -99,11 +100,6 @@ onKeyStroke("e", (ev) => {
 	toggle();
 	ev.preventDefault();
 });
-
-// Toggle the settings menu
-function settingsToggle() {
-	settingsModule!.instance?.toggle?.();
-}
 
 // Toggle the menu's visibility
 const toggle = () => {
@@ -172,7 +168,11 @@ definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 	},
 });
 
-onClickOutside(containerEl, () => (open.value = false));
+onClickOutside(containerEl, () => {
+	if (settingsContext.open) return;
+
+	open.value = false;
+});
 
 onUnmounted(() => {
 	unsetPropertyHook(props.instance.component.autocompleteInputRef, "state");
