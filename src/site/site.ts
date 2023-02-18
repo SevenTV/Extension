@@ -1,5 +1,6 @@
 import { createApp, h, provide } from "vue";
 import { createPinia } from "pinia";
+import { SITE_ASSETS_URL, SITE_WORKER_URL } from "@/common/Constant";
 import App from "@/site/App.vue";
 import { apolloClient } from "@/apollo/apollo";
 import { TextPaintDirective } from "@/directive/TextPaintDirective";
@@ -41,6 +42,8 @@ root.setAttribute("data-app-id", appID);
 
 document.body.append(root);
 
+const scr = document.querySelector("script#seventv-extension");
+
 const app = createApp({
 	setup() {
 		provide(ApolloClients, {
@@ -49,6 +52,9 @@ const app = createApp({
 	},
 	render: () => h(App),
 });
+
 app.provide("app-id", appID);
+app.provide(SITE_WORKER_URL, scr?.getAttribute("worker_url"));
+app.provide(SITE_ASSETS_URL, scr?.getAttribute("assets_url"));
 
 app.use(createPinia()).directive("cosmetic-paint", TextPaintDirective).mount("#seventv-root");

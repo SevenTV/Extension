@@ -10,91 +10,91 @@ let worker: SharedWorker | null = null;
 
 type WorkerAddrMap = Record<string, string>;
 
-export function useWorker() {
-	async function init(bc: BroadcastChannel): Promise<SharedWorker> {
-		let sw: SharedWorker;
+async function init(bc: BroadcastChannel, originURL: string): Promise<SharedWorker> {
+	let sw: SharedWorker;
 
-		// Check for existing url
-		// If it exists, we'll connect to it
-		const appVersion = import.meta.env.VITE_APP_VERSION;
-		const workerAddrData: string | null = localStorage.getItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
-		let workerAddr: WorkerAddrMap | null = null;
+	// Check for existing url
+	// If it exists, we'll connect to it
+	const appVersion = import.meta.env.VITE_APP_VERSION;
+	const workerAddrData: string | null = localStorage.getItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
+	let workerAddr: WorkerAddrMap | null = null;
 
-		try {
-			workerAddr = workerAddrData ? JSON.parse(workerAddrData) : null;
-		} catch (err) {
-			log.error("Unable to parse worker address data", String(err));
-			localStorage.removeItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
+	try {
+		workerAddr = workerAddrData ? JSON.parse(workerAddrData) : null;
+	} catch (err) {
+		log.error("Unable to parse worker address data", String(err));
+		localStorage.removeItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
+	}
+
+	let workerURL: string | null =
+		typeof workerAddr === "object" && workerAddr !== null ? workerAddr[appVersion] : null;
+
+	const ok =
+		workerURL &&
+		(await fetch(workerURL)
+			.then((res) => res.ok)
+			.catch(() => false));
+
+	// Fetch worker data
+	if (!ok) {
+		// Get the offline URL passed by the loader
+		workerURL = originURL;
+		if (!workerURL) {
+			log.error("Unable to find address to worker");
 		}
-
-		let workerURL: string | null =
-			typeof workerAddr === "object" && workerAddr !== null ? workerAddr[appVersion] : null;
-
-		const ok =
-			workerURL &&
-			(await fetch(workerURL)
-				.then((res) => res.ok)
-				.catch(() => false));
 
 		// Fetch worker data
-		if (!ok) {
-			// Get the offline URL passed by the loader
-			workerURL = document.querySelector("script#seventv-extension")?.getAttribute("worker_url") ?? null;
-			if (!workerURL) {
-				log.error("Unable to find address to worker");
-			}
-
-			// Fetch worker data
-			const data = await (await fetch(workerURL || "")).blob().catch((err) => {
-				log.error("Unable to fetch worker data", err);
-			});
-			if (!data) return Promise.reject("There was an error fetching worker data");
-
-			log.info("Received worker data", `(${data.size} bytes)`);
-
-			// Create BLOB URL for worker & set it into local storage
-			workerURL = URL.createObjectURL(data);
-			localStorage.setItem(
-				LOCAL_STORAGE_KEYS.WORKER_ADDR,
-				JSON.stringify({ ...(workerAddr ?? {}), [appVersion]: workerURL }),
-			);
-		} else {
-			log.info("Connecting to existing worker", `addr=${workerURL}`);
-		}
-
-		// Connect to worker
-		return new Promise<SharedWorker>((resolve, reject) => {
-			if (!workerURL) return reject("No address to worker");
-
-			// Define message handlers
-			useGlobalHandlers(bc);
-
-			// Spawn or connect to worker
-			sw = worker = new SharedWorker(workerURL, {
-				name: "seventv-extension",
-			});
-			sw.port.start();
-
-			useHandlers(sw.port);
-
-			// Emit close on page exit
-			addEventListener("beforeunload", () => {
-				sendMessage("CLOSE", {});
-			});
-
-			resolve(sw);
+		const data = await (await fetch(workerURL || "")).blob().catch((err) => {
+			log.error("Unable to fetch worker data", err);
 		});
+		if (!data) return Promise.reject("There was an error fetching worker data");
+
+		log.info("Received worker data", `(${data.size} bytes)`);
+
+		// Create BLOB URL for worker & set it into local storage
+		workerURL = URL.createObjectURL(data);
+		localStorage.setItem(
+			LOCAL_STORAGE_KEYS.WORKER_ADDR,
+			JSON.stringify({ ...(workerAddr ?? {}), [appVersion]: workerURL }),
+		);
+	} else {
+		log.info("Connecting to existing worker", `addr=${workerURL}`);
 	}
 
-	function sendMessage<T extends WorkerMessageType>(type: T, data: TypedWorkerMessage<T>): void {
-		if (!worker) return;
+	// Connect to worker
+	return new Promise<SharedWorker>((resolve, reject) => {
+		if (!workerURL) return reject("No address to worker");
 
-		worker.port.postMessage({
-			type: type,
-			data: data,
+		// Define message handlers
+		useGlobalHandlers(bc);
+
+		// Spawn or connect to worker
+		sw = worker = new SharedWorker(workerURL, {
+			name: "seventv-extension",
 		});
-	}
+		sw.port.start();
 
+		useHandlers(sw.port);
+
+		// Emit close on page exit
+		addEventListener("beforeunload", () => {
+			sendMessage("CLOSE", {});
+		});
+
+		resolve(sw);
+	});
+}
+
+function sendMessage<T extends WorkerMessageType>(type: T, data: TypedWorkerMessage<T>): void {
+	if (!worker) return;
+
+	worker.port.postMessage({
+		type: type,
+		data: data,
+	});
+}
+
+export function useWorker() {
 	return {
 		init,
 		sendMessage,

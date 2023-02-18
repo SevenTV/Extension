@@ -58,11 +58,14 @@ export async function getManifest(
 					"site.js.map",
 					"content.js.map",
 					"worker.js",
-					"assets/style.css",
+					"assets/*",
 					...new Array(20).fill(20).map((_, i) => `assets/emojis${i}.js`),
 					...(chunkResources ?? []),
 				],
-				matches: ["*://*.twitch.tv/*"],
+			},
+			{
+				resources: ["assets/style.css"],
+				use_dynamic_url: true,
 			},
 		],
 	} as Manifest.WebExtensionManifest & MV3HostPermissions;

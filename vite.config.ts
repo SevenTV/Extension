@@ -88,7 +88,6 @@ export default defineConfig(({ mode }) => {
 				input: {
 					background: r("src/background.ts"),
 					content: r("src/content/content.ts"),
-					auth: r("src/content/authcontent.ts"),
 					site: r("src/site/site.ts"),
 				},
 				output: {

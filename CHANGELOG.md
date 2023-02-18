@@ -1,5 +1,7 @@
 ### Version 3.0.0.12000 (Beta 12)
 
+- Added an option to play a sound on mention
+- Added an option to flash the title of a tab upon being mentioned
 - Holding Shift while using tab-completion will now make the selection move backwards
 - The sorting of tab-completion matches should now prioritize shorter names 
 

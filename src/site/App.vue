@@ -19,6 +19,7 @@ import type { Component } from "vue";
 import { defineAsyncComponent } from "vue";
 import { inject } from "vue";
 import { markRaw, onMounted, ref } from "vue";
+import { SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { fillSettings } from "@/composable/useSettings";
@@ -35,10 +36,13 @@ if (import.meta.hot) {
 
 const wg = ref(3);
 const appID = inject<string>("app-id") ?? null;
+log.info(`7TV (inst: ${appID}) is loading`);
+
+// Detect current platform
+const domain = window.location.hostname.split(/\./).slice(-2).join(".");
+const platformComponent = ref<Component>();
 
 const EmojiContainer = defineAsyncComponent(() => import("@/site/EmojiContainer.vue"));
-
-log.info(`7TV (inst: ${appID}) is loading`);
 
 db.ready().then(async () => {
 	log.info("IndexedDB ready");
@@ -59,17 +63,12 @@ db.ready().then(async () => {
 // Spawn SharedWorker
 const bc = new BroadcastChannel("SEVENTV#NETWORK");
 const { init, target } = useWorker();
-init(bc);
+init(bc, inject(SITE_WORKER_URL, ""));
 
 target.addEventListener("ready", () => {
 	log.info("Worker ready");
 	wg.value--;
 });
-
-// Detect current platform
-const domain = window.location.hostname.split(/\./).slice(-2).join(".");
-
-const platformComponent = ref<Component>();
 
 log.setContextName(`site/${domain}`);
 

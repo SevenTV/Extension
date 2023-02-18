@@ -140,6 +140,18 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 			],
 			defaultValue: 1,
 		}),
+		declareConfig<boolean>("chat.highlight.mention_title_flash", "TOGGLE", {
+			path: ["Chat", "Highlights"],
+			label: "Flash Title on Mention",
+			hint: "When tabbed out, the username of users who mention you will flash in the title",
+			defaultValue: true,
+		}),
+		declareConfig<boolean>("chat.highlight.mention_sound", "TOGGLE", {
+			path: ["Chat", "Highlights"],
+			label: "Play Sound on Mention",
+			hint: "Play a sound when you are mentioned in chat",
+			defaultValue: false,
+		}),
 	],
 });
 

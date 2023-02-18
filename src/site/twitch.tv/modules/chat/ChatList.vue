@@ -32,6 +32,7 @@ import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/Chat
 import { IsChatMessage, IsDisplayableMessage, IsModerationMessage } from "@/common/type-predicates/Messages";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
@@ -53,13 +54,36 @@ const messages = useChatMessages(ctx);
 const displayedMessages = toRef(messages, "displayed");
 const scroller = useChatScroller(ctx);
 const properties = useChatProperties(ctx);
+const chatHighlights = useChatHighlights(ctx);
 const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
+const pausedByVisibility = ref(false);
 
-const actorRegexp = ref<RegExp | null>();
-watch(identity, (identity) => (actorRegexp.value = identity ? new RegExp(`\\b${identity.username}\\b`) : null), {
-	immediate: true,
-});
+watch(
+	identity,
+	(identity) => {
+		const rx = identity ? new RegExp(`\\b${identity.username}\\b`) : null;
+		if (!rx) return;
+
+		chatHighlights.defineHighlight("~mention", {
+			phrase: rx,
+			label: "Mentions You",
+			color: "#e13232",
+			soundPath: "/sound/ping.ogg",
+			flashTitle: (msg) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
+		});
+
+		chatHighlights.defineHighlight("~reply", {
+			phrase: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
+			label: "Replying to You",
+			color: "#e13232",
+			soundPath: "/sound/ping.ogg",
+		});
+	},
+	{
+		immediate: true,
+	},
+);
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
@@ -148,19 +172,12 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 			};
 
 			// Highlight as a reply to the actor
-			if (parentMsgAuthor && actorRegexp.value && actorRegexp.value.test(parentMsgAuthor.username)) {
-				msg.setHighlight("#e13232", "Replying to You");
-			}
+			chatHighlights.checkMatch("~reply", msg);
 		}
 
 		// message is /me
 		if (msgData.messageType === 1) {
 			msg.slashMe = true;
-		}
-
-		// highlight when message mentions the actor
-		if (actorRegexp.value && actorRegexp.value.test(msg.body.toLowerCase())) {
-			msg.setHighlight("#e13232", "Mentions You");
 		}
 
 		// assign native emotes
@@ -256,6 +273,9 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	if (IsChatMessage(msgData)) msg.setTimestamp(msgData.timestamp);
 	else if (msgData.message) msg.setTimestamp(msgData.message.timestamp ?? 0);
+
+	// highlight when message mentions the actor
+	chatHighlights.checkMatch("~mention", msg, false);
 
 	// Add message to store
 	// it will be rendered on the next tick
@@ -404,7 +424,6 @@ watch(
 );
 
 // Pause scrolling when page is not visible
-const pausedByVisibility = ref(false);
 watch(pageVisibility, (state) => {
 	if (state === "hidden" && !scroller.paused) {
 		scroller.pause();
