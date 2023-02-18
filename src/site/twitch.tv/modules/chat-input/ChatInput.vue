@@ -57,7 +57,7 @@ const preHistory = ref<Twitch.ChatSlateLeaf[] | undefined>();
 const history = ref<Twitch.ChatSlateLeaf[][]>([]);
 const historyLocation = ref(-1);
 
-const { ctrl: isCtrl } = useMagicKeys();
+const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
 
 interface TabToken {
 	token: string;
@@ -147,7 +147,7 @@ function findMatchingTokens(
 		}
 	}
 
-	matches.sort((a, b) => a.priority + b.priority + a.token.localeCompare(b.token));
+	matches.sort((a, b) => a.priority + b.priority * (a.token.localeCompare(b.token) / 0.5));
 
 	return matches;
 }
@@ -215,7 +215,7 @@ function handleTabPress(ev: KeyboardEvent): void {
 			match = matches[matchIndex];
 		} else {
 			matches = state.matches;
-			matchIndex = state.index + 1;
+			matchIndex = isShift.value ? state.index - 1 : state.index + 1;
 			matchIndex %= matches.length;
 			match = matches[matchIndex];
 		}

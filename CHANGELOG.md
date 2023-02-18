@@ -1,18 +1,23 @@
+### Version 3.0.0.12000 (Beta 12)
+
+- Holding Shift while using tab-completion will now make the selection move backwards
+- The sorting of tab-completion matches should now prioritize shorter names 
+
 ### Version 3.0.0.11000 (Beta 11)
 
 🎉 **This build completes twitch.tv Feature Parity with the old extension!**
 
-- Added an option to bypass the duplicate message restriction in chat
-- Added an option to quick-send the same message by keeping the current content in the input box
-- Fixed an issue that caused some links to duplicate themselves
-- Fixed an issue where links spelled out without the protocol wouldn't become clickable
-- Fixed an issue where foldable buttons in the settings menu only reacted when clicking the chevron icon
-- Fixed an issue which let messages from blocked users appear in chat
-- Fixed an issue where ban/timeout icons would appear on one's own messages
-- Fixed an issue which caused the Mod Slider to only appear on one's own messages
-- Fixed an issue with the Mod Slider where timeouts above a certain thresold wouldn't work
-- Fixed an issue where Mod Icons would appear discolored
-- Tentatively fixed an issue which occasionally caused a crash when chat is cleared by a moderator 
+-   Added an option to bypass the duplicate message restriction in chat
+-   Added an option to quick-send the same message by keeping the current content in the input box
+-   Fixed an issue that caused some links to duplicate themselves
+-   Fixed an issue where links spelled out without the protocol wouldn't become clickable
+-   Fixed an issue where foldable buttons in the settings menu only reacted when clicking the chevron icon
+-   Fixed an issue which let messages from blocked users appear in chat
+-   Fixed an issue where ban/timeout icons would appear on one's own messages
+-   Fixed an issue which caused the Mod Slider to only appear on one's own messages
+-   Fixed an issue with the Mod Slider where timeouts above a certain thresold wouldn't work
+-   Fixed an issue where Mod Icons would appear discolored
+-   Tentatively fixed an issue which occasionally caused a crash when chat is cleared by a moderator
 
 ---
 
@@ -22,7 +27,7 @@
 -   Fixed an issue where autocompletion stopped working after switching to another channel
 -   Fixed an issue where emotes wouldn't load after switching to another channel
 -   Fixed an issue where emotes wouldn't load in historical messages
--   Fixed an issue where cosmetics wouldn't load after switching to another channel 
+-   Fixed an issue where cosmetics wouldn't load after switching to another channel
 -   Fixed an issue which led to chatters from the previous channel remaining available in autocompletion
 
 ---
@@ -31,13 +36,13 @@
 
 #### Beta 9.2
 
-- Auto-completion should now work correctly again (oops)
-- Clicking emotes in the Emote Menu should no longer bring up the card
-- Overlay / Zero-Width Emotes should now show in tooltips again
+-   Auto-completion should now work correctly again (oops)
+-   Clicking emotes in the Emote Menu should no longer bring up the card
+-   Overlay / Zero-Width Emotes should now show in tooltips again
 
 #### Beta 9.1
 
-- Fixed an input crash when using colon-completion
+-   Fixed an input crash when using colon-completion
 
 **This release includes major code refactors**. Please report any issues or regressions via our [Discord server](https://discord.gg/7tv) or [GitHub](https://github.com/seventv/extensionv3).
 
@@ -68,7 +73,8 @@
 -   Added support for chat pausing with Alt or Mouseover
 -   Further improved the performance of the Emote Menu
 -   Fixed freezing issues when opening the Mod Logs menu
--   
+-
+
 ---
 
 ### Version 3.0.0.7000 (Beta 7)
@@ -81,7 +87,8 @@
 -   Fixed an issue which broke the Mod Slider
 -   Fixed an issue which caused timestamps to remain frozen in time
 -   Fixed incorrect vertical chat padding
--   
+-
+
 ---
 
 ### Version 3.0.0.6000 (Beta 6)
