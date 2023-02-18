@@ -1,13 +1,13 @@
 <template>
-	<div class="toggle-outer">
-		<span v-if="node.options?.left" class="slider-option">
+	<div class="seventv-toggle-outer">
+		<span v-if="node.options?.left" class="seventv-toggle-option">
 			{{ node.options.left }}
 		</span>
-		<label class="switch" :for="node.key">
+		<label class="seventv-toggle-switch" :for="node.key">
 			<input :id="node.key" v-model="setting" type="checkbox" />
-			<div class="slider round"></div>
+			<div class="seventv-toggle round"></div>
 		</label>
-		<span v-if="node.options?.right" class="slider-option">
+		<span v-if="node.options?.right" class="seventv-toggle-option">
 			{{ node.options.right }}
 		</span>
 	</div>
@@ -26,30 +26,32 @@ const setting = useConfig<boolean>(props.node.key);
 <style scoped lang="scss">
 @import "@/assets/style/shape.scss";
 
-.toggle-outer {
+.seventv-toggle-outer {
 	display: flex;
 	flex-wrap: nowrap;
 	align-items: center;
 	gap: 1rem;
 }
-.slider-option {
+
+.seventv-toggle-option {
 	font-size: 1.4rem;
 	font-weight: 600;
 	vertical-align: center;
 }
-.switch {
+
+.seventv-toggle-switch {
 	display: inline-block;
 	height: 2rem;
 	position: relative;
 	width: 4rem;
 }
 
-.switch input {
+.seventv-toggle-switch input {
 	display: none;
 }
 
-.slider {
-	background-color: #ccc;
+.seventv-toggle {
+	background-color: var(--seventv-input-background);
 	bottom: 0;
 	cursor: pointer;
 	left: 0;
@@ -57,10 +59,11 @@ const setting = useConfig<boolean>(props.node.key);
 	right: 0;
 	top: 0;
 	transition: 0.25s;
+	outline: 0.01rem solid var(--seventv-input-border);
 }
 
-.slider:before {
-	background-color: #fff;
+.seventv-toggle:before {
+	background-color: var(--seventv-input-border);
 	bottom: 0.3rem;
 	content: "";
 	height: 1.4rem;
@@ -68,22 +71,18 @@ const setting = useConfig<boolean>(props.node.key);
 	position: absolute;
 	transition: 0.25s;
 	width: 1.4rem;
-	transform: rotate(-45deg);
 }
 
-input:checked + .slider {
-	background-color: #66bb6a;
+input:checked + .seventv-toggle:before {
+	background-color: var(--seventv-accent);
+	transform: translateX(2rem);
 }
 
-input:checked + .slider:before {
-	transform: translateX(2rem) rotate(45deg);
+.seventv-toggle.round {
+	border-radius: 0.25rem;
 }
 
-.slider.round {
-	clip-path: create-bevel(0.33rem);
-}
-
-.slider.round:before {
-	clip-path: create-bevel(0.5rem);
+.seventv-toggle.round:before {
+	border-radius: 0.25rem;
 }
 </style>

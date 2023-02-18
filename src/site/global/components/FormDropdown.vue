@@ -15,3 +15,13 @@ const props = defineProps<{
 
 const setting = useConfig(props.node.key);
 </script>
+
+<style scoped lang="scss">
+select {
+	background-color: var(--seventv-input-background);
+	padding: 0.5rem 1rem;
+	border-radius: 0.25rem;
+	border: 0.01rem solid var(--seventv-input-border);
+	color: var(--seventv-text-color-normal);
+}
+</style>
