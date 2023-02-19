@@ -39,6 +39,7 @@
 								<CategoryDropdown
 									:category="category"
 									:subs="subs"
+									:show-sub-categories="isExpanded"
 									@open-category="navigateToCategory(category)"
 									@open-subcategory="(s) => navigateToCategory(category, s)"
 								/>
@@ -51,11 +52,14 @@
 										<img :src="actor.user!.avatar_url" />
 									</template>
 								</div>
-								<span class="seventv-settings-sidebar-profile-text seventv-expanded">
+								<span class="seventv-settings-sidebar-profile-text seventv-settings-expanded">
 									{{ actor.user ? actor.user.display_name : "Login" }}
 								</span>
 							</div>
-							<div v-if="actor.user" class="seventv-settings-sidebar-profile-logout seventv-expanded">
+							<div
+								v-if="actor.user"
+								class="seventv-settings-sidebar-profile-logout seventv-settings-expanded"
+							>
 								<LogoutIcon />
 							</div>
 						</div>
@@ -72,6 +76,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { useBreakpoints } from "@vueuse/core";
 import { watchThrottled } from "@vueuse/shared";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
@@ -94,6 +99,12 @@ const root = document.getElementById("root") ?? undefined;
 const dragHandle = ref<HTMLDivElement | undefined>();
 
 const filter = ref("");
+
+const breakpoints = useBreakpoints({
+	compact: 960,
+	expanded: 1120,
+});
+const isExpanded = breakpoints.greater("expanded");
 
 function navigateToCategory(name: string, scrollpoint?: string) {
 	ctx.switchView("config");
@@ -148,7 +159,9 @@ function isOrdered(c: string): c is keyof typeof categoryOrder {
 const categoryOrder = {
 	General: 0,
 	Chat: 1,
-	Appearance: 2,
+	Channel: 2,
+	Highlights: 3,
+	Appearance: 4,
 };
 
 watch(settings.nodes, sortNodes, { immediate: true });
@@ -156,7 +169,7 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 </script>
 
 <style scoped lang="scss">
-@media (max-width: 70rem) {
+@media (max-width: 1120px) {
 	:deep(.seventv-settings-expanded) {
 		display: none !important;
 	}
@@ -173,8 +186,8 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 	}
 }
 
-@media (max-width: 60rem) {
-	:deep(.area-compact) {
+@media (max-width: 960px) {
+	:deep(.seventv-settings-compact) {
 		display: none !important;
 	}
 	.seventv-settings-settings-area {

@@ -1,16 +1,18 @@
 <template>
-	<div class="settings-area-container">
+	<div class="seventv-settings-view-container">
 		<UiScrollable>
 			<template v-if="ctx.mappedNodes[ctx.category]">
-				<div v-for="[s, sn] of Object.entries(ctx.mappedNodes[ctx.category])" :key="s" class="subcategory">
-					<div class="testt">
-						<h3 v-if="s" :id="s" ref="subcategoryRefs" class="subcategory-header">
-							{{ s }}
-						</h3>
-						<template v-for="node of sn" :key="node.key">
-							<SettingsNode :node="node" />
-						</template>
-					</div>
+				<div
+					v-for="[s, sn] of Object.entries(ctx.mappedNodes[ctx.category])"
+					:key="s"
+					class="seventv-settings-subcategory"
+				>
+					<h3 v-if="s" :id="s" ref="subcategoryRefs" class="seventv-settings-subcategory-header">
+						{{ s }}
+					</h3>
+					<template v-for="node of sn" :key="node.key">
+						<SettingsNode :node="node" />
+					</template>
 				</div>
 			</template>
 		</UiScrollable>
@@ -34,7 +36,7 @@ watch(
 );
 </script>
 <style scoped lang="scss">
-.settings-area-container {
+.seventv-settings-view-container {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -43,12 +45,12 @@ watch(
 		flex-grow: 1;
 	}
 }
-.subcategory {
+.seventv-settings-subcategory {
 	background-color: hsla(0deg, 0%, 30%, 6%);
 	margin: 1rem;
 	border-radius: 0.4rem;
 
-	.subcategory-header {
+	.seventv-settings-subcategory-header {
 		display: flex;
 		flex-direction: column;
 		padding: 1rem;

@@ -8,13 +8,13 @@
 			</UiScrollable>
 			<div class="frontpage-footer">
 				<div class="seventv-settings-app-info">
-					<span class="area-compact">{{ appName }} ({{ appContainer }})</span>
+					<span class="seventv-settings-compact">{{ appName }} ({{ appContainer }})</span>
 					<span class="seventv-version">v{{ version }}</span>
-					<span class="area-compact">API: {{ appServer }}</span>
+					<span class="seventv-settings-compact">API: {{ appServer }}</span>
 				</div>
 			</div>
 		</div>
-		<div class="frontpage-side area-compact">
+		<div class="frontpage-side seventv-settings-compact">
 			<a
 				class="twitter-timeline"
 				data-height="580"

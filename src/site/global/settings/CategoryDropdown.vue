@@ -7,11 +7,14 @@
 			<span class="seventv-settings-expanded">
 				{{ category }}
 			</span>
-			<div v-if="Object.keys(subs).filter((s) => s).length" class="dropdown-icon seventv-settings-expanded">
+			<div
+				v-if="showSubCategories && Object.keys(subs).filter((s) => s).length"
+				class="dropdown-icon seventv-settings-expanded"
+			>
 				<DropdownIcon />
 			</div>
 		</div>
-		<div class="seventv-settings-category-dropdown seventv-settings-expanded">
+		<div v-if="showSubCategories" class="seventv-settings-category-dropdown seventv-settings-expanded">
 			<template v-for="s of Object.keys(subs)" :key="s">
 				<div v-if="s" class="seventv-settings-subcategory" @click="emit('open-subcategory', s)">
 					{{ s }}
@@ -25,9 +28,10 @@ import { ref } from "vue";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import IconForSettings from "@/assets/svg/icons/IconForSettings.vue";
 
-defineProps<{
+const props = defineProps<{
 	category: string;
 	subs: Record<string, SevenTV.SettingNode[]>;
+	showSubCategories?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -38,7 +42,7 @@ const emit = defineEmits<{
 const open = ref(false);
 
 function onCategoryClick(): void {
-	if (!(open.value = !open.value)) return;
+	if (props.showSubCategories && !(open.value = !open.value)) return;
 
 	emit("open-category");
 }

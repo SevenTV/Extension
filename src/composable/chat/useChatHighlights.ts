@@ -20,8 +20,8 @@ interface HighlightDef {
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
 
-const shouldPlaySoundOnHighlight = useConfig<boolean>("chat.highlight.mention_sound");
-const shouldFlashTitleOnHighlight = useConfig<boolean>("chat.highlight.mention_title_flash");
+const shouldPlaySoundOnHighlight = useConfig<boolean>("highlights.basic.mention_sound");
+const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
 
 export function useChatHighlights(ctx: ChannelContext) {
 	const visibility = useDocumentVisibility();

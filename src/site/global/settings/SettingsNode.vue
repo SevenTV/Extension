@@ -1,19 +1,19 @@
 <template>
-	<div class="settings-node" tabindex="0" :disabled="node.disabledIf?.()">
-		<div class="wrapper">
-			<div class="setting-items">
-				<div class="label">
-					<span class="label-text">
+	<div class="seventv-settings-node" tabindex="0" :disabled="node.disabledIf?.()">
+		<div class="seventv-settings-node-wrapper">
+			<div class="seventv-settings-node-items">
+				<div class="seventv-settings-node-label">
+					<span class="seventv-settings-node-label-text">
 						{{ node.label }}
 					</span>
-					<div class="label-hint" :tooltip="node.hint">ⓘ</div>
+					<div class="seventv-settings-node-label-hint" :tooltip="node.hint">ⓘ</div>
 				</div>
-				<div class="component-container">
+				<div class="seventv-settings-node-component-container">
 					<component :is="getComponent(node)" :node="node" />
 				</div>
 			</div>
 		</div>
-		<div v-if="node.hint" class="hint">
+		<div v-if="node.hint" class="seventv-settings-hint">
 			{{ node.hint }}
 		</div>
 	</div>
@@ -48,15 +48,15 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 </script>
 
 <style scoped lang="scss">
-.settings-node {
+.seventv-settings-node {
 	position: relative;
 	padding: 1rem;
 
-	.wrapper {
+	.seventv-settings-node-wrapper {
 		transition: transform 0.2s ease-out;
 	}
 
-	.setting-items {
+	.seventv-settings-node-items {
 		display: flex;
 		justify-content: space-between;
 	}
@@ -73,7 +73,7 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 	}
 }
 
-.label {
+.seventv-settings-node-label {
 	display: flex;
 	justify-content: space-between;
 	font-size: 1.4rem;
@@ -81,7 +81,7 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 	flex-shrink: 0;
 	width: 23rem;
 
-	.label-hint {
+	.seventv-settings-node-label-hint {
 		display: none;
 		color: hsla(0deg, 0%, 50%, 90%);
 		padding: 0.5rem;
@@ -108,12 +108,12 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 	}
 }
 
-.component-container {
+.seventv-settings-node-component-container {
 	flex-shrink: 0;
 	max-width: 23rem;
 }
 
-.hint {
+.seventv-settings-hint {
 	margin-top: 1rem;
 	font-size: 1.2rem;
 	font-weight: 400;
@@ -121,27 +121,27 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 }
 
 @media (max-width: 60rem) {
-	.settings-node {
+	.seventv-settings-node {
 		cursor: pointer;
 
-		.wrapper {
+		.seventv-settings-node-wrapper {
 			width: 50rem;
-			.label-text {
+			.seventv-settings-node-label-text {
 				margin-right: auto;
 			}
 
-			.label-hint {
+			.seventv-settings-node-label-hint {
 				display: unset;
 			}
 		}
 		&:focus-within {
-			.wrapper {
+			.seventv-settings-node-wrapper {
 				transform: translateX(-27rem);
 				cursor: auto !important;
 			}
 		}
 	}
-	.hint {
+	.seventv-settings-hint {
 		display: none;
 	}
 }

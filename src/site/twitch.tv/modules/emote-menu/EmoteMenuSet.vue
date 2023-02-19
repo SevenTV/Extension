@@ -77,7 +77,7 @@ const filterEmotes = debounceFn((filter = "") => {
 
 	emotes.value = x;
 	emit("emotes-updated", x);
-}, 250);
+}, 25);
 
 function isEmoteDisabled(set: SevenTV.EmoteSet, ae: SevenTV.ActiveEmote) {
 	return set.scope === "PERSONAL" && ae.data && ae.data.state && !ae.data.state.includes("PERSONAL");

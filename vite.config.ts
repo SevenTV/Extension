@@ -8,30 +8,6 @@ import { defineConfig, loadEnv } from "vite";
 
 const r = (...args: string[]) => path.resolve(__dirname, ...args);
 
-const chunks = {
-	common: [
-		"./src/common/Async.ts",
-		"./src/common/Logger.ts",
-		"./src/common/Rand.ts",
-		"./src/common/Reflection.ts",
-		"./src/common/Transform.ts",
-		"./src/common/ReactHooks.ts",
-	],
-	store: ["./src/store/main.ts"],
-	db: [
-		"./src/db/idb.ts",
-		"./src/db/versions.idb.ts",
-		"./src/composable/useLiveQuery.ts",
-		"./src/composable/useSettings.ts",
-	],
-	tw_mod_avatars: ["./src/site/twitch.tv/modules/avatars/AvatarsModule.vue"],
-	tw_mod_chat: ["./src/site/twitch.tv/modules/chat/ChatModule.vue"],
-	tw_mod_chat_input: ["./src/site/twitch.tv/modules/chat-input/ChatInputModule.vue"],
-	tw_mod_emote_menu: ["./src/site/twitch.tv/modules/emote-menu/EmoteMenuModule.vue"],
-	tw_mod_settings: ["./src/site/twitch.tv/modules/settings/SettingsModule.vue"],
-	emoji: ["./src/site/EmojiContainer.vue"],
-};
-
 const ignoreHMR = [
 	"main.ts",
 	"idb.ts",
@@ -50,12 +26,16 @@ const ignoreHMR = [
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const isDev = mode === "dev";
+	const versionSplit = version.split(".");
+	const versionID =
+		versionSplit.slice(0, 3).join("") + (versionSplit[3] ? `-${parseInt(versionSplit[3]) / 1000}` : "");
 
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: name,
 		VITE_APP_VERSION: version,
+		VITE_APP_STYLESHEET_NAME: `seventv.style.${versionID}.css`,
 	};
 
 	return {
@@ -91,14 +71,13 @@ export default defineConfig(({ mode }) => {
 					site: r("src/site/site.ts"),
 				},
 				output: {
-					manualChunks: chunks,
 					entryFileNames: (info) => {
 						const name = path.basename(info.facadeModuleId.replace(".ts", ".js"));
 
 						return name;
 					},
-					assetFileNames: "assets/[name][extname]",
-					chunkFileNames: "assets/[name].js",
+					assetFileNames: `assets/seventv.[name].${versionID}[extname]`,
+					chunkFileNames: `assets/seventv.[name].${versionID}.js`,
 				},
 			},
 		},
@@ -125,17 +104,12 @@ export default defineConfig(({ mode }) => {
 				name: "compile-manifest",
 				enforce: "post",
 				apply: "build",
-				async buildEnd() {
-					const man = await getManifest(
-						{
-							dev: isDev,
-							branch: process.env.BRANCH as BranchName,
-							mv2: isDev || !!process.env.MV2,
-						},
-						Object.keys(chunks)
-							.map((key) => [`assets/${key}.js`, `assets/${key}.js.map`])
-							.reduce((a, b) => [...a, ...b], []),
-					);
+				async buildEnd(this) {
+					const man = await getManifest({
+						dev: isDev,
+						branch: process.env.BRANCH as BranchName,
+						mv2: isDev || !!process.env.MV2,
+					});
 
 					setTimeout(() => {
 						fs.writeJSON(r("dist/manifest.json"), man);

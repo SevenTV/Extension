@@ -3,6 +3,7 @@
 </template>
 
 <script setup lang="ts">
+import BellsIcon from "./BellsIcon.vue";
 import ChatIcon from "./ChatIcon.vue";
 import EmotesIcon from "./EmotesIcon.vue";
 import GearsIcon from "./GearsIcon.vue";
@@ -22,6 +23,7 @@ const c = {
 	Chat: ChatIcon,
 	Emotes: EmotesIcon,
 	Appearance: PaintIcon,
+	Highlights: BellsIcon,
 	General: GearsIcon,
 	Channel: TvIcon,
 }[props.name];

@@ -14,10 +14,7 @@ interface ManifestOptions {
 
 export type BranchName = "beta" | "dev";
 
-export async function getManifest(
-	opt: ManifestOptions,
-	chunkResources?: string[],
-): Promise<Manifest.WebExtensionManifest> {
+export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExtensionManifest> {
 	const iconName = "".concat(opt.branch ? opt.branch + "-" : "", "icon-512.png");
 
 	const manifest = {
@@ -53,19 +50,8 @@ export async function getManifest(
 
 		web_accessible_resources: [
 			{
-				resources: [
-					"site.js",
-					"site.js.map",
-					"content.js.map",
-					"worker.js",
-					"assets/*",
-					...new Array(20).fill(20).map((_, i) => `assets/emojis${i}.js`),
-					...(chunkResources ?? []),
-				],
-			},
-			{
-				resources: ["assets/style.css"],
-				use_dynamic_url: true,
+				resources: ["site.js", "site.js.map", "content.js.map", "worker.js", "assets/*"],
+				matches: ["*://*.twitch.tv/*"],
 			},
 		],
 	} as Manifest.WebExtensionManifest & MV3HostPermissions;

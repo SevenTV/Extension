@@ -1,7 +1,9 @@
 <template>
 	<!-- Spawn Platform-specific Logic -->
 	<template v-if="!wg">
-		<component :is="platformComponent" v-if="platformComponent" />
+		<Suspense>
+			<component :is="platformComponent" v-if="platformComponent" />
+		</Suspense>
 
 		<div id="seventv-emoji-container" :style="{ display: 'none' }">
 			<component :is="EmojiContainer" />
@@ -25,7 +27,9 @@ import { db } from "@/db/idb";
 import { fillSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
-import TwitchSite from "./twitch.tv/TwitchSite.vue";
+
+const EmojiContainer = defineAsyncComponent(() => import("@/site/EmojiContainer.vue"));
+const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {
@@ -41,8 +45,6 @@ log.info(`7TV (inst: ${appID}) is loading`);
 // Detect current platform
 const domain = window.location.hostname.split(/\./).slice(-2).join(".");
 const platformComponent = ref<Component>();
-
-const EmojiContainer = defineAsyncComponent(() => import("@/site/EmojiContainer.vue"));
 
 db.ready().then(async () => {
 	log.info("IndexedDB ready");
