@@ -31,6 +31,7 @@
 			<div class="settings-button-container">
 				<div class="settings-button" @click="emit('toggle-settings')">
 					<GearsIcon :provider="'7TV'" />
+					<div v-if="!updater.isUpToDate" class="seventv-emote-menu-settings-button-update-flair" />
 				</div>
 			</div>
 		</div>
@@ -44,6 +45,7 @@ import { debounceFn } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
+import useUpdater from "@/composable/useUpdater";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
@@ -64,6 +66,7 @@ const emit = defineEmits<{
 const ctx = useEmoteMenuContext();
 const channelContext = useChannelContext(ctx.channelID);
 const emotes = useChatEmotes(channelContext);
+const updater = useUpdater();
 const selectedSet = ref("");
 
 // The source emote sets from this emote provider
@@ -139,6 +142,8 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 });
 </script>
 <style scoped lang="scss">
+@import "@/assets/style/flair.scss";
+
 .emote-area-container {
 	flex-shrink: 1;
 	display: flex;
@@ -180,7 +185,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 			display: flex;
 			margin: 0.5rem;
 			padding: 0.5rem;
-			border-radius: 0.5rem;
+			border-radius: 0.25rem;
 			justify-content: center;
 			cursor: pointer;
 
@@ -191,6 +196,16 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 			> svg {
 				height: 2rem;
 				width: 2rem;
+			}
+
+			> .seventv-emote-menu-settings-button-update-flair {
+				position: absolute;
+				height: 1rem;
+				width: 1rem;
+				transform: translateY(-0.5rem);
+				right: 0.25rem;
+
+				@extend %seventv-flair-pulsating;
 			}
 		}
 	}

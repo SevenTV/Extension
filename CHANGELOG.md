@@ -2,6 +2,7 @@
 
 - Added an option to play a sound on mention
 - Added an option to flash the title of a tab upon being mentioned
+- Added an update check mechanism
 - Holding Shift while using tab-completion will now make the selection move backwards
 - The sorting of tab-completion matches should now prioritize shorter names
 - Revised the look of Sliders, Toggles & Select form controls in the settings

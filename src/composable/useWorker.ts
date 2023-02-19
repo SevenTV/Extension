@@ -128,6 +128,11 @@ function useHandlers(mp: MessagePort) {
 				events.emit("ready", {});
 				break;
 			}
+			case "CONFIG": {
+				events.emit("config", data as TypedWorkerMessage<"CONFIG">);
+
+				break;
+			}
 			case "CHANNEL_FETCHED": {
 				const { channel } = data as TypedWorkerMessage<"CHANNEL_FETCHED">;
 
@@ -203,6 +208,7 @@ class WorkletTarget extends EventTarget {
 
 type WorkletEventName =
 	| "ready"
+	| "config"
 	| "channel_fetched"
 	| "cosmetic_created"
 	| "entitlement_created"
@@ -213,6 +219,7 @@ type WorkletEventName =
 
 type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	ready: object;
+	config: TypedWorkerMessage<"CONFIG">;
 	channel_fetched: CurrentChannel;
 	cosmetic_created: Pick<SevenTV.Cosmetic, "id" | "data" | "kind">;
 	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;

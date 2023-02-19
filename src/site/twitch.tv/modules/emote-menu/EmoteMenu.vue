@@ -50,6 +50,7 @@
 	<Teleport v-if="buttonEl" :to="buttonEl">
 		<div class="seventv-emote-menu-button" :class="{ 'menu-open': open }" @click.stop="toggle">
 			<Logo provider="7TV" />
+			<div v-if="!updater.isUpToDate && !open" class="seventv-emote-menu-update-flair" />
 		</div>
 	</Teleport>
 </template>
@@ -61,6 +62,7 @@ import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { useConfig } from "@/composable/useSettings";
+import useUpdater from "@/composable/useUpdater";
 import { useSettingsMenu } from "@/site/global/settings/Settings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
@@ -78,6 +80,7 @@ const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.chatInputRef.props.channelID ?? "";
 
 const settingsContext = useSettingsMenu();
+const updater = useUpdater();
 
 const open = ref(false);
 
@@ -181,6 +184,8 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+@import "@/assets/style/flair.scss";
+
 .seventv-emote-menu-button {
 	display: grid;
 	place-items: center;
@@ -191,6 +196,16 @@ onUnmounted(() => {
 	transition: color 150ms ease-in-out;
 	&.menu-open {
 		color: var(--seventv-primary);
+	}
+
+	> .seventv-emote-menu-update-flair {
+		position: absolute;
+		top: 0.25rem;
+		right: 0.25rem;
+		width: 0.75rem;
+		height: 0.75rem;
+
+		@extend %seventv-flair-pulsating;
 	}
 }
 

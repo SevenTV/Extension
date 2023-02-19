@@ -35,6 +35,7 @@ export default defineConfig(({ mode }) => {
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: name,
 		VITE_APP_VERSION: version,
+		VITE_APP_VERSION_BRANCH: process.env.BRANCH as BranchName,
 		VITE_APP_STYLESHEET_NAME: `seventv.style.${versionID}.css`,
 	};
 
@@ -114,7 +115,13 @@ export default defineConfig(({ mode }) => {
 					setTimeout(() => {
 						fs.writeJSON(r("dist/manifest.json"), man);
 
-						spawn("yarn", ["build:worker", "--mode", mode], { shell: true, stdio: "inherit" });
+						spawn("yarn", ["build:worker", "--mode", mode], {
+							shell: true,
+							stdio: "inherit",
+							env: {
+								BRANCH: process.env.BRANCH,
+							},
+						});
 					});
 				},
 			},

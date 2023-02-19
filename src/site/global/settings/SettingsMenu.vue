@@ -30,6 +30,7 @@
 							</div>
 						</div>
 						<UiScrollable>
+							<SettingsUpdateButton v-if="!updater.isUpToDate" class="seventv-settings-expanded" />
 							<CategoryDropdown
 								category="Home"
 								:subs="{}"
@@ -80,12 +81,14 @@ import { useBreakpoints } from "@vueuse/core";
 import { watchThrottled } from "@vueuse/shared";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
+import useUpdater from "@/composable/useUpdater";
 import CategoryDropdown from "@/site/global/settings/CategoryDropdown.vue";
 import LogoutIcon from "@/assets/svg/icons/LogoutIcon.vue";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import { useSettingsMenu } from "./Settings";
+import SettingsUpdateButton from "./SettingsUpdateButton.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { shift } from "@floating-ui/core";
@@ -93,6 +96,7 @@ import { shift } from "@floating-ui/core";
 const ctx = useSettingsMenu();
 const settings = useSettings();
 const actor = useActor();
+const updater = useUpdater();
 
 // The useDraggable needs an element to use middleware
 const root = document.getElementById("root") ?? undefined;

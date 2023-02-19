@@ -1,8 +1,9 @@
 <template>
 	<Teleport :to="containerEl">
-		<div class="seventv-tw-button seventv-menu-button">
-			<button class="seventv-settings-button" @click="emit('toggle')">
-				<Logo7TV class="logo" />
+		<div class="seventv-tw-button seventv-settings-menu-button">
+			<button @click="emit('toggle')">
+				<Logo7TV />
+				<div v-if="!updater.isUpToDate" class="seventv-settings-menu-button-update-flair" />
 			</button>
 			<span :class="`tooltip-${tooltip}`"> 7TV Settings </span>
 		</div>
@@ -11,11 +12,14 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import useUpdater from "@/composable/useUpdater";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 
 const emit = defineEmits<{
 	(event: "toggle"): void;
 }>();
+
+const updater = useUpdater();
 
 const el = document.createElement("div");
 el.id = "seventv-settings-button";
@@ -41,9 +45,10 @@ if (menuButtons) {
 </script>
 <style scoped lang="scss">
 @import "@/assets/style/tw-tooltip.scss";
+@import "@/assets/style/flair.scss";
 
 .top-nav {
-	.seventv-menu-button {
+	.seventv-settings-menu-button {
 		margin: 0.5rem;
 		> span {
 			transition: opacity 0.1s ease-in 0.2s;
@@ -52,17 +57,29 @@ if (menuButtons) {
 }
 
 .modview-dock__drop-zone {
-	.seventv-menu-button {
+	.seventv-settings-menu-button {
 		margin: 0 0.5rem 1rem;
 		> span {
 			transition: opacity 0.1s ease-in 0.2s;
 		}
 	}
 }
-.seventv-menu-button {
-	.logo {
-		width: 100%;
-		height: 100%;
+.seventv-settings-menu-button {
+	> button {
+		> svg {
+			width: 100%;
+			height: 100%;
+		}
+
+		> .seventv-settings-menu-button-update-flair {
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 1rem;
+			height: 1rem;
+
+			@extend %seventv-flair-pulsating;
+		}
 	}
 }
 </style>

@@ -5,6 +5,8 @@
 <script setup lang="ts">
 import { nextTick, watch } from "vue";
 import { useConfig, useSettings } from "@/composable/useSettings";
+import useUpdater from "@/composable/useUpdater";
+import { useWorker } from "@/composable/useWorker";
 import Tooltip from "./Tooltip.vue";
 import { useSettingsMenu } from "./settings/Settings";
 
@@ -18,16 +20,27 @@ register([
 	},
 ]);
 
-const runtimeVersion = import.meta.env.VITE_APP_VERSION;
+const updater = useUpdater();
 const version = useConfig("app.version");
 const settingsCtx = useSettingsMenu();
+
+const { target } = useWorker();
+target.addEventListener("config", (cfg) => {
+	const { version } = cfg.detail;
+	if (!version) return;
+
+	updater.latestVersion = version;
+
+	// check for updates
+	updater.checkUpdate();
+});
 
 const stop = watch(
 	version,
 	(v) => {
-		if (version.value === null || runtimeVersion === v) return;
+		if (version.value === null || updater.runtimeVersion === v) return;
 
-		version.value = runtimeVersion;
+		version.value = updater.runtimeVersion;
 
 		settingsCtx.open = true;
 

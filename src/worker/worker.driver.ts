@@ -87,6 +87,14 @@ export class WorkerDriver extends EventTarget {
 
 					db.expireDocuments(exemptions);
 				}, getRandomInt(2500, 15000));
+
+				// Fetch config anew
+				this.http
+					.fetchConfig()
+					.then((cfg) => {
+						p.postMessage("CONFIG", cfg); // send config data to port
+					})
+					.catch((e) => log.error("<API>", "Failed to fetch config:", e));
 			}
 		};
 

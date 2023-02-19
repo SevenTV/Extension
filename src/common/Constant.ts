@@ -1,4 +1,6 @@
-import { InjectionKey, Ref } from "vue";
+import type { InjectionKey, Ref } from "vue";
+
+export const APP_BROADCAST_CHANNEL = "seventv-app-broadcast-channel";
 
 export const LOCAL_STORAGE_KEYS = {
 	WORKER_ADDR: "seventv_worker_addr",

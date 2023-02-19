@@ -55,6 +55,21 @@ export class WorkerHttp {
 		});
 	}
 
+	public async fetchConfig(): Promise<SevenTV.Config> {
+		const configName =
+			"extension" +
+			(import.meta.env.VITE_APP_VERSION_BRANCH ? `-${import.meta.env.VITE_APP_VERSION_BRANCH}` : "");
+		const resp = await doRequest<SevenTV.Config>(API_BASE.SEVENTV, `config/${configName}`, "GET").catch((err) =>
+			Promise.reject(err),
+		);
+		if (!resp || resp.status !== 200) {
+			return Promise.reject(resp);
+		}
+
+		const data = await resp.json();
+		return Promise.resolve(data);
+	}
+
 	public async fetchChannelData(channel: CurrentChannel, port: WorkerPort) {
 		await this.driver.db.ready();
 

@@ -63,6 +63,22 @@ const inject = () => {
 				});
 				break;
 			}
+			case "seventv-update-check": {
+				chrome.runtime.sendMessage(
+					{
+						type: "update-check",
+					},
+					(response: { status: string; version: string }) => {
+						window.postMessage({
+							type: "seventv-update-check-result",
+							data: {
+								status: response.status,
+								version: response.version,
+							},
+						});
+					},
+				);
+			}
 		}
 	});
 })();

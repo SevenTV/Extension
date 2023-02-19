@@ -282,6 +282,11 @@ declare namespace SevenTV {
 		size?: number;
 		format: ImageFormat;
 	}
+
+	interface Config {
+		version: string;
+		overrides: unknown[];
+	}
 }
 
 declare interface TwitchIdentity {

@@ -1,8 +1,3 @@
-chrome.runtime.onInstalled.addListener(() => {
-	// eslint-disable-next-line no-console
-	console.log("extension installed");
-});
-
 chrome.runtime.onMessage.addListener((msg, _, reply) => {
 	switch (msg.type) {
 		case "permission-request": {
@@ -18,6 +13,18 @@ chrome.runtime.onMessage.addListener((msg, _, reply) => {
 					data: { id },
 				});
 			});
+			break;
+		}
+		case "update-check": {
+			if (typeof chrome.runtime.requestUpdateCheck !== "function") return;
+
+			chrome.runtime.requestUpdateCheck((status, details) => {
+				reply({
+					status,
+					version: details?.version ?? null,
+				});
+			});
+
 			break;
 		}
 	}

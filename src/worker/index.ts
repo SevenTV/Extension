@@ -11,6 +11,7 @@ export interface WorkerMessage<T extends WorkerMessageType> {
 export enum workerMessageType {
 	CHANNEL_ACTIVE_CHATTER,
 	CHANNEL_FETCHED,
+	CONFIG,
 	CLOSE,
 	EMOTE_SET_UPDATED,
 	COSMETIC_CREATED,
@@ -33,6 +34,7 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	CHANNEL_FETCHED: {
 		channel: CurrentChannel;
 	};
+	CONFIG: SevenTV.Config;
 	CLOSE: object;
 	EMOTE_SET_UPDATED: {
 		id: SevenTV.ObjectID;

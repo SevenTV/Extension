@@ -288,3 +288,22 @@ export function convertSeventvOldCosmetics(
 
 	return [badges, paints];
 }
+
+export function semanticVersionToNumber(ver: string): number {
+	const parts = ver.split(".");
+	let s = parts
+		.slice(0, 3)
+		.map((p) => parseInt(p, 10))
+		.reduce((con, p, i) => {
+			return con + p * Math.pow(100, 2 - i);
+		}, 0)
+		.toString(10);
+
+	if (parts.length > 3) {
+		s += "." + parseInt(parts[3]);
+	}
+
+	const result = parseFloat(s);
+
+	return result;
+}
