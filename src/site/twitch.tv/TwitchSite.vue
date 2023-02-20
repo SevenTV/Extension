@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { onMounted, provide, ref, watch } from "vue";
 import { useStore } from "@/store/main";
-import { SITE_NAV_PATHNAME } from "@/common/Constant";
+import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
@@ -27,6 +27,8 @@ store.setPreferredImageFormat(ua.preferredFormat);
 store.setPlatform("TWITCH");
 
 const currentPath = ref("");
+
+provide(SITE_CURRENT_PLATFORM, "TWITCH");
 provide(SITE_NAV_PATHNAME, currentPath);
 
 // Import modules

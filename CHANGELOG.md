@@ -2,6 +2,7 @@
 
 #### Beta 12.2
 
+- Added a button to sign-in and log out within the extension's settings menu
 - Fixed an issue where the fast-updater displayed an error despite a success
 
 #### Beta 12.1

@@ -46,20 +46,24 @@
 								/>
 							</template>
 						</UiScrollable>
-						<div class="seventv-settings-sidebar-profile">
-							<div class="seventv-settings-sidebar-profile-left" @click="ctx.switchView('profile')">
+						<div
+							class="seventv-settings-sidebar-profile"
+							@click="[openAuthWindow(), ctx.switchView('profile')]"
+						>
+							<div class="seventv-settings-sidebar-profile-left">
 								<div class="seventv-settings-sidebar-profile-picture">
 									<template v-if="actor.user?.avatar_url">
 										<img :src="actor.user!.avatar_url" />
 									</template>
 								</div>
 								<span class="seventv-settings-sidebar-profile-text seventv-settings-expanded">
-									{{ actor.user ? actor.user.display_name : "Login" }}
+									{{ actor.user ? actor.user.display_name : "SIGN IN" }}
 								</span>
 							</div>
 							<div
 								v-if="actor.user"
 								class="seventv-settings-sidebar-profile-logout seventv-settings-expanded"
+								@click="actor.logout()"
 							>
 								<LogoutIcon />
 							</div>
@@ -76,9 +80,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { inject, ref, watch } from "vue";
 import { useBreakpoints } from "@vueuse/core";
 import { watchThrottled } from "@vueuse/shared";
+import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
@@ -103,12 +108,21 @@ const root = document.getElementById("root") ?? undefined;
 const dragHandle = ref<HTMLDivElement | undefined>();
 
 const filter = ref("");
+const platform = inject(SITE_CURRENT_PLATFORM, "UNKNOWN");
 
 const breakpoints = useBreakpoints({
 	compact: 960,
 	expanded: 1120,
 });
 const isExpanded = breakpoints.greater("expanded");
+
+const categoryOrder = {
+	General: 0,
+	Chat: 1,
+	Channel: 2,
+	Highlights: 3,
+	Appearance: 4,
+};
 
 function navigateToCategory(name: string, scrollpoint?: string) {
 	ctx.switchView("config");
@@ -160,13 +174,9 @@ function isOrdered(c: string): c is keyof typeof categoryOrder {
 	return c in categoryOrder;
 }
 
-const categoryOrder = {
-	General: 0,
-	Chat: 1,
-	Channel: 2,
-	Highlights: 3,
-	Appearance: 4,
-};
+function openAuthWindow(): void {
+	actor.openAuthorizeWindow(platform);
+}
 
 watch(settings.nodes, sortNodes, { immediate: true });
 watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
@@ -322,6 +332,11 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 		float: bottom;
 		padding: 1rem;
 
+		&:hover {
+			cursor: pointer;
+			background: var(--seventv-highlight-neutral-1);
+		}
+
 		.seventv-settings-sidebar-profile-left {
 			cursor: pointer;
 			display: flex;
@@ -329,11 +344,16 @@ watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
 			.seventv-settings-sidebar-profile-picture {
 				height: 3rem;
 				width: 3rem;
+				background-color: var(--seventv-background-shade-1);
 				clip-path: circle(50% at 50% 50%);
+				overflow: clip;
+				border: 0.25rem solid currentColor;
+				border-radius: 50%;
 			}
 			.seventv-settings-sidebar-profile-text {
 				margin-left: 1rem;
-				font-size: 1.6rem;
+				font-size: 1.5rem;
+				font-weight: 700;
 			}
 		}
 
