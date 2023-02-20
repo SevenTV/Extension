@@ -1,9 +1,9 @@
 <template>
-	<div class="seventv-settings-update-button" :error="!!error" :progress="progress" @click="doUpdateCheck()">
+	<div class="seventv-settings-update-button" :state="state" @click="doUpdateCheck()">
 		<DownloadIcon />
 		<span class="seventv-settings-expanded">
-			<span>{{ error ? "Download Failed" : "New Version Available" }}</span>
-			<span>{{ error ? error : updater.latestVersion }}</span>
+			<span>{{ title }}</span>
+			<span>{{ subtitle }}</span>
 		</span>
 	</div>
 </template>
@@ -14,18 +14,27 @@ import useUpdater from "@/composable/useUpdater";
 import DownloadIcon from "@/assets/svg/icons/DownloadIcon.vue";
 
 const updater = useUpdater();
-const error = ref("");
-const progress = ref(false);
+
+const title = ref("New Version Available");
+const subtitle = ref(updater.latestVersion);
+const state = ref<"OK" | "AVAILABLE" | "ERROR" | "PROGRESS">("AVAILABLE");
 
 function doUpdateCheck(): void {
-	if (progress.value || error.value) return;
-	progress.value = true;
+	if (state.value !== "AVAILABLE") return;
+	state.value = "PROGRESS";
 
 	updater
 		.requestUpdateCheck()
-		.finally(() => (progress.value = false))
+		.then(() => {
+			state.value = "OK";
+			title.value = "Downloading";
+			subtitle.value = "Please wait";
+			updater.shouldRefreshOnUpdate = true;
+		})
 		.catch((err) => {
-			error.value = err as string;
+			state.value = "ERROR";
+			title.value = "Update Failed";
+			subtitle.value = err;
 		});
 }
 </script>
@@ -43,14 +52,14 @@ function doUpdateCheck(): void {
 	border-radius: 0.25rem;
 	background: var(--seventv-background-shade-1);
 	color: var(--seventv-accent);
-	transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
+	transition: background 0.25s ease-in-out, color 0.25s ease-in-out;
 
 	&:hover {
 		background: var(--seventv-accent);
 		color: var(--seventv-background-shade-1);
 	}
 
-	&[progress="true"] {
+	&[state="PROGRESS"] {
 		cursor: not-allowed;
 		outline-color: var(--seventv-muted);
 		color: var(--seventv-muted);
@@ -60,10 +69,20 @@ function doUpdateCheck(): void {
 		}
 	}
 
-	&[error="true"] {
+	&[state="ERROR"] {
 		cursor: default;
 		outline-color: var(--seventv-warning);
 		color: var(--seventv-warning);
+
+		&:hover {
+			background: initial;
+		}
+	}
+
+	&[state="OK"] {
+		cursor: default;
+		outline-color: var(--seventv-primary);
+		color: var(--seventv-primary);
 
 		&:hover {
 			background: initial;

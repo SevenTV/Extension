@@ -1,4 +1,4 @@
-import { reactive } from "vue";
+import { reactive, toRaw } from "vue";
 import { watchOnce } from "@vueuse/core";
 import { actorQuery } from "@/assets/gql/seventv.user.gql";
 import { useLazyQuery } from "@vue/apollo-composable";
@@ -18,7 +18,7 @@ export function useActor(): ActorContext {
 		watchOnce(query.result, (res) => {
 			if (!res?.user) return;
 
-			ctx.user = structuredClone(res.user);
+			ctx.user = structuredClone(toRaw(res.user));
 		});
 	}
 

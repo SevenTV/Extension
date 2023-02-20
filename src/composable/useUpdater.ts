@@ -1,11 +1,36 @@
 import { reactive } from "vue";
+import { APP_BROADCAST_CHANNEL } from "@/common/Constant";
 import { semanticVersionToNumber } from "@/common/Transform";
+
+const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 
 class Updater {
 	runtimeVersion = import.meta.env.VITE_APP_VERSION;
 	latestVersion = import.meta.env.VITE_APP_VERSION;
 	isUpToDate = true;
+	updateReady = false;
+	shouldRefreshOnUpdate = false;
 	private updateCheckRequested = false;
+
+	constructor() {
+		bc.addEventListener("message", (msg) => {
+			const { type, data } = msg.data;
+
+			switch (type) {
+				case "seventv-update-ready": {
+					if (!data.version || this.updateReady) return;
+
+					this.latestVersion = data.version;
+					this.checkUpdate();
+
+					// Reload the page
+					this.updateReady = true;
+					setTimeout(() => window.location.reload(), 3e3);
+					break;
+				}
+			}
+		});
+	}
 
 	checkUpdate(): boolean {
 		return (this.isUpToDate = !(
@@ -22,21 +47,21 @@ class Updater {
 				const { type, data } = ev.data;
 				if (type !== "seventv-update-check-result") return;
 
-				if (!data.latestVersion) {
+				if (!data.version) {
 					reject(data.status);
 				} else {
-					resolve(data.latestVersion);
+					resolve(data.version);
 
-					this.latestVersion = data.latestVersion;
+					this.latestVersion = data.version;
 					this.checkUpdate();
 				}
 
-				window.removeEventListener("message", onResult);
+				bc.removeEventListener("message", onResult);
 			};
 
-			window.addEventListener("message", (ev) => onResult(ev));
+			bc.addEventListener("message", (ev) => onResult(ev));
 
-			window.postMessage({
+			bc.postMessage({
 				type: "seventv-update-check",
 				data: {},
 			});

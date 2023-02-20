@@ -1,5 +1,9 @@
 ### Version 3.0.0.12000 (Beta 12)
 
+#### Beta 12.2
+
+- Fixed an issue where the fast-updater displayed an error despite a success
+
 #### Beta 12.1
 
 -   Mouse/Alt Chat Scroll Pause modes should now work again

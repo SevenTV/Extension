@@ -1,7 +1,10 @@
 import { onUnmounted, ref } from "vue";
 import { MaybeRef, until } from "@vueuse/core";
+import { APP_BROADCAST_CHANNEL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { v4 as uuidv4 } from "uuid";
+
+const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 
 /**
  * Request permission(s) for the extension based on user gesture
@@ -35,7 +38,7 @@ export function useExtensionPermission(
 			`permissions=${permissions}`,
 		);
 
-		window.postMessage({
+		bc.postMessage({
 			type: "seventv-create-permission-listener",
 			data: {
 				selector: selector,
@@ -65,10 +68,10 @@ export function useExtensionPermission(
 			}
 		}
 	};
-	window.addEventListener("message", onGrant);
+	bc.addEventListener("message", onGrant);
 
 	onUnmounted(() => {
-		window.removeEventListener("message", onGrant);
+		bc.removeEventListener("message", onGrant);
 	});
 
 	return { granted };

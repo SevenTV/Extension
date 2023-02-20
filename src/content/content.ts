@@ -25,11 +25,12 @@ const inject = () => {
 	(document.head || document.documentElement).appendChild(script);
 };
 
+const bc = new BroadcastChannel("seventv-app-broadcast-channel");
 (() => {
 	inject();
 
 	// Listen for requests to set up an extension permission
-	window.addEventListener("message", (ev) => {
+	bc.addEventListener("message", (ev) => {
 		switch (ev.data.type) {
 			case "seventv-create-permission-listener": {
 				const { selector, id, origins, permissions } = ev.data.data as PermissionRequestEvent;
@@ -41,22 +42,15 @@ const inject = () => {
 					chrome.runtime.sendMessage(
 						{
 							type: "permission-request",
-							data: {
-								id,
-								origins,
-								permissions,
-							},
+							data: { id, origins, permissions },
 						},
 						{},
 						(response: { id: string; granted: boolean }) => {
 							if (!response) return;
 
-							window.postMessage({
+							bc.postMessage({
 								type: "seventv-permission-granted",
-								data: {
-									id: response.id,
-									granted: response.granted,
-								},
+								data: { id: response.id, granted: response.granted },
 							});
 						},
 					);
@@ -65,23 +59,34 @@ const inject = () => {
 			}
 			case "seventv-update-check": {
 				chrome.runtime.sendMessage(
-					{
-						type: "update-check",
-					},
+					{ type: "update-check" },
 					(response: { status: string; version: string }) => {
-						window.postMessage({
+						bc.postMessage({
 							type: "seventv-update-check-result",
-							data: {
-								status: response.status,
-								version: response.version,
-							},
+							data: { status: response.status, version: response.version },
 						});
 					},
 				);
 			}
 		}
 	});
+
+	chrome.runtime.onMessage.addListener((msg) => {
+		switch (msg.type) {
+			case "update-ready": {
+				onUpdateDownloaded(msg.data.version ?? "");
+				break;
+			}
+		}
+	});
 })();
+
+function onUpdateDownloaded(version: string): void {
+	bc.postMessage({
+		type: "seventv-update-ready",
+		data: { version },
+	});
+}
 
 interface PermissionRequestEvent {
 	selector: string;
