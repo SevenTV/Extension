@@ -405,23 +405,20 @@ watchDebounced(
 const { alt } = useMagicKeys();
 
 let pausedByHotkey = false;
-watch(
-	() => [alt, isHovering],
-	([isAlt, isHover]) => {
-		if (!scroller.paused) {
-			if (isHover && properties.pauseReason.has("MOUSEOVER")) {
-				scroller.pause();
-				pausedByHotkey = true;
-			} else if (isHover && isAlt && properties.pauseReason.has("ALTKEY")) {
-				scroller.pause();
-				pausedByHotkey = true;
-			}
-		} else if (pausedByHotkey) {
-			scroller.unpause();
-			pausedByHotkey = false;
+watch([alt, isHovering], ([isAlt, isHover]) => {
+	if (!scroller.paused) {
+		if (isHover && properties.pauseReason.has("MOUSEOVER")) {
+			scroller.pause();
+			pausedByHotkey = true;
+		} else if (isHover && isAlt && properties.pauseReason.has("ALTKEY")) {
+			scroller.pause();
+			pausedByHotkey = true;
 		}
-	},
-);
+	} else if (pausedByHotkey) {
+		scroller.unpause();
+		pausedByHotkey = false;
+	}
+});
 
 // Pause scrolling when page is not visible
 watch(pageVisibility, (state) => {

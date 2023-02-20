@@ -275,7 +275,7 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 
 					if (options.hooks?.render) jsx = options.hooks.render(instance, jsx);
 
-					if (options.trackRoot) jsx = getTrackedNode(instance, "root", jsx);
+					if (options.trackRoot) jsx = getTrackedNode(instance, "root", jsx, options.containerClass);
 
 					return jsx;
 				});
@@ -364,6 +364,7 @@ export function getTrackedNode<C extends ReactExtended.WritableComponent>(
 	hook: HookedInstance<C>,
 	name: string,
 	node?: React.ReactNode,
+	className?: string,
 ): ReactExtended.ReactRuntimeElement {
 	return {
 		$$typeof: REACT_ELEMENT_SYMBOL,
@@ -372,6 +373,7 @@ export function getTrackedNode<C extends ReactExtended.WritableComponent>(
 		type: "seventv-container",
 		props: {
 			children: node ?? null,
+			class: className,
 		},
 	};
 }
@@ -400,6 +402,7 @@ interface ComponentCriteria {
 interface HookOptions<C extends ReactExtended.WritableComponent> {
 	replaceContents?: boolean;
 	trackRoot?: boolean;
+	containerClass?: string;
 	hooks?: {
 		mount?: (inst: HookedInstance<C>) => void;
 		update?: (inst: HookedInstance<C>) => void;

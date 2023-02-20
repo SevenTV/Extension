@@ -200,8 +200,8 @@ onUnmounted(() => {
 
 	> .seventv-emote-menu-update-flair {
 		position: absolute;
-		top: 0.25rem;
-		right: 0.25rem;
+		top: 0.5rem;
+		right: 0.5rem;
 		width: 0.75rem;
 		height: 0.75rem;
 
@@ -213,7 +213,12 @@ onUnmounted(() => {
 	position: absolute;
 	inset: auto 0 100% auto;
 	max-width: 100%;
+	z-index: 1000000;
+
 	.seventv-emote-menu {
+		z-index: 1000000;
+		position: relative;
+
 		max-height: calc(100vh - 15rem);
 		display: flex;
 		flex-direction: column;

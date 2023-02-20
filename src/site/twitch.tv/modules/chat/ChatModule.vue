@@ -158,13 +158,15 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 const shouldMount = reactive(new WeakMap<HookedInstance<Twitch.ChatControllerComponent>, boolean>());
 
 const chatRoom = useComponentHook<Twitch.ChatRoomComponent>({
-	parentSelector: ".stream-chat",
+	parentSelector: ".chat-room__content",
+	maxDepth: 100,
 	predicate: (n) => n.props?.primaryColorHex !== undefined,
 });
 
 const chatList = useComponentHook<Twitch.ChatListComponent>(
 	{
-		parentSelector: ".chat-room",
+		parentSelector: ".chat-room__content",
+		maxDepth: 100,
 		predicate: (n) => n.scrollRef,
 	},
 	{
@@ -184,6 +186,7 @@ const chatList = useComponentHook<Twitch.ChatListComponent>(
 const chatController = useComponentHook<Twitch.ChatControllerComponent>(
 	{
 		parentSelector: ".chat-shell, .stream-chat",
+		maxDepth: 250,
 		predicate: (n) => n.pushMessage && n.props?.messageHandlerAPI,
 	},
 	{
@@ -197,6 +200,7 @@ const chatController = useComponentHook<Twitch.ChatControllerComponent>(
 
 const chatBuffer = useComponentHook<Twitch.MessageBufferComponent>({
 	parentSelector: ".stream-chat",
+	maxDepth: 250,
 	predicate: (n) => n.prependHistoricalMessages && n.buffer && n.blockedUsers,
 });
 

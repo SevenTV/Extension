@@ -31,10 +31,12 @@ const shouldMount = reactive(new WeakMap<HookedInstance<Twitch.ChatInputControll
 const chatInputController = useComponentHook<Twitch.ChatInputController>(
 	{
 		parentSelector: ".chat-room__content",
+		maxDepth: 150,
 		predicate: (n) => n.onEmotePickerButtonClick,
 	},
 	{
 		trackRoot: true,
+		containerClass: "seventv-chat-input-container",
 		hooks: {
 			update(instance) {
 				shouldMount.set(instance, !!instance.component.chatInputRef?.props?.channelID);
@@ -57,3 +59,9 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 
 markAsReady();
 </script>
+
+<style lang="scss">
+seventv-container.seventv-chat-input-container {
+	z-index: 10;
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
 	<div class="seventv-settings-update-button" :error="!!error" :progress="progress" @click="doUpdateCheck()">
 		<DownloadIcon />
-		<span>
+		<span class="seventv-settings-expanded">
 			<span>{{ error ? "Download Failed" : "New Version Available" }}</span>
 			<span>{{ error ? error : updater.latestVersion }}</span>
 		</span>
@@ -36,9 +36,9 @@ function doUpdateCheck(): void {
 	display: grid;
 	grid-template-columns: 1fr 3fr;
 	align-items: center;
+	justify-content: center;
 	font-size: 1.5rem;
-	margin: 1rem;
-	padding: 1rem;
+	margin: 0.75rem;
 	outline: 0.25rem solid var(--seventv-accent);
 	border-radius: 0.25rem;
 	background: var(--seventv-background-shade-1);
@@ -71,12 +71,13 @@ function doUpdateCheck(): void {
 	}
 
 	> svg {
+		margin: 0.5rem 1rem;
 		vertical-align: middle;
 		font-size: 2.5rem;
-		margin-right: 0.5rem;
 	}
 
 	> span {
+		margin: 0.5rem 0.25rem;
 		font-size: 1.15rem;
 		font-weight: 700;
 		white-space: nowrap;

@@ -1,6 +1,8 @@
 import { AnyToken, ChatMessage, EmoteToken, LinkToken, MentionToken } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
 
+const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
+
 export class Tokenizer {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	constructor(private msg: ChatMessage<any>) {}
@@ -55,12 +57,14 @@ export class Tokenizer {
 
 			// Check link
 			if (part.match(Regex.Link)) {
+				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
+
 				tokens.push({
 					kind: "LINK",
 					range: [cursor + 1, next - 1],
 					content: {
 						displayText: part,
-						url: part.startsWith("https://") ? part : "https://" + part,
+						url: "https://" + actualURL,
 					},
 				} as LinkToken);
 			} else if (part.match(Regex.Mention)) {

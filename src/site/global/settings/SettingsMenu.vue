@@ -30,7 +30,7 @@
 							</div>
 						</div>
 						<UiScrollable>
-							<SettingsUpdateButton v-if="!updater.isUpToDate" class="seventv-settings-expanded" />
+							<SettingsUpdateButton v-if="!updater.isUpToDate" />
 							<CategoryDropdown
 								category="Home"
 								:subs="{}"

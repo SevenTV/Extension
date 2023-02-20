@@ -1,13 +1,21 @@
 ### Version 3.0.0.12000 (Beta 12)
 
-- Added an option to play a sound on mention
-- Added an option to flash the title of a tab upon being mentioned
-- Added an update check mechanism
-- Holding Shift while using tab-completion will now make the selection move backwards
-- The sorting of tab-completion matches should now prioritize shorter names
-- Revised the look of Sliders, Toggles & Select form controls in the settings
-- Fixed an issue where categories in the settings menu while in compact mode needed to be clicked twice
-- Tentatively fixed an issue where all styling would break after an extension update on Mozilla Firefox
+#### Beta 12.1
+
+-   Mouse/Alt Chat Scroll Pause modes should now work again
+-   Fixed an issue where non-https links would look like "`https://http://`" (all links now rewritten to HTTPS)
+-   Fixed an issue with the Emote Menu appearing under community highlights
+
+---
+
+-   Added an option to play a sound on mention
+-   Added an option to flash the title of a tab upon being mentioned
+-   Added an update check mechanism
+-   Holding Shift while using tab-completion will now make the selection move backwards
+-   The sorting of tab-completion matches should now prioritize shorter names
+-   Revised the look of Sliders, Toggles & Select form controls in the settings
+-   Fixed an issue where categories in the settings menu while in compact mode needed to be clicked twice
+-   Tentatively fixed an issue where all styling would break after an extension update on Mozilla Firefox
 
 ### Version 3.0.0.11000 (Beta 11)
 
@@ -79,9 +87,7 @@
 -   Added support for chat pausing with Alt or Mouseover
 -   Further improved the performance of the Emote Menu
 -   Fixed freezing issues when opening the Mod Logs menu
--
-
----
+-   ***
 
 ### Version 3.0.0.7000 (Beta 7)
 
@@ -93,9 +99,7 @@
 -   Fixed an issue which broke the Mod Slider
 -   Fixed an issue which caused timestamps to remain frozen in time
 -   Fixed incorrect vertical chat padding
--
-
----
+-   ***
 
 ### Version 3.0.0.6000 (Beta 6)
 

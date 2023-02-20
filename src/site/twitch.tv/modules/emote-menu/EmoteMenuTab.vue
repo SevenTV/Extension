@@ -202,8 +202,8 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 				position: absolute;
 				height: 1rem;
 				width: 1rem;
-				transform: translateY(-0.5rem);
-				right: 0.25rem;
+				transform: translateY(-0.25rem);
+				right: 0.65rem;
 
 				@extend %seventv-flair-pulsating;
 			}
