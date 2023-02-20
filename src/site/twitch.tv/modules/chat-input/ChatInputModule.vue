@@ -72,6 +72,7 @@ const AutocompleteProvider = useComponentHook<Twitch.ChatAutocompleteComponent>(
 	},
 	{
 		trackRoot: true,
+		containerClass: "seventv-chat-input-textarea",
 		hooks: {
 			update(instance) {
 				shouldMount.set(instance, !!instance.component.componentRef?.props?.channelID);

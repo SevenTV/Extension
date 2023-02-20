@@ -3,7 +3,10 @@
 #### Beta 12.2
 
 - Added a button to sign-in and log out within the extension's settings menu
+- Fixed an issue where the Emote Menu Button did not work while signed out
+- Fixed an issue where the Emote Menu Button disappeared after being timed-out
 - Fixed an issue where the fast-updater displayed an error despite a success
+- Fixed an issue where the input box blended in to the viewer list
 
 #### Beta 12.1
 

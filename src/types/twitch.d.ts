@@ -285,6 +285,7 @@ declare module Twitch {
 	}>;
 
 	export type ChatInputController = ReactExtended.WritableComponent<{
+		channelID: string;
 		sendMessageErrorChecks: Record<
 			"duplicated-messages" | "message-throughput",
 			{

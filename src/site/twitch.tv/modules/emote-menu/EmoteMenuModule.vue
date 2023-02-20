@@ -39,7 +39,7 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 		containerClass: "seventv-chat-input-container",
 		hooks: {
 			update(instance) {
-				shouldMount.set(instance, !!instance.component.chatInputRef?.props?.channelID);
+				shouldMount.set(instance, !!instance.component.props.channelID);
 
 				// TODO: make a proper hook for this and drop DOM manipulations
 				for (const n of Object.values(instance.domNodes)) {
@@ -59,9 +59,3 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 
 markAsReady();
 </script>
-
-<style lang="scss">
-seventv-container.seventv-chat-input-container {
-	z-index: 10;
-}
-</style>

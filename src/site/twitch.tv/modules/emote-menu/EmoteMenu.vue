@@ -1,6 +1,6 @@
 <template>
-	<Teleport :to="containerEl">
-		<div v-if="open && ctx.channelID" class="seventv-emote-menu-container">
+	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
+		<div v-if="open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
 				<div class="seventv-emote-menu-header">
@@ -44,7 +44,7 @@
 				</div>
 			</div>
 		</div>
-	</Teleport>
+	</UiFloating>
 
 	<!-- Replace the emote menu button -->
 	<Teleport v-if="buttonEl" :to="buttonEl">
@@ -68,16 +68,20 @@ import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
+import UiFloating from "@/ui/UiFloating.vue";
+import { shift } from "@floating-ui/dom";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;
 	buttonEl?: HTMLButtonElement;
 }>();
 
-const containerEl = ref<HTMLElement | undefined>();
+const anchorEl = ref<HTMLElement | undefined>();
+const inputEl = ref<HTMLElement | undefined>();
+const containerRef = ref<HTMLElement | undefined>();
 
 const ctx = useEmoteMenuContext();
-ctx.channelID = props.instance.component.chatInputRef.props.channelID ?? "";
+ctx.channelID = props.instance.component.props.channelID ?? "";
 
 const settingsContext = useSettingsMenu();
 const updater = useUpdater();
@@ -105,8 +109,8 @@ onKeyStroke("e", (ev) => {
 });
 
 // Toggle the menu's visibility
-const toggle = () => {
-	//Close other stuff if we open the emote menu
+function toggle() {
+	// Close other stuff if we open the emote menu
 	const t = props.instance.component;
 	if (open.value) {
 		t.props.closeEmotePicker();
@@ -116,8 +120,9 @@ const toggle = () => {
 		t.closePaidPinnedChatCardForEmotePicker();
 		t.closeCheerCard();
 	}
+
 	open.value = !open.value;
-};
+}
 
 // Handle change in the visibility of a provider while using search
 // and if the current active provider has no content, switch to the next available
@@ -144,13 +149,6 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	props.instance.component.chatInputRef.focus();
 }
 
-watchEffect(() => {
-	if (!containerEl.value && props.instance.domNodes.root) {
-		const n = props.instance.domNodes.root.querySelector(".chat-input__textarea");
-		containerEl.value = (n?.parentElement?.parentElement ?? n) as HTMLElement;
-	}
-});
-
 defineFunctionHook(props.instance.component, "onBitsIconClick", function (old) {
 	old?.();
 	open.value = false;
@@ -171,10 +169,32 @@ definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 	},
 });
 
-onClickOutside(containerEl, () => {
-	if (settingsContext.open) return;
+// Handle click-outside
+// This closes the menu
+onClickOutside(containerRef, (e) => {
+	if (settingsContext.open || !(e.target instanceof Node)) return;
+
+	// If the click was inside the input or on the button, ignore it
+	if (inputEl.value && inputEl.value.contains(e.target)) {
+		return;
+	} else if (props.buttonEl && props.buttonEl.contains(e.target)) {
+		return;
+	}
 
 	open.value = false;
+});
+
+// Capture anchor / input elements
+watchEffect(() => {
+	if (!anchorEl.value && props.instance.domNodes.root) {
+		const n = props.instance.domNodes.root.querySelector(".seventv-chat-input-textarea");
+		if (!n) return;
+
+		const anchor = n.querySelector("[data-test-selector='chat-input']") ?? n;
+
+		anchorEl.value = (anchor ?? n) as HTMLElement;
+		inputEl.value = n as HTMLElement;
+	}
 });
 
 onUnmounted(() => {
@@ -210,13 +230,10 @@ onUnmounted(() => {
 }
 
 .seventv-emote-menu-container {
-	position: absolute;
-	inset: auto 0 100% auto;
 	max-width: 100%;
-	z-index: 1000000;
+	z-index: 10;
 
 	.seventv-emote-menu {
-		z-index: 1000000;
 		position: relative;
 
 		max-height: calc(100vh - 15rem);
@@ -224,8 +241,7 @@ onUnmounted(() => {
 		flex-direction: column;
 		width: 32rem;
 		overflow: clip;
-		border-top-left-radius: 0.6rem;
-		border-top-right-radius: 0.6rem;
+		border-radius: 0.25rem;
 		background-color: var(--seventv-background-transparent-1);
 		@at-root .seventv-transparent & {
 			backdrop-filter: blur(16px);
