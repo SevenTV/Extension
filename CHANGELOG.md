@@ -1,6 +1,7 @@
 ### Version 3.0.0.13000 (Beta 13)
 
 -   Added colored mentions
+-   Added information in Emote Cards on when an emote was added and who enabled it
 -   Added a button and confirmation prompt to pin chat messages
 -   Added a tooltip about the current Paint when hovering on a user's name
 -   Added a contextual hint for toggling the duplicate message check bypass

@@ -8,10 +8,23 @@
 				<div>
 					<h3 class="seventv-emote-card-title">{{ emote.name }}</h3>
 					<p class="seventv-emote-card-subtitle">{{ subtitle }}</p>
-					<a v-if="owner.id" class="seventv-emote-card-owner" :href="owner.url" target="_blank">
+					<a v-if="owner.id" class="seventv-emote-card-user" :href="owner.url" target="_blank">
 						<img :src="owner.avatarURL" />
 						<span>{{ owner.displayName }}</span>
 					</a>
+
+					<div v-if="actor.id" class="seventv-emote-card-data seventv-emote-card-actor">
+						<p>Added by</p>
+						<p class="seventv-emote-card-user">
+							<img :src="actor.avatarURL" />
+							<span>{{ actor.displayName }}</span>
+						</p>
+					</div>
+
+					<div v-if="timestamp" class="seventv-emote-card-data">
+						<p>Added on</p>
+						<span>{{ timestamp }}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -24,7 +37,9 @@ import { imageHostToSrcsetWithsize } from "@/common/Image";
 import { log } from "@/common/Logger";
 import { convertTwitchEmote } from "@/common/Transform";
 import { useApollo } from "@/composable/useApollo";
+import { userQuery } from "@/assets/gql/seventv.user.gql";
 import { emoteCardQuery } from "@/assets/gql/tw.emote-card.gql";
+import { useQuery } from "@vue/apollo-composable";
 
 const props = defineProps<{
 	emote: SevenTV.ActiveEmote;
@@ -33,14 +48,20 @@ const props = defineProps<{
 
 const host = ref<SevenTV.ImageHost | null>(props.emote.data?.host ?? null);
 const srcset = ref("");
-const owner = reactive({
-	id: "",
-	username: "",
-	displayName: "",
-	avatarURL: "",
-	url: "",
-});
+const owner = reactive(emptyUser());
+const actor = reactive(emptyUser());
 const subtitle = ref("");
+const timestamp = ref("");
+
+function emptyUser() {
+	return {
+		id: "",
+		username: "",
+		displayName: "",
+		avatarURL: "",
+		url: "",
+	};
+}
 
 watchEffect(async () => {
 	// for twitch emotes we
@@ -76,6 +97,27 @@ watchEffect(async () => {
 		}
 
 		subtitle.value = emote.subscriptionTier?.split("_").join(" ") ?? emote.type;
+	} else if (props.emote.provider === "7TV") {
+		const { onResult: onEmoteActor } = useQuery<userQuery.Result, userQuery.Variables>(
+			userQuery,
+			{
+				id: props.emote.actor_id ?? "",
+			},
+			() => ({
+				enabled: !!props.emote.actor_id,
+			}),
+		);
+
+		onEmoteActor((res) => {
+			if (!res.data?.user) return;
+
+			actor.id = res.data.user.id;
+			actor.username = res.data.user.username;
+			actor.displayName = res.data.user.display_name;
+			actor.avatarURL = res.data.user.avatar_url;
+		});
+
+		timestamp.value = new Date(props.emote.timestamp ?? 0).toLocaleDateString();
 	}
 });
 
@@ -111,7 +153,7 @@ main.seventv-emote-card-container {
 		.seventv-emote-card-image {
 			display: grid;
 			place-items: center;
-			padding: 0.5em;
+			padding: 12.5%;
 		}
 
 		.seventv-emote-card-display {
@@ -131,16 +173,14 @@ main.seventv-emote-card-container {
 			color: var(--seventv-text-primary);
 		}
 
-		.seventv-emote-card-owner {
-			display: grid;
-			grid-template-columns: 2rem 1fr;
+		.seventv-emote-card-user {
+			display: flex;
 			align-items: center;
 			gap: 0.5rem;
-			margin-top: 0.5rem;
 
 			> img {
-				width: 100%;
-				height: 100%;
+				width: 2rem;
+				height: 2rem;
 				clip-path: circle(50% at 50% 50%);
 			}
 
@@ -148,6 +188,23 @@ main.seventv-emote-card-container {
 				font-size: 1.25rem;
 				font-weight: 600;
 				color: var(--seventv-text-primary);
+			}
+		}
+
+		.seventv-emote-card-data {
+			p:first-child {
+				line-height: 1.35;
+				color: var(--seventv-muted);
+				font-size: 0.88rem;
+				font-weight: 700;
+				text-transform: uppercase;
+			}
+		}
+
+		.seventv-emote-card-actor {
+			img {
+				width: 1.5rem;
+				height: 1.5rem;
 			}
 		}
 	}
