@@ -4,6 +4,7 @@ import { SITE_ASSETS_URL, SITE_WORKER_URL } from "@/common/Constant";
 import App from "@/site/App.vue";
 import { apolloClient } from "@/apollo/apollo";
 import { TextPaintDirective } from "@/directive/TextPaintDirective";
+import { TooltipDirective } from "@/directive/TooltipDirective";
 import { ApolloClients } from "@vue/apollo-composable";
 
 const appID = Date.now().toString();
@@ -57,4 +58,7 @@ app.provide("app-id", appID);
 app.provide(SITE_WORKER_URL, scr?.getAttribute("worker_url"));
 app.provide(SITE_ASSETS_URL, scr?.getAttribute("assets_url"));
 
-app.use(createPinia()).directive("cosmetic-paint", TextPaintDirective).mount("#seventv-root");
+app.use(createPinia())
+	.directive("tooltip", TooltipDirective)
+	.directive("cosmetic-paint", TextPaintDirective)
+	.mount("#seventv-root");

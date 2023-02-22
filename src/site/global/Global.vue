@@ -1,5 +1,6 @@
 <template>
 	<Tooltip />
+	<FloatContext />
 </template>
 
 <script setup lang="ts">
@@ -7,6 +8,7 @@ import { nextTick, watch } from "vue";
 import { useConfig, useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import { useWorker } from "@/composable/useWorker";
+import FloatContext from "./FloatContext.vue";
 import Tooltip from "./Tooltip.vue";
 import { useSettingsMenu } from "./settings/Settings";
 

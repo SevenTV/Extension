@@ -1,4 +1,4 @@
-import { AnyToken, ChatMessage, EmoteToken, LinkToken, MentionToken } from "@/common/chat/ChatMessage";
+import type { AnyToken, ChatMessage, ChatUser, EmoteToken, LinkToken, MentionToken } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
@@ -55,6 +55,8 @@ export class Tokenizer {
 				lastEmoteToken = undefined;
 			}
 
+			const maybeMention = !!opt.chatterMap[part.toLowerCase()];
+
 			// Check link
 			if (part.match(Regex.Link)) {
 				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
@@ -67,9 +69,10 @@ export class Tokenizer {
 						url: "https://" + actualURL,
 					},
 				} as LinkToken);
-			} else if (part.match(Regex.Mention)) {
+			} else if (part.match(Regex.Mention) || maybeMention) {
 				//  Check mention
-				const username = part.slice(1);
+				const username = (part.charAt(0) === "@" ? part.slice(1) : part).toLowerCase();
+				const user = opt.chatterMap[username];
 
 				tokens.push({
 					kind: "MENTION",
@@ -77,6 +80,7 @@ export class Tokenizer {
 					content: {
 						displayText: part,
 						recipient: username,
+						user,
 					} as MentionToken["content"],
 				});
 
@@ -93,6 +97,7 @@ export class Tokenizer {
 }
 
 export interface TokenizeOptions {
+	chatterMap: Record<string, ChatUser>;
 	emoteMap: Record<string, SevenTV.ActiveEmote>;
 	localEmoteMap?: Record<string, SevenTV.ActiveEmote>;
 	filteredWords?: string[];

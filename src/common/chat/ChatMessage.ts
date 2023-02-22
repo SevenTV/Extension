@@ -28,6 +28,8 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 		actor: null,
 		timestamp: 0,
 	};
+	public pinnable = false;
+	public deletable = false;
 	public slashMe = false;
 	public parent: ChatMessageParent | null = null;
 	public wrappedNode: Element | null = null;
@@ -142,6 +144,7 @@ export type MentionToken = ChatMessageToken<
 	{
 		displayText: string;
 		recipient: string;
+		user?: ChatUser;
 	}
 >;
 export type EmoteToken = ChatMessageToken<

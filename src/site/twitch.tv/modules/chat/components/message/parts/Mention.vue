@@ -1,13 +1,43 @@
 <template>
-	<span class="mention-part">
-		{{ token.content.displayText }}
+	<span class="mention-token" @click="onClick">
+		<span v-if="token.content.user" :style="{ color: token.content.user.color }">
+			<UserTag
+				:user="token.content.user"
+				:color="token.content.user.color"
+				:as-mention="token.content.displayText.charAt(0) === '@'"
+				:hide-badges="true"
+			/>
+		</span>
+		<span v-else>
+			{{ token.content.displayText }}
+		</span>
 	</span>
 </template>
 
 <script setup lang="ts">
-import { MentionToken } from "@/common/chat/ChatMessage";
+import { ChatMessage, MentionToken } from "@/common/chat/ChatMessage";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatTools } from "@/composable/chat/useChatTools";
+import { useConfig } from "@/composable/useSettings";
+import UserTag from "../UserTag.vue";
 
-defineProps<{
+const props = defineProps<{
 	token: MentionToken;
+	msg: ChatMessage;
 }>();
+
+useConfig("chat.colored_mentions");
+const ctx = useChannelContext();
+const tools = useChatTools(ctx);
+
+function onClick(ev: MouseEvent) {
+	tools.openViewerCard(ev, props.token.content.recipient, props.msg.id);
+}
 </script>
+
+<style scoped lang="scss">
+.mention-token {
+	cursor: pointer;
+	font-weight: bold;
+}
+</style>

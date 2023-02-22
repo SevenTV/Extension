@@ -2,14 +2,13 @@
 	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
 		<div v-for="msg of displayedMessages" :key="msg.sym" v-memo="[msg]" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
-				<ModSlider v-if="isModSliderEnabled && properties.isModerator && msg.author" :msg="msg">
+				<component
+					:is="isModSliderEnabled && properties.isModerator && msg.author ? ModSlider : 'span'"
+					v-bind="{ msg }"
+				>
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
-						<UserMessage :msg="msg" :emotes="emotes.active" />
+						<UserMessage :msg="msg" :emotes="emotes.active" :chatters="messages.chattersByUsername" />
 					</component>
-				</ModSlider>
-
-				<component :is="msg.instance" v-else v-bind="msg.componentProps" :msg="msg">
-					<UserMessage :msg="msg" :emotes="emotes.active" />
 				</component>
 			</template>
 			<template v-else>
@@ -59,37 +58,32 @@ const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
 const pausedByVisibility = ref(false);
 
-watch(
-	identity,
-	(identity) => {
-		const rx = identity ? new RegExp(`\\b${identity.username}\\b`) : null;
-		if (!rx) return;
-
-		chatHighlights.defineHighlight("~mention", {
-			phrase: rx,
-			label: "Mentions You",
-			color: "#e13232",
-			soundPath: "/sound/ping.ogg",
-			flashTitle: (msg) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
-		});
-
-		chatHighlights.defineHighlight("~reply", {
-			phrase: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
-			label: "Replying to You",
-			color: "#e13232",
-			soundPath: "/sound/ping.ogg",
-		});
-	},
-	{
-		immediate: true,
-	},
-);
-
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
+
+// Unrender messages out of view
+const chatListEl = ref<HTMLElement>();
+
+const types = import.meta.glob<object>("./components/types/*.vue", { eager: true, import: "default" });
+const typeMap = {} as Record<number, ComponentFactory>;
+
+const componentRegexp = /\.\/components\/types\/(\d+)\.(\w+)\.vue$/;
+for (const [path, component] of Object.entries(types)) {
+	const [, type] = path.match(componentRegexp) ?? [];
+	if (!type) continue;
+
+	const t = parseInt(type);
+	if (Number.isNaN(t)) continue;
+
+	typeMap[t] = component as ComponentFactory;
+}
+
+function getMessageComponent(type: MessageType) {
+	return typeMap[type] ?? null;
+}
 
 // Determine if the message should perform some action or be sent to the chatAPI for rendering
 const onMessage = (msgData: Twitch.AnyMessage): boolean => {
@@ -139,6 +133,42 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	if (msgData.type === MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE) {
 		msg.setHighlight("#ff7d00", "Restricted Suspicious User");
+	}
+
+	// define message author
+	const authorData = msgData.user ?? msgData.message?.user ?? null;
+	if (authorData) {
+		const knownChatter = messages.chatters[authorData.userID];
+		if (knownChatter) {
+			knownChatter.username = authorData.userLogin;
+			knownChatter.displayName = authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin;
+			knownChatter.color = authorData.color;
+			knownChatter.intl = authorData.isIntl;
+		}
+
+		msg.setAuthor(
+			knownChatter ?? {
+				id: authorData.userID,
+				username: authorData.userLogin,
+				displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
+				color: authorData.color,
+			},
+		);
+		// check blocked state and ignore if blocked
+		if (msg.author && properties.blockedUsers.has(msg.author.id)) {
+			if (!properties.isModerator) {
+				log.debug("Ignored message from blocked user", msg.author.id);
+				return;
+			}
+
+			msg.setHighlight("#9488855A", "You Blocked This User");
+		}
+
+		if (identity.value && msg.author && msg.author.id === identity.value.id) {
+			msg.author.isActor = true;
+		}
+
+		msg.badges = msgData.badges ?? msgData.message?.badges ?? {};
 	}
 
 	if (IsDisplayableMessage(msgData)) {
@@ -223,42 +253,6 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		}
 	}
 
-	// define message author
-	const authorData = msgData.user ?? msgData.message?.user ?? null;
-	if (authorData) {
-		const knownChatter = messages.chatters[authorData.userID];
-		if (knownChatter) {
-			knownChatter.username = authorData.userLogin;
-			knownChatter.displayName = authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin;
-			knownChatter.color = authorData.color;
-			knownChatter.intl = authorData.isIntl;
-		}
-
-		msg.setAuthor(
-			knownChatter ?? {
-				id: authorData.userID,
-				username: authorData.userLogin,
-				displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
-				color: authorData.color,
-			},
-		);
-		// check blocked state and ignore if blocked
-		if (msg.author && properties.blockedUsers.has(msg.author.id)) {
-			if (!properties.isModerator) {
-				log.debug("Ignored message from blocked user", msg.author.id);
-				return;
-			}
-
-			msg.setHighlight("#9488855A", "You Blocked This User");
-		}
-
-		if (identity.value && msg.author && msg.author.id === identity.value.id) {
-			msg.author.isActor = true;
-		}
-
-		msg.badges = msgData.badges ?? msgData.message?.badges ?? {};
-	}
-
 	// message is sent by the current user
 	if (msgData.nonce) {
 		msg.setDeliveryState("IN_FLIGHT");
@@ -276,6 +270,11 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	// highlight when message mentions the actor
 	chatHighlights.checkMatch("~mention", msg, false);
+
+	if (properties.isModerator) {
+		msg.pinnable = true;
+		msg.deletable = true;
+	}
 
 	// Add message to store
 	// it will be rendered on the next tick
@@ -431,26 +430,34 @@ watch(pageVisibility, (state) => {
 	}
 });
 
-// Unrender messages out of view
-const chatListEl = ref<HTMLElement>();
+watch(
+	identity,
+	(identity) => {
+		const rx = identity ? new RegExp(`\\b${identity.username}\\b`) : null;
+		if (!rx) return;
 
-const types = import.meta.glob<object>("./components/types/*.vue", { eager: true, import: "default" });
-const typeMap = {} as Record<number, ComponentFactory>;
+		const soundPath = "/sound/ping.ogg";
 
-const componentRegexp = /\.\/components\/types\/(\d+)\.(\w+)\.vue$/;
-for (const [path, component] of Object.entries(types)) {
-	const [, type] = path.match(componentRegexp) ?? [];
-	if (!type) continue;
+		chatHighlights.defineHighlight("~mention", {
+			phrase: rx,
+			label: "Mentions You",
+			color: "#e13232",
+			soundPath,
+			flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
+		});
 
-	const t = parseInt(type);
-	if (Number.isNaN(t)) continue;
-
-	typeMap[t] = component as ComponentFactory;
-}
-
-function getMessageComponent(type: MessageType) {
-	return typeMap[type] ?? null;
-}
+		chatHighlights.defineHighlight("~reply", {
+			phrase: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
+			label: "Replying to You",
+			color: "#e13232",
+			soundPath,
+			flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`,
+		});
+	},
+	{
+		immediate: true,
+	},
+);
 
 defineExpose({
 	onMessage,

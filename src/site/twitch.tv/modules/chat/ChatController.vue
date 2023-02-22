@@ -3,6 +3,7 @@
 	<Teleport v-if="ctx.id" :to="containerEl">
 		<UiScrollable
 			ref="scrollerRef"
+			class="seventv-chat-scroller"
 			@container-scroll="scroller.onScroll"
 			@container-wheel="scroller.onWheel"
 			@mouseenter="properties.hovering = true"
@@ -407,6 +408,10 @@ seventv-container.seventv-chat-list {
 			backdrop-filter: blur(0.5em);
 		}
 	}
+}
+
+.seventv-chat-scroller {
+	height: 100%;
 }
 
 .community-highlight {

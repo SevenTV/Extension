@@ -1,7 +1,10 @@
 <template>
 	<div v-if="user && user.displayName" class="seventv-chat-user" :style="{ color: color }">
 		<!--Badge List -->
-		<span v-if="twitchBadges.length || cosmetics.badges.length" class="seventv-chat-user-badge-list">
+		<span
+			v-if="!hideBadges && (twitchBadges.length || cosmetics.badges.length)"
+			class="seventv-chat-user-badge-list"
+		>
 			<Badge
 				v-for="badge of twitchBadges"
 				:key="badge.id"
@@ -14,8 +17,13 @@
 		</span>
 
 		<!-- Message Author -->
-		<span class="seventv-chat-user-username" @click="(e) => emit('nameClick', e)">
+		<span
+			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
+			class="seventv-chat-user-username"
+			@click="(e) => emit('nameClick', e)"
+		>
 			<span v-cosmetic-paint="paint ? paint.id : null">
+				<span v-if="asMention">@</span>
 				<span>{{ user.displayName }}</span>
 				<span v-if="user.intl"> ({{ user.username }})</span>
 			</span>
@@ -35,6 +43,8 @@ const props = defineProps<{
 	user: ChatUser;
 	color: string;
 	msgId?: symbol;
+	asMention?: boolean;
+	hideBadges?: boolean;
 	badges?: Record<string, string>;
 }>();
 

@@ -255,9 +255,9 @@ export function convertSeventvOldCosmetics(
 		badges.push({
 			id: badge.id,
 			kind: "BADGE",
-			name: badge.name,
 			user_ids: badge.users,
 			data: {
+				name: badge.name,
 				tooltip: badge.tooltip,
 				host: {
 					url: "//cdn.7tv.app/badge/" + badge.id,
@@ -271,9 +271,9 @@ export function convertSeventvOldCosmetics(
 		paints.push({
 			id: paint.id,
 			kind: "PAINT",
-			name: paint.name,
 			user_ids: paint.users,
 			data: {
+				name: paint.name,
 				angle: paint.angle,
 				color: paint.color,
 				function: paint.function.replace("-", "_").toUpperCase(),

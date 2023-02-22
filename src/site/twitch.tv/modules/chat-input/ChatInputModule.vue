@@ -1,12 +1,17 @@
 <template>
-	<template v-for="inst in AutocompleteProvider.instances" :key="inst.identifier">
+	<template v-for="inst in autocompleteProvider.instances" :key="inst.identifier">
 		<ChatInput v-if="shouldMount.get(inst)" :instance="inst" />
-		<ChatSpam v-if="shouldMount.get(inst)" />
+		<ChatSpam
+			v-if="shouldMount.get(inst)"
+			:instance="inst"
+			:suggest="suggestBypassDuplicateCheck || false"
+			@suggest-answer="onBypassSuggestionAnswer"
+		/>
 	</template>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
@@ -64,7 +69,9 @@ const { markAsReady } = declareModule("chat-input", {
 const shouldMount = reactive(new WeakMap<HookedInstance<Twitch.ChatAutocompleteComponent>, boolean>());
 const shouldBypassDuplicateCheck = useConfig("chat_input.spam.bypass_duplicate");
 
-const AutocompleteProvider = useComponentHook<Twitch.ChatAutocompleteComponent>(
+const suggestBypassDuplicateCheck = ref<boolean | null>(null);
+
+const autocompleteProvider = useComponentHook<Twitch.ChatAutocompleteComponent>(
 	{
 		parentSelector: ".chat-input__textarea",
 		maxDepth: 50,
@@ -99,6 +106,12 @@ for (const hc of hookChecks) {
 		{
 			hooks: {
 				update(instance) {
+					switch (instance.component.key) {
+						case "duplicated-messages":
+							onDuplicatedMessage(instance.component);
+							break;
+					}
+
 					if (!shouldBypassDuplicateCheck.value) return;
 
 					if (hc.stateKey) instance.component.state[hc.stateKey] = null;
@@ -109,18 +122,47 @@ for (const hc of hookChecks) {
 	);
 }
 
+function onDuplicatedMessage(com: MessageCheckComponent): void {
+	if (shouldBypassDuplicateCheck.value || suggestBypassDuplicateCheck.value === false) return; // already enabled
+	if (!com.props.tray || com.props.tray.type !== "duplicated-message-error") {
+		suggestBypassDuplicateCheck.value = null;
+		return;
+	}
+
+	suggestBypassDuplicateCheck.value = true;
+}
+
+function onBypassSuggestionAnswer(answer: string): void {
+	if (!answer) return;
+
+	suggestBypassDuplicateCheck.value = false;
+
+	switch (answer) {
+		case "yes":
+			shouldBypassDuplicateCheck.value = true;
+			break;
+
+		case "no":
+			shouldBypassDuplicateCheck.value = false;
+			break;
+	}
+}
+
 type MessageCheckComponent = ReactExtended.WritableComponent<
 	{
 		setModifierTray: (o: object) => void;
+		tray?: ReactExtended.ReactVNode;
 	},
 	{
 		lastSentMessage: string | null;
 		lastSentTimestamp: number | null;
 	}
->;
+> & {
+	key: "message-throughput" | "duplicated-messages";
+};
 
 defineExpose({
-	component: AutocompleteProvider,
+	component: autocompleteProvider,
 	setTray: null as Twitch.ChatAutocompleteComponent["props"]["setTray"] | null,
 	setModifierTray: null as Twitch.ChatAutocompleteComponent["props"]["setModifierTray"] | null,
 	clearModifierTray: null as Twitch.ChatAutocompleteComponent["props"]["clearModifierTray"] | null,

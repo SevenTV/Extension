@@ -1,12 +1,20 @@
+### Version 3.0.0.13000 (Beta 13)
+
+-   Added colored mentions
+-   Added a button and confirmation prompt to pin chat messages
+-   Added a tooltip about the current Paint when hovering on a user's name
+-   Added a contextual hint for toggling the duplicate message check bypass
+-   Fixed an issue which caused the mention sound to play with historical messages
+
 ### Version 3.0.0.12000 (Beta 12)
 
 #### Beta 12.2
 
-- Added a button to sign-in and log out within the extension's settings menu
-- Fixed an issue where the Emote Menu Button did not work while signed out
-- Fixed an issue where the Emote Menu Button disappeared after being timed-out
-- Fixed an issue where the fast-updater displayed an error despite a success
-- Fixed an issue where the input box blended in to the viewer list
+-   Added a button to sign-in and log out within the extension's settings menu
+-   Fixed an issue where the Emote Menu Button did not work while signed out
+-   Fixed an issue where the Emote Menu Button disappeared after being timed-out
+-   Fixed an issue where the fast-updater displayed an error despite a success
+-   Fixed an issue where the input box blended in to the viewer list
 
 #### Beta 12.1
 

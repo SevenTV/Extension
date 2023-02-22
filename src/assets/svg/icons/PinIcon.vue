@@ -1,0 +1,9 @@
+/* Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license
+(Commercial License) Copyright 2023 Fonticons, Inc. */
+<template>
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="1em" height="1em" fill="currentColor">
+		<path
+			d="M64 0H32V64H64 93.5L82.1 212.1C23.7 240.7 0 293 0 320v32H384V320c0-22.5-23.7-76.5-82.1-106.7L290.5 64H320h32V0H320 64zm96 480v32h64V480 384H160v96z"
+		/>
+	</svg>
+</template>

@@ -44,14 +44,14 @@ onMounted(() => {
 	@at-root .seventv-transparent & {
 		backdrop-filter: blur(0.88em);
 	}
-	border-radius: 0.25em;
+	border-radius: 0.25rem;
 
 	&[active="true"] {
 		outline: 0.1em solid var(--seventv-border-transparent-1);
 	}
 
 	.text-only-tooltip {
-		padding: 0.25em;
+		padding: 0.25rem;
 	}
 }
 

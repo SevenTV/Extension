@@ -18,6 +18,7 @@ interface ChatMessages {
 		mod: ChatMessageModeration;
 	}[];
 	chatters: Record<string, ChatUser>;
+	chattersByUsername: Record<string, ChatUser>;
 
 	twitchHandlers: Set<(v: Twitch.AnyMessage) => void>;
 
@@ -46,6 +47,7 @@ export function useChatMessages(ctx: ChannelContext) {
 				mod: ChatMessageModeration;
 			}[],
 			chatters: {} as Record<string, ChatUser>,
+			chattersByUsername: {} as Record<string, ChatUser>,
 
 			twitchHandlers: new Set<(v: Twitch.AnyMessage) => void>(),
 
@@ -109,9 +111,19 @@ export function useChatMessages(ctx: ChannelContext) {
 			const knownAuthor = data.chatters[message.author.id];
 			if (!knownAuthor) {
 				data.chatters[message.author.id] = message.author;
+			} else {
+				knownAuthor.username = message.author.username;
+				knownAuthor.displayName = message.author.displayName;
+				knownAuthor.color = message.author.color;
+				knownAuthor.intl = message.author.intl;
 			}
 
-			if (!data.chatters[message.author.id]) data.chatters[message.author.id] = message.author; // set as active chatter
+			// set as active chatter
+			if (!data.chatters[message.author.id] || !data.chattersByUsername[message.author.username]) {
+				data.chatters[message.author.id] = message.author;
+				data.chattersByUsername[message.author.username] = message.author;
+			}
+
 			if (!data.displayedByUser[message.author.username]) data.displayedByUser[message.author.username] = {}; // create user message map
 
 			// add message to user message map
@@ -255,6 +267,7 @@ export function useChatMessages(ctx: ChannelContext) {
 		displayed: toRef(data, "displayed"),
 		handlers: data.twitchHandlers,
 		chatters: toRef(data, "chatters"),
+		chattersByUsername: toRef(data, "chattersByUsername"),
 		moderated: toRef(data, "moderated"),
 		sendMessage: toRef(data, "sendMessage"),
 		find,

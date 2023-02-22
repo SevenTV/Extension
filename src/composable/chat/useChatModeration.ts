@@ -1,4 +1,5 @@
 import { twitchBanUserQuery, twitchUnbanUserQuery } from "@/assets/gql/tw.chat-bans.gql";
+import { twitchPinMessageQuery } from "@/assets/gql/tw.chat-pin.gql";
 import { useChatMessages } from "./useChatMessages";
 import { ChannelContext } from "../channel/useChannelContext";
 import { useApollo } from "../useApollo";
@@ -52,6 +53,23 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 		});
 	}
 
+	function pinChatMessage(msgID: string, duration: number) {
+		const apollo = useApollo();
+		if (!apollo) return null;
+
+		return apollo.mutate<twitchPinMessageQuery.Result, twitchPinMessageQuery.Variables>({
+			mutation: twitchPinMessageQuery,
+			variables: {
+				input: {
+					channelID: ctx.id,
+					messageID: msgID,
+					durationSeconds: duration,
+					type: "MOD",
+				},
+			},
+		});
+	}
+
 	function deleteChatMessage(msgID: string) {
 		messages.sendMessage(`/delete ${msgID}`);
 	}
@@ -59,6 +77,7 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	return {
 		banUserFromChat,
 		unbanUserFromChat,
+		pinChatMessage,
 		deleteChatMessage,
 	};
 }

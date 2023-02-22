@@ -161,7 +161,6 @@ declare namespace SevenTV {
 	interface Cosmetic<K extends CosmeticKind = unknown> {
 		id: ObjectID;
 		kind: K;
-		name: string;
 		user_ids?: string[];
 		data: {
 			AVATAR: CosmeticAvatar;
@@ -172,11 +171,13 @@ declare namespace SevenTV {
 	}
 
 	interface CosmeticBadge {
+		name: string;
 		tooltip: string;
 		host: ImageHost;
 	}
 
 	interface CosmeticPaint {
+		name: string;
 		function: string;
 		color: number | null;
 		stops: CosmeticPaintStop[];

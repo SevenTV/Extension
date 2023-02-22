@@ -46,8 +46,8 @@
 			:color="color"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
-			@name-click="(ev) => openViewerCard(ev, msg)"
-			@badge-click="(ev, badge) => openViewerCard(ev, msg)"
+			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
+			@badge-click="(ev, badge) => openViewerCard(ev, msg.author!.username, msg.id)"
 		/>
 
 		<span v-if="!hideAuthor">
@@ -71,17 +71,21 @@
 					</span>
 				</span>
 				<template v-else>
-					<Component :is="getPart(token)" :token="token" />
+					<Component :is="getPart(token)" :token="token" :msg="msg" />
 				</template>
 			</template>
 		</span>
 
 		<!-- Ban State -->
-		<template v-if="!hideModeration && msg.moderation.banned">
-			<span class="seventv-chat-message-moderated seventv-chat-message-banned">
+		<template v-if="!hideModeration && (msg.moderation.banned || msg.moderation.deleted)">
+			<span v-if="msg.moderation.banned" class="seventv-chat-message-moderated">
 				{{ msg.moderation.banDuration ? `Timed out (${msg.moderation.banDuration}s)` : "Permanently Banned" }}
 			</span>
+			<span v-else class="seventv-chat-message-moderated">Deleted</span>
 		</template>
+
+		<!-- Buttons (Reply, Pin) -->
+		<UserMessageButtons :msg="msg" @pin="doPinMessage()" />
 	</span>
 </template>
 
@@ -89,15 +93,18 @@
 import { onMounted, ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { normalizeUsername } from "@/common/Color";
-import type { AnyToken, ChatMessage } from "@/common/chat/ChatMessage";
+import { log } from "@/common/Logger";
+import type { AnyToken, ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
 import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
+import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
 import ModIcons from "../mod/ModIcons.vue";
@@ -111,10 +118,12 @@ const props = withDefaults(
 			color: string;
 		};
 		emotes?: Record<string, SevenTV.ActiveEmote>;
+		chatters?: Record<string, ChatUser>;
 		isModerator?: boolean;
 		hideAuthor?: boolean;
 		hideModeration?: boolean;
 		hideDeletionState?: boolean;
+		showButtons?: boolean;
 		forceTimestamp?: boolean;
 	}>(),
 	{ as: "Chat" },
@@ -126,6 +135,7 @@ const msgEl = ref<HTMLSpanElement | null>();
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const { openViewerCard } = useChatTools(ctx);
+const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? "");
 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");
@@ -152,6 +162,7 @@ function doTokenize() {
 	if (!tokenizer) return;
 
 	const newTokens = tokenizer.tokenize({
+		chatterMap: props.chatters ?? {},
 		emoteMap: props.emotes ?? {},
 		localEmoteMap: { ...cosmetics.emotes, ...props.msg.nativeEmotes },
 	});
@@ -180,6 +191,10 @@ function doTokenize() {
 	}
 
 	tokens.value = result;
+}
+
+function doPinMessage(): void {
+	pinChatMessage(msg.value.id, 1200)?.catch((err) => log.error("failed to pin chat message", err));
 }
 
 watch(
@@ -255,11 +270,6 @@ onMounted(() => {
 		margin: var(--seventv-emote-margin);
 		margin-left: 0 !important;
 		margin-right: 0 !important;
-	}
-
-	.mention-part {
-		padding: 0.2rem;
-		font-weight: bold;
 	}
 }
 .deleted:not(:hover) > .seventv-chat-message-body {

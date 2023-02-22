@@ -1,5 +1,4 @@
 import { reactive } from "vue";
-import { ChatMessage } from "@/common/chat/ChatMessage";
 import { ChannelContext } from "../channel/useChannelContext";
 
 interface ChatTools {
@@ -32,11 +31,11 @@ export function useChatTools(ctx: ChannelContext) {
 		data[platorm][key] = value;
 	}
 
-	function openViewerCard(e: MouseEvent, msg: ChatMessage) {
-		if (!data || !e || !e.currentTarget || !msg.author) return false;
+	function openViewerCard(e: MouseEvent, username: string, msgID: string) {
+		if (!data || !e || !e.currentTarget || !username) return false;
 
 		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-		data[ctx.platform].onShowViewerCard(msg.author.username, 0, msg.id, rect.bottom);
+		data[ctx.platform].onShowViewerCard(username, 0, msgID, rect.bottom);
 		return true;
 	}
 

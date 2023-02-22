@@ -10,7 +10,7 @@ import { onClickOutside } from "@vueuse/core";
 import { Middleware, Placement, VirtualElement, autoUpdate, computePosition } from "@floating-ui/dom";
 
 const props = defineProps<{
-	anchor?: HTMLElement;
+	anchor?: Element;
 	position?: [x: number, y: number];
 	emitClickout?: boolean;
 	middleware?: Middleware[];

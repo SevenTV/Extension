@@ -64,11 +64,11 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (ok) {
 			msg.setHighlight(h.color, h.label);
 
-			if (h.soundDef && shouldPlaySoundOnHighlight.value) {
+			if (h.soundDef && shouldPlaySoundOnHighlight.value && !msg.historical) {
 				h.soundDef.play();
 			}
 
-			if (h.flashTitle && shouldFlashTitleOnHighlight.value) {
+			if (h.flashTitle && shouldFlashTitleOnHighlight.value && !msg.historical) {
 				setFlash(h, msg);
 			}
 		}
