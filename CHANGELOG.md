@@ -5,6 +5,7 @@
 -   Added a tooltip about the current Paint when hovering on a user's name
 -   Added a contextual hint for toggling the duplicate message check bypass
 -   Fixed an issue which caused the mention sound to play with historical messages
+-   Fixed an issue where unpausing chat wouldn't scroll to bottom if there hadn't been any messages
 
 ### Version 3.0.0.12000 (Beta 12)
 

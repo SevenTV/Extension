@@ -140,6 +140,7 @@ export function useChatScroller(ctx: ChannelContext, initWith?: ChatScrollerInit
 
 		nextTick(() => {
 			data.init = false;
+			scrollToLive();
 		});
 	}
 
