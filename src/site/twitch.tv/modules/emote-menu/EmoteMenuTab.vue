@@ -205,7 +205,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 				transform: translateY(-0.25rem);
 				right: 0.65rem;
 
-				@extend %seventv-flair-pulsating;
+				@include flair-pulsating(#3eed58);
 			}
 		}
 	}

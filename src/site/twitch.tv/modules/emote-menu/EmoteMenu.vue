@@ -225,7 +225,7 @@ onUnmounted(() => {
 		width: 0.75rem;
 		height: 0.75rem;
 
-		@extend %seventv-flair-pulsating;
+		@include flair-pulsating(#3eed58);
 	}
 }
 

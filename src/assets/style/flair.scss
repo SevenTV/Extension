@@ -7,7 +7,7 @@
 		height: 100%;
 		background-color: var(--seventv-primary);
 		clip-path: circle(50% at 50% 50%);
-		animation: pulse-ring 2.5s ease infinite;
+		animation: seventv-pulse-ring 2s ease infinite;
 	}
 
 	&::after {
@@ -18,29 +18,38 @@
 		height: 100%;
 		background-color: var(--seventv-primary);
 		clip-path: circle(50% at 50% 50%);
-		animation: pulse-dot 2.5s ease -0.4s infinite;
+		animation: seventv-pulse-dot 2s ease -0.4s infinite;
 	}
 }
 
-@keyframes pulse-ring {
+@mixin flair-pulsating($color: white) {
+	@extend %seventv-flair-pulsating;
+
+	&::before {
+		background-color: $color;
+	}
+	&::after {
+		background-color: $color;
+	}
+}
+
+@keyframes seventv-pulse-ring {
 	0% {
 		transform: scale(0);
-	}
-	50% {
-		transform: scale(3);
 	}
 	80%,
 	100% {
 		opacity: 0;
+		transform: scale(5);
 	}
 }
 
-@keyframes pulse-dot {
+@keyframes seventv-pulse-dot {
 	0% {
 		transform: scale(1);
 	}
 	50% {
-		transform: scale(1.25);
+		transform: scale(1.35);
 	}
 	100% {
 		transform: scale(1);

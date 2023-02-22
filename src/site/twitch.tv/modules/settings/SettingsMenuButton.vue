@@ -78,7 +78,7 @@ if (menuButtons) {
 			width: 1rem;
 			height: 1rem;
 
-			@extend %seventv-flair-pulsating;
+			@include flair-pulsating(#3eed58);
 		}
 	}
 }

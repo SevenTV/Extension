@@ -429,4 +429,8 @@ seventv-container.seventv-chat-list {
 .chat-list--default.seventv-checked {
 	display: none !important;
 }
+
+[data-a-target="emote-picker-button"] {
+	overflow: unset !important;
+}
 </style>

@@ -121,7 +121,7 @@ export function useChatMessages(ctx: ChannelContext) {
 			// set as active chatter
 			if (!data.chatters[message.author.id] || !data.chattersByUsername[message.author.username]) {
 				data.chatters[message.author.id] = message.author;
-				data.chattersByUsername[message.author.username] = message.author;
+				if (message.author.username) data.chattersByUsername[message.author.username] = message.author;
 			}
 
 			if (!data.displayedByUser[message.author.username]) data.displayedByUser[message.author.username] = {}; // create user message map

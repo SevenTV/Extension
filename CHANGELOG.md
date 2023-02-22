@@ -1,5 +1,15 @@
 ### Version 3.0.0.13000 (Beta 13)
 
+#### Beta 13.2
+
+-   Fixed an issue which caused mentions to break when chained with commas
+
+#### Beta 13.1
+
+-   Fixed an issue which caused fake mentions to appear around messages
+
+---
+
 -   Added colored mentions
 -   Added information in Emote Cards on when an emote was added and who enabled it
 -   Added a button and confirmation prompt to pin chat messages
@@ -7,6 +17,8 @@
 -   Added a contextual hint for toggling the duplicate message check bypass
 -   Fixed an issue which caused the mention sound to play with historical messages
 -   Fixed an issue where unpausing chat wouldn't scroll to bottom if there hadn't been any messages
+
+---
 
 ### Version 3.0.0.12000 (Beta 12)
 

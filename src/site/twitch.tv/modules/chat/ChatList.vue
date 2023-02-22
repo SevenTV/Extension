@@ -149,7 +149,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		msg.setAuthor(
 			knownChatter ?? {
 				id: authorData.userID,
-				username: authorData.userLogin,
+				username: authorData.userLogin ?? (authorData.userDisplayName ?? authorData.displayName)?.toLowerCase(),
 				displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
 				color: authorData.color,
 			},

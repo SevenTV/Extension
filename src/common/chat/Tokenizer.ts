@@ -20,11 +20,13 @@ export class Tokenizer {
 			const next = cursor + (part.length + 1);
 
 			// tokenize emote?
-			const emote = getEmote(part);
-			if (emote) {
+			const maybeEmote = getEmote(part);
+			const maybeMention = !!opt.chatterMap[part.toLowerCase()];
+
+			if (maybeEmote) {
 				// handle zero width overlaying
-				if ((emote.data?.flags ?? 0) & 256 && lastEmoteToken) {
-					lastEmoteToken.content.overlaid[emote.name] = emote;
+				if ((maybeEmote.data?.flags ?? 0) & 256 && lastEmoteToken) {
+					lastEmoteToken.content.overlaid[maybeEmote.name] = maybeEmote;
 
 					// the "void" token is used to hide the text of the zero-width. any text in the void range won't be rendered
 					tokens.push({
@@ -39,26 +41,20 @@ export class Tokenizer {
 							kind: "EMOTE",
 							range: [cursor + 1, next - 1],
 							content: {
-								emote,
+								emote: maybeEmote,
 								overlaid: {},
-								...(emote.isTwitchCheer
+								...(maybeEmote.isTwitchCheer
 									? {
-											cheerAmount: emote.isTwitchCheer.amount,
-											cheerColor: emote.isTwitchCheer.color,
+											cheerAmount: maybeEmote.isTwitchCheer.amount,
+											cheerColor: maybeEmote.isTwitchCheer.color,
 									  }
 									: {}),
 							} as EmoteToken["content"],
 						}),
 					);
 				}
-			} else {
-				lastEmoteToken = undefined;
-			}
-
-			const maybeMention = !!opt.chatterMap[part.toLowerCase()];
-
-			// Check link
-			if (part.match(Regex.Link)) {
+			} else if (part.match(Regex.Link)) {
+				// Check link
 				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
 
 				tokens.push({
@@ -71,14 +67,16 @@ export class Tokenizer {
 				} as LinkToken);
 			} else if (part.match(Regex.Mention) || maybeMention) {
 				//  Check mention
-				const username = (part.charAt(0) === "@" ? part.slice(1) : part).toLowerCase();
+				const commaAt = part.indexOf(",");
+				const mentionEnd = commaAt > 0 ? commaAt : part.length;
+				const username = (part.charAt(0) === "@" ? part.slice(1, mentionEnd) : part).toLowerCase();
 				const user = opt.chatterMap[username];
 
 				tokens.push({
 					kind: "MENTION",
-					range: [cursor + 1, next - 1],
+					range: [cursor + 1, cursor + mentionEnd],
 					content: {
-						displayText: part,
+						displayText: part.slice(0, mentionEnd),
 						recipient: username,
 						user,
 					} as MentionToken["content"],
@@ -88,6 +86,7 @@ export class Tokenizer {
 			}
 
 			cursor = next;
+			if (maybeEmote) lastEmoteToken = undefined;
 		}
 
 		tokens.sort((a, b) => a.range[0] - b.range[0]);
