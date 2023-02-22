@@ -17,7 +17,7 @@ const { markAsReady } = declareModule("avatars", {
 	config: [
 		{
 			key: "avatars.animation",
-			path: ["Appearance", "Interface"],
+			path: ["Appearance", "Vanity"],
 			label: "Animated Avatars",
 			hint: "Whether or not to allow user avatars to be animated",
 			type: "TOGGLE",

@@ -140,6 +140,12 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 			],
 			defaultValue: 1,
 		}),
+		declareConfig<boolean>("chat.colored_mentions", "TOGGLE", {
+			path: ["Chat", "Style"],
+			label: "Colored Mentions",
+			hint: "Show the color of users mentioned in chat",
+			defaultValue: true,
+		}),
 		declareConfig<boolean>("highlights.basic.mention_title_flash", "TOGGLE", {
 			path: ["Highlights", "Mention"],
 			label: "Flash Title on Mention",
@@ -151,6 +157,12 @@ const { dependenciesMet, markAsReady } = declareModule("chat", {
 			label: "Play Sound on Mention",
 			hint: "Play a sound when you are mentioned in chat",
 			defaultValue: false,
+		}),
+		declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
+			path: ["Appearance", "Vanity"],
+			label: "Nametag Paints",
+			hint: "Whether or not to display nametag paints",
+			defaultValue: true,
 		}),
 	],
 });

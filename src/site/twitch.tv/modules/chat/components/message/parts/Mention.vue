@@ -1,6 +1,6 @@
 <template>
 	<span class="mention-token" @click="onClick">
-		<span v-if="token.content.user" :style="{ color: token.content.user.color }">
+		<span v-if="shouldRenderColoredMentions && token.content.user" :style="{ color: token.content.user.color }">
 			<UserTag
 				:user="token.content.user"
 				:color="token.content.user.color"
@@ -26,7 +26,7 @@ const props = defineProps<{
 	msg: ChatMessage;
 }>();
 
-useConfig("chat.colored_mentions");
+const shouldRenderColoredMentions = useConfig("chat.colored_mentions");
 const ctx = useChannelContext();
 const tools = useChatTools(ctx);
 
