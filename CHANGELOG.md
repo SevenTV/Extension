@@ -2,6 +2,9 @@
 
 - Added support for channel & global emotes in YouTube Live Chat
 - Added support for colon-completing third-party emotes in YouTube Live Chat
+- Zero-Width Emotes in Twitch Chat should now work again
+
+---
 
 ### Version 3.0.0.13000 (Beta 13)
 

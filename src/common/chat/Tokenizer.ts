@@ -86,7 +86,7 @@ export class Tokenizer {
 			}
 
 			cursor = next;
-			if (maybeEmote) lastEmoteToken = undefined;
+			if (!maybeEmote) lastEmoteToken = undefined;
 		}
 
 		tokens.sort((a, b) => a.range[0] - b.range[0]);
