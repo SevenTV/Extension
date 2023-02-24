@@ -49,7 +49,8 @@
 				<div v-if="isGlobal" class="label-global">Global Emote</div>
 				<div v-if="isSubscriber" class="label-subscriber">Subscriber Emote</div>
 				<div v-if="isChannel" class="label-channel">Channel Emote</div>
-				<div v-if="isPersonal" class="label-personal">Personal Emote</div>
+				<div v-if="isPersonal" class="label-sub-feature">Personal Emote</div>
+				<div v-if="isZeroWidth" class="label-sub-feature">Zero-Width</div>
 			</div>
 
 			<!-- Emoji Data -->
@@ -118,6 +119,7 @@ const isGlobal = props.emote.scope === "GLOBAL";
 const isSubscriber = props.emote.scope === "SUB";
 const isChannel = props.emote.scope === "CHANNEL";
 const isPersonal = props.emote.scope === "PERSONAL";
+const isZeroWidth = (props.emote.flags || 0 & 256) !== 0;
 
 const emojiData = ref<Emoji | null>(null);
 if (props.emote.unicode) {
@@ -179,6 +181,9 @@ svg.tooltip-emoji {
 	display: flex;
 	column-gap: 0.5rem;
 	flex: 1;
+	padding-bottom: 0.25rem;
+	margin-bottom: 0.25rem;
+	border-bottom: 0.1rem solid var(--seventv-muted);
 
 	> h3 {
 		font-weight: 600;
@@ -218,11 +223,13 @@ svg.tooltip-emoji {
 .scope-labels {
 	font-size: 1.3rem;
 	font-weight: 600;
+	text-align: center;
+
 	> .label-global {
 		color: rgb(70, 220, 100);
 	}
 
-	> .label-personal {
+	> .label-sub-feature {
 		color: rgb(220, 170, 50);
 	}
 }

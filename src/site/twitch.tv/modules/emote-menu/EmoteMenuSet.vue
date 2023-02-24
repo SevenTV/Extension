@@ -17,13 +17,12 @@
 				v-for="ae of emotes"
 				:key="ae.id"
 				class="seventv-emote-container"
-				:class="{
-					[`ratio-${determineRatio(ae)}`]: true,
-					'seventv-emote-disabled': isEmoteDisabled(es, ae),
-				}"
+				:disabled="isEmoteDisabled(es, ae)"
+				:ratio="determineRatio(ae)"
 				:load-state="loaded[ae.id]"
 				:set-id="es.id"
 				:emote-id="ae.id"
+				:zero-width="(ae.flags || 0 & 256) !== 0"
 				@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
 			>
 				<template v-if="loaded[ae.id]">
@@ -66,6 +65,14 @@ const collapsedSets = useConfig<Set<string>>("ui.emote_menu.collapsed_sets");
 
 const collapsed = ref(isCollapsed());
 
+function sortCase(ae: SevenTV.ActiveEmote): number {
+	let n = determineRatio(ae);
+
+	if ((ae.flags || 0 & 256) !== 0) n -= 0.5;
+
+	return n;
+}
+
 // Filter active emotes with query
 const filterEmotes = debounceFn((filter = "") => {
 	const x = [] as SevenTV.ActiveEmote[];
@@ -79,9 +86,10 @@ const filterEmotes = debounceFn((filter = "") => {
 	}
 
 	x.sort((a, b) => {
-		const ra = determineRatio(a);
-		const rb = determineRatio(b);
-		return ra == rb ? a.name.localeCompare(b.name) : ra > rb ? 1 : -1;
+		const na = sortCase(a);
+		const nb = sortCase(b);
+
+		return na == nb ? a.name.localeCompare(b.name) : na > nb ? 1 : -1;
 	});
 
 	emotes.value = x;
@@ -251,7 +259,7 @@ defineExpose({
 .seventv-emote-container {
 	display: grid;
 	background: hsla(0deg, 0%, 50%, 6%);
-	border-radius: 0.5rem;
+	border-radius: 0.25rem;
 	height: 4rem;
 	margin: 0.25rem;
 	cursor: pointer;
@@ -277,7 +285,11 @@ defineExpose({
 		}
 	}
 
-	&.seventv-emote-disabled {
+	&[zero-width="true"] {
+		border: 0.1rem solid rgb(220, 170, 50);
+	}
+
+	&[disabled="true"] {
 		cursor: not-allowed;
 		filter: grayscale(100%);
 		opacity: 0.5;
@@ -285,6 +297,19 @@ defineExpose({
 		> :first-child {
 			pointer-events: none;
 		}
+	}
+
+	&[ratio="1"] {
+		width: 4rem;
+	}
+	&[ratio="2"] {
+		width: 6.25rem;
+	}
+	&[ratio="3"] {
+		width: 8.5rem;
+	}
+	&[ratio="4"] {
+		width: 13rem;
 	}
 }
 

@@ -2,7 +2,8 @@
 
 - Added support for channel & global emotes in YouTube Live Chat
 - Added support for colon-completing third-party emotes in YouTube Live Chat
-- Added a button to collapse sets in the Emote MEnu
+- Added a button to collapse sets in the Emote Menu
+- Gave sorting priority to zero-width emotes in the Emote Menu
 - Zero-Width Emotes in Twitch Chat should now work again
 
 ---
