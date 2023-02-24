@@ -1,17 +1,17 @@
 import { Ref, nextTick, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { log } from "@/common/Logger";
 import { useSettings } from "@/composable/useSettings";
-import type { ModuleComponentMap, ModuleID } from "@/types/module";
+import type { TwModuleComponentMap, TwModuleID } from "@/types/tw.module";
 
 const data = reactive({
-	modules: {} as Record<ModuleID, Module>,
+	modules: {} as Record<TwModuleID, Module>,
 });
 
-export function getModule<T extends ModuleID>(id: T): Module<T> | null {
+export function getModule<T extends TwModuleID>(id: T): Module<T> | null {
 	return (data.modules[id] ?? null) as Module<T> | null;
 }
 
-export function getModuleRef<T extends ModuleID>(id: T): Ref<Module<T>> {
+export function getModuleRef<T extends TwModuleID>(id: T): Ref<Module<T>> {
 	const mod = ref<Module | null>(null);
 
 	if (data.modules[id]) {
@@ -28,7 +28,7 @@ export function getModuleRef<T extends ModuleID>(id: T): Ref<Module<T>> {
 	return mod as Ref<Module<T>>;
 }
 
-export function declareModule(id: ModuleID, opt: ModuleOptions) {
+export function declareModule(id: TwModuleID, opt: ModuleOptions) {
 	data.modules[id] = {
 		id,
 		name: opt.name,
@@ -106,19 +106,19 @@ export function declareModule(id: ModuleID, opt: ModuleOptions) {
 
 interface ModuleOptions {
 	name: string;
-	depends_on: ModuleID[];
+	depends_on: TwModuleID[];
 	config?: SevenTV.SettingNode[];
 }
 
-export interface Module<T extends keyof ModuleComponentMap = keyof ModuleComponentMap> {
+export interface Module<T extends keyof TwModuleComponentMap = keyof TwModuleComponentMap> {
 	id: T;
 	name: string;
 	enabled: boolean;
-	depends_on: ModuleID[];
+	depends_on: TwModuleID[];
 	config: SevenTV.SettingNode<SevenTV.SettingType>[];
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	instance: InstanceType<ModuleComponentMap[T]> | null;
+	instance: InstanceType<TwModuleComponentMap[T]> | null;
 	configurable?: boolean;
 	ready?: boolean;
 }

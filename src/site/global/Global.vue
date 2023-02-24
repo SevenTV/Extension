@@ -10,7 +10,6 @@ import useUpdater from "@/composable/useUpdater";
 import { useWorker } from "@/composable/useWorker";
 import FloatContext from "./FloatContext.vue";
 import Tooltip from "./Tooltip.vue";
-import { useSettingsMenu } from "./settings/Settings";
 
 const { register } = useSettings();
 register([
@@ -24,7 +23,6 @@ register([
 
 const updater = useUpdater();
 const version = useConfig("app.version");
-const settingsCtx = useSettingsMenu();
 
 const { target } = useWorker();
 target.addEventListener("config", (cfg) => {
@@ -43,8 +41,6 @@ const stop = watch(
 		if (version.value === null || updater.runtimeVersion === v) return;
 
 		version.value = updater.runtimeVersion;
-
-		settingsCtx.open = true;
 
 		nextTick(() => stop());
 	},

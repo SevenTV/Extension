@@ -44,6 +44,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 
 		// By default the extension is enabled only on Twitch
 		host_permissions: ["*://*.twitch.tv/*"],
+		permissions: ["scripting"],
 
 		// Declare YouTube as an optional host permission
 		optional_host_permissions: ["*://*.youtube.com/*", "*://*.7tv.app/*", "*://*.7tv.io/*"],
@@ -51,7 +52,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		web_accessible_resources: [
 			{
 				resources: ["site.js", "site.js.map", "content.js.map", "worker.js", "assets/*"],
-				matches: ["*://*.twitch.tv/*"],
+				matches: ["*://*.twitch.tv/*", "*://*.youtube.com/*"],
 			},
 		],
 	} as Manifest.WebExtensionManifest & MV3HostPermissions;

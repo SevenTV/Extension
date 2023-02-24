@@ -1,8 +1,15 @@
+### Version 3.0.0.14000 (Beta 14)
+
+- Added support for channel & global emotes in YouTube Live Chat
+- Added support for colon-completing third-party emotes in YouTube Live Chat
+
 ### Version 3.0.0.13000 (Beta 13)
 
 #### Beta 13.2
 
 -   Fixed an issue which caused mentions to break when chained with commas
+
+---
 
 #### Beta 13.1
 

@@ -1,6 +1,6 @@
 <template>
 	<template v-for="[key, mod] of Object.entries(modules)" :key="key">
-		<ModuleWrapper :mod="mod" @mounted="onModuleUpdate(key as unknown as ModuleID, $event)" />
+		<ModuleWrapper :mod="mod" @mounted="onModuleUpdate(key as unknown as TwModuleID, $event)" />
 	</template>
 </template>
 
@@ -13,8 +13,8 @@ import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useConfig } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
-import ModuleWrapper from "./ModuleWrapper.vue";
-import type { ModuleID } from "@/types/module";
+import type { TwModuleID } from "@/types/tw.module";
+import ModuleWrapper from "../ModuleWrapper.vue";
 
 const store = useStore();
 const ua = useUserAgent();
@@ -89,7 +89,7 @@ watch(
 	{ immediate: true },
 );
 
-function onModuleUpdate(mod: ModuleID, inst: InstanceType<ComponentFactory>) {
+function onModuleUpdate(mod: TwModuleID, inst: InstanceType<ComponentFactory>) {
 	const modInst = getModule(mod);
 	if (!modInst) return;
 

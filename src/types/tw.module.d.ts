@@ -8,9 +8,9 @@ import type EmoteMenuModuleVue from "@/site/twitch.tv/modules/emote-menu/EmoteMe
 import type ModLogsModule from "@/site/twitch.tv/modules/mod-logs/ModLogsModule.vue";
 import type SettingsModuleVue from "@/site/twitch.tv/modules/settings/SettingsModule.vue";
 
-declare type ModuleID = keyof ModuleComponentMap;
+declare type TwModuleID = keyof TwModuleComponentMap;
 
-declare type ModuleComponentMap = {
+declare type TwModuleComponentMap = {
 	"chat-input-controller": typeof ChatInputControllerComponent;
 	"chat-input": typeof ChatInputModuleVue;
 	"chat-vod": typeof ChatVodModuleVue;

@@ -11,7 +11,7 @@
 	</template>
 
 	<!-- Render tooltip -->
-	<Teleport to="#root">
+	<Teleport to="#root, body">
 		<Global v-if="!wg" />
 	</Teleport>
 </template>
@@ -27,6 +27,7 @@ import { db } from "@/db/idb";
 import { fillSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
+import YouTubeSite from "./youtube.com/YouTubeSite.vue";
 
 const EmojiContainer = defineAsyncComponent(() => import("@/site/EmojiContainer.vue"));
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
@@ -78,6 +79,7 @@ onMounted(() => {
 	// Define site controller for the platform
 	platformComponent.value = {
 		"twitch.tv": markRaw(TwitchSite),
+		"youtube.com": markRaw(YouTubeSite),
 	}[domain];
 });
 </script>

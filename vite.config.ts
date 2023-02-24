@@ -109,7 +109,7 @@ export default defineConfig(({ mode }) => {
 					const man = await getManifest({
 						dev: isDev,
 						branch: process.env.BRANCH as BranchName,
-						mv2: isDev || !!process.env.MV2,
+						mv2: false, // isDev || !!process.env.MV2,
 					});
 
 					setTimeout(() => {

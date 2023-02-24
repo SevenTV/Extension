@@ -1,5 +1,37 @@
-let shouldReloadOnUpdate = true;
+let shouldReloadOnUpdate = false;
 
+const ytHostnameRegex = /([a-z0-9]+[.])*youtube[.]com/;
+
+// Register content scripts
+const activeTabs = new Set<number>();
+if (!chrome.scripting) {
+	chrome.tabs.onUpdated.addListener((tabId, i, t) => {
+		if (!i.status || !t.url) {
+			return undefined;
+		}
+		if (!activeTabs.has(tabId)) {
+			activeTabs.add(tabId);
+		}
+
+		const loc = new URL(t.url);
+		if (ytHostnameRegex.test(loc.host)) {
+			chrome.tabs.executeScript(tabId, {
+				file: "content.js",
+			});
+		}
+	});
+} else {
+	chrome.scripting.registerContentScripts([
+		{
+			id: "seventv-youtube",
+			js: ["content.js"],
+			matches: ["*://*.youtube.com/*"],
+			allFrames: true,
+		},
+	]);
+}
+
+// Handle messaging from downstream
 chrome.runtime.onMessage.addListener((msg, _, reply) => {
 	switch (msg.type) {
 		case "permission-request": {

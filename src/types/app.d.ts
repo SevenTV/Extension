@@ -4,10 +4,10 @@ declare namespace SevenTV {
 	interface Emote {
 		id: ObjectID;
 		name: string;
-		flags: EmoteFlags;
-		tags: string[];
-		state: string[];
-		lifecycle: EmoteLifecycle;
+		flags?: EmoteFlags;
+		tags?: string[];
+		state?: string[];
+		lifecycle?: EmoteLifecycle;
 		listed?: boolean;
 		animated?: boolean;
 		owner: User | null;
@@ -113,7 +113,7 @@ declare namespace SevenTV {
 		id: ObjectID;
 		name: string;
 		unicode?: string;
-		flags: number;
+		flags?: number;
 		timestamp?: number;
 		actor_id?: ObjectID;
 		data?: Emote;

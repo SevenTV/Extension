@@ -9,7 +9,7 @@
 			<div class="seventv-settings-menu">
 				<div class="seventv-settings-header">
 					<div ref="dragHandle" class="header-left">
-						<div class="seventv-settings-header-icon">
+						<div ref="testYtPerms" class="seventv-settings-header-icon">
 							<Logo7TV />
 						</div>
 					</div>
@@ -85,6 +85,7 @@ import { useBreakpoints } from "@vueuse/core";
 import { watchThrottled } from "@vueuse/shared";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
+import { useExtensionPermission } from "@/composable/useExtensionPermission";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import CategoryDropdown from "@/site/global/settings/CategoryDropdown.vue";
@@ -97,6 +98,9 @@ import SettingsUpdateButton from "./SettingsUpdateButton.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { shift } from "@floating-ui/core";
+
+const testYtPerms = ref<HTMLDivElement | null>(null);
+useExtensionPermission(testYtPerms, ["*://*.youtube.com/*"]);
 
 const ctx = useSettingsMenu();
 const settings = useSettings();
