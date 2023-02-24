@@ -8,6 +8,7 @@
 import { reactive, ref } from "vue";
 import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
+import { declareConfig } from "@/composable/useSettings";
 import EmoteMenu from "./EmoteMenu.vue";
 
 const { markAsReady } = declareModule("emote-menu", {
@@ -17,11 +18,16 @@ const { markAsReady } = declareModule("emote-menu", {
 		{
 			key: "ui.emote_menu_search",
 			path: ["Appearance", "Interface"],
-			label: "Search with input box",
-			hint: "Use the normal chat inputbox to search in the emote menu instead of the dedicated search box",
+			label: "Live Input Search",
+			hint: "Use the chat's regular input box to search in the emote menu instead of the integrated search box",
 			type: "TOGGLE",
 			defaultValue: false,
 		},
+		declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
+			path: ["", ""],
+			label: "Emote Menu",
+			defaultValue: new Set(),
+		}),
 	],
 });
 

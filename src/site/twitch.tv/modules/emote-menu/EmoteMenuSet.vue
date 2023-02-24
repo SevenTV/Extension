@@ -1,11 +1,15 @@
 <template>
-	<div v-if="emotes.length" ref="containerEl" class="seventv-emote-set-container">
+	<div v-if="emotes.length" ref="containerEl" class="seventv-emote-set-container" :collapsed="collapsed">
 		<div class="seventv-set-header">
 			<div class="seventv-set-header-icon">
 				<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
 				<Logo v-else class="logo" :provider="es.provider" />
 			</div>
-			{{ es.name }}
+
+			<span>{{ es.name }}</span>
+			<div class="seventv-set-chevron" @click="toggleCollapsed">
+				<DropdownIcon />
+			</div>
 		</div>
 
 		<div v-if="observing" v-element-lifecycle="onObserve" class="seventv-emote-set">
@@ -35,6 +39,8 @@ import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
+import { useConfig } from "@/composable/useSettings";
+import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import {
@@ -56,6 +62,9 @@ const ctx = useEmoteMenuContext();
 const emotes = ref<SevenTV.ActiveEmote[]>([]);
 const containerEl = ref<HTMLElement>();
 const observing = ref(false);
+const collapsedSets = useConfig<Set<string>>("ui.emote_menu.collapsed_sets");
+
+const collapsed = ref(isCollapsed());
 
 // Filter active emotes with query
 const filterEmotes = debounceFn((filter = "") => {
@@ -150,6 +159,22 @@ function onObserve(lifecycle: ElementLifecycle, el: HTMLElement) {
 	}
 }
 
+function isCollapsed(): boolean {
+	return collapsedSets.value.has(props.es.id);
+}
+
+function toggleCollapsed(): void {
+	if (isCollapsed()) {
+		collapsedSets.value.delete(props.es.id);
+		collapsed.value = false;
+	} else {
+		collapsedSets.value.add(props.es.id);
+		collapsed.value = true;
+	}
+
+	collapsedSets.value = new Set(collapsedSets.value);
+}
+
 onMounted(() => {
 	setupObserver();
 });
@@ -166,6 +191,16 @@ defineExpose({
 <style scoped lang="scss">
 .seventv-emote-set-container {
 	position: relative;
+
+	&[collapsed="true"] {
+		.seventv-emote-set {
+			display: none;
+		}
+
+		.seventv-set-header > .seventv-set-chevron > svg {
+			transform: rotate(90deg);
+		}
+	}
 }
 
 .seventv-set-header-icon {
@@ -184,12 +219,34 @@ defineExpose({
 }
 
 .seventv-set-header {
+	display: grid;
+	// icon, name, then at the end the chevron
+	grid-template-columns: auto 1fr 1.5rem;
+
 	height: 3rem;
 	padding: 0.5rem 1.25rem;
 	position: sticky;
 	top: -1px;
-	display: flex;
 	background: var(--seventv-background-transparent-2);
+
+	.seventv-set-chevron {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 0.25rem;
+
+		> svg {
+			transition: transform 0.25s ease;
+			transform: rotate(180deg);
+		}
+
+		&:hover {
+			background-color: hsla(0deg, 0%, 30%, 32%);
+		}
+	}
 }
 .seventv-emote-container {
 	display: grid;
@@ -205,7 +262,7 @@ defineExpose({
 
 	&[load-state="0"] {
 		background: hsla(0deg, 0%, 50%, 6%);
-		animation: emote-loader 1s linear infinite;
+		animation: emote-loader 0.5s linear infinite;
 	}
 
 	@keyframes emote-loader {
