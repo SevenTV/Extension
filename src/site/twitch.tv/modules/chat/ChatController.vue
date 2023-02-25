@@ -211,13 +211,15 @@ definePropertyHook(controller.value.component, "props", {
 
 const a = awaitComponents<Twitch.MessageCardOpeners>({
 	parentSelector: ".stream-chat",
-	predicate: (n) => n.props && n.props.onShowViewerCard,
+	predicate: (n) => {
+		return n.props && (n.props.onShowViewerCard || n.openUserCard);
+	},
 });
 
 a.then(
 	([c]) => {
 		if (!c) return;
-		tools.update("TWITCH", "onShowViewerCard", c.props.onShowViewerCard);
+		tools.update("TWITCH", "onShowViewerCard", c.props.onShowViewerCard ?? c.openUserCard);
 	},
 	() => null,
 );
