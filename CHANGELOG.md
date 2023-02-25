@@ -1,10 +1,18 @@
 ### Version 3.0.0.15000 (Beta 15)
 
-- Added a carousel visualization for tab-completion
-- Fixed an issue which caused mentions to ignore the Readable Colors setting
-- Fixed an issue with the Mod Slider performing a max-length timeout if the value was less than 60 seconds
-- Fixed an issue which prevented user cards from opening when in Mod View
-- Fixed the "Smooth-scroll chat" setting requiring a refresh to update
+#### Beta 15.1
+
+-   The tab-completion carousel should now also work in theater mode
+
+---
+
+-   Added a carousel visualization for tab-completion
+-   Fixed an issue which caused mentions to ignore the Readable Colors setting
+-   Fixed an issue with the Mod Slider performing a max-length timeout if the value was less than 60 seconds
+-   Fixed an issue which prevented user cards from opening when in Mod View
+-   Fixed the "Smooth-scroll chat" setting requiring a refresh to update
+
+---
 
 ### Version 3.0.0.14000 (Beta 14)
 

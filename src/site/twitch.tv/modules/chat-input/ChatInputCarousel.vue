@@ -1,5 +1,5 @@
 <template>
-	<Teleport v-if="container" :to="container">
+	<UiFloating v-if="anchor && currentMatch.item" :anchor="anchor" placement="top">
 		<div class="seventv-autocomplete-floater">
 			<!-- Backwards Matches -->
 			<div v-if="back.size" class="seventv-autocomplete-floater-list" direction="backwards">
@@ -26,19 +26,18 @@
 				<CaretIcon />
 			</div>
 		</div>
-	</Teleport>
+	</UiFloating>
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { HookedInstance } from "@/common/ReactHooks";
-import { useFloatScreen } from "@/composable/useFloatContext";
 import { useConfig } from "@/composable/useSettings";
 import CaretIcon from "@/assets/svg/icons/CaretIcon.vue";
 import { TabToken } from "./ChatInput.vue";
+import UiFloating from "@/ui/UiFloating.vue";
 import Emote from "../chat/components/message/Emote.vue";
-import { shift } from "@floating-ui/dom";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
@@ -53,12 +52,7 @@ const emit = defineEmits<{
 }>();
 
 const shouldListenToArrowPresses = useConfig("chat_input.autocomplete.carousel_arrow_keys");
-const rootEl = toRef(props.instance.domNodes, "root");
-const container = useFloatScreen(rootEl, {
-	enabled: () => true,
-	middleware: [shift({ crossAxis: true, mainAxis: true, padding: 4 })],
-	placement: "top",
-});
+const anchor = ref<Element | null>(null);
 
 const back = ref(new Set<TabToken>());
 const forward = ref(new Set<TabToken>());
@@ -68,6 +62,11 @@ watchEffect(() => {
 	back.value = new Set(props.backwardsMatches);
 	forward.value = new Set(props.forwardsMatches);
 	cur.value = new Set([props.currentMatch]);
+
+	const n = props.instance.domNodes.root;
+	if (!n) return;
+
+	anchor.value = n;
 });
 
 useEventListener(
@@ -87,6 +86,7 @@ useEventListener(
 
 <style scoped lang="scss">
 .seventv-autocomplete-floater {
+	z-index: 10;
 	display: grid;
 	grid-template-columns: repeat(3, auto);
 }

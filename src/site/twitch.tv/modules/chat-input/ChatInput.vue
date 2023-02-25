@@ -105,7 +105,7 @@ function findMatchingTokens(
 		usedTokens.add(token);
 		matches.push({
 			token,
-			priority: 4,
+			priority: 5,
 			fromTwitch: false,
 			item: ae,
 		});
@@ -117,7 +117,7 @@ function findMatchingTokens(
 		usedTokens.add(token);
 		matches.push({
 			token,
-			priority: 3,
+			priority: 4,
 			fromTwitch: false,
 			item: ae,
 		});
@@ -131,7 +131,7 @@ function findMatchingTokens(
 				usedTokens.add(emote.token);
 				matches.push({
 					token: emote.token,
-					priority: 2,
+					priority: 3,
 					fromTwitch: true,
 					item: {
 						id: emote.id,
@@ -150,7 +150,7 @@ function findMatchingTokens(
 			usedTokens.add(token);
 			matches.push({
 				token,
-				priority: 1,
+				priority: 2,
 				fromTwitch: false,
 			});
 		}
@@ -166,7 +166,7 @@ function findMatchingTokens(
 
 			matches.push({
 				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName + " ",
-				priority: 0,
+				priority: 1,
 				fromTwitch: true,
 			});
 		}

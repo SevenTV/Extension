@@ -25,5 +25,6 @@ dist-ssr
 src/manifest.json
 msg_types.json
 
+crx/*
 script/*.json
 
