@@ -23,7 +23,7 @@
 				@answer="onPinAnswer($event)"
 			>
 				Are you sure you want to pin this message by
-				<UserTag v-if="msg.author" :user="msg.author" :color="msg.author.color" />?
+				<UserTag v-if="msg.author" :user="msg.author" />?
 			</UiConfirmPrompt>
 		</Teleport>
 	</template>

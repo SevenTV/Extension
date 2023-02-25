@@ -11,7 +11,7 @@
 		:state="msg.deliveryState"
 		:style="{
 			'font-style': msg.slashMe && meStyle & 1 ? 'italic' : '',
-			color: msg.slashMe && meStyle & 2 ? color : '',
+			color: msg.slashMe && meStyle & 2 ? msg.author?.color : '',
 		}"
 	>
 		<!-- Highlight Label -->
@@ -43,11 +43,10 @@
 		<UserTag
 			v-if="msg.author && !hideAuthor"
 			:user="msg.author"
-			:color="color"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
 			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
-			@badge-click="(ev, badge) => openViewerCard(ev, msg.author!.username, msg.id)"
+			@badge-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
 		/>
 
 		<span v-if="!hideAuthor">
@@ -92,7 +91,6 @@
 <script setup lang="ts">
 import { onMounted, ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
-import { normalizeUsername } from "@/common/Color";
 import { log } from "@/common/Logger";
 import type { AnyToken, ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
@@ -142,13 +140,6 @@ const meStyle = useConfig<number>("chat.slash_me_style");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
-
-const color =
-	props.msg.author && props.msg.author.color
-		? properties.useHighContrastColors
-			? normalizeUsername(props.msg.author.color, properties.isDarkTheme as 0 | 1)
-			: props.msg.author.color
-		: "inherit";
 
 // Personal Emotes
 const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };

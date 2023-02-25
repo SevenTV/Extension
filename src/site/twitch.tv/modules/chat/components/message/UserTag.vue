@@ -1,5 +1,5 @@
 <template>
-	<div v-if="user && user.displayName" class="seventv-chat-user" :style="{ color: color }">
+	<div v-if="user && user.displayName" class="seventv-chat-user" :style="{ color: user.color }">
 		<!--Badge List -->
 		<span
 			v-if="!hideBadges && (twitchBadges.length || cosmetics.badges.length)"
@@ -41,7 +41,6 @@ import Badge from "./Badge.vue";
 
 const props = defineProps<{
 	user: ChatUser;
-	color: string;
 	msgId?: symbol;
 	asMention?: boolean;
 	hideBadges?: boolean;

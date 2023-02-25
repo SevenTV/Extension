@@ -1,6 +1,7 @@
 ### Version 3.0.0.15000 (Beta 15)
 
 - Added a carousel visualization for tab-completion
+- Fixed an issue which caused mentions to ignore the Readable Colors setting
 - Fixed the "Smooth-scroll chat" setting requiring a refresh to update
 
 ### Version 3.0.0.14000 (Beta 14)

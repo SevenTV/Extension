@@ -3,7 +3,6 @@
 		<span v-if="shouldRenderColoredMentions && token.content.user" :style="{ color: token.content.user.color }">
 			<UserTag
 				:user="token.content.user"
-				:color="token.content.user.color"
 				:as-mention="token.content.displayText.charAt(0) === '@'"
 				:hide-badges="true"
 			/>

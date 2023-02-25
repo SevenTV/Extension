@@ -23,6 +23,7 @@ import { nextTick, reactive, ref, toRef, watch } from "vue";
 import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn, watchDebounced } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
+import { normalizeUsername } from "@/common/Color";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
@@ -139,10 +140,16 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 	const authorData = msgData.user ?? msgData.message?.user ?? null;
 	if (authorData) {
 		const knownChatter = messages.chatters[authorData.userID];
+		const color = authorData.color
+			? properties.useHighContrastColors
+				? normalizeUsername(authorData.color, properties.isDarkTheme as 0 | 1)
+				: authorData.color
+			: null;
+
 		if (knownChatter) {
 			knownChatter.username = authorData.userLogin;
 			knownChatter.displayName = authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin;
-			knownChatter.color = authorData.color;
+			knownChatter.color = color ?? knownChatter.color;
 			knownChatter.intl = authorData.isIntl;
 		}
 
@@ -151,9 +158,10 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 				id: authorData.userID,
 				username: authorData.userLogin ?? (authorData.userDisplayName ?? authorData.displayName)?.toLowerCase(),
 				displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
-				color: authorData.color,
+				color,
 			},
 		);
+
 		// check blocked state and ignore if blocked
 		if (msg.author && properties.blockedUsers.has(msg.author.id)) {
 			if (!properties.isModerator) {

@@ -1,7 +1,7 @@
 <template>
 	<div class="mod-action" :data-seventv-mod-action="getFormattedLabel()">
 		<span>
-			<UserTag v-if="victim" :user="victim" :color="victim.color" />
+			<UserTag v-if="victim" :user="victim" />
 
 			<span class="mod-action-timestamp">{{ timestamp }}</span>
 		</span>
