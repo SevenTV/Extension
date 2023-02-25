@@ -32,6 +32,7 @@ export class ModSliderData {
 	secondsToBanDuration(time: number): string {
 		const duration = intervalToDuration({ start: 0, end: time * 1000 });
 		return "".concat(
+			duration.seconds ? `${duration.seconds}s` : "",
 			duration.days ? `${duration.days}d` : "",
 			duration.hours ? `${duration.hours}h` : "",
 			duration.minutes ? `${duration.minutes}m` : "",
