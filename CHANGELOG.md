@@ -1,10 +1,16 @@
+### Version 3.0.0.15000 (Beta 15)
+
+- Fixed the "Smooth-scroll chat" setting requiring a refresh to update
+
 ### Version 3.0.0.14000 (Beta 14)
 
-- Added support for channel & global emotes in YouTube Live Chat
-- Added support for colon-completing third-party emotes in YouTube Live Chat
-- Added a button to collapse sets in the Emote Menu
-- Gave sorting priority to zero-width emotes in the Emote Menu
-- Zero-Width Emotes in Twitch Chat should now work again
+**This release adds initial support for YouTube**. To test this, grant permissions via the 7TV settings menu on Twitch.
+
+-   Added support for channel & global emotes in YouTube Live Chat
+-   Added support for colon-completing third-party emotes in YouTube Live Chat
+-   Added a button to collapse sets in the Emote Menu
+-   Gave sorting priority to zero-width emotes in the Emote Menu
+-   Zero-Width Emotes in Twitch Chat should now work again
 
 ---
 

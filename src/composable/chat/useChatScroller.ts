@@ -4,7 +4,6 @@ import { useConfig } from "@/composable/useSettings";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
 import { ChannelContext } from "../channel/useChannelContext";
 
-const scrollDuration = useConfig<number>("chat.smooth_scroll_duration");
 const lineLimit = useConfig<number>("chat.line_limit");
 
 interface ChatScrollerInit {
@@ -21,7 +20,6 @@ interface ChatScroller {
 	live: boolean;
 	visible: boolean;
 	paused: boolean; // whether or not scrolling is paused
-	duration: number;
 	pauseBuffer: ChatMessage[]; // twitch chat message buffe when scrolling is paused
 
 	scrollClear: () => void;
@@ -44,7 +42,6 @@ export function useChatScroller(ctx: ChannelContext, initWith?: ChatScrollerInit
 			live: false,
 			visible: true,
 			paused: false, // whether or not scrolling is paused
-			duration: scrollDuration.value,
 			pauseBuffer: [] as ChatMessage[], // twitch chat message buffe when scrolling is paused
 
 			scrollClear: () => {
@@ -186,7 +183,6 @@ export function useChatScroller(ctx: ChannelContext, initWith?: ChatScrollerInit
 		init: toRef(data, "init"),
 		paused: toRef(data, "paused"),
 		lineLimit: toRef(data, "lineLimit"),
-		duration: toRef(data, "duration"),
 		live: toRef(data, "live"),
 		pauseBuffer: toRef(data, "pauseBuffer"),
 

@@ -134,7 +134,7 @@ const filterSets = debounceFn(() => {
 	// Sort emote sets
 	ary.sort(sortFn);
 	sortedSets.value = ary;
-}, 500);
+}, 50);
 
 // Watch for changes to the emote sets and perform sorting operations
 watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
