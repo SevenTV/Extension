@@ -244,12 +244,12 @@ onUnmounted(() => {
 		border-radius: 0.25rem;
 		background-color: var(--seventv-background-transparent-1);
 		@at-root .seventv-transparent & {
-			backdrop-filter: blur(16px);
+			backdrop-filter: blur(1rem);
 		}
-		outline: 1px solid var(--seventv-border-transparent-1);
+		outline: 0.1rem solid var(--seventv-border-transparent-1);
 
 		.seventv-emote-menu-header {
-			border-bottom: 1px solid var(--seventv-border-transparent-1);
+			border-bottom: 0.1rem solid var(--seventv-border-transparent-1);
 			border-radius: 0.6rem 0.6rem 0 0;
 			background: hsla(0deg, 0%, 50%, 6%);
 

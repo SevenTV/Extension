@@ -1,4 +1,14 @@
-<template />
+<template>
+	<ChatInputCarousel
+		v-if="tabState && tabState.currentMatch && shouldRenderAutocompleteCarousel"
+		:current-match="tabState.currentMatch"
+		:forwards-matches="tabState.forwardsMatches ?? []"
+		:backwards-matches="tabState.backwardsMatches ?? []"
+		:instance="instance"
+		@back="(ev) => handleTabPress(ev, true)"
+		@forward="(ev) => handleTabPress(ev, false)"
+	/>
+</template>
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
@@ -14,12 +24,21 @@ import {
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
+import { convertTwitchEmote } from "@/common/Transform";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
+import ChatInputCarousel from "./ChatInputCarousel.vue";
+
+export interface TabToken {
+	token: string;
+	priority: number;
+	fromTwitch: boolean;
+	item?: SevenTV.ActiveEmote;
+}
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
@@ -35,14 +54,19 @@ const cosmetics = useCosmetics(store.identity?.id ?? "");
 const shouldUseColonComplete = useConfig("chat_input.autocomplete.colon");
 const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
+const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.carousel");
 const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
+const TAB_AROUND_MATCH_COUNT = 3;
 const tabState = ref<
 	| {
 			index: number;
 			matches: TabToken[];
+			currentMatch: TabToken;
+			forwardsMatches: TabToken[];
+			backwardsMatches: TabToken[];
 			expectedPath: number[];
 			expectedOffset: number;
 			expectedWord: string;
@@ -58,12 +82,6 @@ const history = ref<Twitch.ChatSlateLeaf[][]>([]);
 const historyLocation = ref(-1);
 
 const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
-
-interface TabToken {
-	token: string;
-	priority: number;
-	fromTwitch: boolean;
-}
 
 function findMatchingTokens(
 	str: string,
@@ -81,7 +99,7 @@ function findMatchingTokens(
 			colon: token.toLowerCase().includes(prefix),
 		}[mode]);
 
-	for (const [token] of Object.entries(cosmetics.emotes)) {
+	for (const [token, ae] of Object.entries(cosmetics.emotes)) {
 		if (usedTokens.has(token) || !test(token)) continue;
 
 		usedTokens.add(token);
@@ -89,10 +107,11 @@ function findMatchingTokens(
 			token,
 			priority: 4,
 			fromTwitch: false,
+			item: ae,
 		});
 	}
 
-	for (const [token] of Object.entries(emotes.active)) {
+	for (const [token, ae] of Object.entries(emotes.active)) {
 		if (usedTokens.has(token) || !test(token)) continue;
 
 		usedTokens.add(token);
@@ -100,6 +119,7 @@ function findMatchingTokens(
 			token,
 			priority: 3,
 			fromTwitch: false,
+			item: ae,
 		});
 	}
 
@@ -113,6 +133,11 @@ function findMatchingTokens(
 					token: emote.token,
 					priority: 2,
 					fromTwitch: true,
+					item: {
+						id: emote.id,
+						name: emote.token,
+						data: convertTwitchEmote(emote),
+					},
 				});
 			}
 		}
@@ -152,7 +177,7 @@ function findMatchingTokens(
 	return matches;
 }
 
-function handleTabPress(ev: KeyboardEvent): void {
+function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 	const component = props.instance.component;
 
 	const slateComponent = component.componentRef;
@@ -163,8 +188,10 @@ function handleTabPress(ev: KeyboardEvent): void {
 	const cursorLocation = slate.selection?.anchor;
 	if (!cursorLocation) return;
 
-	ev.preventDefault();
-	ev.stopImmediatePropagation();
+	if (ev) {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	}
 
 	let currentNode: { children: Twitch.ChatSlateLeaf[] } & Partial<Twitch.ChatSlateLeaf> = slate;
 	for (const i of cursorLocation.path) {
@@ -204,6 +231,9 @@ function handleTabPress(ev: KeyboardEvent): void {
 		let match: TabToken | undefined;
 		let matchIndex = 0;
 		let matches: TabToken[];
+		let backwardsMatches: TabToken[] = [];
+		let forwardsMatches: TabToken[] = [];
+
 		if (
 			!state ||
 			state.expectedPath != cursorLocation.path ||
@@ -215,9 +245,27 @@ function handleTabPress(ev: KeyboardEvent): void {
 			match = matches[matchIndex];
 		} else {
 			matches = state.matches;
-			matchIndex = isShift.value ? state.index - 1 : state.index + 1;
+			matchIndex = isBackwards ? state.index - 1 : state.index + 1;
 			matchIndex %= matches.length;
+			if (isBackwards && matchIndex < 0) matchIndex = matches.length - 1;
 			match = matches[matchIndex];
+
+			backwardsMatches = matches.slice(Math.max(0, matchIndex - TAB_AROUND_MATCH_COUNT), matchIndex);
+			forwardsMatches = matches.slice(matchIndex + 1, matchIndex + TAB_AROUND_MATCH_COUNT + 1);
+
+			// when forwardsMatches doesn't have enough matches, add the first matches from the beginning
+			if (forwardsMatches.length < TAB_AROUND_MATCH_COUNT) {
+				forwardsMatches.push(
+					...matches.slice(0, TAB_AROUND_MATCH_COUNT - forwardsMatches.length).filter((tok) => tok !== match),
+				);
+			}
+
+			// when backwardsMatches doesn't have enough matches, add the last matches from the end
+			if (backwardsMatches.length < TAB_AROUND_MATCH_COUNT) {
+				backwardsMatches.unshift(
+					...matches.slice(backwardsMatches.length - TAB_AROUND_MATCH_COUNT).filter((tok) => tok !== match),
+				);
+			}
 		}
 
 		if (match) {
@@ -236,6 +284,9 @@ function handleTabPress(ev: KeyboardEvent): void {
 			tabState.value = {
 				index: matchIndex,
 				matches: matches,
+				currentMatch: match,
+				backwardsMatches: backwardsMatches,
+				forwardsMatches: forwardsMatches,
 				expectedOffset: newOffset,
 				expectedPath: cursorLocation.path,
 				expectedWord: replacement,
@@ -350,7 +401,7 @@ function resetState() {
 function onKeyDown(ev: KeyboardEvent) {
 	switch (ev.key) {
 		case "Tab":
-			handleTabPress(ev);
+			handleTabPress(ev, isShift.value);
 			break;
 		case "ArrowUp":
 			if (useHistory(true)) {

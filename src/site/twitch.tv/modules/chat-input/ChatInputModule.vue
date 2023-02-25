@@ -14,7 +14,7 @@
 import { reactive, ref } from "vue";
 import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
-import { useConfig } from "@/composable/useSettings";
+import { declareConfig, useConfig } from "@/composable/useSettings";
 import ChatInput from "./ChatInput.vue";
 import ChatSpam from "./ChatSpam.vue";
 
@@ -37,12 +37,25 @@ const { markAsReady } = declareModule("chat-input", {
 			disabledIf: () => !useConfig("chat_input.autocomplete.colon").value,
 			hint: "Whether or not to also include emojis in the colon-completion list (This may impact performance)",
 			type: "TOGGLE",
-			defaultValue: true,
+			defaultValue: false,
 		},
+		declareConfig("chat_input.autocomplete.carousel", "TOGGLE", {
+			path: ["Chat", "Autocompletion"],
+			label: "Tab-completion Carousel",
+			hint: "Show a carousel visualization of previous and next tab-completion matches",
+			defaultValue: true,
+		}),
+		declareConfig("chat_input.autocomplete.carousel_arrow_keys", "TOGGLE", {
+			path: ["Chat", "Autocompletion"],
+			label: "Tab-completion Carousel: Arrow Keys",
+			disabledIf: () => !useConfig("chat_input.autocomplete.carousel").value,
+			hint: "Whether or not to allow using left/right arrow keys to navigate the tab-completion carousel",
+			defaultValue: true,
+		}),
 		{
 			key: "chat_input.autocomplete.chatters",
 			path: ["Chat", "Autocompletion"],
-			label: "Autocompleter chatters",
+			label: "Autocomplete chatters",
 			hint: "Whether or not to consider the usernames of active chatters when using tab-completion",
 			type: "TOGGLE",
 			defaultValue: true,
