@@ -9,7 +9,7 @@
 			<div class="seventv-settings-menu">
 				<div class="seventv-settings-header">
 					<div ref="dragHandle" class="header-left">
-						<div ref="testYtPerms" class="seventv-settings-header-icon">
+						<div class="seventv-settings-header-icon">
 							<Logo7TV />
 						</div>
 					</div>
@@ -45,6 +45,10 @@
 									@open-subcategory="(s) => navigateToCategory(category, s)"
 								/>
 							</template>
+
+							<div ref="ytTestButton">
+								<CategoryDropdown category="Enable YouTube" :subs="{}" />
+							</div>
 						</UiScrollable>
 						<div
 							class="seventv-settings-sidebar-profile"
@@ -99,8 +103,8 @@ import UiDraggable from "@/ui/UiDraggable.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { shift } from "@floating-ui/core";
 
-const testYtPerms = ref<HTMLDivElement | null>(null);
-useExtensionPermission(testYtPerms, ["*://*.youtube.com/*"]);
+const ytTestButton = ref<HTMLDivElement | null>(null);
+useExtensionPermission(ytTestButton, ["*://*.youtube.com/*"]);
 
 const ctx = useSettingsMenu();
 const settings = useSettings();

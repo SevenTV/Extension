@@ -10,6 +10,7 @@ import GearsIcon from "./GearsIcon.vue";
 import HomeIcon from "./HomeIcon.vue";
 import PaintIcon from "./PaintIcon.vue";
 import TvIcon from "./TvIcon.vue";
+import YouTubeIcon from "./YouTubeIcon.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -26,5 +27,7 @@ const c = {
 	Highlights: BellsIcon,
 	General: GearsIcon,
 	Channel: TvIcon,
+
+	"Enable YouTube": YouTubeIcon,
 }[props.name];
 </script>
