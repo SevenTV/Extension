@@ -75,7 +75,7 @@ export function debounceFn<T extends (...args: any[]) => any>(fn: T, delay = 100
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	return ((...args: any[]) => {
-		if (typeof timeout === "number") return;
+		clearTimeout(timeout);
 
 		timeout = window.setTimeout(() => {
 			timeout = undefined;
