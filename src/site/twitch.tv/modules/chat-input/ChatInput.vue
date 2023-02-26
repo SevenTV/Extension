@@ -532,7 +532,7 @@ watch(
 		}
 
 		if (node instanceof HTMLElement) {
-			defineNamedEventHandler(node, "ChatAutoComplete", "keydown", onKeyDown);
+			defineNamedEventHandler(node, "ChatAutoComplete", "keydown", onKeyDown, true);
 		}
 	},
 	{ immediate: true },

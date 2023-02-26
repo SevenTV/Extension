@@ -165,6 +165,7 @@ export function defineNamedEventHandler<K extends keyof HTMLElementEventMap>(
 	namespace: string,
 	event: K,
 	handler: (ev: HTMLElementEventMap[K]) => void,
+	capture?: boolean,
 ) {
 	const store = getEventStore(target);
 	const prop = `${namespace}:${event}`;
@@ -172,7 +173,7 @@ export function defineNamedEventHandler<K extends keyof HTMLElementEventMap>(
 	const oldHandler = Reflect.get(store, prop);
 	if (oldHandler) target.removeEventListener(event, oldHandler);
 
-	target.addEventListener(event, handler);
+	target.addEventListener(event, handler, { capture });
 	Reflect.set(store, prop, handler);
 }
 
