@@ -105,7 +105,7 @@ function findMatchingTokens(
 		usedTokens.add(token);
 		matches.push({
 			token,
-			priority: 5,
+			priority: 1,
 			fromTwitch: false,
 			item: ae,
 		});
@@ -117,7 +117,7 @@ function findMatchingTokens(
 		usedTokens.add(token);
 		matches.push({
 			token,
-			priority: 4,
+			priority: 2,
 			fromTwitch: false,
 			item: ae,
 		});
@@ -150,7 +150,7 @@ function findMatchingTokens(
 			usedTokens.add(token);
 			matches.push({
 				token,
-				priority: 2,
+				priority: 4,
 				fromTwitch: false,
 			});
 		}
@@ -166,7 +166,7 @@ function findMatchingTokens(
 
 			matches.push({
 				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName + " ",
-				priority: 1,
+				priority: 10,
 				fromTwitch: true,
 			});
 		}
@@ -249,23 +249,23 @@ function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 			matchIndex %= matches.length;
 			if (isBackwards && matchIndex < 0) matchIndex = matches.length - 1;
 			match = matches[matchIndex];
+		}
 
-			backwardsMatches = matches.slice(Math.max(0, matchIndex - TAB_AROUND_MATCH_COUNT), matchIndex);
-			forwardsMatches = matches.slice(matchIndex + 1, matchIndex + TAB_AROUND_MATCH_COUNT + 1);
+		backwardsMatches = matches.slice(Math.max(0, matchIndex - TAB_AROUND_MATCH_COUNT), matchIndex);
+		forwardsMatches = matches.slice(matchIndex + 1, matchIndex + TAB_AROUND_MATCH_COUNT + 1);
 
-			// when forwardsMatches doesn't have enough matches, add the first matches from the beginning
-			if (forwardsMatches.length < TAB_AROUND_MATCH_COUNT) {
-				forwardsMatches.push(
-					...matches.slice(0, TAB_AROUND_MATCH_COUNT - forwardsMatches.length).filter((tok) => tok !== match),
-				);
-			}
+		// when forwardsMatches doesn't have enough matches, add the first matches from the beginning
+		if (forwardsMatches.length < TAB_AROUND_MATCH_COUNT) {
+			forwardsMatches.push(
+				...matches.slice(0, TAB_AROUND_MATCH_COUNT - forwardsMatches.length).filter((tok) => tok !== match),
+			);
+		}
 
-			// when backwardsMatches doesn't have enough matches, add the last matches from the end
-			if (backwardsMatches.length < TAB_AROUND_MATCH_COUNT) {
-				backwardsMatches.unshift(
-					...matches.slice(backwardsMatches.length - TAB_AROUND_MATCH_COUNT).filter((tok) => tok !== match),
-				);
-			}
+		// when backwardsMatches doesn't have enough matches, add the last matches from the end
+		if (backwardsMatches.length < TAB_AROUND_MATCH_COUNT) {
+			backwardsMatches.unshift(
+				...matches.slice(backwardsMatches.length - TAB_AROUND_MATCH_COUNT).filter((tok) => tok !== match),
+			);
 		}
 
 		if (match) {

@@ -94,8 +94,9 @@ useEventListener(
 .seventv-autocomplete-floater-list {
 	display: flex;
 	align-items: center;
-	column-gap: 0.25rem;
-	padding: 0.85rem;
+	column-gap: 0.5rem;
+	min-height: 5rem;
+	padding: 1rem;
 
 	background: var(--seventv-background-transparent-1);
 	outline: 0.1rem solid var(--seventv-border-transparent-1);

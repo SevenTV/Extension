@@ -3,6 +3,7 @@
 #### Beta 15.1
 
 -   The tab-completion carousel should now also work in theater mode
+-   Fixed an issue where the tab-completion carousel required 2 tab presses to show results
 
 ---
 
