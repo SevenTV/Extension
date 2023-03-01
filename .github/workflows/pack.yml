@@ -40,14 +40,14 @@ jobs:
           cd dist/firefox/ && zip -r release-firefox.zip .
 
       - name: Upload Artifact (Chromium)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ext-chromium
           path: dist/chromium/release-chromium.zip
           retention-days: 60
 
       - name: Upload Artifact (Firefox)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ext-firefox
           path: dist/firefox/release-firefox.zip
