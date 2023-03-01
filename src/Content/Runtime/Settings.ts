@@ -85,7 +85,7 @@ class Settings {
 					label: 'Show Timeouts & Bans',
 					hint: 'This setting allows non-moderators to see actions by moderators',
 					type: 'checkbox',
-					defaultValue: true
+					defaultValue: false
 				},
 				{
 					id: 'general.autocomplete',

@@ -193,7 +193,7 @@ export class TwitchChatListener extends BaseTwitchChatListener {
 				id,
 				msgid: id,
 				channel: `#${controller.props.channelLogin}`,
-				type: 32,
+				type: 29,
 				message: `${hidePrefix ? '' : '[7TV] '}${text}`
 			});
 		}
