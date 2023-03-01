@@ -60,11 +60,11 @@ jobs:
 
     steps:
       - name: Download Artifact (Chromium)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ext-chromium
       - name: Download Artifact (Firefox)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ext-firefox
 
