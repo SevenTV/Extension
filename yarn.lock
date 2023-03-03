@@ -1325,10 +1325,10 @@
   dependencies:
     bson "*"
 
-"@types/chrome@0.0.130":
-  version "0.0.130"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.130.tgz#cde0934f673474794c01209bde84a4fc69987b23"
-  integrity sha512-pAHbcPeOmjNCF5EoUCAZk3+5lll1yyIDP+CZRNf1Dk8LaANkNBNZ5szHqeYYVjMyEGP6yIFeaO+Y7qNpz1hVOw==
+"@types/chrome@0.0.219":
+  version "0.0.219"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.219.tgz#40b50f9f1a299c272e42ea68c9ea9b828f1d9c0e"
+  integrity sha512-3j4Baa7DKrH2kJ5NLJIntpiqu4l7W0na0nrW9Y5y38HsLCXa4ydK8Y8Vicqq8ZZk/LLHKU7aarmUeqdBQmamAA==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
