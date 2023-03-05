@@ -42,4 +42,4 @@ if (!chrome.scripting) {
 }
 
 // DEBUG: reload background runner
-(window as Window & { r?: () => void }).r = () => chrome.runtime.reload();
+((self || window) as object & { r?: () => void }).r = () => chrome.runtime.reload();

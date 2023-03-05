@@ -95,6 +95,10 @@ main.onboarding-start {
 		margin: 2rem 3rem;
 		height: 3vw;
 		font-size: 1vw;
+
+		a {
+			all: unset;
+		}
 	}
 
 	@media screen and (max-width: 800px) {

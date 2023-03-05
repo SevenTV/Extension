@@ -1,6 +1,15 @@
 ### Version 3.0.0.16000 (Beta 16)
 
+#### Beta 16.1
+
+- Fixed an issue which led to broken styles on twitch.tv
+- Fixed an issue which blocked progress on the Onboarding page in Mozilla Firefox if extraneous permissions were requested
+
+---
+
 - Added an Onboarding Experience
+
+---
 
 ### Version 3.0.0.15000 (Beta 15)
 

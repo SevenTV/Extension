@@ -24,12 +24,13 @@ const ignoreHMR = [
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV;
 	const isDev = process.env.NODE_ENV === "dev";
+	const isNightly = process.env.BRANCH === "nightly" || process.env.BRANCH === "beta";
 
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: appName,
-		VITE_APP_VERSION: getFullVersion(isDev),
+		VITE_APP_VERSION: getFullVersion(isNightly),
 		VITE_APP_VERSION_BRANCH: process.env.BRANCH as BranchName,
 		VITE_APP_STYLESHEET_NAME: `seventv.style.${versionID}.css`,
 	};
@@ -108,7 +109,7 @@ export default defineConfig(() => {
 				apply: "build",
 				async writeBundle(this) {
 					const man = await getManifest({
-						version: getFullVersion(isDev),
+						version: getFullVersion(isNightly),
 						dev: isDev,
 						branch: process.env.BRANCH as BranchName,
 						mv2: isDev || !!process.env.MV2,

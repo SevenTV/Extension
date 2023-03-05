@@ -23,24 +23,20 @@ document.body.setAttribute("theme", "dark");
 <style lang="scss">
 @import "@/assets/style/global.scss";
 
-html {
+html[data-seventv-app] {
 	box-sizing: border-box;
 	font-family: Roboto, sans-serif;
 	height: 100%;
 	width: 100%;
 }
 
-body {
+body[data-seventv-app] {
 	height: 100%;
 	width: 100%;
 	overflow-x: hidden;
 
 	background: var(--seventv-background-shade-1);
 	color: var(--seventv-text-color-normal);
-}
-
-a {
-	all: unset;
 }
 
 #app {

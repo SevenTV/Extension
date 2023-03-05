@@ -28,7 +28,7 @@
 interface PlatformDef {
 	name: string;
 	icon: ComponentFactory | null;
-	hosts: string[];
+	hosts?: string[];
 	selected?: boolean;
 }
 
@@ -39,7 +39,7 @@ onActivated(() => {
 		const selection = platforms.value.filter((p) => p.selected);
 		if (selection.length === 0) return false;
 
-		const hosts = selection.flatMap((p) => p.hosts);
+		const hosts = selection.flatMap((p) => p.hosts ?? []);
 		chrome.permissions.request({ origins: hosts }, (granted) => {
 			if (granted) {
 				ctx.setLock(false);
@@ -53,7 +53,7 @@ onDeactivated(() => {
 });
 
 const platforms = ref<PlatformDef[]>([
-	{ name: "Twitch", icon: markRaw(LogoBrandTwitch), hosts: ["*://*.twitch.tv/*"], selected: true },
+	{ name: "Twitch", icon: markRaw(LogoBrandTwitch), selected: true },
 	{ name: "YouTube", icon: markRaw(LogoBrandYouTube), hosts: ["*://*.youtube.com/*"], selected: true },
 ]);
 
