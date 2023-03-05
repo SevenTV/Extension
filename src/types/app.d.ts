@@ -61,6 +61,7 @@ declare namespace SevenTV {
 		key: string;
 		type: typeof T;
 		value: T;
+		timestamp?: number;
 	}
 
 	interface SettingNode<T = SettingType, K = SettingNode.ComponentType> {
@@ -69,6 +70,7 @@ declare namespace SevenTV {
 		label: string;
 		hint?: string;
 		path?: [string, string];
+		timestamp?: number;
 
 		component?: Raw<object>;
 

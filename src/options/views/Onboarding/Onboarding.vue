@@ -110,9 +110,7 @@ watch(
 	() => route.params.step as string,
 	(step) => {
 		ctx.activeStep = ctx.steps.get(step) ?? null;
-		if (ctx.activeStep?.name === "end") {
-			isAtEnd.value = true;
-		}
+		isAtEnd.value = ctx.activeStep?.name === "end" || false;
 	},
 	{ immediate: true },
 );

@@ -18,4 +18,19 @@ async function main() {
 	});
 }
 
+chrome.tabs.onUpdated.addListener((id, i) => {
+	if (i.status !== "complete") return;
+
+	// wait a few seconds then send extension-stored settings
+	// the site will decide if these nodes are more up to date than its own set
+	setTimeout(() => {
+		if (typeof id !== "number") return;
+
+		chrome.tabs.sendMessage(id, {
+			type: "settings-sync",
+			data: { settings },
+		});
+	}, 5000);
+});
+
 main();

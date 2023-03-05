@@ -1,4 +1,5 @@
 import { appName, getFullVersion, r, versionID } from "./vite.utils";
+import path from "path";
 import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(() => {
@@ -16,6 +17,11 @@ export default defineConfig(() => {
 
 	return {
 		mode,
+		resolve: {
+			alias: {
+				"@": path.resolve(__dirname, "src"),
+			},
+		},
 		base: isDev ? "http://localhost:4777/" : "./",
 		build: {
 			emptyOutDir: false,

@@ -21,10 +21,11 @@ import type { Component } from "vue";
 import { defineAsyncComponent } from "vue";
 import { inject } from "vue";
 import { markRaw, onMounted, ref } from "vue";
-import { SITE_WORKER_URL } from "@/common/Constant";
+import { APP_BROADCAST_CHANNEL, SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
-import { fillSettings } from "@/composable/useSettings";
+import { fillSettings, useSettings } from "@/composable/useSettings";
+import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
 import YouTubeSite from "./youtube.com/YouTubeSite.vue";
@@ -41,6 +42,7 @@ if (import.meta.hot) {
 
 const wg = ref(3);
 const appID = inject<string>("app-id") ?? null;
+const settings = useSettings();
 log.info(`7TV (inst: ${appID}) is loading`);
 
 // Detect current platform
@@ -64,13 +66,28 @@ db.ready().then(async () => {
 });
 
 // Spawn SharedWorker
-const bc = new BroadcastChannel("SEVENTV#NETWORK");
+const netChannel = new BroadcastChannel("SEVENTV#NETWORK");
 const { init, target } = useWorker();
-init(bc, inject(SITE_WORKER_URL, ""));
+init(netChannel, inject(SITE_WORKER_URL, ""));
 
 target.addEventListener("ready", () => {
 	log.info("Worker ready");
 	wg.value--;
+});
+
+//
+const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
+bc.addEventListener("message", (ev) => {
+	if (ev.data.type !== "seventv-settings-sync") return;
+	const { nodes } = ev.data.data as { nodes: (SevenTV.Setting<SevenTV.SettingNode> & { timestamp: number })[] };
+
+	const newNodes = nodes.filter(
+		(n) => !settings.nodes[n.key] || n.timestamp > (settings.nodes[n.key].timestamp ?? 0),
+	);
+
+	for (const node of newNodes) {
+		useConfig(node.key).value = node.value;
+	}
 });
 
 log.setContextName(`site/${domain}`);

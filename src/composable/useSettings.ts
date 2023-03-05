@@ -43,8 +43,11 @@ db.ready().then(() =>
 );
 
 export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
-	for (const { key, value } of s) {
+	for (const { key, value, timestamp } of s) {
 		raw[key] = value;
+		nodes[key] = {
+			timestamp,
+		} as SevenTV.SettingNode;
 	}
 }
 
@@ -67,7 +70,10 @@ export function synchronizeFrankerFaceZ() {
 export function useSettings() {
 	function register(newNodes: SevenTV.SettingNode[]) {
 		for (const node of newNodes) {
-			nodes[node.key] = node;
+			nodes[node.key] = {
+				...node,
+				timestamp: nodes[node.key]?.timestamp ?? undefined,
+			};
 
 			if (["string", "boolean", "object", "number", "undefined"].includes(typeof raw[node.key])) {
 				raw[node.key] = raw[node.key] ?? node.defaultValue;

@@ -1,3 +1,5 @@
+import { APP_BROADCAST_CHANNEL } from "@/common/Constant";
+
 // Inject extension into site
 const inject = () => {
 	// Script
@@ -25,7 +27,7 @@ const inject = () => {
 	(document.head || document.documentElement).appendChild(script);
 };
 
-const bc = new BroadcastChannel("seventv-app-broadcast-channel");
+const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 (() => {
 	inject();
 
@@ -77,6 +79,10 @@ const bc = new BroadcastChannel("seventv-app-broadcast-channel");
 				onUpdateDownloaded(msg.data.version ?? "");
 				break;
 			}
+			case "settings-sync": {
+				onSettingsUpdated(msg.data.settings ?? []);
+				break;
+			}
 		}
 	});
 })();
@@ -85,6 +91,13 @@ function onUpdateDownloaded(version: string): void {
 	bc.postMessage({
 		type: "seventv-update-ready",
 		data: { version },
+	});
+}
+
+function onSettingsUpdated(settings: SevenTV.Setting<SevenTV.SettingNode>[]): void {
+	bc.postMessage({
+		type: "seventv-settings-sync",
+		data: { nodes: settings },
 	});
 }
 
