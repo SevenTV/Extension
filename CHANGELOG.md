@@ -1,8 +1,16 @@
-### Version 3.0.0.16000 (Beta 16)
-
-- Input hotkeys such as tabbing are now captured to thwart conflicts from other extensions
-
 ### Version 3.0.0.15000 (Beta 15)
+
+#### Beta 15.3
+
+-   Updated message types
+
+---
+
+#### Beta 15.2
+
+-   Input hotkeys such as tabbing are now captured to thwart conflicts from other extensions
+
+---
 
 #### Beta 15.1
 

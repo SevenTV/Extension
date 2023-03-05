@@ -11,9 +11,9 @@ class SettingsMenuContext {
 	scrollpoint = "";
 
 	sortedNodes: SevenTV.SettingNode[] = [];
-	mappedNodes: Record<string, Record<string, SevenTV.SettingNode[]>> = {
+	mappedNodes: Record<string, Record<string, SevenTV.SettingNode[]>> = reactive({
 		Home: {},
-	};
+	});
 
 	constructor() {
 		this.switchView("home");

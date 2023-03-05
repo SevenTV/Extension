@@ -14,22 +14,12 @@ import { refDebounced, watchDebounced } from "@vueuse/shared";
 import { SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
-import { useConfig } from "@/composable/useSettings";
+import { declareConfig, useConfig } from "@/composable/useSettings";
 import ChatVod from "./ChatVod.vue";
 
 declareModule("chat-vod", {
 	name: "Chat VOD",
 	depends_on: [],
-	config: [
-		{
-			key: "chat.vods",
-			label: "VOD Support",
-			path: ["Chat", "VODs"],
-			hint: "Enables 7TV rendering in the chat replay of VODs",
-			type: "TOGGLE",
-			defaultValue: true,
-		},
-	],
 });
 
 const shouldRenderVodChat = useConfig("chat.vods");
@@ -74,4 +64,15 @@ watchDebounced(
 	},
 	{ debounce: 1000 },
 );
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("chat.vods", "TOGGLE", {
+		label: "VOD Support",
+		path: ["Chat", "VODs"],
+		hint: "Enables 7TV rendering in the chat replay of VODs",
+		defaultValue: true,
+	}),
+];
 </script>

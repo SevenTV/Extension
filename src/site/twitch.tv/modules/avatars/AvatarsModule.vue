@@ -8,22 +8,12 @@ import { getVNodeFromDOM } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
 import { db } from "@/db/idb";
 import { declareModule } from "@/composable/useModule";
-import { useConfig } from "@/composable/useSettings";
+import { declareConfig, useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 
 const { markAsReady } = declareModule("avatars", {
 	name: "Animated Avatars",
 	depends_on: [],
-	config: [
-		{
-			key: "avatars.animation",
-			path: ["Appearance", "Vanity"],
-			label: "Animated Avatars",
-			hint: "Whether or not to allow user avatars to be animated",
-			type: "TOGGLE",
-			defaultValue: true,
-		},
-	],
 });
 
 const { sendMessage, target: workerTarget } = useWorker();
@@ -247,4 +237,15 @@ onUnmounted(() => {
 });
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("avatars.animation", "TOGGLE", {
+		path: ["Appearance", "Vanity"],
+		label: "Animated Avatars",
+		hint: "Whether or not to allow user avatars to be animated",
+		defaultValue: true,
+	}),
+];
 </script>

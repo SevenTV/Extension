@@ -20,26 +20,11 @@ import ModLogs from "./ModLogs.vue";
 import ModLogsButton from "./ModLogsButton.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import { shift } from "@floating-ui/core";
+import { declareConfig } from "@/composable/useSettings";
 
 const { dependenciesMet, markAsReady } = declareModule("mod-logs", {
 	name: "Mod Logs",
 	depends_on: ["chat", "chat-input-controller"],
-	config: [
-		{
-			key: "chat.mod_logs.enabled",
-			path: ["Chat", "Moderation"],
-			label: "Enable Mod Logs",
-			hint: "Mod Logs allow you to view recent and active timeouts/bans in the current channel",
-			type: "TOGGLE",
-			defaultValue: true,
-		},
-		{
-			key: "chat.mod_logs.ack_risks",
-			label: "",
-			type: "NONE",
-			defaultValue: false,
-		},
-	],
 });
 
 const open = ref(false);
@@ -65,4 +50,19 @@ const buttonRef = inputController.instance.addButton(
 );
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("chat.mod_logs.enabled", "TOGGLE", {
+		path: ["Chat", "Moderation"],
+		label: "Enable Mod Logs",
+		hint: "Mod Logs allow you to view recent and active timeouts/bans in the current channel",
+		defaultValue: true,
+	}),
+	declareConfig("chat.mod_logs.ack_risks", "NONE", {
+		label: "",
+		defaultValue: false,
+	}),
+];
 </script>

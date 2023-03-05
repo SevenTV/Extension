@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import { inject, ref, watch } from "vue";
 import { useBreakpoints } from "@vueuse/core";
-import { watchThrottled } from "@vueuse/shared";
+import { watchDebounced, watchThrottled } from "@vueuse/shared";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useExtensionPermission } from "@/composable/useExtensionPermission";
@@ -188,6 +188,7 @@ function openAuthWindow(): void {
 
 watch(settings.nodes, sortNodes, { immediate: true });
 watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
+watchDebounced(ctx.sortedNodes, () => filterAndMapNodes(filter.value), { debounce: 250, immediate: true });
 </script>
 
 <style scoped lang="scss">

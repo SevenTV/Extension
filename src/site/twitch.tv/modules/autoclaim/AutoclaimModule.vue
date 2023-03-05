@@ -7,21 +7,11 @@ import { debounceFn } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
-import { useConfig } from "@/composable/useSettings";
+import { declareConfig, useConfig } from "@/composable/useSettings";
 
 const { dependenciesMet, markAsReady } = declareModule("autoclaim", {
 	name: "Autoclaim",
 	depends_on: ["chat"],
-	config: [
-		{
-			key: "general.autoclaim.channel_points",
-			label: "Autoclaim Channel Points",
-			hint: "Automatically claim your channel point bonus when it becomes available.",
-			path: ["Channel", "Autoclaim"],
-			type: "TOGGLE",
-			defaultValue: false,
-		},
-	],
 });
 await until(dependenciesMet).toBe(true);
 
@@ -63,4 +53,15 @@ const doClaim = debounceFn(async (inst: HookedInstance<Twitch.ChatChannelPointsC
 }, 1000);
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("general.autoclaim.channel_points", "TOGGLE", {
+		label: "Autoclaim Channel Points",
+		hint: "Automatically claim your channel point bonus when it becomes available.",
+		path: ["Channel", "Autoclaim"],
+		defaultValue: false,
+	}),
+];
 </script>

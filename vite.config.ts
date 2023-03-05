@@ -1,12 +1,9 @@
 import { BranchName, getManifest } from "./manifest.config";
-import { displayName as name, version } from "./package.json";
+import { appName, getFullVersion, r, versionID } from "./vite.utils";
 import vue from "@vitejs/plugin-vue";
-import { spawn } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 import { defineConfig, loadEnv } from "vite";
-
-const r = (...args: string[]) => path.resolve(__dirname, ...args);
 
 const ignoreHMR = [
 	"main.ts",
@@ -24,17 +21,15 @@ const ignoreHMR = [
 ];
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-	const isDev = mode === "dev";
-	const versionSplit = version.split(".");
-	const versionID =
-		versionSplit.slice(0, 3).join("") + (versionSplit[3] ? `-${parseInt(versionSplit[3]) / 1000}` : "");
+export default defineConfig(() => {
+	const mode = process.env.NODE_ENV;
+	const isDev = process.env.NODE_ENV === "dev";
 
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
-		VITE_APP_NAME: name,
-		VITE_APP_VERSION: version,
+		VITE_APP_NAME: appName,
+		VITE_APP_VERSION: getFullVersion(isDev),
 		VITE_APP_VERSION_BRANCH: process.env.BRANCH as BranchName,
 		VITE_APP_STYLESHEET_NAME: `seventv.style.${versionID}.css`,
 	};
@@ -49,7 +44,8 @@ export default defineConfig(({ mode }) => {
 				protocol: "ws",
 			},
 		},
-		base: isDev ? "http://localhost:4777/" : undefined,
+		mode,
+		base: isDev ? "http://localhost:4777/" : "./",
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "src"),
@@ -66,16 +62,21 @@ export default defineConfig(({ mode }) => {
 			sourcemap: isDev,
 			chunkSizeWarningLimit: 10000,
 			rollupOptions: {
+				maxParallelFileOps: 100,
 				input: {
-					background: r("src/background.ts"),
-					content: r("src/content/content.ts"),
 					site: r("src/site/site.ts"),
+					options: r("index.html"),
 				},
 				output: {
 					entryFileNames: (info) => {
-						const name = path.basename(info.facadeModuleId.replace(".ts", ".js"));
-
-						return name;
+						switch (info.name) {
+							// Options Page
+							case "options":
+								return `src/options/options${isDev ? "" : ".js"}`;
+							// Catch-all, extension scripts
+							default:
+								return path.basename(info.facadeModuleId.replace(".ts", ".js"));
+						}
 					},
 					assetFileNames: `assets/seventv.[name].${versionID}[extname]`,
 					chunkFileNames: `assets/seventv.[name].${versionID}.js`,
@@ -105,8 +106,9 @@ export default defineConfig(({ mode }) => {
 				name: "compile-manifest",
 				enforce: "post",
 				apply: "build",
-				async buildEnd(this) {
+				async writeBundle(this) {
 					const man = await getManifest({
+						version: getFullVersion(isDev),
 						dev: isDev,
 						branch: process.env.BRANCH as BranchName,
 						mv2: isDev || !!process.env.MV2,
@@ -114,14 +116,6 @@ export default defineConfig(({ mode }) => {
 
 					setTimeout(() => {
 						fs.writeJSON(r("dist/manifest.json"), man);
-
-						spawn("yarn", ["build:worker", "--mode", mode], {
-							shell: true,
-							stdio: "inherit",
-							env: {
-								BRANCH: process.env.BRANCH,
-							},
-						});
 					});
 				},
 			},

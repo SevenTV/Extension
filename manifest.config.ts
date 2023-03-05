@@ -1,4 +1,4 @@
-import { description, displayName, name, version } from "./package.json";
+import { description, displayName, name } from "./package.json";
 import type { Manifest } from "webextension-polyfill-ts";
 
 interface MV3HostPermissions {
@@ -10,6 +10,7 @@ interface ManifestOptions {
 	mv2?: boolean;
 	branch?: BranchName;
 	dev?: boolean;
+	version: string;
 }
 
 export type BranchName = "beta" | "dev";
@@ -20,8 +21,8 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 	const manifest = {
 		manifest_version: 3,
 		name: (displayName || name) + (opt.branch ? ` ${opt.branch.toUpperCase()}` : ""),
-		version: version,
-		version_name: version + (opt.branch ? ` ${opt.branch}` : ""),
+		version: opt.version,
+		version_name: opt.version + (opt.branch ? ` ${opt.branch}` : ""),
 		description: description,
 		action: {
 			default_icon: `./icon/${iconName}`,
@@ -36,6 +37,11 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 				js: ["content.js"],
 			},
 		],
+		options_ui: {
+			page: "index.html",
+			open_in_tab: true,
+		},
+
 		icons: {
 			16: `./icon/${iconName}`,
 			48: `./icon/${iconName}`,

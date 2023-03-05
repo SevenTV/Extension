@@ -14,21 +14,6 @@ import EmoteMenu from "./EmoteMenu.vue";
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
 	depends_on: ["settings"],
-	config: [
-		{
-			key: "ui.emote_menu_search",
-			path: ["Appearance", "Interface"],
-			label: "Live Input Search",
-			hint: "Use the chat's regular input box to search in the emote menu instead of the integrated search box",
-			type: "TOGGLE",
-			defaultValue: false,
-		},
-		declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
-			path: ["", ""],
-			label: "Emote Menu",
-			defaultValue: new Set(),
-		}),
-	],
 });
 
 const buttonEl = ref<HTMLButtonElement | undefined>();
@@ -64,4 +49,20 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 );
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("ui.emote_menu_search", "TOGGLE", {
+		path: ["Appearance", "Interface"],
+		label: "Live Input Search",
+		hint: "Use the chat's regular input box to search in the emote menu instead of the integrated search box",
+		defaultValue: false,
+	}),
+	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
+		path: ["", ""],
+		label: "Emote Menu",
+		defaultValue: new Set(),
+	}),
+];
 </script>

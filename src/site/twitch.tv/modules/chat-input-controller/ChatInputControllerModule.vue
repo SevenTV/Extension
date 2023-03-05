@@ -15,7 +15,6 @@ import { declareModule } from "@/composable/useModule";
 const { markAsReady } = declareModule("chat-input-controller", {
 	name: "Controller: Chat Input",
 	depends_on: ["chat"],
-	config: [],
 });
 
 // Button renderer

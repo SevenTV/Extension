@@ -21,62 +21,6 @@ import ChatSpam from "./ChatSpam.vue";
 const { markAsReady } = declareModule("chat-input", {
 	name: "Chat Input",
 	depends_on: [],
-	config: [
-		{
-			key: "chat_input.autocomplete.colon",
-			path: ["Chat", "Autocompletion"],
-			label: "Colon-completion",
-			hint: "Allows the use of a colon (:) to open a list of partially matching emotes",
-			type: "TOGGLE",
-			defaultValue: true,
-		},
-		{
-			key: "chat_input.autocomplete.colon.emoji",
-			path: ["Chat", "Autocompletion"],
-			label: "Colon-completion: Emoji",
-			disabledIf: () => !useConfig("chat_input.autocomplete.colon").value,
-			hint: "Whether or not to also include emojis in the colon-completion list (This may impact performance)",
-			type: "TOGGLE",
-			defaultValue: false,
-		},
-		declareConfig("chat_input.autocomplete.carousel", "TOGGLE", {
-			path: ["Chat", "Autocompletion"],
-			label: "Tab-completion Carousel",
-			hint: "Show a carousel visualization of previous and next tab-completion matches",
-			defaultValue: true,
-		}),
-		declareConfig("chat_input.autocomplete.carousel_arrow_keys", "TOGGLE", {
-			path: ["Chat", "Autocompletion"],
-			label: "Tab-completion Carousel: Arrow Keys",
-			disabledIf: () => !useConfig("chat_input.autocomplete.carousel").value,
-			hint: "Whether or not to allow using left/right arrow keys to navigate the tab-completion carousel",
-			defaultValue: true,
-		}),
-		{
-			key: "chat_input.autocomplete.chatters",
-			path: ["Chat", "Autocompletion"],
-			label: "Autocomplete chatters",
-			hint: "Whether or not to consider the usernames of active chatters when using tab-completion",
-			type: "TOGGLE",
-			defaultValue: true,
-		},
-		{
-			key: "chat_input.spam.bypass_duplicate",
-			path: ["Chat", "Typing"],
-			label: "Bypass Duplicate Message Check",
-			hint: "If enabled, you will be able to send the same message multiple times in a row",
-			type: "TOGGLE",
-			defaultValue: false,
-		},
-		{
-			key: "chat_input.spam.rapid_fire_send",
-			path: ["Chat", "Typing"],
-			label: "Quick Send",
-			hint: "If enabled, you can use the Ctrl+Enter shortcut to keep the current message in the input box after sending",
-			type: "TOGGLE",
-			defaultValue: true,
-		},
-	],
 });
 
 const shouldMount = reactive(new WeakMap<HookedInstance<Twitch.ChatAutocompleteComponent>, boolean>());
@@ -182,4 +126,53 @@ defineExpose({
 });
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("chat_input.autocomplete.colon", "TOGGLE", {
+		path: ["Chat", "Autocompletion"],
+		label: "Colon-completion",
+		hint: "Allows the use of a colon (:) to open a list of partially matching emotes",
+		defaultValue: true,
+	}),
+	declareConfig("chat_input.autocomplete.colon.emoji", "TOGGLE", {
+		path: ["Chat", "Autocompletion"],
+		label: "Colon-completion: Emoji",
+		disabledIf: () => !useConfig("chat_input.autocomplete.colon").value,
+		hint: "Whether or not to also include emojis in the colon-completion list (This may impact performance)",
+		defaultValue: false,
+	}),
+	declareConfig("chat_input.autocomplete.carousel", "TOGGLE", {
+		path: ["Chat", "Autocompletion"],
+		label: "Tab-completion Carousel",
+		hint: "Show a carousel visualization of previous and next tab-completion matches",
+		defaultValue: true,
+	}),
+	declareConfig("chat_input.autocomplete.carousel_arrow_keys", "TOGGLE", {
+		path: ["Chat", "Autocompletion"],
+		label: "Tab-completion Carousel: Arrow Keys",
+		disabledIf: () => !useConfig("chat_input.autocomplete.carousel").value,
+		hint: "Whether or not to allow using left/right arrow keys to navigate the tab-completion carousel",
+		defaultValue: true,
+	}),
+	declareConfig("chat_input.autocomplete.chatters", "TOGGLE", {
+		path: ["Chat", "Autocompletion"],
+		label: "Autocomplete chatters",
+		hint: "Whether or not to consider the usernames of active chatters when using tab-completion",
+		defaultValue: true,
+	}),
+	declareConfig("chat_input.spam.bypass_duplicate", "TOGGLE", {
+		path: ["Chat", "Typing"],
+		label: "Bypass Duplicate Message Check",
+		hint: "If enabled, you will be able to send the same message multiple times in a row",
+		defaultValue: false,
+	}),
+	declareConfig("chat_input.spam.rapid_fire_send", "TOGGLE", {
+		path: ["Chat", "Typing"],
+		label: "Quick Send",
+		hint: "If enabled, you can use the Ctrl+Enter shortcut to keep the current message in the input box after sending",
+		defaultValue: true,
+	}),
+];
 </script>

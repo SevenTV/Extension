@@ -1,6 +1,9 @@
 <template>
 	<template v-for="[key, mod] of Object.entries(modules)" :key="key">
-		<ModuleWrapper :mod="mod" @mounted="onModuleUpdate(key as unknown as TwModuleID, $event)" />
+		<ModuleWrapper
+			:mod="mod.default"
+			@mounted="onModuleUpdate(key as unknown as TwModuleID, mod.config ?? [], $event)"
+		/>
 	</template>
 </template>
 
@@ -11,7 +14,7 @@ import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
-import { synchronizeFrankerFaceZ, useConfig } from "@/composable/useSettings";
+import { synchronizeFrankerFaceZ, useConfig, useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import type { TwModuleID } from "@/types/tw.module";
 import ModuleWrapper from "../ModuleWrapper.vue";
@@ -32,7 +35,12 @@ provide(SITE_CURRENT_PLATFORM, "TWITCH");
 provide(SITE_NAV_PATHNAME, currentPath);
 
 // Import modules
-const modules = import.meta.glob("./modules/**/*Module.vue", { eager: true, import: "default" });
+const modules: Record<string, { default: ComponentFactory; config: SevenTV.SettingNode[] }> = import.meta.glob(
+	"./modules/**/*Module.vue",
+	{
+		eager: true,
+	},
+);
 for (const key in modules) {
 	const modPath = key.split("/");
 	const modKey = modPath.splice(modPath.length - 2, 1).pop();
@@ -89,10 +97,12 @@ watch(
 	{ immediate: true },
 );
 
-function onModuleUpdate(mod: TwModuleID, inst: InstanceType<ComponentFactory>) {
+const settings = useSettings();
+function onModuleUpdate(mod: TwModuleID, config: SevenTV.SettingNode[], inst: InstanceType<ComponentFactory>) {
 	const modInst = getModule(mod);
 	if (!modInst) return;
 
+	settings.register(config);
 	modInst.instance = inst;
 }
 

@@ -1,3 +1,5 @@
+import "./sync";
+
 let shouldReloadOnUpdate = false;
 
 const ytHostnameRegex = /([a-z0-9]+[.])*youtube[.]com/;
@@ -105,3 +107,6 @@ function broadcastMessage(type: string, data: unknown): void {
 		});
 	});
 }
+
+// DEBUG: reload background runner
+(window as Window & { r?: () => void }).r = () => chrome.runtime.reload();
