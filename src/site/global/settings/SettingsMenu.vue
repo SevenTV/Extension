@@ -45,10 +45,6 @@
 									@open-subcategory="(s) => navigateToCategory(category, s)"
 								/>
 							</template>
-
-							<div ref="ytTestButton">
-								<CategoryDropdown category="Enable YouTube" :subs="{}" />
-							</div>
 						</UiScrollable>
 						<div
 							class="seventv-settings-sidebar-profile"
@@ -89,7 +85,6 @@ import { useBreakpoints } from "@vueuse/core";
 import { watchDebounced, watchThrottled } from "@vueuse/shared";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
-import { useExtensionPermission } from "@/composable/useExtensionPermission";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import CategoryDropdown from "@/site/global/settings/CategoryDropdown.vue";
@@ -102,9 +97,6 @@ import SettingsUpdateButton from "./SettingsUpdateButton.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { shift } from "@floating-ui/core";
-
-const ytTestButton = ref<HTMLDivElement | null>(null);
-useExtensionPermission(ytTestButton, ["*://*.youtube.com/*"]);
 
 const ctx = useSettingsMenu();
 const settings = useSettings();

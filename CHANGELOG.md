@@ -1,3 +1,7 @@
+### Version 3.0.0.16000 (Beta 16)
+
+- Added an Onboarding Experience
+
 ### Version 3.0.0.15000 (Beta 15)
 
 #### Beta 15.3

@@ -75,6 +75,7 @@ a {
 
 		svg {
 			font-size: 2rem;
+			font-size: 2vw;
 			margin-right: 0.15rem;
 		}
 	}

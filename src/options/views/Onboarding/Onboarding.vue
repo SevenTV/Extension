@@ -27,23 +27,19 @@
 				/>
 			</div>
 
-			<UiButton
-				:disabled="!ctx.sortedSteps[ctx.sortedSteps.indexOf(ctx.activeStep) + 1]"
-				class="ui-button-important"
-				@click="toStep(1)"
-			>
+			<UiButton class="ui-button-important" @click="isAtEnd ? exit() : toStep(1)">
 				<template #icon>
 					<ChevronIcon direction="right" />
 				</template>
 
-				<span>Next</span>
+				<span>{{ isAtEnd ? "Done" : "Next" }}</span>
 			</UiButton>
 		</div>
 	</main>
 </template>
 
 <script setup lang="ts">
-import { markRaw, reactive, watch } from "vue";
+import { markRaw, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { until } from "@vueuse/core";
 import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";
@@ -53,6 +49,7 @@ import UiButton from "@/ui/UiButton.vue";
 const ctx = createOnboarding();
 const route = useRoute();
 const router = useRouter();
+const isAtEnd = ref(false);
 
 // Load step data from components
 const loadedSteps = import.meta.glob("./Onboarding*.vue", { eager: true });
@@ -100,11 +97,22 @@ function toStep(delta: number): void {
 		});
 }
 
+// Completely exit the onboarding app by closing the tab
+function exit(): void {
+	chrome.tabs.getCurrent((tab) => {
+		if (!tab || typeof tab.id !== "number") return;
+		chrome.tabs.remove(tab.id);
+	});
+}
+
 // Watch route change and apply new component
 watch(
 	() => route.params.step as string,
 	(step) => {
 		ctx.activeStep = ctx.steps.get(step) ?? null;
+		if (ctx.activeStep?.name === "end") {
+			isAtEnd.value = true;
+		}
 	},
 	{ immediate: true },
 );

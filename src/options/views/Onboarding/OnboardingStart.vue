@@ -13,7 +13,7 @@
 		</div>
 
 		<div class="feature-buttons">
-			<UiButton class="ui-button-hollow">
+			<UiButton class="ui-button-hollow" @click="skipConfig">
 				<span>Skip</span>
 			</UiButton>
 
@@ -41,9 +41,15 @@ useHead({
 });
 
 useOnboarding("start");
+
+const router = useRouter();
+function skipConfig(): void {
+	router.push({ name: "Onboarding", params: { step: "promotion" } });
+}
 </script>
 
 <script lang="ts">
+import { useRouter } from "vue-router";
 import { OnboardingStepRoute } from "./Onboarding";
 
 export const step: OnboardingStepRoute = {

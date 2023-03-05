@@ -1,8 +1,16 @@
+import "./messaging";
 import "./sync";
 
-let shouldReloadOnUpdate = false;
+const HOSTNAME_YT_REGEXP = /([a-z0-9]+[.])*youtube[.]com/;
 
-const ytHostnameRegex = /([a-z0-9]+[.])*youtube[.]com/;
+chrome.runtime.onInstalled.addListener(() => {
+	chrome.storage.local.get(({ seen_onboarding }) => {
+		if (seen_onboarding) return;
+
+		chrome.runtime.openOptionsPage();
+		chrome.storage.local.set({ seen_onboarding: true });
+	});
+});
 
 // Register content scripts
 const activeTabs = new Set<number>();
@@ -16,7 +24,7 @@ if (!chrome.scripting) {
 		}
 
 		const loc = new URL(t.url);
-		if (ytHostnameRegex.test(loc.host)) {
+		if (HOSTNAME_YT_REGEXP.test(loc.host)) {
 			chrome.tabs.executeScript(tabId, {
 				file: "content.js",
 			});
@@ -31,81 +39,6 @@ if (!chrome.scripting) {
 			allFrames: true,
 		},
 	]);
-}
-
-// Handle messaging from downstream
-chrome.runtime.onMessage.addListener((msg, _, reply) => {
-	switch (msg.type) {
-		case "permission-request": {
-			const { id, origins, permissions } = msg.data;
-
-			chrome.permissions.request({ origins, permissions }, (granted) => {
-				reply({ granted, id });
-
-				if (!granted) return;
-
-				chrome.runtime.sendMessage({
-					type: "permission-granted",
-					data: { id },
-				});
-			});
-			break;
-		}
-		case "update-check": {
-			if (typeof chrome.runtime.requestUpdateCheck !== "function") return;
-			shouldReloadOnUpdate = true;
-
-			/* // sim:
-			reply({
-				status: "update_available",
-				version: "3.0.0.12200",
-				done: false,
-			});
-
-			setTimeout(() => {
-				if (!shouldReloadOnUpdate) return;
-
-				broadcastMessage("update-ready", {
-					version: "3.0.0.12200",
-				});
-
-				setTimeout(() => chrome.runtime.reload(), 50);
-			}, 1500);
-			return;
-			/// end sim */
-
-			chrome.runtime.requestUpdateCheck((status, details) => {
-				reply({
-					status,
-					version: details?.version ?? null,
-				});
-			});
-
-			break;
-		}
-	}
-
-	return true;
-});
-
-chrome.runtime.onUpdateAvailable.addListener((details) => {
-	if (!shouldReloadOnUpdate) return;
-
-	// Notify page script to reload trigger a reload immediately
-	broadcastMessage("update-ready", { version: details.version });
-
-	// Reload extension after a tiny delay to allow the downstream message to be sent
-	setTimeout(() => chrome.runtime.reload(), 50);
-});
-
-function broadcastMessage(type: string, data: unknown): void {
-	chrome.tabs.query({}, (tabs) => {
-		tabs.forEach((tab) => {
-			if (!tab.id) return;
-
-			chrome.tabs.sendMessage(tab.id, { type, data });
-		});
-	});
 }
 
 // DEBUG: reload background runner
