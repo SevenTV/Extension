@@ -6,7 +6,7 @@ export const r = (...args: string[]) => path.resolve(__dirname, ...args);
 export const appName = name;
 export const version = packagedVersion;
 export const getFullVersion = (nightly?: boolean) =>
-	nightly ? version + "." + parseFloat(dev_version) * 1000 : version;
+	nightly ? version + "." + (parseFloat(dev_version) * 1000).toFixed(0) : version;
 
 const versionSplit = version.split(".");
 export const versionID =
