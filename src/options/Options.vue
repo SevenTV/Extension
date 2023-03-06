@@ -28,6 +28,13 @@ html[data-seventv-app] {
 	font-family: Roboto, sans-serif;
 	height: 100%;
 	width: 100%;
+
+	*,
+	*:before,
+	*:after {
+		box-sizing: inherit;
+		margin: 0;
+	}
 }
 
 body[data-seventv-app] {
@@ -42,13 +49,6 @@ body[data-seventv-app] {
 #app {
 	height: 100%;
 	width: 100%;
-}
-
-*,
-*:before,
-*:after {
-	box-sizing: inherit;
-	margin: 0;
 }
 
 .seventv-options {
