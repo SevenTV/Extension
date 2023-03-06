@@ -28,7 +28,8 @@ defineFunctionHook(inputField.constructor.prototype, "getSuggestions", function 
 	if (!result || !Array.isArray(result)) return;
 
 	// Filter to term
-	const emotes = emoteList.value.filter((ae) => term.includes(ae.name.toLowerCase()));
+	const query = term.toLowerCase().slice(1);
+	const emotes = emoteList.value.filter((ae) => ae.name.toLowerCase().includes(query));
 
 	result.push(
 		...emotes.map((e) => ({

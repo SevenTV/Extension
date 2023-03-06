@@ -1,3 +1,7 @@
+### Version 3.0.0.17000 (Beta 17)
+
+- Fixed autocompletion on YouTube only working with a full emote name
+
 ### Version 3.0.0.16000 (Beta 16)
 
 #### Beta 16.1
