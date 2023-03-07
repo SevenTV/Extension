@@ -29,7 +29,7 @@
     "@babel/preset-react": "^7.12.13",
     "@hot-loader/react-dom": "^17.0.1",
     "@svgr/webpack": "^5.5.0",
-    "@types/chrome": "0.0.130",
+    "@types/chrome": "0.0.220",
     "@types/color": "^3.0.1",
     "@types/mongodb": "^3.6.10",
     "@types/react": "^17.0.2",
