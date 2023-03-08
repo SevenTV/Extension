@@ -45,6 +45,11 @@
 									@open-subcategory="(s) => navigateToCategory(category, s)"
 								/>
 							</template>
+							<CategoryDropdown
+								category="Compatibility"
+								:subs="{}"
+								@open-category="() => ctx.switchView('compat')"
+							/>
 						</UiScrollable>
 						<div
 							class="seventv-settings-sidebar-profile"
@@ -122,9 +127,15 @@ const categoryOrder = {
 	Channel: 2,
 	Highlights: 3,
 	Appearance: 4,
+	Compatibility: 5,
 };
 
 function navigateToCategory(name: string, scrollpoint?: string) {
+	switch (name) {
+		case "Compatibility":
+			return ctx.switchView("compat");
+	}
+
 	ctx.switchView("config");
 	ctx.category = name;
 

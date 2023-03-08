@@ -4,7 +4,9 @@ import { defineConfig, loadEnv } from "vite";
 
 const r = (...args: string[]) => path.resolve(__dirname, ...args);
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
+	const mode = process.env.NODE_ENV;
+
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
@@ -16,6 +18,7 @@ export default defineConfig(({ mode }) => {
 	process.stdout.write("Building worker...\n");
 
 	return {
+		mode,
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "src"),

@@ -1,6 +1,6 @@
 import { createApp, h, provide } from "vue";
 import { createPinia } from "pinia";
-import { SITE_ASSETS_URL, SITE_WORKER_URL } from "@/common/Constant";
+import { SITE_ASSETS_URL, SITE_EXT_OPTIONS_URL, SITE_WORKER_URL } from "@/common/Constant";
 import App from "@/site/App.vue";
 import { apolloClient } from "@/apollo/apollo";
 import { TextPaintDirective } from "@/directive/TextPaintDirective";
@@ -55,8 +55,11 @@ const app = createApp({
 });
 
 app.provide("app-id", appID);
+
+const extensionOrigin = scr?.getAttribute("extension_origin") ?? "";
 app.provide(SITE_WORKER_URL, scr?.getAttribute("worker_url"));
-app.provide(SITE_ASSETS_URL, scr?.getAttribute("assets_url"));
+app.provide(SITE_ASSETS_URL, extensionOrigin + "assets");
+app.provide(SITE_EXT_OPTIONS_URL, extensionOrigin + "index.html");
 
 app.use(createPinia())
 	.directive("tooltip", TooltipDirective)

@@ -1,4 +1,5 @@
 import { markRaw, reactive } from "vue";
+import SettingsViewCompatVue from "./SettingsViewCompat.vue";
 import SettingsViewConfigVue from "./SettingsViewConfig.vue";
 import SettingsViewHomeVue from "./SettingsViewHome.vue";
 import SettingsViewProfileVue from "./SettingsViewProfile.vue";
@@ -13,6 +14,7 @@ class SettingsMenuContext {
 	sortedNodes: SevenTV.SettingNode[] = [];
 	mappedNodes: Record<string, Record<string, SevenTV.SettingNode[]>> = reactive({
 		Home: {},
+		Compatibility: {},
 	});
 
 	constructor() {
@@ -32,6 +34,7 @@ const views = {
 	home: SettingsViewHomeVue,
 	config: SettingsViewConfigVue,
 	profile: SettingsViewProfileVue,
+	compat: SettingsViewCompatVue,
 };
 
 const inst = reactive(new SettingsMenuContext());

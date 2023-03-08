@@ -13,6 +13,11 @@ const routes = [
 			},
 		],
 	},
+	{
+		path: "/compat",
+		name: "Compat",
+		component: () => import("../views/Compat/Compat.vue"),
+	},
 ] as RouteRecordRaw[];
 
 export const router = createRouter({

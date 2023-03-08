@@ -8,7 +8,7 @@ const inject = () => {
 	script.id = "seventv-extension";
 	script.type = "module";
 	script.setAttribute("worker_url", chrome.runtime.getURL("worker.js"));
-	script.setAttribute("assets_url", chrome.runtime.getURL("assets"));
+	script.setAttribute("extension_origin", chrome.runtime.getURL(""));
 
 	// Style
 	if (!import.meta.env.DEV) {

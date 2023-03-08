@@ -21,6 +21,8 @@ button {
 	outline: 0.01em solid var(--seventv-input-border);
 	padding: 0 0.5em;
 
+	white-space: nowrap;
+
 	text-align: center;
 	font-weight: 600;
 	font-size: 1.25em;

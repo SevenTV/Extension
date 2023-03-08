@@ -1,9 +1,8 @@
 <template>
-	<main class="seventv-options">
+	<main class="seventv-options" :class="{ 'no-header': noHeader }">
 		<div class="general-heading">
 			<div class="app-title">
 				<Logo7TV />
-				<h1>7tv.app</h1>
 			</div>
 		</div>
 
@@ -14,8 +13,24 @@
 </template>
 
 <script setup lang="ts">
+import { provide, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import Tooltip from "@/site/global/Tooltip.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
+import { OPTIONS_CONTEXT_KEY } from "./keys";
+
+provide(OPTIONS_CONTEXT_KEY, true);
+
+const route = useRoute();
+const noHeader = ref(false);
+
+watch(
+	route,
+	() => {
+		noHeader.value = route.query.noheader === "1";
+	},
+	{ immediate: true },
+);
 
 document.body.setAttribute("theme", "dark");
 </script>
@@ -41,9 +56,6 @@ body[data-seventv-app] {
 	height: 100%;
 	width: 100%;
 	overflow-x: hidden;
-
-	background: var(--seventv-background-shade-1);
-	color: var(--seventv-text-color-normal);
 }
 
 #app {
@@ -55,6 +67,16 @@ body[data-seventv-app] {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	background: var(--seventv-background-shade-1);
+	color: var(--seventv-text-color-normal);
+
+	&.no-header {
+		background: none;
+
+		.general-heading {
+			display: none;
+		}
+	}
 }
 
 .general-heading {

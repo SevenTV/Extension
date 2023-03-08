@@ -77,12 +77,16 @@ const thresoldName = computed(() => {
 		appearance: none;
 		background: transparent;
 
-		&[held="true"]::-webkit-slider-thumb {
-			transform: scale(1.15);
+		&[held="true"] {
+			&::-webkit-slider-thumb,
+			&::-moz-range-thumb {
+				transform: scale(1.15);
+			}
 		}
 	}
 
-	> input::-webkit-slider-thumb {
+	> input::-webkit-slider-thumb,
+	> input::-moz-range-thumb {
 		-webkit-appearance: none;
 		transition: transform 70ms ease;
 		appearance: none;
@@ -94,7 +98,8 @@ const thresoldName = computed(() => {
 		z-index: 100;
 	}
 
-	> input::-webkit-slider-runnable-track {
+	> input::-webkit-slider-runnable-track,
+	> input::-moz-range-track {
 		-webkit-appearance: none;
 		appearance: none;
 		cursor: pointer;

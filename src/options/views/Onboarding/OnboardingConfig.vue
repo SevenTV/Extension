@@ -10,10 +10,10 @@
 
 		<div class="settings">
 			<div v-if="!acknowledgements.has('new-chat')" class="new-chat-advisory">
-				<p>
-					<strong>7TV introduces a completely new, high-performance chat experience.</strong>
+				<strong>7TV introduces a completely new, high-performance chat experience.</strong>
+				<span class="emphasize-bad-compat">
 					This may prevent modifications by other extensions from working.
-				</p>
+				</span>
 				<span>
 					We are working on improving compatibility.
 					<a href="https://discord.gg/7tv" target="_blank">Let us know what we're missing</a>.
@@ -83,7 +83,10 @@ const questions = ref<Question[]>([
 		id: "active-chatter",
 		kind: "either",
 		title: "Are you active in chat?",
-		immediateConfigEffect: [["highlights.basic.mention_sound", true]],
+		immediateConfigEffect: [
+			["highlights.basic.mention_sound", true],
+			["highlights.basic.mention_title_flash", true],
+		],
 	},
 	{
 		id: "chatter-config-autocompletion",
@@ -215,7 +218,7 @@ function onAnswer(q: Question, v: boolean): void {
 		}
 
 		currentQuestion.value = n;
-	}, 1000);
+	}, 500);
 }
 
 const allModules = import.meta.glob("@/site/**/modules/**/*Module.vue", {
@@ -264,12 +267,12 @@ export const step: OnboardingStepRoute = {
 // q animation
 .question-enter-active,
 .question-leave-active {
-	transition: transform 0.25s cubic-bezier(0.99, 1.11, 0.64, 0.09), opacity 0.35s;
+	transition: transform 270ms cubic-bezier(0.48, 1.29, 0, -1.57), opacity 300ms;
 }
 .question-enter-from,
 .question-leave-to {
-	transform: scale(0.85);
-	opacity: 0;
+	transform: translateY(1rem);
+	opacity: 0.5;
 }
 
 main {
@@ -286,7 +289,6 @@ main {
 		align-self: center;
 		text-align: center;
 		max-width: 60vw;
-		padding: 0.5rem 0;
 		border-bottom: 0.25rem solid var(--seventv-muted);
 
 		h1 {
@@ -307,7 +309,7 @@ main {
 		border-radius: 0.25em;
 
 		.new-chat-advisory {
-			max-width: 60vw;
+			margin: 0 5%;
 			padding: 5vw 0;
 			text-align: center;
 			font-size: max(1rem, 2vw);
@@ -327,6 +329,10 @@ main {
 				&:hover {
 					text-decoration: underline;
 				}
+			}
+
+			.emphasize-bad-compat {
+				font-style: italic;
 			}
 		}
 

@@ -289,7 +289,21 @@ declare namespace SevenTV {
 	interface Config {
 		version: string;
 		overrides: unknown[];
+		compatibility: ConfigCompat[];
 	}
+
+	interface ConfigCompat {
+		id: string[];
+		issues: ConfigCompatIssue[];
+	}
+
+	interface ConfigCompatIssue {
+		severity: ConfigCompatIssueSeverity;
+		plaforms: Platform[];
+		message: string;
+	}
+
+	type ConfigCompatIssueSeverity = "NOTE" | "WARNING" | "BAD_PERFORMANCE" | "CLASHING" | "DUPLICATE_FUNCTIONALITY";
 }
 
 declare interface TwitchIdentity {

@@ -1,6 +1,8 @@
 ### Version 3.0.0.17000 (Beta 17)
 
+- Added a compatibility section to Onboarding Experience and Settings
 - Fixed autocompletion on YouTube only working with a full emote name
+- Slider styling on Mozilla Firefox should now match that of Chromium
 
 ### Version 3.0.0.16000 (Beta 16)
 

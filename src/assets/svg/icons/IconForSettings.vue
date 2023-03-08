@@ -9,6 +9,7 @@ import EmotesIcon from "./EmotesIcon.vue";
 import GearsIcon from "./GearsIcon.vue";
 import HomeIcon from "./HomeIcon.vue";
 import PaintIcon from "./PaintIcon.vue";
+import PuzzlePieceIcon from "./PuzzlePieceIcon.vue";
 import TvIcon from "./TvIcon.vue";
 import YouTubeIcon from "./YouTubeIcon.vue";
 
@@ -27,6 +28,7 @@ const c = {
 	Highlights: BellsIcon,
 	General: GearsIcon,
 	Channel: TvIcon,
+	Compatibility: PuzzlePieceIcon,
 
 	"Enable YouTube": YouTubeIcon,
 }[props.name];
