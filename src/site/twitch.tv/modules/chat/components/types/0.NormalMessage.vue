@@ -53,6 +53,7 @@ defineProps<{
 			display: flex;
 			font-size: 1.2rem;
 			color: var(--color-text-alt-2);
+			overflow: clip;
 
 			.seventv-chat-reply-icon {
 				align-items: center;
