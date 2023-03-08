@@ -3,6 +3,7 @@
 - Added a compatibility section to Onboarding Experience and Settings
 - Fixed autocompletion on YouTube only working with a full emote name
 - Fixed an issue which led reply threads to overflow
+- Fixed an issue which occasionally resulted in old chat lines never being deleted
 - Slider styling on Mozilla Firefox should now match that of Chromium
 
 ### Version 3.0.0.16000 (Beta 16)

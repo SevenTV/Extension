@@ -6,6 +6,7 @@ import { ChannelContext } from "../channel/useChannelContext";
 import { useConfig } from "../useSettings";
 
 const scrollDuration = useConfig<number>("chat.smooth_scroll_duration");
+const lineLimit = useConfig<number>("chat.line_limit", 150);
 
 interface ChatMessages {
 	// Message Data
@@ -101,7 +102,7 @@ export function useChatMessages(ctx: ChannelContext) {
 		if (scroller.paused) {
 			// if scrolling is paused, buffer the message
 			scroller.pauseBuffer.push(message);
-			if (scroller.pauseBuffer.length > scroller.lineLimit) scroller.pauseBuffer.shift();
+			if (scroller.pauseBuffer.length > lineLimit.value) scroller.pauseBuffer.shift();
 
 			return;
 		}
@@ -181,10 +182,10 @@ export function useChatMessages(ctx: ChannelContext) {
 			nextTick(() => scroller.scrollToLive(scrollDuration.value));
 
 			// remove messages beyond the buffer
-			const overflowLimit = scroller.lineLimit * 1.25;
+			const overflowLimit = lineLimit.value * 1.25;
 			if (data.displayed.length > overflowLimit) {
 				flushTimeout = window.setTimeout(() => {
-					const removed = data.displayed.splice(0, data.displayed.length - scroller.lineLimit);
+					const removed = data.displayed.splice(0, data.displayed.length - lineLimit.value);
 					for (const msg of removed) {
 						if (!msg.author) continue;
 

@@ -8,12 +8,12 @@ const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
 
 const ffzSettings = useFrankerFaceZ();
 
-function toConfigRef<T extends SevenTV.SettingType>(key: string): Ref<T> {
+function toConfigRef<T extends SevenTV.SettingType>(key: string, defaultValue?: T): Ref<T> {
 	return customRef<T>((track, trigger) => {
 		return {
 			get() {
 				track();
-				return raw[key] as T;
+				return (raw[key] as T) ?? defaultValue;
 			},
 			set(newVal) {
 				const n = nodes[key];
@@ -51,8 +51,8 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 	}
 }
 
-export function useConfig<T extends SevenTV.SettingType>(key: string) {
-	return toConfigRef<T>(key);
+export function useConfig<T extends SevenTV.SettingType>(key: string, defaultValue?: T) {
+	return toConfigRef<T>(key, defaultValue);
 }
 
 export function synchronizeFrankerFaceZ() {

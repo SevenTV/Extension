@@ -1,10 +1,7 @@
 import { Ref, nextTick, reactive, toRef, watchEffect } from "vue";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
-import { useConfig } from "@/composable/useSettings";
 import UiScrollableVue from "@/ui/UiScrollable.vue";
 import { ChannelContext } from "../channel/useChannelContext";
-
-const lineLimit = useConfig<number>("chat.line_limit");
 
 interface ChatScrollerInit {
 	scroller: Ref<InstanceType<typeof UiScrollableVue> | undefined>;
@@ -14,7 +11,6 @@ interface ChatScrollerInit {
 interface ChatScroller {
 	// Scroll Data
 	userInput: number;
-	lineLimit: number;
 	init: boolean;
 	sys: boolean;
 	live: boolean;
@@ -36,7 +32,6 @@ export function useChatScroller(ctx: ChannelContext, initWith?: ChatScrollerInit
 		data = reactive<ChatScroller>({
 			// Scroll Data
 			userInput: 0,
-			lineLimit: lineLimit.value,
 			init: false,
 			sys: true,
 			live: false,
@@ -182,7 +177,6 @@ export function useChatScroller(ctx: ChannelContext, initWith?: ChatScrollerInit
 	return reactive({
 		init: toRef(data, "init"),
 		paused: toRef(data, "paused"),
-		lineLimit: toRef(data, "lineLimit"),
 		live: toRef(data, "live"),
 		pauseBuffer: toRef(data, "pauseBuffer"),
 
