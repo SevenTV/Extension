@@ -17,10 +17,7 @@
 			<div v-if="scroller.paused" class="seventv-message-buffer-notice" @click="scroller.unpause">
 				<PauseIcon />
 
-				<span
-					v-if="scroller.pauseBuffer.length"
-					:class="{ capped: scroller.pauseBuffer.length >= scroller.lineLimit }"
-				>
+				<span v-if="scroller.pauseBuffer.length" :class="{ capped: scroller.pauseBuffer.length >= lineLimit }">
 					{{ scroller.pauseBuffer.length }}
 				</span>
 				<span>{{ scroller.pauseBuffer.length > 0 ? "new messages" : "Chat Paused" }}</span>
@@ -50,6 +47,7 @@ import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { getModule } from "@/composable/useModule";
+import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
@@ -92,6 +90,9 @@ const scroller = useChatScroller(ctx, {
 });
 const properties = useChatProperties(ctx);
 const tools = useChatTools(ctx);
+
+// line limit
+const lineLimit = useConfig("chat.line_limit", 150);
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);

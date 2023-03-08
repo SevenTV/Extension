@@ -172,7 +172,7 @@ main.seventv-compat {
 
 	.seventv-compat-extension-item {
 		display: grid;
-		grid-template-rows: 25% 60% 15%;
+		grid-template-rows: auto 60% 15%;
 		row-gap: 0.5rem;
 		padding: 0.5rem;
 		border-radius: 0.25rem;
@@ -207,6 +207,10 @@ main.seventv-compat {
 			margin: 0 0.5rem;
 		}
 
+		.ext-compat-interact {
+			display: flex;
+			align-items: flex-end;
+		}
 		.ext-compat-interact > button {
 			all: unset;
 			padding: 0.25rem 0.5rem;
