@@ -3,6 +3,7 @@
 - Added a compatibility section to Onboarding Experience and Settings
 - Fixed autocompletion on YouTube only working with a full emote name
 - Fixed an issue which led reply threads to overflow
+- Fixed an issue where zero-width emotes wouldn't work if there was extra white space in-between
 - Fixed an issue which occasionally resulted in old chat lines never being deleted
 - Slider styling on Mozilla Firefox should now match that of Chromium
 
