@@ -46,6 +46,9 @@ export class ModSliderData {
 			this.command = "unban";
 			this.unbanVis = 1;
 		} else if (pos < minVal) {
+			this.command = "";
+			this.text = "";
+			this.color = "";
 			return;
 		} else if (pos < delVal) {
 			this.command = "delete";
