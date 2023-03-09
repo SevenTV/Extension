@@ -3,6 +3,7 @@
 -   New Feature: Custom Highlights
 -   Added an option to control the volume of the mention sound effect
 -   Added an option to disable First-Time Chatter highlights
+-   Emote Modifiers from BetterTTV/FrankerFaceZ are now stripped from chat
 -   Updated the look of the Settings Menu
 -   Emotes should now show in the Reply Tray
 

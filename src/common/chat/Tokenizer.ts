@@ -1,7 +1,17 @@
-import type { AnyToken, ChatMessage, ChatUser, EmoteToken, LinkToken, MentionToken } from "@/common/chat/ChatMessage";
+import type {
+	AnyToken,
+	ChatMessage,
+	ChatUser,
+	EmoteToken,
+	LinkToken,
+	MentionToken,
+	VoidToken,
+} from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
+
+const backwardModifierBlacklist = new Set(["w!", "h!", "v!"]);
 
 export class Tokenizer {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,11 +26,20 @@ export class Tokenizer {
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
 
+		const toVoid = (start: number, end: number) =>
+			({
+				kind: "VOID",
+				range: [start, end],
+				content: void 0,
+			} as VoidToken);
+
 		for (const part of textParts) {
 			const next = cursor + (part.length + 1);
 
 			// tokenize emote?
 			const maybeEmote = getEmote(part);
+			const nextEmote = getEmote(textParts[textParts.indexOf(part) + 1]);
+			const prevEmote = getEmote(textParts[textParts.indexOf(part) - 1]);
 			const maybeMention = !!opt.chatterMap[part.toLowerCase()];
 
 			if (maybeEmote) {
@@ -29,11 +48,7 @@ export class Tokenizer {
 					lastEmoteToken.content.overlaid[maybeEmote.name] = maybeEmote;
 
 					// the "void" token is used to hide the text of the zero-width. any text in the void range won't be rendered
-					tokens.push({
-						kind: "VOID",
-						range: [cursor + 1, next - 1],
-						content: void 0,
-					});
+					tokens.push(toVoid(cursor + 1, cursor + 1));
 				} else {
 					// regular emote
 					tokens.push(
@@ -53,6 +68,12 @@ export class Tokenizer {
 						}),
 					);
 				}
+			} else if (nextEmote && backwardModifierBlacklist.has(part)) {
+				// this is a temporary measure to hide bttv emote modifiers
+				tokens.push(toVoid(cursor, next - 1));
+			} else if (prevEmote && part.startsWith("ffz") && part.length > 3) {
+				// this is a temporary measure to hide ffz emote modifiers
+				tokens.push(toVoid(cursor, next - 1));
 			} else if (part.match(Regex.Link)) {
 				// Check link
 				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
