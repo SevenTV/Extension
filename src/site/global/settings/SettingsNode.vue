@@ -33,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import FormCheckbox from "@/site/global/components/FormCheckbox.vue";
-import FormDropdown from "@/site/global/components/FormDropdown.vue";
-import FormInput from "@/site/global/components/FormInput.vue";
-import FormSelect from "@/site/global/components/FormSelect.vue";
-import FormSlider from "@/site/global/components/FormSlider.vue";
-import FormToggle from "@/site/global/components/FormToggle.vue";
+import FormCheckbox from "@/site/global/settings/control/FormCheckbox.vue";
+import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
+import FormInput from "@/site/global/settings/control/FormInput.vue";
+import FormSelect from "@/site/global/settings/control/FormSelect.vue";
+import FormSlider from "@/site/global/settings/control/FormSlider.vue";
+import FormToggle from "@/site/global/settings/control/FormToggle.vue";
 
 defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
@@ -138,108 +138,4 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 		}
 	}
 }
-
-/*
-.seventv-settings-node {
-	position: relative;
-	padding: 1rem;
-
-	&[grid-mode="new-row"] {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-	}
-
-	.seventv-settings-node-wrapper {
-		transition: transform 0.2s ease-out;
-	}
-
-	.seventv-settings-node-items {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	&:hover {
-		border-radius: 0.4rem;
-		background: hsla(0deg, 0%, 60%, 16%);
-		background-size: 100% 25rem;
-	}
-
-	&[disabled="true"] {
-		opacity: 0.35;
-		pointer-events: none;
-	}
-}
-.seventv-settings-node-label {
-	display: flex;
-	justify-content: space-between;
-	font-size: 1.4rem;
-	font-weight: 600;
-	flex-shrink: 0;
-	width: 23rem;
-
-	.seventv-settings-node-label-hint {
-		display: none;
-		color: hsla(0deg, 0%, 50%, 90%);
-		padding: 0.5rem;
-		margin: -0.5rem;
-
-		&:hover:after {
-			content: attr(tooltip);
-			position: absolute;
-			inset: 100% auto auto 0;
-			border: 1px solid var(--seventv-border-transparent-1);
-			background: var(--seventv-background-transparent-1);
-			@at-root .seventv-transparent & {
-				backdrop-filter: blur(2em);
-			}
-			font-size: 1.2rem;
-			font-weight: 400;
-			padding: 1rem;
-
-			border-radius: 0.4rem;
-			z-index: 999;
-			max-width: 23rem;
-			box-shadow: 1px 0 1px hsla(0deg, 0%, 20%, 32%);
-		}
-	}
-}
-
-.seventv-settings-node-component-container {
-	flex-shrink: 0;
-	max-width: 23rem;
-}
-
-.seventv-settings-hint {
-	margin-top: 1rem;
-	font-size: 1.2rem;
-	font-weight: 400;
-	color: hsla(0deg, 0%, 50%, 90%);
-}
-
-@media (max-width: 60rem) {
-	.seventv-settings-node {
-		cursor: pointer;
-
-		.seventv-settings-node-wrapper {
-			width: 50rem;
-			.seventv-settings-node-label-text {
-				margin-right: auto;
-			}
-
-			.seventv-settings-node-label-hint {
-				display: unset;
-			}
-		}
-		&:focus-within {
-			.seventv-settings-node-wrapper {
-				transform: translateX(-27rem);
-				cursor: auto !important;
-			}
-		}
-	}
-	.seventv-settings-hint {
-		display: none;
-	}
-}
-*/
 </style>

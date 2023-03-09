@@ -15,7 +15,10 @@ export function useSound(path: string, reuse = true): Sound {
 		? soundMap.get(path) || soundMap.set(path, new Audio(assets + path)).get(path)!
 		: new Audio(assets + path);
 
-	const play = () => audio.play();
+	const play = (volume = 1) => {
+		audio.volume = volume;
+		audio.play();
+	};
 	const stop = () => audio.pause();
 
 	onUnmounted(() => {
@@ -26,7 +29,7 @@ export function useSound(path: string, reuse = true): Sound {
 }
 
 export interface Sound {
-	play: () => void;
+	play: (volume?: number) => void;
 	stop: () => void;
 	audio: HTMLAudioElement;
 }

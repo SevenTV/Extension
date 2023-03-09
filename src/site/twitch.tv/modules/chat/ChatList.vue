@@ -61,6 +61,7 @@ const pausedByVisibility = ref(false);
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
+const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
@@ -186,7 +187,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		if (typeof msgData.nonce === "string") msg.setNonce(msgData.nonce);
 
 		// assign highlight
-		if (msgData.isFirstMsg) {
+		if (msgData.isFirstMsg && showFirstTimeChatter.value) {
 			msg.setHighlight("#c832c8", "First Message");
 		} else if (msgData.isReturningChatter) {
 			msg.setHighlight("#3296e6", "Returning Chatter");
@@ -278,7 +279,11 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 	else if (msgData.message) msg.setTimestamp(msgData.message.timestamp ?? 0);
 
 	// highlight when message mentions the actor
-	chatHighlights.checkMatch("~mention", msg, false);
+	chatHighlights.checkMatch("~mention", msg);
+
+	for (const highlightID in chatHighlights.getAll()) {
+		chatHighlights.checkMatch(highlightID, msg);
+	}
 
 	if (properties.isModerator) {
 		msg.pinnable = true;
@@ -442,21 +447,24 @@ watch(pageVisibility, (state) => {
 watch(
 	identity,
 	(identity) => {
-		const rx = identity ? new RegExp(`\\b${identity.username}\\b`) : null;
-		if (!rx) return;
+		const rxs = identity ? `\\b${identity.username}\\b` : null;
+		if (!rxs) return;
 
+		const rx = new RegExp(rxs, "i");
 		const soundPath = "/sound/ping.ogg";
 
-		chatHighlights.defineHighlight("~mention", {
-			phrase: rx,
+		chatHighlights.define("~mention", {
+			pattern: rxs,
+			regexp: true,
+			cachedRegExp: rx,
 			label: "Mentions You",
 			color: "#e13232",
 			soundPath,
 			flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
 		});
 
-		chatHighlights.defineHighlight("~reply", {
-			phrase: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
+		chatHighlights.define("~reply", {
+			test: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
 			label: "Replying to You",
 			color: "#e13232",
 			soundPath,

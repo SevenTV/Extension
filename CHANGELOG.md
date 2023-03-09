@@ -1,7 +1,12 @@
 ### Version 3.0.0.18000 (Beta 18)
 
-- Updated the look of the Settings Menu
-- Emotes should now show in the Reply Tray
+-   New Feature: Custom Highlights
+-   Added an option to control the volume of the mention sound effect
+-   Added an option to disable First-Time Chatter highlights
+-   Updated the look of the Settings Menu
+-   Emotes should now show in the Reply Tray
+
+---
 
 ### Version 3.0.0.17000 (Beta 17)
 
@@ -12,6 +17,8 @@
 -   Fixed an issue where zero-width emotes wouldn't work if there was extra white space in-between
 -   Fixed an issue which occasionally resulted in old chat lines never being deleted, eventually crashing the page
 -   Slider styling on Mozilla Firefox should now match that of Chromium
+
+---
 
 ### Version 3.0.0.16000 (Beta 16)
 

@@ -1,27 +1,39 @@
-import { reactive, ref } from "vue";
-import { until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
+import { markRaw, reactive, ref, toRaw, watch } from "vue";
+import { toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
+import { debounceFn } from "@/common/Async";
+import { log } from "@/common/Logger";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { ChannelContext } from "@/composable/channel/useChannelContext";
 import { Sound, useSound } from "@/composable/useSound";
 import { useConfig } from "../useSettings";
 
 interface ChatHighlights {
-	phrases: Record<string, HighlightDef>;
+	highlights: Record<string, HighlightDef>;
 }
 
-interface HighlightDef {
-	phrase: string | RegExp | ((msg: ChatMessage) => boolean);
+export interface HighlightDef {
+	id: string;
+
+	pattern?: string;
+	test?: (msg: ChatMessage) => boolean;
+	regexp?: boolean;
+	readonly cachedRegExp?: RegExp;
+
 	color: string;
 	label: string;
+	caseSensitive?: boolean;
 	flashTitle?: (msg: ChatMessage) => string;
 	soundPath?: string;
 	soundDef?: Sound;
+	persist?: boolean;
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
 
 const shouldPlaySoundOnHighlight = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
+const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
+const soundVolume = useConfig<number>("highlights.sound_volume");
 
 export function useChatHighlights(ctx: ChannelContext) {
 	const visibility = useDocumentVisibility();
@@ -29,43 +41,103 @@ export function useChatHighlights(ctx: ChannelContext) {
 	let data = m.get(ctx);
 	if (!data) {
 		data = reactive<ChatHighlights>({
-			phrases: {},
+			highlights: {},
 		});
+
+		watch(
+			customHighlights,
+			(h) => {
+				if (!data) return;
+
+				// Clear all custom highlights
+				for (const [k, v] of Object.entries(data.highlights)) {
+					if (!v.persist) continue;
+
+					delete data.highlights[k];
+				}
+
+				for (const [, v] of h) {
+					data.highlights[v.id] = v;
+				}
+			},
+			{
+				immediate: true,
+			},
+		);
 
 		m.set(ctx, data);
 	}
 
-	function defineHighlight(key: string, def: HighlightDef): void {
+	const save = debounceFn(function (): void {
 		if (!data) return;
 
-		data.phrases[key] = def;
+		const items: [string, HighlightDef][] = Array.from(Object.values(data.highlights))
+			.filter((h) => h.persist)
+			.map((h) => [h.id, toRaw(h)]);
+
+		customHighlights.value = new Map(items);
+	}, 1000);
+
+	function define(id: string, def: Omit<HighlightDef, "id">, persist?: boolean): HighlightDef {
+		if (!data) return {} as HighlightDef;
+
+		const h = (data.highlights[id] = { ...def, id, persist });
 		if (def.soundPath) {
 			def.soundDef = useSound(def.soundPath);
 		}
+		if (!persist) return h;
+
+		// Store to DB
+		customHighlights.value.set(id, markRaw(h));
+		save();
+
+		return h;
 	}
 
-	function checkMatch(key: string, msg: ChatMessage, caseSensitive = true): boolean {
+	function remove(h: HighlightDef): void {
+		if (!data) return;
+
+		delete data.highlights[h.id];
+		save();
+	}
+
+	function checkMatch(key: string, msg: ChatMessage): boolean {
 		if (!data) return false;
 
-		const h = data?.phrases[key];
+		const h = data?.highlights[key];
 		if (!h) return false;
 
-		const body = caseSensitive ? msg.body : msg.body.toLowerCase();
-
 		let ok = false;
-		if (typeof h.phrase === "string") {
-			ok = body.toLowerCase().includes(h.phrase);
-		} else if (h.phrase instanceof RegExp) {
-			ok = h.phrase.test(body);
-		} else if (typeof h.phrase === "function") {
-			ok = h.phrase(msg);
+
+		if (h.regexp) {
+			let regexp = h.cachedRegExp;
+			if (!regexp) {
+				try {
+					regexp = new RegExp(h.pattern as string, "i");
+					Object.defineProperty(h, "cachedRegExp", { value: regexp });
+				} catch (err) {
+					log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
+
+					msg.setHighlight("#878787", "Error " + (err as Error).message);
+					return false;
+				}
+			}
+
+			ok = regexp.test(msg.body);
+		} else if (h.pattern) {
+			ok = h.caseSensitive
+				? msg.body.includes(h.pattern)
+				: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
+		} else if (typeof h.test === "function") {
+			ok = h.test(msg);
 		}
 
 		if (ok) {
 			msg.setHighlight(h.color, h.label);
 
-			if (h.soundDef && shouldPlaySoundOnHighlight.value && !msg.historical) {
-				h.soundDef.play();
+			if (h.soundPath && shouldPlaySoundOnHighlight.value && !msg.historical) {
+				if (!h.soundDef) h.soundDef = useSound(h.soundPath as string);
+				h.soundDef.play(soundVolume.value / 100);
 			}
 
 			if (h.flashTitle && shouldFlashTitleOnHighlight.value && !msg.historical) {
@@ -105,8 +177,32 @@ export function useChatHighlights(ctx: ChannelContext) {
 			});
 	}
 
+	function getAll(): Record<string, HighlightDef> {
+		if (!data) return {};
+
+		return toReactive(data.highlights);
+	}
+
+	function updateId(oldId: string, newId: string): void {
+		if (!data) return;
+
+		const h = data.highlights[oldId];
+		if (!h) return;
+
+		data.highlights[newId] = h;
+		delete data.highlights[oldId];
+
+		h.id = newId;
+
+		save();
+	}
+
 	return {
-		defineHighlight,
+		define,
+		remove,
+		getAll,
+		save,
+		updateId,
 		checkMatch,
 	};
 }

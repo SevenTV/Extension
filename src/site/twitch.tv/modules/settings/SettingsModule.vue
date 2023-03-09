@@ -1,5 +1,8 @@
 <template>
-	<SettingsMenu />
+	<Transition name="settings-menu" appear>
+		<SettingsMenu v-if="ctx.open" />
+	</Transition>
+
 	<SettingsMenuButton @toggle="ctx.open = !ctx.open" />
 </template>
 
@@ -30,3 +33,15 @@ export const config = [
 	}),
 ];
 </script>
+
+<style scoped lang="scss">
+.settings-menu-enter-active,
+.settings-menu-leave-active {
+	transition: transform 180ms ease-in-out, filter 140ms;
+}
+.settings-menu-enter-from,
+.settings-menu-leave-to {
+	filter: blur(8rem);
+	transform: scale(0) translateX(100%) translateY(-100%) skewX(45deg);
+}
+</style>

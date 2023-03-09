@@ -1,15 +1,23 @@
 <template>
 	<div>
-		<input id="checkbox" v-model="setting" type="checkbox" />
+		<input id="checkbox" :checked="checked" type="checkbox" @change="onInput" />
 	</div>
 </template>
 
 <script setup lang="ts">
-import { useConfig } from "@/composable/useSettings";
-
-const props = defineProps<{
-	node: SevenTV.SettingNode<boolean>;
+defineProps<{
+	checked: boolean;
 }>();
 
-const setting = useConfig<boolean>(props.node.key);
+const emit = defineEmits<{
+	(e: "update:checked", value: boolean): void;
+	(e: "update:modelValue", value: boolean): void;
+}>();
+
+function onInput(ev: Event): void {
+	const checked = (ev.target as HTMLInputElement).checked;
+
+	emit("update:checked", checked);
+	emit("update:modelValue", checked);
+}
 </script>

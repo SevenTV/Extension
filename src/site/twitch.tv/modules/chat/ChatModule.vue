@@ -93,6 +93,7 @@ defineExpose({
 </script>
 
 <script lang="ts">
+import { HighlightDef } from "@/composable/chat/useChatHighlights";
 import { declareConfig } from "@/composable/useSettings";
 import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
 
@@ -222,18 +223,24 @@ export const config = [
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention_title_flash", "TOGGLE", {
-		path: ["Highlights", "Mention"],
+		path: ["Highlights", "Built-In"],
 		label: "Flash Title on Mention",
 		hint: "When tabbed out, the username of users who mention you will flash in the title",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention_sound", "TOGGLE", {
-		path: ["Highlights", "Mention"],
+		path: ["Highlights", "Built-In"],
 		label: "Play Sound on Mention",
 		hint: "Play a sound when you are mentioned in chat",
 		defaultValue: false,
 	}),
-	declareConfig("highlights.custom", "CUSTOM", {
+	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show First-Time Chatter Highlights",
+		hint: "Whether or not to highlight users who are chatting for the first time",
+		defaultValue: true,
+	}),
+	declareConfig<Map<string, HighlightDef>>("highlights.custom", "CUSTOM", {
 		path: ["Highlights", ""],
 		custom: {
 			component: markRaw(SettingsConfigHighlights),
@@ -241,7 +248,19 @@ export const config = [
 		},
 		label: "Custom Highlights",
 		hint: "Create custom highlights for specific words or phrases",
-		defaultValue: {},
+		defaultValue: new Map(),
+	}),
+	declareConfig<number>("highlights.sound_volume", "SLIDER", {
+		path: ["Highlights", "Built-In"],
+		label: "Highlight Sound Volume",
+		hint: "Control the volume at which sound plays upon being mentioned",
+		options: {
+			min: 0,
+			max: 100,
+			step: 1,
+			unit: "%",
+		},
+		defaultValue: 75,
 	}),
 	declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
 		path: ["Appearance", "Vanity"],
