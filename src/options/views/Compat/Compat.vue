@@ -106,16 +106,16 @@ function checkExtensions(): void {
 
 		extensions.value = result.filter((e) => e.type === "extension");
 
+		const a = [] as [ExtensionInfo, SevenTV.ConfigCompat][];
 		for (const ext of extensions.value) {
 			const compat = config.value?.compatibility?.find((c) => c.id.includes(ext.id));
 
-			compatList.set(
-				ext,
-				compat ?? {
-					id: [],
-					issues: [],
-				},
-			);
+			a.push([ext, compat ?? { id: [], issues: [] }]);
+		}
+
+		a.sort(([, a], [, b]) => (a.issues.length > b.issues.length ? -1 : 1));
+		for (const [ext, compat] of a) {
+			compatList.set(ext, compat);
 		}
 	});
 }

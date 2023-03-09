@@ -56,6 +56,7 @@ body[data-seventv-app] {
 	height: 100%;
 	width: 100%;
 	overflow-x: hidden;
+	color: var(--seventv-text-color-normal);
 }
 
 #app {
@@ -68,7 +69,6 @@ body[data-seventv-app] {
 	flex-direction: column;
 	height: 100%;
 	background: var(--seventv-background-shade-1);
-	color: var(--seventv-text-color-normal);
 
 	&.no-header {
 		background: none;
