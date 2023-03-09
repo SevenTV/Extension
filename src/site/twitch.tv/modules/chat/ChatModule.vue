@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { markRaw, reactive, ref, watch } from "vue";
 import { refDebounced } from "@vueuse/shared";
 import { HookedInstance, getTrackedNode, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
@@ -94,6 +94,7 @@ defineExpose({
 
 <script lang="ts">
 import { declareConfig } from "@/composable/useSettings";
+import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
 
 export const config = [
 	declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
@@ -231,6 +232,16 @@ export const config = [
 		label: "Play Sound on Mention",
 		hint: "Play a sound when you are mentioned in chat",
 		defaultValue: false,
+	}),
+	declareConfig("highlights.custom", "CUSTOM", {
+		path: ["Highlights", ""],
+		custom: {
+			component: markRaw(SettingsConfigHighlights),
+			gridMode: "new-row",
+		},
+		label: "Custom Highlights",
+		hint: "Create custom highlights for specific words or phrases",
+		defaultValue: {},
 	}),
 	declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
 		path: ["Appearance", "Vanity"],

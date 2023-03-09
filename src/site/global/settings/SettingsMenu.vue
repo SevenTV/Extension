@@ -229,16 +229,15 @@ watchDebounced(ctx.sortedNodes, () => filterAndMapNodes(filter.value), { debounc
 
 	background: var(--seventv-background-lesser-transparent-1);
 	border-radius: 0.25rem;
-	border: 1px solid var(--seventv-border-transparent-1);
+	outline: 0.1rem solid var(--seventv-border-transparent-1);
 }
 
 .seventv-settings-header {
-	border-bottom: 1px solid var(--seventv-border-transparent-1);
 	display: flex;
 	width: 100%;
 	align-items: center;
 	justify-content: center;
-	background: var(--seventv-background-transparent-2);
+	background: var(--seventv-background-transparent-3);
 	flex-shrink: 0;
 
 	> .header-left {
@@ -296,7 +295,7 @@ watchDebounced(ctx.sortedNodes, () => filterAndMapNodes(filter.value), { debounc
 	flex-shrink: 0;
 	flex-grow: 1;
 	box-sizing: content-box;
-	border-right: 1px solid var(--seventv-border-transparent-1);
+	background: var(--seventv-background-transparent-2);
 
 	.seventv-settings-search {
 		padding: 0.5rem 0.5rem 0;
@@ -328,7 +327,7 @@ watchDebounced(ctx.sortedNodes, () => filterAndMapNodes(filter.value), { debounc
 			border-radius: 0.25rem;
 			height: 4rem;
 			width: 100%;
-			border: 1px solid var(--seventv-border-transparent-1);
+			border: none;
 			padding-left: 3rem;
 			color: currentColor;
 		}
@@ -337,7 +336,6 @@ watchDebounced(ctx.sortedNodes, () => filterAndMapNodes(filter.value), { debounc
 	.seventv-settings-sidebar-profile {
 		display: flex;
 		height: 5rem;
-		border-top: 1px solid var(--seventv-border-transparent-1);
 		flex-shrink: 0;
 		margin-top: auto;
 		align-items: center;
@@ -353,13 +351,13 @@ watchDebounced(ctx.sortedNodes, () => filterAndMapNodes(filter.value), { debounc
 			cursor: pointer;
 			display: flex;
 			align-items: center;
+
 			.seventv-settings-sidebar-profile-picture {
 				height: 3rem;
 				width: 3rem;
 				background-color: var(--seventv-background-shade-1);
 				clip-path: circle(50% at 50% 50%);
 				overflow: clip;
-				border: 0.25rem solid currentColor;
 				border-radius: 50%;
 			}
 			.seventv-settings-sidebar-profile-text {

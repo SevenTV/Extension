@@ -15,8 +15,9 @@ body[theme="dark"] {
 	--seventv-input-background-highlight: #2b2b2b;
 	--seventv-highlight-neutral-1: #8080803b;
 	--seventv-background-transparent-1: #161616;
-	--seventv-background-lesser-transparent-1: #161616;
-	--seventv-background-transparent-2: #1b1b1b;
+	--seventv-background-lesser-transparent-1: #191919;
+	--seventv-background-transparent-2: #131313;
+	--seventv-background-transparent-3: #111;
 	--seventv-border-transparent-1: #ffffff1a;
 	--seventv-background-shade-1: #1a1a1a;
 	--seventv-background-shade-2: #161616;
@@ -29,7 +30,8 @@ body[theme="dark"] {
 	&.seventv-transparent {
 		--seventv-background-transparent-1: #161616c4;
 		--seventv-background-lesser-transparent-1: #161616f2;
-		--seventv-background-transparent-2: #1b1b1b97;
+		--seventv-background-transparent-2: #13131397;
+		--seventv-background-transparent-3: #111111b5;
 	}
 }
 
@@ -43,9 +45,11 @@ body[theme="light"] {
 	--seventv-background-transparent-1: #f7f7f7;
 	--seventv-background-lesser-transparent-1: #f7f7f7;
 	--seventv-background-transparent-2: #e7e7e7;
+	--seventv-background-transparent-3: #d7d7d7;
 	--seventv-border-transparent-1: #0000001a;
 	--seventv-background-shade-1: #f7f7f7;
 	--seventv-background-shade-2: #e7e7e7;
+	--seventv-background-shade-3: #d7d7d7;
 	--seventv-primary: #29b6f6;
 	--seventv-accent: #66bb6a;
 	--seventv-warning: #ec3535;
@@ -55,6 +59,7 @@ body[theme="light"] {
 		--seventv-background-transparent-1: #f7f7f7c4;
 		--seventv-background-lesser-transparent-1: #f7f7f7f2;
 		--seventv-background-transparent-2: #e7e7e797;
+		--seventv-background-transparent-3: #d7d7d7b5;
 	}
 }
 

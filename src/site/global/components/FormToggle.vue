@@ -74,7 +74,7 @@ const setting = useConfig<boolean>(props.node.key);
 }
 
 input:checked + .seventv-toggle:before {
-	background-color: var(--seventv-accent);
+	background-color: var(--seventv-primary);
 	transform: translateX(2rem);
 }
 

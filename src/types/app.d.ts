@@ -72,7 +72,10 @@ declare namespace SevenTV {
 		path?: [string, string];
 		timestamp?: number;
 
-		component?: Raw<object>;
+		custom?: {
+			component: Raw<object>;
+			gridMode: "right" | "new-row";
+		};
 
 		defaultValue: T;
 		value?: T;

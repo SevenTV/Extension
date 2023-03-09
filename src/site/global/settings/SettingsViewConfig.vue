@@ -46,9 +46,7 @@ watch(
 	}
 }
 .seventv-settings-subcategory {
-	background-color: hsla(0deg, 0%, 30%, 6%);
 	margin: 1rem;
-	border-radius: 0.4rem;
 
 	.seventv-settings-subcategory-header {
 		display: flex;
@@ -58,7 +56,8 @@ watch(
 		&:after {
 			content: "";
 			width: 100%;
-			border-bottom: 1px solid hsla(0deg, 0%, 70%, 32%);
+			padding-bottom: 0.5rem;
+			border-bottom: 0.1rem solid hsla(0deg, 0%, 70%, 32%);
 		}
 	}
 	&:last-child {

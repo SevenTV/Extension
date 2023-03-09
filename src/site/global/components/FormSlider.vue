@@ -1,7 +1,7 @@
 <template>
 	<div class="seventv-slider-container">
 		<span> {{ setting }} {{ node.options?.unit }} </span>
-		<div class="seventv-slider">
+		<div class="seventv-slider" :class="{ 'show-thresold-name': !!thresoldName }" :thresold-name="thresoldName">
 			<input
 				:id="node.key"
 				v-model="setting"
@@ -15,7 +15,6 @@
 			/>
 		</div>
 	</div>
-	<span v-if="thresoldName" class="seventv-slider-thresold-name"> ({{ thresoldName }}) </span>
 </template>
 
 <script setup lang="ts">
@@ -54,15 +53,6 @@ const thresoldName = computed(() => {
 	}
 }
 
-.seventv-slider-thresold-name {
-	display: flex;
-	align-items: center;
-	float: right;
-	font-size: 0.85rem;
-	font-weight: 600;
-	font-style: italic;
-}
-
 .seventv-slider {
 	height: 0.75rem;
 	background: var(--seventv-input-background);
@@ -72,35 +62,60 @@ const thresoldName = computed(() => {
 	border-radius: 0.15rem;
 	display: inline-flex;
 
+	&.show-thresold-name::after {
+		content: attr(thresold-name);
+		position: relative;
+		width: 0;
+		height: 1rem;
+		top: 2rem;
+		right: calc(100% - 0.5rem);
+		font-size: 1rem;
+		font-weight: 600;
+		font-style: italic;
+	}
+
 	> input {
 		-webkit-appearance: none;
 		appearance: none;
 		background: transparent;
 
 		&[held="true"] {
-			&::-webkit-slider-thumb,
+			&::-webkit-slider-thumb {
+				transform: scale(1.15);
+			}
 			&::-moz-range-thumb {
 				transform: scale(1.15);
 			}
 		}
 	}
 
-	> input::-webkit-slider-thumb,
-	> input::-moz-range-thumb {
-		-webkit-appearance: none;
+	@mixin thumb {
 		transition: transform 70ms ease;
 		appearance: none;
-		background-color: var(--seventv-accent);
+		background-color: var(--seventv-primary);
 		clip-path: circle(1rem at center);
 		border-radius: 0.25rem;
 		height: 1.5rem;
 		width: 1.5rem;
 		z-index: 100;
+
+		&:hover {
+			cursor: pointer;
+		}
 	}
 
-	> input::-webkit-slider-runnable-track,
+	> input::-webkit-slider-thumb {
+		@include thumb;
+	}
+	> input::-moz-range-thumb {
+		@include thumb;
+	}
+
+	> input::-webkit-slider-runnable-track {
+		appearance: none;
+		cursor: pointer;
+	}
 	> input::-moz-range-track {
-		-webkit-appearance: none;
 		appearance: none;
 		cursor: pointer;
 	}

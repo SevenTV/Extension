@@ -49,7 +49,6 @@ function onCategoryClick(): void {
 </script>
 <style scoped lang="scss">
 .seventv-settings-category {
-	background-color: hsla(0deg, 0%, 30%, 6%);
 	border-radius: 0.4rem;
 	margin: 0.5rem;
 
@@ -111,9 +110,9 @@ function onCategoryClick(): void {
 			display: flex;
 			cursor: pointer;
 			height: 3rem;
-			margin: 0.2rem 0.5rem 0.2rem 3.5rem;
-			padding: 0.5rem;
+			padding: 0.5rem 4rem;
 			border-radius: 0.4rem;
+
 			&:hover {
 				background-color: hsla(0deg, 0%, 30%, 32%);
 			}

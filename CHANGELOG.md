@@ -1,23 +1,27 @@
+### Version 3.0.0.18000 (Beta 18)
+
+- Updated the look of the Settings Menu
+
 ### Version 3.0.0.17000 (Beta 17)
 
-- Added a compatibility section to Onboarding Experience and Settings
-- Fixed autocompletion on YouTube only working with a full emote name
-- Fixed an issue which led reply threads to overflow
-- Fixed an issue which caused the mod slider to delete messages despite being retracted
-- Fixed an issue where zero-width emotes wouldn't work if there was extra white space in-between
-- Fixed an issue which occasionally resulted in old chat lines never being deleted
-- Slider styling on Mozilla Firefox should now match that of Chromium
+-   Added a compatibility section to Onboarding Experience and Settings
+-   Fixed autocompletion on YouTube only working with a full emote name
+-   Fixed an issue which led reply threads to overflow
+-   Fixed an issue which caused the mod slider to delete messages despite being retracted
+-   Fixed an issue where zero-width emotes wouldn't work if there was extra white space in-between
+-   Fixed an issue which occasionally resulted in old chat lines never being deleted, eventually crashing the page
+-   Slider styling on Mozilla Firefox should now match that of Chromium
 
 ### Version 3.0.0.16000 (Beta 16)
 
 #### Beta 16.1
 
-- Fixed an issue which led to broken styles on twitch.tv
-- Fixed an issue which blocked progress on the Onboarding page in Mozilla Firefox if extraneous permissions were requested
+-   Fixed an issue which led to broken styles on twitch.tv
+-   Fixed an issue which blocked progress on the Onboarding page in Mozilla Firefox if extraneous permissions were requested
 
 ---
 
-- Added an Onboarding Experience
+-   Added an Onboarding Experience
 
 ---
 
