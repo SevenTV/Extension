@@ -1,5 +1,5 @@
 import { BranchName, getManifest } from "./manifest.config";
-import { appName, getFullVersion, r, versionID } from "./vite.utils";
+import { appName, getFullVersion, r } from "./vite.utils";
 import vue from "@vitejs/plugin-vue";
 import fs from "fs-extra";
 import path from "path";
@@ -25,14 +25,14 @@ export default defineConfig(() => {
 	const mode = process.env.NODE_ENV;
 	const isDev = process.env.NODE_ENV === "dev";
 	const isNightly = process.env.BRANCH === "nightly" || process.env.BRANCH === "beta";
+	const fullVersion = getFullVersion(isNightly);
 
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: appName,
-		VITE_APP_VERSION: getFullVersion(isNightly),
+		VITE_APP_VERSION: fullVersion,
 		VITE_APP_VERSION_BRANCH: process.env.BRANCH as BranchName,
-		VITE_APP_STYLESHEET_NAME: `seventv.style.${versionID}.css`,
 	};
 
 	return {
@@ -79,8 +79,8 @@ export default defineConfig(() => {
 								return path.basename(info.facadeModuleId.replace(".ts", ".js"));
 						}
 					},
-					assetFileNames: `assets/seventv.[name].${versionID}[extname]`,
-					chunkFileNames: `assets/seventv.[name].${versionID}.js`,
+					assetFileNames: `assets/seventv.[name].${fullVersion}[extname]`,
+					chunkFileNames: `assets/seventv.[name].${fullVersion}.js`,
 				},
 			},
 		},

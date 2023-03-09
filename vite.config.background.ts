@@ -1,4 +1,4 @@
-import { appName, getFullVersion, r, versionID } from "./vite.utils";
+import { appName, getFullVersion, r } from "./vite.utils";
 import path from "path";
 import { defineConfig, loadEnv } from "vite";
 
@@ -12,7 +12,6 @@ export default defineConfig(() => {
 		VITE_APP_NAME: appName,
 		VITE_APP_VERSION: getFullVersion(isNightly),
 		VITE_APP_VERSION_BRANCH: process.env.BRANCH,
-		VITE_APP_STYLESHEET_NAME: `seventv.style.${versionID}.css`,
 	};
 
 	return {
