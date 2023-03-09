@@ -19,6 +19,7 @@
 			v-for="m of thread"
 			:key="m.id"
 			:msg="m"
+			:emotes="emotes.active"
 			:as="'Reply'"
 			class="thread-msg"
 			:class="{ 'is-root-msg': rootMsgID === m.id }"
@@ -34,6 +35,7 @@ import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
 import { useChannelContext } from "../channel/useChannelContext";
+import { useChatEmotes } from "../chat/useChatEmotes";
 import { useChatMessages } from "../chat/useChatMessages";
 
 const props = defineProps<{
@@ -45,6 +47,7 @@ const rootMsgID = ref("");
 const thread = ref<ChatMessage[]>([props.msg]);
 
 const ctx = useChannelContext();
+const emotes = useChatEmotes(ctx);
 const { find } = useChatMessages(ctx);
 onMounted(() => {
 	let currentMsg: ChatMessage | undefined = props.msg;

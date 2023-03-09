@@ -1,6 +1,7 @@
 ### Version 3.0.0.18000 (Beta 18)
 
 - Updated the look of the Settings Menu
+- Emotes should now show in the Reply Tray
 
 ### Version 3.0.0.17000 (Beta 17)
 

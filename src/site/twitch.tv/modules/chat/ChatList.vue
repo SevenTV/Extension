@@ -102,6 +102,7 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.CHANNEL_POINTS_REWARD:
 		case MessageType.ANNOUNCEMENT_MESSAGE:
 		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
+		case MessageType.CONNECTED:
 			onChatMessage(msg, msgData);
 			break;
 
