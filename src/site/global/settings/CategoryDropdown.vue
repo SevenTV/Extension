@@ -8,14 +8,14 @@
 				{{ category }}
 			</span>
 			<div
-				v-if="showSubCategories && Object.keys(subs).filter((s) => s).length"
+				v-if="showSubCategories && subCategories.filter((s) => s).length"
 				class="dropdown-icon seventv-settings-expanded"
 			>
 				<DropdownIcon />
 			</div>
 		</div>
 		<div v-if="showSubCategories" class="seventv-settings-category-dropdown seventv-settings-expanded">
-			<template v-for="s of Object.keys(subs)" :key="s">
+			<template v-for="s of subCategories" :key="s">
 				<div v-if="s" class="seventv-settings-subcategory" @click="emit('open-subcategory', s)">
 					{{ s }}
 				</div>
@@ -30,7 +30,7 @@ import IconForSettings from "@/assets/svg/icons/IconForSettings.vue";
 
 const props = defineProps<{
 	category: string;
-	subs: Record<string, SevenTV.SettingNode[]>;
+	subCategories: string[];
 	showSubCategories?: boolean;
 }>();
 

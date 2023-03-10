@@ -4,7 +4,7 @@
 		<div class="seventv-changelog-heading">
 			<h3>
 				<Logo provider="7TV" />
-				<span>Changelog - 7TV Beta</span>
+				<span>Changelog - 7TV</span>
 			</h3>
 		</div>
 
@@ -43,8 +43,9 @@ watchEffect(() => {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		background-color: var(--seventv-background-transparent-1);
-		border-radius: 0.4rem;
+		background-color: var(--seventv-background-shade-3);
+		padding: 0.5rem;
+		border-bottom: 0.1rem solid var(--seventv-primary);
 
 		> .close-button {
 			cursor: pointer;
@@ -54,8 +55,6 @@ watchEffect(() => {
 		}
 
 		> h3 {
-			padding: 0.5em;
-
 			> svg {
 				color: var(--seventv-primary);
 			}
@@ -74,22 +73,35 @@ watchEffect(() => {
 	line-height: 1.5em;
 
 	:deep(ul) {
+		display: grid;
+		row-gap: 0.5rem;
 		list-style: square;
+		margin: 0.25rem 0.5rem;
 	}
 
-	:deep(hr) {
-		margin: 1em 0;
-		height: 0.1em;
-		width: 100%;
-		background-color: currentColor;
+	:deep(li) {
+		opacity: 0.75;
 	}
 
 	:deep(h3) {
-		margin: 1rem 0 0.5rem;
+		margin-bottom: 2rem;
+		font-size: 2rem;
+	}
+
+	:deep(h4) {
+		margin: 1rem 0;
+		font-size: 1.5rem;
 	}
 
 	:deep(p) {
 		margin: 0.5rem 0;
+	}
+
+	:deep(hr) {
+		all: unset;
+		display: block;
+		margin: 1rem 0;
+		border-top: 0.01rem solid var(--seventv-input-border);
 	}
 }
 </style>

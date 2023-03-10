@@ -1,12 +1,12 @@
 <template>
-	<div class="frontpage-container">
-		<div class="frontpage-body">
+	<div class="seventv-settings-home">
+		<div class="seventv-settings-home-body">
 			<UiScrollable>
-				<div class="frontpage-main">
+				<div class="seventv-settings-home-changelog">
 					<Changelog />
 				</div>
 			</UiScrollable>
-			<div class="frontpage-footer">
+			<div class="seventv-settings-home-footer">
 				<div class="seventv-settings-app-info">
 					<span class="seventv-settings-compact">{{ appName }} ({{ appContainer }})</span>
 					<span class="seventv-version">v{{ version }}</span>
@@ -14,10 +14,10 @@
 				</div>
 			</div>
 		</div>
-		<div class="frontpage-side seventv-settings-compact">
+		<div class="seventv-settings-home-sidebar seventv-settings-compact">
 			<a
 				class="twitter-timeline"
-				data-height="580"
+				data-height="660"
 				:data-theme="theme.toLowerCase()"
 				href="https://twitter.com/Official_7TV?ref_src=twsrc%5Etfw"
 			/>
@@ -45,29 +45,30 @@ twitterScript.setAttribute("charset", "utf-8");
 document.head.appendChild(twitterScript);
 </script>
 <style scoped lang="scss">
-.frontpage-container {
-	display: flex;
+.seventv-settings-home {
+	display: grid;
 	height: 100%;
+	grid-template-columns: 1fr 30rem;
 
-	.frontpage-body {
+	.seventv-settings-home-body {
 		display: flex;
 		flex-direction: column;
 		flex-grow: 1;
 		border-right: 1px solid var(--seventv-border-transparent-1);
+		overflow: auto;
 
-		.frontpage-main {
-			padding: 1rem;
+		.seventv-settings-home-changelog {
 			flex-grow: 1;
 		}
 
-		.frontpage-footer {
-			display: flex;
+		.seventv-settings-home-footer {
 			position: sticky;
-			bottom: -1px;
-			border-top: 1px solid var(--seventv-border-transparent-1);
+			bottom: 0;
+			border-top: 0.1rem solid var(--seventv-border-transparent-1);
 			align-items: center;
 			padding: 0.5rem 1rem;
 			background-color: var(--seventv-background-shade-1);
+
 			.seventv-settings-app-info {
 				flex-grow: 1;
 				display: flex;
@@ -78,11 +79,10 @@ document.head.appendChild(twitterScript);
 		}
 	}
 
-	.frontpage-side {
-		margin: 1rem;
+	.seventv-settings-home-sidebar {
+		z-index: 1;
 		width: 25em;
-		flex-shrink: 0;
-		height: 100%;
+		margin: -5rem -0.5rem;
 	}
 }
 </style>

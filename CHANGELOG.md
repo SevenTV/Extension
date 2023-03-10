@@ -7,6 +7,12 @@
 -   Updated the look of the Settings Menu
 -   Emotes should now show in the Reply Tray
 
+#### Beta 18.1
+
+- Fixed an issue which caused settings to disappear
+- Fixed an issue where changing a highlight's color wouldn't save after refresh
+- Updated the look of settings' home page
+
 ---
 
 ### Version 3.0.0.17000 (Beta 17)
@@ -23,6 +29,8 @@
 
 ### Version 3.0.0.16000 (Beta 16)
 
+-   Added an Onboarding Experience
+
 #### Beta 16.1
 
 -   Fixed an issue which led to broken styles on twitch.tv
@@ -30,36 +38,27 @@
 
 ---
 
--   Added an Onboarding Experience
-
----
-
 ### Version 3.0.0.15000 (Beta 15)
-
-#### Beta 15.3
-
--   Updated message types
-
----
-
-#### Beta 15.2
-
--   Input hotkeys such as tabbing are now captured to thwart conflicts from other extensions
-
----
-
-#### Beta 15.1
-
--   The tab-completion carousel should now also work in theater mode
--   Fixed an issue where the tab-completion carousel required 2 tab presses to show results
-
----
 
 -   Added a carousel visualization for tab-completion
 -   Fixed an issue which caused mentions to ignore the Readable Colors setting
 -   Fixed an issue with the Mod Slider performing a max-length timeout if the value was less than 60 seconds
 -   Fixed an issue which prevented user cards from opening when in Mod View
 -   Fixed the "Smooth-scroll chat" setting requiring a refresh to update
+
+
+#### Beta 15.3
+
+-   Updated message types
+
+#### Beta 15.2
+
+-   Input hotkeys such as tabbing are now captured to thwart conflicts from other extensions
+
+#### Beta 15.1
+
+-   The tab-completion carousel should now also work in theater mode
+-   Fixed an issue where the tab-completion carousel required 2 tab presses to show results
 
 ---
 

@@ -11,10 +11,8 @@ class SettingsMenuContext {
 	category = "";
 	scrollpoint = "";
 
-	sortedNodes: SevenTV.SettingNode[] = [];
 	mappedNodes: Record<string, Record<string, SevenTV.SettingNode[]>> = reactive({
 		Home: {},
-		Compatibility: {},
 	});
 
 	constructor() {

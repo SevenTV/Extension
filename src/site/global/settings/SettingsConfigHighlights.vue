@@ -11,52 +11,57 @@
 				<div>Color</div>
 			</div>
 
-			<template v-for="h of highlights.getAll()" :key="h.id">
-				<div class="item">
-					<!-- Pattern -->
-					<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
-						<span>{{ h.pattern }}</span>
-						<FormInput
-							:ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
-							v-model="h.pattern"
-							@blur="onInputBlur(h, 'pattern')"
-						/>
-					</div>
+			<UiScrollable>
+				<template v-for="h of highlights.getAll()" :key="h.id">
+					<div class="item">
+						<!-- Pattern -->
+						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
+							<span>{{ h.pattern }}</span>
+							<FormInput
+								:ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.pattern"
+								@blur="onInputBlur(h, 'pattern')"
+							/>
+						</div>
 
-					<!-- Label -->
-					<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
-						<span>{{ h.label }}</span>
-						<FormInput
-							:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
-							v-model="h.label"
-							@blur="onInputBlur(h, 'label')"
-						/>
-					</div>
+						<!-- Label -->
+						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
+							<span>{{ h.label }}</span>
+							<FormInput
+								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.label"
+								@blur="onInputBlur(h, 'label')"
+							/>
+						</div>
 
-					<!-- Checkbox: Flash Title -->
-					<div name="flash-title" class="centered">
-						<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
-					</div>
+						<!-- Checkbox: Flash Title -->
+						<div name="flash-title" class="centered">
+							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
+						</div>
 
-					<!-- Checkbox: RegExp -->
-					<div name="is-regexp" class="centered">
-						<FormCheckbox :checked="!!h.regexp" @update:checked="onRegExpStateChange(h, $event)" />
-					</div>
+						<!-- Checkbox: RegExp -->
+						<div name="is-regexp" class="centered">
+							<FormCheckbox :checked="!!h.regexp" @update:checked="onRegExpStateChange(h, $event)" />
+						</div>
 
-					<!-- Checkbox: Case Sensitive -->
-					<div name="case-sensitive" class="centered">
-						<FormCheckbox :checked="!!h.caseSensitive" @update:checked="onCaseSensitiveChange(h, $event)" />
-					</div>
+						<!-- Checkbox: Case Sensitive -->
+						<div name="case-sensitive" class="centered">
+							<FormCheckbox
+								:checked="!!h.caseSensitive"
+								@update:checked="onCaseSensitiveChange(h, $event)"
+							/>
+						</div>
 
-					<div name="color">
-						<input v-model="h.color" type="color" />
-					</div>
+						<div name="color">
+							<input v-model="h.color" type="color" @input="onColorChange(h, $event as InputEvent)" />
+						</div>
 
-					<div name="interact">
-						<CloseIcon v-tooltip="'Remove'" @click="onDeleteHighlight(h)" />
+						<div name="interact">
+							<CloseIcon v-tooltip="'Remove'" @click="onDeleteHighlight(h)" />
+						</div>
 					</div>
-				</div>
-			</template>
+				</template>
+			</UiScrollable>
 
 			<!-- New -->
 			<div class="item create-new">
@@ -73,6 +78,7 @@ import { nextTick, reactive, ref, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { HighlightDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
+import UiScrollable from "@/ui/UiScrollable.vue";
 import FormCheckbox from "../components/FormCheckbox.vue";
 import FormInput from "../components/FormInput.vue";
 import { v4 as uuid } from "uuid";
@@ -116,6 +122,14 @@ function onRegExpStateChange(h: HighlightDef, checked: boolean): void {
 
 function onCaseSensitiveChange(h: HighlightDef, checked: boolean): void {
 	h.caseSensitive = checked;
+	highlights.save();
+}
+
+function onColorChange(h: HighlightDef, ev: InputEvent): void {
+	if (!(ev.target instanceof HTMLInputElement)) return;
+	const color = ev.target.value;
+
+	h.color = color;
 	highlights.save();
 }
 
@@ -169,6 +183,7 @@ main.seventv-settings-custom-highlights {
 	.list {
 		display: grid;
 		grid-area: list;
+		max-height: 36rem;
 
 		.item {
 			display: grid;

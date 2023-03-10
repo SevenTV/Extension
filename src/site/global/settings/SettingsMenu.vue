@@ -33,21 +33,21 @@
 							<SettingsUpdateButton v-if="!updater.isUpToDate" />
 							<CategoryDropdown
 								category="Home"
-								:subs="{}"
+								:sub-categories="[]"
 								@open-category="() => ctx.switchView('home')"
 							/>
-							<template v-for="[category, subs] of Object.entries(ctx.mappedNodes)" :key="category">
+							<template v-for="[n, subCategories] of Object.entries(ctx.mappedNodes)" :key="n.key">
 								<CategoryDropdown
-									:category="category"
-									:subs="subs"
+									:category="n"
+									:sub-categories="Object.keys(subCategories)"
 									:show-sub-categories="isExpanded"
-									@open-category="navigateToCategory(category)"
-									@open-subcategory="(s) => navigateToCategory(category, s)"
+									@open-category="navigateToCategory(n)"
+									@open-subcategory="(s) => navigateToCategory(n, s)"
 								/>
 							</template>
 							<CategoryDropdown
 								category="Compatibility"
-								:subs="{}"
+								:sub-categories="[]"
 								@open-category="() => ctx.switchView('compat')"
 							/>
 						</UiScrollable>
@@ -87,7 +87,6 @@
 <script setup lang="ts">
 import { inject, ref, watch } from "vue";
 import { useBreakpoints } from "@vueuse/core";
-import { watchDebounced, watchThrottled } from "@vueuse/shared";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
@@ -142,8 +141,12 @@ function navigateToCategory(name: string, scrollpoint?: string) {
 	if (scrollpoint) ctx.scrollpoint = scrollpoint;
 }
 
-function sortNodes(nodes: typeof settings.nodes) {
-	ctx.sortedNodes = Object.values(nodes)
+function sortNodes(filter?: string) {
+	const nodes = settings.nodes;
+
+	ctx.mappedNodes = {};
+
+	const sorted = Object.values(nodes)
 		.filter((node) => {
 			return node.type != "NONE" && node.path && node.path.length == 2;
 		})
@@ -155,26 +158,24 @@ function sortNodes(nodes: typeof settings.nodes) {
 			const ob = getOrder(b.path[0]);
 			return oa == ob ? a.path[1].localeCompare(b.path[1]) : oa - ob;
 		});
-}
 
-function filterAndMapNodes(filter: string) {
-	const temp = {} as Record<string, Record<string, SevenTV.SettingNode[]>>;
-	const f = filter.toLowerCase();
-	for (const node of ctx.sortedNodes) {
-		// Search in label
-		// Search in hint
-		if (!node.label.toLowerCase().includes(f) && node.hint?.toLowerCase().includes(f) === false) continue;
+	const a = sorted.filter((node) => {
+		if (!node.path) return false;
+		if (!node.label) return false;
+		if (filter && !node.label.toLowerCase().includes(filter.toLowerCase())) return false;
+		return true;
+	});
 
-		const c = node.path![0];
-		const s = node.path![1];
+	for (const node of a) {
+		if (!node.path?.length) continue;
+		const cat = node.path[0];
+		const subCat = node.path[1];
 
-		if (!temp[c]) temp[c] = {};
-		if (!temp[c][s]) temp[c][s] = [];
+		if (!ctx.mappedNodes[cat]) ctx.mappedNodes[cat] = {};
+		if (!ctx.mappedNodes[cat][subCat]) ctx.mappedNodes[cat][subCat] = [];
 
-		temp[c][s].push(node);
+		ctx.mappedNodes[cat][subCat].push(node);
 	}
-
-	ctx.mappedNodes = temp;
 }
 
 function getOrder(c: string | undefined) {
@@ -189,9 +190,7 @@ function openAuthWindow(): void {
 	actor.openAuthorizeWindow(platform);
 }
 
-watch(settings.nodes, sortNodes, { immediate: true });
-watchThrottled(filter, filterAndMapNodes, { throttle: 250, immediate: true });
-watchDebounced(ctx.sortedNodes, () => filterAndMapNodes(filter.value), { debounce: 250, immediate: true });
+watch([settings.nodes, filter], () => sortNodes(filter.value), { immediate: true });
 </script>
 
 <style scoped lang="scss">

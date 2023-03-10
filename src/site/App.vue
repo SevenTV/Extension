@@ -24,8 +24,7 @@ import { markRaw, onMounted, ref } from "vue";
 import { APP_BROADCAST_CHANNEL, SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
-import { fillSettings, useSettings } from "@/composable/useSettings";
-import { useConfig } from "@/composable/useSettings";
+import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
 import YouTubeSite from "./youtube.com/YouTubeSite.vue";
@@ -75,7 +74,6 @@ target.addEventListener("ready", () => {
 	wg.value--;
 });
 
-//
 const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 bc.addEventListener("message", (ev) => {
 	if (ev.data.type !== "seventv-settings-sync") return;

@@ -46,6 +46,7 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 	for (const { key, value, timestamp } of s) {
 		raw[key] = value;
 		nodes[key] = {
+			...(nodes[key] ?? {}),
 			timestamp,
 		} as SevenTV.SettingNode;
 	}
