@@ -5,6 +5,7 @@ import { defineConfig, loadEnv } from "vite";
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV ?? "";
 	const isNightly = process.env.BRANCH === "nightly" || process.env.BRANCH === "beta";
+	const outDir = process.env.OUT_DIR || "";
 
 	process.env = {
 		...process.env,
@@ -23,7 +24,7 @@ export default defineConfig(() => {
 		},
 		build: {
 			emptyOutDir: false,
-			outDir: "dist",
+			outDir: "dist" + "/" + outDir,
 			lib: {
 				formats: ["iife"],
 				entry: r("src/background/background.ts"),

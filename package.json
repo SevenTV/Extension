@@ -4,7 +4,7 @@
 	"description": "The Official 7TV Web Extension",
 	"private": true,
 	"version": "3.0.0",
-	"dev_version": "18.1",
+	"dev_version": "18.12",
 	"scripts": {
 		"start": "NODE_ENV=dev yarn build:dev && NODE_ENV=dev vite --mode dev",
 		"build:section:app": "vite build --config vite.config.ts",
@@ -12,7 +12,6 @@
 		"build:section:content": "vite build --config vite.config.content.ts",
 		"build:section:worker": "vite build -c vite.config.worker.ts",
 		"build:dev": "NODE_ENV=dev run-s build:section:*",
-		"build:stage": "NODE_ENV=stage vue-tsc --noEmit && run-s build:section:*",
 		"build:prod": "NODE_ENV=production vue-tsc --noEmit && run-s build:section:*",
 		"build:mv2:prod": "vue-tsc --noEmit && MV2=true vite build --minify es2021 && vite build -c vite.config.worker.ts --minify es2021",
 		"watch:section:background": "vite build --config vite.config.background.ts --watch",

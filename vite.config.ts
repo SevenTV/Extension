@@ -25,6 +25,7 @@ export default defineConfig(() => {
 	const mode = process.env.NODE_ENV;
 	const isDev = process.env.NODE_ENV === "dev";
 	const isNightly = process.env.BRANCH === "nightly" || process.env.BRANCH === "beta";
+	const outDir = process.env.OUT_DIR || "";
 	const fullVersion = getFullVersion(isNightly);
 
 	process.env = {
@@ -56,7 +57,7 @@ export default defineConfig(() => {
 		root: ".",
 		publicDir: "public",
 		build: {
-			outDir: "dist",
+			outDir: "dist" + "/" + outDir,
 			emptyOutDir: true,
 			cssCodeSplit: false,
 			write: true,
@@ -116,7 +117,7 @@ export default defineConfig(() => {
 					});
 
 					setTimeout(() => {
-						fs.writeJSON(r("dist/manifest.json"), man);
+						fs.writeJSON(r("dist").concat("/", outDir, "/", "manifest.json"), man);
 					});
 				},
 			},

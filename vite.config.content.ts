@@ -6,6 +6,7 @@ export default defineConfig(() => {
 	const mode = process.env.NODE_ENV ?? "";
 	const isDev = process.env.NODE_ENV === "dev";
 	const isNightly = process.env.BRANCH === "nightly" || process.env.BRANCH === "beta";
+	const outDir = process.env.OUT_DIR || "";
 	const fullVersion = getFullVersion(isNightly);
 
 	process.env = {
@@ -27,7 +28,7 @@ export default defineConfig(() => {
 		base: isDev ? "http://localhost:4777/" : "./",
 		build: {
 			emptyOutDir: false,
-			outDir: "dist",
+			outDir: "dist" + "/" + outDir,
 			lib: {
 				formats: ["iife"],
 				entry: r("src/content/content.ts"),

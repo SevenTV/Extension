@@ -9,10 +9,10 @@
 
 #### Beta 18.1
 
-- Fixed an issue which caused settings to disappear
-- Fixed an issue where changing a highlight's color wouldn't save after refresh
-- Fixed where zero-width emotes in chat did not remove the text token from the message
-- Updated the look of settings' home page
+-   Fixed an issue which caused settings to disappear
+-   Fixed an issue where changing a highlight's color wouldn't save after refresh
+-   Fixed an issue where zero-width emotes in chat did not remove the text token from the message
+-   Updated the look of settings' home page
 
 ---
 
@@ -46,7 +46,6 @@
 -   Fixed an issue with the Mod Slider performing a max-length timeout if the value was less than 60 seconds
 -   Fixed an issue which prevented user cards from opening when in Mod View
 -   Fixed the "Smooth-scroll chat" setting requiring a refresh to update
-
 
 #### Beta 15.3
 

@@ -6,6 +6,7 @@ const r = (...args: string[]) => path.resolve(__dirname, ...args);
 
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV;
+	const outDir = process.env.OUT_DIR || "";
 
 	process.env = {
 		...process.env,
@@ -27,7 +28,7 @@ export default defineConfig(() => {
 
 		root: ".",
 		build: {
-			outDir: "dist",
+			outDir: "dist" + "/" + outDir,
 			emptyOutDir: false,
 			write: true,
 			rollupOptions: {
