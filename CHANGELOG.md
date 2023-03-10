@@ -11,6 +11,7 @@
 
 - Fixed an issue which caused settings to disappear
 - Fixed an issue where changing a highlight's color wouldn't save after refresh
+- Fixed where zero-width emotes in chat did not remove the text token from the message
 - Updated the look of settings' home page
 
 ---

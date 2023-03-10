@@ -48,7 +48,7 @@ export class Tokenizer {
 					lastEmoteToken.content.overlaid[maybeEmote.name] = maybeEmote;
 
 					// the "void" token is used to hide the text of the zero-width. any text in the void range won't be rendered
-					tokens.push(toVoid(cursor + 1, cursor + 1));
+					tokens.push(toVoid(cursor + 1, next - 1));
 				} else {
 					// regular emote
 					tokens.push(
