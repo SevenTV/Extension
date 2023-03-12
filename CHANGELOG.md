@@ -8,6 +8,8 @@ This build is a **release candidate**.
 -   Fixed an error in the shared worker which broke the fetching of legacy static cosmetics
 -   Fixed an issue which sometimes caused setting changes to be lost
 -   Fixed an issue where emote name changes did not reflect in chat
+-   Fixed some performance overhead with the Mod Logs interface
+-   Fixed timestamps always displaying in the 24h format
 
 ### Version 3.0.0.18000 (Beta 18)
 

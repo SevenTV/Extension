@@ -24,13 +24,7 @@
 		<!-- Timestamp -->
 		<template v-if="properties.showTimestamps || msg.historical || forceTimestamp">
 			<span class="seventv-chat-message-timestamp">
-				{{
-					new Date(props.msg.timestamp).toLocaleTimeString(locale, {
-						hour: "numeric",
-						minute: "numeric",
-						hour12: false,
-					})
-				}}
+				{{ timestamp }}
 			</span>
 		</template>
 
@@ -106,6 +100,7 @@ import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
 import ModIcons from "../mod/ModIcons.vue";
+import intlFormat from "date-fns/fp/intlFormat";
 
 const props = withDefaults(
 	defineProps<{
@@ -143,6 +138,17 @@ const locale = navigator.languages && navigator.languages.length ? navigator.lan
 
 // Personal Emotes
 const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };
+
+// Timestamp
+const timestamp = intlFormat(
+	{ locale },
+	{
+		localeMatcher: "lookup",
+		hour: "numeric",
+		minute: "numeric",
+	},
+	props.msg.timestamp,
+).replace(/ (A|P)M/, "");
 
 // Tokenize the message
 type MessageTokenOrText = AnyToken | string;
