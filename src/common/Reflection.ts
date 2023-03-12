@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { toRaw } from "vue";
 
 export const PROP_STORE_ACCESSOR = Symbol("seventv.reflection.store");
 export const EVENT_STORE_ACCESSOR = Symbol("seventv.reflection.events");
@@ -107,6 +108,8 @@ export function definePropertyHook<T extends object, K extends keyof T>(
 	prop: K,
 	hooks: { set?: (newVal: any, oldVal: any) => any; get?: (v: any) => any; value?: (v: T[K]) => void },
 ) {
+	object = toRaw(object);
+
 	const store = getPropStore(object);
 
 	if (!Reflect.has(store, prop)) {
@@ -139,6 +142,8 @@ export function definePropertyHook<T extends object, K extends keyof T>(
  * @param prop Property to unhook
  */
 export function unsetPropertyHook<T extends object>(object: T, prop: keyof T) {
+	object = toRaw(object);
+
 	Reflect.deleteProperty(object, prop);
 
 	const store = getPropStore(object);
@@ -167,6 +172,8 @@ export function defineNamedEventHandler<K extends keyof HTMLElementEventMap>(
 	handler: (ev: HTMLElementEventMap[K]) => void,
 	capture?: boolean,
 ) {
+	target = toRaw(target);
+
 	const store = getEventStore(target);
 	const prop = `${namespace}:${event}`;
 
@@ -188,6 +195,8 @@ export function unsetNamedEventHandler<K extends keyof HTMLElementEventMap>(
 	namespace: string,
 	event: K,
 ) {
+	target = toRaw(target);
+
 	const store = getEventStore(target);
 	const prop = `${namespace}:${event}`;
 
