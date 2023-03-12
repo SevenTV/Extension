@@ -11,6 +11,10 @@ This build is a **release candidate**.
 -   Fixed some performance overhead with the Mod Logs interface
 -   Fixed timestamps always displaying in the 24h format
 
+#### Beta 19.1
+
+-   Fixed an issue which broke all emote loading on channels without a 7TV account
+
 ### Version 3.0.0.18000 (Beta 18)
 
 -   New Feature: Custom Highlights

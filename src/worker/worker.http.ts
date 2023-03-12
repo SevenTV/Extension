@@ -86,10 +86,10 @@ export class WorkerHttp {
 		);
 
 		// setup fetching promises
-		const user = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id);
+		const user = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
 
 		const promises = [
-			["7TV", user.then((es) => es.emote_set).catch(() => void 0)],
+			["7TV", user.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
 			["FFZ", frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
 			["BTTV", betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
 		] as [string, Promise<SevenTV.EmoteSet>][];
