@@ -10,6 +10,7 @@ import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
 import EmoteMenu from "./EmoteMenu.vue";
+import { debounceFn } from "@/common/Async";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
@@ -29,24 +30,30 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 		trackRoot: true,
 		containerClass: "seventv-chat-input-container",
 		hooks: {
-			update(instance) {
+			render(instance, cur) {
 				shouldMount.set(instance, !!instance.component.props.channelID);
 
-				// TODO: make a proper hook for this and drop DOM manipulations
-				for (const n of Object.values(instance.domNodes)) {
-					const btn = n.querySelector<HTMLButtonElement>("button[data-a-target='emote-picker-button']");
-					if (!btn) continue;
-					buttonEl.value = btn;
-					for (let i = 0; i < btn.childElementCount; i++) {
-						const el = btn.children[i];
-						if (el.classList.contains("seventv-emote-menu-button")) continue;
-						el.remove();
-					}
-				}
+				doButtonUpdate(Object.values(instance.domNodes));
+				return cur;
 			},
 		},
 	},
 );
+
+// TODO: make a proper hook for this and drop DOM manipulations
+const doButtonUpdate = debounceFn((nodes: Element[]) => {
+	for (const n of nodes) {
+		const btn = n.querySelector<HTMLButtonElement>("button[data-a-target='emote-picker-button']");
+		if (!btn) continue;
+		buttonEl.value = btn;
+
+		for (let i = 0; i < btn.childElementCount; i++) {
+			const el = btn.children[i];
+			if (el.classList.contains("seventv-emote-menu-button")) continue;
+			el.remove();
+		}
+	}
+}, 50);
 
 markAsReady();
 </script>

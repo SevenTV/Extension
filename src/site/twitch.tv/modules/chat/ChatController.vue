@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRaw, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
@@ -140,7 +140,10 @@ watch(twitchEmoteSetsDbc, async (sets) => {
 	if (!sets.length) return;
 
 	for (const set of twitchEmoteSets.value) {
-		sendWorkerMessage("SYNC_TWITCH_SET", { input: set });
+		// Skip set if its injected by FFZ or BTTV for Slate autocomplete.
+		if (set.id === "FrankerFaceZWasHere" || set.id === "BETTERTTV_EMOTES") continue;
+
+		sendWorkerMessage("SYNC_TWITCH_SET", { input: toRaw(set) });
 	}
 });
 

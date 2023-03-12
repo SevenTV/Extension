@@ -11,6 +11,11 @@ This build is a **release candidate**.
 -   Fixed some performance overhead with the Mod Logs interface
 -   Fixed timestamps always displaying in the 24h format
 
+#### Beta 19.2
+
+-   Resolved a crash due to twitch set objects being corrupted with FrankerFaceZ enabled
+-   Resolved an issue which prevented the emote menu button from appearing with FrankerFaceZ enabled
+
 #### Beta 19.1
 
 -   Fixed an issue which broke all emote loading on channels without a 7TV account
