@@ -16,6 +16,7 @@ interface ChatMessages {
 	buffer: ChatMessage[];
 
 	moderated: {
+		id: symbol;
 		messages: ChatMessage[];
 		victim: ChatUser;
 		mod: ChatMessageModeration;
@@ -45,6 +46,7 @@ export function useChatMessages(ctx: ChannelContext) {
 			awaited: new Map<string, (v: ChatMessage) => void>(),
 			buffer: [] as ChatMessage[],
 			moderated: [] as {
+				id: symbol;
 				messages: ChatMessage[];
 				victim: ChatUser;
 				mod: ChatMessageModeration;

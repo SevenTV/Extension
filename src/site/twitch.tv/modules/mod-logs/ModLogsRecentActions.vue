@@ -1,10 +1,13 @@
 <template>
 	<main class="seventv-mod-log-recent-actions">
-		<template v-for="(item, index) of messages.moderated" :key="index">
+		<template v-for="item of messages.moderated" :key="item.id">
 			<template v-if="item.mod">
-				<UiLazyList :inst="listID" :incr="3">
-					<ModLogsRecentActionsItem :messages="item.messages" :victim="item.victim" :mod="item.mod" />
-				</UiLazyList>
+				<ModLogsRecentActionsItem
+					:messages="item.messages"
+					:victim="item.victim"
+					:mod="item.mod"
+					:emotes="emotes.active"
+				/>
 			</template>
 		</template>
 	</main>
@@ -12,13 +15,13 @@
 
 <script setup lang="ts">
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import ModLogsRecentActionsItem from "./ModLogsRecentActionsItem.vue";
-import UiLazyList from "@/ui/UiLazyList.vue";
 
 const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
-const listID = Symbol("mod-logs-recent-actions");
+const emotes = useChatEmotes(ctx);
 </script>
 
 <style scoped lang="scss">

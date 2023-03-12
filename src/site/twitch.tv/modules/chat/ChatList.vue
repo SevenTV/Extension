@@ -335,6 +335,7 @@ function onModerationMessage(msgData: Twitch.ModerationMessage) {
 
 		// add to moderation log
 		messages.moderated.unshift({
+			id: Symbol("seventv-moderation-message"),
 			messages: msgList.reverse().slice(0, 10), // last 10 messages
 			mod: action,
 			victim: victim || {

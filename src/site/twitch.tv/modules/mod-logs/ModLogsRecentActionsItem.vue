@@ -12,6 +12,7 @@
 					v-for="msg of messages"
 					:key="msg.id"
 					:msg="msg"
+					:emotes="emotes"
 					:hide-author="true"
 					:hide-deletion-state="true"
 					:hide-moderation="true"
@@ -36,6 +37,7 @@ const props = defineProps<{
 	messages: ChatMessage[];
 	victim: ChatUser;
 	mod: ChatMessageModeration;
+	emotes?: Record<string, SevenTV.ActiveEmote>;
 }>();
 
 const timestamp = ref("");
