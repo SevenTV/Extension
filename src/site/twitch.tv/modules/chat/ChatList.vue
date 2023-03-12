@@ -61,6 +61,7 @@ const pausedByVisibility = ref(false);
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
+const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
 
 const messageHandler = toRef(props, "messageHandler");
@@ -279,8 +280,6 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 	else if (msgData.message) msg.setTimestamp(msgData.message.timestamp ?? 0);
 
 	// highlight when message mentions the actor
-	chatHighlights.checkMatch("~mention", msg);
-
 	for (const highlightID in chatHighlights.getAll()) {
 		chatHighlights.checkMatch(highlightID, msg);
 	}
@@ -445,31 +444,35 @@ watch(pageVisibility, (state) => {
 });
 
 watch(
-	identity,
-	(identity) => {
+	[identity, showMentionHighlights],
+	([identity, enabled]) => {
 		const rxs = identity ? `\\b${identity.username}\\b` : null;
 		if (!rxs) return;
 
 		const rx = new RegExp(rxs, "i");
-		const soundPath = "/sound/ping.ogg";
 
-		chatHighlights.define("~mention", {
-			pattern: rxs,
-			regexp: true,
-			cachedRegExp: rx,
-			label: "Mentions You",
-			color: "#e13232",
-			soundPath,
-			flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
-		});
+		if (enabled) {
+			chatHighlights.define("~mention", {
+				pattern: rxs,
+				regexp: true,
+				cachedRegExp: rx,
+				label: "Mentions You",
+				color: "#e13232",
+				soundPath: "#ping",
+				flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
+			});
 
-		chatHighlights.define("~reply", {
-			test: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
-			label: "Replying to You",
-			color: "#e13232",
-			soundPath,
-			flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`,
-		});
+			chatHighlights.define("~reply", {
+				test: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
+				label: "Replying to You",
+				color: "#e13232",
+				soundPath: "#ping",
+				flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`,
+			});
+		} else {
+			chatHighlights.remove("~mention");
+			chatHighlights.remove("~reply");
+		}
 	},
 	{
 		immediate: true,

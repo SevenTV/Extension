@@ -1,6 +1,7 @@
-import { markRaw, reactive, ref, toRaw, watch } from "vue";
+import { inject, markRaw, reactive, ref, toRaw, watch } from "vue";
 import { toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
+import { SITE_ASSETS_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { ChannelContext } from "@/composable/channel/useChannelContext";
@@ -25,6 +26,11 @@ export interface HighlightDef {
 	flashTitle?: (msg: ChatMessage) => string;
 	soundPath?: string;
 	soundDef?: Sound;
+	soundFile?: {
+		name: string;
+		type: string;
+		data: ArrayBuffer;
+	};
 	persist?: boolean;
 }
 
@@ -37,6 +43,11 @@ const soundVolume = useConfig<number>("highlights.sound_volume");
 
 export function useChatHighlights(ctx: ChannelContext) {
 	const visibility = useDocumentVisibility();
+
+	const assetsBase = inject(SITE_ASSETS_URL, "");
+	const systemSounds = reactive<Record<string, Sound>>({
+		ping: useSound(assetsBase + "/sound/ping.ogg"),
+	});
 
 	let data = m.get(ctx);
 	if (!data) {
@@ -58,6 +69,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 				for (const [, v] of h) {
 					data.highlights[v.id] = v;
+					updateSoundData(v);
 				}
 			},
 			{
@@ -73,18 +85,24 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		const items: [string, HighlightDef][] = Array.from(Object.values(data.highlights))
 			.filter((h) => h.persist)
-			.map((h) => [h.id, toRaw(h)]);
+			.map((h) => [
+				h.id,
+				toRaw({
+					...h,
+					soundFile: toRaw(h.soundFile),
+					soundDef: undefined,
+				}),
+			]);
 
 		customHighlights.value = new Map(items);
-	}, 1000);
+	}, 250);
 
 	function define(id: string, def: Omit<HighlightDef, "id">, persist?: boolean): HighlightDef {
 		if (!data) return {} as HighlightDef;
 
 		const h = (data.highlights[id] = { ...def, id, persist });
-		if (def.soundPath) {
-			def.soundDef = useSound(def.soundPath);
-		}
+		updateSoundData(h);
+
 		if (!persist) return h;
 
 		// Store to DB
@@ -94,10 +112,27 @@ export function useChatHighlights(ctx: ChannelContext) {
 		return h;
 	}
 
-	function remove(h: HighlightDef): void {
+	function updateSoundData(h: HighlightDef) {
+		if (!h.soundFile) {
+			if (h.soundPath?.startsWith("#") && systemSounds[h.soundPath.slice(1)]) {
+				h.soundDef = systemSounds[h.soundPath.slice(1)];
+			}
+
+			return;
+		}
+
+		const blob = new Blob([h.soundFile.data], { type: h.soundFile.type });
+		const url = URL.createObjectURL(blob);
+
+		h.soundPath = url;
+		h.soundDef = useSound(url);
+		return url;
+	}
+
+	function remove(id: string): void {
 		if (!data) return;
 
-		delete data.highlights[h.id];
+		delete data.highlights[id];
 		save();
 	}
 
@@ -135,8 +170,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (ok) {
 			msg.setHighlight(h.color, h.label);
 
-			if (h.soundPath && shouldPlaySoundOnHighlight.value && !msg.historical) {
-				if (!h.soundDef) h.soundDef = useSound(h.soundPath as string);
+			if (h.soundDef && shouldPlaySoundOnHighlight.value && !msg.historical) {
 				h.soundDef.play(soundVolume.value / 100);
 			}
 
@@ -204,5 +238,6 @@ export function useChatHighlights(ctx: ChannelContext) {
 		save,
 		updateId,
 		checkMatch,
+		updateSoundData,
 	};
 }

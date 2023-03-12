@@ -78,6 +78,11 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 		background-color: rgba(0, 0, 0, 25%);
 	}
 
+	&[disabled="true"] {
+		opacity: 0.35;
+		pointer-events: none;
+	}
+
 	.label {
 		display: grid;
 		grid-template-columns: 1fr;

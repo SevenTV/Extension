@@ -1,3 +1,9 @@
+### Version 3.0.0.19000 (Beta 19 RC)
+
+This build is a **release candidate.**
+
+-   Added support for custom sounds for highlights
+
 ### Version 3.0.0.18000 (Beta 18)
 
 -   New Feature: Custom Highlights

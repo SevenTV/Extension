@@ -94,7 +94,7 @@ defineExpose({
 
 <script lang="ts">
 import { HighlightDef } from "@/composable/chat/useChatHighlights";
-import { declareConfig } from "@/composable/useSettings";
+import { declareConfig, useConfig } from "@/composable/useSettings";
 import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
 
 export const config = [
@@ -170,13 +170,17 @@ export const config = [
 	}),
 	declareConfig<number>("chat.line_limit", "SLIDER", {
 		path: ["Chat", "Performance"],
-		label: "Line Limit",
-		hint: "The maximum amount of lines that will be displayed in chat. Higher values may affect performance",
+		label: "Message Buffer Capacity",
+		hint: "Define the maximum amount of messages displayed in chat. Higher values may affect performance",
 		options: {
 			min: 50,
-			max: 500,
+			max: 1000,
 			step: 10,
 			unit: "lines",
+			named_thresolds: [
+				[0, 750, ""],
+				[751, 1000, "Performance Warning!"],
+			],
 		},
 		defaultValue: 150,
 	}),
@@ -222,17 +226,25 @@ export const config = [
 		hint: "Show the color of users mentioned in chat",
 		defaultValue: true,
 	}),
-	declareConfig<boolean>("highlights.basic.mention_title_flash", "TOGGLE", {
+	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
-		label: "Flash Title on Mention",
-		hint: "When tabbed out, the username of users who mention you will flash in the title",
+		label: "Show Mention Highlights",
+		hint: "Whether or not to highlight messages that mention or reply to you in chat",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention_sound", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Play Sound on Mention",
 		hint: "Play a sound when you are mentioned in chat",
+		disabledIf: () => !useConfig("highlights.basic.mention").value,
 		defaultValue: false,
+	}),
+	declareConfig<boolean>("highlights.basic.mention_title_flash", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Flash Title on Mention",
+		hint: "When tabbed out, the username of users who mention you will flash in the title",
+		disabledIf: () => !useConfig("highlights.basic.mention").value,
+		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {
 		path: ["Highlights", "Built-In"],

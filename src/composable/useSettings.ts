@@ -1,4 +1,5 @@
 import { Ref, customRef, reactive } from "vue";
+import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { useFrankerFaceZ } from "./useFrankerFaceZ";
 import { useLiveQuery } from "./useLiveQuery";
@@ -25,7 +26,9 @@ function toConfigRef<T extends SevenTV.SettingType>(key: string, defaultValue?: 
 				trigger();
 
 				// Write changes to the db
-				db.settings.put({ key: key, type: typeof newVal, value: newVal }, key);
+				db.settings
+					.put({ key: key, type: typeof newVal, value: newVal }, key)
+					.catch((err) => log.error("failed to write setting", key, "to db:", err));
 
 				if (typeof n.effect === "function") {
 					n.effect(newVal);
@@ -44,6 +47,9 @@ db.ready().then(() =>
 
 export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 	for (const { key, value, timestamp } of s) {
+		const cur = nodes[key];
+		if (cur && cur.timestamp && timestamp && cur.timestamp >= timestamp) continue;
+
 		raw[key] = value;
 		nodes[key] = {
 			...(nodes[key] ?? {}),

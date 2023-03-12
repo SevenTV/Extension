@@ -1,5 +1,4 @@
-import { inject, onUnmounted } from "vue";
-import { SITE_ASSETS_URL } from "@/common/Constant";
+import { tryOnUnmounted } from "@vueuse/core";
 
 const soundMap = new Map<string, HTMLAudioElement>();
 
@@ -10,10 +9,7 @@ const soundMap = new Map<string, HTMLAudioElement>();
  * @param reuse whether to reuse the audio element for the same path
  */
 export function useSound(path: string, reuse = true): Sound {
-	const assets = inject(SITE_ASSETS_URL, "");
-	const audio = reuse
-		? soundMap.get(path) || soundMap.set(path, new Audio(assets + path)).get(path)!
-		: new Audio(assets + path);
+	const audio = reuse ? soundMap.get(path) || soundMap.set(path, new Audio(path)).get(path)! : new Audio(path);
 
 	const play = (volume = 1) => {
 		audio.volume = volume;
@@ -21,7 +17,7 @@ export function useSound(path: string, reuse = true): Sound {
 	};
 	const stop = () => audio.pause();
 
-	onUnmounted(() => {
+	tryOnUnmounted(() => {
 		audio.remove();
 	});
 

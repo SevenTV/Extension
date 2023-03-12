@@ -12,7 +12,7 @@
 			</div>
 
 			<UiScrollable>
-				<template v-for="h of highlights.getAll()" :key="h.id">
+				<template v-for="(h, _, index) of highlights.getAll()" :key="h.id">
 					<div class="item">
 						<!-- Pattern -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
@@ -56,8 +56,38 @@
 							<input v-model="h.color" type="color" @input="onColorChange(h, $event as InputEvent)" />
 						</div>
 
-						<div name="interact">
-							<CloseIcon v-tooltip="'Remove'" @click="onDeleteHighlight(h)" />
+						<div ref="interactRef" name="interact">
+							<button
+								ref="soundEffectButton"
+								class="sound-button"
+								:class="{ 'has-sound': !!h.soundFile }"
+								tabindex="0"
+							>
+								<CompactDiscIcon v-tooltip="'Set Custom Sound'" />
+								<div class="sound-options">
+									<UiFloating v-if="interactRef?.[index]" :anchor="interactRef[index]">
+										<button :active="!h.soundPath && !h.soundFile" @click="onRemoveSound(h)">
+											No Sound
+										</button>
+										<button :active="!!h.soundPath && !h.soundFile" @click="onUseDefaultSound(h)">
+											Default Sound
+										</button>
+										<button :active="!!h.soundFile">
+											<label>
+												Custom Sound{{ h.soundFile ? "" : "..." }}
+												<p v-if="h.soundFile">{{ h.soundFile.name }}</p>
+												<input
+													type="file"
+													accept="audio/midi, audio/mpeg, audio/ogg, audio/wav, audio/webm, audio/vorbis, audio/ogg"
+													@input="onUploadSoundFile(h, $event)"
+												/>
+											</label>
+										</button>
+									</UiFloating>
+								</div>
+							</button>
+
+							<CloseIcon v-tooltip="'Remove'" tabindex="0" @click="onDeleteHighlight(h)" />
 						</div>
 					</div>
 				</template>
@@ -78,12 +108,12 @@ import { nextTick, reactive, ref, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { HighlightDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
+import CompactDiscIcon from "@/assets/svg/icons/CompactDiscIcon.vue";
+import UiFloating from "@/ui/UiFloating.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import FormCheckbox from "../components/FormCheckbox.vue";
 import FormInput from "../components/FormInput.vue";
 import { v4 as uuid } from "uuid";
-
-void 0;
 
 const ctx = useChannelContext(); // this will be an empty context, as config is not tied to channel
 const highlights = useChatHighlights(ctx);
@@ -93,6 +123,7 @@ const inputs = reactive({
 	pattern: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 	label: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 });
+const interactRef = ref<HTMLElement[]>();
 
 function onInputFocus(h: HighlightDef, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
@@ -133,8 +164,53 @@ function onColorChange(h: HighlightDef, ev: InputEvent): void {
 	highlights.save();
 }
 
+function onUploadSoundFile(h: HighlightDef, ev: Event): void {
+	if (!(ev.target instanceof HTMLInputElement)) return;
+	const file = ev.target.files?.[0];
+	if (!file) return;
+
+	const reader = new FileReader();
+	reader.onload = (ev) => {
+		if (!(ev.target instanceof FileReader)) return;
+		const data = ev.target.result;
+		if (!(data instanceof ArrayBuffer)) return;
+		// file can't be more than 50KB (sanity value to avoid saturating IndexedDB)
+		if (data.byteLength > 50 * 1024) return alert("File is too large! (max 50KB)");
+
+		delete h.soundPath;
+		h.soundFile = {
+			name: file.name,
+			type: file.type,
+			data,
+		};
+
+		highlights.updateSoundData(h);
+		highlights.save();
+	};
+
+	ev.target.value = "";
+	reader.readAsArrayBuffer(file);
+}
+
+function onUseDefaultSound(h: HighlightDef): void {
+	delete h.soundFile;
+	delete h.soundDef;
+	h.soundPath = "#ping";
+
+	highlights.save();
+}
+
+function onRemoveSound(h: HighlightDef): void {
+	delete h.soundFile;
+	delete h.soundPath;
+	delete h.soundDef;
+
+	highlights.updateSoundData(h);
+	highlights.save();
+}
+
 function onDeleteHighlight(h: HighlightDef): void {
-	highlights.remove(h);
+	highlights.remove(h.id);
 	highlights.save();
 }
 
@@ -247,7 +323,61 @@ main.seventv-settings-custom-highlights {
 
 			[name="interact"] {
 				display: grid;
+				column-gap: 1rem;
+				grid-auto-flow: column;
 				justify-self: end;
+
+				button {
+					all: unset;
+					cursor: pointer;
+				}
+
+				.sound-options {
+					display: none;
+				}
+
+				.sound-button.has-sound::after {
+					content: "";
+					position: absolute;
+					width: 0.75rem;
+					height: 0.75rem;
+					margin-left: -0.25rem;
+					margin-top: -0.25rem;
+					background-color: var(--seventv-accent);
+					border-radius: 50%;
+				}
+
+				.sound-button:focus-within > .sound-options {
+					position: fixed;
+					width: 9rem;
+					display: block;
+					z-index: 10000;
+
+					input {
+						display: none;
+					}
+					label {
+						cursor: pointer;
+					}
+
+					button {
+						width: 100%;
+						padding: 0.5rem;
+						background-color: var(--seventv-background-shade-2);
+						border: 0.25rem solid var(--seventv-background-shade-3);
+						transition: border-color 90ms ease-in-out;
+
+						p {
+							color: var(--seventv-muted);
+						}
+						&:hover {
+							border-color: var(--seventv-primary);
+						}
+						&[active="true"] {
+							color: var(--seventv-primary);
+						}
+					}
+				}
 
 				svg {
 					cursor: pointer;
