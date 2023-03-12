@@ -51,7 +51,7 @@ export class WorkerDriver extends EventTarget {
 
 			Promise.allSettled<SevenTV.EmoteSet>([
 				// Global Emotes
-				this.http.API().seventv.loadGlobalSet(),
+				this.http.API().seventv.loadEmoteSet("global"),
 				this.http.API().frankerfacez.loadGlobalEmoteSet(),
 				this.http.API().betterttv.loadGlobalEmoteSet(),
 			])

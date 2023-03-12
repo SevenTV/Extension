@@ -9,7 +9,7 @@ import type { WorkerPort } from "./worker.port";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API;
-	export const SEVENTV_OLD = import.meta.env.VITE_APP_API_OLD;
+	export const SEVENTV_OLD = import.meta.env.VITE_APP_API_REST_OLD;
 	export const FFZ = "https://api.frankerfacez.com/v1";
 	export const BTTV = "https://api.betterttv.net/3";
 }
@@ -86,8 +86,10 @@ export class WorkerHttp {
 		);
 
 		// setup fetching promises
+		const user = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id);
+
 		const promises = [
-			["7TV", seventv.loadUserEmoteSet(port.platform ?? "TWITCH", channel.id).catch(() => void 0)],
+			["7TV", user.then((es) => es.emote_set).catch(() => void 0)],
 			["FFZ", frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
 			["BTTV", betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
 		] as [string, Promise<SevenTV.EmoteSet>][];
@@ -122,6 +124,7 @@ export class WorkerHttp {
 			await onResult(set);
 		}
 
+		channel.user = (await user)?.user ?? undefined;
 		if (port) {
 			// Post channel fetch notification back to port
 			port.postMessage("CHANNEL_FETCHED", {
@@ -131,6 +134,8 @@ export class WorkerHttp {
 
 		// begin subscriptions to channel emote sets
 		for (const set of sets) {
+			if (set.provider !== "7TV") continue; // we only care about 7TV sets, as others have no events
+
 			this.driver.eventAPI.subscribe(
 				"emote_set.*",
 				{
@@ -138,6 +143,7 @@ export class WorkerHttp {
 				},
 				port,
 			);
+			if (set.owner) this.driver.eventAPI.subscribe("user.*", { object_id: set.owner.id }, port);
 		}
 
 		// begin subscriptions to personal events in the channel
@@ -179,7 +185,7 @@ export class WorkerHttp {
 }
 
 export const seventv = {
-	async loadUserEmoteSet(platform: Platform, id: string): Promise<SevenTV.EmoteSet> {
+	async loadUserConnection(platform: Platform, id: string): Promise<SevenTV.UserConnection> {
 		const resp = await doRequest(API_BASE.SEVENTV, `users/${platform.toLowerCase()}/${id}`).catch((err) =>
 			Promise.reject(err),
 		);
@@ -203,13 +209,13 @@ export const seventv = {
 			return ae;
 		});
 
-		data.emote_set = null;
+		data.emote_set = set;
 
-		return Promise.resolve(set);
+		return Promise.resolve(data);
 	},
 
-	async loadGlobalSet(): Promise<SevenTV.EmoteSet> {
-		const resp = await doRequest(API_BASE.SEVENTV, "emote-sets/global").catch((err) => Promise.reject(err));
+	async loadEmoteSet(id: string): Promise<SevenTV.EmoteSet> {
+		const resp = await doRequest(API_BASE.SEVENTV, `emote-sets/${id}`).catch((err) => Promise.reject(err));
 		if (!resp || resp.status !== 200) {
 			return Promise.reject(resp);
 		}
@@ -217,7 +223,9 @@ export const seventv = {
 		const set = (await resp.json()) as SevenTV.EmoteSet;
 
 		set.provider = "7TV";
-		set.scope = "GLOBAL";
+		if (id === "global") set.scope = "GLOBAL";
+		else if (set.flags & 4) set.scope = "PERSONAL";
+		else set.scope = "CHANNEL";
 		set.priority = ProviderPriority.SEVENTV_GLOBAL;
 
 		set.emotes.map((ae) => {

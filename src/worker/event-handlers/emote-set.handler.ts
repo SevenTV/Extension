@@ -28,13 +28,14 @@ export async function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.
 	const emission = {
 		id: cm.id,
 		user: cm.actor,
-		emotes_added: [] as SevenTV.ActiveEmote[],
-		emotes_removed: [] as SevenTV.ActiveEmote[],
+		emotes_added: [],
+		emotes_removed: [],
+		emotes_updated: [],
 	} as TypedWorkerMessage<"EMOTE_SET_UPDATED">;
 
 	await iterateChangeMap<SevenTV.ObjectKind.EMOTE_SET>(cm, {
 		emotes: {
-			pushed: async (v: SevenTV.ActiveEmote) => {
+			async pushed(v: SevenTV.ActiveEmote) {
 				return ctx.db.emoteSets
 					.where("id")
 					.equals(cm.id)
@@ -50,7 +51,7 @@ export async function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.
 					})
 					.then(() => void 0);
 			},
-			pulled: async (_: SevenTV.ActiveEmote, old: SevenTV.ActiveEmote) => {
+			async pulled(_: SevenTV.ActiveEmote, old: SevenTV.ActiveEmote) {
 				return ctx.db.emoteSets
 					.where("id")
 					.equals(cm.id)
@@ -62,6 +63,28 @@ export async function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.
 							es.emotes.splice(i, 1);
 							emission.emotes_removed.push(old);
 						}
+					})
+					.then(() => void 0);
+			},
+			async updated(newValue: SevenTV.ActiveEmote, oldValue: SevenTV.ActiveEmote) {
+				return ctx.db.emoteSets
+					.where("id")
+					.equals(cm.id)
+					.modify((es) => {
+						const i = es.emotes.findIndex((ae) => ae.id === oldValue.id);
+
+						const data = es.emotes[i].data;
+						if (data && data.host && !data.host.srcset) {
+							data.host.srcset = imageHostToSrcset(data.host, "7TV", WorkerHttp.imageFormat);
+						}
+						es.emotes[i] = {
+							...es.emotes[i],
+							...newValue,
+						};
+						emission.emotes_updated.push([
+							{ ...oldValue, data },
+							{ ...newValue, data },
+						]);
 					})
 					.then(() => void 0);
 			},

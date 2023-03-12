@@ -1,6 +1,6 @@
 <template />
 <script setup lang="ts">
-import { onUnmounted, toRef } from "vue";
+import { onUnmounted, ref, toRef } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { db } from "@/db/idb";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
@@ -36,7 +36,7 @@ const channelSets = useLiveQuery(
 	},
 );
 
-// query the channel's active emote sets
+// query the active emote sets
 useLiveQuery(
 	() =>
 		db.emoteSets
@@ -80,7 +80,7 @@ useLiveQuery(
 );
 
 function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
-	const { id, emotes_added, emotes_removed, user } = ev.detail;
+	const { id, emotes_added, emotes_removed, emotes_updated, user } = ev.detail;
 	if (!channelSets.value?.includes(id)) return; // not a channel emote set
 
 	const set = emotes.sets[id];
@@ -91,6 +91,24 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 		if (emotes.sets[id]) {
 			set.emotes.push(emote);
 		}
+	}
+
+	// Handle updated emotes
+	for (const [o, n] of emotes_updated) {
+		if (!n || !o) continue;
+
+		const ae = emotes.find((ae) => ae.id === n.id);
+		if (!ae) continue;
+
+		const aer = ref(ae);
+		for (const k in n) {
+			if (k === "data") continue;
+
+			aer.value = { ...aer.value, [k]: n[k as keyof SevenTV.ActiveEmote] };
+		}
+
+		delete emotes.active[o.name];
+		emotes.active[n.name] = aer.value;
 	}
 
 	// Handle removed emotes
@@ -112,6 +130,54 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 		appUser: user,
 		add: emotes_added,
 		remove: emotes_removed,
+		update: emotes_updated,
+	});
+	messages.add(msg);
+}
+
+// This is called when the channel's active emote set is updated
+function onActiveSetUpdated(
+	connectionIndex: number,
+	oldSet: SevenTV.EmoteSet,
+	newSet: SevenTV.EmoteSet,
+	actor: SevenTV.User,
+): void {
+	if (!oldSet || !ctx.user) return;
+
+	const conn = ctx.user.connections?.[connectionIndex];
+	if (!conn || (conn.emote_set && conn.emote_set.id !== oldSet.id)) return;
+
+	// clear old emote set
+	// TODO: this might in rare cases delete active emotes that are still in use by other emote sets
+	// some additional such as a parent set check on emotes, may be necessary for stability.
+	const oldEmotes = emotes.sets[oldSet.id]?.emotes ?? [];
+	for (const emote of oldEmotes) {
+		delete emotes.active[emote.name];
+	}
+	delete emotes.sets[oldSet.id];
+
+	// Trigger DB change on active sets
+	conn.emote_set = newSet;
+	db.channels
+		.where("id")
+		.equals(ctx.id ?? "")
+		.modify((chMap) => {
+			const ind = chMap.set_ids.indexOf(oldSet.id);
+			if (ind !== -1) {
+				chMap.set_ids.splice(ind, 1, newSet.id);
+			} else {
+				chMap.set_ids.push(newSet.id);
+			}
+		});
+
+	// write chat message
+	const msg = new ChatMessage(uuidv4());
+	msg.setComponent(EmoteSetUpdateMessage, {
+		appUser: actor,
+		add: [],
+		remove: [],
+		update: [],
+		wholeSet: [oldSet, newSet],
 	});
 	messages.add(msg);
 }
@@ -125,6 +191,13 @@ function onTwitchEmoteSetData(ev: WorkletEvent<"twitch_emote_set_data">) {
 }
 
 target.addEventListener("emote_set_updated", onEmoteSetUpdated);
+target.addEventListener("user_updated", (ev) => {
+	const { id, actor, emote_set } = ev.detail;
+	if (!id || !emote_set) return;
+
+	onActiveSetUpdated(emote_set.connection_index, emote_set.old_set, emote_set.new_set, actor);
+});
+
 // Receive twitch emote sets from the worker
 target.addEventListener("twitch_emote_set_data", onTwitchEmoteSetData);
 

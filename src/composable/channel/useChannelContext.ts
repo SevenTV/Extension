@@ -12,6 +12,7 @@ export class ChannelContext {
 	id = "";
 	username = "";
 	displayName = "";
+	user: SevenTV.User | null = null;
 	loaded = false;
 
 	setCurrentChannel(channel: CurrentChannel): boolean {
@@ -26,11 +27,17 @@ export class ChannelContext {
 		m.set(channel.id, this);
 		m.delete(oldID);
 
+		this.fetch();
+		return true;
+	}
+
+	fetch(): void {
 		// Listen for worker confirmation of channel fetch
 		const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
 			if (this.id !== ev.detail.id) return;
 
 			this.loaded = true;
+			this.user = ev.detail.user ?? null;
 
 			log.info("Channel loaded:", this.id);
 			target.removeEventListener("channel_fetched", onLoaded);
@@ -38,9 +45,13 @@ export class ChannelContext {
 		target.addEventListener("channel_fetched", onLoaded);
 
 		// Notify the worker about this new channel we are on
-		sendMessage("STATE", { channel: toRaw(channel) });
-
-		return true;
+		sendMessage("STATE", {
+			channel: toRaw({
+				id: this.id,
+				username: this.username,
+				displayName: this.displayName,
+			}),
+		});
 	}
 }
 

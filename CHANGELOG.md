@@ -3,6 +3,11 @@
 This build is a **release candidate.**
 
 -   Added support for custom sounds for highlights
+-   Added live updating for switching a channel's active emote set
+-   Updated the look of emote update alerts in chat
+-   Fixed an error in the shared worker which broke the fetching of legacy static cosmetics
+-   Fixed an issue which sometimes caused setting changes to be lost
+-   Fixed an issue where emote name changes did not reflect in chat
 
 ### Version 3.0.0.18000 (Beta 18)
 

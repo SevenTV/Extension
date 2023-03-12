@@ -333,6 +333,7 @@ interface CurrentChannel {
 	id: string;
 	username: string;
 	displayName: string;
+	user?: SevenTV.User;
 }
 
 declare namespace BTTV {

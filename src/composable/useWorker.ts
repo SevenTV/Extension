@@ -172,6 +172,10 @@ function useHandlers(mp: MessagePort) {
 			}
 			case "EMOTE_SET_UPDATED":
 				events.emit("emote_set_updated", data as TypedWorkerMessage<"EMOTE_SET_UPDATED">);
+				break;
+			case "USER_UPDATED":
+				events.emit("user_updated", data as TypedWorkerMessage<"USER_UPDATED">);
+				break;
 		}
 	});
 }
@@ -215,7 +219,8 @@ type WorkletEventName =
 	| "entitlement_deleted"
 	| "static_cosmetics_fetched"
 	| "twitch_emote_set_data"
-	| "emote_set_updated";
+	| "emote_set_updated"
+	| "user_updated";
 
 type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	ready: object;
@@ -227,6 +232,7 @@ type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	static_cosmetics_fetched: Pick<TypedWorkerMessage<"STATIC_COSMETICS_FETCHED">, "badges" | "paints">;
 	twitch_emote_set_data: SevenTV.EmoteSet;
 	emote_set_updated: TypedWorkerMessage<"EMOTE_SET_UPDATED">;
+	user_updated: TypedWorkerMessage<"USER_UPDATED">;
 }[EVN];
 
 export class WorkletEvent<T extends WorkletEventName> extends CustomEvent<WorkletTypedEvent<T>> {

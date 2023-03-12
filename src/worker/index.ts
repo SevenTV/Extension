@@ -14,6 +14,7 @@ export enum workerMessageType {
 	CONFIG,
 	CLOSE,
 	EMOTE_SET_UPDATED,
+	USER_UPDATED,
 	COSMETIC_CREATED,
 	ENTITLEMENT_CREATED,
 	ENTITLEMENT_DELETED,
@@ -39,8 +40,18 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	EMOTE_SET_UPDATED: {
 		id: SevenTV.ObjectID;
 		emotes_added: SevenTV.ActiveEmote[];
+		emotes_updated: [SevenTV.ActiveEmote, SevenTV.ActiveEmote][];
 		emotes_removed: SevenTV.ActiveEmote[];
 		user: SevenTV.User;
+	};
+	USER_UPDATED: {
+		id: SevenTV.ObjectID;
+		actor: SevenTV.User;
+		emote_set?: {
+			connection_index: number;
+			old_set: SevenTV.EmoteSet;
+			new_set: SevenTV.EmoteSet;
+		};
 	};
 	COSMETIC_CREATED: SevenTV.Cosmetic<"BADGE" | "PAINT" | "AVATAR">;
 	ENTITLEMENT_CREATED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;

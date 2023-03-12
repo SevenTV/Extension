@@ -2,10 +2,12 @@ import { log } from "@/common/Logger";
 import { onCosmeticCreate } from "./cosmetic.handler";
 import { onEmoteSetCreate, onEmoteSetUpdate } from "./emote-set.handler";
 import { onEntitlementCreate, onEntitlementDelete } from "./entitlement.handler";
-import type { ChangeMap, EventContext, ObjectTypeOfKind } from "../";
+import { onUserUpdate } from "./user.handler";
+import type { ChangeField, ChangeMap, EventContext, ObjectTypeOfKind } from "../";
 
 export function handleDispatchedEvent(ctx: EventContext, type: string, cm: ChangeMap<SevenTV.ObjectKind>) {
 	const h = {
+		"user.update": () => onUserUpdate(ctx, cm as ChangeMap<SevenTV.ObjectKind.USER>),
 		"cosmetic.create": () => onCosmeticCreate(ctx, cm as ChangeMap<SevenTV.ObjectKind.COSMETIC>),
 		"entitlement.create": () =>
 			onEntitlementCreate(ctx, structuredClone(cm) as ChangeMap<SevenTV.ObjectKind.ENTITLEMENT>),
@@ -29,16 +31,19 @@ export async function iterateChangeMap<T extends SevenTV.ObjectKind>(cm: ChangeM
 			if (p instanceof Promise) {
 				promises.push(p);
 			}
-
-			log.debug("Net/EventAPI", `PULL (${cm.kind}) ${cm.id}/${String(x.key)}`, JSON.stringify(x.old_value));
 		}
 		for (const x of cm.pushed ?? []) {
 			const p = hook.pushed?.(x.value, x.old_value);
 			if (p instanceof Promise) {
 				promises.push(p);
 			}
+		}
 
-			log.debug("Net/EventAPI", `PUSH (${cm.kind}) ${cm.id}/${String(x.key)}`, JSON.stringify(x.value));
+		for (const x of cm.updated ?? []) {
+			const p = hook.updated?.(x.value, x.old_value, x);
+			if (p instanceof Promise) {
+				promises.push(p);
+			}
 		}
 	}
 
@@ -53,4 +58,5 @@ export type ChangeMapHandler<T extends SevenTV.ObjectKind> = {
 export interface ChangeMapHook {
 	pulled?: (newValue: any, oldValue: any) => void | Promise<void>;
 	pushed?: (newValue: any, oldValue: any) => void | Promise<void>;
+	updated?: (newValue: any, oldValue: any, field?: ChangeField) => void | Promise<void>;
 }

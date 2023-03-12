@@ -70,6 +70,16 @@ export function useChatEmotes(ctx: ChannelContext) {
 		return x.providers[provider];
 	}
 
+	function find(f: (ae: SevenTV.ActiveEmote) => boolean): SevenTV.ActiveEmote | null {
+		if (!x) return null;
+
+		for (const ae of Object.values(x.active)) {
+			if (f(ae)) return ae;
+		}
+
+		return null;
+	}
+
 	const r = reactive({
 		active: x.active,
 		sets: x.sets,
@@ -77,6 +87,7 @@ export function useChatEmotes(ctx: ChannelContext) {
 		providers: x.providers,
 		resetProviders,
 		byProvider,
+		find,
 	});
 
 	return r;
