@@ -1,6 +1,6 @@
 ### Version 3.0.0.19000 (Beta 19 RC)
 
-This build is a **release candidate.**
+This build is a **release candidate**.
 
 -   Added support for custom sounds for highlights
 -   Added live updating for switching a channel's active emote set

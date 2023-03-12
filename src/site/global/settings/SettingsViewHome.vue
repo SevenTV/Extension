@@ -51,9 +51,8 @@ document.head.appendChild(twitterScript);
 	grid-template-columns: 1fr 30rem;
 
 	.seventv-settings-home-body {
-		display: flex;
-		flex-direction: column;
-		flex-grow: 1;
+		display: grid;
+		min-width: 30rem;
 		border-right: 1px solid var(--seventv-border-transparent-1);
 		overflow: auto;
 

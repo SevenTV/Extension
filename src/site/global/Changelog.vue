@@ -45,6 +45,7 @@ watchEffect(() => {
 		justify-content: space-between;
 		background-color: var(--seventv-background-shade-3);
 		padding: 0.5rem;
+		margin-bottom: -1.5rem;
 		border-bottom: 0.1rem solid var(--seventv-primary);
 
 		> .close-button {
@@ -84,7 +85,8 @@ watchEffect(() => {
 	}
 
 	:deep(h3) {
-		margin-bottom: 2rem;
+		margin-bottom: 1rem;
+		margin-top: 1.5rem;
 		font-size: 2rem;
 	}
 
