@@ -24,6 +24,7 @@ import { markRaw, onMounted, ref } from "vue";
 import { APP_BROADCAST_CHANNEL, SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
+import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
@@ -97,6 +98,11 @@ onMounted(() => {
 		"youtube.com": markRaw(YouTubeSite),
 	}[domain];
 });
+
+// pre-init frankerfacez compat when on twitch
+if (domain === "twitch.tv") {
+	useFrankerFaceZ();
+}
 </script>
 
 <style lang="scss">

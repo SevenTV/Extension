@@ -11,6 +11,11 @@ This build is a **release candidate**.
 -   Fixed some performance overhead with the Mod Logs interface
 -   Fixed timestamps always displaying in the 24h format
 
+#### Beta 19.3
+
+-   Moderation messages should no longer be delayed when FrankerFaceZ is enabled
+-   Fixed a compatibility issue with the Tab-Completion Carousel due to FrankerFaceZ internals corruption
+
 #### Beta 19.2
 
 -   Resolved a crash due to twitch set objects being corrupted with FrankerFaceZ enabled
