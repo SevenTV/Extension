@@ -1,4 +1,4 @@
-name: WebExtension Lint, Build, Test
+name: WebExtension Lint, Build, Release, Publish
 
 on:
     push:
@@ -14,9 +14,9 @@ on:
     workflow_dispatch:
         inputs:
             nightly:
+                type: boolean
                 description: "Nightly Release"
                 default: true
-                type: boolean
 
             store-upload:
                 type: boolean
@@ -146,21 +146,23 @@ jobs:
                       mv "$file" "7tv-webextension-$file"
                   done
 
-            - name: Delete Tag
-              continue-on-error: true
-              run: git push --delete origin nightly-release
-
-            - name: Create Release
+            - name: Create release
               id: create_release
-              uses: softprops/action-gh-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              uses: ncipollo/release-action@v1.12.0
               with:
-                  name: Nightly Release
-                  tag_name: nightly-release
+                  removeArtifacts: true
+                  allowUpdates: true
+                  artifactErrorsFailBuild: true
+                  artifacts: "ext/*"
+                  body: ${{ github.event.head_commit.message }}
                   prerelease: true
-                  draft: false
-                  files: ext/*
+                  name: Nightly Release
+                  tag: nightly-release
+
+            - name: Update Tag
+              run: |
+                  git tag -f nightly-release
+                  git push -f origin nightly-release
 
     push:
         name: Submit to CWS/AMO
