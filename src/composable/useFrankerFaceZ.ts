@@ -167,7 +167,7 @@ export interface FFZAddonsManager {
 declare const FrankerFaceZ: any;
 
 // set up empty add-on to prevent the loading of ffz's distributed addon
-if (FrankerFaceZ && FrankerFaceZ.utilities?.addon?.Addon) {
+if ("FrankerFaceZ" in window && FrankerFaceZ.utilities?.addon?.Addon) {
 	class SeventvAddonOverride extends FrankerFaceZ.utilities.addon.Addon {}
 
 	try {
