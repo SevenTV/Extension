@@ -6,6 +6,7 @@
 			:controller="chatController.instances[i]"
 			:room="chatRoom.instances[0] ?? undefined"
 			:buffer="chatBuffer.instances[0] ?? undefined"
+			:events="chatEvents.instances[0] ?? undefined"
 		/>
 	</template>
 </template>
@@ -71,6 +72,12 @@ const chatBuffer = useComponentHook<Twitch.MessageBufferComponent>({
 	predicate: (n) => n.prependHistoricalMessages && n.buffer && n.blockedUsers,
 });
 
+const chatEvents = useComponentHook<Twitch.ChatEventComponent>({
+	parentSelector: ".stream-chat",
+	maxDepth: 250,
+	predicate: (n) => n.onClearChatEvent,
+});
+
 const isHookable = ref(false);
 const isHookableDbc = refDebounced(isHookable, 200);
 
@@ -123,6 +130,12 @@ export const config = [
 		path: ["Chat", "Moderation"],
 		label: "Mod Slider",
 		hint: "Enable the mod slider in channels where you are moderator",
+		defaultValue: true,
+	}),
+	declareConfig("chat.ignore_clear_chat", "TOGGLE", {
+		path: ["Chat", "Moderation"],
+		label: "Ignore Clear Chat",
+		hint: "If enabled, messages will be kept intact when a moderator clears the chat",
 		defaultValue: true,
 	}),
 	declareConfig("chat.slash_me_style", "DROPDOWN", {

@@ -54,6 +54,7 @@ import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import ChatPubSub from "./ChatPubSub.vue";
 import ChatTray from "./ChatTray.vue";
+import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
@@ -61,6 +62,7 @@ const props = defineProps<{
 	controller: HookedInstance<Twitch.ChatControllerComponent>;
 	room: HookedInstance<Twitch.ChatRoomComponent>;
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
+	events?: HookedInstance<Twitch.ChatEventComponent>;
 }>();
 
 const mod = getModule("chat")!;
@@ -93,6 +95,7 @@ const tools = useChatTools(ctx);
 
 // line limit
 const lineLimit = useConfig("chat.line_limit", 150);
+const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
@@ -302,6 +305,41 @@ watch(
 		if (!msgBuf) return;
 
 		messageBufferComponent.value = msgBuf;
+	},
+	{ immediate: true },
+);
+
+// Capture some chat events
+const chatEventsComponent = ref<Twitch.ChatEventComponent | null>(null);
+watch(
+	() => props.events,
+	(evt) => {
+		if (!evt || !evt.component) return;
+
+		chatEventsComponent.value = evt.component;
+	},
+	{ immediate: true },
+);
+
+watch(
+	chatEventsComponent,
+	(com, old) => {
+		if (old) {
+			unsetPropertyHook(old, "onClearChatEvent");
+		}
+		if (!com) return;
+
+		defineFunctionHook(com, "onClearChatEvent", (f) => {
+			const msg = new ChatMessage().setComponent(BasicSystemMessage, {
+				text: ignoreClearChat.value ? "Chat clear prevented by 7TV" : "Chat cleared by a moderator",
+			});
+			if (!ignoreClearChat.value) messages.clear();
+			messages.add(msg);
+
+			// send back an empty channel
+			// (this will make the chat clear on twitch's end a no-op; this avoids a crash due to the way we move unrendered messages)
+			return f?.apply(this, [{ channel: "" }]);
+		});
 	},
 	{ immediate: true },
 );

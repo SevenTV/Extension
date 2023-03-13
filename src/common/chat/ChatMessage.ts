@@ -1,11 +1,13 @@
 import { defineComponent, markRaw } from "vue";
 import { Tokenizer } from "@/common/chat/Tokenizer";
 import { SetHexAlpha } from "../Color";
+import { v1 as uuidv1 } from "uuid";
 
 export const NullComponent = defineComponent({});
 
 export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public readonly sym = Symbol("seventv-message");
+	public id: string;
 	public body = "";
 	public author: ChatUser | null = null;
 	public channelID = "";
@@ -44,7 +46,13 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 		this.version++;
 	}
 
-	constructor(public id: string) {
+	constructor(id?: string) {
+		if (!id) {
+			this.id = uuidv1();
+		} else {
+			this.id = id;
+		}
+
 		this.tokenizer = new Tokenizer(this);
 	}
 

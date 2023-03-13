@@ -13,6 +13,8 @@ This build is a **release candidate**.
 
 #### Beta 19.4
 
+-   Added an option to keep chat intact when a moderator clears messages
+-   The chat should no longer crash when shield mode or /clear is executed by a moderator
 -   Duplicate Message Bypass will no longer append the invisible character if 30 seconds have passed
 
 #### Beta 19.3

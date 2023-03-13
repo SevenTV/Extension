@@ -213,6 +213,10 @@ declare module Twitch {
 		blockedUsers: Set<string>;
 	};
 
+	export type ChatEventComponent = ReactExtended.WritableComponent<{}> & {
+		onClearChatEvent: (e: { channel: string }) => void;
+	};
+
 	export interface MessageHandlerAPI {
 		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
 		removeMessageHandler: (event: (msg: ChatMessage) => void) => void;
