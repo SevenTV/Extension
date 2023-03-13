@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { onUnmounted, toRef, watch } from "vue";
+import { refAutoReset } from "@vueuse/core";
 import { UNICODE_TAG_0, UNICODE_TAG_0_REGEX } from "@/common/Constant";
 import type { HookedInstance } from "@/common/ReactHooks";
 import { useFloatScreen } from "@/composable/useFloatContext";
@@ -42,7 +43,7 @@ const suggestContainer = useFloatScreen(rootEl, {
 	middleware: [offset({ mainAxis: 72 })],
 });
 
-let alt = false;
+const alt = refAutoReset(false, 3e4);
 let prevMessage = "";
 function handleDuplicateMessage(content: string): string {
 	if (typeof content === "string" && content === prevMessage) {
@@ -51,12 +52,12 @@ function handleDuplicateMessage(content: string): string {
 		content = content.replace(UNICODE_TAG_0_REGEX, "");
 
 		// Set alternate unicode tag suffix
-		alt = !alt;
-		if (alt) {
+		alt.value = !alt.value;
+		if (alt.value) {
 			content += " " + UNICODE_TAG_0;
 		}
 	} else {
-		alt = false;
+		alt.value = false;
 	}
 
 	prevMessage = content;

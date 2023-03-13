@@ -11,6 +11,10 @@ This build is a **release candidate**.
 -   Fixed some performance overhead with the Mod Logs interface
 -   Fixed timestamps always displaying in the 24h format
 
+#### Beta 19.4
+
+-   Duplicate Message Bypass will no longer append the invisible character if 30 seconds have passed
+
 #### Beta 19.3
 
 -   Moderation messages should no longer be delayed when FrankerFaceZ is enabled
