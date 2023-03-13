@@ -13,19 +13,20 @@ interface ManifestOptions {
 	version: string;
 }
 
-export type BranchName = "beta" | "dev";
+export type BranchName = "nightly" | "dev";
 
 export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExtensionManifest> {
-	const iconName = "".concat(opt.branch ? opt.branch + "-" : "", "icon-512.png");
+	const iconName = "".concat(opt.branch ? opt.branch + "-" : "", "icon-%s.png");
 
 	const manifest = {
 		manifest_version: 3,
-		name: (displayName || name) + (opt.branch ? ` ${opt.branch.toUpperCase()}` : ""),
+		name:
+			(displayName || name) + (opt.branch ? ` ${opt.branch.charAt(0).toUpperCase() + opt.branch.slice(1)}` : ""),
 		version: opt.version,
 		version_name: opt.version + (opt.branch ? ` ${opt.branch}` : ""),
 		description: description,
 		action: {
-			default_icon: `./icon/${iconName}`,
+			default_icon: `./icon/${iconName.replace("%s", "128")}`,
 		},
 
 		background: {
@@ -43,9 +44,9 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		},
 
 		icons: {
-			16: `./icon/${iconName}`,
-			48: `./icon/${iconName}`,
-			128: `./icon/${iconName}`,
+			16: `./icon/${iconName.replace("%s", "16")}`,
+			48: `./icon/${iconName.replace("%s", "48")}`,
+			128: `./icon/${iconName.replace("%s", "128")}`,
 		},
 
 		// By default the extension is enabled only on Twitch

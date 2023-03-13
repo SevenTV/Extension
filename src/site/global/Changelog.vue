@@ -17,10 +17,10 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import Changelog from "@/../CHANGELOG.md?raw";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 
+const Changelog = import.meta.env.VITE_APP_CHANGELOG;
 const changelogRaw = ref(Changelog);
 const content = ref("");
 

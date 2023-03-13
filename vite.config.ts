@@ -24,7 +24,7 @@ const ignoreHMR = [
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV;
 	const isDev = process.env.NODE_ENV === "dev";
-	const isNightly = process.env.BRANCH === "nightly" || process.env.BRANCH === "beta";
+	const isNightly = process.env.BRANCH === "nightly";
 	const outDir = process.env.OUT_DIR || "";
 	const fullVersion = getFullVersion(isNightly);
 
@@ -34,6 +34,14 @@ export default defineConfig(() => {
 		VITE_APP_NAME: appName,
 		VITE_APP_VERSION: fullVersion,
 		VITE_APP_VERSION_BRANCH: process.env.BRANCH as BranchName,
+		VITE_APP_CHANGELOG: fs.readFileSync(
+			r(
+				{
+					nightly: "CHANGELOG-nightly.md",
+				}[process.env.BRANCH] ?? "CHANGELOG.md",
+			),
+			"utf-8",
+		),
 	};
 
 	return {
@@ -56,6 +64,7 @@ export default defineConfig(() => {
 
 		root: ".",
 		publicDir: "public",
+		assetsInclude: ["**/*.md"],
 		build: {
 			outDir: "dist" + "/" + outDir,
 			emptyOutDir: true,

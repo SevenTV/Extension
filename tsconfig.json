@@ -15,7 +15,8 @@
 		"skipLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"CHANGELOG": ["./CHANGELOG.md"]
 		}
 	},
 	"include": [

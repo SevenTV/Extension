@@ -1,7 +1,7 @@
 {
 	"name": "seventv",
 	"displayName": "7TV",
-	"description": "The Official 7TV Web Extension",
+	"description": "Improve your viewing experience on Twitch & YouTube with new features, emotes, vanity and performance.",
 	"private": true,
 	"version": "3.0.0",
 	"dev_version": "19.4",
@@ -34,6 +34,7 @@
 		"@trivago/prettier-plugin-sort-imports": "^4.1.1",
 		"@types/chrome": "^0.0.219",
 		"@types/dompurify": "^2.4.0",
+		"@types/fs-extra": "^11.0.1",
 		"@types/marked": "^4.0.8",
 		"@types/node": "^18.14.6",
 		"@types/sharedworker": "^0.0.93",

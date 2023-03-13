@@ -7,7 +7,7 @@ This is a complete rewrite of the [Web Extension](https://github.com/seventv/sev
 -   make deps
 -   make production
 
-For a beta build, set `BRANCH=beta` in your environment variables.
+For a development/nightly (non-stable) build, set `BRANCH=nightly` in your environment variables.
 
 Build output located in `dist/`.
 

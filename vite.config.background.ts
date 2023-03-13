@@ -4,7 +4,7 @@ import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV ?? "";
-	const isNightly = process.env.BRANCH === "nightly" || process.env.BRANCH === "beta";
+	const isNightly = process.env.BRANCH === "nightly";
 	const outDir = process.env.OUT_DIR || "";
 
 	process.env = {
