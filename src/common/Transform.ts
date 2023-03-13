@@ -255,6 +255,7 @@ export function convertSeventvOldCosmetics(
 		badges.push({
 			id: badge.id,
 			kind: "BADGE",
+			provider: "7TV",
 			user_ids: badge.users,
 			data: {
 				name: badge.name,
@@ -271,6 +272,7 @@ export function convertSeventvOldCosmetics(
 		paints.push({
 			id: paint.id,
 			kind: "PAINT",
+			provider: "7TV",
 			user_ids: paint.users,
 			data: {
 				name: paint.name,
@@ -287,6 +289,31 @@ export function convertSeventvOldCosmetics(
 	}
 
 	return [badges, paints];
+}
+
+export function convertFfzBadges(data: FFZ.BadgesResponse): SevenTV.Cosmetic<"BADGE">[] {
+	const badges = [] as SevenTV.Cosmetic<"BADGE">[];
+
+	for (const badge of data.badges) {
+		badges.push({
+			id: badge.id.toString(),
+			kind: "BADGE",
+			provider: "FFZ",
+			data: {
+				name: badge.name,
+				tooltip: badge.title,
+				host: {
+					url: "//cdn.frankerfacez.com/badge/" + badge.id,
+					files: [{ name: "1" }, { name: "2" }, { name: "4" }],
+				},
+				backgroundColor: badge.color,
+				replace: badge.replaces,
+			},
+			user_ids: data.users[badge.id.toString()].map((u) => u.toString()),
+		} as SevenTV.Cosmetic<"BADGE">);
+	}
+
+	return badges;
 }
 
 export function semanticVersionToNumber(ver: string): number {

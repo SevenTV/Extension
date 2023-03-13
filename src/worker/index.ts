@@ -71,7 +71,6 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 		imageFormat: SevenTV.ImageFormat | null;
 	}>;
 	STATIC_COSMETICS_FETCHED: {
-		provider: SevenTV.Provider;
 		badges: SevenTV.Cosmetic<"BADGE">[];
 		paints: SevenTV.Cosmetic<"PAINT">[];
 	};

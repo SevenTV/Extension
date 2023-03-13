@@ -166,6 +166,7 @@ declare namespace SevenTV {
 	interface Cosmetic<K extends CosmeticKind = unknown> {
 		id: ObjectID;
 		kind: K;
+		provider: SevenTV.Provider;
 		user_ids?: string[];
 		data: {
 			AVATAR: CosmeticAvatar;
@@ -179,6 +180,9 @@ declare namespace SevenTV {
 		name: string;
 		tooltip: string;
 		host: ImageHost;
+
+		backgroundColor?: string;
+		replace?: string;
 	}
 
 	interface CosmeticPaint {
@@ -388,12 +392,27 @@ declare namespace FFZ {
 			name: string;
 			display_name: string;
 		} | null;
-		urls: {
-			"1"?: string;
-			"2"?: string;
-			"4"?: string;
-		};
+		urls: LinkMap;
 	}
+
+	interface BadgesResponse {
+		badges: Badge[];
+		users: Record<string, number[]>;
+	}
+
+	interface Badge {
+		id: number;
+		name: string;
+		title: string;
+		slot: number;
+		replaces: null | string;
+		color: string;
+		image: string;
+		urls: LinkMap;
+		css: null | unknown;
+	}
+
+	type LinkMap = Record<string, string>;
 }
 
 type Only<T, U> = {

@@ -1,6 +1,15 @@
 <template>
 	<div class="seventv-chat-badge">
-		<img ref="imgRef" :srcset="srcset" :alt="alt" @mouseenter="show(imgRef)" @mouseleave="hide()" />
+		<img
+			ref="imgRef"
+			:srcset="srcset"
+			:alt="alt"
+			:style="{
+				backgroundColor,
+			}"
+			@mouseenter="show(imgRef)"
+			@mouseleave="hide()"
+		/>
 	</div>
 </template>
 
@@ -15,6 +24,7 @@ const props = defineProps<{
 	badge: Twitch.ChatBadge | SevenTV.Cosmetic<"BADGE">;
 }>();
 
+const backgroundColor = ref("");
 const srcset = {
 	twitch: (badge: Twitch.ChatBadge) => `${badge.image1x} 1x, ${badge.image2x} 2x, ${badge.image4x} 4x`,
 	app: (badge: SevenTV.Cosmetic<"BADGE">) =>
@@ -26,6 +36,14 @@ const imgRef = ref<HTMLElement>();
 const { show, hide } = useTooltip(BadgeTooltip, {
 	alt: props.alt,
 });
+
+function isApp(badge: typeof props.badge): badge is SevenTV.Cosmetic<"BADGE"> {
+	return (badge as SevenTV.Cosmetic<"BADGE">).kind === "BADGE" && props.type === "app";
+}
+
+if (isApp(props.badge)) {
+	backgroundColor.value = props.badge.data.backgroundColor ?? "";
+}
 </script>
 
 <style scoped lang="scss">

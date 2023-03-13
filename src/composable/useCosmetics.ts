@@ -60,9 +60,10 @@ db.ready().then(async () => {
 			// Assign legacy static badges
 			for (const badge of badges) {
 				for (const u of badge.user_ids ?? []) {
-					if (data.userBadges[u]) continue;
+					if (!u || (data.userBadges[u] && data.userBadges[u].find((v) => v.id === badge.id))) continue;
 
-					data.userBadges[u] = [badge];
+					if (!data.userBadges[u]) data.userBadges[u] = [];
+					data.userBadges[u].push(badge);
 					data.staticallyAssigned[u] = {};
 				}
 
@@ -76,9 +77,11 @@ db.ready().then(async () => {
 			// Assign legacy static paints
 			for (const paint of paints) {
 				for (const u of paint.user_ids ?? []) {
-					if (data.userPaints[u]) continue;
+					if (!u || data.userPaints[u]) continue;
 
-					data.userPaints[u] = [paint];
+					if (!data.userPaints[u]) data.userPaints[u] = [];
+					data.userPaints[u].push(paint);
+
 					data.staticallyAssigned[u] = {};
 				}
 
@@ -105,8 +108,8 @@ db.ready().then(async () => {
 		if (data.staticallyAssigned[ent.user_id]) {
 			// If user had statically assigned cosmetics,
 			// clear them so they be properly set with live data
-			data.userBadges[ent.user_id] = [];
-			data.userPaints[ent.user_id] = [];
+			data.userBadges[ent.user_id] = data.userBadges[ent.user_id].filter((x) => x.provider !== "7TV");
+			data.userPaints[ent.user_id] = data.userPaints[ent.user_id].filter((x) => x.provider !== "7TV");
 			delete data.staticallyAssigned[ent.user_id];
 		}
 
@@ -248,13 +251,13 @@ db.ready().then(async () => {
 				case "BADGE":
 					if (!isLegacy && data.userBadges[ent.user_id]?.length) continue;
 
-					data.userBadges[ent.user_id] = [data.cosmetics[ent.ref_id] as SevenTV.Cosmetic<"BADGE">];
+					setEntitlement(ent, "+");
 					assigned = true;
 					break;
 				case "PAINT":
 					if (!isLegacy && data.userPaints[ent.user_id]?.length) continue;
 
-					data.userPaints[ent.user_id] = [data.cosmetics[ent.ref_id] as SevenTV.Cosmetic<"PAINT">];
+					setEntitlement(ent, "+");
 					assigned = true;
 					break;
 				case "EMOTE_SET":

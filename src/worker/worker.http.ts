@@ -2,7 +2,12 @@
 // Fetches initial data from API
 import { imageHostToSrcset } from "@/common/Image";
 import { log } from "@/common/Logger";
-import { convertBttvEmoteSet, convertFFZEmoteSet, convertSeventvOldCosmetics } from "@/common/Transform";
+import {
+	convertBttvEmoteSet,
+	convertFFZEmoteSet,
+	convertFfzBadges,
+	convertSeventvOldCosmetics,
+} from "@/common/Transform";
 import { db } from "@/db/idb";
 import type { WorkerDriver } from "./worker.driver";
 import type { WorkerPort } from "./worker.port";
@@ -158,21 +163,26 @@ export class WorkerHttp {
 		this.driver.eventAPI.subscribe("emote_set.*", cond, port);
 
 		// Send the legacy static cosmetics to the port
-		this.API()
-			.seventv.loadOldCosmetics("twitch_id", this.driver.cache)
-			.then((data) => {
-				const cos = convertSeventvOldCosmetics(data);
-				port.postMessage("STATIC_COSMETICS_FETCHED", {
-					provider: "7TV",
-					badges: cos[0],
-					paints: cos[1],
-				});
+		Promise.all([
+			await this.API()
+				.seventv.loadOldCosmetics("twitch_id", this.driver.cache)
+				.catch(() => void 0),
+			await this.API()
+				.frankerfacez.loadCosmetics()
+				.catch(() => void 0),
+		]).then(([seventv, ffz]) => {
+			const converted = seventv ? convertSeventvOldCosmetics(seventv) : [];
+			const badges = [...(seventv ? converted[0] : []), ...(ffz ? convertFfzBadges(ffz) : [])];
+			const paints = converted[1];
 
-				log.info(
-					"<API/Old>",
-					`Loaded ${data.badges.length + data.paints.length} cosmetics from legacy endpoint`,
-				);
+			port.postMessage("STATIC_COSMETICS_FETCHED", {
+				badges,
+				paints,
 			});
+
+			log.info(`<Static Cosmetics> ${badges.length} badges, ${paints.length} paints`);
+			log.debugWithObjects([], [badges, paints]);
+		});
 	}
 
 	public API() {
@@ -334,6 +344,14 @@ export const frankerfacez = {
 		});
 
 		return Promise.resolve(set);
+	},
+	async loadCosmetics(): Promise<FFZ.BadgesResponse> {
+		const resp = await doRequest(API_BASE.FFZ, "badges/ids");
+		if (!resp || resp.status !== 200) {
+			return Promise.reject(resp);
+		}
+
+		return Promise.resolve(await resp.json());
 	},
 };
 
