@@ -166,14 +166,14 @@ export class WorkerHttp {
 		Promise.all([
 			await this.API()
 				.seventv.loadOldCosmetics("twitch_id", this.driver.cache)
-				.catch(() => void 0),
+				.catch((err) => log.error("Failed to load old cosmetics", err)),
 			await this.API()
 				.frankerfacez.loadCosmetics()
 				.catch(() => void 0),
 		]).then(([seventv, ffz]) => {
 			const converted = seventv ? convertSeventvOldCosmetics(seventv) : [];
 			const badges = [...(seventv ? converted[0] : []), ...(ffz ? convertFfzBadges(ffz) : [])];
-			const paints = converted[1];
+			const paints = converted[1] ?? [];
 
 			port.postMessage("STATIC_COSMETICS_FETCHED", {
 				badges,
@@ -181,7 +181,6 @@ export class WorkerHttp {
 			});
 
 			log.info(`<Static Cosmetics> ${badges.length} badges, ${paints.length} paints`);
-			log.debugWithObjects([], [badges, paints]);
 		});
 	}
 
@@ -351,7 +350,7 @@ export const frankerfacez = {
 			return Promise.reject(resp);
 		}
 
-		return Promise.resolve(await resp.json());
+		return Promise.resolve(structuredClone(await resp.json()));
 	},
 };
 

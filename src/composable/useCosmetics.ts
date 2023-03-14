@@ -58,7 +58,7 @@ db.ready().then(async () => {
 			const { badges, paints } = e.detail;
 
 			// Assign legacy static badges
-			for (const badge of badges) {
+			for (const badge of badges ?? []) {
 				for (const u of badge.user_ids ?? []) {
 					if (!u || (data.userBadges[u] && data.userBadges[u].find((v) => v.id === badge.id))) continue;
 
@@ -75,7 +75,7 @@ db.ready().then(async () => {
 			}
 
 			// Assign legacy static paints
-			for (const paint of paints) {
+			for (const paint of paints ?? []) {
 				for (const u of paint.user_ids ?? []) {
 					if (!u || data.userPaints[u]) continue;
 
@@ -108,8 +108,8 @@ db.ready().then(async () => {
 		if (data.staticallyAssigned[ent.user_id]) {
 			// If user had statically assigned cosmetics,
 			// clear them so they be properly set with live data
-			data.userBadges[ent.user_id] = data.userBadges[ent.user_id].filter((x) => x.provider !== "7TV");
-			data.userPaints[ent.user_id] = data.userPaints[ent.user_id].filter((x) => x.provider !== "7TV");
+			data.userBadges[ent.user_id] = data.userBadges[ent.user_id]?.filter((x) => x.provider !== "7TV") ?? [];
+			data.userPaints[ent.user_id] = data.userPaints[ent.user_id]?.filter((x) => x.provider !== "7TV") ?? [];
 			delete data.staticallyAssigned[ent.user_id];
 		}
 

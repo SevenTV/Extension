@@ -94,7 +94,7 @@ export class WorkerDriver extends EventTarget {
 					.then((cfg) => {
 						p.postMessage("CONFIG", cfg); // send config data to port
 					})
-					.catch((e) => log.error("<API>", "Failed to fetch config:", e));
+					.catch((e) => log.error("<API>", "Failed to fetch config:", e.status));
 			}
 		};
 
