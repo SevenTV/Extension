@@ -11,6 +11,11 @@ This build is a **release candidate**.
 -   Fixed some performance overhead with the Mod Logs interface
 -   Fixed timestamps always displaying in the 24h format
 
+#### Beta 19.5
+
+-   Legacy static cosmetics should now be visible again
+
+
 #### Beta 19.4
 
 -   Added an option to keep chat intact when a moderator clears messages
