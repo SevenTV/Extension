@@ -11,6 +11,11 @@ This build is a **release candidate**.
 -   Fixed some performance overhead with the Mod Logs interface
 -   Fixed timestamps always displaying in the 24h format
 
+#### Beta 19.6
+
+-   Personal Emotes, Badges, and Paints of the current user will now be pre-loaded
+-   Fixed an issue that sometimes caused 7TV badges to double up
+
 #### Beta 19.5
 
 -   Legacy static cosmetics should now be visible again

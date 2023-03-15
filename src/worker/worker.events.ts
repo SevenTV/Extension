@@ -9,11 +9,11 @@ import { EventAPIMessage, EventAPIOpCode, EventContext, SubscriptionData } from 
 
 export class EventAPI {
 	private transport: EventAPITransport | null = null;
-	private sessionID = "";
 	private heartbeatInterval: number | null = null;
 	private backoff = 100;
 	private ctx: EventContext;
 
+	sessionID = "";
 	subscriptions: Record<string, SubscriptionRecord[]> = {};
 
 	url = import.meta.env.VITE_APP_API_EVENTS;

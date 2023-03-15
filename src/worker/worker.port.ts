@@ -75,7 +75,7 @@ export class WorkerPort {
 				this.driver.eventAPI.sendMessage({
 					op: "BRIDGE",
 					data: {
-						command: "cosmetics",
+						command: "userstate",
 						body: {
 							identifiers: identifiers.map(([idType, id]) => `${idType}:${id}`),
 							platform: this.platform,

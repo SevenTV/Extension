@@ -113,8 +113,8 @@ function updateVisibility(es: SevenTV.EmoteSet, state: boolean): void {
 
 const filterSets = debounceFn(() => {
 	const ary = Object.values(sets) as SevenTV.EmoteSet[];
-	if (cosmetics.emoteSets?.length) {
-		ary.push(...cosmetics.emoteSets.filter((e) => e.provider === props.provider));
+	if (cosmetics.emoteSets?.size) {
+		ary.push(...Array.from(cosmetics.emoteSets.values()).filter((e) => e.provider === props.provider));
 	}
 
 	if (props.provider === "TWITCH") {

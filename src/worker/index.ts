@@ -146,11 +146,7 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 	};
 	BRIDGE: {
 		command: string;
-		body: {
-			platform: Platform;
-			identifiers: string[];
-			kinds: SevenTV.CosmeticKind[];
-		};
+		body: object;
 	};
 	UNKNOWN: unknown;
 }[O];

@@ -1,5 +1,6 @@
 // REST Helpers
 // Fetches initial data from API
+import { BitField, EmoteSetFlags } from "@/common/Flags";
 import { imageHostToSrcset } from "@/common/Image";
 import { log } from "@/common/Logger";
 import {
@@ -52,7 +53,7 @@ export class WorkerHttp {
 			}
 
 			this.lastPresenceAt = Date.now();
-			this.API().seventv.writePresence(ev.port.platform, ev.port.user.id, ev.port.channel.id);
+			this.writePresence(ev.port.platform, ev.port.user.id, ev.port.channel.id);
 		});
 		driver.addEventListener("imageformat_updated", async (ev) => {
 			if (!ev.port) return;
@@ -162,6 +163,12 @@ export class WorkerHttp {
 		this.driver.eventAPI.subscribe("cosmetic.*", cond, port);
 		this.driver.eventAPI.subscribe("emote_set.*", cond, port);
 
+		// Send an initial presence so that the current user immediately has their cosmetics
+		// (sent with "self" property, so that the presence and entitlements are not published)
+		if (port.platform && port.user && port.channel) {
+			this.writePresence(port.platform, port.user.id, port.channel.id, true);
+		}
+
 		// Send the legacy static cosmetics to the port
 		Promise.all([
 			await this.API()
@@ -182,6 +189,24 @@ export class WorkerHttp {
 
 			log.info(`<Static Cosmetics> ${badges.length} badges, ${paints.length} paints`);
 		});
+	}
+
+	/**
+	 * Emit a presence update to 7TV for the given user & channel location
+	 *
+	 * This will make the EventAPI send the user's entitlements to other users in the channel
+	 * @param self if true, the entitlements will only be sent to the current user
+	 */
+	async writePresence(platform: Platform, userID: string, channelID: string, self?: boolean): Promise<void> {
+		doRequest(API_BASE.SEVENTV, `users/${userID}/presences`, "POST", {
+			kind: 1,
+			passive: self,
+			session_id: self ? this.driver.eventAPI.sessionID : undefined,
+			data: {
+				platform,
+				id: channelID,
+			},
+		}).then(() => log.debug("<API> Presence sent"));
 	}
 
 	public API() {
@@ -233,13 +258,13 @@ export const seventv = {
 
 		set.provider = "7TV";
 		if (id === "global") set.scope = "GLOBAL";
-		else if (set.flags & 4) set.scope = "PERSONAL";
+		else if (BitField(EmoteSetFlags, set.flags).has("Personal")) set.scope = "PERSONAL";
 		else set.scope = "CHANNEL";
 		set.priority = ProviderPriority.SEVENTV_GLOBAL;
 
 		set.emotes.map((ae) => {
 			ae.provider = set.provider;
-			ae.scope = "GLOBAL";
+			ae.scope = set.scope;
 			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat, 2);
 
 			return ae;
@@ -261,16 +286,6 @@ export const seventv = {
 		if (!userConn.user) return Promise.reject(new Error("No user was returned!"));
 
 		return Promise.resolve(userConn.user);
-	},
-
-	async writePresence(platform: Platform, userID: string, channelID: string): Promise<void> {
-		doRequest(API_BASE.SEVENTV, `users/${userID}/presences`, "POST", {
-			kind: 1,
-			data: {
-				platform,
-				id: channelID,
-			},
-		}).then(() => log.debug("<API> Presence sent"));
 	},
 
 	async loadOldCosmetics(

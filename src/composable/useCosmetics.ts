@@ -16,13 +16,39 @@ const data = reactive({
 		"-": [] as SevenTV.Entitlement[],
 	},
 
-	userBadges: {} as Record<string, SevenTV.Cosmetic<"BADGE">[]>,
-	userPaints: {} as Record<string, SevenTV.Cosmetic<"PAINT">[]>,
-	userEmoteSets: {} as Record<string, SevenTV.EmoteSet[]>,
+	userBadges: {} as Record<string, CosmeticMap<"BADGE">>,
+	userPaints: {} as Record<string, CosmeticMap<"PAINT">>,
+	userEmoteSets: {} as Record<string, Map<string, SevenTV.EmoteSet>>,
 	userEmoteMap: {} as Record<string, Record<string, SevenTV.ActiveEmote>>,
 
 	staticallyAssigned: {} as Record<string, Record<string, never> | undefined>,
 });
+
+class CosmeticMap<T extends SevenTV.CosmeticKind> extends Map<string, SevenTV.Cosmetic<T>> {
+	private providers = new Set<SevenTV.Provider>();
+
+	hasProvider(provider: SevenTV.Provider) {
+		return this.providers.has(provider);
+	}
+
+	set(key: string, value: SevenTV.Cosmetic<T>): this {
+		this.providers.add(value.provider);
+		return super.set(key, value);
+	}
+
+	delete(key: string): boolean {
+		const value = this.get(key);
+		if (!value) return false;
+
+		this.providers.delete(value.provider);
+		return super.delete(key);
+	}
+
+	clear(): void {
+		this.providers.clear();
+		super.clear();
+	}
+}
 
 let flushTimeout: number | null = null;
 
@@ -60,10 +86,11 @@ db.ready().then(async () => {
 			// Assign legacy static badges
 			for (const badge of badges ?? []) {
 				for (const u of badge.user_ids ?? []) {
-					if (!u || (data.userBadges[u] && data.userBadges[u].find((v) => v.id === badge.id))) continue;
+					if (!u || (data.userBadges[u] && data.userBadges[u].has(badge.id))) continue;
 
-					if (!data.userBadges[u]) data.userBadges[u] = [];
-					data.userBadges[u].push(badge);
+					if (!data.userBadges[u]) data.userBadges[u] = new CosmeticMap();
+					if (data.userBadges[u] && data.userBadges[u].hasProvider(badge.provider)) continue;
+					data.userBadges[u].set(badge.id, badge);
 					data.staticallyAssigned[u] = {};
 				}
 
@@ -79,8 +106,9 @@ db.ready().then(async () => {
 				for (const u of paint.user_ids ?? []) {
 					if (!u || data.userPaints[u]) continue;
 
-					if (!data.userPaints[u]) data.userPaints[u] = [];
-					data.userPaints[u].push(paint);
+					if (!data.userPaints[u]) data.userPaints[u] = new CosmeticMap();
+					if (data.userPaints[u].hasProvider(paint.provider)) continue;
+					data.userPaints[u].set(paint.id, paint);
 
 					data.staticallyAssigned[u] = {};
 				}
@@ -108,8 +136,17 @@ db.ready().then(async () => {
 		if (data.staticallyAssigned[ent.user_id]) {
 			// If user had statically assigned cosmetics,
 			// clear them so they be properly set with live data
-			data.userBadges[ent.user_id] = data.userBadges[ent.user_id]?.filter((x) => x.provider !== "7TV") ?? [];
-			data.userPaints[ent.user_id] = data.userPaints[ent.user_id]?.filter((x) => x.provider !== "7TV") ?? [];
+			for (const cos of data.userBadges[ent.user_id]?.values() ?? []) {
+				if (cos.provider !== "7TV") continue;
+
+				data.userBadges[ent.user_id].delete(cos.id);
+			}
+			for (const cos of data.userPaints[ent.user_id]?.values() ?? []) {
+				if (cos.provider !== "7TV") continue;
+
+				data.userPaints[ent.user_id].delete(cos.id);
+			}
+
 			delete data.staticallyAssigned[ent.user_id];
 		}
 
@@ -131,25 +168,24 @@ db.ready().then(async () => {
 
 			for (const ent of del) {
 				const l = userListFor(ent.kind);
-				if (!l[ent.user_id]) continue;
+				if (!l[ent.user_id] || !l[ent.user_id].has(ent.ref_id)) continue;
 
-				const idx = l[ent.user_id].findIndex((b) => b.id === ent.ref_id);
-				if (idx !== -1) l[ent.user_id].splice(idx, 1);
+				l[ent.user_id].delete(ent.ref_id);
 			}
 
 			flushTimeout = window.setTimeout(async () => {
 				for (const ent of add) {
 					const l = userListFor(ent.kind);
-					if (!l[ent.user_id]) l[ent.user_id] = [];
+					if (!l[ent.user_id]) l[ent.user_id] = new Map();
 
 					if (ent.kind === "EMOTE_SET") {
 						bindUserEmotes(ent.user_id, ent.ref_id);
 					} else {
 						awaitCosmetic(ent.ref_id).then((cos) => {
-							const idx = l[ent.user_id].findIndex((b) => b.id === ent.ref_id);
-							if (idx === -1) {
-								l[ent.user_id].push(cos as never);
-							}
+							if (l[ent.user_id].has(ent.ref_id)) return;
+							if (l instanceof CosmeticMap && l.hasProvider(cos.provider)) return;
+
+							l[ent.user_id].set(ent.ref_id, cos as never);
 						});
 					}
 				}
@@ -192,7 +228,8 @@ db.ready().then(async () => {
 					.reduce((acc, cur) => ({ ...acc, [cur.name]: cur }), {} as Record<string, SevenTV.ActiveEmote>);
 
 				// Update the set's data
-				data.userEmoteSets[userID]?.splice(data.userEmoteSets[userID].indexOf(es.value), 1, es.value);
+				data.userEmoteSets[userID]?.set(setID, es.value);
+				// data.userEmoteSets[userID]?.splice(data.userEmoteSets[userID].indexOf(es.value), 1, es.value);
 			},
 			{
 				until: until(data.userEmoteMap[userID])
@@ -224,10 +261,9 @@ db.ready().then(async () => {
 			return;
 		}
 
-		if (!data.userEmoteSets[userID]) data.userEmoteSets[userID] = [];
-		const idx = data.userEmoteSets[userID].findIndex((s) => s.id === set.id);
-		if (idx === -1) {
-			data.userEmoteSets[userID].push(set);
+		if (!data.userEmoteSets[userID]) data.userEmoteSets[userID] = new Map();
+		if (!data.userEmoteSets[userID].has(setID)) {
+			data.userEmoteSets[userID].set(setID, set);
 		}
 
 		log.info("<Cosmetics>", "Assigned Emote Set to user", `id=${setID}`, `userID=${userID}`);
@@ -249,13 +285,13 @@ db.ready().then(async () => {
 			const isLegacy = !!data.staticallyAssigned[ent.user_id];
 			switch (ent.kind) {
 				case "BADGE":
-					if (!isLegacy && data.userBadges[ent.user_id]?.length) continue;
+					if (!isLegacy && data.userBadges[ent.user_id]?.size) continue;
 
 					setEntitlement(ent, "+");
 					assigned = true;
 					break;
 				case "PAINT":
-					if (!isLegacy && data.userPaints[ent.user_id]?.length) continue;
+					if (!isLegacy && data.userPaints[ent.user_id]?.size) continue;
 
 					setEntitlement(ent, "+");
 					assigned = true;
@@ -275,8 +311,8 @@ db.ready().then(async () => {
 });
 
 export function useCosmetics(userID: string) {
-	if (!data.userBadges[userID]) data.userBadges[userID] = [];
-	if (!data.userPaints[userID]) data.userPaints[userID] = [];
+	if (!data.userBadges[userID]) data.userBadges[userID] = new CosmeticMap();
+	if (!data.userPaints[userID]) data.userPaints[userID] = new CosmeticMap();
 	if (!data.userEmoteMap[userID]) data.userEmoteMap[userID] = {};
 
 	return reactive({

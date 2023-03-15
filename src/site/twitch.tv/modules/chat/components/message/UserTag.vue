@@ -1,10 +1,7 @@
 <template>
 	<div v-if="user && user.displayName" class="seventv-chat-user" :style="{ color: user.color }">
 		<!--Badge List -->
-		<span
-			v-if="!hideBadges && (twitchBadges.length || cosmetics.badges.length)"
-			class="seventv-chat-user-badge-list"
-		>
+		<span v-if="!hideBadges && (twitchBadges.length || cosmetics.badges.size)" class="seventv-chat-user-badge-list">
 			<Badge
 				v-for="badge of twitchBadges"
 				:key="badge.id"
@@ -91,8 +88,8 @@ const stop = watch(
 			return;
 		}
 
-		paint.value = paints && paints.length ? paints[0] : null;
-		activeBadges.value = [...badges];
+		paint.value = paints && paints.size ? paints.values().next().value : null;
+		activeBadges.value = [...badges.values()];
 	},
 	{ immediate: true },
 );

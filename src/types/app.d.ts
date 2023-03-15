@@ -1,5 +1,3 @@
-declare const __SEVENTV_ASSETS_BASE__: string;
-
 declare namespace SevenTV {
 	interface Emote {
 		id: ObjectID;
@@ -143,6 +141,7 @@ declare namespace SevenTV {
 		biography?: string;
 		style?: UserStyle;
 		connections?: UserConnection[];
+		emote_sets?: EmoteSet[];
 	}
 
 	interface UserStyle {
