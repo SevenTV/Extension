@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { onActivated, reactive } from "vue";
 import { OnboardingStepRoute, useOnboarding } from "./Onboarding";
 import UiButton from "@/ui/UiButton.vue";
 import LogoBrandDiscord from "@/assets/svg/logos/LogoBrandDiscord.vue";
@@ -94,6 +94,11 @@ function openReviewLink(): void {
 function openTwitter(): void {
 	chrome.tabs.create({ url: "https://twitter.com/Official_7TV" });
 }
+
+onActivated(() => {
+	if (!chrome || !chrome.storage) return;
+	chrome.storage.local.remove("upgraded");
+});
 </script>
 
 <script lang="ts">

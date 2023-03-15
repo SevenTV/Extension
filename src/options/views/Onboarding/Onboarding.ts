@@ -1,7 +1,8 @@
-import { InjectionKey, inject, provide, reactive } from "vue";
+import { InjectionKey, Ref, inject, provide, reactive } from "vue";
 import { tryOnUnmounted } from "@vueuse/core";
 
 const ONBOARDING_KEY = Symbol() as InjectionKey<OnboardingData>;
+export const ONBOARDING_UPGRADED = Symbol() as InjectionKey<Ref<boolean>>;
 
 interface OnboardingData {
 	activeStep: OnboardingStep | null;

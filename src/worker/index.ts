@@ -65,6 +65,7 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	};
 	STATE: Partial<{
 		platform: Platform;
+		provider_extensions: SevenTV.Provider[];
 		identity: TwitchIdentity | YouTubeIdentity | null;
 		user: SevenTV.User | null;
 		channel: CurrentChannel | null;

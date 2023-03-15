@@ -47,13 +47,14 @@ export const useStore = defineStore("main", {
 			});
 		},
 
-		setPlatform(platform: Platform) {
+		setPlatform(platform: Platform, extensions: SevenTV.Provider[]) {
 			this.platform = platform;
 
 			const { sendMessage } = useWorker();
 
 			sendMessage("STATE", {
 				platform: platform,
+				provider_extensions: extensions,
 			});
 		},
 

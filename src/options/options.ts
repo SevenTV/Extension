@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createHead } from "@vueuse/head";
+import { SITE_ASSETS_URL } from "@/common/Constant";
 import { TooltipDirective } from "@/directive/TooltipDirective";
 import Options from "@/options/Options.vue";
 import { router } from "@/options/router/router";
@@ -12,4 +13,5 @@ const head = createHead({
 });
 
 app.directive("tooltip", TooltipDirective);
+app.provide(SITE_ASSETS_URL, chrome.runtime.getURL("/assets"));
 app.use(router).use(head).mount("#app");

@@ -8,6 +8,7 @@ export class WorkerPort {
 	seq = 0;
 
 	platform: Platform | null = null;
+	providerExtensions = new Set<SevenTV.Provider>();
 	channel: CurrentChannel | null = null;
 	identity: TwitchIdentity | YouTubeIdentity | null = null;
 	user: SevenTV.User | null = null;
@@ -29,9 +30,11 @@ export class WorkerPort {
 
 		switch (type) {
 			case "STATE": {
-				const { platform, identity, channel, user, imageFormat } = data as TypedWorkerMessage<"STATE">;
+				const { platform, provider_extensions, identity, channel, user, imageFormat } =
+					data as TypedWorkerMessage<"STATE">;
 
 				if (platform) this.platform = platform;
+				if (provider_extensions) this.providerExtensions = new Set(provider_extensions);
 				if (identity) {
 					this.identity = identity;
 

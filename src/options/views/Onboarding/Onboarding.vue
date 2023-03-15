@@ -39,17 +39,26 @@
 </template>
 
 <script setup lang="ts">
-import { markRaw, reactive, ref, watch } from "vue";
+import { markRaw, provide, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { until } from "@vueuse/core";
 import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";
-import { OnboardingStepRoute, createOnboarding } from "./Onboarding";
+import { ONBOARDING_UPGRADED, OnboardingStepRoute, createOnboarding } from "./Onboarding";
 import UiButton from "@/ui/UiButton.vue";
 
 const ctx = createOnboarding();
 const route = useRoute();
 const router = useRouter();
 const isAtEnd = ref(false);
+const upgraded = ref(false);
+provide(ONBOARDING_UPGRADED, upgraded);
+
+// Check if this is an upgrade from v2
+if (chrome && chrome.storage) {
+	chrome.storage.local.get(({ upgraded: val }) => {
+		upgraded.value = val;
+	});
+}
 
 // Load step data from components
 const loadedSteps = import.meta.glob("./Onboarding*.vue", { eager: true });
@@ -144,8 +153,9 @@ watch(
 }
 
 main.onboarding {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr 3em;
 	height: 100%;
 	overflow: hidden;
 

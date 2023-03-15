@@ -5,6 +5,8 @@ export function onCosmeticCreate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 	if (!cm.object) return;
 
 	// Insert the cosmetic into the database
+
+	cm.object.provider = "7TV";
 	ctx.db
 		.withErrorFallback(ctx.db.cosmetics.put(cm.object), () =>
 			ctx.db.cosmetics.where("id").equals(cm.object.id).modify(cm.object),

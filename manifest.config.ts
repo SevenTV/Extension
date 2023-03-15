@@ -25,8 +25,10 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		version: opt.version,
 		version_name: opt.version + (opt.branch ? ` ${opt.branch}` : ""),
 		description: description,
-		action: {
+		browser_action: {
 			default_icon: `./icon/${iconName.replace("%s", "128")}`,
+			default_popup: "index.html#/popup?noheader=1",
+			default_area: "navbar",
 		},
 
 		background: {

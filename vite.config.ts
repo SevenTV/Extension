@@ -20,6 +20,8 @@ const ignoreHMR = [
 	"SettingsModule.vue",
 ];
 
+const alwaysHot = ["src/background/background.ts"];
+
 // https://vitejs.dev/config/
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV;
@@ -101,6 +103,11 @@ export default defineConfig(() => {
 			{
 				name: "hmr-ignore",
 				handleHotUpdate(this, ctx) {
+					const rel = path.relative(process.cwd(), ctx.file);
+					if (alwaysHot.some((v) => v.startsWith(rel))) {
+						ctx.server.ws.send("defined-match");
+					}
+
 					const base = path.basename(ctx.file);
 					// Ignore specific files in HMR
 					if (ignoreHMR.includes(base)) {

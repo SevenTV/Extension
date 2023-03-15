@@ -14,6 +14,11 @@ const routes = [
 		],
 	},
 	{
+		path: "/popup",
+		name: "Popup",
+		component: () => import("../views/Popup/Popup.vue"),
+	},
+	{
 		path: "/compat",
 		name: "Compat",
 		component: () => import("../views/Compat/Compat.vue"),

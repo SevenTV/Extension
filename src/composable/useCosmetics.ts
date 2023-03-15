@@ -32,7 +32,7 @@ class CosmeticMap<T extends SevenTV.CosmeticKind> extends Map<string, SevenTV.Co
 	}
 
 	set(key: string, value: SevenTV.Cosmetic<T>): this {
-		this.providers.add(value.provider);
+		if (value.provider) this.providers.add(value.provider);
 		return super.set(key, value);
 	}
 
@@ -58,22 +58,19 @@ let flushTimeout: number | null = null;
 db.ready().then(async () => {
 	const { target } = useWorker();
 
-	const cosmeticsFetched = ref(false);
-
 	useLiveQuery(
 		() => db.cosmetics.toArray(),
 		(result) => {
 			data.cosmetics = {};
 
 			for (const cos of result) {
-				data.cosmetics[cos.id] = cos;
+				if (data.cosmetics[cos.id]) continue;
+				data.cosmetics[cos.id] = reactive(cos);
 
 				if (cos.kind === "PAINT") {
 					insertPaintStyle(cos as SevenTV.Cosmetic<"PAINT">);
 				}
 			}
-
-			cosmeticsFetched.value = true;
 		},
 	);
 
@@ -84,32 +81,47 @@ db.ready().then(async () => {
 			const { badges, paints } = e.detail;
 
 			// Assign legacy static badges
-			for (const badge of badges ?? []) {
+			for (let badge of badges ?? []) {
+				if (!data.cosmetics[badge.id]) data.cosmetics[badge.id] = reactive(badge);
+				else badge = data.cosmetics[badge.id] as SevenTV.Cosmetic<"BADGE">;
+
 				for (const u of badge.user_ids ?? []) {
 					if (!u || (data.userBadges[u] && data.userBadges[u].has(badge.id))) continue;
 
-					if (!data.userBadges[u]) data.userBadges[u] = new CosmeticMap();
-					if (data.userBadges[u] && data.userBadges[u].hasProvider(badge.provider)) continue;
-					data.userBadges[u].set(badge.id, badge);
+					setEntitlement(
+						{
+							id: "",
+							kind: "BADGE",
+							ref_id: badge.id,
+							user_id: u,
+						},
+						"+",
+					);
 					data.staticallyAssigned[u] = {};
 				}
 
 				if (badge.user_ids) {
 					badge.user_ids.length = 0;
 				}
-
-				data.cosmetics[badge.id] = badge;
 			}
 
 			// Assign legacy static paints
-			for (const paint of paints ?? []) {
+			for (let paint of paints ?? []) {
+				if (!data.cosmetics[paint.id]) data.cosmetics[paint.id] = reactive(paint);
+				else paint = data.cosmetics[paint.id] as SevenTV.Cosmetic<"PAINT">;
+
 				for (const u of paint.user_ids ?? []) {
 					if (!u || data.userPaints[u]) continue;
 
-					if (!data.userPaints[u]) data.userPaints[u] = new CosmeticMap();
-					if (data.userPaints[u].hasProvider(paint.provider)) continue;
-					data.userPaints[u].set(paint.id, paint);
-
+					setEntitlement(
+						{
+							id: "",
+							kind: "PAINT",
+							ref_id: paint.id,
+							user_id: u,
+						},
+						"+",
+					);
 					data.staticallyAssigned[u] = {};
 				}
 
@@ -117,14 +129,11 @@ db.ready().then(async () => {
 					paint.user_ids.length = 0;
 				}
 
-				data.cosmetics[paint.id] = paint;
 				insertPaintStyle(paint);
 			}
 		},
 		{ once: true },
 	);
-
-	await until(cosmeticsFetched).toBeTruthy();
 
 	/**
 	 * Bind or unbind an entitlement to a user
@@ -142,8 +151,6 @@ db.ready().then(async () => {
 				data.userBadges[ent.user_id].delete(cos.id);
 			}
 			for (const cos of data.userPaints[ent.user_id]?.values() ?? []) {
-				if (cos.provider !== "7TV") continue;
-
 				data.userPaints[ent.user_id].delete(cos.id);
 			}
 
@@ -176,16 +183,19 @@ db.ready().then(async () => {
 			flushTimeout = window.setTimeout(async () => {
 				for (const ent of add) {
 					const l = userListFor(ent.kind);
-					if (!l[ent.user_id]) l[ent.user_id] = new Map();
 
 					if (ent.kind === "EMOTE_SET") {
+						if (!l[ent.user_id]) l[ent.user_id] = new Map();
+
 						bindUserEmotes(ent.user_id, ent.ref_id);
 					} else {
-						awaitCosmetic(ent.ref_id).then((cos) => {
-							if (l[ent.user_id].has(ent.ref_id)) return;
-							if (l instanceof CosmeticMap && l.hasProvider(cos.provider)) return;
+						if (!l[ent.user_id]) (l[ent.user_id] as CosmeticMap<"BADGE" | "PAINT">) = new CosmeticMap();
 
-							l[ent.user_id].set(ent.ref_id, cos as never);
+						const m = l[ent.user_id] as CosmeticMap<"BADGE" | "PAINT">;
+						awaitCosmetic(ent.ref_id).then((cos) => {
+							if (m.has(ent.ref_id) || m.hasProvider(cos.provider)) return;
+
+							m.set(ent.ref_id, cos as never);
 						});
 					}
 				}
@@ -197,7 +207,7 @@ db.ready().then(async () => {
 
 	// Wait for a given cosmetic's data to become available
 	function awaitCosmetic(id: SevenTV.ObjectID) {
-		return until(data.cosmetics[id]).not.toBeUndefined();
+		return data.cosmetics[id] ? Promise.resolve(data.cosmetics[id]) : until(data.cosmetics[id]).not.toBeUndefined();
 	}
 
 	// Get the list of cosmetics for a given entitlement kind
@@ -229,7 +239,6 @@ db.ready().then(async () => {
 
 				// Update the set's data
 				data.userEmoteSets[userID]?.set(setID, es.value);
-				// data.userEmoteSets[userID]?.splice(data.userEmoteSets[userID].indexOf(es.value), 1, es.value);
 			},
 			{
 				until: until(data.userEmoteMap[userID])

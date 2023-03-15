@@ -12,6 +12,7 @@ import { onMounted, provide, ref, watch } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
+import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useConfig, useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
@@ -20,11 +21,12 @@ import ModuleWrapper from "../ModuleWrapper.vue";
 
 const store = useStore();
 const ua = useUserAgent();
+const ffz = useFrankerFaceZ();
 
 const useTransparency = useConfig("ui.transparent_backgrounds");
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
-store.setPlatform("TWITCH");
+store.setPlatform("TWITCH", ffz.active ? ["FFZ"] : []);
 
 const currentPath = ref("");
 

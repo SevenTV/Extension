@@ -11,6 +11,14 @@ This build is a **release candidate**.
 -   Fixed some performance overhead with the Mod Logs interface
 -   Fixed timestamps always displaying in the 24h format
 
+#### Beta 19.7
+
+-   Added a special onboarding state for users upgrading from V2
+-   Added a browser popup action
+-   FFZ Badges will now only load if their extension is installed alongside 7TV
+-   The FFZ setting profile created by 7TV will now only be active whilst 7TV is enabled
+-   Fixed another issue that caused inconsistent cosmetics behavior
+
 #### Beta 19.6
 
 -   Personal Emotes, Badges, and Paints of the current user will now be pre-loaded

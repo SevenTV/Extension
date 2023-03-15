@@ -46,9 +46,13 @@ watch(
 	}
 }
 .seventv-settings-subcategory {
-	margin: 1rem;
-
 	.seventv-settings-subcategory-header {
+		position: sticky;
+		top: 0;
+		background: var(--seventv-background-transparent-1);
+		backdrop-filter: blur(0.25rem);
+		z-index: 1;
+
 		display: flex;
 		flex-direction: column;
 		padding: 1rem;
@@ -59,6 +63,7 @@ watch(
 			padding-bottom: 0.5rem;
 			border-bottom: 0.1rem solid hsla(0deg, 0%, 70%, 32%);
 		}
+		// box-shadow: 0 0.25rem 0.1rem hsla(0deg, 0%, 0%, 0.25);
 	}
 	&:last-child {
 		margin-bottom: 10rem;

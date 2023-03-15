@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
 	<div class="seventv-changelog-inner">
-		<div class="seventv-changelog-heading">
+		<div v-if="!noHeader" class="seventv-changelog-heading">
 			<h3>
 				<Logo provider="7TV" />
 				<span>Changelog - 7TV</span>
@@ -15,14 +15,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { inject, ref, watchEffect } from "vue";
+import { SITE_ASSETS_URL } from "@/common/Constant";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 
+defineProps<{
+	noHeader?: boolean;
+}>();
+
 const Changelog = import.meta.env.VITE_APP_CHANGELOG;
 const changelogRaw = ref(Changelog);
 const content = ref("");
+
+const assetsBase = inject(SITE_ASSETS_URL, "");
 
 watchEffect(() => {
 	content.value = marked.parse(
@@ -30,6 +37,11 @@ watchEffect(() => {
 			ALLOWED_TAGS: ["img"],
 		}),
 		{
+			walkTokens: (tok) => {
+				if (tok.type === "image" && tok.href.charAt(0) === "~" && assetsBase) {
+					tok.href = assetsBase + tok.href.slice(1);
+				}
+			},
 			gfm: true,
 			breaks: true,
 		},
@@ -72,6 +84,14 @@ watchEffect(() => {
 .seventv-change-notes {
 	padding: 0.85em;
 	line-height: 1.5em;
+
+	:deep(img) {
+		padding: 0.5rem;
+		background-color: var(--seventv-background-shade-3);
+		border-radius: 0.25rem;
+		max-width: 36rem;
+		max-height: 28rem;
+	}
 
 	:deep(ul) {
 		display: grid;

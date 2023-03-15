@@ -4,12 +4,20 @@
 			<Logo7TV />
 		</div>
 		<div class="feature-text">
-			<h1>Welcome on board!</h1>
-			<p>
+			<h1>{{ isUpgraded ? "Hey there again!" : "Welcome on board!" }}</h1>
+			<p v-if="isUpgraded">
+				Welcome to version 3.0.0! 7TV has just gotten a big upgrade. Check out what's new...
+			</p>
+			<p v-else>
 				Thank you for downloading 7TV. Let us take you on a quick tour of the extension to customize your
 				experience.
 			</p>
-			<span>(...or you can skip this altogether if you're already a pro)</span>
+
+			<span v-if="isUpgraded">
+				(sorry, we hope that didn't disturb whatever you were doing)
+				<span :style="{ fontSize: '0.75rem' }">but this update is so good</span>
+			</span>
+			<span v-else>(...or you can skip this altogether if you're already a pro)</span>
 		</div>
 
 		<div class="feature-buttons">
@@ -17,9 +25,9 @@
 				<span>Skip</span>
 			</UiButton>
 
-			<RouterLink :to="{ name: 'Onboarding', params: { step: 'platforms' } }">
+			<RouterLink :to="{ name: 'Onboarding', params: { step: isUpgraded ? 'changelog' : 'platforms' } }">
 				<UiButton class="ui-button-important">
-					<span>Platforms</span>
+					<span>{{ isUpgraded ? "Explore" : "Platforms" }}</span>
 					<template #icon>
 						<ChevronIcon direction="right" />
 					</template>
@@ -33,7 +41,7 @@
 import { useHead } from "@vueuse/head";
 import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
-import { useOnboarding } from "./Onboarding";
+import { ONBOARDING_UPGRADED, useOnboarding } from "./Onboarding";
 import UiButton from "@/ui/UiButton.vue";
 
 useHead({
@@ -41,6 +49,7 @@ useHead({
 });
 
 useOnboarding("start");
+const isUpgraded = inject(ONBOARDING_UPGRADED, ref(false));
 
 const router = useRouter();
 function skipConfig(): void {
@@ -49,6 +58,7 @@ function skipConfig(): void {
 </script>
 
 <script lang="ts">
+import { inject, ref } from "vue";
 import { useRouter } from "vue-router";
 import { OnboardingStepRoute } from "./Onboarding";
 

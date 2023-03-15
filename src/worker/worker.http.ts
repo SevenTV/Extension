@@ -174,9 +174,11 @@ export class WorkerHttp {
 			await this.API()
 				.seventv.loadOldCosmetics("twitch_id", this.driver.cache)
 				.catch((err) => log.error("Failed to load old cosmetics", err)),
-			await this.API()
-				.frankerfacez.loadCosmetics()
-				.catch(() => void 0),
+			port.providerExtensions.has("FFZ") // load ffz badges if their extension is installed
+				? await this.API()
+						.frankerfacez.loadCosmetics()
+						.catch(() => void 0)
+				: void 0,
 		]).then(([seventv, ffz]) => {
 			const converted = seventv ? convertSeventvOldCosmetics(seventv) : [];
 			const badges = [...(seventv ? converted[0] : []), ...(ffz ? convertFfzBadges(ffz) : [])];
