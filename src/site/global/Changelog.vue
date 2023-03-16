@@ -18,7 +18,6 @@
 import { inject, ref, watchEffect } from "vue";
 import { SITE_ASSETS_URL } from "@/common/Constant";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import DOMPurify from "dompurify";
 import { marked } from "marked";
 
 defineProps<{
@@ -32,20 +31,15 @@ const content = ref("");
 const assetsBase = inject(SITE_ASSETS_URL, "");
 
 watchEffect(() => {
-	content.value = marked.parse(
-		DOMPurify.sanitize(changelogRaw.value, {
-			ALLOWED_TAGS: ["img"],
-		}),
-		{
-			walkTokens: (tok) => {
-				if (tok.type === "image" && tok.href.charAt(0) === "~" && assetsBase) {
-					tok.href = assetsBase + tok.href.slice(1);
-				}
-			},
-			gfm: true,
-			breaks: true,
+	content.value = marked.parse(changelogRaw.value, {
+		walkTokens: (tok) => {
+			if (tok.type === "image" && tok.href.charAt(0) === "~" && assetsBase) {
+				tok.href = assetsBase + tok.href.slice(1);
+			}
 		},
-	);
+		gfm: true,
+		breaks: true,
+	});
 });
 </script>
 
@@ -89,6 +83,20 @@ watchEffect(() => {
 		padding: 0.5rem;
 		background-color: var(--seventv-background-shade-3);
 		border-radius: 0.25rem;
+		max-width: 36rem;
+		max-height: 28rem;
+	}
+
+	:deep(a) {
+		color: var(--seventv-primary);
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	:deep(video) {
 		max-width: 36rem;
 		max-height: 28rem;
 	}

@@ -211,6 +211,7 @@ main.onboarding {
 			font-size: max(1rem, 1vw);
 			height: 2.5em;
 			padding: 0 2vw;
+			margin: 0.5rem 0;
 		}
 		&.at-start {
 			button {

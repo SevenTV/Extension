@@ -28,6 +28,12 @@ export const step: OnboardingStepRoute = {
 main {
 	display: grid;
 	justify-content: center;
-	width: 100%;
+	max-width: 44rem;
+
+	margin: 0 20%;
+
+	@media screen and (max-width: 1000px) {
+		margin: 0 1rem;
+	}
 }
 </style>
