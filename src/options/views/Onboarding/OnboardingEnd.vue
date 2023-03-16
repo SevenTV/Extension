@@ -79,7 +79,7 @@ function onOpenDiscordInvite(): void {
 
 function openReviewLink(): void {
 	switch (ua.browser.name) {
-		case "firefox":
+		case "Firefox":
 			chrome.tabs.create({ url: "https://addons.mozilla.org/en-US/firefox/addon/7tv/" });
 			break;
 
