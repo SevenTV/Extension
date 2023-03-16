@@ -92,7 +92,9 @@ export class WorkerDriver extends EventTarget {
 				this.http
 					.fetchConfig()
 					.then((cfg) => {
-						p.postMessage("CONFIG", cfg); // send config data to port
+						setTimeout(() => {
+							p.postMessage("CONFIG", cfg); // send config data to port
+						}, 3000); // TODO: Improve this, it should just be based on events from the page
 					})
 					.catch((e) => log.error("<API>", "Failed to fetch config:", e.status));
 			}
