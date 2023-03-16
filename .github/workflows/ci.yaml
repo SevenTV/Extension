@@ -18,6 +18,11 @@ on:
                 description: "Nightly Release"
                 default: true
 
+            release:
+                type: boolean
+                description: "Stable Release"
+                default: false
+
             store-upload:
                 type: boolean
                 default: false
@@ -128,7 +133,7 @@ jobs:
         name: Create Release
         runs-on: aws-runner
         needs: [ci]
-        if: ${{ (inputs.nightly) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+        if: ${{ (inputs.nightly) || (inputs.release) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
         steps:
             - uses: actions/checkout@v3
@@ -146,8 +151,14 @@ jobs:
                       mv "$file" "7tv-webextension-$file"
                   done
 
-            - name: Create release
-              id: create_release
+            - run: |
+                  echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
+                  cat ./package.json >> $GITHUB_ENV
+                  echo 'EOF' >> $GITHUB_ENV
+
+            - name: Create Nightly Release
+              if: ${{ inputs.nightly || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+              id: create_nightly_release
               uses: ncipollo/release-action@v1.12.0
               with:
                   removeArtifacts: true
@@ -159,16 +170,30 @@ jobs:
                   name: Nightly Release
                   tag: nightly-release
 
-            - name: Update Tag
+            - name: Update Nightly Tag
+              if: ${{ inputs.nightly || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
               run: |
                   git tag -f nightly-release
                   git push -f origin nightly-release
+
+            - name: Create Release
+              if: ${{ inputs.release }}
+              id: create_release
+              uses: ncipollo/release-action@v1.12.0
+              with:
+                  artifactErrorsFailBuild: true
+                  artifacts: "ext/*"
+                  body: ${{ github.event.head_commit.message }}
+                  prerelease: false
+                  draft: true
+                  name: v${{ fromJson(env.PACKAGE_JSON).version }}
+                  tag: v${{ fromJson(env.PACKAGE_JSON).version }}
 
     push:
         name: Submit to CWS/AMO
         runs-on: aws-runner
         needs: [ci, release]
-        if: ${{ inputs.store-upload }}
+        if: ${{ inputs.store-upload && inputs.nightly }}
 
         steps:
             - uses: actions/checkout@v3
