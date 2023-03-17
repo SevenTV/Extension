@@ -1,0 +1,95 @@
+locale: English (United States)
+
+# Onboarding Page
+# A page that is shown to new users to help them get started with 7TV
+#
+# Displayed when the user first installs the extension, or has upgraded to 3.0 from a 2.x.x version
+onboarding:
+    # Onboarding - Start
+    # The first page of the onboarding process
+    start_title: Welcome on board!
+    start_title_upgraded: Hey there again!
+    start_subtitle: |
+        Thank you for downloading 7TV.
+        Let us take you on a quick tour of the extension to customize your experience.
+    start_subtitle_upgraded: Welcome to version 3.0.0! 7TV has just gotten a big upgrade. Check out what's new...
+    start_skip_note: (...or you can skip this altogether if you're already a pro)
+    start_skip_note_upgraded: (sorry, we hope that didn't disturb whatever you were doing)
+    start_skip_note_upgraded_quirky: but this update is so good
+
+    # Onboarding - Platforms
+    # This page lets the user select which platforms they want to enable 7TV on
+    platforms_title: Platform Selection
+    platforms_subtitle: |
+        Select the plaforms onto which you'd like to enable 7TV.
+        We'll configure the extension's permissions for you.
+    platforms_mutable_note: |
+        After confirming, we may ask you for additional permissions. You can change this later at any time.
+
+    # Onboarding - Config
+    # This page lets the user set up initial settings
+    config_title: Customize Your Experience
+    config_subtitle: |
+        We'll ask you a few questions and recommend you some settings to get you started. You can change these
+        later at any time.
+    config_new_chat_advisory: 7TV introduces a completely new, high-performance chat experience.
+    config_emphasize-bad-compat: This may prevent modifications by other extensions from working.
+    config_bear_with_us1: We are working on improving compatibility.
+    config_bear_with_us2: Let us know what we're missing.
+    config_answer_button_yes: Yes
+    config_answer_button_no: No
+    config_action_button: Configure
+    config_question:
+        chatter: Are you active in chat?
+        chatter_autocompletion: Configure Auto-Completion
+        chatter_look: Configure how the chat looks
+        chatter_ping: How do you want to be notified when you are mentioned?
+        chatter_spam: You might find these options useful as an active chatter
+        moderator: Do you moderate communities?
+        moderator_utility: These settings may be relevant to you as a moderator
+        streamer: Are you a streamer?
+        streamer_utility: You might find these options useful as a streamer
+
+    # Onboarding - Compatibility
+    # This page lets the user check for compatibility issues with their extensions
+    compat_title: Compatibility
+    compat_subtitle: |
+        Check your browser extensions for compatibility issues. This is optional.
+
+    # Onboarding - Promotion
+    # This page advertises the 7TV Subscription
+    promo_cta: Become a Subscriber!
+    promo_plead: |
+        7TV offers everyone a virtually unlimited space for emotes for free!
+        While completely optional, subscriptions are what lets us keep this service running
+        and continue improving your viewing experience. Check out the benefits and consider subscribing!
+    promo_nametag_paints: Nametag Paints
+    promo_nametag_paints_tooltip: Don't let the streamer miss your message, paints add extra glitter on your username in chat!
+    promo_nametag_paints_caveat: Paints are timed releases and the specific paint on this photo may not be currently available
+    promo_personal_emotes: Personal Emotes
+    promo_personal_emotes_tooltip: Get customizable emotes that you can use globally, across any channel!
+    promo_badges: Subscriber Badges
+    promo_badges_tooltip: A sleek evolving branded subscriber badge will show up next to your name
+    promo_animated_avatars: Animated Avatars
+    promo_animated_avatars_tooltip: Add a custom animated profile picture of your choice and get noticed
+    promo_subscribe: Subscribe
+    promo_reject: Maybe later
+
+    # Onboarding - End
+    # The last page of the onboarding process, featuring some call to actions
+    # for following social media and leaving a review on the extension store
+    end_title: You're all set!
+    end_subtitle: We hope you'll enjoy the Extension
+    end_social_media1: Social Media
+    end_social_media2: Follow us for updates
+    end_review1: Give us a review
+    end_review2: Let us know if you appreciate the extension
+
+    button_platforms: Platforms
+    button_changelog: Changelog
+    button_confirm: Confirm
+    button_skip: Skip
+    button_next: Next
+    button_done: Done
+    button_join: Join
+    button_review: Review

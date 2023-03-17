@@ -4,30 +4,27 @@
 			<Logo7TV />
 		</div>
 		<div class="feature-text">
-			<h1>{{ isUpgraded ? "Hey there again!" : "Welcome on board!" }}</h1>
-			<p v-if="isUpgraded">
-				Welcome to version 3.0.0! 7TV has just gotten a big upgrade. Check out what's new...
-			</p>
-			<p v-else>
-				Thank you for downloading 7TV. Let us take you on a quick tour of the extension to customize your
-				experience.
-			</p>
+			<h1 v-t="isUpgraded ? 'onboarding.start_title_upgraded' : 'onboarding.start_title'" />
+			<p v-t="isUpgraded ? 'onboarding.start_subtitle_upgraded' : 'onboarding.start_subtitle'" />
 
-			<span v-if="isUpgraded">
-				(sorry, we hope that didn't disturb whatever you were doing)
-				<span :style="{ fontSize: '0.75rem' }">but this update is so good</span>
+			<span>
+				<span v-t="isUpgraded ? 'onboarding.start_skip_note_upgraded' : 'onboarding.start_skip_note'" />
+				<span
+					v-if="isUpgraded"
+					v-t="'onboarding.start_skip_note_upgraded_quirky'"
+					:style="{ marginLeft: '0.5rem', fontSize: '0.75rem' }"
+				/>
 			</span>
-			<span v-else>(...or you can skip this altogether if you're already a pro)</span>
 		</div>
 
 		<div class="feature-buttons">
 			<UiButton class="ui-button-hollow" @click="skipConfig">
-				<span>Skip</span>
+				<span v-t="'onboarding.button_skip'" />
 			</UiButton>
 
 			<RouterLink :to="{ name: 'Onboarding', params: { step: isUpgraded ? 'changelog' : 'platforms' } }">
 				<UiButton class="ui-button-important">
-					<span>{{ isUpgraded ? "Explore" : "Platforms" }}</span>
+					<span v-t="isUpgraded ? 'onboarding.button_changelog' : 'onboarding.button_platforms'" />
 					<template #icon>
 						<ChevronIcon direction="right" />
 					</template>

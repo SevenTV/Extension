@@ -1,11 +1,8 @@
 <template>
 	<main class="onboarding-platforms">
 		<div class="header">
-			<h1>Platform Selection</h1>
-			<p>
-				Select the plaforms onto which you'd like to enable 7TV. We'll configure the extension's permissions for
-				you.
-			</p>
+			<h1 v-t="'onboarding.platforms_title'" />
+			<p v-t="'onboarding.platforms_subtitle'" />
 		</div>
 		<div class="sites">
 			<div
@@ -18,9 +15,7 @@
 				<component :is="platform.icon" />
 			</div>
 		</div>
-		<div class="data">
-			After confirming, we may ask you for additional permissions. You can change this later at any time.
-		</div>
+		<div v-t="'onboarding.platforms_mutable_note'" class="data" />
 	</main>
 </template>
 

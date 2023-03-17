@@ -1,0 +1,107 @@
+name: Crowdin Sync
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - master
+    schedule:
+        - cron: "0 */6 * * *"
+
+jobs:
+    upload:
+        runs-on: ubuntu-latest
+        if: ${{ github.event_name != 'schedule' }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - uses: dorny/paths-filter@v2
+              id: changes
+              with:
+                  filters: |
+                      crowdin:
+                        - 'locale/en_US.yaml'
+
+            - name: crowdin action
+              if: steps.changes.outputs.crowdin == 'true'
+              uses: crowdin/github-action@1.5.2
+              with:
+                  upload_sources: true
+                  upload_translations: false
+                  download_translations: false
+                  source: locale/en_US.yaml
+                  translation: extension/%locale_with_underscore%.yaml
+                  token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+                  project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
+
+    download:
+        name: Synchronize with Crowdin*
+        if: ${{ github.event_name == 'schedule' }}
+        runs-on: ubuntu-latest
+        env:
+            UPDATE_BRANCH: ci/update-locale
+            BASE_BRANCH: dev
+        steps:
+            - name: Setup Node
+              uses: actions/setup-node@v3.5.1
+              with:
+                  node-version: 18
+
+            - name: Install Dependencies
+              run: |
+                  yarn global add prettier ts-node @types/node typescript
+
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Change branch to the update branch
+              id: commits
+              run: |
+                  git pull
+                  echo "::set-output name=base::$(git rev-parse origin/${{ env.BASE_BRANCH }})"
+                  git rev-parse --quiet origin/${{ env.UPDATE_BRANCH }} || git branch ${{ env.UPDATE_BRANCH }}
+                  git checkout ${{ env.UPDATE_BRANCH }}
+                  echo "::set-output name=update::$(git rev-parse ${{ env.UPDATE_BRANCH }}~)"
+
+            - name: Use the base branch instead
+              if: ${{ steps.commits.outputs.base != steps.commits.outputs.update }}
+              run: |
+                  git checkout ${{ env.BASE_BRANCH }}
+
+            - name: Download Crowdin Translations
+              uses: crowdin/github-action@1.5.2
+              with:
+                  upload_sources: false
+                  upload_translations: false
+                  download_translations: true
+                  create_pull_request: false
+                  source: locale/en_US.yaml
+                  translation: extension/%locale_with_underscore%.yaml
+                  token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+                  project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
+                  push_translations: false
+
+            - name: Generate Hashes
+              run: |
+                  sudo chown -R $(id -u):$(id -g) locale
+                  ts-node -O '{"module": "commonjs"}' scripts/generate_hash.ts
+                  prettier --write locale
+
+            - name: Count lines
+              id: count
+              run: |
+                  echo "::set-output name=lines::$(git status --porcelain | wc -l)"
+
+            - name: Create Pull Request
+              if: ${{ steps.count.outputs.lines != '0' }}
+              uses: peter-evans/create-pull-request@v4
+              with:
+                  title: "[CI] New Crowdin Translations"
+                  body: The latest approved translations from Crowdin
+                  base: ${{ env.BASE_BRANCH }}
+                  branch: ${{ env.UPDATE_BRANCH }}
+                  commit-message: Add new locales
+                  delete-branch: true
+                  add-paths: |
+                      locale/*

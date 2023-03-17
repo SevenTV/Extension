@@ -1,8 +1,8 @@
 <template>
 	<main class="onboarding-end">
 		<div class="header">
-			<h1>You're all set!</h1>
-			<p>We hope you'll enjoy using the Extension</p>
+			<h1 v-t="'onboarding.end_title'" />
+			<p v-t="'onboarding.end_subtitle'" />
 		</div>
 		<div v-show="discord.loaded" class="discord">
 			<h2>
@@ -16,26 +16,26 @@
 					<LogoBrandDiscord />
 				</template>
 
-				<span>JOIN</span>
+				<span v-t="'onboarding.button_join'" />
 			</UiButton>
 		</div>
 		<div class="rate">
 			<h2>
-				Give us a review
-				<sub>Let us know if you appreciate the extension</sub>
+				{{ t("onboarding.end_review1") }}
+				<sub v-t="'onboarding.end_review2'" />
 			</h2>
 
 			<div class="stars" @click="openReviewLink">
 				<StarIcon v-for="k in Array(5)" :key="k" />
 			</div>
 			<UiButton @click="openReviewLink">
-				<span>REVIEW</span>
+				<span v-t="'onboarding.button_review'" />
 			</UiButton>
 		</div>
 		<div class="social">
 			<h2>
-				Social Media
-				<sub>Follow us for updates</sub>
+				{{ t("onboarding.end_social_media1") }}
+				<sub v-t="'onboarding.end_social_media2'" />
 			</h2>
 
 			<div>
@@ -53,6 +53,9 @@ import LogoBrandDiscord from "@/assets/svg/logos/LogoBrandDiscord.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import { useUserAgent } from "@/composable/useUserAgent";
 import LogoBrandTwitter from "@/assets/svg/logos/LogoBrandTwitter.vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 useOnboarding("platforms");
 const ua = useUserAgent();
