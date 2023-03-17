@@ -1,11 +1,13 @@
 import { BranchName, getManifest } from "./manifest.config";
 import { appName, getFullVersion, r } from "./vite.utils";
+import vuei18n from "@intlify/unplugin-vue-i18n/vite";
 import vue from "@vitejs/plugin-vue";
 import fs from "fs-extra";
 import path from "path";
 import { defineConfig, loadEnv } from "vite";
 
 const ignoreHMR = [
+	"index.ts",
 	"main.ts",
 	"idb.ts",
 	"versions.idb.ts",
@@ -61,6 +63,8 @@ export default defineConfig(() => {
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "src"),
+				"@locale": path.resolve(__dirname, "locale"),
+				"vue-i18n": "vue-i18n/dist/vue-i18n.runtime.esm-bundler.js",
 			},
 		},
 
@@ -99,6 +103,9 @@ export default defineConfig(() => {
 
 		plugins: [
 			vue(),
+			vuei18n({
+				include: r("./locale/*"),
+			}),
 
 			{
 				name: "hmr-ignore",
