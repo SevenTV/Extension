@@ -2,12 +2,10 @@ name: Crowdin Sync
 
 on:
     workflow_dispatch:
-    pull_request:
-        branches:
-            - feat/anatole/i18n
     push:
         branches:
             - master
+            - feat/anatole/i18n
     schedule:
         - cron: "0 */6 * * *"
 
