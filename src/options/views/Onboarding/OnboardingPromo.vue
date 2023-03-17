@@ -1,31 +1,17 @@
 <template>
 	<main class="onboarding-promo">
 		<div class="header">
-			<h1>Become a Subscriber!</h1>
-			<sub>
-				7TV offers everyone a virtually unlimited space for emotes for free! While completely optional,
-				subscriptions are what lets us keep this service running and continue improving your viewing experience.
-				Check out the benefits and consider subscribing!
-			</sub>
+			<h1 v-t="'onboarding.promo_cta'" />
+			<sub v-t="'onboarding.promo_plead'" />
 		</div>
 		<div class="cards">
 			<!-- Paints -->
-			<div
-				v-tooltip="
-					'Don\'t let the streamer miss your message, paints add extra glitter on your username in chat!'
-				"
-				class="card-box"
-				name="paints"
-			>
+			<div v-tooltip="t('onboarding.promo_nametag_paints_tooltip')" class="card-box" name="paints">
 				<span class="seventv-painted-content" :data-seventv-painted-text="true">CoolChatter777</span>
 			</div>
 
 			<!-- Personal Emotes -->
-			<div
-				v-tooltip="'Get customizable emotes that you can use globally, across any channel!'"
-				class="card-box"
-				name="personal-emotes"
-			>
+			<div v-tooltip="t('onboarding.promo_personal_emotes_tooltip')" class="card-box" name="personal-emotes">
 				<div>
 					<img src="https://cdn.7tv.app/emote/6042089e77137b000de9e669/2x.webp" />
 				</div>
@@ -38,20 +24,12 @@
 			</div>
 
 			<!-- Badges -->
-			<div
-				v-tooltip="'A sleek evolving branded subscriber badge will show up next to your name'"
-				class="card-box"
-				name="badges"
-			>
+			<div v-tooltip="t('onboarding.promo_badges_tooltip')" class="card-box" name="badges">
 				<VectorBadge :background="{ component: BgBadge3 }" :logo="{ color: 'white' }" />
 			</div>
 
 			<!-- Animated Avatars -->
-			<div
-				v-tooltip="'Add a custom animated profile picture of your choice and get noticed'"
-				class="card-box"
-				name="animated-avatars"
-			>
+			<div v-tooltip="t('onboarding.promo_animated_avatars_tooltip')" class="card-box" name="animated-avatars">
 				<div>
 					<img src="https://cdn.7tv.app/emote/630393c6dd2e5e55608ef9f6/2x.webp" />
 				</div>
@@ -59,27 +37,20 @@
 
 			<div class="card-explain">
 				<p>
-					Nametag Paints
-					<span
-						v-tooltip="
-							'Paints are timed releases and the specific paint on this photo may not be currently available'
-						"
-						class="asterisk-note"
-					>
-						*
-					</span>
+					{{ t("onboarding.promo_nametag_paints") }}
+					<span v-tooltip="t('onboarding.promo_nametag_paints_caveat')" class="asterisk-note"> * </span>
 				</p>
 			</div>
-			<div class="card-explain">Personal Emotes</div>
-			<div class="card-explain">Subscriber Badges</div>
-			<div class="card-explain">Animated Avatars</div>
+			<div class="card-explain">{{ t("onboarding.promo_personal_emotes") }}</div>
+			<div class="card-explain">{{ t("onboarding.promo_badges") }}</div>
+			<div class="card-explain">{{ t("onboarding.promo_animated_avatars") }}</div>
 		</div>
 		<div class="interact">
 			<UiButton class="interact-subscribe" @click="onSubscribeClick">
-				<span>Subscribe</span>
+				<span v-t="'onboarding.promo_subscribe'" />
 			</UiButton>
 			<UiButton class="ui-button-hollow interact-skip" @click="onSkipClick">
-				<span>Maybe later</span>
+				<span v-t="'onboarding.promo_reject'" />
 			</UiButton>
 		</div>
 		<div class="footer"></div>
@@ -91,6 +62,8 @@ const emit = defineEmits<{
 	(e: "completed"): void;
 }>();
 
+const { t } = useI18n();
+
 function onSubscribeClick(): void {
 	window.open("https://7tv.app/store", "_blank");
 }
@@ -101,6 +74,7 @@ function onSkipClick(): void {
 </script>
 
 <script lang="ts">
+import { useI18n } from "vue-i18n";
 import BgBadge3 from "@/assets/svg/seventv/BgBadge3.vue";
 import VectorBadge from "@/assets/svg/seventv/VectorBadge.vue";
 import { OnboardingStepRoute } from "./Onboarding";

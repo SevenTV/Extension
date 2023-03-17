@@ -1,8 +1,8 @@
 <template>
 	<main class="onboarding-compat">
 		<div class="header">
-			<h1>Compatibility</h1>
-			<p>Check your browser extensions for compatibility issues. This is optional.</p>
+			<h1 v-t="'onboarding.compat_title'" />
+			<p v-t="'onboarding.compat_subtitle'" />
 		</div>
 
 		<div class="compat">

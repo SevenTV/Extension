@@ -1,5 +1,4 @@
 <template>
-	{{ t("hello") }}
 	<main class="seventv-options" :class="{ 'no-header': noHeader }">
 		<div class="general-heading">
 			<div class="app-title">
@@ -15,13 +14,10 @@
 
 <script setup lang="ts">
 import { provide, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import Tooltip from "@/site/global/Tooltip.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import { OPTIONS_CONTEXT_KEY } from "./keys";
-
-const { t } = useI18n();
 
 provide(OPTIONS_CONTEXT_KEY, true);
 

@@ -1,23 +1,18 @@
 <template>
 	<main class="onboarding-config">
 		<div class="header">
-			<h1>Customize Your Experience</h1>
-			<p>
-				We'll ask you a few questions and recommend you some settings to get you started. You can change these
-				later at any time.
-			</p>
+			<h1 v-t="'onboarding.config_title'" />
+			<p v-t="'onboarding.config_subtitle'" />
 		</div>
 
 		<div class="settings">
 			<div v-if="!acknowledgements.has('new-chat')" class="new-chat-advisory">
-				<strong>7TV introduces a completely new, high-performance chat experience.</strong>
-				<span class="emphasize-bad-compat">
-					This may prevent modifications by other extensions from working.
-				</span>
-				<span>
-					We are working on improving compatibility.
-					<a href="https://discord.gg/7tv" target="_blank">Let us know what we're missing</a>.
-				</span>
+				<strong v-t="'onboarding.config_new_chat_advisory'" />
+				<span v-t="'onboarding.config_emphasize-bad-compat'" class="emphasize-bad-compat" />
+				<div>
+					<p v-t="'onboarding.config_bear_with_us1'" />
+					<a v-t="'onboarding.config_bear_with_us2'" href="https://discord.gg/7tv" target="_blank" />
+				</div>
 
 				<span></span>
 
@@ -25,7 +20,7 @@
 					<template #icon>
 						<GearsIcon />
 					</template>
-					<span>CONFIGURE</span>
+					<span v-t="'onboarding.config_action_button'" />
 				</UiButton>
 			</div>
 
@@ -36,10 +31,10 @@
 
 						<div v-if="currentQuestion.kind === 'either'" class="options">
 							<UiButton @click="onAnswer(currentQuestion!, true)">
-								<span>Yes</span>
+								<span v-t="'onboarding.config_answer_button_yes'" />
 							</UiButton>
 							<UiButton @click="onAnswer(currentQuestion!, false)">
-								<span>No</span>
+								<span v-t="'onboarding.config_answer_button_no'" />
 							</UiButton>
 						</div>
 
@@ -56,7 +51,7 @@
 							</UiScrollable>
 
 							<UiButton @click="onAnswer(currentQuestion!, true)">
-								<span>Confirm</span>
+								<span v-t="'onboarding.button_confirm'" />
 							</UiButton>
 						</div>
 					</div>
@@ -71,6 +66,7 @@ const emit = defineEmits<{
 	(e: "completed"): void;
 }>();
 
+const { t } = useI18n();
 const { setCompleted, setLock } = useOnboarding("config");
 
 const settings = useSettings();
@@ -82,7 +78,7 @@ const questions = ref<Question[]>([
 	{
 		id: "active-chatter",
 		kind: "either",
-		title: "Are you active in chat?",
+		title: t("onboarding.config_question.chatter"),
 		immediateConfigEffect: [
 			["highlights.basic.mention_sound", true],
 			["highlights.basic.mention_title_flash", true],
@@ -98,7 +94,7 @@ const questions = ref<Question[]>([
 			"chat_input.autocomplete.carousel_arrow_keys",
 			"chat_input.autocomplete.chatters",
 		],
-		title: "Configure Auto-Completion",
+		title: t("onboarding.config_question.chatter_autocompletion"),
 		if: ["active-chatter"],
 	},
 	{
@@ -112,14 +108,14 @@ const questions = ref<Question[]>([
 			"chat.padding",
 			"chat.colored_mentions",
 		],
-		title: "Configure how the chat looks",
+		title: t("onboarding.config_question.chatter_look"),
 		if: ["active-chatter"],
 	},
 	{
 		id: "chatter-config-ping",
 		kind: "config",
 		configEffect: ["highlights.basic.mention_title_flash", "highlights.basic.mention_sound"],
-		title: "How do you want to be notified when you are mentioned?",
+		title: t("onboarding.config_question.chatter_ping"),
 		if: ["active-chatter"],
 	},
 	{
@@ -130,25 +126,25 @@ const questions = ref<Question[]>([
 			"chat_input.spam.bypass_duplicate",
 			"chat_input.spam.rapid_fire_send",
 		],
-		title: "You might find these options useful as an active chatter",
+		title: t("onboarding.config_question.chatter_spam"),
 		if: ["active-chatter"],
 	},
 	{
 		id: "moderator",
 		kind: "either",
-		title: "Do you moderate communities?",
+		title: t("onboarding.config_question.moderator"),
 	},
 	{
 		id: "moderator-config",
 		kind: "config",
-		title: "These settings may be relevant to you as a moderator",
+		title: t("onboarding.config_question.moderator_utility"),
 		if: ["moderator"],
 		configEffect: ["chat.mod_slider"],
 	},
 	{
 		id: "streamer",
 		kind: "either",
-		title: "Are you a streamer?",
+		title: t("onboarding.config_question.streamer"),
 		immediateConfigEffect: [
 			// turn off ping effects if user is a streamer
 			["general.blur_unlisted_emotes", true],
@@ -160,7 +156,7 @@ const questions = ref<Question[]>([
 	{
 		id: "streamer-config",
 		kind: "config",
-		title: "These settings may be relevant to you as a streamer",
+		title: t("onboarding.config_question.streamer_utility"),
 		if: ["streamer"],
 		configEffect: [
 			"general.blur_unlisted_emotes",
@@ -249,6 +245,7 @@ interface Question {
 
 <script lang="ts">
 import { reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTimeoutFn } from "@vueuse/shared";
 import { useConfig, useSettings } from "@/composable/useSettings";
 import SettingsNode from "@/site/global/settings/SettingsNode.vue";
