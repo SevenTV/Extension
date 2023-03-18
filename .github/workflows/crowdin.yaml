@@ -10,6 +10,7 @@ on:
 
 jobs:
     upload:
+        name: Crowdin - Upload
         runs-on: ubuntu-latest
         if: ${{ github.event_name != 'schedule' }}
         steps:
@@ -36,12 +37,12 @@ jobs:
                   project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
 
     download:
-        name: Synchronize with Crowdin*
+        name: Crowdin - Pull latest changes
         if: ${{ github.event_name == 'schedule' }}
         runs-on: ubuntu-latest
         env:
             UPDATE_BRANCH: ci/update-locale
-            BASE_BRANCH: dev
+            BASE_BRANCH: master
         steps:
             - name: Setup Node
               uses: actions/setup-node@v3.5.1
