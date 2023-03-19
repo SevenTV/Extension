@@ -8,14 +8,14 @@
 			</h3>
 		</div>
 
-		<div class="seventv-change-notes">
+		<div ref="contentRef" class="seventv-change-notes">
 			<span v-html="content" />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watchEffect } from "vue";
+import { inject, nextTick, ref, watchEffect } from "vue";
 import { SITE_ASSETS_URL } from "@/common/Constant";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { marked } from "marked";
@@ -30,17 +30,39 @@ const content = ref("");
 
 const assetsBase = inject(SITE_ASSETS_URL, "");
 
+const contentRef = ref<HTMLElement>();
 watchEffect(() => {
 	content.value = marked.parse(changelogRaw.value, {
 		walkTokens: (tok) => {
 			if (tok.type === "image" && tok.href.charAt(0) === "~" && assetsBase) {
-				tok.href = assetsBase + tok.href.slice(1);
+				tok.href = updateMediaHref(tok.href);
 			}
 		},
 		gfm: true,
 		breaks: true,
 	});
+
+	nextTick(() => {
+		if (!contentRef.value) return;
+
+		// Update video sources
+		const videos = contentRef.value.querySelectorAll("video");
+		videos.forEach((vid) => {
+			const src = vid.getElementsByTagName("source")[0] as HTMLSourceElement;
+			if (!src) return;
+
+			src.src = updateMediaHref(src.getAttribute("x-src") ?? src.src);
+		});
+	});
 });
+
+function updateMediaHref(value: string): string {
+	if (value.charAt(0) === "~" && assetsBase) {
+		return assetsBase + value.slice(1);
+	}
+
+	return value;
+}
 </script>
 
 <style scoped lang="scss">

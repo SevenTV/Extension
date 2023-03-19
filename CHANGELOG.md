@@ -9,7 +9,7 @@ We've made chat run faster, by rebuilding it from the ground up. Let your proces
 </span>
 
 <video autoplay muted loop>
-	<source src="chrome-extension://ggidlimppdlndlkpepmcfdcmcennfnoi/assets/picture/cgl_display_chat.webm" />
+	<source x-src="~/picture/cgl_display_chat.webm" />
 </video>
 
 #### New Emote Menu

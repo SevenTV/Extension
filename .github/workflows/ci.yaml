@@ -183,9 +183,15 @@ jobs:
               with:
                   artifactErrorsFailBuild: true
                   artifacts: "ext/*"
-                  body: ${{ github.event.head_commit.message }}
+                  allowUpdates: true
                   prerelease: false
                   draft: true
+                  omitBodyDuringUpdate: true
+                  omitDraftDuringUpdate: true
+                  omitNameDuringUpdate: true
+                  omitPrereleaseDuringUpdate: true
+                  replacesArtifacts: true
+                  body: ${{ github.event.head_commit.message }}
                   name: v${{ fromJson(env.PACKAGE_JSON).version }}
                   tag: v${{ fromJson(env.PACKAGE_JSON).version }}
 
