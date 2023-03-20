@@ -18,10 +18,30 @@ definePropertyHook(window as Window & { ffz?: FFZGlobalScope }, "ffz", {
 		log.info("<FFZ-Compat>", "FrankerFaceZ detected—patching for compatibility. woof");
 
 		try {
-			disableChatProcessing();
 			createOverrides();
+			disableChatProcessing();
 		} catch (e) {
 			log.error("<FFZ-Compat>", "Error occured patching FrankerFaceZ:", (e as Error).message);
+		}
+
+		class SeventvAddonOverride extends FrankerFaceZ.utilities.addon.Addon {}
+
+		if (!("FrankerFaceZ" in window)) return;
+		try {
+			SeventvAddonOverride.register({
+				id: "7tv-emotes",
+				name: "7TV",
+				author: "7TV",
+				description:
+					"The 7TV Extension is installed! We've patched some things to make sure it works well with FrankerFaceZ.",
+				version: "0.0.0",
+				website: "https://7tv.app",
+				settings: "add_ons.7tv_emotes",
+			});
+
+			log.info("<FFZ-Compat>", "Disabled FrankerFaceZ Add-On for 7TV");
+		} catch (e) {
+			void 0;
 		}
 	},
 });
@@ -107,9 +127,12 @@ function createOverrides(): void {
 
 	// Set up config toggles
 	profile.set("toggled", true);
-	profile.set("chat.inline-preview.enabled", false); // this disables ffz's inline emote preview, as it corrupts twitch internals
-	profile.set("chat.emote-menu.enabled", false); // this disables ffz's emote menu to avoid clash
+	profile.set("chat.emote-menu.enabled", false); // this disables the emote menu to avoid clash
 	profile.set("chat.scrollback-length", 1); // this prevents an issue with ffz's scroller delaying messages
+	profile.set("chat.tab-complete.emoji", false); // this disables tab completion, as it clashes
+	profile.set("chat.tab-complete.ffz-emotes", false);
+	profile.set("chat.mru.enabled", false); // this disables history navigation, as it may clash
+	profile.set("chat.emotes.enabled", false); // this disables emotes, as they serve zero purpose
 
 	// Move profile to top
 	if (typeof settings.moveProfile === "function") {
@@ -184,22 +207,3 @@ export interface FFZAddonsManager {
 }
 
 declare const FrankerFaceZ: any;
-
-// set up empty add-on to prevent the loading of ffz's distributed addon
-if ("FrankerFaceZ" in window && FrankerFaceZ.utilities?.addon?.Addon) {
-	class SeventvAddonOverride extends FrankerFaceZ.utilities.addon.Addon {}
-
-	try {
-		SeventvAddonOverride.register({
-			id: "7tv-emotes",
-			name: "7TV",
-			author: "7TV",
-			description: "This addon does nothing, as the 7TV extension is installed.",
-			version: "0.0.0",
-			website: "https://7tv.app",
-			settings: "add_ons.7tv_emotes",
-		});
-	} catch (e) {
-		void 0;
-	}
-}

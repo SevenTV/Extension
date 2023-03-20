@@ -1,3 +1,8 @@
+### Version 3.0.1.1000
+
+-   Fixed an issue which caused duplicate colon-complete matches with FFZ
+-   Fixed an issue that caused tab-completion to break with FFZ
+
 ### Version 3.0.0.19000 (Beta 19 RC)
 
 This build is a **release candidate**.
