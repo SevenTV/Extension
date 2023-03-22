@@ -207,7 +207,10 @@ db.ready().then(async () => {
 
 	// Wait for a given cosmetic's data to become available
 	function awaitCosmetic(id: SevenTV.ObjectID) {
-		return data.cosmetics[id] ? Promise.resolve(data.cosmetics[id]) : until(data.cosmetics[id]).not.toBeUndefined();
+		const cos = data.cosmetics[id];
+		if (cos) return Promise.resolve(cos);
+
+		return until(() => data.cosmetics[id]).not.toBeUndefined();
 	}
 
 	// Get the list of cosmetics for a given entitlement kind
