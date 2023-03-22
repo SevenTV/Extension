@@ -93,3 +93,6 @@ onboarding:
     button_done: Done
     button_join: Join
     button_review: Review
+
+emote_menu:
+    native: Open Native Menu
