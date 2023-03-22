@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watch } from "vue";
+import { inject, nextTick, ref, watch } from "vue";
 import { useBreakpoints } from "@vueuse/core";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
@@ -136,9 +136,10 @@ function navigateToCategory(name: string, scrollpoint?: string) {
 	}
 
 	ctx.switchView("config");
+	ctx.scrollpoint = "";
 	ctx.category = name;
 
-	if (scrollpoint) ctx.scrollpoint = scrollpoint;
+	if (scrollpoint) nextTick(() => (ctx.scrollpoint = scrollpoint));
 }
 
 function sortNodes(filter?: string) {
@@ -226,7 +227,7 @@ watch([settings.nodes, filter], () => sortNodes(filter.value), { immediate: true
 	max-height: calc(100vh - 10rem);
 	pointer-events: all;
 
-	background: var(--seventv-background-lesser-transparent-1);
+	background: var(--seventv-background-shade-1);
 	border-radius: 0.25rem;
 	outline: 0.1rem solid var(--seventv-border-transparent-1);
 }

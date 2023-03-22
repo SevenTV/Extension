@@ -10,6 +10,7 @@ class SettingsMenuContext {
 
 	category = "";
 	scrollpoint = "";
+	intersectingSubcategory = "";
 
 	mappedNodes: Record<string, Record<string, SevenTV.SettingNode[]>> = reactive({
 		Home: {},

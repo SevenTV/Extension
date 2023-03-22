@@ -1,20 +1,5 @@
 <template>
 	<div class="seventv-settings-node" tabindex="0" :disabled="node.disabledIf?.()" :grid-mode="node.custom?.gridMode">
-		<!--
-		<div class="seventv-settings-node-wrapper">
-			<div class="seventv-settings-node-items">
-				<div class="seventv-settings-node-label">
-					<span class="seventv-settings-node-label-text">
-						{{ node.label }}
-					</span>
-					<div class="seventv-settings-node-label-hint" :tooltip="node.hint">ⓘ</div>
-				</div>
-				<div class="seventv-settings-node-component-container">
-					<component :is="getComponent(node)" :node="node" />
-				</div>
-			</div>
-		</div>
-		-->
 		<div class="label">
 			<div class="title">
 				{{ node.label }}
@@ -27,7 +12,7 @@
 			<component :is="node.custom.component" />
 		</div>
 		<div v-else class="control">
-			<component :is="getComponent(node)" :node="node" />
+			<component :is="com" :node="node" />
 		</div>
 	</div>
 </template>
@@ -40,7 +25,7 @@ import FormSelect from "@/site/global/settings/control/FormSelect.vue";
 import FormSlider from "@/site/global/settings/control/FormSlider.vue";
 import FormToggle from "@/site/global/settings/control/FormToggle.vue";
 
-defineProps<{
+const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
 }>();
 
@@ -55,9 +40,7 @@ const standard = {
 	NONE: undefined,
 };
 
-function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
-	return standard[node.type] ?? node.custom?.component;
-}
+const com = standard[props.node.type] ?? props.node.custom?.component;
 </script>
 
 <style scoped lang="scss">
@@ -71,11 +54,10 @@ function getComponent(node: SevenTV.SettingNode<SevenTV.SettingType>) {
 		"content content";
 	row-gap: 1rem;
 	padding: 0.25rem 0;
-	border-radius: 0.5rem;
 
 	transition: background-color 90ms ease-out;
 	&:hover {
-		background-color: rgba(0, 0, 0, 25%);
+		background-color: hsla(0deg, 0%, 0%, 10%);
 	}
 
 	&[disabled="true"] {
