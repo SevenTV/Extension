@@ -4,6 +4,8 @@
 -   Sidebar sub-categories in the settings menu will now highlight what's in view
 -   Chat History should now load more consistently
 -   Pressing escape while the emote menu is open now closes it
+-   Fixed an issue where Twitch badges sometimes failed to load
+-   Fixed an issue where Twitch emotes sometimes failed to load
 -   Fixed an issue which caused duplicate colon-complete matches with FFZ
 -   Fixed an issue that caused tab-completion to break with FFZ
 -   Fixed an issue where emotes in colon-complete wouldn't load on Mozilla Firefox
