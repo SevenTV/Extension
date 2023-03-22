@@ -49,6 +49,7 @@ import { useChatTools } from "@/composable/chat/useChatTools";
 import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
+import { MessageType } from "@/site/twitch.tv";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
@@ -238,7 +239,7 @@ if (a instanceof ObserverPromise) {
 }
 
 const messageBufferComponent = ref<Twitch.MessageBufferComponent | null>(null);
-const messageBufferComponentDbc = refDebounced(messageBufferComponent, 200);
+const messageBufferComponentDbc = refDebounced(messageBufferComponent, 100);
 
 watch(messageBufferComponentDbc, (msgBuf, old) => {
 	if (old && msgBuf !== old) {
@@ -247,16 +248,14 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 	} else if (msgBuf) {
 		definePropertyHook(msgBuf, "buffer", {
 			value(buffer) {
-				// Wait until historical messages have loaded
-				if (msgBuf.props.isLoadingHistoricalMessages) return;
-
+				if (!buffer.length) return;
 				const historical = [] as ChatMessage[];
 
 				for (const msg of buffer) {
 					const m = new ChatMessage(msg.id);
 
 					// If the message is historical we add it to the array and continue
-					if ((msg as Twitch.ChatMessage).isHistorical || msg.type > 0) {
+					if ((msg as Twitch.ChatMessage).isHistorical || msg.type === MessageType.CONNECTED) {
 						m.historical = true;
 						chatList.value?.onChatMessage(m, msg as Twitch.ChatMessage, false);
 
