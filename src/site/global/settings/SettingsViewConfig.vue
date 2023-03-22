@@ -1,20 +1,13 @@
 <template>
-	<div class="seventv-settings-view-container">
+	<div v-if="ctx.mappedNodes[ctx.category]" class="seventv-settings-view-container">
 		<UiScrollable>
-			<template v-if="ctx.mappedNodes[ctx.category]">
-				<div
-					v-for="[s, sn] of Object.entries(ctx.mappedNodes[ctx.category])"
-					:key="s"
-					class="seventv-settings-subcategory"
-				>
-					<h3 v-if="s" :id="s" ref="subcategoryRefs" class="seventv-settings-subcategory-header">
-						{{ s }}
-					</h3>
-					<template v-for="node of sn" :key="node.key">
-						<SettingsNode :node="node" />
-					</template>
-				</div>
-			</template>
+			<div
+				v-for="[key, nodes] of Object.entries(ctx.mappedNodes[ctx.category])"
+				:key="key"
+				class="seventv-settings-subcategory"
+			>
+				<SettingsViewConfigCat ref="subCats" :name="key" :nodes="nodes" />
+			</div>
 		</UiScrollable>
 	</div>
 </template>
@@ -22,16 +15,17 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useSettingsMenu } from "./Settings";
-import SettingsNode from "./SettingsNode.vue";
+import SettingsViewConfigCat from "./SettingsViewConfigCat.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const ctx = useSettingsMenu();
-const subcategoryRefs = ref<HTMLElement[]>([]);
+const subCats = ref<InstanceType<typeof SettingsViewConfigCat>[]>([]);
 
 watch(
 	() => ctx.scrollpoint,
 	() => {
-		subcategoryRefs.value.find((r) => r.id == ctx.scrollpoint)?.scrollIntoView();
+		// handle click on subcategory: scroll into view
+		subCats.value.find((r) => r.name == ctx.scrollpoint)?.scrollIntoView();
 	},
 );
 </script>
@@ -45,28 +39,8 @@ watch(
 		flex-grow: 1;
 	}
 }
-.seventv-settings-subcategory {
-	.seventv-settings-subcategory-header {
-		position: sticky;
-		top: 0;
-		background: var(--seventv-background-transparent-1);
-		backdrop-filter: blur(0.25rem);
-		z-index: 1;
 
-		display: flex;
-		flex-direction: column;
-		padding: 1rem;
-
-		&:after {
-			content: "";
-			width: 100%;
-			padding-bottom: 0.5rem;
-			border-bottom: 0.1rem solid hsla(0deg, 0%, 70%, 32%);
-		}
-		// box-shadow: 0 0.25rem 0.1rem hsla(0deg, 0%, 0%, 0.25);
-	}
-	&:last-child {
-		margin-bottom: 10rem;
-	}
+.seventv-settings-subcategory:last-child {
+	margin-bottom: 30%;
 }
 </style>

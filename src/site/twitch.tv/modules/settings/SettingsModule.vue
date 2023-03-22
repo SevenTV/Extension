@@ -37,11 +37,10 @@ export const config = [
 <style scoped lang="scss">
 .settings-menu-enter-active,
 .settings-menu-leave-active {
-	transition: transform 240ms linear, opacity 320ms;
+	transition: opacity 120ms;
 }
 .settings-menu-enter-from,
 .settings-menu-leave-to {
 	opacity: 0;
-	transform: scale(0) translateX(100%) translateY(-100%) skewX(45deg);
 }
 </style>
