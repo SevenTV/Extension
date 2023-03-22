@@ -1,6 +1,6 @@
 <template>
 	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
-		<div v-if="open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
+		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
 				<div class="seventv-emote-menu-header">
@@ -49,9 +49,9 @@
 
 	<!-- Replace the emote menu button -->
 	<Teleport v-if="buttonEl" :to="buttonEl">
-		<div class="seventv-emote-menu-button" :class="{ 'menu-open': open }" @click.stop="toggle()">
+		<div class="seventv-emote-menu-button" :class="{ 'menu-open': ctx.open }" @click.stop="toggle()">
 			<Logo provider="7TV" />
-			<div v-if="!updater.isUpToDate && !open" class="seventv-emote-menu-update-flair" />
+			<div v-if="!updater.isUpToDate && !ctx.open" class="seventv-emote-menu-update-flair" />
 		</div>
 	</Teleport>
 </template>
@@ -87,7 +87,6 @@ ctx.channelID = props.instance.component.props.channelID ?? "";
 const settingsContext = useSettingsMenu();
 const updater = useUpdater();
 
-const open = ref(false);
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
@@ -115,11 +114,11 @@ function toggle(native?: boolean) {
 	const t = props.instance.component;
 	if (native) {
 		t.onEmotePickerButtonClick();
-		open.value = false;
+		ctx.open = false;
 		return;
 	}
 
-	if (open.value) {
+	if (ctx.open) {
 		t.props.closeEmotePicker();
 	} else {
 		t.props.clearMenus();
@@ -128,7 +127,7 @@ function toggle(native?: boolean) {
 		t.closeCheerCard();
 	}
 
-	open.value = !open.value;
+	ctx.open = !ctx.open;
 	nextTick(() => {
 		if (!searchInputRef.value) return;
 
@@ -163,13 +162,13 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 
 defineFunctionHook(props.instance.component, "onBitsIconClick", function (old) {
 	old?.();
-	open.value = false;
+	ctx.open = false;
 });
 
 // This captures the current input typed by the user
 definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 	value(v: typeof props.instance.component.autocompleteInputRef.state) {
-		if (!open.value) {
+		if (!ctx.open) {
 			ctx.filter = "";
 
 			return;
@@ -193,7 +192,7 @@ onClickOutside(containerRef, (e) => {
 		return;
 	}
 
-	open.value = false;
+	ctx.open = false;
 });
 
 // Capture anchor / input elements

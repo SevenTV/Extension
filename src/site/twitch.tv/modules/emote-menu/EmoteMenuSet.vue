@@ -23,7 +23,9 @@
 				:set-id="es.id"
 				:emote-id="ae.id"
 				:zero-width="(ae.flags || 0 & 256) !== 0"
-				@click="!isEmoteDisabled(es, ae) && emit('emote-clicked', ae)"
+				tabindex="0"
+				@click="onInsertEmote(ae)"
+				@keydown.enter.prevent="onInsertEmote(ae)"
 			>
 				<template v-if="loaded[ae.id]">
 					<Emote :emote="ae" :unload="!loaded[ae.id]" />
@@ -35,7 +37,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from "vue";
-import { until, useTimeout } from "@vueuse/core";
+import { onKeyDown, until, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
@@ -99,6 +101,15 @@ const filterEmotes = debounceFn((filter = "") => {
 function isEmoteDisabled(set: SevenTV.EmoteSet, ae: SevenTV.ActiveEmote) {
 	return set.scope === "PERSONAL" && ae.data && ae.data.state && !ae.data.state.includes("PERSONAL");
 }
+
+function onInsertEmote(ae: SevenTV.ActiveEmote): void {
+	if (isEmoteDisabled(props.es, ae)) return;
+	emit("emote-clicked", ae);
+}
+
+onKeyDown("Escape", () => {
+	ctx.open = false;
+});
 
 watchEffect(() => filterEmotes(ctx.filter));
 
