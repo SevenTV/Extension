@@ -1,5 +1,6 @@
 ### Version 3.0.1.1000
 
+-   Added a button to toggle the native Twitch Emote Menu
 -   Fixed an issue which caused duplicate colon-complete matches with FFZ
 -   Fixed an issue that caused tab-completion to break with FFZ
 

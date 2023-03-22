@@ -18,8 +18,8 @@
 							</div>
 						</template>
 					</div>
-					<div v-if="!inputSearch" class="emote-search">
-						<input v-model="ctx.filter" class="emote-search-input" />
+					<div v-if="!isSearchInputEnabled" class="emote-search">
+						<input ref="searchInputRef" v-model="ctx.filter" class="emote-search-input" />
 						<div class="search-icon">
 							<SearchIcon />
 						</div>
@@ -40,6 +40,7 @@
 						@emote-clicked="onEmoteClick"
 						@provider-visible="onProviderVisibilityChange(key, $event)"
 						@toggle-settings="settingsContext.toggle()"
+						@toggle-native-menu="toggle(true)"
 					/>
 				</div>
 			</div>
@@ -48,7 +49,7 @@
 
 	<!-- Replace the emote menu button -->
 	<Teleport v-if="buttonEl" :to="buttonEl">
-		<div class="seventv-emote-menu-button" :class="{ 'menu-open': open }" @click.stop="toggle">
+		<div class="seventv-emote-menu-button" :class="{ 'menu-open': open }" @click.stop="toggle()">
 			<Logo provider="7TV" />
 			<div v-if="!updater.isUpToDate && !open" class="seventv-emote-menu-update-flair" />
 		</div>
@@ -56,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, reactive, ref, watchEffect } from "vue";
+import { nextTick, onUnmounted, reactive, ref, watchEffect } from "vue";
 import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
@@ -87,8 +88,9 @@ const settingsContext = useSettingsMenu();
 const updater = useUpdater();
 
 const open = ref(false);
+const searchInputRef = ref<HTMLInputElement | undefined>();
 
-const inputSearch = useConfig<boolean>("ui.emote_menu_search");
+const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
 
 const activeProvider = ref<SevenTV.Provider | null>("7TV");
 const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
@@ -109,9 +111,14 @@ onKeyStroke("e", (ev) => {
 });
 
 // Toggle the menu's visibility
-function toggle() {
-	// Close other stuff if we open the emote menu
+function toggle(native?: boolean) {
 	const t = props.instance.component;
+	if (native) {
+		t.onEmotePickerButtonClick();
+		open.value = false;
+		return;
+	}
+
 	if (open.value) {
 		t.props.closeEmotePicker();
 	} else {
@@ -122,6 +129,11 @@ function toggle() {
 	}
 
 	open.value = !open.value;
+	nextTick(() => {
+		if (!searchInputRef.value) return;
+
+		searchInputRef.value.focus();
+	});
 }
 
 // Handle change in the visibility of a provider while using search
@@ -139,7 +151,7 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 
 	let current = inputRef.getValue();
 
-	if (inputSearch.value) {
+	if (isSearchInputEnabled.value) {
 		current = current.slice(0, ctx.filter.length ? ctx.filter.length * -1 : Infinity);
 	} else {
 		current = current.at(-1) === " " ? current : current + " ";
@@ -163,7 +175,7 @@ definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 			return;
 		}
 
-		if (!inputSearch.value) return;
+		if (!isSearchInputEnabled.value) return;
 
 		ctx.filter = v.value.split(" ").at(-1) ?? "";
 	},

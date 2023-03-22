@@ -5,6 +5,7 @@ import App from "@/site/App.vue";
 import { apolloClient } from "@/apollo/apollo";
 import { TextPaintDirective } from "@/directive/TextPaintDirective";
 import { TooltipDirective } from "@/directive/TooltipDirective";
+import { setupI18n } from "@/i18n";
 import { ApolloClients } from "@vue/apollo-composable";
 
 const appID = Date.now().toString();
@@ -62,6 +63,7 @@ app.provide(SITE_ASSETS_URL, extensionOrigin + "assets");
 app.provide(SITE_EXT_OPTIONS_URL, extensionOrigin + "index.html");
 
 app.use(createPinia())
+	.use(setupI18n())
 	.directive("tooltip", TooltipDirective)
 	.directive("cosmetic-paint", TextPaintDirective)
 	.mount("#seventv-root");

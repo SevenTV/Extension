@@ -1,6 +1,12 @@
 <template>
 	<div class="emote-area-container">
 		<UiScrollable class="scroll-area">
+			<!-- Native Menu Toggle -->
+			<div v-if="provider === 'TWITCH'" class="native-menu-toggle" @click="emit('toggle-native-menu')">
+				<Logo provider="TWITCH" />
+				<span v-t="'emote_menu.native'" />
+			</div>
+
 			<div class="emote-area">
 				<div v-for="es of sortedSets" :key="es.id" v-memo="[ctx.filter, es.emotes, selected]">
 					<EmoteMenuSet
@@ -61,6 +67,7 @@ const emit = defineEmits<{
 	(event: "emote-clicked", emote: SevenTV.ActiveEmote): void;
 	(event: "provider-visible", state: boolean): void;
 	(event: "toggle-settings"): void;
+	(event: "toggle-native-menu"): void;
 }>();
 
 const ctx = useEmoteMenuContext();
@@ -151,6 +158,29 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 .scroll-area {
 	width: 28rem;
 	flex-shrink: 0;
+}
+
+.native-menu-toggle {
+	display: inline-block;
+	text-align: center;
+	grid-template-columns: 3rem 1fr;
+	width: 100%;
+	padding: 0.25rem 1rem;
+	cursor: pointer;
+
+	transition: background 0.2s ease-in-out;
+
+	svg,
+	span {
+		display: inline-block;
+		vertical-align: middle;
+		font-size: 1.25rem;
+		margin: 0.5rem;
+	}
+
+	&:hover {
+		background: hsla(0deg, 0%, 50%, 6%);
+	}
 }
 
 .sidebar {
