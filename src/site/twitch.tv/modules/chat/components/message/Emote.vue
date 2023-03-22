@@ -6,7 +6,9 @@
 			class="seventv-chat-emote"
 			:srcset="unload ? '' : srcset"
 			:alt="emote.name"
-			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
+			:class="{ blur: hideUnlisted && emote.data?.listed === false, loading: !loaded }"
+			:width="scaledWidth"
+			:height="scaledHeight"
 			@load="onImageLoad"
 			@mouseenter="onShowTooltip"
 			@mouseleave="hide()"
@@ -41,14 +43,14 @@
 				:emit-clickout="true"
 				@clickout="showEmoteCard = false"
 			>
-				<EmoteCard :emote="emote" :size="[width, height]" />
+				<EmoteCard :emote="emote" :size="[baseWidth, baseHeight]" />
 			</UiFloating>
 		</template>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
@@ -65,64 +67,99 @@ const props = withDefaults(
 		format?: SevenTV.ImageFormat;
 		overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
 		unload?: boolean;
+		scale?: number;
 	}>(),
-	{ unload: false },
+	{ unload: false, scale: 1 },
 );
 
 const emit = defineEmits<{
 	(event: "emote-click", ev: MouseEvent, ae: SevenTV.ActiveEmote): void;
 }>();
 
-const boxRef = ref<HTMLImageElement | HTMLUnknownElement>();
-const showEmoteCard = ref(false);
-
 const hideUnlisted = useConfig<boolean>("general.blur_unlisted_emotes");
 
-const src = ref("");
-const srcset = ref(props.emote.data?.host.srcset);
-if (!srcset.value && props.emote.data?.host) {
-	srcset.value = imageHostToSrcset(props.emote.data.host, props.emote.provider, undefined, 2);
-}
+const boxRef = ref<HTMLImageElement | HTMLUnknownElement>();
+const showEmoteCard = ref(false);
+const cardPos = ref<[number, number]>([0, 0]);
 
 const imgEl = ref<HTMLImageElement>();
-const width = ref(0);
-const height = ref(0);
-const cardPos = ref<[number, number]>([0, 0]);
+
+const src = ref("");
+const srcset = ref("");
+
+const loaded = ref(false);
+
+const targetSize = ref(1);
+const offsetScale = ref(1);
+
+const baseWidth = ref(0);
+const baseHeight = ref(0);
+
+const naturalWidth = ref(0);
+const naturalHeight = ref(0);
+
+const scaledWidth = ref(0);
+const scaledHeight = ref(0);
+
+watchEffect(() => {
+	targetSize.value = Math.ceil(props.scale);
+	offsetScale.value = props.scale / targetSize.value;
+
+	if (props.emote.data?.host) {
+		if (targetSize.value != 1 || !props.emote.data.host.srcset) {
+			srcset.value = imageHostToSrcset(
+				props.emote.data.host,
+				props.emote.provider,
+				undefined,
+				2,
+				targetSize.value,
+			);
+		} else {
+			srcset.value = props.emote.data.host.srcset;
+		}
+	}
+});
+
+watchEffect(() => {
+	scaledWidth.value = naturalWidth.value * offsetScale.value;
+	scaledHeight.value = naturalHeight.value * offsetScale.value;
+});
 
 const onImageLoad = (event: Event) => {
 	if (!(event.target instanceof HTMLImageElement)) return;
 
-	imgEl.value = event.target;
+	const img = event.target;
+
+	baseWidth.value = Math.round(img.naturalWidth / targetSize.value);
+	baseHeight.value = Math.round(img.naturalHeight / targetSize.value);
+
+	naturalWidth.value = img.naturalWidth;
+	naturalHeight.value = img.naturalHeight;
+
+	src.value = img.currentSrc;
+
+	imgEl.value = img;
+
+	loaded.value = true;
 };
 
 function onShowEmoteCard(ev: MouseEvent) {
 	if (!props.clickable) return;
 
-	determineImageSize();
 	showEmoteCard.value = true;
 	cardPos.value = [ev.clientX, ev.clientY];
 }
 
 function onShowTooltip() {
-	determineImageSize();
-
 	show(boxRef.value);
-}
-
-function determineImageSize() {
-	if (imgEl.value) {
-		width.value = imgEl.value.clientWidth;
-		height.value = imgEl.value.clientHeight;
-		src.value = imgEl.value.currentSrc;
-	}
 }
 
 const { show, hide } = useTooltip(EmoteTooltip, {
 	emote: props.emote,
 	initSrc: src,
 	overlaid: props.overlaid,
-	width: width,
-	height: height,
+	width: baseWidth,
+	height: baseHeight,
 });
 </script>
 
@@ -143,6 +180,8 @@ svg.seventv-emoji {
 	grid-row: 1;
 	margin: auto;
 
+	object-fit: contain;
+
 	&:hover {
 		cursor: pointer;
 	}
@@ -155,6 +194,10 @@ img.blur {
 
 img.zero-width-emote {
 	pointer-events: none;
+}
+
+img.loading {
+	display: none;
 }
 
 .seventv-emote-card-float {

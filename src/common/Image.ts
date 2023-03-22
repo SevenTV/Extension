@@ -2,7 +2,7 @@ import { useUserAgent } from "@/composable/useUserAgent";
 
 const layout = {
 	TWITCH: [1, 2, 3],
-	"7TV": [1, 2, 3],
+	"7TV": [1, 2, 3, 4],
 	FFZ: [1, 2, 4],
 	BTTV: [1, 2, 4],
 	EMOJI: [],
@@ -15,20 +15,38 @@ export function imageHostToSrcset(
 	provider: SevenTV.Provider = "7TV",
 	format?: SevenTV.ImageFormat,
 	maxSize?: number,
+	targetSize = 1,
 ): string {
-	if (known[host.url]) return known[host.url];
+	if (targetSize === 1 && known[host.url]) return known[host.url];
 
 	const { preferredFormat } = useUserAgent();
 
-	const v = (provider === "7TV" ? host.files.filter((f) => f.format === format ?? preferredFormat) : host.files)
-		.slice(0, maxSize || layout[provider][layout[provider].length - 1])
-		.reduce(
-			(pre, cur, i, a) => pre + `https:${host.url}/${cur.name} ${layout[provider][i]}x` + (a[i + 1] ? ", " : ""),
-			"",
-		);
+	let sizes = host.files;
 
-	known[host.url] = v;
-	return v;
+	if (provider === "7TV") {
+		sizes = sizes.filter((f) => f.format === (format ?? preferredFormat));
+	}
+
+	let srcset = "";
+	for (let i = 0; i < sizes.length; i++) {
+		const size = sizes[i];
+
+		let multiplier = layout[provider][i];
+		if (!multiplier) break;
+
+		if (maxSize && multiplier > targetSize && multiplier > maxSize) break;
+
+		if (targetSize) {
+			if (multiplier < targetSize) continue;
+			else multiplier /= targetSize;
+		}
+
+		if (srcset) srcset += ", ";
+		srcset += `https:${host.url}/${size.name} ${multiplier}x`;
+	}
+
+	if (targetSize === 1) known[host.url] = srcset;
+	return srcset;
 }
 
 export function imageHostToSrcsetWithsize(
