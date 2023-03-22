@@ -21,7 +21,7 @@ onboarding:
     # This page lets the user select which platforms they want to enable 7TV on
     platforms_title: Platform Selection
     platforms_subtitle: |
-        Select the plaforms onto which you'd like to enable 7TV.
+        Select the platforms onto which you'd like to enable 7TV.
         We'll configure the extension's permissions for you.
     platforms_mutable_note: |
         After confirming, we may ask you for additional permissions. You can change this later at any time.
