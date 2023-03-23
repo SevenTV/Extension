@@ -4,6 +4,7 @@
 -   Chat History should now load more consistently
 -   Fixed an issue which caused duplicate colon-complete matches with FFZ
 -   Fixed an issue that caused tab-completion to break with FFZ
+-   Added visual settings for highlighted messages, allows changing opacity and over-all style
 
 ### Version 3.0.0.19000 (Beta 19 RC)
 
@@ -34,7 +35,6 @@ This build is a **release candidate**.
 #### Beta 19.5
 
 -   Legacy static cosmetics should now be visible again
-
 
 #### Beta 19.4
 
