@@ -101,7 +101,7 @@ onUnmounted(() => {
 
 <style lang="scss">
 .seventv-sidebar-tooltip-preview {
-	margin: 2px 0px;
+	margin: 2px 0;
 	border-radius: 4px;
 	width: 100%;
 	padding-bottom: 56.25%;
