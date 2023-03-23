@@ -84,8 +84,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, toRef, watch, watchEffect } from "vue";
+import { ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
+import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
 import type { AnyToken, ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
@@ -134,6 +135,7 @@ const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");
 const highlightStyle = useConfig<number>("highlights.display_style");
+const highlightOpacity = useConfig<number>("highlights.opacity");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
@@ -223,12 +225,15 @@ function getPart(part: AnyToken) {
 	}
 }
 
-onMounted(() => {
+watchEffect(() => {
 	if (!msg.value || !msgEl.value) return;
 
 	if (msg.value.highlight) {
 		msgEl.value.style.setProperty("--seventv-highlight-color", msg.value.highlight.color);
-		msgEl.value.style.setProperty("--seventv-highlight-dim-color", msg.value.highlight.dimColor);
+		msgEl.value.style.setProperty(
+			"--seventv-highlight-dim-color",
+			msg.value.highlight.color.concat(SetHexAlpha(highlightOpacity.value / 100)),
+		);
 	}
 });
 </script>

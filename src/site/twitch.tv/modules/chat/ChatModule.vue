@@ -298,6 +298,17 @@ export const config = [
 		],
 		defaultValue: 0,
 	}),
+	declareConfig<number>("highlights.opacity", "SLIDER", {
+		path: ["Highlights", "Style"],
+		label: "Highlight Opacity",
+		hint: "Change how bright highlights apear in chat",
+		options: {
+			min: 0,
+			max: 100,
+			step: 1,
+		},
+		defaultValue: 10,
+	}),
 	declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
 		path: ["Appearance", "Vanity"],
 		label: "Nametag Paints",
