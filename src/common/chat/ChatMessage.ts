@@ -1,6 +1,5 @@
 import { defineComponent, markRaw } from "vue";
 import { Tokenizer } from "@/common/chat/Tokenizer";
-import { SetHexAlpha } from "../Color";
 import { v1 as uuidv1 } from "uuid";
 
 export const NullComponent = defineComponent({});
@@ -82,7 +81,6 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public setHighlight(color: string, label: string): void {
 		this.highlight = {
 			color,
-			dimColor: color.concat(SetHexAlpha(0.1)),
 			label,
 		};
 	}
@@ -122,7 +120,6 @@ export interface ChatUser {
 
 interface Highlight {
 	color: string;
-	dimColor: string;
 	label: string;
 }
 
