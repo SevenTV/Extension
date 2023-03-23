@@ -48,25 +48,26 @@
 	</UiFloating>
 
 	<!-- Replace the emote menu button -->
-	<Teleport v-if="buttonEl" :to="buttonEl">
+	<Teleport v-if="buttonEl && placement === 'regular'" :to="buttonEl">
+		<EmoteMenuButton @click="toggle()" />
 		<div class="seventv-emote-menu-button" :class="{ 'menu-open': ctx.open }" @click.stop="toggle()">
 			<Logo provider="7TV" />
-			<div v-if="!updater.isUpToDate && !ctx.open" class="seventv-emote-menu-update-flair" />
 		</div>
 	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onUnmounted, reactive, ref, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
 import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
-import useUpdater from "@/composable/useUpdater";
 import { useSettingsMenu } from "@/site/global/settings/Settings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import EmoteMenuButton from "./EmoteMenuButton.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 import UiFloating from "@/ui/UiFloating.vue";
@@ -85,7 +86,6 @@ const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.props.channelID ?? "";
 
 const settingsContext = useSettingsMenu();
-const updater = useUpdater();
 
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
@@ -98,6 +98,21 @@ const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
 	BTTV: true,
 	TWITCH: true,
 	EMOJI: true,
+});
+
+const placement = useConfig<"regular" | "below" | "hidden">("ui.emote_menu.button_placement");
+const inputModule = getModuleRef("chat-input-controller");
+onMounted(() => {
+	if (!inputModule.value.instance) return;
+
+	inputModule.value.instance.addButton(
+		"emote-menu",
+		EmoteMenuButton,
+		{
+			onClick: () => (ctx.open = !ctx.open),
+		},
+		1,
+	);
 });
 
 // Shortcut (ctrl+e)
@@ -215,8 +230,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-@import "@/assets/style/flair.scss";
-
 .seventv-emote-menu-button {
 	display: grid;
 	place-items: center;
@@ -227,16 +240,6 @@ onUnmounted(() => {
 	transition: color 150ms ease-in-out;
 	&.menu-open {
 		color: var(--seventv-primary);
-	}
-
-	> .seventv-emote-menu-update-flair {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		width: 0.75rem;
-		height: 0.75rem;
-
-		@include flair-pulsating(#3eed58);
 	}
 }
 

@@ -7,7 +7,7 @@ import { useLiveQuery } from "./useLiveQuery";
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
 
-const ffzSettings = useFrankerFaceZ();
+const ffz = useFrankerFaceZ();
 
 function toConfigRef<T extends SevenTV.SettingType>(key: string, defaultValue?: T): Ref<T> {
 	return customRef<T>((track, trigger) => {
@@ -66,9 +66,9 @@ export function synchronizeFrankerFaceZ() {
 	const keys = Object.keys(nodes);
 	for (let i = 0; i < keys.length; i++) {
 		const n = nodes[Object.keys(nodes)[i]];
-		if (!n.ffz_key) continue;
+		if (!n.ffz_key || raw[n.key]) continue;
 
-		ffzSettings.getConfigChanges(n.ffz_key, (v) => {
+		ffz.getConfigChanges(n.ffz_key, (v) => {
 			raw[n.key] = typeof n.ffz_transform === "function" ? n.ffz_transform(v) : (v as SevenTV.SettingType);
 		});
 	}

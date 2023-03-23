@@ -1,6 +1,8 @@
 ### Version 3.0.1.1000 Nightly
 
--   Added a button to toggle the native Twitch Emote Menu
+-   Added a button to open the native Twitch Emote Menu
+-   Added an option to change where the 7TV Emote Menu Button appears
+-   Added an option to modify the scale of emotes in chat
 -   Sidebar sub-categories in the settings menu will now highlight what's in view
 -   Chat History should now load more consistently
 -   Pressing escape while the emote menu is open now closes it

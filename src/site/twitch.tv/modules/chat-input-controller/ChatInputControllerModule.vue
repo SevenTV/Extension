@@ -1,6 +1,6 @@
 <template>
-	<template v-for="({ parent, component, props }, i) of tButtons" :key="i">
-		<Teleport v-if="parent.current" :to="parent.current">
+	<template v-for="({ parent, component, props, condition }, i) of tButtons.values()" :key="i">
+		<Teleport v-if="parent.current && (typeof condition !== 'function' || condition())" :to="parent.current">
 			<Component :is="component" v-bind="props" />
 		</Teleport>
 	</template>
@@ -18,7 +18,7 @@ const { markAsReady } = declareModule("chat-input-controller", {
 });
 
 // Button renderer
-const tButtons = reactive(new Set<InsertedButton<ComponentFactory>>());
+const tButtons = reactive(new Map<string, InsertedButton<ComponentFactory>>());
 useComponentHook<Twitch.ChatInputControllerComponent>(
 	{
 		parentSelector: ".chat-input",
@@ -41,7 +41,7 @@ useComponentHook<Twitch.ChatInputControllerComponent>(
 				const buttons = child.props.children.at(-1);
 				if (!buttons) return cur;
 
-				for (const btn of tButtons) {
+				for (const btn of tButtons.values()) {
 					buttons.props.children.splice(buttons.props.children.length - btn.offset, 0, {
 						[REACT_TYPEOF_TOKEN]: REACT_ELEMENT_SYMBOL,
 						key: null,
@@ -62,24 +62,35 @@ useComponentHook<Twitch.ChatInputControllerComponent>(
  *
  * @param offset value begins from the end
  */
-function addButton<T extends ComponentFactory>(com: T, props: InstanceType<T>["$props"], offset: number) {
+function addButton<T extends ComponentFactory>(
+	key: string,
+	com: T,
+	props: InstanceType<T>["$props"],
+	offset: number,
+	condition?: () => boolean,
+) {
 	const track = ref({ current: null as HTMLElement | null });
 
-	tButtons.add({
-		offset,
-		parent: track.value,
-		component: markRaw(com),
-		props,
-	});
+	if (tButtons)
+		tButtons.set(key, {
+			key,
+			offset,
+			parent: track.value,
+			component: markRaw(com),
+			props,
+			condition: condition ?? (() => true),
+		});
 
 	return track;
 }
 
 interface InsertedButton<T extends ComponentFactory> {
+	key: string;
 	offset: number;
 	parent: { current: Element | null };
 	component: InstanceType<T>;
 	props: InstanceType<T>["props"];
+	condition?: () => boolean;
 }
 
 defineExpose({
