@@ -21,6 +21,7 @@ import {
 	defineFunctionHook,
 	defineNamedEventHandler,
 	definePropertyHook,
+	definePropertyProxy,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
@@ -594,11 +595,29 @@ defineFunctionHook(props.instance.component, "componentDidUpdate", function (thi
 	return args;
 });
 
+definePropertyProxy(props.instance.component.componentRef, "props", {
+	get: (obj, prop) => {
+		switch (prop) {
+			case "emotes":
+				//Prevent Slate input from seeing misbehaving FFZ emotes
+				return obj[prop].filter(
+					(set: Twitch.TwitchEmoteSet) => set.id !== "FrankerFaceZWasHere" && set.id !== "BETTERTTV_EMOTES",
+				);
+			default:
+				return obj[prop];
+		}
+	},
+});
+
 onUnmounted(() => {
 	const component = props.instance.component;
 
 	unsetPropertyHook(component, "onEditableValueUpdate");
 	unsetPropertyHook(component, "props");
+
+	if (component.componentRef) {
+		unsetPropertyHook(component.componentRef, "props");
+	}
 
 	const rootNode = props.instance.domNodes.root;
 	if (rootNode instanceof HTMLElement) {

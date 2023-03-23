@@ -334,6 +334,7 @@ declare module Twitch {
 			onChange: (v: any) => void;
 			onKeyDown: (v: any) => void;
 			onValueUpdate: (v: any) => void;
+			emotes: TwitchEmoteSet[];
 			value: string;
 			placeholder: string;
 			paddingLeft: number;
