@@ -131,7 +131,7 @@ export const config = [
 		label: "Emote Scale",
 		ffz_key: "chat.emotes.2x",
 		ffz_transform(v: unknown) {
-			return v && v > 0 ? 2 : 1;
+			return typeof v === "number" && v > 0 ? 2 : 1;
 		},
 		hint: "Change how large emotes should be in chat, as a multiple of their original size.",
 		options: {
