@@ -36,10 +36,7 @@ export function imageHostToSrcset(
 
 		if (maxSize && multiplier > targetSize && multiplier > maxSize) break;
 
-		if (targetSize) {
-			if (multiplier < targetSize) continue;
-			else multiplier /= targetSize;
-		}
+		multiplier /= targetSize;
 
 		if (srcset) srcset += ", ";
 		srcset += `https:${host.url}/${size.name} ${multiplier}x`;

@@ -2,13 +2,10 @@
 	<div ref="boxRef" class="seventv-emote-box">
 		<img
 			v-if="!emote.unicode && emote.data && emote.data.host"
-			v-show="srcset"
 			class="seventv-chat-emote"
-			:srcset="unload ? '' : srcset"
+			:srcset="unload ? '' : processSrcSet(emote)"
 			:alt="emote.name"
-			:class="{ blur: hideUnlisted && emote.data?.listed === false, loading: !loaded }"
-			:width="scaledWidth"
-			:height="scaledHeight"
+			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
 			@load="onImageLoad"
 			@mouseenter="onShowTooltip"
 			@mouseleave="hide()"
@@ -20,6 +17,7 @@
 			ref="boxRef"
 			:alt="emote.name"
 			class="seventv-chat-emote seventv-emoji"
+			:style="{ width: `${scale * 2}rem`, height: `${scale * 2}rem` }"
 			@mouseenter="onShowTooltip"
 			@mouseleave="hide()"
 		/>
@@ -29,7 +27,7 @@
 				v-if="e.data && e.data.host"
 				class="seventv-chat-emote zero-width-emote"
 				:class="{ blur: hideUnlisted && e.data?.listed === false }"
-				:srcset="e.data.host.srcset ?? imageHostToSrcset(e.data.host, emote.provider)"
+				:srcset="processSrcSet(e)"
 				:alt="' ' + e.name"
 			/>
 		</template>
@@ -50,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref } from "vue";
 import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
@@ -85,63 +83,34 @@ const cardPos = ref<[number, number]>([0, 0]);
 const imgEl = ref<HTMLImageElement>();
 
 const src = ref("");
-const srcset = ref("");
-
-const loaded = ref(false);
-
-const targetSize = ref(1);
-const offsetScale = ref(1);
 
 const baseWidth = ref(0);
 const baseHeight = ref(0);
-
-const naturalWidth = ref(0);
-const naturalHeight = ref(0);
-
-const scaledWidth = ref(0);
-const scaledHeight = ref(0);
-
-watchEffect(() => {
-	targetSize.value = Math.ceil(props.scale);
-	offsetScale.value = props.scale / targetSize.value;
-
-	if (props.emote.data?.host) {
-		if (targetSize.value != 1 || !props.emote.data.host.srcset) {
-			srcset.value = imageHostToSrcset(
-				props.emote.data.host,
-				props.emote.provider,
-				undefined,
-				2,
-				targetSize.value,
-			);
-		} else {
-			srcset.value = props.emote.data.host.srcset;
-		}
-	}
-});
-
-watchEffect(() => {
-	scaledWidth.value = naturalWidth.value * offsetScale.value;
-	scaledHeight.value = naturalHeight.value * offsetScale.value;
-});
 
 const onImageLoad = (event: Event) => {
 	if (!(event.target instanceof HTMLImageElement)) return;
 
 	const img = event.target;
 
-	baseWidth.value = Math.round(img.naturalWidth / targetSize.value);
-	baseHeight.value = Math.round(img.naturalHeight / targetSize.value);
-
-	naturalWidth.value = img.naturalWidth;
-	naturalHeight.value = img.naturalHeight;
+	baseWidth.value = Math.round(img.naturalWidth / props.scale);
+	baseHeight.value = Math.round(img.naturalHeight / props.scale);
 
 	src.value = img.currentSrc;
 
 	imgEl.value = img;
-
-	loaded.value = true;
 };
+
+function processSrcSet(emote: SevenTV.ActiveEmote) {
+	if (emote.data?.host) {
+		if (props.scale != 1 || !emote.data.host.srcset) {
+			return imageHostToSrcset(emote.data.host, emote.provider, undefined, 2, props.scale);
+		} else {
+			return emote.data.host.srcset;
+		}
+	}
+
+	return "";
+}
 
 function onShowEmoteCard(ev: MouseEvent) {
 	if (!props.clickable) return;
@@ -194,10 +163,6 @@ img.blur {
 
 img.zero-width-emote {
 	pointer-events: none;
-}
-
-img.loading {
-	display: none;
 }
 
 .seventv-emote-card-float {
