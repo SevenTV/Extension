@@ -85,7 +85,7 @@ function onCategoryClick(): void {
 	}
 
 	&[in-view="true"] > .settings-category-header {
-		background-color: hsla(0deg, 0, 20%, 20%);
+		background-color: hsla(0deg, 0%, 20%, 20%);
 	}
 
 	.seventv-settings-category-icon {

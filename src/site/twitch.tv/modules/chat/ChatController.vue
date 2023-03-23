@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onUnmounted, reactive, ref, toRaw, toRefs, watch, watchEffect } from "vue";
+import { nextTick, onBeforeUnmount, onUnmounted, ref, toRaw, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
@@ -113,24 +113,17 @@ watchEffect(() => {
 	containerEl.value = rootNode as HTMLElement;
 });
 
-const dataSets = reactive({
-	badges: false,
-});
-
 const messageHandler = ref<Twitch.MessageHandlerAPI | null>(null);
 definePropertyHook(props.list.component, "props", {
 	value(v) {
 		messageHandler.value = v.messageHandlerAPI;
-		if (!dataSets.badges) {
-			// Find message to grab some data
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
-			if (!msgItem?.badgeSets?.count) return;
 
-			properties.twitchBadgeSets = msgItem.badgeSets;
+		// Find message to grab some data
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
+		if (!msgItem?.badgeSets?.count) return;
 
-			dataSets.badges = true;
-		}
+		properties.twitchBadgeSets = msgItem.badgeSets;
 	},
 });
 
@@ -202,7 +195,7 @@ definePropertyHook(controller.value.component, "props", {
 			});
 
 			// Run message content patching middleware
-			for (const fn of mod.instance?.messageSendMiddleware ?? []) {
+			for (const fn of mod.instance?.messageSendMiddleware.values() ?? []) {
 				args[0] = fn(args[0]);
 			}
 
@@ -211,7 +204,7 @@ definePropertyHook(controller.value.component, "props", {
 
 		// Parse twitch emote sets
 		const data = v.emoteSetsData;
-		if (!data || !data.emoteSets || data.loading) return;
+		if (!data || data.loading) return;
 
 		twitchEmoteSets.value = data.emoteSets;
 	},

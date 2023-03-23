@@ -65,20 +65,12 @@ function handleDuplicateMessage(content: string): string {
 	return content;
 }
 
-function resetMiddleware(): void {
-	if (!chatModule.value.instance) return;
-
-	const currentInd = chatModule.value.instance.messageSendMiddleware.indexOf(handleDuplicateMessage);
-	if (currentInd !== -1) chatModule.value.instance.messageSendMiddleware.splice(currentInd, 1);
-}
-
 watch(
 	chatModule,
 	(mod) => {
 		if (!mod.instance) return;
 
-		resetMiddleware();
-		mod.instance.messageSendMiddleware.push(handleDuplicateMessage);
+		mod.instance.messageSendMiddleware.set("handle-dupe", handleDuplicateMessage);
 	},
 	{ immediate: true },
 );
@@ -86,7 +78,7 @@ watch(
 onUnmounted(() => {
 	if (!chatModule.value.instance) return;
 
-	resetMiddleware();
+	chatModule.value.instance.messageSendMiddleware.delete("handle-dupe");
 });
 </script>
 

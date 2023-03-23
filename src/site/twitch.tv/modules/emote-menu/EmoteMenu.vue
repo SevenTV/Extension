@@ -1,6 +1,6 @@
 <template>
 	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
-		<div v-if="open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
+		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
 				<div class="seventv-emote-menu-header">
@@ -13,8 +13,9 @@
 								:selected="key === activeProvider"
 								@click="activeProvider = key"
 							>
-								<Logo :provider="key" />
-								<span v-show="key === activeProvider">{{ key }}</span>
+								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
+								<StarIcon v-else />
+								<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
 							</div>
 						</template>
 					</div>
@@ -48,29 +49,35 @@
 	</UiFloating>
 
 	<!-- Replace the emote menu button -->
-	<Teleport v-if="buttonEl" :to="buttonEl">
-		<div class="seventv-emote-menu-button" :class="{ 'menu-open': open }" @click.stop="toggle()">
+	<Teleport v-if="buttonEl && placement === 'regular'" :to="buttonEl">
+		<EmoteMenuButton @click="toggle()" />
+		<div class="seventv-emote-menu-button" :class="{ 'menu-open': ctx.open }" @click.stop="toggle()">
 			<Logo provider="7TV" />
-			<div v-if="!updater.isUpToDate && !open" class="seventv-emote-menu-update-flair" />
 		</div>
 	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onUnmounted, reactive, ref, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
-import useUpdater from "@/composable/useUpdater";
 import { useSettingsMenu } from "@/site/global/settings/Settings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
+import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import EmoteMenuButton from "./EmoteMenuButton.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
+
+export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;
@@ -84,21 +91,40 @@ const containerRef = ref<HTMLElement | undefined>();
 const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.props.channelID ?? "";
 
+const channelCtx = useChannelContext(ctx.channelID);
 const settingsContext = useSettingsMenu();
-const updater = useUpdater();
+const emotes = useChatEmotes(channelCtx);
 
-const open = ref(false);
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
+const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 
-const activeProvider = ref<SevenTV.Provider | null>("7TV");
-const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
+const activeProvider = ref<EmoteMenuTabName | null>("7TV");
+const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
+	FAVORITE: true,
 	"7TV": true,
 	FFZ: true,
 	BTTV: true,
 	TWITCH: true,
 	EMOJI: true,
+});
+
+const chatModule = getModuleRef("chat");
+const placement = useConfig<"regular" | "below" | "hidden">("ui.emote_menu.button_placement");
+const inputModule = getModuleRef("chat-input-controller");
+
+onMounted(() => {
+	if (!inputModule.value.instance) return;
+
+	inputModule.value.instance.addButton(
+		"emote-menu",
+		EmoteMenuButton,
+		{
+			onClick: () => (ctx.open = !ctx.open),
+		},
+		1,
+	);
 });
 
 // Shortcut (ctrl+e)
@@ -115,11 +141,11 @@ function toggle(native?: boolean) {
 	const t = props.instance.component;
 	if (native) {
 		t.onEmotePickerButtonClick();
-		open.value = false;
+		ctx.open = false;
 		return;
 	}
 
-	if (open.value) {
+	if (ctx.open) {
 		t.props.closeEmotePicker();
 	} else {
 		t.props.clearMenus();
@@ -128,7 +154,7 @@ function toggle(native?: boolean) {
 		t.closeCheerCard();
 	}
 
-	open.value = !open.value;
+	ctx.open = !ctx.open;
 	nextTick(() => {
 		if (!searchInputRef.value) return;
 
@@ -136,9 +162,33 @@ function toggle(native?: boolean) {
 	});
 }
 
+function handleEmoteUsage(s: string): string {
+	const sp = s.split(" ");
+	for (const name of sp) {
+		const emote = emotes.active[name];
+		if (!emote) continue;
+
+		usage.value.set(emote.id, (usage.value.get(emote.id) ?? 0) + 1);
+	}
+
+	usage.value = new Map(usage.value);
+
+	return s;
+}
+
+watch(
+	chatModule,
+	(mod) => {
+		if (!mod.instance) return;
+
+		mod.instance.messageSendMiddleware.set("emote-menu-usage", handleEmoteUsage);
+	},
+	{ immediate: true },
+);
+
 // Handle change in the visibility of a provider while using search
 // and if the current active provider has no content, switch to the next available
-function onProviderVisibilityChange(provider: SevenTV.Provider, visible: boolean) {
+function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean) {
 	visibleProviders[provider] = visible;
 	if (!visible && provider === activeProvider.value) {
 		activeProvider.value = (Object.entries(visibleProviders).find(([, v]) => v)?.[0] ?? "7TV") as SevenTV.Provider;
@@ -163,13 +213,13 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 
 defineFunctionHook(props.instance.component, "onBitsIconClick", function (old) {
 	old?.();
-	open.value = false;
+	ctx.open = false;
 });
 
 // This captures the current input typed by the user
 definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 	value(v: typeof props.instance.component.autocompleteInputRef.state) {
-		if (!open.value) {
+		if (!ctx.open) {
 			ctx.filter = "";
 
 			return;
@@ -193,7 +243,7 @@ onClickOutside(containerRef, (e) => {
 		return;
 	}
 
-	open.value = false;
+	ctx.open = false;
 });
 
 // Capture anchor / input elements
@@ -216,8 +266,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-@import "@/assets/style/flair.scss";
-
 .seventv-emote-menu-button {
 	display: grid;
 	place-items: center;
@@ -228,16 +276,6 @@ onUnmounted(() => {
 	transition: color 150ms ease-in-out;
 	&.menu-open {
 		color: var(--seventv-primary);
-	}
-
-	> .seventv-emote-menu-update-flair {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		width: 0.75rem;
-		height: 0.75rem;
-
-		@include flair-pulsating(#3eed58);
 	}
 }
 
@@ -299,6 +337,10 @@ onUnmounted(() => {
 					> svg {
 						width: 2rem;
 						height: 2rem;
+					}
+					> span {
+						font-family: Roboto, monospace;
+						font-weight: 600;
 					}
 				}
 			}

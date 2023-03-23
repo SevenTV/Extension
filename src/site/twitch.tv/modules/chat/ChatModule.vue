@@ -95,7 +95,7 @@ defineExpose({
 	chatController,
 	chatList,
 	chatRoom,
-	messageSendMiddleware: [] as ((v: string) => string)[],
+	messageSendMiddleware: new Map<string, (v: string) => string>(),
 });
 </script>
 

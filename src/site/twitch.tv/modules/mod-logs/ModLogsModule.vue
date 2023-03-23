@@ -40,6 +40,7 @@ if (!chatController?.instance) throw new Error("ChatController not found");
 
 // insert button
 const buttonRef = inputController.instance.addButton(
+	"mod-logs",
 	ModLogsButton,
 	{
 		onClick: () => {
