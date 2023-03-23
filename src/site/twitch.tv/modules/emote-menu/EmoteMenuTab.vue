@@ -46,20 +46,23 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
+import { useConfig } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import type { EmoteMenuTabName } from "./EmoteMenu.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuSet from "./EmoteMenuSet.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
-	provider: SevenTV.Provider;
+	provider: EmoteMenuTabName;
 	selected?: boolean;
 }>();
 
@@ -70,6 +73,7 @@ const emit = defineEmits<{
 	(event: "toggle-native-menu"): void;
 }>();
 
+const { t } = useI18n();
 const ctx = useEmoteMenuContext();
 const channelContext = useChannelContext(ctx.channelID);
 const emotes = useChatEmotes(channelContext);
@@ -77,11 +81,50 @@ const updater = useUpdater();
 const selectedSet = ref("");
 
 // The source emote sets from this emote provider
-const sets = emotes.byProvider(props.provider);
+const sets = emotes.byProvider(props.provider as SevenTV.Provider) ?? reactive({});
 const store = useStore();
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
+const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
+const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
+
+function updateFavorites() {
+	return Array.from(favorites.value.values())
+		.map((eid) => emotes.find((ae) => ae.id === eid))
+		.filter((ae) => !!ae) as SevenTV.ActiveEmote[];
+}
+
+function updateUsage() {
+	return Array.from(usage.value.entries())
+		.sort((a, b) => b[1] - a[1])
+		.map((e) => emotes.find((ae) => ae.id === e[0]))
+		.filter((ae) => !!ae)
+		.slice(0, 50) as SevenTV.ActiveEmote[];
+}
+
+if (props.provider === "FAVORITE") {
+	// create favorite set
+	const favSet = (sets["FAVORITE"] = reactive({
+		id: "FAVORITE",
+		name: t("emote_menu.favorite_set"),
+		emotes: updateFavorites(),
+	} as SevenTV.EmoteSet));
+
+	sets["USAGE"] = reactive({
+		id: "USAGE",
+		name: t("emote_menu.most_used_set"),
+		emotes: updateUsage(),
+	} as SevenTV.EmoteSet);
+
+	watch(favorites, () => {
+		favSet.emotes = updateFavorites();
+	});
+
+	watch(usage, () => {
+		sets["USAGE"].emotes = updateUsage();
+	});
+}
 
 // Select an Emote Set to jump-scroll to
 function select(setID: string, coms: InstanceType<typeof EmoteMenuSet>[] | null | undefined) {
@@ -97,7 +140,7 @@ function sortCase(es: SevenTV.EmoteSet) {
 	if (es.scope === "GLOBAL") return 1;
 
 	if (channelContext.id && es.owner && es.owner.id === channelContext.id) return -1;
-	if (es.flags & 4) return -2;
+	if ((es.flags ?? 0) & 4) return -2;
 	return 0;
 }
 

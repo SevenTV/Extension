@@ -93,9 +93,19 @@ export const config = [
 		],
 		defaultValue: "regular",
 	}),
+	declareConfig<Set<string>>("ui.emote_menu.favorites", "NONE", {
+		path: ["", ""],
+		label: "",
+		defaultValue: new Set(),
+	}),
+	declareConfig<Map<string, number>>("ui.emote_menu.usage", "NONE", {
+		path: ["", ""],
+		label: "",
+		defaultValue: new Map(),
+	}),
 	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
 		path: ["", ""],
-		label: "Emote Menu",
+		label: "",
 		defaultValue: new Set(),
 	}),
 ];

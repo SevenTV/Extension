@@ -42,10 +42,10 @@ declare namespace SevenTV {
 	interface EmoteSet {
 		id: ObjectID;
 		name: string;
-		tags: string[];
-		immutable: boolean;
-		privileged: boolean;
-		flags: number;
+		tags?: string[];
+		immutable?: boolean;
+		privileged?: boolean;
+		flags?: number;
 		emotes: ActiveEmote[];
 		owner?: User;
 

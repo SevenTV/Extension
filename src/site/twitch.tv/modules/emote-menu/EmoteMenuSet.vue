@@ -23,6 +23,7 @@
 				:set-id="es.id"
 				:emote-id="ae.id"
 				:zero-width="(ae.flags || 0 & 256) !== 0"
+				:favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
 				tabindex="0"
 				@click="onInsertEmote(ae)"
 				@keydown.enter.prevent="onInsertEmote(ae)"
@@ -36,8 +37,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from "vue";
-import { onKeyDown, until, useTimeout } from "@vueuse/core";
+import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { onKeyDown, until, useMagicKeys, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
@@ -64,10 +65,20 @@ const emotes = ref<SevenTV.ActiveEmote[]>([]);
 const containerEl = ref<HTMLElement>();
 const observing = ref(false);
 const collapsedSets = useConfig<Set<string>>("ui.emote_menu.collapsed_sets");
+const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
+const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 
+const { alt } = useMagicKeys();
 const collapsed = ref(isCollapsed());
 
 function sortCase(ae: SevenTV.ActiveEmote): number {
+	if (props.es.id === "USAGE") {
+		// special case for most used emotes
+		// we must rank them by usage count
+		const use = usage.value.get(ae.id) ?? 0;
+		return use - use * 2 || 0;
+	}
+
 	let n = determineRatio(ae);
 
 	if ((ae.flags || 0 & 256) !== 0) n -= 0.5;
@@ -104,6 +115,17 @@ function isEmoteDisabled(set: SevenTV.EmoteSet, ae: SevenTV.ActiveEmote) {
 
 function onInsertEmote(ae: SevenTV.ActiveEmote): void {
 	if (isEmoteDisabled(props.es, ae)) return;
+	if (alt.value) {
+		if (favorites.value.has(ae.id)) {
+			favorites.value.delete(ae.id);
+		} else {
+			favorites.value.add(ae.id);
+		}
+
+		favorites.value = new Set(favorites.value);
+		return;
+	}
+
 	emit("emote-clicked", ae);
 }
 
@@ -111,7 +133,15 @@ onKeyDown("Escape", () => {
 	ctx.open = false;
 });
 
-watchEffect(() => filterEmotes(ctx.filter));
+watch(
+	() => props.es.emotes,
+	() => {
+		filterEmotes(ctx.filter);
+	},
+);
+watchEffect(() => {
+	filterEmotes(ctx.filter);
+});
 
 // IntersectionObserver to hide out-of-view emotes and throttle loading to view
 const loaded = reactive<Record<string, number>>({});
@@ -298,6 +328,9 @@ defineExpose({
 
 	&[zero-width="true"] {
 		border: 0.1rem solid rgb(220, 170, 50);
+	}
+	&[favorite="true"] {
+		border: 0.1rem solid rgb(50, 200, 250);
 	}
 
 	&[disabled="true"] {

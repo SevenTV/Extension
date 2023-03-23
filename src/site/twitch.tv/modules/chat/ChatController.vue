@@ -195,7 +195,7 @@ definePropertyHook(controller.value.component, "props", {
 			});
 
 			// Run message content patching middleware
-			for (const fn of mod.instance?.messageSendMiddleware ?? []) {
+			for (const fn of mod.instance?.messageSendMiddleware.values() ?? []) {
 				args[0] = fn(args[0]);
 			}
 

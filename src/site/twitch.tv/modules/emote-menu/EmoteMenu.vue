@@ -13,8 +13,9 @@
 								:selected="key === activeProvider"
 								@click="activeProvider = key"
 							>
-								<Logo :provider="key" />
-								<span v-show="key === activeProvider">{{ key }}</span>
+								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
+								<StarIcon v-else />
+								<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
 							</div>
 						</template>
 					</div>
@@ -57,21 +58,26 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useSettingsMenu } from "@/site/global/settings/Settings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
+import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import EmoteMenuButton from "./EmoteMenuButton.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
+
+export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatInputController>;
@@ -85,14 +91,18 @@ const containerRef = ref<HTMLElement | undefined>();
 const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.props.channelID ?? "";
 
+const channelCtx = useChannelContext(ctx.channelID);
 const settingsContext = useSettingsMenu();
+const emotes = useChatEmotes(channelCtx);
 
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
+const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 
-const activeProvider = ref<SevenTV.Provider | null>("7TV");
-const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
+const activeProvider = ref<EmoteMenuTabName | null>("7TV");
+const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
+	FAVORITE: true,
 	"7TV": true,
 	FFZ: true,
 	BTTV: true,
@@ -100,8 +110,10 @@ const visibleProviders = reactive<Record<SevenTV.Provider, boolean>>({
 	EMOJI: true,
 });
 
+const chatModule = getModuleRef("chat");
 const placement = useConfig<"regular" | "below" | "hidden">("ui.emote_menu.button_placement");
 const inputModule = getModuleRef("chat-input-controller");
+
 onMounted(() => {
 	if (!inputModule.value.instance) return;
 
@@ -150,9 +162,33 @@ function toggle(native?: boolean) {
 	});
 }
 
+function handleEmoteUsage(s: string): string {
+	const sp = s.split(" ");
+	for (const name of sp) {
+		const emote = emotes.active[name];
+		if (!emote) continue;
+
+		usage.value.set(emote.id, (usage.value.get(emote.id) ?? 0) + 1);
+	}
+
+	usage.value = new Map(usage.value);
+
+	return s;
+}
+
+watch(
+	chatModule,
+	(mod) => {
+		if (!mod.instance) return;
+
+		mod.instance.messageSendMiddleware.set("emote-menu-usage", handleEmoteUsage);
+	},
+	{ immediate: true },
+);
+
 // Handle change in the visibility of a provider while using search
 // and if the current active provider has no content, switch to the next available
-function onProviderVisibilityChange(provider: SevenTV.Provider, visible: boolean) {
+function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean) {
 	visibleProviders[provider] = visible;
 	if (!visible && provider === activeProvider.value) {
 		activeProvider.value = (Object.entries(visibleProviders).find(([, v]) => v)?.[0] ?? "7TV") as SevenTV.Provider;
@@ -301,6 +337,10 @@ onUnmounted(() => {
 					> svg {
 						width: 2rem;
 						height: 2rem;
+					}
+					> span {
+						font-family: "Roboto", monospace;
+						font-weight: 600;
 					}
 				}
 			}
