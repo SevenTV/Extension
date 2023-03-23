@@ -96,3 +96,5 @@ onboarding:
 
 emote_menu:
     native: Open Native Menu
+    favorite_set: Favorite Emotes
+    most_used_set: Most Used Emotes

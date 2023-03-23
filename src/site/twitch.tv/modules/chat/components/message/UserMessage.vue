@@ -59,6 +59,7 @@
 						:format="properties.imageFormat"
 						:overlaid="token.content.overlaid"
 						:clickable="true"
+						:scale="Number(emoteScale)"
 					/>
 					<span v-if="token.content" :style="{ color: token.content.cheerColor }">
 						{{ token.content.cheerAmount }}
@@ -131,6 +132,8 @@ const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const { openViewerCard } = useChatTools(ctx);
 const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? "");
+
+const emoteScale = useConfig<number>("chat.emote_scale");
 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");

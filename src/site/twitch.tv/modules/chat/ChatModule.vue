@@ -95,7 +95,7 @@ defineExpose({
 	chatController,
 	chatList,
 	chatRoom,
-	messageSendMiddleware: [] as ((v: string) => string)[],
+	messageSendMiddleware: new Map<string, (v: string) => string>(),
 });
 </script>
 
@@ -125,6 +125,22 @@ export const config = [
 		effect(v) {
 			document.documentElement.style.setProperty("--seventv-emote-margin", `${v}rem`);
 		},
+	}),
+	declareConfig<number>("chat.emote_scale", "SLIDER", {
+		path: ["Chat", "Style"],
+		label: "Emote Scale",
+		ffz_key: "chat.emotes.2x",
+		ffz_transform(v: unknown) {
+			return typeof v === "number" && v > 0 ? 2 : 1;
+		},
+		hint: "Change how large emotes should be in chat, as a multiple of their original size.",
+		options: {
+			min: 0.25,
+			max: 3,
+			step: 0.25,
+			unit: "x",
+		},
+		defaultValue: 1,
 	}),
 	declareConfig("chat.mod_slider", "TOGGLE", {
 		path: ["Chat", "Moderation"],

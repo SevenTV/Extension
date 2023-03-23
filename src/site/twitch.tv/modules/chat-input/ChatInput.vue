@@ -12,15 +12,17 @@
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
+import { onUnmounted, ref, toRaw, watch } from "vue";
 import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
+import { imageHostToSrcset } from "@/common/Image";
 import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineFunctionHook,
 	defineNamedEventHandler,
 	definePropertyHook,
+	definePropertyProxy,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
@@ -31,6 +33,7 @@ import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
+import { useUserAgent } from "@/composable/useUserAgent";
 import ChatInputCarousel from "./ChatInputCarousel.vue";
 
 export interface TabToken {
@@ -50,6 +53,7 @@ const ctx = useChannelContext(props.instance.component.componentRef.props.channe
 const messages = useChatMessages(ctx);
 const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
+const ua = useUserAgent();
 
 const shouldUseColonComplete = useConfig("chat_input.autocomplete.colon");
 const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
@@ -435,10 +439,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 		}
 
 		const host = emote?.data?.host ?? { url: "", files: [] };
-		const srcset = host.files
-			.filter((f) => f.format === host.files[0].format)
-			.map((f, i) => `${host.url}/${f.name} ${i + 1}x`)
-			.join(", ");
+		const srcset = host.srcset ?? imageHostToSrcset(host, emote.provider, ua.preferredFormat);
 
 		const providerData = emote.provider?.split("/") ?? ["", ""];
 		let provider = providerData?.[0] ?? emote.provider;
@@ -594,11 +595,32 @@ defineFunctionHook(props.instance.component, "componentDidUpdate", function (thi
 	return args;
 });
 
+definePropertyProxy(props.instance.component.componentRef, "props", {
+	get: (obj, prop) => {
+		switch (prop) {
+			case "emotes":
+				//Prevent Slate input from seeing misbehaving FFZ emotes
+				return obj[prop].filter(
+					(set: Twitch.TwitchEmoteSet) => set.id !== "FrankerFaceZWasHere" && set.id !== "BETTERTTV_EMOTES",
+				);
+			default:
+				return obj[prop];
+		}
+	},
+});
+
+//Reload Slate input to load our masked emote sets
+toRaw(props.instance.component.componentRef).forceUpdate();
+
 onUnmounted(() => {
 	const component = props.instance.component;
 
 	unsetPropertyHook(component, "onEditableValueUpdate");
 	unsetPropertyHook(component, "props");
+
+	if (component.componentRef) {
+		unsetPropertyHook(component.componentRef, "props");
+	}
 
 	const rootNode = props.instance.domNodes.root;
 	if (rootNode instanceof HTMLElement) {
