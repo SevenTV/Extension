@@ -12,7 +12,7 @@
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
+import { onUnmounted, ref, toRaw, watch } from "vue";
 import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
@@ -608,6 +608,9 @@ definePropertyProxy(props.instance.component.componentRef, "props", {
 		}
 	},
 });
+
+//Reload Slate input to load our masked emote sets
+toRaw(props.instance.component.componentRef).forceUpdate();
 
 onUnmounted(() => {
 	const component = props.instance.component;
