@@ -1,5 +1,7 @@
 ### Version 3.0.1.1000 Nightly
 
+-   Added an emote menu shortcut to define favorite emotes (alt+click)
+-   Added a tab in the emote menu to display favorite and most used emotes
 -   Added a button to open the native Twitch Emote Menu
 -   Added an option to change where the 7TV Emote Menu Button appears
 -   Added an option to modify the scale of emotes in chat

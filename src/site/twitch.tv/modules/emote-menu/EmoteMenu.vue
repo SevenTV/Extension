@@ -339,7 +339,7 @@ onUnmounted(() => {
 						height: 2rem;
 					}
 					> span {
-						font-family: "Roboto", monospace;
+						font-family: Roboto, monospace;
 						font-weight: 600;
 					}
 				}
