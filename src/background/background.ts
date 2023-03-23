@@ -36,8 +36,15 @@ chrome.runtime.onInstalled.addListener(() => {
 	});
 });
 
+// On-upgrade onboarding (2.x -> 3.x)
+const newTabs = new Set<number>();
+chrome.tabs.onCreated.addListener((t) => {
+	if (typeof t.id !== "number") return;
+
+	newTabs.add(t.id);
+});
 chrome.tabs.onUpdated.addListener((_, i, t) => {
-	if (!i.status || !t.url) return;
+	if (!i.status || !t.url || !t.id || !newTabs.has(t.id)) return;
 
 	const url = new URL(t.url);
 	if (url.host !== "www.twitch.tv") return;
@@ -54,6 +61,7 @@ chrome.tabs.onUpdated.addListener((_, i, t) => {
 		}
 		chrome.storage.local.remove("yt_permissions_requested");
 	});
+	newTabs.delete(t.id);
 });
 
 // Register content scripts
