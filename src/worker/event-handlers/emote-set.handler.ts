@@ -11,7 +11,7 @@ export function onEmoteSetCreate(ctx: EventContext, cm: ChangeMap<SevenTV.Object
 	if (!es.emotes) es.emotes = [];
 
 	es.provider = "7TV";
-	es.scope = es.flags & 4 ? "PERSONAL" : "CHANNEL";
+	es.scope = (es.flags ?? 0) & 4 ? "PERSONAL" : "CHANNEL";
 
 	for (const ae of es.emotes) {
 		if (!ae.data) continue;
@@ -43,7 +43,7 @@ export async function onEmoteSetUpdate(ctx: EventContext, cm: ChangeMap<SevenTV.
 						if (v.data) {
 							v.data.host.srcset = imageHostToSrcset(v.data.host, "7TV", WorkerHttp.imageFormat);
 							v.provider = "7TV";
-							if (!v.scope) v.scope = es.flags & 4 ? "PERSONAL" : "CHANNEL";
+							if (!v.scope) v.scope = (es.flags ?? 0) & 4 ? "PERSONAL" : "CHANNEL";
 						}
 
 						es.emotes.push(v);

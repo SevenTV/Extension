@@ -260,7 +260,7 @@ export const seventv = {
 
 		set.provider = "7TV";
 		if (id === "global") set.scope = "GLOBAL";
-		else if (BitField(EmoteSetFlags, set.flags).has("Personal")) set.scope = "PERSONAL";
+		else if (BitField(EmoteSetFlags, set.flags ?? 0).has("Personal")) set.scope = "PERSONAL";
 		else set.scope = "CHANNEL";
 		set.priority = ProviderPriority.SEVENTV_GLOBAL;
 
