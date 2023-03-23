@@ -24,20 +24,44 @@ if (import.meta.env.MODE === "dev") {
 	useHotReloading();
 }
 
+// On-install onboarding
 chrome.runtime.onInstalled.addListener(() => {
-	// "yt_permissions_requested" was used in v2.x.x to open a popup for youtube permissions
-	// so we reuse it here to determine if this user is migrating
-
 	chrome.storage.local.get(({ seen_onboarding, yt_permissions_requested: seenLegacyPopup }) => {
-		if (seen_onboarding) return;
+		if (seen_onboarding || seenLegacyPopup) return;
 
 		chrome.runtime.openOptionsPage();
 		chrome.storage.local.set({
 			seen_onboarding: true,
-			upgraded: seenLegacyPopup,
 		});
+	});
+});
+
+// On-upgrade onboarding (2.x -> 3.x)
+const newTabs = new Set<number>();
+chrome.tabs.onCreated.addListener((t) => {
+	if (typeof t.id !== "number") return;
+
+	newTabs.add(t.id);
+});
+chrome.tabs.onUpdated.addListener((_, i, t) => {
+	if (!i.status || !t.url || !t.id || !newTabs.has(t.id)) return;
+
+	const url = new URL(t.url);
+	if (url.host !== "www.twitch.tv") return;
+
+	// "yt_permissions_requested" was used in v2.x.x to open a popup for youtube permissions
+	// so we reuse it here to determine if this user is migrating
+	chrome.storage.local.get(({ seen_onboarding, yt_permissions_requested: seenLegacyPopup }) => {
+		if (!seen_onboarding || seenLegacyPopup) {
+			chrome.runtime.openOptionsPage();
+			chrome.storage.local.set({
+				seen_onboarding: true,
+				upgraded: true,
+			});
+		}
 		chrome.storage.local.remove("yt_permissions_requested");
 	});
+	newTabs.delete(t.id);
 });
 
 // Register content scripts
