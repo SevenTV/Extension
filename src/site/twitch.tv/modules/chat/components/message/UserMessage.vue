@@ -13,6 +13,7 @@
 			'font-style': msg.slashMe && meStyle & 1 ? 'italic' : '',
 			color: msg.slashMe && meStyle & 2 ? msg.author?.color : '',
 		}"
+		:data-highlight-style="highlightStyle"
 	>
 		<!-- Highlight Label -->
 		<div
@@ -132,6 +133,7 @@ const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? 
 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");
+const highlightStyle = useConfig<number>("highlights.display_style");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
@@ -236,28 +238,36 @@ onMounted(() => {
 	display: block;
 
 	&.has-highlight {
-		border: 0.25em solid;
-		border-top: none;
-		border-bottom: none;
-		border-color: var(--seventv-highlight-color);
-		background-color: var(--seventv-highlight-dim-color);
-		padding: 1rem 0.25rem;
-		margin: 0 -0.5em;
+		&[data-highlight-style="0"] {
+			border: 0.25em solid;
+			border-top: none;
+			border-bottom: none;
+			border-color: var(--seventv-highlight-color);
+			background-color: var(--seventv-highlight-dim-color);
+			padding: 1rem 0.25rem;
+			margin: 0 -0.5em;
 
-		.seventv-chat-message-highlight-label {
-			&::after {
-				height: 0;
-				content: attr(data-highlight-label);
-				display: grid;
-				width: 100%;
-				justify-content: end;
-				color: var(--seventv-highlight-color);
-				transform: translateY(-1.5em);
+			.seventv-chat-message-highlight-label {
+				&::after {
+					height: 0;
+					content: attr(data-highlight-label);
+					display: grid;
+					width: 100%;
+					justify-content: end;
+					color: var(--seventv-highlight-color);
+					transform: translateY(-1.5em);
 
-				font-weight: 600;
-				text-transform: uppercase;
-				font-size: 0.88rem;
+					font-weight: 600;
+					text-transform: uppercase;
+					font-size: 0.88rem;
+				}
 			}
+		}
+
+		&[data-highlight-style="1"] {
+			margin: -0.5rem -1.5rem;
+			padding: 0.5rem 1.5rem;
+			background-color: var(--seventv-highlight-dim-color);
 		}
 	}
 

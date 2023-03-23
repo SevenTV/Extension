@@ -287,6 +287,17 @@ export const config = [
 		},
 		defaultValue: 75,
 	}),
+	declareConfig<number>("highlights.display_style", "DROPDOWN", {
+		path: ["Highlights", "Style"],
+		label: "Highlighted Message Style",
+		hint: "Choose how or if, to show highlighted messages in chat",
+		options: [
+			["Standard", 0],
+			["Minimal (Solid color)", 1],
+			["None (No visual)", 2],
+		],
+		defaultValue: 0,
+	}),
 	declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
 		path: ["Appearance", "Vanity"],
 		label: "Nametag Paints",
