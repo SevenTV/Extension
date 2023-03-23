@@ -136,7 +136,7 @@ export const config = [
 		hint: "Change how large emotes should be in chat, as a multiple of their original size.",
 		options: {
 			min: 0.25,
-			max: 4,
+			max: 3,
 			step: 0.25,
 			unit: "x",
 		},
