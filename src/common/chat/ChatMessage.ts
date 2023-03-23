@@ -1,6 +1,5 @@
 import { defineComponent, markRaw } from "vue";
 import { Tokenizer } from "@/common/chat/Tokenizer";
-import { SetHexAlpha } from "../Color";
 import { v1 as uuidv1 } from "uuid";
 
 export const NullComponent = defineComponent({});
