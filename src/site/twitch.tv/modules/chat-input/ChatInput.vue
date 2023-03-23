@@ -12,7 +12,7 @@
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
+import { onUnmounted, ref, toRaw, watch } from "vue";
 import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
@@ -21,6 +21,7 @@ import {
 	defineFunctionHook,
 	defineNamedEventHandler,
 	definePropertyHook,
+	definePropertyProxy,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
@@ -594,11 +595,32 @@ defineFunctionHook(props.instance.component, "componentDidUpdate", function (thi
 	return args;
 });
 
+definePropertyProxy(props.instance.component.componentRef, "props", {
+	get: (obj, prop) => {
+		switch (prop) {
+			case "emotes":
+				//Prevent Slate input from seeing misbehaving FFZ emotes
+				return obj[prop].filter(
+					(set: Twitch.TwitchEmoteSet) => set.id !== "FrankerFaceZWasHere" && set.id !== "BETTERTTV_EMOTES",
+				);
+			default:
+				return obj[prop];
+		}
+	},
+});
+
+//Reload Slate input to load our masked emote sets
+toRaw(props.instance.component.componentRef).forceUpdate();
+
 onUnmounted(() => {
 	const component = props.instance.component;
 
 	unsetPropertyHook(component, "onEditableValueUpdate");
 	unsetPropertyHook(component, "props");
+
+	if (component.componentRef) {
+		unsetPropertyHook(component.componentRef, "props");
+	}
 
 	const rootNode = props.instance.domNodes.root;
 	if (rootNode instanceof HTMLElement) {
