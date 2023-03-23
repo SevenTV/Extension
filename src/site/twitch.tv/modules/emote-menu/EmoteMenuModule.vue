@@ -93,6 +93,12 @@ export const config = [
 		],
 		defaultValue: "regular",
 	}),
+	declareConfig<boolean>("ui.emote_menu.most_used", "TOGGLE", {
+		path: ["Appearance", "Interface"],
+		label: "Emote Menu: Most Used Emotes",
+		hint: "Whether or not to display the emotes you type the most in the emote menu",
+		defaultValue: true,
+	}),
 	declareConfig<Set<string>>("ui.emote_menu.favorites", "NONE", {
 		path: ["", ""],
 		label: "",

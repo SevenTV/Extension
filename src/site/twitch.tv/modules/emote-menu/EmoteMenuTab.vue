@@ -88,6 +88,7 @@ const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
+const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
 
 function updateFavorites() {
 	return Array.from(favorites.value.values())
@@ -121,8 +122,8 @@ if (props.provider === "FAVORITE") {
 		favSet.emotes = updateFavorites();
 	});
 
-	watch(usage, () => {
-		sets["USAGE"].emotes = updateUsage();
+	watch([usage, shouldShowUsage], ([, shouldShow]) => {
+		sets["USAGE"].emotes = shouldShow ? updateUsage() : [];
 	});
 }
 
