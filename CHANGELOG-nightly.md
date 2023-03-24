@@ -2,6 +2,7 @@
 
 -   Added an option to modify the font size in chat
 -   Unpausing chat should no longer cause old messages to rapidly scroll through
+-   Fixed a conflict causing emotes to sometimes display as broken images while other extensions were installed
 
 ### Version 3.0.1.1000 (Nightly 1)
 

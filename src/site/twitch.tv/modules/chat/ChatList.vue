@@ -229,6 +229,9 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					const e = part.content as Twitch.ChatMessage.EmotePart["content"];
 					if (!e.alt) continue;
 
+					// skip over emotes patched in by FFZ and BTTV
+					if (e.emoteID?.startsWith("__FFZ__") || e.emoteID?.startsWith("__BTTV__")) continue;
+
 					msg.nativeEmotes[e.alt + (e.cheerAmount ?? "")] = {
 						id: e.emoteID ?? "",
 						name: e.alt,
