@@ -254,20 +254,25 @@ export const config = [
 		label: "Font Size",
 		ffz_key: "chat.font-size",
 		ffz_transform(v: unknown) {
-			return typeof v === "number" ? v / 16 : 1;
+			return typeof v === "number" ? v : 13;
 		},
 		effect(v) {
 			if (typeof v !== "number") return;
-			document.body.style.setProperty("--seventv-chat-font-size", `${v}rem`);
+			if (v !== 13) {
+				document.body.style.setProperty("--seventv-chat-font-size", `${v}px`);
+			} else {
+				document.body.style.removeProperty("--seventv-chat-font-size");
+			}
 		},
-		hint: "Change the size of text in chat",
+		hint: "Change the size of text in chat, when set to default the size will be inferred from Twitch appearence settings",
 		options: {
-			min: 0.1,
-			max: 2,
-			step: 0.05,
-			unit: "rem",
+			min: 1,
+			max: 30,
+			step: 1,
+			unit: "px",
+			named_values: [[13, 13, "Default"]],
 		},
-		defaultValue: 1.25,
+		defaultValue: 13,
 	}),
 	declareConfig<boolean>("chat.colored_mentions", "TOGGLE", {
 		path: ["Chat", "Style"],

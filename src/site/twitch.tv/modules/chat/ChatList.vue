@@ -499,7 +499,8 @@ defineExpose({
 <style scoped lang="scss">
 .seventv-chat-list {
 	padding: 1rem 0;
-	font-size: var(--seventv-chat-font-size);
+	font-size: var(--seventv-chat-font-size, inherit);
+	line-height: 1.5em;
 }
 
 .seventv-chat-list[alternating-background="true"] {
