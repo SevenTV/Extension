@@ -2,6 +2,7 @@
 
 -   Added an option to modify the font size in chat
 -   Unpausing chat should no longer cause old messages to rapidly scroll through
+-   Fixed a conflict causing emotes to sometimes display as broken images while other extensions were installed
 
 ### Version 3.0.1.1000 (Nightly 1)
 
@@ -19,7 +20,6 @@
 -   Fixed an issue that caused tab-completion to break with FFZ
 -   Fixed an issue where emotes in colon-complete wouldn't load on Mozilla Firefox
 -   Added visual settings for highlighted messages, allows changing opacity and over-all style
--   Fixed a conflict causing emotes to sometimes display as broken images while other extensions were installed
 
 ### Version 3.0.0.19000 (Beta 19 RC)
 
