@@ -23,6 +23,7 @@ interface ChatMessages {
 	}[];
 	chatters: Record<string, ChatUser>;
 	chattersByUsername: Record<string, ChatUser>;
+	overflowLimit: number;
 
 	twitchHandlers: Set<(v: Twitch.AnyMessage) => void>;
 
@@ -53,6 +54,7 @@ export function useChatMessages(ctx: ChannelContext) {
 			}[],
 			chatters: {} as Record<string, ChatUser>,
 			chattersByUsername: {} as Record<string, ChatUser>,
+			overflowLimit: 0,
 
 			twitchHandlers: new Set<(v: Twitch.AnyMessage) => void>(),
 
@@ -73,18 +75,20 @@ export function useChatMessages(ctx: ChannelContext) {
 
 					// Chat Unpaused
 					// Move the messages in the pause buffer to the main buffer
+					const incr = Math.ceil(scroller.pauseBuffer.length / 32);
 					let n = 0;
 					while (scroller.pauseBuffer.length) {
-						const unbuf = scroller.pauseBuffer.splice(0, 5);
-						n += 50;
+						const unbuf = scroller.pauseBuffer.splice(0, 50);
+						n += incr;
 
 						useTimeoutFn(() => {
-							for (const msg of unbuf) add(msg, true);
-							nextTick(() => {
-								scroller.scrollToLive();
-							});
+							data.displayed = data.displayed.concat(unbuf);
 						}, n);
 					}
+
+					useTimeoutFn(() => {
+						scroller.scrollToLive();
+					}, n + incr);
 				},
 			);
 		});
@@ -168,16 +172,14 @@ export function useChatMessages(ctx: ChannelContext) {
 				return;
 			}
 
-			scroller.init = false;
+			if (scroller.init == true) scroller.init = false;
 
 			// push new messages
 			if (data.buffer.length > 0) {
 				const unbuf = data.buffer.splice(0, data.buffer.length);
 
 				// push to the render queue all unbuffered messages
-				for (const msg of unbuf) {
-					data.displayed.push(msg);
-				}
+				data.displayed.push(...unbuf);
 			}
 
 			// scroll to the bottom on the next tick
