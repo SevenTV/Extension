@@ -37,7 +37,6 @@ export interface HighlightDef {
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
 
-const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
 const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
 const soundVolume = useConfig<number>("highlights.sound_volume");
 
@@ -70,6 +69,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 				for (const [, v] of h) {
 					data.highlights[v.id] = v;
 					updateSoundData(v);
+					updateFlashTitle(v);
 				}
 			},
 			{
@@ -130,6 +130,10 @@ export function useChatHighlights(ctx: ChannelContext) {
 		return url;
 	}
 
+	function updateFlashTitle(h: HighlightDef) {
+		h.flashTitleFn = h.flashTitle ? () => ` 💬 Highlight: ${h.label || h.pattern}` : undefined;
+	}
+
 	function remove(id: string): void {
 		if (!data) return;
 
@@ -175,7 +179,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 				h.soundDef.play(soundVolume.value / 100);
 			}
 
-			if (h.flashTitleFn && shouldFlashTitleOnHighlight.value && !msg.historical) {
+			if (h.flashTitleFn && !msg.historical) {
 				setFlash(h, msg);
 			}
 		}
@@ -240,5 +244,6 @@ export function useChatHighlights(ctx: ChannelContext) {
 		updateId,
 		checkMatch,
 		updateSoundData,
+		updateFlashTitle,
 	};
 }

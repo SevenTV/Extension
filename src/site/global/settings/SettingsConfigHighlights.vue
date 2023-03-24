@@ -142,8 +142,8 @@ function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
 }
 
 function onFlashTitleChange(h: HighlightDef, checked: boolean): void {
-	h.flashTitleFn = checked ? () => ` 💬 Highlight: ${h.label}` : undefined;
 	h.flashTitle = checked;
+	highlights.updateFlashTitle(h);
 	highlights.save();
 }
 
