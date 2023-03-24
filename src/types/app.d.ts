@@ -96,6 +96,7 @@ declare namespace SevenTV {
 				step: number;
 				unit: string;
 				named_thresolds?: [number, number, string][];
+				named_values?: [number, number, string][];
 			};
 			CUSTOM: unknown;
 			NONE: never;
