@@ -1,6 +1,7 @@
 ### Version 3.0.1.2000 (Nightly 2 RC)
 
 -   Added an option to modify the font size in chat
+-   Unpausing chat should no longer cause old messages to rapidly scroll through
 
 ### Version 3.0.1.1000 (Nightly 1)
 
