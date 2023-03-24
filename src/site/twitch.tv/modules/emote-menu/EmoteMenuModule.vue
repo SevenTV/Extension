@@ -85,7 +85,7 @@ export const config = [
 	declareConfig<string>("ui.emote_menu.button_placement", "DROPDOWN", {
 		path: ["Appearance", "Interface"],
 		label: "Emote Menu Button Placement",
-		hint: "Control where the 7TV emote menu button is placed",
+		hint: "Control where the 7TV emote menu button is placed. Setting to 'Below Input' will return the native emote menu to its original position.",
 		options: [
 			["Regular", "regular"],
 			["Below Input", "below"],
