@@ -22,8 +22,10 @@ class SettingsMenuContext {
 		this.switchView("home");
 
 		const keys = localStorage.getItem(LOCAL_STORAGE_KEYS.SEEN_SETTINGS);
-		for (const key of (keys ?? "").split(",")) {
-			this.seen.push(key);
+		if (keys) {
+			for (const key of keys.split(",")) {
+				this.seen.push(key);
+			}
 		}
 	}
 
@@ -35,9 +37,11 @@ class SettingsMenuContext {
 		this.view = markRaw(views[name]);
 	}
 
-	markSettingAsSeen(key: string): void {
-		if (this.seen.indexOf(key) !== -1) return;
-		this.seen.push(key);
+	markSettingAsSeen(...keys: string[]): void {
+		for (const key of keys) {
+			if (this.seen.indexOf(key) !== -1) continue;
+			this.seen.push(key);
+		}
 
 		localStorage.setItem(LOCAL_STORAGE_KEYS.SEEN_SETTINGS, this.seen.join(","));
 	}
