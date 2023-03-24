@@ -23,7 +23,8 @@ export interface HighlightDef {
 	color: string;
 	label: string;
 	caseSensitive?: boolean;
-	flashTitle?: (msg: ChatMessage) => string;
+	flashTitle?: boolean;
+	flashTitleFn?: (msg: ChatMessage) => string;
 	soundPath?: string;
 	soundDef?: Sound;
 	soundFile?: {
@@ -36,7 +37,6 @@ export interface HighlightDef {
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
 
-const shouldPlaySoundOnHighlight = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
 const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
 const soundVolume = useConfig<number>("highlights.sound_volume");
@@ -91,6 +91,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 					...h,
 					soundFile: toRaw(h.soundFile),
 					soundDef: undefined,
+					flashTitleFn: undefined,
 				}),
 			]);
 
@@ -170,11 +171,11 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (ok) {
 			msg.setHighlight(h.color, h.label);
 
-			if (h.soundDef && shouldPlaySoundOnHighlight.value && !msg.historical) {
+			if (h.soundDef && !msg.historical) {
 				h.soundDef.play(soundVolume.value / 100);
 			}
 
-			if (h.flashTitle && shouldFlashTitleOnHighlight.value && !msg.historical) {
+			if (h.flashTitleFn && shouldFlashTitleOnHighlight.value && !msg.historical) {
 				setFlash(h, msg);
 			}
 		}
@@ -195,10 +196,10 @@ export function useChatHighlights(ctx: ChannelContext) {
 	);
 
 	function setFlash(def: HighlightDef, msg: ChatMessage): void {
-		if (!def.flashTitle || titleFlash.isActive.value) return;
+		if (!def.flashTitleFn || titleFlash.isActive.value) return;
 
 		lastKnownTitle.value = document.title;
-		newTitle.value = def.flashTitle(msg);
+		newTitle.value = def.flashTitleFn(msg);
 
 		titleFlash.resume();
 

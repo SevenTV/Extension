@@ -63,6 +63,7 @@ const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
+const shouldPlaySoundOnMention = useConfig<boolean>("highlights.basic.mention_sound");
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
@@ -448,8 +449,8 @@ watch(pageVisibility, (state) => {
 });
 
 watch(
-	[identity, showMentionHighlights],
-	([identity, enabled]) => {
+	[identity, showMentionHighlights, shouldPlaySoundOnMention],
+	([identity, enabled, sound]) => {
 		const rxs = identity ? `\\b${identity.username}\\b` : null;
 		if (!rxs) return;
 
@@ -462,16 +463,18 @@ watch(
 				cachedRegExp: rx,
 				label: "Mentions You",
 				color: "#e13232",
-				soundPath: "#ping",
-				flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
+				soundPath: sound ? "#ping" : undefined,
+				flashTitleFn: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`,
+				flashTitle: true,
 			});
 
 			chatHighlights.define("~reply", {
 				test: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
 				label: "Replying to You",
 				color: "#e13232",
-				soundPath: "#ping",
-				flashTitle: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`,
+				soundPath: sound ? "#ping" : undefined,
+				flashTitleFn: (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`,
+				flashTitle: true,
 			});
 		} else {
 			chatHighlights.remove("~mention");
