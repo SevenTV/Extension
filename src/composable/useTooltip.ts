@@ -31,7 +31,7 @@ export function useTooltip(content?: string | Component, props?: Record<string, 
 		nextTick(() => {
 			computePosition(el, tooltip.container as HTMLElement, {
 				placement: "top",
-				middleware: [shift({ padding: 8 })],
+				middleware: [shift({ padding: 8, crossAxis: true, mainAxis: true })],
 			}).then(({ x: xVal, y: yVal }) => {
 				tooltip.x = xVal;
 				tooltip.y = yVal;
