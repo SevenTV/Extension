@@ -249,6 +249,26 @@ export const config = [
 		],
 		defaultValue: 1,
 	}),
+	declareConfig<number>("chat.font_size", "SLIDER", {
+		path: ["Chat", "Style"],
+		label: "Font Size",
+		ffz_key: "chat.font-size",
+		ffz_transform(v: unknown) {
+			return typeof v === "number" ? v / 16 : 1;
+		},
+		effect(v) {
+			if (typeof v !== "number") return;
+			document.body.style.setProperty("--seventv-chat-font-size", `${v}rem`);
+		},
+		hint: "Change the size of text in chat",
+		options: {
+			min: 0.1,
+			max: 2,
+			step: 0.05,
+			unit: "rem",
+		},
+		defaultValue: 1.25,
+	}),
 	declareConfig<boolean>("chat.colored_mentions", "TOGGLE", {
 		path: ["Chat", "Style"],
 		label: "Colored Mentions",

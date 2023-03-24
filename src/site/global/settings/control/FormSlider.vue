@@ -4,7 +4,7 @@
 		<div class="seventv-slider" :class="{ 'show-thresold-name': !!thresoldName }" :thresold-name="thresoldName">
 			<input
 				:id="node.key"
-				v-model="setting"
+				v-model.number="setting"
 				type="range"
 				:min="node.options?.min"
 				:max="node.options?.max"
