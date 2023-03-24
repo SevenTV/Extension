@@ -260,7 +260,7 @@ export const config = [
 			if (typeof v !== "number") return;
 			document.body.style.setProperty("--seventv-chat-font-size", `${v}rem`);
 		},
-		hint: "Change the padding style of chat lines",
+		hint: "Change the size of text in chat",
 		options: {
 			min: 0.1,
 			max: 2,
