@@ -604,7 +604,7 @@ definePropertyProxy(props.instance.component.componentRef, "props", {
 					(set: Twitch.TwitchEmoteSet) => set.id !== "FrankerFaceZWasHere" && set.id !== "BETTERTTV_EMOTES",
 				);
 			default:
-				return obj[prop];
+				return Reflect.get(obj, prop);
 		}
 	},
 });

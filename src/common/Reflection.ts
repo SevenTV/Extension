@@ -3,6 +3,7 @@ import { toRaw } from "vue";
 
 export const PROP_STORE_ACCESSOR = Symbol("seventv.reflection.store");
 export const EVENT_STORE_ACCESSOR = Symbol("seventv.reflection.events");
+export const PROXY_CUT_THROUGH_ACCESSOR = Symbol("seventv.reflection.proxy_core");
 
 export function getNamedStore<T extends object>(object: T, storeSymbol: symbol) {
 	let store;
@@ -43,17 +44,68 @@ export function getEventStore<T extends object>(object: T): Record<string, any> 
  * @param prop Property to define as a proxy
  * @param handler Proxy handler for the defined property
  */
-export function definePropertyProxy<T extends object>(object: T, prop: keyof T, handler: ProxyHandler<any>) {
-	let proxy: any;
+export function definePropertyProxy<
+	P extends keyof T,
+	T extends object,
+	V extends object & T[P],
+	H extends object & ProxyHandler<V>,
+>(object: T, prop: P, handler: H) {
+	let proxy: InstanceType<typeof Proxy> | undefined;
+	let handle: ProxyHandler<V> | undefined;
 	definePropertyHook(object, prop, {
 		value: (v) => {
+			if (proxy !== undefined && v === proxy) return;
+
+			if (handle) {
+				for (const key of Object.keys(handle)) {
+					if (Object.hasOwn(handle, key)) {
+						Reflect.deleteProperty(handle, key);
+					}
+				}
+			}
+
 			if (v && typeof v == "object") {
-				proxy = new Proxy(v, handler);
+				let currentProxy: InstanceType<typeof Proxy> | undefined = undefined;
+				const proxyFunctions: ProxyHandler<typeof v> = {};
+
+				for (const [hook, func] of Object.entries(handler)) {
+					switch (hook) {
+						case "get":
+							Reflect.set(
+								proxyFunctions,
+								hook,
+								function (this: T, target: T, p: string | symbol, ...args: unknown[]) {
+									switch (p) {
+										case PROXY_CUT_THROUGH_ACCESSOR:
+											return v;
+										default:
+											return func.apply(this, [target, p, ...args]);
+									}
+								},
+							);
+							break;
+						default:
+							Reflect.set(proxyFunctions, hook, func);
+					}
+				}
+
+				currentProxy = new Proxy(v, proxyFunctions);
+
+				proxy = currentProxy;
+				handle = proxyFunctions;
 			} else {
 				proxy = undefined;
+				handle = undefined;
 			}
 		},
 		get: (v) => proxy ?? v,
+		set: (v) => {
+			if (v && typeof v == "object") {
+				return Reflect.get(v, PROXY_CUT_THROUGH_ACCESSOR) ?? v;
+			} else {
+				return v;
+			}
+		},
 	});
 }
 
