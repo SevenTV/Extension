@@ -4,7 +4,7 @@
 		<div class="seventv-slider" :class="{ 'show-thresold-name': !!thresoldName }" :thresold-name="thresoldName">
 			<input
 				:id="node.key"
-				v-model="modelValue"
+				v-model.number="setting"
 				type="range"
 				:min="node.options?.min"
 				:max="node.options?.max"
@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
@@ -26,12 +26,7 @@ const props = defineProps<{
 }>();
 
 const held = ref(false);
-const modelValue = ref("");
 const setting = useConfig<number>(props.node.key);
-
-watch(modelValue, (val) => {
-	setting.value = parseInt(val);
-});
 
 const thresoldName = computed(() => {
 	if (!props.node.options?.named_thresolds) return;
