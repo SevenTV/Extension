@@ -14,6 +14,7 @@
 -   Added a button to open the native Twitch Emote Menu
 -   Added an option to change where the 7TV Emote Menu Button appears
 -   Added an option to modify the scale of emotes in chat
+-   Added visual settings for highlighted messages, allows changing opacity and over-all style
 -   Sidebar sub-categories in the settings menu will now highlight what's in view
 -   Chat History should now load more consistently
 -   Pressing escape while the emote menu is open now closes it
@@ -22,7 +23,6 @@
 -   Fixed an issue which caused duplicate colon-complete matches with FFZ
 -   Fixed an issue that caused tab-completion to break with FFZ
 -   Fixed an issue where emotes in colon-complete wouldn't load on Mozilla Firefox
--   Added visual settings for highlighted messages, allows changing opacity and over-all style
 
 ### Version 3.0.0.19000 (Beta 19 RC)
 

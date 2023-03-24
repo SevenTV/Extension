@@ -1,3 +1,26 @@
+### Version 3.0.1
+
+-   Added an emote menu shortcut to define favorite emotes (alt+click)
+-   Added a tab in the emote menu to display favorite and most used emotes
+-   Added a button to open the native Twitch Emote Menu
+-   Added an option to change where the 7TV Emote Menu Button appears
+-   Added an option to modify the scale of emotes in chat
+-   Added visual settings for highlighted messages, allows changing opacity and over-all style
+-   Added an option to modify the font size in chat
+-   Unpausing chat should no longer cause old messages to rapidly scroll through
+-   Sidebar sub-categories in the settings menu will now highlight what's in view
+-   Chat History should now load more consistently
+-   Pressing escape while the emote menu is open now closes it
+-   Fixed an issue where Twitch badges sometimes failed to load
+-   Fixed an issue where Twitch emotes sometimes failed to load
+-   Fixed an issue which caused duplicate colon-complete matches with FFZ
+-   Fixed an issue that caused tab-completion to break with FFZ
+-   Fixed an issue where emotes in colon-complete wouldn't load on Mozilla Firefox
+-   Fixed a conflict causing emotes to sometimes display as broken images while other extensions were installed
+-   Fixed an issue which prevented highlights from being saved if the "Flash Title" option was turned on
+-   Fixed an issue where custom highlight sounds did not work if "Play sound on Mention" was turned off
+-   Fixed an issue where custom highlight flash title did not work if "Flash Title on Mention" was turned off
+
 ### Version 3.0.0
 
 <span style="font-size:1.5rem;">7TV has received a total overhaul. Check out what's new:</span>
