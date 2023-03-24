@@ -35,7 +35,7 @@ const thresoldName = computed(() => {
 const valueName = computed(() => {
 	const name = findThreshold(setting.value, props.node.options?.named_values);
 
-	return name ?? `${setting.value} ${props.node.options?.unit}`;
+	return name ?? `${setting.value}${props.node.options?.unit ? ` ${props.node.options.unit}` : ""}`;
 });
 
 function findThreshold(value: number, thresholds?: [number, number, string][]) {
