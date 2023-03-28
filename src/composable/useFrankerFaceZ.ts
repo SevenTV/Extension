@@ -136,7 +136,6 @@ function createOverrides(): void {
 	profile.set("chat.tab-complete.ffz-emotes", false);
 	profile.set("chat.mru.enabled", false); // this disables history navigation, as it may clash
 	profile.set("chat.emotes.enabled", false); // this disables emotes, as they serve zero purpose
-	profile.set("chat.inline-preview.enabled", false); // this disables "inline previews", as they break tab completion
 	profile.updateContext({ "disable-chat-processing": true });
 
 	// Move profile to top
