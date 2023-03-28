@@ -2,6 +2,7 @@
 
 -   Fixed issue which caused the chat input to lag over-time
 -   Fixed tab complete breaking when an emote was added both as a sub emote and 3rd party emote
+-   Fixed a clash with FFZ that led to some messages not appearing correctly
 
 ### Version 3.0.1.2000 (Nightly 2 RC)
 
