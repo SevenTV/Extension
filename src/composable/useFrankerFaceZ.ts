@@ -18,36 +18,29 @@ definePropertyHook(window as Window & { ffz?: FFZGlobalScope }, "ffz", {
 		data.active = true;
 		data.ffz = v;
 
-		log.info("<FFZ-Compat>", "FrankerFaceZ detected—patching for compatibility. woof");
-
-		try {
-			createOverrides();
-			disableChatProcessing();
-		} catch (e) {
-			log.error("<FFZ-Compat>", "Error occured patching FrankerFaceZ:", (e as Error).message);
-		}
-
-		if (!("FrankerFaceZ" in window)) return;
-
-		class SeventvAddonOverride extends FrankerFaceZ.utilities.addon.Addon {}
-		try {
-			SeventvAddonOverride.register({
-				id: "7tv-emotes",
-				name: "7TV",
-				author: "7TV",
-				description:
-					"The 7TV Extension is installed! We've patched some things to make sure it works well with FrankerFaceZ.",
-				version: "0.0.0",
-				website: "https://7tv.app",
-				settings: "add_ons.7tv_emotes",
-			});
-
-			log.info("<FFZ-Compat>", "Disabled FrankerFaceZ Add-On for 7TV");
-		} catch (e) {
-			void 0;
-		}
+		patchFFZ();
 	},
 });
+
+async function patchFFZ() {
+	log.info("<FFZ-Compat>", "FrankerFaceZ detected—patching for compatibility. woof");
+
+	try {
+		const settings = resolveSettingsManager();
+
+		if (!settings) throw new Error("FFZ settings module not fould");
+
+		if (!settings.enabled) {
+			await settings.waitFor(":enabled");
+		}
+
+		createOverrides();
+		disableChatProcessing();
+		createDummyAddon();
+	} catch (e) {
+		log.error("<FFZ-Compat>", "Error occured patching FrankerFaceZ:", (e as Error).message);
+	}
+}
 
 function resolveSettingsManager(): FFZSettingsManager | null {
 	if (!data.ffz) return null;
@@ -154,6 +147,28 @@ function setConfig<T>(profileName: keyof typeof data.profile, key: string, value
 	profile.set(key, value);
 }
 
+function createDummyAddon() {
+	if (!("FrankerFaceZ" in window)) return;
+
+	class SeventvAddonOverride extends FrankerFaceZ.utilities.addon.Addon {}
+	try {
+		SeventvAddonOverride.register({
+			id: "7tv-emotes",
+			name: "7TV",
+			author: "7TV",
+			description:
+				"The 7TV Extension is installed! We've patched some things to make sure it works well with FrankerFaceZ.",
+			version: "0.0.0",
+			website: "https://7tv.app",
+			settings: "add_ons.7tv_emotes",
+		});
+
+		log.info("<FFZ-Compat>", "Disabled FrankerFaceZ Add-On for 7TV");
+	} catch (e) {
+		void 0;
+	}
+}
+
 export function useFrankerFaceZ() {
 	return reactive({
 		active: data.active,
@@ -168,15 +183,29 @@ export function useFrankerFaceZ() {
 export interface FFZGlobalScope {
 	resolve<T>(key: string): T;
 	settings: FFZSettingsManager;
+	addons: FFZAddonsManager;
 }
 
-export interface FFZSettingsManager {
+export interface FFZModule {
+	loading: boolean;
+	loaded: boolean;
+	enabling: boolean;
+	enabled: boolean;
+	disabling: boolean;
+	disabled: boolean;
+	state: number;
+
+	on(event: string, callback: (...data: unknown[]) => void): void;
+	off(event: string, callback: (...data: unknown[]) => void): void;
+	waitFor(event: string): Promise<void>;
+}
+
+export interface FFZSettingsManager extends FFZModule {
 	get<T = unknown>(key: string): T;
 	getChanges<T = unknown>(key: string, cb: (val: T) => void): void;
 	main_context: {
 		updateContext(ctx: Record<string, unknown>): void;
 	};
-	addons: FFZAddonsManager;
 
 	createProfile: (e: {
 		name: string;
@@ -213,7 +242,7 @@ export interface FFZSettingsProfile {
 	updateContext(ctx: Record<string, unknown>): void;
 }
 
-export interface FFZAddonsManager {
+export interface FFZAddonsManager extends FFZModule {
 	disableAddon: (id: string) => void;
 	enableAddon: (id: string) => void;
 	enabled_addons: string[];
