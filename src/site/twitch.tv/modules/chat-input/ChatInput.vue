@@ -12,7 +12,7 @@
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import { onUnmounted, ref, toRaw, watch } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
@@ -22,11 +22,9 @@ import {
 	defineFunctionHook,
 	defineNamedEventHandler,
 	definePropertyHook,
-	definePropertyProxy,
 	unsetNamedEventHandler,
 	unsetPropertyHook,
 } from "@/common/Reflection";
-import { convertTwitchEmote } from "@/common/Transform";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -39,7 +37,6 @@ import ChatInputCarousel from "./ChatInputCarousel.vue";
 export interface TabToken {
 	token: string;
 	priority: number;
-	fromTwitch: boolean;
 	item?: SevenTV.ActiveEmote;
 }
 
@@ -87,11 +84,7 @@ const historyLocation = ref(-1);
 
 const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
 
-function findMatchingTokens(
-	str: string,
-	twitchSets?: Twitch.TwitchEmoteSet[],
-	mode: "tab" | "colon" = "tab",
-): TabToken[] {
+function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab"): TabToken[] {
 	const usedTokens = new Set<string>();
 
 	const matches: TabToken[] = [];
@@ -110,38 +103,24 @@ function findMatchingTokens(
 		matches.push({
 			token,
 			priority: 1,
-			fromTwitch: false,
 			item: ae,
 		});
 	}
 
-	for (const [token, ae] of Object.entries(emotes.active)) {
-		if (usedTokens.has(token) || !test(token)) continue;
+	for (const [provider, sets] of Object.entries(emotes.providers)) {
+		if (provider == "EMOJI") continue;
 
-		usedTokens.add(token);
-		matches.push({
-			token,
-			priority: 2,
-			fromTwitch: false,
-			item: ae,
-		});
-	}
-
-	if (twitchSets) {
-		for (const set of twitchSets) {
+		for (const [, set] of Object.entries(sets)) {
 			for (const emote of set.emotes) {
-				if (usedTokens.has(emote.token) || !test(emote.token)) continue;
+				const token = emote.name;
 
-				usedTokens.add(emote.token);
+				if (usedTokens.has(token) || !test(token)) continue;
+
+				usedTokens.add(token);
 				matches.push({
-					token: emote.token,
-					priority: 3,
-					fromTwitch: true,
-					item: {
-						id: emote.id,
-						name: emote.token,
-						data: convertTwitchEmote(emote),
-					},
+					token,
+					priority: 2,
+					item: emote,
 				});
 			}
 		}
@@ -155,7 +134,6 @@ function findMatchingTokens(
 			matches.push({
 				token,
 				priority: 4,
-				fromTwitch: false,
 			});
 		}
 	}
@@ -171,7 +149,6 @@ function findMatchingTokens(
 			matches.push({
 				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName + " ",
 				priority: 10,
-				fromTwitch: true,
 			});
 		}
 	}
@@ -245,7 +222,7 @@ function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 			state.expectedWord != currentWord
 		) {
 			const searchWord = currentWord.endsWith(" ") ? currentWord.slice(0, -1) : currentWord;
-			matches = findMatchingTokens(searchWord, component.props.emotes, "tab");
+			matches = findMatchingTokens(searchWord, "tab");
 			match = matches[matchIndex];
 		} else {
 			matches = state.matches;
@@ -273,7 +250,9 @@ function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 		}
 
 		if (match) {
-			const replacement = match.fromTwitch ? match.token : `${match.token} `;
+			const replacement = hasSlateToken(match.token, slateComponent.props.emotes)
+				? match.token
+				: `${match.token} `;
 
 			awaitingUpdate.value = true;
 
@@ -299,6 +278,18 @@ function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 			tabState.value = undefined;
 		}
 	}
+}
+
+function hasSlateToken(token: string, sets: Twitch.TwitchEmoteSet[]) {
+	for (const set of sets) {
+		for (const emote of set.emotes) {
+			if (emote.token == token) {
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 function pushHistory() {
@@ -429,7 +420,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 	const results = native?.call(this, str, ...args) ?? [];
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
-	const tokens = findMatchingTokens(str.substring(1), undefined, "colon");
+	const tokens = findMatchingTokens(str.substring(1), "colon");
 
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;
@@ -594,23 +585,6 @@ defineFunctionHook(props.instance.component, "componentDidUpdate", function (thi
 
 	return args;
 });
-
-definePropertyProxy(props.instance.component.componentRef, "props", {
-	get: (obj, prop) => {
-		switch (prop) {
-			case "emotes":
-				//Prevent Slate input from seeing misbehaving FFZ emotes
-				return obj[prop].filter(
-					(set: Twitch.TwitchEmoteSet) => set.id !== "FrankerFaceZWasHere" && set.id !== "BETTERTTV_EMOTES",
-				);
-			default:
-				return Reflect.get(obj, prop);
-		}
-	},
-});
-
-//Reload Slate input to load our masked emote sets
-toRaw(props.instance.component.componentRef).forceUpdate();
 
 onUnmounted(() => {
 	const component = props.instance.component;
