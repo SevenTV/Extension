@@ -2,8 +2,8 @@
 	<span class="seventv-reward-message-container seventv-highlight">
 		<div v-if="msgData.reward" class="reward-part">
 			<div class="reward-left">
-				<span v-if="msg.author" class="reward-username bold">
-					{{ msg.author.displayName }}
+				<span class="reward-username bold">
+					{{ msgData.displayName }}
 				</span>
 				redeemed
 				<span class="reward-name bold">
@@ -53,6 +53,7 @@ defineProps<{
 			color: var(--seventv-muted);
 		}
 		.reward-cost {
+			color: var(--seventv-muted);
 			margin-left: 1rem;
 
 			span,
