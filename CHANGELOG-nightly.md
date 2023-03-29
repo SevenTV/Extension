@@ -1,6 +1,6 @@
 ### Version 3.0.2.1000
 
--   Added an option to change how deleted messages appea
+-   Added an option to change how deleted messages appear
 -   Fixed issue which caused the chat input to lag over-time
 -   Fixed tab complete breaking when an emote was added both as a sub emote and 3rd party emote
 -   Fixed a clash with FFZ that led to some messages not appearing correctly
