@@ -56,7 +56,6 @@ function getReplyTray(props: TrayProps<"Reply">): Twitch.ChatTray<"Reply"> {
 			type: "reply",
 			additionalMetadata: {
 				reply: {
-					parentDeleted: props.deleted,
 					parentMsgId: props.id,
 					parentMessageBody: props.body,
 					...(props.authorID
