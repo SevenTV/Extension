@@ -97,6 +97,8 @@ function updateFavorites() {
 }
 
 function updateUsage() {
+	if (!shouldShowUsage) return [];
+
 	return Array.from(usage.value.entries())
 		.sort((a, b) => b[1] - a[1])
 		.map((e) => emotes.find((ae) => ae.id === e[0]))
@@ -112,18 +114,18 @@ if (props.provider === "FAVORITE") {
 		emotes: updateFavorites(),
 	} as SevenTV.EmoteSet));
 
-	sets["USAGE"] = reactive({
+	const usageSet = (sets["USAGE"] = reactive({
 		id: "USAGE",
 		name: t("emote_menu.most_used_set"),
 		emotes: updateUsage(),
-	} as SevenTV.EmoteSet);
+	} as SevenTV.EmoteSet));
 
 	watch(favorites, () => {
 		favSet.emotes = updateFavorites();
 	});
 
-	watch([usage, shouldShowUsage], ([, shouldShow]) => {
-		sets["USAGE"].emotes = shouldShow ? updateUsage() : [];
+	watch([usage, shouldShowUsage], () => {
+		usageSet.emotes = updateUsage();
 	});
 }
 
