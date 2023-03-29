@@ -15,7 +15,7 @@
 
 		<!-- Message Author -->
 		<span
-			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
+			v-tooltip="paint && paint.data && shouldRenderTooltip ? `Paint: ${paint.data.name}` : ''"
 			class="seventv-chat-user-username"
 			@click="(e) => emit('nameClick', e)"
 		>
@@ -34,6 +34,7 @@ import { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
+import { useConfig } from "@/composable/useSettings";
 import Badge from "./Badge.vue";
 
 const props = defineProps<{
@@ -52,6 +53,7 @@ const emit = defineEmits<{
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
+const shouldRenderTooltip = useConfig("vanity.nametag_paints");
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
