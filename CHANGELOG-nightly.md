@@ -1,7 +1,10 @@
-### Version 3.0.2.1000
+### Version 3.0.2.2000
 
 -   Reply threads should now function properly
 -   Added an option to change how deleted messages appear
+
+### Version 3.0.2.1000
+
 -   Fixed issue which caused the chat input to lag over-time
 -   Fixed tab complete breaking when an emote was added both as a sub emote and 3rd party emote
 -   Fixed a clash with FFZ that led to some messages not appearing correctly
