@@ -32,13 +32,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { useTray } from "@/composable/tray/useTray";
 import { useFloatScreen } from "@/composable/useFloatContext";
 import PinIcon from "@/assets/svg/icons/PinIcon.vue";
 import ReplyIcon from "@/assets/svg/icons/ReplyIcon.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import UserTag from "./UserTag.vue";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
+import { useTray } from "../tray/ChatTray";
 import { shift } from "@floating-ui/dom";
 
 const props = defineProps<{
@@ -49,7 +49,19 @@ const emit = defineEmits<{
 	(e: "pin"): void;
 }>();
 
-const { set } = useTray("Reply", { msg: props.msg });
+const tray = useTray("Reply", () => ({
+	id: props.msg.parent?.id ?? props.msg.id,
+	body: props.msg.parent?.body ?? props.msg.body,
+	deleted: props.msg.parent?.deleted ?? props.msg.moderation.deleted,
+	...(props.msg.parent?.author ?? props.msg.author
+		? {
+				authorID: props.msg.parent?.uid ?? props.msg.author?.id,
+				username: props.msg.parent?.author?.username ?? props.msg.author?.username,
+				displayName: props.msg.parent?.author?.displayName ?? props.msg.author?.displayName,
+		  }
+		: {}),
+}));
+
 const pinPrompt = ref(false);
 const pinButtonRef = ref<HTMLElement>();
 const pinPromptContainer = useFloatScreen(pinButtonRef, {
@@ -58,7 +70,7 @@ const pinPromptContainer = useFloatScreen(pinButtonRef, {
 });
 
 function openReplyTray(): void {
-	set();
+	tray.open();
 }
 
 function onPinAnswer(answer: string): void {
