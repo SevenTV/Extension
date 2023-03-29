@@ -149,6 +149,7 @@ definePropertyHook(room.value.component, "props", {
 	value(v) {
 		properties.primaryColorHex = v.primaryColorHex;
 		primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
+		document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
 
 		properties.useHighContrastColors = v.useHighContrastColors;
 		properties.showTimestamps = v.showTimestamps;

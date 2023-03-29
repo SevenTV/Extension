@@ -246,14 +246,15 @@ watchEffect(() => {
 	display: block;
 
 	&.has-highlight {
+		margin: -0.5rem -1.5rem;
+
 		&[data-highlight-style="0"] {
-			border: 0.25em solid;
+			border: 0.35rem solid;
 			border-top: none;
 			border-bottom: none;
 			border-color: var(--seventv-highlight-color);
 			background-color: var(--seventv-highlight-dim-color);
 			padding: 1rem 0.25rem;
-			margin: 0 -0.5em;
 
 			.seventv-chat-message-highlight-label {
 				&::after {
@@ -273,7 +274,6 @@ watchEffect(() => {
 		}
 
 		&[data-highlight-style="1"] {
-			margin: -0.5rem -1.5rem;
 			padding: 0.5rem 1.5rem;
 			background-color: var(--seventv-highlight-dim-color);
 		}
