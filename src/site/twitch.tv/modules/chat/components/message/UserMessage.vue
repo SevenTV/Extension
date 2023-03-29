@@ -287,9 +287,18 @@ watchEffect(() => {
 		margin-right: 0 !important;
 	}
 }
-.deleted:not(:hover) > .seventv-chat-message-body {
-	opacity: 0.5;
-	text-decoration: line-through;
+.deleted {
+	&:not(:hover) > .seventv-chat-message-body {
+		display: var(--seventv-chat-deleted-display);
+		opacity: var(--seventv-chat-deleted-opacity);
+		text-decoration: var(--seventv-chat-deleted-decoration);
+	}
+
+	&:hover {
+		.seventv-chat-message-moderated {
+			display: none !important;
+		}
+	}
 }
 
 .seventv-chat-message-moderated {
