@@ -54,7 +54,7 @@ import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import ChatPubSub from "./ChatPubSub.vue";
-import ChatTray from "./ChatTray.vue";
+import ChatTray from "./components/tray/ChatTray.vue";
 import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
