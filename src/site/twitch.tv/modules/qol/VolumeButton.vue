@@ -1,10 +1,9 @@
 <template>
-	<div v-if="enabled" class="seventv-tw-button volume-button" @click="onClick">
+	<div v-if="enabled" v-tooltip="'Emote Volume'" class="seventv-tw-button volume-button" @click="onClick">
 		<button>
 			<VolumeMutedIcon v-if="muted" class="icon" :class="{ seen }" />
 			<VolumeIcon v-else class="icon" :class="{ seen }" />
 		</button>
-		<span class="tooltip-over">Emote Volume</span>
 	</div>
 </template>
 
