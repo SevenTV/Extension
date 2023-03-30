@@ -6,6 +6,7 @@
 -   Fixed an issue which caused sub emotes and emojis to not display in the Favorites tab
 -   Fixed Most Used emotes tab ignoring visibility setting
 -   Fixed sub emotes not showing in colon-complete while FFZ is enabled
+-   Fixed an issue which caused VOD chat to crash for some users
 
 ### Version 3.0.2.1000
 
