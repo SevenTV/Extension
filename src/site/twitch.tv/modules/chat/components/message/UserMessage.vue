@@ -153,6 +153,7 @@ const timestamp = intlFormat(
 		localeMatcher: "lookup",
 		hour: "numeric",
 		minute: "numeric",
+		second: "numeric",
 	},
 	props.msg.timestamp,
 ).replace(/ (A|P)M/, "");
