@@ -70,11 +70,21 @@ export function useChatEmotes(ctx: ChannelContext) {
 		return x.providers[provider];
 	}
 
-	function find(f: (ae: SevenTV.ActiveEmote) => boolean): SevenTV.ActiveEmote | null {
+	function find(f: (ae: SevenTV.ActiveEmote) => boolean, activeOnly = false): SevenTV.ActiveEmote | null {
 		if (!x) return null;
 
-		for (const ae of Object.values(x.active)) {
-			if (f(ae)) return ae;
+		if (activeOnly) {
+			for (const ae of Object.values(x.active)) {
+				if (f(ae)) return ae;
+			}
+		} else {
+			for (const provider of Object.values(x.providers)) {
+				for (const set of Object.values(provider)) {
+					for (const emote of Object.values(set.emotes)) {
+						if (f(emote)) return emote;
+					}
+				}
+			}
 		}
 
 		return null;

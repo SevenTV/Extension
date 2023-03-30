@@ -237,8 +237,8 @@ export const config = [
 			document.body.style.setProperty(
 				"--seventv-chat-padding",
 				{
-					0: "0",
-					1: "0.5rem",
+					0: "0.25rem",
+					1: "1rem",
 				}[v] ?? null,
 			);
 		},
@@ -279,6 +279,41 @@ export const config = [
 		label: "Colored Mentions",
 		hint: "Show the color of users mentioned in chat",
 		defaultValue: true,
+	}),
+	declareConfig<number>("chat.deleted_messages", "DROPDOWN", {
+		path: ["Chat", "Style"],
+		label: "Deleted Message Style",
+		hint: "Control how deleted messages are displayed in chat",
+		effect(v: number) {
+			document.body.style.removeProperty("--seventv-chat-deleted-display");
+			document.body.style.setProperty("--seventv-chat-deleted-opacity", "0.5");
+			document.body.style.setProperty("--seventv-chat-deleted-prefix", "—");
+			switch (v) {
+				case 0:
+					document.body.style.setProperty("--seventv-chat-deleted-decoration", "none");
+					document.body.style.setProperty("--seventv-chat-deleted-opacity", "0");
+					document.body.style.setProperty("--seventv-chat-deleted-display", "none");
+					document.body.style.setProperty("--seventv-chat-deleted-prefix", "");
+					break;
+				case 1:
+					document.body.style.setProperty("--seventv-chat-deleted-decoration", "none");
+					break;
+				case 2:
+					document.body.style.setProperty("--seventv-chat-deleted-decoration", "line-through");
+					break;
+				case 3:
+					document.body.style.removeProperty("--seventv-chat-deleted-decoration");
+					document.body.style.removeProperty("--seventv-chat-deleted-opacity");
+					break;
+			}
+		},
+		options: [
+			["Hidden", 0],
+			["Dimmed", 1],
+			["Strikethrough", 2],
+			["Keep", 3],
+		],
+		defaultValue: 1,
 	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
 		path: ["Highlights", "Built-In"],

@@ -1,3 +1,17 @@
+### Version 3.0.2.3000
+
+-   Improved the look of Channel Point Redeem & Highlight messages
+-   Fixed an issue which caused sub emotes and emojis to not display in the Favorites tab
+-   Fixed the Most Used Emotes tab ignoring visibility setting
+-   Fixed sub emotes not showing in colon-complete while FFZ is enabled
+-   Fixed an issue which caused VOD chat to crash for some users
+
+
+### Version 3.0.2.2000
+
+-   Reply threads should now function properly
+-   Added an option to change how deleted messages appear
+
 ### Version 3.0.2.1000
 
 -   Fixed issue which caused the chat input to lag over-time

@@ -246,14 +246,18 @@ watchEffect(() => {
 	display: block;
 
 	&.has-highlight {
+		margin-top: -0.5rem;
+		margin-bottom: -0.5rem;
+		margin-left: -1rem;
+		margin-right: -0.75rem;
+
 		&[data-highlight-style="0"] {
-			border: 0.25em solid;
+			border: 0.25rem solid;
 			border-top: none;
 			border-bottom: none;
 			border-color: var(--seventv-highlight-color);
 			background-color: var(--seventv-highlight-dim-color);
-			padding: 1rem 0.25rem;
-			margin: 0 -0.5em;
+			padding: 1rem 0.75rem;
 
 			.seventv-chat-message-highlight-label {
 				&::after {
@@ -273,7 +277,6 @@ watchEffect(() => {
 		}
 
 		&[data-highlight-style="1"] {
-			margin: -0.5rem -1.5rem;
 			padding: 0.5rem 1.5rem;
 			background-color: var(--seventv-highlight-dim-color);
 		}
@@ -287,9 +290,18 @@ watchEffect(() => {
 		margin-right: 0 !important;
 	}
 }
-.deleted:not(:hover) > .seventv-chat-message-body {
-	opacity: 0.5;
-	text-decoration: line-through;
+.deleted {
+	&:not(:hover) > .seventv-chat-message-body {
+		display: var(--seventv-chat-deleted-display);
+		opacity: var(--seventv-chat-deleted-opacity);
+		text-decoration: var(--seventv-chat-deleted-decoration);
+	}
+
+	&:hover {
+		.seventv-chat-message-moderated {
+			display: none !important;
+		}
+	}
 }
 
 .seventv-chat-message-moderated {

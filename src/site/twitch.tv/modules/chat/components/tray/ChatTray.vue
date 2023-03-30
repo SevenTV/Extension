@@ -6,5 +6,5 @@
 	</template>
 </template>
 <script setup lang="ts">
-import { trayElements } from "@/composable/tray/useTray";
+import { trayElements } from "./ChatTray";
 </script>

@@ -1,8 +1,8 @@
 import { Component, Raw, markRaw, reactive, ref, watch } from "vue";
 import { REACT_ELEMENT_SYMBOL } from "@/common/ReactHooks";
+import { getModuleRef } from "@/composable/useModule";
 import ReplyTray from "./ReplyTray.vue";
 import { TrayProps } from "./tray";
-import { getModule } from "../useModule";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface ElementComponentAndProps<P = any> {
@@ -21,11 +21,11 @@ function toReactComponent<P extends object, T extends Component<P>>(
 
 	const reactElem = { parent: track.value, component: markRaw<Component<P>>(component), props: props };
 
-	const w = watch(track.value, () => {
+	const stop = watch(track.value, () => {
 		if (!track.value.current) {
 			// The node was unmounted so we clear and stop watching
 			trayElements.delete(reactElem);
-			w();
+			stop();
 		} else trayElements.add(reactElem);
 	});
 
@@ -39,7 +39,9 @@ function toReactComponent<P extends object, T extends Component<P>>(
 }
 
 function isReplyTray(props: TrayProps<keyof Twitch.ChatTray.Type>): props is TrayProps<"Reply"> {
-	return !!(props as TrayProps<"Reply">).msg;
+	const x = props as TrayProps<"Reply">;
+
+	return !!(x.id && x.body) && typeof x.deleted === "boolean";
 }
 
 function getReplyTray(props: TrayProps<"Reply">): Twitch.ChatTray<"Reply"> {
@@ -49,19 +51,18 @@ function getReplyTray(props: TrayProps<"Reply">): Twitch.ChatTray<"Reply"> {
 		sendButtonOverride: "reply",
 		disableBits: true,
 		disablePaidPinnedChat: true,
-		disableChat: props.msg.moderation.deleted,
+		disableChat: props.deleted,
 		sendMessageHandler: {
 			type: "reply",
 			additionalMetadata: {
 				reply: {
-					parentDeleted: props.msg.moderation.deleted,
-					parentMsgId: props.msg.id,
-					parentMessageBody: props.msg.body,
-					...(props.msg.author
+					parentMsgId: props.id,
+					parentMessageBody: props.body,
+					...(props.authorID
 						? {
-								parentUid: props.msg.author.id,
-								parentUserLogin: props.msg.author.username,
-								parentDisplayName: props.msg.author.displayName,
+								parentUid: props.authorID,
+								parentUserLogin: props.username,
+								parentDisplayName: props.displayName,
 						  }
 						: {}),
 				},
@@ -86,25 +87,38 @@ function getDefaultTray<T extends keyof Twitch.ChatTray.Type>(type: T, props: Tr
 
 export function useTray<T extends keyof Twitch.ChatTray.Type>(
 	type: T,
-	props?: TrayProps<T>,
+	props?: () => TrayProps<T>,
 	tray?: Twitch.ChatTray<T>,
 ) {
-	const mod = getModule("chat-input");
-	if (!mod?.instance) return { set: () => null, clear: () => null };
+	const mod = getModuleRef("chat-input");
 
-	const { setTray } = mod.instance;
+	function clear(): void {
+		if (!mod.value || typeof mod.value.instance?.setTray !== "function") return;
 
-	const p = { ...props, close: () => setTray?.() } as TrayProps<T>;
+		mod.value.instance.setTray(null);
+	}
 
-	function set() {
+	function open() {
+		if (!mod.value || typeof mod.value.instance?.setTray !== "function") return;
+
+		const p = {
+			...props?.(),
+			close: clear,
+		} as TrayProps<T>;
+		if (!p) return;
+
 		const trayObject = tray ?? getDefaultTray(type, p);
 		if (!trayObject) return;
-		setTray?.({
+
+		mod.value.instance.setTray({
 			...trayObject,
 			header: trayObject.header ? toReactComponent(trayObject.header, p) : undefined,
 			body: trayObject.body ? toReactComponent(trayObject.body, p) : undefined,
 		});
 	}
 
-	return { set, clear: p.close };
+	return {
+		open,
+		clear,
+	};
 }

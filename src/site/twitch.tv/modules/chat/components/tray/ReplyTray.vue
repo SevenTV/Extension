@@ -5,8 +5,8 @@
 			<TwChatReply v-else />
 		</div>
 		<div class="seventv-tray-header-text">
-			<span v-if="thread.length <= 1 && msg.author">
-				{{ `Replying to @${msg.author.displayName}:` }}
+			<span v-if="thread.length <= 1 && authorID">
+				{{ `Replying to @${displayName ?? username}:` }}
 			</span>
 			<span v-else> Thread </span>
 		</div>
@@ -22,7 +22,7 @@
 			:emotes="emotes.active"
 			:as="'Reply'"
 			class="thread-msg"
-			:class="{ 'is-root-msg': rootMsgID === m.id }"
+			:class="{ 'is-root-msg': currentMsg?.id === m.id }"
 		/>
 	</div>
 </template>
@@ -30,41 +30,39 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatMessages } from "@/composable/chat/useChatMessages";
 import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMessage.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
-import { useChannelContext } from "../channel/useChannelContext";
-import { useChatEmotes } from "../chat/useChatEmotes";
-import { useChatMessages } from "../chat/useChatMessages";
 
 const props = defineProps<{
 	close: () => void;
-	msg: ChatMessage;
+	id: string;
+	authorID?: string;
+	username?: string;
+	displayName?: string;
+	body: string;
+	deleted: boolean;
 }>();
 
-const rootMsgID = ref("");
-const thread = ref<ChatMessage[]>([props.msg]);
+const currentMsg = ref<ChatMessage | null>(null);
+const thread = ref<ChatMessage[]>([]);
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 const { find } = useChatMessages(ctx);
 onMounted(() => {
-	let currentMsg: ChatMessage | undefined = props.msg;
-	for (;;) {
-		if (!currentMsg) break;
+	currentMsg.value = find((m) => m.id === props.id);
+	if (!currentMsg.value) return;
 
-		const parentID = currentMsg.parent?.id as string | undefined;
-		if (!parentID) break;
+	const replies = find((m) => {
+		return !!(m.parent && m.parent.id === currentMsg.value!.id);
+	}, true);
 
-		const parentMsg = find((m) => m.id === parentID);
-		if (!parentMsg) break;
-
-		thread.value.push(parentMsg);
-		currentMsg = parentMsg;
-	}
-
-	rootMsgID.value = currentMsg?.id as string;
+	thread.value = [...replies, currentMsg.value];
 });
 </script>
 
