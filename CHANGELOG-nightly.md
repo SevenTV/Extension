@@ -3,6 +3,8 @@
 -   Improved the look of Channel Point Redeem & Highlight messages
 -   Reply threads should now function properly
 -   Added an option to change how deleted messages appear
+-   Fixed an issue which caused sub emotes and emojis to not display in the Favorites tab
+-   Fixed Most Used emotes tab ignoring visibility setting
 -   Fixed sub emotes not showing in colon-complete while FFZ is enabled
 
 ### Version 3.0.2.1000
