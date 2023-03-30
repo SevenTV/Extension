@@ -360,6 +360,8 @@ onUnmounted(() => {
 	unsetPropertyHook(list.value.component, "props");
 	unsetPropertyHook(controller.value.component, "props");
 	unsetPropertyHook(room.value.component, "props");
+
+	document.body.style.removeProperty("--seventv-channel-accent");
 });
 </script>
 
