@@ -1,5 +1,6 @@
 import { nextTick, reactive, toRef, watch } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
+import { TypedEventListenerOrEventListenerObject } from "@/common/EventTarget";
 import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
 import { useChatScroller } from "./useChatScroller";
 import { ChannelContext } from "../channel/useChannelContext";
@@ -24,6 +25,7 @@ interface ChatMessages {
 	chatters: Record<string, ChatUser>;
 	chattersByUsername: Record<string, ChatUser>;
 	overflowLimit: number;
+	target: ChatTarget;
 
 	twitchHandlers: Set<(v: Twitch.AnyMessage) => void>;
 
@@ -55,6 +57,7 @@ export function useChatMessages(ctx: ChannelContext) {
 			chatters: {} as Record<string, ChatUser>,
 			chattersByUsername: {} as Record<string, ChatUser>,
 			overflowLimit: 0,
+			target: new ChatTarget(),
 
 			twitchHandlers: new Set<(v: Twitch.AnyMessage) => void>(),
 
@@ -180,6 +183,9 @@ export function useChatMessages(ctx: ChannelContext) {
 
 				// push to the render queue all unbuffered messages
 				data.displayed.push(...unbuf);
+				for (const msg of unbuf) {
+					data.target.emit("message", msg);
+				}
 			}
 
 			// scroll to the bottom on the next tick
@@ -277,10 +283,53 @@ export function useChatMessages(ctx: ChannelContext) {
 		chattersByUsername: toRef(data, "chattersByUsername"),
 		moderated: toRef(data, "moderated"),
 		sendMessage: toRef(data, "sendMessage"),
+		target: data.target,
 		find,
 		messagesByUser,
 		awaitMessage,
 		add,
 		clear,
 	});
+}
+
+class ChatTarget extends EventTarget {
+	constructor() {
+		super();
+	}
+
+	addEventListener<T extends ChatEventName>(
+		type: T,
+		listener: TypedEventListenerOrEventListenerObject<ChatEvent<T>> | null,
+		options?: boolean | AddEventListenerOptions,
+	): void {
+		super.addEventListener(type, listener as EventListenerOrEventListenerObject, options);
+	}
+
+	removeEventListener<T extends ChatEventName>(
+		type: T,
+		listener: TypedEventListenerOrEventListenerObject<ChatEvent<T>> | null,
+		options?: boolean | EventListenerOptions,
+	): void {
+		super.removeEventListener(type, listener as EventListenerOrEventListenerObject, options);
+	}
+
+	dispatchEvent<T extends ChatEventName>(event: ChatEvent<T>): boolean {
+		return super.dispatchEvent(event);
+	}
+
+	emit<T extends ChatEventName>(type: T, data: ChatTypedEvent<T>) {
+		this.dispatchEvent(new CustomEvent(type, { detail: data }));
+	}
+}
+
+type ChatEventName = "message";
+
+type ChatTypedEvent<EVN extends ChatEventName> = {
+	message: ChatMessage;
+}[EVN];
+
+export class ChatEvent<T extends ChatEventName> extends CustomEvent<ChatTypedEvent<T>> {
+	constructor(type: T, data: ChatTypedEvent<T>) {
+		super(type, { detail: data });
+	}
 }

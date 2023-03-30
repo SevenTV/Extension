@@ -31,18 +31,27 @@
 				<template v-if="loaded[ae.id]">
 					<Emote :emote="ae" :unload="!loaded[ae.id]" />
 				</template>
+				<div
+					v-if="ae.data?.dank_file_url && tomfooleryEnabled && tomfoolerySeen"
+					v-tooltip="'Has Sound Effect'"
+					class="seventv-emote-volume-badge"
+				>
+					<VolumeIcon />
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { onKeyDown, until, useMagicKeys, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
+import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
+import VolumeIcon from "@/assets/svg/icons/VolumeIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import {
@@ -59,6 +68,12 @@ const emit = defineEmits<{
 	(e: "emote-clicked", ae: SevenTV.ActiveEmote): void;
 	(e: "emotes-updated", emotes: SevenTV.ActiveEmote[]): void;
 }>();
+
+// Tomfoolery
+const tomfooleryEnabled = computed(() => {
+	return getModule("qol")?.instance?.enabled ?? false;
+});
+const tomfoolerySeen = useConfig<boolean>("tomfoolery_2023.seen");
 
 const ctx = useEmoteMenuContext();
 const emotes = ref<SevenTV.ActiveEmote[]>([]);
@@ -278,6 +293,8 @@ defineExpose({
 	top: -1px;
 	background: var(--seventv-background-transparent-2);
 
+	z-index: 1;
+
 	.seventv-set-chevron {
 		cursor: pointer;
 		display: flex;
@@ -304,6 +321,8 @@ defineExpose({
 	height: 4rem;
 	margin: 0.25rem;
 	cursor: pointer;
+
+	position: relative;
 
 	&:hover {
 		background: hsla(0deg, 0%, 50%, 32%);
@@ -354,6 +373,29 @@ defineExpose({
 	}
 	&[ratio="4"] {
 		width: 13rem;
+	}
+
+	.seventv-emote-volume-badge {
+		position: absolute;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		right: 0;
+
+		transform: translate(50%, -50%);
+
+		width: 1em;
+		height: 1em;
+		background: white;
+		border-radius: 99em;
+		color: black;
+
+		svg {
+			width: 0.75em;
+			height: 0.75em;
+		}
 	}
 }
 

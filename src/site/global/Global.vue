@@ -26,10 +26,11 @@ const version = useConfig("app.version");
 
 const { target } = useWorker();
 target.addEventListener("config", (cfg) => {
-	const { version } = cfg.detail;
+	const { version, dank } = cfg.detail;
 	if (!version) return;
 
 	updater.latestVersion = version;
+	updater.isDank = dank ?? false;
 
 	// check for updates
 	updater.checkUpdate();

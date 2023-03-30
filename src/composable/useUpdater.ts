@@ -10,6 +10,7 @@ class Updater {
 	isUpToDate = true;
 	updateReady = false;
 	shouldRefreshOnUpdate = false;
+	isDank = false;
 	private updateCheckRequested = false;
 
 	constructor() {
