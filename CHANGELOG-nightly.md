@@ -2,6 +2,7 @@
 
 -   Reply threads should now function properly
 -   Added an option to change how deleted messages appear
+-   Fixed sub emotes not showing in colon-complete while FFZ is enabled
 
 ### Version 3.0.2.1000
 

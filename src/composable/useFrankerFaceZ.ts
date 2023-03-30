@@ -117,10 +117,9 @@ function createOverrides(): void {
 	// Set up config toggles
 	profile.set("toggled", true);
 	profile.set("chat.scrollback-length", 1); // this prevents an issue with ffz's scroller delaying messages
-	profile.set("chat.tab-complete.emoji", false); // this disables tab completion, as it clashes
+	profile.set("chat.tab-complete.emoji", false); // stops ffz from inserting another duplicate set of emotes into colon complete, as we already do
 	profile.set("chat.tab-complete.ffz-emotes", false);
 	profile.set("chat.mru.enabled", false); // this disables history navigation, as it may clash
-	profile.set("chat.emotes.enabled", false); // this disables emotes, as they serve zero purpose
 
 	// Move profile to top
 	if (typeof settings.moveProfile === "function") {
