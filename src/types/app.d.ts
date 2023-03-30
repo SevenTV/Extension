@@ -10,7 +10,7 @@ declare namespace SevenTV {
 		animated?: boolean;
 		owner: User | null;
 		host: ImageHost;
-		dank_file_url: string;
+		dank_file_url?: string;
 		versions?: EmoteVersion[];
 	}
 
