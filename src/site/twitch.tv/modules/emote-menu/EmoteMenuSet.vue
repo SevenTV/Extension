@@ -32,7 +32,7 @@
 					<Emote :emote="ae" :unload="!loaded[ae.id]" />
 				</template>
 				<div
-					v-if="ae.data?.dank_file_url && tomfooleryEnabled && tomfoolerySeen"
+					v-if="ae.data?.dank_file_url && getModule('qol')?.enabled && tomfoolerySeen"
 					v-tooltip="'Has Sound Effect'"
 					class="seventv-emote-volume-badge"
 				>
@@ -48,6 +48,7 @@ import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from "v
 import { onKeyDown, until, useMagicKeys, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
+import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import VolumeIcon from "@/assets/svg/icons/VolumeIcon.vue";
@@ -69,7 +70,6 @@ const emit = defineEmits<{
 }>();
 
 // Tomfoolery
-const tomfooleryEnabled = useConfig<boolean>("tomfoolery_2023.enabled");
 const tomfoolerySeen = useConfig<boolean>("tomfoolery_2023.seen");
 
 const ctx = useEmoteMenuContext();
