@@ -297,6 +297,7 @@ declare namespace SevenTV {
 	interface Config {
 		version: string;
 		overrides: unknown[];
+		dank?: boolean;
 		compatibility: ConfigCompat[];
 	}
 
