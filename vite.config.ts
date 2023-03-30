@@ -20,6 +20,7 @@ const ignoreHMR = [
 	"ChatInputModule.vue",
 	"EmoteMenuModule.vue",
 	"SettingsModule.vue",
+	"QoLModule.vue",
 ];
 
 const alwaysHot = ["src/background/background.ts"];
