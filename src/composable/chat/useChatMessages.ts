@@ -151,7 +151,6 @@ export function useChatMessages(ctx: ChannelContext) {
 		}
 
 		flush(now);
-		data.target.emit("message", message);
 	}
 
 	/**
@@ -184,6 +183,9 @@ export function useChatMessages(ctx: ChannelContext) {
 
 				// push to the render queue all unbuffered messages
 				data.displayed.push(...unbuf);
+				for (const msg of unbuf) {
+					data.target.emit("message", msg);
+				}
 			}
 
 			// scroll to the bottom on the next tick
