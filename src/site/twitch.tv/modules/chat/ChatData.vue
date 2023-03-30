@@ -97,7 +97,7 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 	for (const [o, n] of emotes_updated) {
 		if (!n || !o) continue;
 
-		const ae = emotes.find((ae) => ae.id === n.id);
+		const ae = emotes.find((ae) => ae.id === n.id, true);
 		if (!ae) continue;
 
 		const aer = ref(ae);

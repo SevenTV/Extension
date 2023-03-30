@@ -6,12 +6,13 @@
 					{{ msgData.displayName }}
 				</span>
 				redeemed
-				<div class="reward-name bold">
+				<span class="reward-name bold">
 					{{ msgData.reward.name }}
-				</div>
+				</span>
 			</div>
 			<span class="reward-cost bold">
-				{{ msgData.reward.cost }}
+				<TwChannelPoints />
+				<span>{{ msgData.reward.cost }}</span>
 			</span>
 		</div>
 
@@ -23,7 +24,11 @@
 </template>
 
 <script setup lang="ts">
+import type { ChatMessage } from "@/common/chat/ChatMessage";
+import TwChannelPoints from "@/assets/svg/twitch/TwChannelPoints.vue";
+
 defineProps<{
+	msg: ChatMessage;
 	msgData: Twitch.ChannelPointsRewardMessage;
 }>();
 </script>
@@ -32,14 +37,12 @@ defineProps<{
 .seventv-reward-message-container {
 	display: block;
 	padding: 0.5rem 2rem;
-	margin-top: 0.5rem;
-	margin-bottom: 0.5rem;
 	overflow-wrap: anywhere;
 	background-color: hsla(0deg, 0%, 50%, 5%);
 
 	.reward-part {
-		display: flex;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: 1fr auto;
 
 		.bold {
 			font-weight: 700;
@@ -47,11 +50,18 @@ defineProps<{
 
 		.reward-left {
 			display: inline-block;
+			color: var(--seventv-muted);
 		}
 		.reward-cost {
+			color: var(--seventv-muted);
 			margin-left: 1rem;
-			flex-grow: 0;
-			flex-shrink: 0;
+
+			span,
+			svg {
+				display: inline-block;
+				vertical-align: middle;
+				margin: 0 0.15rem;
+			}
 		}
 	}
 
@@ -59,9 +69,8 @@ defineProps<{
 		margin-top: 0.5rem;
 
 		&[highlight="true"] {
-			background-color: #755ebc;
 			border-radius: 0.2rem;
-			padding: 0.5rem;
+			padding: 0.25rem;
 			margin-left: -0.5rem;
 			margin-right: -0.5rem;
 		}
@@ -69,7 +78,9 @@ defineProps<{
 }
 
 .seventv-highlight {
-	border-left: 0.4rem solid grey;
+	border-left: 0.35rem solid;
+	border-right: 0.35rem solid;
+	border-color: var(--seventv-channel-accent);
 	padding-left: 1.6rem !important;
 }
 </style>

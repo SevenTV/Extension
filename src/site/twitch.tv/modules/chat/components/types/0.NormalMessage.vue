@@ -28,7 +28,6 @@ defineProps<{
 	display: block;
 	position: relative;
 	overflow-wrap: anywhere;
-	padding: 0 var(--seventv-chat-padding);
 
 	&:hover,
 	&:focus-within {
