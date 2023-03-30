@@ -237,8 +237,8 @@ export const config = [
 			document.body.style.setProperty(
 				"--seventv-chat-padding",
 				{
-					0: "0",
-					1: "0.5rem",
+					0: "0.25rem",
+					1: "1rem",
 				}[v] ?? null,
 			);
 		},
