@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref, watch } from "vue";
 
 defineProps<{
 	mod: unknown;
@@ -15,9 +15,18 @@ const emit = defineEmits<{
 	(e: "mounted", inst: InstanceType<ComponentFactory>): void;
 }>();
 
+let mounted = false;
+
 const modRef = ref();
 
-onMounted(() => {
-	emit("mounted", modRef.value);
-});
+watch(
+	modRef,
+	(val) => {
+		if (!mounted && val) {
+			emit("mounted", val);
+			mounted = true;
+		}
+	},
+	{ immediate: true },
+);
 </script>
