@@ -139,6 +139,7 @@ const emoteScale = useConfig<number>("chat.emote_scale");
 const meStyle = useConfig<number>("chat.slash_me_style");
 const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
+const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
@@ -153,7 +154,7 @@ const timestamp = intlFormat(
 		localeMatcher: "lookup",
 		hour: "numeric",
 		minute: "numeric",
-		second: "numeric",
+		second: displaySecondsInTimestamp.value ? "numeric" : undefined,
 	},
 	props.msg.timestamp,
 ).replace(/ (A|P)M/, "");
