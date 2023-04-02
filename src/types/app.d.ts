@@ -10,7 +10,6 @@ declare namespace SevenTV {
 		animated?: boolean;
 		owner: User | null;
 		host: ImageHost;
-		dank_file_url?: string;
 		versions?: EmoteVersion[];
 	}
 
@@ -297,7 +296,6 @@ declare namespace SevenTV {
 	interface Config {
 		version: string;
 		overrides: unknown[];
-		dank?: boolean;
 		compatibility: ConfigCompat[];
 	}
 
