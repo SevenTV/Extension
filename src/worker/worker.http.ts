@@ -429,9 +429,8 @@ async function doRequest<T = object>(base: string, path: string, method?: string
 	return fetch(`${base}/${path}`, {
 		method,
 		body: body ? JSON.stringify(body) : undefined,
-		headers: {
-			"Content-Type": "application/json",
-		},
+		referrer: location.origin,
+		referrerPolicy: "origin",
 	}).then(async (resp) => {
 		const loggable = resp.clone();
 
