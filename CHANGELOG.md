@@ -1,6 +1,6 @@
 ### Version 3.0.3
 
-- Disabled YouTube support temporarily
+- Disabled YouTube support temporarily due an issue with request pattern
 
 ### Version 3.0.2
 
