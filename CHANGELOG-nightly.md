@@ -1,6 +1,6 @@
 ### Version 3.0.3.1000
 
-- Worked around egregious anti-competitive behavior by BetterTTV
+- Disabled YouTube support temporarily
 
 ### Version 3.0.2.3000
 
