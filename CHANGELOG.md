@@ -1,3 +1,7 @@
+### Version 3.0.3
+
+- Disabled YouTube support temporarily due an issue with request pattern
+
 ### Version 3.0.2
 
 -   Fixed an issue which caused the chat input to increasingly slow down the page
