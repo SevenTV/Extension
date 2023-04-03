@@ -251,6 +251,21 @@ export function useChatMessages(ctx: ChannelContext) {
 	}
 
 	/**
+	 * Returns a message by the specified message id
+	 *
+	 * @param id the message id
+	 * @returns message
+	 */
+	function messageById(id: string): ChatMessage | void {
+		const message = data.displayed.find((msg) => {
+			return msg.id === id;
+		});
+		if (!messageById) return;
+
+		return message;
+	}
+
+	/**
 	 *
 	 * @param id the ID of the message to wait for
 	 * @param timeout the maximum amount of time we will wait
@@ -279,6 +294,7 @@ export function useChatMessages(ctx: ChannelContext) {
 		sendMessage: toRef(data, "sendMessage"),
 		find,
 		messagesByUser,
+		messageById,
 		awaitMessage,
 		add,
 		clear,
