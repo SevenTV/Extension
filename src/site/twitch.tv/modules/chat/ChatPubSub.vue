@@ -47,6 +47,10 @@ function onPubSubMessage(ev: MessageEvent) {
 			onModerationAction(data as PubSubMessageData.ModAction);
 			break;
 
+		case "chat_rich_embed":
+			onChatRichEmbed(data as PubSubMessageData.ChatRichEmbed);
+			break;
+
 		default:
 			break;
 	}
@@ -101,6 +105,25 @@ async function onModerationAction(msg: PubSubMessageData.ModAction) {
 		default:
 			break;
 	}
+}
+
+async function onChatRichEmbed(msg: PubSubMessageData.ChatRichEmbed) {
+	const ctx = msg.twitch_metadata;
+
+	if (!ctx) return;
+
+	// Find the message
+	const message = messages.messageById(msg.message_id);
+	if (!message) return;
+
+	const rmsg = ref(message);
+	const { title, author_name, request_url, thumbnail_url, twitch_metadata } = msg;
+
+	rmsg.value.richEmbed.title = title;
+	rmsg.value.richEmbed.author_name = author_name;
+	rmsg.value.richEmbed.request_url = request_url;
+	rmsg.value.richEmbed.thumbnail_url = thumbnail_url;
+	rmsg.value.richEmbed.twitch_metadata = twitch_metadata;
 }
 
 onUnmounted(() => {
