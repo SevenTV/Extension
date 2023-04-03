@@ -47,11 +47,14 @@ defineProps<{
 		.seventv-chat-message-rich-embed-layout-thumbnail {
 			height: 4.5rem;
 			width: 8rem;
+			flex-shrink: 0;
 		}
 		.seventv-chat-message-rich-embed-layout-description {
 			display: flex;
 			flex-direction: column;
 			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 			padding-left: 1rem;
 
 			.seventv-chat-message-rich-embed-layout-description-title {
