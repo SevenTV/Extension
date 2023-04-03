@@ -1,3 +1,7 @@
+### Version 3.0.3.1000
+
+- Worked around egregious anti-competitive behavior by BetterTTV
+
 ### Version 3.0.2.3000
 
 -   Improved the look of Channel Point Redeem & Highlight messages

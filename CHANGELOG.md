@@ -1,3 +1,18 @@
+### Version 3.0.3
+
+**This is a patch addressing egregious <span style="color:#ff2d2d;">anti-competitive behavior by the developers of BetterTTV.</span>**
+
+BetterTTV began fingerprinting and blocking requests from the 7TV extension on 03/04/2023.
+We believe this behavior is completely unacceptable.
+
+7TV will never purposefully block API usage from other services, even competitors. 
+
+7TV will always strive to be free and open, and will continue to be committed to never pay walling core features, and providing nearly limitless slots for all users 
+
+[Sign Up](https://7tv.app/?extension303)
+
+- Worked around egregious anti-competitive behavior by BetterTTV
+
 ### Version 3.0.2
 
 -   Fixed an issue which caused the chat input to increasingly slow down the page
