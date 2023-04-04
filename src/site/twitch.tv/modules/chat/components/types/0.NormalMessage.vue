@@ -1,7 +1,13 @@
 <template>
 	<div class="seventv-chat-message-container">
 		<div class="seventv-chat-message-background" tabindex="0">
-			<div v-if="msgData.reply" class="seventv-reply-part">
+			<div
+				ref="replyRef"
+				v-if="msgData.reply"
+				class="seventv-reply-part"
+				@mouseenter="show(replyRef)"
+				@mouseleave="hide()"
+			>
 				<div class="seventv-chat-reply-icon">
 					<TwChatReply />
 				</div>
@@ -15,13 +21,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
+import { useTooltip } from "@/composable/useTooltip";
+import ReplyTooltip from "@/site/twitch.tv/modules/chat/components/message/ReplyTooltip.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 
-defineProps<{
+const props = defineProps<{
 	msg: ChatMessage;
 	msgData: Twitch.ChatMessage;
 }>();
+
+const replyRef = ref<HTMLElement>();
+
+const { show, hide } = useTooltip(ReplyTooltip, {
+	displayname: props.msgData.reply?.parentDisplayName,
+	message: props.msgData.reply?.parentMessageBody,
+});
 </script>
 <style scoped lang="scss">
 .seventv-chat-message-container {
