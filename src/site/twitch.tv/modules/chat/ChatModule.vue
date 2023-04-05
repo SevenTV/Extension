@@ -315,6 +315,12 @@ export const config = [
 		],
 		defaultValue: 1,
 	}),
+	declareConfig("chat.timestamp_with_seconds", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Timestamp Seconds",
+		hint: "If checked, timestamps in chat will also show seconds",
+		defaultValue: false,
+	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Show Mention Highlights",
