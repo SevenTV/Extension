@@ -148,16 +148,7 @@ const locale = navigator.languages && navigator.languages.length ? navigator.lan
 const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };
 
 // Timestamp
-const timestamp = intlFormat(
-	{ locale },
-	{
-		localeMatcher: "lookup",
-		hour: "numeric",
-		minute: "numeric",
-		second: displaySecondsInTimestamp.value ? "numeric" : undefined,
-	},
-	props.msg.timestamp,
-).replace(/ (A|P)M/, "");
+const timestamp = ref("");
 
 // Tokenize the message
 type MessageTokenOrText = AnyToken | string;
@@ -240,6 +231,17 @@ watchEffect(() => {
 			msg.value.highlight.color.concat(SetHexAlpha(highlightOpacity.value / 100)),
 		);
 	}
+
+	timestamp.value = intlFormat(
+		{ locale },
+		{
+			localeMatcher: "lookup",
+			hour: "numeric",
+			minute: "numeric",
+			second: displaySecondsInTimestamp.value ? "numeric" : undefined,
+		},
+		props.msg.timestamp,
+	).replace(/ (A|P)M/, "");
 });
 </script>
 
