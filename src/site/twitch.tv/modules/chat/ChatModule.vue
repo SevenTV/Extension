@@ -317,8 +317,8 @@ export const config = [
 	}),
 	declareConfig("chat.timestamp_with_seconds", "TOGGLE", {
 		path: ["Chat", "Style"],
-		label: "Display seconds in timestamp",
-		hint: "If checked, seconds are also displayed in the timestamp",
+		label: "Timestamp Seconds",
+		hint: "If checked, timestamps in chat will also show seconds",
 		defaultValue: false,
 	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
