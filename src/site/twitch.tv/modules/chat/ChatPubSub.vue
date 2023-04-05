@@ -113,7 +113,9 @@ async function onChatRichEmbed(msg: PubSubMessageData.ChatRichEmbed) {
 	if (!ctx) return;
 
 	// Find the message
-	const message = messages.messageById(msg.message_id);
+	const message = await messages.awaitMessage(msg.message_id).catch((err) => {
+		log.debug("failed to find new message for low trust user", err.message);
+	});
 	if (!message) return;
 
 	const rmsg = ref(message);
