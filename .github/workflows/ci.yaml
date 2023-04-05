@@ -42,7 +42,7 @@ jobs:
         name: WebExtension Lint, Build, Test
         runs-on: aws-runner
         env:
-            installable: ${{ !!secrets.WEB_EXTENSION_CRX }}
+            installable: ${{ secrets.WEB_EXTENSION_CRX != '' }}
         concurrency:
             group: ${{ github.workflow }}-ci-${{ github.ref }}
             cancel-in-progress: true
