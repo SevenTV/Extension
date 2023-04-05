@@ -170,6 +170,7 @@ if (props.emote.data?.owner?.style?.color) {
 
 img.tooltip-emote {
 	margin-bottom: 1rem;
+	margin-top: 1rem;
 }
 
 svg.tooltip-emoji {
@@ -183,7 +184,6 @@ svg.tooltip-emoji {
 	flex: 1;
 	padding-bottom: 0.25rem;
 	margin-bottom: 0.25rem;
-	border-bottom: 0.1rem solid var(--seventv-muted);
 
 	> h3 {
 		font-weight: 600;
@@ -193,8 +193,7 @@ svg.tooltip-emoji {
 .divider {
 	width: 65%;
 	height: 0.01em;
-	background-color: currentColor;
-	opacity: 0.15;
+	background-color: var(--seventv-border-transparent-1);
 	margin-top: 0.5rem;
 	margin-bottom: 0.5rem;
 }
