@@ -332,6 +332,11 @@ watch(
 			}
 		}
 
+		input:focus {
+			outline: none !important;
+			border: 1px solid var(--seventv-primary);
+		}
+
 		.seventv-settings-search-input {
 			background-color: var(--seventv-background-shade-1);
 			border-radius: 0.25rem;
