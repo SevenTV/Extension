@@ -72,7 +72,7 @@
 		</span>
 
 		<!-- Chat Rich Embed -->
-		<RichEmbed v-if="msg.richEmbed.request_url" :richEmbed="msg.richEmbed" />
+		<RichEmbed v-if="msg.richEmbed.request_url" :rich-embed="msg.richEmbed" />
 
 		<!-- Ban State -->
 		<template v-if="!hideModeration && (msg.moderation.banned || msg.moderation.deleted)">
