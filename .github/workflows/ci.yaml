@@ -118,7 +118,7 @@ jobs:
                   cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
                   cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
 
-            - name: "upload Artifact: Installable"
+            - name: "Upload Artifact: Installable"
               if: ${{ env.installable }}
               uses: actions/upload-artifact@v3
               with:
