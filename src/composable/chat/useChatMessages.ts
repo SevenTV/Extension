@@ -251,21 +251,6 @@ export function useChatMessages(ctx: ChannelContext) {
 	}
 
 	/**
-	 * Returns a message by the specified message id
-	 *
-	 * @param id the message id
-	 * @returns message
-	 */
-	function messageById(id: string): ChatMessage | void {
-		const message = data.displayed.find((msg) => {
-			return msg.id === id;
-		});
-		if (!messageById) return;
-
-		return message;
-	}
-
-	/**
 	 *
 	 * @param id the ID of the message to wait for
 	 * @param timeout the maximum amount of time we will wait
@@ -273,6 +258,17 @@ export function useChatMessages(ctx: ChannelContext) {
 	 */
 	async function awaitMessage(id: string, timeout = 1e4): Promise<ChatMessage> {
 		return new Promise((resolve, reject) => {
+			// Check displayed and buffer if message has already been pushed.
+			const displayedMessage = data.displayed.find((msg) => {
+				return msg.id === id;
+			});
+			if (displayedMessage) resolve(displayedMessage);
+
+			const bufferMessage = data.buffer.find((msg) => {
+				return msg.id === id;
+			});
+			if (bufferMessage) resolve(bufferMessage);
+
 			const { stop } = useTimeoutFn(() => {
 				data.awaited.delete(id);
 				reject(Error("Timed out waiting for message"));
@@ -294,7 +290,6 @@ export function useChatMessages(ctx: ChannelContext) {
 		sendMessage: toRef(data, "sendMessage"),
 		find,
 		messagesByUser,
-		messageById,
 		awaitMessage,
 		add,
 		clear,
