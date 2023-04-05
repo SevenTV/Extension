@@ -143,6 +143,7 @@ const emoteScale = useConfig<number>("chat.emote_scale");
 const meStyle = useConfig<number>("chat.slash_me_style");
 const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
+const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
@@ -151,15 +152,7 @@ const locale = navigator.languages && navigator.languages.length ? navigator.lan
 const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };
 
 // Timestamp
-const timestamp = intlFormat(
-	{ locale },
-	{
-		localeMatcher: "lookup",
-		hour: "numeric",
-		minute: "numeric",
-	},
-	props.msg.timestamp,
-).replace(/ (A|P)M/, "");
+const timestamp = ref("");
 
 // Tokenize the message
 type MessageTokenOrText = AnyToken | string;
@@ -241,6 +234,19 @@ watchEffect(() => {
 			"--seventv-highlight-dim-color",
 			msg.value.highlight.color.concat(SetHexAlpha(highlightOpacity.value / 100)),
 		);
+	}
+
+	if (properties.showTimestamps || msg.value.historical || props.forceTimestamp) {
+		timestamp.value = intlFormat(
+			{ locale },
+			{
+				localeMatcher: "lookup",
+				hour: "numeric",
+				minute: "numeric",
+				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
+			},
+			props.msg.timestamp,
+		).replace(/ (A|P)M/, "");
 	}
 });
 </script>

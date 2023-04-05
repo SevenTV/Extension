@@ -41,6 +41,8 @@ jobs:
     ci:
         name: WebExtension Lint, Build, Test
         runs-on: aws-runner
+        env:
+            installable: ${{ secrets.WEB_EXTENSION_CRX }}
         concurrency:
             group: ${{ github.workflow }}-ci-${{ github.ref }}
             cancel-in-progress: true
@@ -89,7 +91,7 @@ jobs:
 
             # CRX is Chromium installer
             - name: Create CRX (Chromium)
-              if: ${{ secrets.WEB_EXTENSION_CRX }}
+              if: ${{ env.installable }}
               uses: cardinalby/webext-buildtools-chrome-crx-action@v2
               with:
                   zipFilePath: dist/mv3.zip
@@ -98,7 +100,7 @@ jobs:
 
             # XPI is Firefox installer
             - name: Create XPI (Firefox)
-              if: ${{ secrets.WEB_EXTENSION_CRX }}
+              if: ${{ env.installable }}
               id: web-ext-build
               uses: kewisch/action-web-ext@v1
               with:
@@ -108,20 +110,26 @@ jobs:
 
             - name: Structure Files
               run: |
-                  mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
-
                   mkdir -p dist/manifest
                   cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
                   cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
 
-            - name: Upload Build Artifact
+            - name: "Upload Artifact: Installable"
+              if: ${{ env.installable }}
+              uses: actions/upload-artifact@v3
+              with:
+                  name: installable
+                  retention-days: 60
+                  path: |
+                      dist/ext.crx
+                      dist/ext.xpi
+
+            - name: "Upload Artifact: Unpacked"
               uses: actions/upload-artifact@v3
               with:
                   name: build
                   retention-days: 60
                   path: |
-                      dist/ext.crx
-                      dist/ext.xpi
                       dist/mv3.zip
                       dist/mv2.zip
 
@@ -144,6 +152,12 @@ jobs:
               uses: actions/download-artifact@v3
               with:
                   name: build
+                  path: ext
+
+            - name: Download Artifact
+              uses: actions/download-artifact@v3
+              with:
+                  name: installable
                   path: ext
 
             - name: File Names
