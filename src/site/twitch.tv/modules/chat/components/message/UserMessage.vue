@@ -232,16 +232,18 @@ watchEffect(() => {
 		);
 	}
 
-	timestamp.value = intlFormat(
-		{ locale },
-		{
-			localeMatcher: "lookup",
-			hour: "numeric",
-			minute: "numeric",
-			second: displaySecondsInTimestamp.value ? "numeric" : undefined,
-		},
-		props.msg.timestamp,
-	).replace(/ (A|P)M/, "");
+	if (properties.showTimestamps || msg.value.historical || props.forceTimestamp) {
+		timestamp.value = intlFormat(
+			{ locale },
+			{
+				localeMatcher: "lookup",
+				hour: "numeric",
+				minute: "numeric",
+				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
+			},
+			props.msg.timestamp,
+		).replace(/ (A|P)M/, "");
+	}
 });
 </script>
 
