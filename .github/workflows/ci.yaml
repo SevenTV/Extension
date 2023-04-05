@@ -89,7 +89,9 @@ jobs:
 
             # CRX is Chromium installer
             - name: Create CRX (Chromium)
-              if: ${{ secrets.WEB_EXTENSION_CRX }}
+              env:
+                  private_key: ${{ secrets.WEB_EXTENSION_CRX }}
+              if: ${{ env.private_key }}
               uses: cardinalby/webext-buildtools-chrome-crx-action@v2
               with:
                   zipFilePath: dist/mv3.zip
@@ -98,7 +100,9 @@ jobs:
 
             # XPI is Firefox installer
             - name: Create XPI (Firefox)
-              if: ${{ secrets.WEB_EXTENSION_CRX }}
+              env:
+                  private_key: ${{ secrets.WEB_EXTENSION_CRX }}
+              if: ${{ env.private_key }}
               id: web-ext-build
               uses: kewisch/action-web-ext@v1
               with:
