@@ -110,10 +110,6 @@ jobs:
 
             - name: Structure Files
               run: |
-                  if [ -f dist/ext.crx ]; then
-                      mv dist/ext.crx dist/ext.zip
-                  fi
-
                   mkdir -p dist/manifest
                   cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
                   cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
