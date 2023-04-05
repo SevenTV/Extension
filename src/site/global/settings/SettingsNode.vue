@@ -114,7 +114,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 
 	.subtitle {
 		grid-area: subtitle;
-		color: hsla(0deg, 0%, 60%, 50%);
+		color: var(--seventv-text-color-secondary);
 		padding: 0.5rem;
 		margin: -0.5rem;
 		width: 100%;

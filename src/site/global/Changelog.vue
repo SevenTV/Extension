@@ -131,7 +131,7 @@ function updateMediaHref(value: string): string {
 	}
 
 	:deep(li) {
-		opacity: 0.75;
+		color: var(--seventv-text-color-secondary);
 	}
 
 	:deep(h3) {

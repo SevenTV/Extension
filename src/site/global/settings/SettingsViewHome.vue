@@ -73,7 +73,7 @@ document.head.appendChild(twitterScript);
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				color: hsla(0deg, 0%, 50%, 90%);
+				color: var(--seventv-text-color-secondary);
 			}
 		}
 	}
