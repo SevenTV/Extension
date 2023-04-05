@@ -133,6 +133,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		align-items: start;
 		margin: 0.5rem 1rem;
 		grid-area: control;
+		position: unset;
 	}
 
 	@media (max-width: 60rem) {
