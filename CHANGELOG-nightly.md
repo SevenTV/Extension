@@ -7,7 +7,7 @@
 
 ### Version 3.0.3.1000
 
-- Disabled YouTube support temporarily due an issue with request pattern
+-   Disabled YouTube support temporarily due an issue with request pattern
 
 ### Version 3.0.2.3000
 
@@ -16,7 +16,6 @@
 -   Fixed the Most Used Emotes tab ignoring visibility setting
 -   Fixed sub emotes not showing in colon-complete while FFZ is enabled
 -   Fixed an issue which caused VOD chat to crash for some users
-
 
 ### Version 3.0.2.2000
 

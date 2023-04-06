@@ -5,7 +5,12 @@
 			ref="copyButtonRef"
 			class="seventv-button"
 			@click="copyToast = true"
-			@mouseenter="() => { tooltipText = 'Copy'; show(copyButtonRef) }"
+			@mouseenter="
+				() => {
+					tooltipText = 'Copy';
+					show(copyButtonRef);
+				}
+			"
 			@mouseleave="hide()"
 		>
 			<CopyIcon />
@@ -15,16 +20,26 @@
 			ref="pinButtonRef"
 			class="seventv-button"
 			@click="pinPrompt = true"
-			@mouseenter="() => { tooltipText = 'Pin'; show(pinButtonRef) }"
+			@mouseenter="
+				() => {
+					tooltipText = 'Pin';
+					show(pinButtonRef);
+				}
+			"
 			@mouseleave="hide()"
 		>
 			<PinIcon />
 		</div>
-		<div 
+		<div
 			ref="replyButtonRef"
 			class="seventv-button"
 			@click="openReplyTray"
-			@mouseenter="() => { tooltipText = 'Reply'; show(replyButtonRef) }"
+			@mouseenter="
+				() => {
+					tooltipText = 'Reply';
+					show(replyButtonRef);
+				}
+			"
 			@mouseleave="hide()"
 		>
 			<component :is="msg.parent ? TwChatReply : ReplyIcon" />
@@ -34,11 +49,7 @@
 	<!-- Toast for Copy -->
 	<template v-if="copyToast && copyToastContainer">
 		<Teleport :to="copyToastContainer">
-			<UiCopiedMessageToast
-				title="Message Copied"
-				:body="msg.body"
-				@close="copyToast = false"
-			>
+			<UiCopiedMessageToast title="Message Copied" :body="msg.body" @close="copyToast = false">
 				Message from
 				<UserTag v-if="msg.author" :user="msg.author" /> has been copied
 			</UiCopiedMessageToast>
@@ -65,18 +76,18 @@
 import { ref } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useFloatScreen } from "@/composable/useFloatContext";
-import CopyIcon from "@/assets/svg/icons/CopyIcon.vue"
+import { useConfig } from "@/composable/useSettings";
+import { useTooltip } from "@/composable/useTooltip";
+import CopyIcon from "@/assets/svg/icons/CopyIcon.vue";
 import PinIcon from "@/assets/svg/icons/PinIcon.vue";
 import ReplyIcon from "@/assets/svg/icons/ReplyIcon.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
+import BadgeTooltip from "./BadgeTooltip.vue";
 import UserTag from "./UserTag.vue";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
 import UiCopiedMessageToast from "@/ui/UiCopiedMessageToast.vue";
-import { useTooltip } from "@/composable/useTooltip";
-import BadgeTooltip from "./BadgeTooltip.vue";
 import { useTray } from "../tray/ChatTray";
 import { shift } from "@floating-ui/dom";
-import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
 	msg: ChatMessage;
