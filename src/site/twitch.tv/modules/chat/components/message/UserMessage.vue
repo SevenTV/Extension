@@ -305,7 +305,7 @@ watchEffect(() => {
 
 	&:hover {
 		.seventv-chat-message-moderated {
-			display: none !important;
+			visibility: hidden;
 		}
 	}
 }
