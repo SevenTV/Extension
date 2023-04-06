@@ -1,3 +1,7 @@
+### Untitled Version
+
+- Fixed an issue which caused flickering when hovering on a deleted message
+
 ### Version 3.0.3.1000
 
 - Disabled YouTube support temporarily due an issue with request pattern
