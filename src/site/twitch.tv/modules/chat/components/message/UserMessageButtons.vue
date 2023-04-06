@@ -1,17 +1,49 @@
 <template>
 	<div class="seventv-chat-message-buttons">
 		<div
+			v-if="showCopyIcon && !msg.moderation.deleted"
+			ref="copyButtonRef"
+			class="seventv-button"
+			@click="copyToast = true"
+			@mouseenter="() => { tooltipText = 'Copy'; show(copyButtonRef) }"
+			@mouseleave="hide()"
+		>
+			<CopyIcon />
+		</div>
+		<div
 			v-if="msg.pinnable && !msg.moderation.deleted"
 			ref="pinButtonRef"
 			class="seventv-button"
 			@click="pinPrompt = true"
+			@mouseenter="() => { tooltipText = 'Pin'; show(pinButtonRef) }"
+			@mouseleave="hide()"
 		>
 			<PinIcon />
 		</div>
-		<div class="seventv-button" @click="openReplyTray">
+		<div 
+			ref="replyButtonRef"
+			class="seventv-button"
+			@click="openReplyTray"
+			@mouseenter="() => { tooltipText = 'Reply'; show(replyButtonRef) }"
+			@mouseleave="hide()"
+		>
 			<component :is="msg.parent ? TwChatReply : ReplyIcon" />
 		</div>
 	</div>
+
+	<!-- Toast for Copy -->
+	<template v-if="copyToast && copyToastContainer">
+		<Teleport :to="copyToastContainer">
+			<UiCopiedMessageToast
+				title="Message Copied"
+				:body="msg.body"
+				@close="copyToast = false"
+			>
+				Message from
+				<UserTag v-if="msg.author" :user="msg.author" /> has been copied
+			</UiCopiedMessageToast>
+		</Teleport>
+	</template>
 
 	<!-- Prompt for Pin -->
 	<template v-if="pinPrompt && pinPromptContainer">
@@ -33,13 +65,18 @@
 import { ref } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useFloatScreen } from "@/composable/useFloatContext";
+import CopyIcon from "@/assets/svg/icons/CopyIcon.vue"
 import PinIcon from "@/assets/svg/icons/PinIcon.vue";
 import ReplyIcon from "@/assets/svg/icons/ReplyIcon.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import UserTag from "./UserTag.vue";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
+import UiCopiedMessageToast from "@/ui/UiCopiedMessageToast.vue";
+import { useTooltip } from "@/composable/useTooltip";
+import BadgeTooltip from "./BadgeTooltip.vue";
 import { useTray } from "../tray/ChatTray";
 import { shift } from "@floating-ui/dom";
+import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
 	msg: ChatMessage;
@@ -62,12 +99,28 @@ const tray = useTray("Reply", () => ({
 		: {}),
 }));
 
+const tooltipText = ref("");
+
+const { show, hide } = useTooltip(BadgeTooltip, {
+	alt: tooltipText,
+});
+
+const showCopyIcon = useConfig<boolean>("chat.copy_icon_toggle");
+const copyToast = ref(false);
+const copyButtonRef = ref<HTMLElement>();
+const copyToastContainer = useFloatScreen(copyButtonRef, {
+	enabled: () => copyToast.value,
+	middleware: [shift({ padding: 8 })],
+});
+
 const pinPrompt = ref(false);
 const pinButtonRef = ref<HTMLElement>();
 const pinPromptContainer = useFloatScreen(pinButtonRef, {
 	enabled: () => pinPrompt.value,
 	middleware: [shift({ padding: 8 })],
 });
+
+const replyButtonRef = ref<HTMLElement>();
 
 function openReplyTray(): void {
 	tray.open();

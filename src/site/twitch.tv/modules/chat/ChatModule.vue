@@ -315,11 +315,11 @@ export const config = [
 		],
 		defaultValue: 1,
 	}),
-	declareConfig("chat.timestamp_with_seconds", "TOGGLE", {
-		path: ["Chat", "Style"],
-		label: "Timestamp Seconds",
-		hint: "If checked, timestamps in chat will also show seconds",
-		defaultValue: false,
+	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
+		path: ["Chat", "Message Tools"],
+		label: "Copy Icon",
+		hint: "Show a 'Copy' icon when hovering over a chat message to copy the message",
+		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
