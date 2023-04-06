@@ -342,9 +342,10 @@ watch(
 			border-radius: 0.25rem;
 			height: 4rem;
 			width: 100%;
-			border: none;
+			border: 1px solid #00000000;
 			padding-left: 3rem;
 			color: currentColor;
+			transition-duration: 140ms;
 		}
 	}
 

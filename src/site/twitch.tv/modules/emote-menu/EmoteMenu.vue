@@ -381,6 +381,7 @@ onUnmounted(() => {
 					border: 1px solid var(--seventv-border-transparent-1);
 					padding-left: 3rem;
 					color: currentColor;
+					transition-duration: 140ms;
 				}
 			}
 		}
