@@ -240,13 +240,11 @@ jobs:
                   BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
               run: |
                   yarn build-hosted:prod
-            - name: Install Dependencies
-              run: |
-                  yarn
 
             - name: Upload to Host
               uses: shallwefootball/s3-upload-action@master
               with:
+                  endpoint: ${{ secrets.R2_API_ENDPOINT }}
                   aws_key_id: ${{ secrets.R2_API_AK }}
                   aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
                   aws_bucket: 7tv-extension
