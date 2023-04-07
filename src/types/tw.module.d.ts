@@ -7,6 +7,7 @@ import type ChatModuleVue from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import type EmoteMenuModuleVue from "@/site/twitch.tv/modules/emote-menu/EmoteMenuModule.vue";
 import type ModLogsModule from "@/site/twitch.tv/modules/mod-logs/ModLogsModule.vue";
 import type SettingsModuleVue from "@/site/twitch.tv/modules/settings/SettingsModule.vue";
+import type SidebarPreviewsModuleVue from "@/site/twitch.tv/modules/sidebar-previews/SidebarPreviewsModule.vue";
 
 declare type TwModuleID = keyof TwModuleComponentMap;
 
@@ -16,6 +17,7 @@ declare type TwModuleComponentMap = {
 	"chat-vod": typeof ChatVodModuleVue;
 	"emote-menu": typeof EmoteMenuModuleVue;
 	"mod-logs": typeof ModLogsModule;
+	"sidebar-previews": typeof SidebarPreviewsModuleVue;
 	autoclaim: typeof AutoclaimModuleVue;
 	avatars: typeof AvatarsModuleVue;
 	chat: typeof ChatModuleVue;

@@ -5,6 +5,7 @@
 -   Added hot-patching functionality to the extension
 -   Added chat rich embeds which allows twitch clips to preview in chat
 -   Added a "Copy Message" button
+-   Added an option to show thumbnail previews of streams when hovering over channels on the sidebar
 -   Fixed an issue which caused flickering when hovering on a deleted message
 
 ### Version 3.0.3.1000
@@ -55,6 +56,7 @@
 -   Fixed an issue which caused duplicate colon-complete matches with FFZ
 -   Fixed an issue that caused tab-completion to break with FFZ
 -   Fixed an issue where emotes in colon-complete wouldn't load on Mozilla Firefox
+-   Added visual settings for highlighted messages, allows changing opacity and over-all style
 
 ### Version 3.0.0.19000 (Beta 19 RC)
 
