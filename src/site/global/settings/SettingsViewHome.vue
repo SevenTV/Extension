@@ -87,7 +87,7 @@ document.head.appendChild(twitterScript);
 				display: inline-block;
 				vertical-align: middle;
 				margin-left: 0.5rem;
-				color: rgba(70, 225, 150, 1);
+				color: rgba(70, 225, 150, 100%);
 			}
 		}
 	}
