@@ -5,7 +5,7 @@
 			ref="copyButtonRef"
 			v-tooltip="'Copy'"
 			class="seventv-button"
-			@click="copyToast = true"
+			@click="copyMessage()"
 		>
 			<CopyIcon />
 		</div>
@@ -24,9 +24,9 @@
 	</div>
 
 	<!-- Toast for Copy -->
-	<template v-if="copyToast && copyToastContainer">
+	<template v-if="copyToastOpen && copyToastContainer">
 		<Teleport :to="copyToastContainer">
-			<UiCopiedMessageToast title="Message Copied" :body="msg.body" @close="copyToast = false">
+			<UiCopiedMessageToast title="Message Copied" @close="copyToastOpen = false">
 				Message from
 				<UserTag v-if="msg.author" :user="msg.author" /> has been copied
 			</UiCopiedMessageToast>
@@ -51,6 +51,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useTimeoutFn } from "@vueuse/shared";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useFloatScreen } from "@/composable/useFloatContext";
 import { useConfig } from "@/composable/useSettings";
@@ -86,12 +87,23 @@ const tray = useTray("Reply", () => ({
 }));
 
 const showCopyIcon = useConfig<boolean>("chat.copy_icon_toggle");
-const copyToast = ref(false);
+const copyToastOpen = ref(false);
 const copyButtonRef = ref<HTMLElement>();
 const copyToastContainer = useFloatScreen(copyButtonRef, {
-	enabled: () => copyToast.value,
+	enabled: () => copyToastOpen.value,
 	middleware: [shift({ padding: 8 })],
 });
+
+function copyMessage() {
+	if (copyToastOpen.value) return;
+
+	navigator.clipboard.writeText(props.msg.body);
+	copyToastOpen.value = true;
+
+	useTimeoutFn(() => {
+		copyToastOpen.value = false;
+	}, 1000);
+}
 
 const pinPrompt = ref(false);
 const pinButtonRef = ref<HTMLElement>();

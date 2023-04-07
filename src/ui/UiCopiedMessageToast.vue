@@ -12,11 +12,9 @@ import { ref } from "vue";
 import { onClickOutside } from "@vueuse/core";
 
 const copiedMessageToastRef = ref<HTMLElement>();
-const timeout = 1000;
 
-const props = defineProps<{
+defineProps<{
 	message?: string;
-	body: string;
 }>();
 
 const emit = defineEmits<{
@@ -26,13 +24,6 @@ const emit = defineEmits<{
 onClickOutside(copiedMessageToastRef, () => {
 	emit("close");
 });
-
-function main(): void {
-	navigator.clipboard.writeText(props.body);
-	setTimeout(() => emit("close"), timeout);
-}
-
-main();
 </script>
 
 <style scoped lang="scss">
