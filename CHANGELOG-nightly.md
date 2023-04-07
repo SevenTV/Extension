@@ -2,6 +2,10 @@
 
 - Fixed an issue which caused flickering when hovering on a deleted message
 
+### Version 3.0.4.1000
+
+- Added hot-patching functionality to the extension
+
 ### Version 3.0.3.1000
 
 - Disabled YouTube support temporarily due an issue with request pattern
