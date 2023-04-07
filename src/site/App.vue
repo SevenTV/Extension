@@ -26,9 +26,9 @@ import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
-import YouTubeSite from "./youtube.com/YouTubeSite.vue";
 
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
+const YouTubeSite = defineAsyncComponent(() => import("@/site/youtube.com/YouTubeSite.vue"));
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {
