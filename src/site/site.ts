@@ -2,7 +2,9 @@ import { log } from "@/common/Logger";
 import { semanticVersionToNumber } from "@/common/Transform";
 
 (async () => {
-	const manifestURL = `${import.meta.env.VITE_APP_HOST}/manifest.json`;
+	const manifestURL = `${import.meta.env.VITE_APP_HOST}/manifest${
+		import.meta.env.VITE_APP_VERSION_BRANCH ? "." + import.meta.env.VITE_APP_VERSION_BRANCH.toLowerCase() : ""
+	}.json`;
 	const manifest = await fetch(manifestURL)
 		.then((res) => res.json())
 		.catch(() => void 0);

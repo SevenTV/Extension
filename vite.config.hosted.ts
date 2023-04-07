@@ -83,8 +83,12 @@ export default defineConfig(() => {
 						stylesheet_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/${stylesheetFileName}`,
 					};
 
+					const manifestName = process.env.BRANCH
+						? `manifest.${process.env.BRANCH.toLowerCase()}.json`
+						: "manifest.json";
+
 					setTimeout(() => {
-						fs.writeJSON(r("dist-hosted").concat("/", outDir, "/", "manifest.json"), man);
+						fs.writeJSON(r("dist-hosted").concat("/", outDir, "/", manifestName), man);
 					});
 				},
 			},
