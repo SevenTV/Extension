@@ -262,12 +262,12 @@ export function useChatMessages(ctx: ChannelContext) {
 			const displayedMessage = data.displayed.find((msg) => {
 				return msg.id === id;
 			});
-			if (displayedMessage) resolve(displayedMessage);
+			if (displayedMessage) return resolve(displayedMessage);
 
 			const bufferMessage = data.buffer.find((msg) => {
 				return msg.id === id;
 			});
-			if (bufferMessage) resolve(bufferMessage);
+			if (bufferMessage) return resolve(bufferMessage);
 
 			const { stop } = useTimeoutFn(() => {
 				data.awaited.delete(id);
