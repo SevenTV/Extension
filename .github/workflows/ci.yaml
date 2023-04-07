@@ -219,7 +219,7 @@ jobs:
     deploy:
         name: Deploy Hosted Build
         runs-on: aws-runner
-        needs: [ci]
+        needs: [ci, release]
         if: ${{ inputs.deploy }}
 
         steps:
@@ -227,6 +227,9 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: "18"
+
+            - name: Install Yarn
+              run: npm install -g yarn
 
             - name: Build (Hosted)
               env:
