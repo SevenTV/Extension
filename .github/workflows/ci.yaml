@@ -28,6 +28,11 @@ on:
                 default: false
                 description: "Upload to CWS/AMO"
 
+            deploy:
+                type: boolean
+                default: false
+                description: "Deploy Hosted Build"
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -210,6 +215,32 @@ jobs:
                   body: ${{ github.event.head_commit.message }}
                   name: v${{ fromJson(env.PACKAGE_JSON).version }}
                   tag: v${{ fromJson(env.PACKAGE_JSON).version }}
+
+    deploy:
+        name: Deploy Hosted Build
+        runs-on: aws-runner
+        needs: [ci]
+        if: ${{ inputs.deploy }}
+
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+
+            - name: Build (Hosted)
+              env:
+                  BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
+              run: |
+                  yarn build-hosted:prod
+
+            - name: Upload to Host
+              uses: shallwefootball/s3-upload-action@master
+              with:
+                  aws_key_id: ${{ secrets.R2_API_AK }}
+                  aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
+                  aws_bucket: 7tv-extension
+                  source_dir: "dist-hosted/"
 
     push:
         name: Submit to CWS/AMO
