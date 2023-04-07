@@ -4,10 +4,6 @@
 		<Suspense>
 			<component :is="platformComponent" v-if="platformComponent" />
 		</Suspense>
-
-		<div id="seventv-emoji-container" :style="{ display: 'none' }">
-			<component :is="EmojiContainer" />
-		</div>
 	</template>
 
 	<!-- Render tooltip -->
@@ -24,14 +20,15 @@ import { markRaw, onMounted, ref } from "vue";
 import { APP_BROADCAST_CHANNEL, SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
+import { convertEmojis } from "@/composable/chat/useChatEmotes";
+import { loadEmojiList } from "@/composable/useEmoji";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
-import YouTubeSite from "./youtube.com/YouTubeSite.vue";
 
-const EmojiContainer = defineAsyncComponent(() => import("@/site/EmojiContainer.vue"));
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
+const YouTubeSite = defineAsyncComponent(() => import("@/site/youtube.com/YouTubeSite.vue"));
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {
@@ -88,6 +85,9 @@ bc.addEventListener("message", (ev) => {
 		useConfig(node.key).value = node.value;
 	}
 });
+
+// Load emojis
+loadEmojiList().then(() => convertEmojis());
 
 log.setContextName(`site/${domain}`);
 
