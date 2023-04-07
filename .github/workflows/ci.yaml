@@ -268,10 +268,16 @@ jobs:
                   node-version: "18"
 
             # Retrieve the non-CRX MV3 zip to be uploaded to CWS
-            - name: Download Artifact (Chromium)
+            - name: Download Artifact (Build)
               uses: actions/download-artifact@v3
               with:
                   name: build
+                  path: ext
+
+            - name: Download Artifact (Installable)
+              uses: actions/download-artifact@v3
+              with:
+                  name: installable
                   path: ext
 
             # Get the XPI File for Firefox
