@@ -111,10 +111,14 @@ jobs:
               with:
                   cmd: build
                   source: dist/mv2
-                  filename: dist/ext.xpi
+                  filename: ext.xpi
 
             - name: Structure Files
               run: |
+                  if [ -f ${{ steps.web-ext-build.outputs.target }} ]; then
+                      mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
+                  fi
+
                   mkdir -p dist/manifest
                   cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
                   cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
