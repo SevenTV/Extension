@@ -4,10 +4,6 @@
 		<Suspense>
 			<component :is="platformComponent" v-if="platformComponent" />
 		</Suspense>
-
-		<div id="seventv-emoji-container" :style="{ display: 'none' }">
-			<component :is="EmojiContainer" />
-		</div>
 	</template>
 
 	<!-- Render tooltip -->
@@ -30,7 +26,6 @@ import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
 import YouTubeSite from "./youtube.com/YouTubeSite.vue";
 
-const EmojiContainer = defineAsyncComponent(() => import("@/site/EmojiContainer.vue"));
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
 
 if (import.meta.hot) {

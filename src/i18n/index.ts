@@ -2,7 +2,7 @@ import { createI18n } from "vue-i18n";
 
 // Import locales
 const locale = {} as Record<string, Record<string, object>>;
-const importedLocales = import.meta.glob("@locale/*.yaml", { eager: true, import: "default" });
+const importedLocales = import.meta.glob("@/locale/*.yaml", { eager: true, import: "default" });
 
 for (const [path, mod] of Object.entries(importedLocales)) {
 	const lang = path.replace("/locale/", "").replace(".yaml", "");
