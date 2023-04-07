@@ -3,45 +3,22 @@
 		<div
 			v-if="showCopyIcon && !msg.moderation.deleted"
 			ref="copyButtonRef"
+			v-tooltip="'Copy'"
 			class="seventv-button"
 			@click="copyToast = true"
-			@mouseenter="
-				() => {
-					tooltipText = 'Copy';
-					show(copyButtonRef);
-				}
-			"
-			@mouseleave="hide()"
 		>
 			<CopyIcon />
 		</div>
 		<div
 			v-if="msg.pinnable && !msg.moderation.deleted"
 			ref="pinButtonRef"
+			v-tooltip="'Pin'"
 			class="seventv-button"
 			@click="pinPrompt = true"
-			@mouseenter="
-				() => {
-					tooltipText = 'Pin';
-					show(pinButtonRef);
-				}
-			"
-			@mouseleave="hide()"
 		>
 			<PinIcon />
 		</div>
-		<div
-			ref="replyButtonRef"
-			class="seventv-button"
-			@click="openReplyTray"
-			@mouseenter="
-				() => {
-					tooltipText = 'Reply';
-					show(replyButtonRef);
-				}
-			"
-			@mouseleave="hide()"
-		>
+		<div v-tooltip="'Reply'" class="seventv-button" @click="openReplyTray">
 			<component :is="msg.parent ? TwChatReply : ReplyIcon" />
 		</div>
 	</div>
@@ -77,12 +54,10 @@ import { ref } from "vue";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useFloatScreen } from "@/composable/useFloatContext";
 import { useConfig } from "@/composable/useSettings";
-import { useTooltip } from "@/composable/useTooltip";
 import CopyIcon from "@/assets/svg/icons/CopyIcon.vue";
 import PinIcon from "@/assets/svg/icons/PinIcon.vue";
 import ReplyIcon from "@/assets/svg/icons/ReplyIcon.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
-import BadgeTooltip from "./BadgeTooltip.vue";
 import UserTag from "./UserTag.vue";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
 import UiCopiedMessageToast from "@/ui/UiCopiedMessageToast.vue";
@@ -110,12 +85,6 @@ const tray = useTray("Reply", () => ({
 		: {}),
 }));
 
-const tooltipText = ref("");
-
-const { show, hide } = useTooltip(BadgeTooltip, {
-	alt: tooltipText,
-});
-
 const showCopyIcon = useConfig<boolean>("chat.copy_icon_toggle");
 const copyToast = ref(false);
 const copyButtonRef = ref<HTMLElement>();
@@ -130,8 +99,6 @@ const pinPromptContainer = useFloatScreen(pinButtonRef, {
 	enabled: () => pinPrompt.value,
 	middleware: [shift({ padding: 8 })],
 });
-
-const replyButtonRef = ref<HTMLElement>();
 
 function openReplyTray(): void {
 	tray.open();
