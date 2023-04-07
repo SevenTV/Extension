@@ -11,6 +11,7 @@
 		"build:section:background": "vite build --config vite.config.background.ts",
 		"build:section:content": "vite build --config vite.config.content.ts",
 		"build:section:worker": "vite build -c vite.config.worker.ts",
+		"build-hosted:section:site": "vite build --config vite.config.hosted.ts",
 		"build:dev": "NODE_ENV=dev run-s build:section:*",
 		"build:prod": "NODE_ENV=production vue-tsc --noEmit && run-s build:section:*",
 		"build:mv2:prod": "vue-tsc --noEmit && MV2=true vite build --minify es2021 && vite build -c vite.config.worker.ts --minify es2021",
