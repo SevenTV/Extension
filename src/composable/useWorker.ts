@@ -44,9 +44,11 @@ async function init(bc: BroadcastChannel, originURL: string): Promise<SharedWork
 		}
 
 		// Fetch worker data
-		const data = await (await fetch(workerURL || "")).blob().catch((err) => {
-			log.error("Unable to fetch worker data", err);
-		});
+		const data = await fetch(workerURL || "")
+			.then((r) => r.blob())
+			.catch((err) => {
+				log.error("Unable to fetch worker data", err);
+			});
 		if (!data) return Promise.reject("There was an error fetching worker data");
 
 		log.info("Received worker data", `(${data.size} bytes)`);

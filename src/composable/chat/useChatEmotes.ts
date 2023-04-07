@@ -2,28 +2,6 @@ import { reactive } from "vue";
 import type { ChannelContext } from "@/composable/channel/useChannelContext";
 import { useEmoji } from "@/composable/useEmoji";
 
-const { emojiList } = useEmoji();
-const emojiSets = {} as Record<string, SevenTV.EmoteSet>;
-const emojis = {} as Record<string, SevenTV.ActiveEmote>;
-emojiList.forEach((e) => {
-	const es = emojiSets[e.group];
-	if (!es) {
-		emojiSets[e.group] = {
-			id: e.group,
-			name: e.group,
-			provider: "EMOJI",
-			emotes: [],
-			tags: [],
-			immutable: true,
-			privileged: true,
-			flags: 0,
-		};
-	}
-
-	emojiSets[e.group].emotes.push(e.emote);
-	emojis[e.emote.name] = e.emote;
-});
-
 interface ChatEmotes {
 	active: Record<string, SevenTV.ActiveEmote>;
 	sets: Record<string, SevenTV.EmoteSet>;
@@ -32,6 +10,8 @@ interface ChatEmotes {
 }
 
 const m = new WeakMap<ChannelContext, ChatEmotes>();
+const emojiSets = {} as Record<string, SevenTV.EmoteSet>;
+const emojis = {} as Record<string, SevenTV.ActiveEmote>;
 
 export function useChatEmotes(ctx: ChannelContext) {
 	let x = m.get(ctx);
@@ -101,4 +81,26 @@ export function useChatEmotes(ctx: ChannelContext) {
 	});
 
 	return r;
+}
+
+export function convertEmojis(): void {
+	const { emojiList } = useEmoji();
+	emojiList.forEach((e) => {
+		const es = emojiSets[e.group];
+		if (!es) {
+			emojiSets[e.group] = {
+				id: e.group,
+				name: e.group,
+				provider: "EMOJI",
+				emotes: [],
+				tags: [],
+				immutable: true,
+				privileged: true,
+				flags: 0,
+			};
+		}
+
+		emojiSets[e.group].emotes.push(e.emote);
+		emojis[e.emote.name] = e.emote;
+	});
 }

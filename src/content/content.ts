@@ -1,4 +1,5 @@
 import { APP_BROADCAST_CHANNEL } from "@/common/Constant";
+import { insertEmojiVectors } from "./emoji";
 
 // Inject extension into site
 const inject = () => {
@@ -25,6 +26,11 @@ const inject = () => {
 	}
 
 	(document.head || document.documentElement).appendChild(script);
+
+	// Insert emojis
+	setTimeout(() => {
+		insertEmojiVectors();
+	}, 1e3);
 };
 
 const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
