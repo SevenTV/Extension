@@ -7,7 +7,7 @@ import { semanticVersionToNumber } from "@/common/Transform";
 	}.json`;
 	const manifest = await fetch(manifestURL)
 		.then((res) => res.json())
-		.catch(() => void 0);
+		.catch((err) => log.error("<Site>", "Failed to fetch host manifest", err.message));
 
 	const localVersion = semanticVersionToNumber(import.meta.env.VITE_APP_VERSION);
 	const hostedVersion = manifest ? semanticVersionToNumber(manifest.version) : 0;
