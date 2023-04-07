@@ -1,5 +1,8 @@
 ### Untitled Version
 
+**The changes listed here are not assigned to an official release**.
+
+- Added hot-patching functionality to the extension
 - Fixed an issue which caused flickering when hovering on a deleted message
 
 ### Version 3.0.3.1000

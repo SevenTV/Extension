@@ -1,5 +1,5 @@
-import { reactive } from "vue";
-import emojiList from "@/assets/blob/emoji.json";
+import { inject, reactive } from "vue";
+import { SITE_ASSETS_URL } from "@/common/Constant";
 
 export interface Emoji {
 	codes: string;
@@ -14,25 +14,35 @@ export interface Emoji {
 const emojiByName = new Map<string, Emoji>();
 const emojiByCode = new Map<string, Emoji>();
 
-for (const e of emojiList) {
-	const emoji = e as Emoji;
+const cached = [] as Emoji[];
+export async function loadEmojiList() {
+	if (cached.length) return cached;
 
-	emoji.emote = {
-		id: emoji.codes,
-		name: emoji.name,
-		unicode: emoji.char,
-		provider: "EMOJI",
-		flags: 0,
-	} as SevenTV.ActiveEmote;
+	const assetsBase = inject(SITE_ASSETS_URL, "");
+	const data = (await (await fetch(assetsBase + "/emoji/emoji.json")).json().catch(() => void 0)) as Emoji[];
 
-	emojiByName.set(emoji.name, emoji);
-	emojiByCode.set(emoji.char, emoji);
+	for (const e of data) {
+		const emoji = e as Emoji;
+
+		emoji.emote = {
+			id: emoji.codes,
+			name: emoji.name,
+			unicode: emoji.char,
+			provider: "EMOJI",
+			flags: 0,
+		} as SevenTV.ActiveEmote;
+
+		emojiByName.set(emoji.name, emoji);
+		emojiByCode.set(emoji.char, emoji);
+	}
+
+	cached.push(...data);
 }
 
-export const useEmoji = () => {
+export function useEmoji() {
 	return reactive({
-		emojiList: emojiList as Emoji[],
+		emojiList: cached,
 		emojiByCode,
 		emojiByName,
 	});
-};
+}

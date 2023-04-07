@@ -1,3 +1,15 @@
+declare interface SeventvGlobalScope {
+	host_manifest: null | {
+		version: string;
+		worker_file: string;
+		stylesheet_file: string;
+		index_file: string;
+	};
+	remote?: boolean;
+}
+
+declare const seventv: SeventvGlobalScope;
+
 declare namespace SevenTV {
 	interface Emote {
 		id: ObjectID;

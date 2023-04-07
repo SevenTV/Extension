@@ -28,6 +28,11 @@ on:
                 default: false
                 description: "Upload to CWS/AMO"
 
+            deploy:
+                type: boolean
+                default: false
+                description: "Deploy Hosted Build"
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -110,6 +115,10 @@ jobs:
 
             - name: Structure Files
               run: |
+                  if [ -f ${{ steps.web-ext-build.outputs.target }} ]; then
+                      mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
+                  fi
+
                   mkdir -p dist/manifest
                   cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
                   cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
@@ -211,6 +220,41 @@ jobs:
                   name: v${{ fromJson(env.PACKAGE_JSON).version }}
                   tag: v${{ fromJson(env.PACKAGE_JSON).version }}
 
+    deploy:
+        name: Deploy Hosted Build
+        runs-on: aws-runner
+        needs: [ci, release]
+        if: ${{ inputs.deploy }}
+
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+
+            - name: Install Yarn
+              run: npm install -g yarn
+
+            - name: Install Dependencies
+              run: |
+                  yarn
+
+            - name: Build (Hosted)
+              env:
+                  BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
+              run: |
+                  yarn build-hosted:prod
+
+            - name: Upload to Host
+              uses: shallwefootball/s3-upload-action@master
+              with:
+                  endpoint: ${{ secrets.R2_API_ENDPOINT }}
+                  aws_key_id: ${{ secrets.R2_API_AK }}
+                  aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
+                  aws_bucket: 7tv-extension
+                  source_dir: "dist-hosted/"
+                  destination_dir: ""
+
     push:
         name: Submit to CWS/AMO
         runs-on: aws-runner
@@ -224,10 +268,16 @@ jobs:
                   node-version: "18"
 
             # Retrieve the non-CRX MV3 zip to be uploaded to CWS
-            - name: Download Artifact (Chromium)
+            - name: Download Artifact (Build)
               uses: actions/download-artifact@v3
               with:
                   name: build
+                  path: ext
+
+            - name: Download Artifact (Installable)
+              uses: actions/download-artifact@v3
+              with:
+                  name: installable
                   path: ext
 
             # Get the XPI File for Firefox
@@ -257,6 +307,7 @@ jobs:
                     --refresh-token "$(sed '3q;d' c)"
 
             - name: Upload to AMO
+              if: always()
               uses: trmcnvn/firefox-addon@v1
               with:
                   uuid: ${{ env.NIGHTLY_EXTENSION_ID_AMO }}

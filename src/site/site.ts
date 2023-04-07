@@ -1,69 +1,45 @@
-import { createApp, h, provide } from "vue";
-import { createPinia } from "pinia";
-import { SITE_ASSETS_URL, SITE_EXT_OPTIONS_URL, SITE_WORKER_URL } from "@/common/Constant";
-import App from "@/site/App.vue";
-import { apolloClient } from "@/apollo/apollo";
-import { TextPaintDirective } from "@/directive/TextPaintDirective";
-import { TooltipDirective } from "@/directive/TooltipDirective";
-import { setupI18n } from "@/i18n";
-import { ApolloClients } from "@vue/apollo-composable";
+import { log } from "@/common/Logger";
+import { semanticVersionToNumber } from "@/common/Transform";
 
-const appID = Date.now().toString();
+(async () => {
+	const manifestURL = `${import.meta.env.VITE_APP_HOST}/manifest${
+		import.meta.env.VITE_APP_VERSION_BRANCH ? "." + import.meta.env.VITE_APP_VERSION_BRANCH.toLowerCase() : ""
+	}.json`;
 
-// Sanity Check
-//
-// Detect duplicate instances
-const roots = document.querySelectorAll("#seventv-root, script#seventv");
+	const manifest = await fetch(manifestURL)
+		.then((res) => res.json())
+		.catch((err) => log.error("<Site>", "Failed to fetch host manifest", err.message));
 
-let dupeCount = 0;
-for (let i = 0; i < roots.length; i++) {
-	const root = roots.item(i);
-	if (!root) continue;
+	const localVersion = semanticVersionToNumber(import.meta.env.VITE_APP_VERSION);
+	const hostedVersion = manifest ? semanticVersionToNumber(manifest.version) : 0;
 
-	const rootID = root.getAttribute("data-app-id");
-	if (root.tagName === "script" || (rootID && rootID === appID)) continue;
+	(window as Window & { seventv?: SeventvGlobalScope }).seventv = {
+		host_manifest: manifest ?? null,
+	};
 
-	dupeCount++;
-}
+	if (manifest && hostedVersion > localVersion) {
+		seventv.remote = true;
 
-if (dupeCount > 0) {
-	const oldTitle = document.title;
-	document.title = "BIG PROBLEM - 7TV - Twitch";
-	alert(
-		"[7TV] Woah there! It seems you're running multiple different instances of 7TV. Please disable any other version of the extension and try again.",
-	);
+		const scr = document.createElement("script");
+		scr.id = "seventv-site-hosted";
+		scr.src = manifest.index_file;
+		scr.type = "module";
 
-	document.title = oldTitle;
-	throw new Error("Duplicate 7TV instances detected, aborting");
-}
+		const style = document.createElement("link");
+		style.rel = "stylesheet";
+		style.type = "text/css";
+		style.href = manifest.stylesheet_file;
+		style.setAttribute("charset", "utf-8");
+		style.setAttribute("content", "text/html");
+		style.setAttribute("http-equiv", "content-type");
+		style.id = "seventv-stylesheet";
 
-// Create Vue App
-const root = document.createElement("div");
-root.id = "seventv-root";
-root.setAttribute("data-app-id", appID);
+		document.head.appendChild(style);
+		document.head.appendChild(scr);
 
-document.body.append(root);
-
-const scr = document.querySelector("script#seventv-extension");
-
-const app = createApp({
-	setup() {
-		provide(ApolloClients, {
-			default: apolloClient,
-		});
-	},
-	render: () => h(App),
-});
-
-app.provide("app-id", appID);
-
-const extensionOrigin = scr?.getAttribute("extension_origin") ?? "";
-app.provide(SITE_WORKER_URL, scr?.getAttribute("worker_url"));
-app.provide(SITE_ASSETS_URL, extensionOrigin + "assets");
-app.provide(SITE_EXT_OPTIONS_URL, extensionOrigin + "index.html");
-
-app.use(createPinia())
-	.use(setupI18n())
-	.directive("tooltip", TooltipDirective)
-	.directive("cosmetic-paint", TextPaintDirective)
-	.mount("#seventv-root");
+		log.info("<Site>", "Using Hosted Mode,", "v" + manifest.version);
+	} else {
+		import("./site.app");
+		log.info("<Site>", "Using Local Mode,", "v" + import.meta.env.VITE_APP_VERSION);
+	}
+})();
