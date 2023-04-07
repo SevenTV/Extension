@@ -369,10 +369,6 @@ onUnmounted(() => {
 					}
 				}
 
-				input:focus {
-					outline: none !important;
-					border: 1px solid var(--seventv-primary);
-				}
 				.emote-search-input {
 					background-color: var(--seventv-background-shade-1);
 					border-radius: 0.4rem;
@@ -381,7 +377,13 @@ onUnmounted(() => {
 					border: 1px solid var(--seventv-border-transparent-1);
 					padding-left: 3rem;
 					color: currentColor;
-					transition-duration: 140ms;
+
+					outline: none;
+					transition: outline 140ms;
+
+					&:focus {
+						outline: 1px solid var(--seventv-primary);
+					}
 				}
 			}
 		}
