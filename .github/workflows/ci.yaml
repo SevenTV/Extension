@@ -249,6 +249,7 @@ jobs:
                   aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
                   aws_bucket: 7tv-extension
                   source_dir: "dist-hosted/"
+                  destination_dir: "/"
 
     push:
         name: Submit to CWS/AMO
