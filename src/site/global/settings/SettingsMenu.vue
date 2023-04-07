@@ -337,7 +337,7 @@ watch(
 			border-radius: 0.25rem;
 			height: 4rem;
 			width: 100%;
-			border: 1px solid #00000000;
+			border: none;
 			padding-left: 3rem;
 			color: currentColor;
 
