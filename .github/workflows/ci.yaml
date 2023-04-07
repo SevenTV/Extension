@@ -111,7 +111,7 @@ jobs:
               with:
                   cmd: build
                   source: dist/mv2
-                  filename: ext.xpi
+                  filename: dist/ext.xpi
 
             - name: Structure Files
               run: |
