@@ -8,6 +8,10 @@ import { TooltipDirective } from "@/directive/TooltipDirective";
 import { setupI18n } from "@/i18n";
 import { ApolloClients } from "@vue/apollo-composable";
 
+if (!("seventv" in window)) {
+	(window as Window & { seventv?: SeventvGlobalScope }).seventv = { host_manifest: null };
+}
+
 const appID = Date.now().toString();
 
 // Sanity Check
@@ -58,7 +62,10 @@ const app = createApp({
 app.provide("app-id", appID);
 
 const extensionOrigin = scr?.getAttribute("extension_origin") ?? "";
-app.provide(SITE_WORKER_URL, scr?.getAttribute("worker_url"));
+app.provide(
+	SITE_WORKER_URL,
+	seventv.remote ? seventv.host_manifest?.worker_file ?? null : null ?? scr?.getAttribute("worker_url"),
+);
 app.provide(SITE_ASSETS_URL, extensionOrigin + "assets");
 app.provide(SITE_EXT_OPTIONS_URL, extensionOrigin + "index.html");
 

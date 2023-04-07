@@ -5,6 +5,7 @@ import { semanticVersionToNumber } from "@/common/Transform";
 	const manifestURL = `${import.meta.env.VITE_APP_HOST}/manifest${
 		import.meta.env.VITE_APP_VERSION_BRANCH ? "." + import.meta.env.VITE_APP_VERSION_BRANCH.toLowerCase() : ""
 	}.json`;
+
 	const manifest = await fetch(manifestURL)
 		.then((res) => res.json())
 		.catch((err) => log.error("<Site>", "Failed to fetch host manifest", err.message));
@@ -12,7 +13,13 @@ import { semanticVersionToNumber } from "@/common/Transform";
 	const localVersion = semanticVersionToNumber(import.meta.env.VITE_APP_VERSION);
 	const hostedVersion = manifest ? semanticVersionToNumber(manifest.version) : 0;
 
+	(window as Window & { seventv?: SeventvGlobalScope }).seventv = {
+		host_manifest: manifest ?? null,
+	};
+
 	if (manifest && hostedVersion > localVersion) {
+		seventv.remote = true;
+
 		const scr = document.createElement("script");
 		scr.id = "seventv-site-hosted";
 		scr.src = manifest.index_file;

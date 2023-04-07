@@ -83,6 +83,7 @@ export default defineConfig(() => {
 						version: getFullVersion(isNightly),
 						index_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/${indexFileName}`,
 						stylesheet_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/${stylesheetFileName}`,
+						worker_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/worker.${fullVersion}.js`,
 					};
 
 					const manifestName = process.env.BRANCH
@@ -90,7 +91,18 @@ export default defineConfig(() => {
 						: "manifest.json";
 
 					setTimeout(() => {
-						fs.writeJSON(r("dist-hosted").concat("/", outDir, "/", manifestName), man);
+						const p = r("dist-hosted") + (outDir ? "/" + outDir : "");
+
+						// Copy worker to version scope (if it's there)
+						const workerPath = r("dist/worker.js");
+						if (fs.existsSync(workerPath)) {
+							fs.copySync(workerPath, `${p}/v${fullVersion}/worker.${fullVersion}.js`);
+						} else {
+							man.worker_file = "";
+						}
+
+						// Set up manifest
+						fs.writeJSONSync(p + "/" + manifestName, man);
 					});
 				},
 			},
