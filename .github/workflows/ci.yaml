@@ -297,6 +297,7 @@ jobs:
                     --refresh-token "$(sed '3q;d' c)"
 
             - name: Upload to AMO
+              if: always()
               uses: trmcnvn/firefox-addon@v1
               with:
                   uuid: ${{ env.NIGHTLY_EXTENSION_ID_AMO }}
