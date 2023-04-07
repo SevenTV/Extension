@@ -18,7 +18,7 @@
 		<div v-if="node.custom && node.custom.gridMode === 'new-row'" class="content">
 			<component :is="node.custom.component" />
 		</div>
-		<div v-else class="control">
+		<div v-else class="seventv-settings-node-control">
 			<component :is="com" :node="node" />
 		</div>
 	</div>
@@ -127,18 +127,17 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		margin: 0 1rem;
 	}
 
-	.control {
+	.seventv-settings-node-control {
 		display: grid;
 		justify-self: end;
 		align-items: start;
 		margin: 0.5rem 1rem;
 		grid-area: control;
-		position: unset;
 	}
 
 	@media (max-width: 60rem) {
 		.subtitle,
-		.control,
+		.seventv-settings-node-control,
 		.content {
 			display: none;
 		}
@@ -147,7 +146,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 			grid-template-rows: 1fr 1fr 1fr;
 			grid-template-rows: 1fr;
 			.subtitle,
-			.control,
+			.seventv-settings-node-control,
 			.content {
 				display: grid;
 			}
