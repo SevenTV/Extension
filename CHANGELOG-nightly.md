@@ -2,8 +2,9 @@
 
 **The changes listed here are not assigned to an official release**.
 
-- Added hot-patching functionality to the extension
-- Fixed an issue which caused flickering when hovering on a deleted message
+-   Added hot-patching functionality to the extension
+-   Added chat rich embeds which allows twitch clips to preview in chat
+-   Fixed an issue which caused flickering when hovering on a deleted message
 
 ### Version 3.0.3.1000
 

@@ -258,6 +258,17 @@ export function useChatMessages(ctx: ChannelContext) {
 	 */
 	async function awaitMessage(id: string, timeout = 1e4): Promise<ChatMessage> {
 		return new Promise((resolve, reject) => {
+			// Check displayed and buffer if message has already been pushed.
+			const displayedMessage = data.displayed.find((msg) => {
+				return msg.id === id;
+			});
+			if (displayedMessage) return resolve(displayedMessage);
+
+			const bufferMessage = data.buffer.find((msg) => {
+				return msg.id === id;
+			});
+			if (bufferMessage) return resolve(bufferMessage);
+
 			const { stop } = useTimeoutFn(() => {
 				data.awaited.delete(id);
 				reject(Error("Timed out waiting for message"));
