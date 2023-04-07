@@ -128,4 +128,23 @@ export namespace PubSubMessageData {
 		target_user_login: string;
 		type: "chat_login_moderation" | "chat_targeted_login_moderation";
 	}
+
+	// The chat_rich_embed is undocumented in the twitch pubsub docs.
+	export interface ChatRichEmbed {
+		title: string;
+		author_name: string;
+		twitch_metadata: {
+			clip_metadata: {
+				game: string;
+				channel_display_name: string;
+				slug: string;
+				id: string;
+				broadcaster_id: string;
+				curator_id: string;
+			};
+		};
+		thumbnail_url: string;
+		request_url: string;
+		message_id: string;
+	}
 }

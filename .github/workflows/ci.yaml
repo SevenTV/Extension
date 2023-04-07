@@ -113,12 +113,12 @@ jobs:
                   source: dist/mv2
                   filename: ext.xpi
 
+            - name: Move XPI (Firefox)
+              if: ${{ env.installable }}
+              run: mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
+
             - name: Structure Files
               run: |
-                  if [ -f ${{ steps.web-ext-build.outputs.target }} ]; then
-                      mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
-                  fi
-
                   mkdir -p dist/manifest
                   cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
                   cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
