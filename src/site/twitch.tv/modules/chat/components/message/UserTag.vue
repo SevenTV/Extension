@@ -15,7 +15,7 @@
 
 		<!-- Message Author -->
 		<span
-			v-tooltip="paint && paint.data && shouldRenderTooltip ? `Paint: ${paint.data.name}` : ''"
+			v-tooltip="shouldRenderTooltip && paint && paint.data ? `Paint: ${paint.data.name}` : ''"
 			class="seventv-chat-user-username"
 			@click="(e) => emit('nameClick', e)"
 		>
