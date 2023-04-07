@@ -4,6 +4,7 @@
 
 -   Added hot-patching functionality to the extension
 -   Added chat rich embeds which allows twitch clips to preview in chat
+-   Added a "Copy Message" button
 -   Fixed an issue which caused flickering when hovering on a deleted message
 
 ### Version 3.0.3.1000
