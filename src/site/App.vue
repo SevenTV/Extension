@@ -20,6 +20,8 @@ import { markRaw, onMounted, ref } from "vue";
 import { APP_BROADCAST_CHANNEL, SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
+import { convertEmojis } from "@/composable/chat/useChatEmotes";
+import { loadEmojiList } from "@/composable/useEmoji";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
@@ -83,6 +85,9 @@ bc.addEventListener("message", (ev) => {
 		useConfig(node.key).value = node.value;
 	}
 });
+
+// Load emojis
+loadEmojiList().then(() => convertEmojis());
 
 log.setContextName(`site/${domain}`);
 
