@@ -9,7 +9,7 @@
 					<div>
 						<p class="seventv-chat-message-rich-embed-layout-description-title">{{ richEmbed.title }}</p>
 					</div>
-					<div>
+					<div v-if="richEmbed.twitch_metadata.clip_metadata.id">
 						<p class="seventv-chat-message-rich-embed-layout-description-author">
 							Clipped by {{ richEmbed.author_name }}
 						</p>
@@ -30,11 +30,11 @@ defineProps<{
 
 <style scoped lang="scss">
 .seventv-chat-message-rich-embed {
-	border-radius: 0.4rem;
-	box-shadow: 0 1px 2px var(--seventv-input-border), 0 0 2px var(--seventv-input-border);
-	background-color: var(--seventv-input-background);
+	border-radius: 0.25rem;
+	box-shadow: 0 0.25rem 0.5rem var(--seventv-embed-border), 0 0 0.5rem var(--seventv-embed-border);
+	background-color: var(--seventv-embed-background);
 	&:hover {
-		background-color: var(--seventv-input-background-highlight);
+		background-color: var(--seventv-embed-background-highlight);
 	}
 	.seventv-chat-message-rich-embed-link {
 		color: inherit;
