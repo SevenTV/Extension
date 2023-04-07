@@ -2,12 +2,13 @@
 
 **The changes listed here are not assigned to an official release**.
 
-- Added hot-patching functionality to the extension
-- Fixed an issue which caused flickering when hovering on a deleted message
+-   Added hot-patching functionality to the extension
+-   Added chat rich embeds which allows twitch clips to preview in chat
+-   Fixed an issue which caused flickering when hovering on a deleted message
 
 ### Version 3.0.3.1000
 
-- Disabled YouTube support temporarily due an issue with request pattern
+-   Disabled YouTube support temporarily due an issue with request pattern
 
 ### Version 3.0.2.3000
 
@@ -16,7 +17,6 @@
 -   Fixed the Most Used Emotes tab ignoring visibility setting
 -   Fixed sub emotes not showing in colon-complete while FFZ is enabled
 -   Fixed an issue which caused VOD chat to crash for some users
-
 
 ### Version 3.0.2.2000
 

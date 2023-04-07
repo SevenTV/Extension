@@ -1,7 +1,7 @@
 <template />
 
 <script setup lang="ts">
-import { onUnmounted, ref, watchEffect } from "vue";
+import { onUnmounted, watchEffect } from "vue";
 import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -47,6 +47,10 @@ function onPubSubMessage(ev: MessageEvent) {
 			onModerationAction(data as PubSubMessageData.ModAction);
 			break;
 
+		case "chat_rich_embed":
+			onChatRichEmbed(data as PubSubMessageData.ChatRichEmbed);
+			break;
+
 		default:
 			break;
 	}
@@ -63,9 +67,7 @@ async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMe
 	});
 	if (!matchedMsg) return;
 
-	const rmsg = ref(matchedMsg);
-
-	rmsg.value.setHighlight("#ff7d00", "Monitored Suspicious User");
+	matchedMsg.setHighlight("#ff7d00", "Monitored Suspicious User");
 }
 
 async function onModerationAction(msg: PubSubMessageData.ModAction) {
@@ -101,6 +103,26 @@ async function onModerationAction(msg: PubSubMessageData.ModAction) {
 		default:
 			break;
 	}
+}
+
+async function onChatRichEmbed(msg: PubSubMessageData.ChatRichEmbed) {
+	const ctx = msg.twitch_metadata;
+
+	if (!ctx) return;
+
+	// Find the message
+	const message = await messages.awaitMessage(msg.message_id).catch((err) => {
+		log.debug("failed to find new message for chat rich embed", err.message);
+	});
+	if (!message) return;
+
+	const { title, author_name, request_url, thumbnail_url, twitch_metadata } = msg;
+
+	message.richEmbed.title = title;
+	message.richEmbed.author_name = author_name;
+	message.richEmbed.request_url = request_url;
+	message.richEmbed.thumbnail_url = thumbnail_url;
+	message.richEmbed.twitch_metadata = twitch_metadata;
 }
 
 onUnmounted(() => {
