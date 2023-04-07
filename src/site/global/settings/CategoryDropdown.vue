@@ -6,6 +6,7 @@
 			</div>
 			<span class="seventv-settings-expanded">
 				{{ category }}
+				<span class="seventv-settings-category-contains-unseen">{{ hasUnseen ? "•" : "" }}</span>
 			</span>
 			<div
 				v-if="showSubCategories && subCategories.filter((s) => s).length"
@@ -31,7 +32,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import IconForSettings from "@/assets/svg/icons/IconForSettings.vue";
 import { useSettingsMenu } from "./Settings";
@@ -49,6 +50,26 @@ const emit = defineEmits<{
 
 const ctx = useSettingsMenu();
 const open = ref(false);
+
+const hasUnseen = ref(false);
+
+watch(
+	ctx.seen,
+	(s) => {
+		let sawUnseen = false;
+		for (const [, nodes] of Object.entries(ctx.mappedNodes[props.category] ?? {})) {
+			for (const node of nodes) {
+				if (s.includes(node.key) || node.type === "NONE") continue;
+
+				sawUnseen = true;
+				break;
+			}
+			break;
+		}
+		hasUnseen.value = sawUnseen;
+	},
+	{ immediate: true },
+);
 
 function onCategoryClick(): void {
 	if (props.showSubCategories && !(open.value = !open.value)) return;
@@ -86,6 +107,10 @@ function onCategoryClick(): void {
 
 	&[in-view="true"] > .settings-category-header {
 		background-color: hsla(0deg, 0%, 20%, 20%);
+	}
+
+	.seventv-settings-category-contains-unseen {
+		color: var(--seventv-accent);
 	}
 
 	.seventv-settings-category-icon {

@@ -1,10 +1,10 @@
 <template>
 	<div class="seventv-slider-container">
-		<span> {{ setting }} {{ node.options?.unit }} </span>
+		<span>{{ valueName }}</span>
 		<div class="seventv-slider" :class="{ 'show-thresold-name': !!thresoldName }" :thresold-name="thresoldName">
 			<input
 				:id="node.key"
-				v-model="setting"
+				v-model.number="setting"
 				type="range"
 				:min="node.options?.min"
 				:max="node.options?.max"
@@ -29,17 +29,24 @@ const held = ref(false);
 const setting = useConfig<number>(props.node.key);
 
 const thresoldName = computed(() => {
-	if (!props.node.options?.named_thresolds) return;
-
-	const thresolds = props.node.options.named_thresolds;
-	let match = 0;
-	for (let i = 0; i < thresolds.length; i++) {
-		if (setting.value >= thresolds[i][0] && setting.value <= thresolds[i][1]) match = i;
-		else continue;
-	}
-
-	return thresolds[match][2];
+	return findThreshold(setting.value, props.node.options?.named_thresolds);
 });
+
+const valueName = computed(() => {
+	const name = findThreshold(setting.value, props.node.options?.named_values);
+
+	return name ?? `${setting.value}${props.node.options?.unit ? ` ${props.node.options.unit}` : ""}`;
+});
+
+function findThreshold(value: number, thresholds?: [number, number, string][]) {
+	if (!thresholds) return;
+
+	for (let i = 0; i < thresholds.length; i++) {
+		if (value >= thresholds[i][0] && value <= thresholds[i][1]) {
+			return thresholds[i][2];
+		}
+	}
+}
 </script>
 <style scoped lang="scss">
 .seventv-slider-container {

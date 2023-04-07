@@ -79,7 +79,6 @@ if (!chrome.scripting) {
 		if (HOSTNAME_YT_REGEXP.test(loc.host)) {
 			chrome.tabs.executeScript(tabId, {
 				file: "content.js",
-				allFrames: true,
 			});
 		}
 	});
@@ -89,7 +88,6 @@ if (!chrome.scripting) {
 			id: "seventv-youtube",
 			js: ["content.js"],
 			matches: ["*://*.youtube.com/*"],
-			allFrames: true,
 		},
 	]);
 }

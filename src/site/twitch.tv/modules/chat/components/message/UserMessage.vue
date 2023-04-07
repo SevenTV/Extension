@@ -71,6 +71,9 @@
 			</template>
 		</span>
 
+		<!-- Chat Rich Embed -->
+		<RichEmbed v-if="msg.richEmbed.request_url" :rich-embed="msg.richEmbed" />
+
 		<!-- Ban State -->
 		<template v-if="!hideModeration && (msg.moderation.banned || msg.moderation.deleted)">
 			<span v-if="msg.moderation.banned" class="seventv-chat-message-moderated">
@@ -99,6 +102,7 @@ import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
 import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
+import RichEmbed from "./RichEmbed.vue";
 import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
@@ -139,6 +143,7 @@ const emoteScale = useConfig<number>("chat.emote_scale");
 const meStyle = useConfig<number>("chat.slash_me_style");
 const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
+const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
@@ -147,15 +152,7 @@ const locale = navigator.languages && navigator.languages.length ? navigator.lan
 const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };
 
 // Timestamp
-const timestamp = intlFormat(
-	{ locale },
-	{
-		localeMatcher: "lookup",
-		hour: "numeric",
-		minute: "numeric",
-	},
-	props.msg.timestamp,
-).replace(/ (A|P)M/, "");
+const timestamp = ref("");
 
 // Tokenize the message
 type MessageTokenOrText = AnyToken | string;
@@ -238,6 +235,19 @@ watchEffect(() => {
 			msg.value.highlight.color.concat(SetHexAlpha(highlightOpacity.value / 100)),
 		);
 	}
+
+	if (properties.showTimestamps || msg.value.historical || props.forceTimestamp) {
+		timestamp.value = intlFormat(
+			{ locale },
+			{
+				localeMatcher: "lookup",
+				hour: "numeric",
+				minute: "numeric",
+				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
+			},
+			props.msg.timestamp,
+		).replace(/ (A|P)M/, "");
+	}
 });
 </script>
 
@@ -246,14 +256,18 @@ watchEffect(() => {
 	display: block;
 
 	&.has-highlight {
+		margin-top: -0.5rem;
+		margin-bottom: -0.5rem;
+		margin-left: -1rem;
+		margin-right: -0.75rem;
+
 		&[data-highlight-style="0"] {
-			border: 0.25em solid;
+			border: 0.25rem solid;
 			border-top: none;
 			border-bottom: none;
 			border-color: var(--seventv-highlight-color);
 			background-color: var(--seventv-highlight-dim-color);
-			padding: 1rem 0.25rem;
-			margin: 0 -0.5em;
+			padding: 1rem 0.75rem;
 
 			.seventv-chat-message-highlight-label {
 				&::after {
@@ -273,7 +287,6 @@ watchEffect(() => {
 		}
 
 		&[data-highlight-style="1"] {
-			margin: -0.5rem -1.5rem;
 			padding: 0.5rem 1.5rem;
 			background-color: var(--seventv-highlight-dim-color);
 		}
@@ -287,9 +300,18 @@ watchEffect(() => {
 		margin-right: 0 !important;
 	}
 }
-.deleted:not(:hover) > .seventv-chat-message-body {
-	opacity: 0.5;
-	text-decoration: line-through;
+.deleted {
+	&:not(:hover) > .seventv-chat-message-body {
+		display: var(--seventv-chat-deleted-display);
+		opacity: var(--seventv-chat-deleted-opacity);
+		text-decoration: var(--seventv-chat-deleted-decoration);
+	}
+
+	&:hover {
+		.seventv-chat-message-moderated {
+			visibility: hidden;
+		}
+	}
 }
 
 .seventv-chat-message-moderated {

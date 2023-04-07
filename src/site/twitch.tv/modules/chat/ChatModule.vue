@@ -237,8 +237,8 @@ export const config = [
 			document.body.style.setProperty(
 				"--seventv-chat-padding",
 				{
-					0: "0",
-					1: "0.5rem",
+					0: "0.25rem",
+					1: "1rem",
 				}[v] ?? null,
 			);
 		},
@@ -249,10 +249,82 @@ export const config = [
 		],
 		defaultValue: 1,
 	}),
+	declareConfig<number>("chat.font_size", "SLIDER", {
+		path: ["Chat", "Style"],
+		label: "Font Size",
+		ffz_key: "chat.font-size",
+		ffz_transform(v: unknown) {
+			return typeof v === "number" ? v : 13;
+		},
+		effect(v) {
+			if (typeof v !== "number") return;
+			if (v !== 13) {
+				document.body.style.setProperty("--seventv-chat-font-size", `${v}px`);
+			} else {
+				document.body.style.removeProperty("--seventv-chat-font-size");
+			}
+		},
+		hint: "Change the size of text in chat, when set to default the size will be inferred from Twitch appearence settings",
+		options: {
+			min: 1,
+			max: 30,
+			step: 1,
+			unit: "px",
+			named_values: [[13, 13, "Default"]],
+		},
+		defaultValue: 13,
+	}),
 	declareConfig<boolean>("chat.colored_mentions", "TOGGLE", {
 		path: ["Chat", "Style"],
 		label: "Colored Mentions",
 		hint: "Show the color of users mentioned in chat",
+		defaultValue: true,
+	}),
+	declareConfig<number>("chat.deleted_messages", "DROPDOWN", {
+		path: ["Chat", "Style"],
+		label: "Deleted Message Style",
+		hint: "Control how deleted messages are displayed in chat",
+		effect(v: number) {
+			document.body.style.removeProperty("--seventv-chat-deleted-display");
+			document.body.style.setProperty("--seventv-chat-deleted-opacity", "0.5");
+			document.body.style.setProperty("--seventv-chat-deleted-prefix", "—");
+			switch (v) {
+				case 0:
+					document.body.style.setProperty("--seventv-chat-deleted-decoration", "none");
+					document.body.style.setProperty("--seventv-chat-deleted-opacity", "0");
+					document.body.style.setProperty("--seventv-chat-deleted-display", "none");
+					document.body.style.setProperty("--seventv-chat-deleted-prefix", "");
+					break;
+				case 1:
+					document.body.style.setProperty("--seventv-chat-deleted-decoration", "none");
+					break;
+				case 2:
+					document.body.style.setProperty("--seventv-chat-deleted-decoration", "line-through");
+					break;
+				case 3:
+					document.body.style.removeProperty("--seventv-chat-deleted-decoration");
+					document.body.style.removeProperty("--seventv-chat-deleted-opacity");
+					break;
+			}
+		},
+		options: [
+			["Hidden", 0],
+			["Dimmed", 1],
+			["Strikethrough", 2],
+			["Keep", 3],
+		],
+		defaultValue: 1,
+	}),
+	declareConfig("chat.timestamp_with_seconds", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Timestamp Seconds",
+		hint: "If checked, timestamps in chat will also show seconds",
+		defaultValue: false,
+	}),
+	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
+		path: ["Chat", "Message Tools"],
+		label: "Copy Icon",
+		hint: "Show a 'Copy' icon when hovering over a chat message to copy the message",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {

@@ -4,7 +4,7 @@
 			{{ name }}
 		</h3>
 		<template v-for="n of nodes" :key="n.key">
-			<SettingsNode :node="n" />
+			<SettingsNode :node="n" :unseen="unseen.has(n.key)" @seen="onMarkAsSeen(n.key)" />
 		</template>
 	</div>
 </template>
@@ -21,6 +21,7 @@ const props = defineProps<{
 }>();
 
 const ctx = useSettingsMenu();
+const unseen = ref(new Set(props.nodes.map((n) => n.key).filter((k) => !ctx.seen.includes(k))));
 
 const sticky = ref(false);
 const catRef = ref<HTMLElement>();
@@ -32,13 +33,28 @@ useIntersectionObserver(
 	([entry]) => {
 		sticky.value = entry.isIntersecting;
 
-		if (sticky.value) ctx.intersectingSubcategory = props.name;
+		if (!sticky.value) return;
+
+		ctx.intersectingSubcategory = props.name;
+		// Mark seen
+		const nodes = entry.target.getElementsByClassName("seventv-settings-node");
+		for (const node of Array.from(nodes)) {
+			const key = node.getAttribute("data-key");
+			if (!key) continue;
+
+			ctx.markSettingAsSeen(key);
+		}
 	},
 	{
 		threshold: 0.75,
 		rootMargin: "0px 0px -50% 0px",
 	},
 );
+
+function onMarkAsSeen(key: string): void {
+	unseen.value.delete(key);
+	ctx.markSettingAsSeen(key);
+}
 
 function scrollIntoView(): void {
 	catRef.value?.scrollIntoView({ block: "start" });

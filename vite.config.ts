@@ -23,7 +23,7 @@ const ignoreHMR = [
 	"SidebarPreviewsModule.vue",
 ];
 
-const alwaysHot = ["src/background/background.ts"];
+const alwaysHot = ["src/background/background.ts", "src/content/content.ts", "src/content/emoji.ts"];
 
 // https://vitejs.dev/config/
 export default defineConfig(() => {

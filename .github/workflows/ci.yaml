@@ -28,6 +28,11 @@ on:
                 default: false
                 description: "Upload to CWS/AMO"
 
+            deploy:
+                type: boolean
+                default: false
+                description: "Deploy Hosted Build"
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -41,6 +46,8 @@ jobs:
     ci:
         name: WebExtension Lint, Build, Test
         runs-on: aws-runner
+        env:
+            installable: ${{ secrets.WEB_EXTENSION_CRX }}
         concurrency:
             group: ${{ github.workflow }}-ci-${{ github.ref }}
             cancel-in-progress: true
@@ -89,6 +96,7 @@ jobs:
 
             # CRX is Chromium installer
             - name: Create CRX (Chromium)
+              if: ${{ env.installable }}
               uses: cardinalby/webext-buildtools-chrome-crx-action@v2
               with:
                   zipFilePath: dist/mv3.zip
@@ -97,6 +105,7 @@ jobs:
 
             # XPI is Firefox installer
             - name: Create XPI (Firefox)
+              if: ${{ env.installable }}
               id: web-ext-build
               uses: kewisch/action-web-ext@v1
               with:
@@ -104,22 +113,32 @@ jobs:
                   source: dist/mv2
                   filename: ext.xpi
 
+            - name: Move XPI (Firefox)
+              if: ${{ env.installable }}
+              run: mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
+
             - name: Structure Files
               run: |
-                  mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
-
                   mkdir -p dist/manifest
                   cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
                   cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
 
-            - name: Upload Build Artifact
+            - name: "Upload Artifact: Installable"
+              if: ${{ env.installable }}
+              uses: actions/upload-artifact@v3
+              with:
+                  name: installable
+                  retention-days: 60
+                  path: |
+                      dist/ext.crx
+                      dist/ext.xpi
+
+            - name: "Upload Artifact: Unpacked"
               uses: actions/upload-artifact@v3
               with:
                   name: build
                   retention-days: 60
                   path: |
-                      dist/ext.crx
-                      dist/ext.xpi
                       dist/mv3.zip
                       dist/mv2.zip
 
@@ -142,6 +161,12 @@ jobs:
               uses: actions/download-artifact@v3
               with:
                   name: build
+                  path: ext
+
+            - name: Download Artifact
+              uses: actions/download-artifact@v3
+              with:
+                  name: installable
                   path: ext
 
             - name: File Names
@@ -195,6 +220,41 @@ jobs:
                   name: v${{ fromJson(env.PACKAGE_JSON).version }}
                   tag: v${{ fromJson(env.PACKAGE_JSON).version }}
 
+    deploy:
+        name: Deploy Hosted Build
+        runs-on: aws-runner
+        needs: [ci, release]
+        if: ${{ inputs.deploy }}
+
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+
+            - name: Install Yarn
+              run: npm install -g yarn
+
+            - name: Install Dependencies
+              run: |
+                  yarn
+
+            - name: Build (Hosted)
+              env:
+                  BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
+              run: |
+                  yarn build-hosted:prod
+
+            - name: Upload to Host
+              uses: shallwefootball/s3-upload-action@master
+              with:
+                  endpoint: ${{ secrets.R2_API_ENDPOINT }}
+                  aws_key_id: ${{ secrets.R2_API_AK }}
+                  aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
+                  aws_bucket: 7tv-extension
+                  source_dir: "dist-hosted/"
+                  destination_dir: ""
+
     push:
         name: Submit to CWS/AMO
         runs-on: aws-runner
@@ -208,10 +268,16 @@ jobs:
                   node-version: "18"
 
             # Retrieve the non-CRX MV3 zip to be uploaded to CWS
-            - name: Download Artifact (Chromium)
+            - name: Download Artifact (Build)
               uses: actions/download-artifact@v3
               with:
                   name: build
+                  path: ext
+
+            - name: Download Artifact (Installable)
+              uses: actions/download-artifact@v3
+              with:
+                  name: installable
                   path: ext
 
             # Get the XPI File for Firefox
@@ -241,6 +307,7 @@ jobs:
                     --refresh-token "$(sed '3q;d' c)"
 
             - name: Upload to AMO
+              if: always()
               uses: trmcnvn/firefox-addon@v1
               with:
                   uuid: ${{ env.NIGHTLY_EXTENSION_ID_AMO }}

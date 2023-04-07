@@ -1,4 +1,5 @@
 import { markRaw, reactive } from "vue";
+import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import SettingsViewCompatVue from "./SettingsViewCompat.vue";
 import SettingsViewConfigVue from "./SettingsViewConfig.vue";
 import SettingsViewHomeVue from "./SettingsViewHome.vue";
@@ -11,6 +12,7 @@ class SettingsMenuContext {
 	category = "";
 	scrollpoint = "";
 	intersectingSubcategory = "";
+	seen = [] as string[];
 
 	mappedNodes: Record<string, Record<string, SevenTV.SettingNode[]>> = reactive({
 		Home: {},
@@ -18,6 +20,13 @@ class SettingsMenuContext {
 
 	constructor() {
 		this.switchView("home");
+
+		const keys = localStorage.getItem(LOCAL_STORAGE_KEYS.SEEN_SETTINGS);
+		if (keys) {
+			for (const key of keys.split(",")) {
+				this.seen.push(key);
+			}
+		}
 	}
 
 	toggle(): void {
@@ -26,6 +35,15 @@ class SettingsMenuContext {
 
 	switchView(name: keyof typeof views): void {
 		this.view = markRaw(views[name]);
+	}
+
+	markSettingAsSeen(...keys: string[]): void {
+		for (const key of keys) {
+			if (this.seen.indexOf(key) !== -1) continue;
+			this.seen.push(key);
+		}
+
+		localStorage.setItem(LOCAL_STORAGE_KEYS.SEEN_SETTINGS, this.seen.join(","));
 	}
 }
 

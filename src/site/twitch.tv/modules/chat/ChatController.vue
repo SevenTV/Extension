@@ -54,7 +54,7 @@ import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import ChatPubSub from "./ChatPubSub.vue";
-import ChatTray from "./ChatTray.vue";
+import ChatTray from "./components/tray/ChatTray.vue";
 import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
@@ -149,6 +149,7 @@ definePropertyHook(room.value.component, "props", {
 	value(v) {
 		properties.primaryColorHex = v.primaryColorHex;
 		primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
+		document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
 
 		properties.useHighContrastColors = v.useHighContrastColors;
 		properties.showTimestamps = v.showTimestamps;
@@ -359,6 +360,8 @@ onUnmounted(() => {
 	unsetPropertyHook(list.value.component, "props");
 	unsetPropertyHook(controller.value.component, "props");
 	unsetPropertyHook(room.value.component, "props");
+
+	document.body.style.removeProperty("--seventv-channel-accent");
 });
 </script>
 
@@ -417,9 +420,9 @@ seventv-container.seventv-chat-list {
 		white-space: nowrap;
 		padding: 0.5em;
 		border-radius: 0.33em;
-		color: #fff;
-		background-color: rgba(0, 0, 0, 50%);
-		outline: 0.25rem solid var(--seventv-muted);
+		color: currentColor;
+		background-color: var(--seventv-background-transparent-1);
+		outline: 0.25rem solid var(--seventv-border-transparent-1);
 
 		span:nth-of-type(1) {
 			margin-right: 0.25rem;

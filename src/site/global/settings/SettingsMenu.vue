@@ -191,7 +191,17 @@ function openAuthWindow(): void {
 	actor.openAuthorizeWindow(platform);
 }
 
-watch([settings.nodes, filter], () => sortNodes(filter.value), { immediate: true });
+watch(
+	[settings.nodes, filter],
+	() => {
+		sortNodes(filter.value);
+
+		if (ctx.seen.length === 0) {
+			ctx.markSettingAsSeen(...Object.keys(settings.nodes));
+		}
+	},
+	{ immediate: true },
+);
 </script>
 
 <style scoped lang="scss">

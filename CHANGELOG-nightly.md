@@ -1,10 +1,53 @@
-### Version 3.0.1.1000 Nightly
+### Untitled Version
+
+**The changes listed here are not assigned to an official release**.
+
+-   Added hot-patching functionality to the extension
+-   Added chat rich embeds which allows twitch clips to preview in chat
+-   Added a "Copy Message" button
+-   Added an option to show thumbnail previews of streams when hovering over channels on the sidebar
+-   Fixed an issue which caused flickering when hovering on a deleted message
+
+### Version 3.0.3.1000
+
+-   Disabled YouTube support temporarily due an issue with request pattern
+
+### Version 3.0.2.3000
+
+-   Improved the look of Channel Point Redeem & Highlight messages
+-   Fixed an issue which caused sub emotes and emojis to not display in the Favorites tab
+-   Fixed the Most Used Emotes tab ignoring visibility setting
+-   Fixed sub emotes not showing in colon-complete while FFZ is enabled
+-   Fixed an issue which caused VOD chat to crash for some users
+
+### Version 3.0.2.2000
+
+-   Reply threads should now function properly
+-   Added an option to change how deleted messages appear
+
+### Version 3.0.2.1000
+
+-   Fixed issue which caused the chat input to lag over-time
+-   Fixed tab complete breaking when an emote was added both as a sub emote and 3rd party emote
+-   Fixed a clash with FFZ that led to some messages not appearing correctly
+
+### Version 3.0.1.2000 (Nightly 2 RC)
+
+-   Added an option to modify the font size in chat
+-   Unpausing chat should no longer cause old messages to rapidly scroll through
+-   Fixed a conflict causing emotes to sometimes display as broken images while other extensions were installed
+-   Fixed an issue which prevented highlights from being saved if the "Flash Title" option was turned on
+-   Fixed an issue where custom highlight sounds did not work if "Play sound on Mention" was turned off
+-   Fixed an issue where custom highlight flash title did not work if "Flash Title on Mention" was turned off
+
+### Version 3.0.1.1000 (Nightly 1)
 
 -   Added an emote menu shortcut to define favorite emotes (alt+click)
 -   Added a tab in the emote menu to display favorite and most used emotes
 -   Added a button to open the native Twitch Emote Menu
 -   Added an option to change where the 7TV Emote Menu Button appears
 -   Added an option to modify the scale of emotes in chat
+-   Added visual settings for highlighted messages, allows changing opacity and over-all style
 -   Sidebar sub-categories in the settings menu will now highlight what's in view
 -   Chat History should now load more consistently
 -   Pressing escape while the emote menu is open now closes it
@@ -14,7 +57,6 @@
 -   Fixed an issue that caused tab-completion to break with FFZ
 -   Fixed an issue where emotes in colon-complete wouldn't load on Mozilla Firefox
 -   Added visual settings for highlighted messages, allows changing opacity and over-all style
--   Added option to show thumbnail previews of streams when hovering over channels on the sidebar
 
 ### Version 3.0.0.19000 (Beta 19 RC)
 

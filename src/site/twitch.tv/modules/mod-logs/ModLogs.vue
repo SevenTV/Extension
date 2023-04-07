@@ -2,7 +2,7 @@
 	<main class="seventv-mod-logs-container">
 		<div ref="handle" class="seventv-mod-logs-header">
 			<ModLogsIcon />
-			<h3>Mod Logs</h3>
+			<h3 style="font-size: 1.5rem">Mod Logs</h3>
 
 			<button @click="emit('close')">
 				<TwClose />
@@ -143,7 +143,7 @@ defineExpose({
 <style scoped lang="scss">
 main.seventv-mod-logs-container {
 	background: var(--seventv-background-transparent-1);
-	backdrop-filter: blur(0.25em);
+	backdrop-filter: blur(1rem);
 	outline: 0.01rem solid var(--seventv-border-transparent-1);
 	border-radius: 0.25rem;
 }

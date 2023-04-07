@@ -1,9 +1,9 @@
 <template>
-	<template v-for="{ current, msg, timestamp } of messageRefs" :key="msg.id">
-		<Teleport v-if="current.current" :to="current.current">
+	<template v-for="messageRef of messageRefs" :key="messageRef.msg.id">
+		<Teleport v-if="messageRef && messageRef.current.current" :to="messageRef.current.current">
 			<div class="seventv-chat-vod-message-wrapper">
-				<span class="seventv-chat-vod-message-timestamp">{{ timestamp }}</span>
-				<UserMessage :msg="msg" :emotes="emotes.active" />
+				<span class="seventv-chat-vod-message-timestamp">{{ messageRef.timestamp }}</span>
+				<UserMessage :msg="messageRef.msg" :emotes="emotes.active" />
 			</div>
 		</Teleport>
 	</template>
@@ -33,7 +33,7 @@ interface CommentData {
 	badgeSets: Twitch.BadgeSets;
 	canCurrentUserBan: boolean;
 	canCurrentUserDelete: boolean;
-	currentUser: TwTypeUser;
+	currentUser?: TwTypeUser;
 	messageContext: {
 		author: {
 			id: string;
@@ -153,7 +153,6 @@ function isCommentData(data: any): data is CommentData {
 		data.badgeSets &&
 		data.canCurrentUserBan !== undefined &&
 		data.canCurrentUserDelete !== undefined &&
-		data.currentUser &&
 		data.messageContext &&
 		data.messageContext.author &&
 		data.messageContext.comment &&
@@ -164,7 +163,7 @@ function isCommentData(data: any): data is CommentData {
 function patchComments(comments: ReactExtended.ReactRuntimeElement[]): ReactExtended.ReactRuntimeElement[] {
 	const newList = [] as ReactExtended.ReactRuntimeElement[];
 
-	messageRefs.value.length = comments.length;
+	messageRefs.value.length = 0;
 	for (let i = 0; i < comments.length; i++) {
 		const c = comments[i];
 		if (!c) continue;

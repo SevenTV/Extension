@@ -1,7 +1,14 @@
 <template>
-	<div class="seventv-settings-node" tabindex="0" :disabled="node.disabledIf?.()" :grid-mode="node.custom?.gridMode">
+	<div
+		:data-key="node.key"
+		class="seventv-settings-node"
+		tabindex="0"
+		:disabled="node.disabledIf?.()"
+		:grid-mode="node.custom?.gridMode"
+		@mouseover="onHover"
+	>
 		<div class="label">
-			<div class="title">
+			<div class="title" :class="{ unseen }">
 				{{ node.label }}
 			</div>
 			<div v-if="node.hint" class="subtitle">
@@ -18,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import { useTimeoutFn } from "@vueuse/shared";
 import FormCheckbox from "@/site/global/settings/control/FormCheckbox.vue";
 import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
 import FormInput from "@/site/global/settings/control/FormInput.vue";
@@ -27,7 +35,17 @@ import FormToggle from "@/site/global/settings/control/FormToggle.vue";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
+	unseen?: boolean;
 }>();
+
+const emit = defineEmits<{
+	(e: "seen"): void;
+}>();
+
+function onHover(): void {
+	if (!props.unseen) return;
+	useTimeoutFn(() => emit("seen"), 500);
+}
 
 const standard = {
 	SELECT: FormSelect,
@@ -82,6 +100,16 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		font-size: 1.35rem;
 		font-weight: 800;
 		flex-shrink: 0;
+
+		&.unseen::after {
+			content: "";
+			display: inline-block;
+			margin-left: 0.5rem;
+			width: 0.75rem;
+			height: 0.75rem;
+			background-color: var(--seventv-accent);
+			clip-path: circle(50% at 50% 50%);
+		}
 	}
 
 	.subtitle {
