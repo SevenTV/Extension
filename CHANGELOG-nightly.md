@@ -1,6 +1,7 @@
-### Version 3.0.3.2000
+### Untitled Version
 
 -   Added chat rich embeds which allows twitch clips to preview in chat
+-   Fixed an issue which caused flickering when hovering on a deleted message
 
 ### Version 3.0.3.1000
 
