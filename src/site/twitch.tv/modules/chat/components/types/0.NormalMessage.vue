@@ -1,15 +1,14 @@
 <template>
 	<div class="seventv-chat-message-container">
 		<div class="seventv-chat-message-background" tabindex="0">
-			<div
-				v-if="msgData.reply"
-				class="seventv-reply-part"
-				v-tooltip="`Replying to @${msgData.reply.parentDisplayName}: ${msgData.reply.parentMessageBody}`"
-			>
+			<div v-if="msgData.reply" class="seventv-reply-part">
 				<div class="seventv-chat-reply-icon">
 					<TwChatReply />
 				</div>
-				<div class="seventv-reply-message-part">
+				<div
+					v-tooltip="`Replying to @${msgData.reply.parentDisplayName}: ${msgData.reply.parentMessageBody}`"
+					class="seventv-reply-message-part"
+				>
 					{{ `Replying to @${msgData.reply.parentDisplayName}: ${msgData.reply.parentMessageBody}` }}
 				</div>
 			</div>
@@ -28,6 +27,7 @@ defineProps<{
 }>();
 </script>
 <style scoped lang="scss">
+@import "@/assets/style/tw-tooltip.scss";
 .seventv-chat-message-container {
 	display: block;
 	position: relative;
