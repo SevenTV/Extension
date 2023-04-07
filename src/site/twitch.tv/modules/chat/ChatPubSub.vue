@@ -1,7 +1,7 @@
 <template />
 
 <script setup lang="ts">
-import { onUnmounted, ref, watchEffect } from "vue";
+import { onUnmounted, watchEffect } from "vue";
 import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -67,9 +67,7 @@ async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMe
 	});
 	if (!matchedMsg) return;
 
-	const rmsg = ref(matchedMsg);
-
-	rmsg.value.setHighlight("#ff7d00", "Monitored Suspicious User");
+	matchedMsg.setHighlight("#ff7d00", "Monitored Suspicious User");
 }
 
 async function onModerationAction(msg: PubSubMessageData.ModAction) {
@@ -118,14 +116,13 @@ async function onChatRichEmbed(msg: PubSubMessageData.ChatRichEmbed) {
 	});
 	if (!message) return;
 
-	const rmsg = ref(message);
 	const { title, author_name, request_url, thumbnail_url, twitch_metadata } = msg;
 
-	rmsg.value.richEmbed.title = title;
-	rmsg.value.richEmbed.author_name = author_name;
-	rmsg.value.richEmbed.request_url = request_url;
-	rmsg.value.richEmbed.thumbnail_url = thumbnail_url;
-	rmsg.value.richEmbed.twitch_metadata = twitch_metadata;
+	message.richEmbed.title = title;
+	message.richEmbed.author_name = author_name;
+	message.richEmbed.request_url = request_url;
+	message.richEmbed.thumbnail_url = thumbnail_url;
+	message.richEmbed.twitch_metadata = twitch_metadata;
 }
 
 onUnmounted(() => {
