@@ -183,6 +183,7 @@ jobs:
 
             - name: Sign XPI (Firefox)
               id: xpi-sign
+              continue-on-error: true
               uses: kewisch/action-web-ext@v1
               with:
                   cmd: sign
@@ -206,7 +207,7 @@ jobs:
                       dist/ext-signed.xpi
 
             - name: Create Nightly Release
-              if: always() && ${{ inputs.nightly || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+              if: ${{ inputs.nightly || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
               id: create_nightly_release
               uses: ncipollo/release-action@v1.12.0
               with:
@@ -226,7 +227,7 @@ jobs:
                   git push -f origin nightly-release
 
             - name: Create Release
-              if: always() && ${{ inputs.release }}
+              if: ${{ inputs.release }}
               id: create_release
               uses: ncipollo/release-action@v1.12.0
               with:
