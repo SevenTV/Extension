@@ -86,7 +86,7 @@ jobs:
                   BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
-                  OUT_DIR=mv2 MV2=true yarn build:prod
+                  OUT_DIR=mv2 MOZILLA=1 MV2=true yarn build:prod
 
             - name: Create Build Archives
               run: |
@@ -183,7 +183,6 @@ jobs:
 
             - name: Sign XPI (Firefox)
               id: xpi-sign
-              if: ${{ inputs.release || inputs.nightly }}
               uses: kewisch/action-web-ext@v1
               with:
                   cmd: sign
