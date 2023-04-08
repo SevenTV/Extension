@@ -194,11 +194,11 @@ jobs:
                   timeout: 600
 
             - name: Move Signed XPI (Firefox)
-              if: success()
+              if: ${{ steps.xpi-sign.outputs.target }}
               run: mv ${{ steps.xpi-sign.outputs.target }} dist/ext-signed.xpi
 
             - name: "Upload Artifact: Signed XPI"
-              if: success()
+              if: ${{ steps.xpi-sign.outputs.target }}
               uses: actions/upload-artifact@v3
               with:
                   name: installable
