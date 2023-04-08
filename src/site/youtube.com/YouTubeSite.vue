@@ -5,11 +5,13 @@
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import { useStore } from "@/store/main";
 import { getModule } from "@/composable/useModule";
 import { useUserAgent } from "@/composable/useUserAgent";
 import { YtModuleID } from "@/types/yt.module";
-import ModuleWrapper from "../ModuleWrapper.vue";
+
+const ModuleWrapper = defineAsyncComponent(() => import("../global/ModuleWrapper.vue"));
 
 const store = useStore();
 const ua = useUserAgent();

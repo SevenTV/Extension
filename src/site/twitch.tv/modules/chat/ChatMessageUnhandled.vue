@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 
 const props = defineProps<{
 	msg: ChatMessage;

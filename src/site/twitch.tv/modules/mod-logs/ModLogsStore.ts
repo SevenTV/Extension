@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 
 const data = reactive({
 	modMessages: [] as ChatMessage[],

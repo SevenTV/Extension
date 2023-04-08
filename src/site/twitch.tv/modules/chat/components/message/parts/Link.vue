@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChatMessage, LinkToken } from "@/common/chat/ChatMessage";
+import type { ChatMessage, LinkToken } from "@/common/chat/ChatMessage";
 
 defineProps<{
 	token: LinkToken;

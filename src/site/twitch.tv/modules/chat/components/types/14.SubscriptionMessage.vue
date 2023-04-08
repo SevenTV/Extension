@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 import TwPrime from "@/assets/svg/twitch/TwPrime.vue";
 import TwStar from "@/assets/svg/twitch/TwStar.vue";
 
