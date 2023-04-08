@@ -43,28 +43,29 @@ export default defineConfig(() => {
 		define: {
 			"process.env": {},
 		},
+		base: process.env.VITE_APP_HOST + "/",
 		build: {
 			emptyOutDir: true,
 			outDir: "dist-hosted" + "/" + outDir,
-			lib: {
-				formats: ["es"],
-				entry: r("src/site/site.app.ts"),
-				fileName: () => `v${fullVersion}/index.${fullVersion}.js`,
-				name: "seventv-site",
+			minify: "terser",
+			terserOptions: {
+				mangle: true,
+				compress: true,
 			},
+			chunkSizeWarningLimit: 1000,
+			cssCodeSplit: false,
 			rollupOptions: {
+				input: {
+					index: r("src/site/site.app.ts"),
+				},
 				output: {
+					format: "es",
 					inlineDynamicImports: false,
+					entryFileNames: `v${fullVersion}/[name].${fullVersion}.js`,
 					assetFileNames: `v${fullVersion}/seventv.[name].${fullVersion}[extname]`,
 					chunkFileNames: `v${fullVersion}/seventv.[name].${fullVersion}.js`,
 
 					sanitizeFileName: (name: string) => name.toLowerCase(),
-
-					manualChunks: {
-						"site.twitch.tv": ["src/site/twitch.tv/TwitchSite.vue"],
-						"site.youtube.com": ["src/site/youtube.com/YouTubeSite.vue"],
-						"site.global": ["src/site/global/Global.vue"],
-					},
 				},
 			},
 		},
