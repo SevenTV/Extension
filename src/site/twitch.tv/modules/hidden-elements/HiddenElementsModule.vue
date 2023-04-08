@@ -200,13 +200,13 @@ export const config = [
 }
 
 .seventv-hide-recommended-channels {
-	div[data-test-selector="side-nav"] div[aria-label="Recommended Channels"] {
+	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(3) {
 		display: none !important;
 	}
 }
 
 .seventv-hide-viewers-also-watch {
-	div[data-test-selector="side-nav"] div[aria-label$="Viewers Also Watch"] {
+	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(4) {
 		display: none !important;
 	}
 }
