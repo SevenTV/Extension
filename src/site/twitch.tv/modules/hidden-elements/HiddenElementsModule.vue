@@ -160,13 +160,13 @@ export const config = [
 
 .seventv-hide-stream-chat-bar {
 	button[data-a-target="right-column__toggle-collapse-btn"],
-	div[class="Layout-sc-1xcs6mc-0 jBYVfx stream-chat-header"] {
+	div[class$="stream-chat-header"] {
 		display: none !important;
 	}
 }
 
 .seventv-hide-react-buttons {
-	div[data-test-selector="video-player__video-container"]
+	div[class$="theatre-social-panel"]
 		button[class="ScCoreButton-sc-ocjdkq-0 ScCoreButtonSecondary-sc-ocjdkq-2 ibtYyW bTKXKk"],
 	div[data-target="channel-header-right"]
 		button[class="ScCoreButton-sc-ocjdkq-0 ScCoreButtonText-sc-ocjdkq-3 ibtYyW jYfhUy"] {
@@ -182,7 +182,7 @@ export const config = [
 }
 
 .seventv-hide-top-bar-of-stream {
-	div[class="Layout-sc-1xcs6mc-0 nGhws top-bar"] {
+	div[class$="top-bar"] {
 		display: none !important;
 	}
 }
@@ -200,13 +200,13 @@ export const config = [
 }
 
 .seventv-hide-recommended-channels {
-	div[aria-label="Recommended Channels"] {
+	div[data-test-selector="side-nav"] div[aria-label="Recommended Channels"] {
 		display: none !important;
 	}
 }
 
 .seventv-hide-viewers-also-watch {
-	div[aria-label$="Viewers Also Watch"] {
+	div[data-test-selector="side-nav"] div[aria-label$="Viewers Also Watch"] {
 		display: none !important;
 	}
 }
@@ -236,7 +236,7 @@ export const config = [
 }
 
 .seventv-hide-chat-input-box {
-	seventv-container[class="seventv-chat-input-container"] {
+	div[class$="chat-input__textarea"] {
 		display: none !important;
 	}
 }
