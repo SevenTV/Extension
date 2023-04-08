@@ -187,7 +187,7 @@ jobs:
               uses: kewisch/action-web-ext@v1
               with:
                   cmd: sign
-                  source: ext/ext.xpi
+                  source: ext/7tv-webextension-ext.xpi
                   channel: unlisted
                   apiKey: ${{ secrets.AMO_API_KEY }}
                   apiSecret: ${{ secrets.AMO_API_SECRET }}
