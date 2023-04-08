@@ -37,7 +37,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 					update_url: "https://extension.7tv.gg/manifest.moz.json",
 					browser_specific_settings: {
 						gecko: {
-							id: "moz-addon@7tv.app",
+							id: "{7cc17731-b734-4c98-a154-51d2bf266ef4}",
 						},
 					},
 			  }
