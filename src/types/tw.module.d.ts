@@ -17,7 +17,7 @@ declare type TwModuleComponentMap = {
 	"chat-input": typeof ChatInputModuleVue;
 	"chat-vod": typeof ChatVodModuleVue;
 	"emote-menu": typeof EmoteMenuModuleVue;
-	"hidden-elements": typeof HiddenElementsModule;
+	"hidden-elements": typeof HiddenElementsModuleVue;
 	"mod-logs": typeof ModLogsModule;
 	"sidebar-previews": typeof SidebarPreviewsModuleVue;
 	autoclaim: typeof AutoclaimModuleVue;
