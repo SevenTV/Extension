@@ -181,6 +181,31 @@ jobs:
                   cat ./package.json >> $GITHUB_ENV
                   echo 'EOF' >> $GITHUB_ENV
 
+            - name: Sign XPI (Firefox)
+              id: xpi-sign
+              if: ${{ inputs.release || inputs.nightly }}
+              uses: kewisch/action-web-ext@v1
+              with:
+                  cmd: sign
+                  source: ext/ext.xpi
+                  channel: unlisted
+                  apiKey: ${{ secrets.AMO_API_KEY }}
+                  apiSecret: ${{ secrets.AMO_API_SECRET }}
+                  timeout: 600
+
+            - name: Move Signed XPI (Firefox)
+              if: success()
+              run: mv ${{ steps.xpi-sign.outputs.target }} dist/ext-signed.xpi
+
+            - name: "Upload Artifact: Signed XPI"
+              if: success()
+              uses: actions/upload-artifact@v3
+              with:
+                  name: installable
+                  retention-days: 60
+                  path: |
+                      dist/ext-signed.xpi
+
             - name: Create Nightly Release
               if: ${{ inputs.nightly || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
               id: create_nightly_release
@@ -256,7 +281,7 @@ jobs:
                   destination_dir: ""
 
     push:
-        name: Submit to CWS/AMO
+        name: Submit to CWS & Sign XPI
         runs-on: aws-runner
         needs: [ci, release]
         if: ${{ inputs.store-upload && inputs.nightly }}
