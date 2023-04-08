@@ -224,7 +224,7 @@ jobs:
         name: Deploy Hosted Build
         runs-on: aws-runner
         needs: [ci, release]
-        if: ${{ inputs.deploy }}
+        if: ${{ inputs.deploy || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
         steps:
             - uses: actions/checkout@v3

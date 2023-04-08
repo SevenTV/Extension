@@ -11,16 +11,12 @@ export default defineConfig(() => {
 	const outDir = process.env.OUT_DIR || "";
 	const fullVersion = getFullVersion(isNightly);
 
-	const stylesheetFileName = `seventv.style.${fullVersion}.css`;
-	const indexFileName = `index.${fullVersion}.js`;
-
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: appName,
 		VITE_APP_VERSION: fullVersion,
 		VITE_APP_VERSION_BRANCH: process.env.BRANCH,
-		VITE_APP_STYLESHEET_NAME: stylesheetFileName,
 		VITE_APP_CHANGELOG: fs.readFileSync(
 			r(
 				{
@@ -43,28 +39,29 @@ export default defineConfig(() => {
 		define: {
 			"process.env": {},
 		},
+		base: process.env.VITE_APP_HOST + "/",
 		build: {
 			emptyOutDir: true,
 			outDir: "dist-hosted" + "/" + outDir,
-			lib: {
-				formats: ["es"],
-				entry: r("src/site/site.app.ts"),
-				fileName: () => `v${fullVersion}/index.${fullVersion}.js`,
-				name: "seventv-site",
+			minify: "terser",
+			terserOptions: {
+				mangle: true,
+				compress: true,
 			},
+			chunkSizeWarningLimit: 1000,
+			cssCodeSplit: false,
 			rollupOptions: {
+				input: {
+					index: r("src/site/site.app.ts"),
+				},
 				output: {
+					format: "es",
 					inlineDynamicImports: false,
-					assetFileNames: `v${fullVersion}/seventv.[name].${fullVersion}[extname]`,
-					chunkFileNames: `v${fullVersion}/seventv.[name].${fullVersion}.js`,
+					entryFileNames: `v${fullVersion}/[name].${fullVersion}.[hash].js`,
+					assetFileNames: `v${fullVersion}/seventv.[name].${fullVersion}.[hash][extname]`,
+					chunkFileNames: `v${fullVersion}/seventv.[name].${fullVersion}.[hash].js`,
 
 					sanitizeFileName: (name: string) => name.toLowerCase(),
-
-					manualChunks: {
-						"site.twitch.tv": ["src/site/twitch.tv/TwitchSite.vue"],
-						"site.youtube.com": ["src/site/youtube.com/YouTubeSite.vue"],
-						"site.global": ["src/site/global/Global.vue"],
-					},
 				},
 			},
 		},
@@ -78,11 +75,22 @@ export default defineConfig(() => {
 			// Create hosted manifest
 			{
 				name: "create-hosted-manifest",
-				async writeBundle(this) {
+				async writeBundle(this, _, bun) {
+					let indexPath = "";
+					let stylePath = "";
+
+					for (const v of Object.values(bun)) {
+						if (v.type === "asset" && v.fileName.includes("seventv.style")) {
+							stylePath = v.fileName;
+						} else if (v.type === "chunk" && v.fileName.includes("index")) {
+							indexPath = v.fileName;
+						}
+					}
+
 					const man = {
 						version: getFullVersion(isNightly),
-						index_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/${indexFileName}`,
-						stylesheet_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/${stylesheetFileName}`,
+						index_file: `${process.env.VITE_APP_HOST}/${indexPath}`,
+						stylesheet_file: `${process.env.VITE_APP_HOST}/${stylePath}`,
 						worker_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/worker.${fullVersion}.js`,
 					};
 
