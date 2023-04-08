@@ -181,13 +181,17 @@ jobs:
                   cat ./package.json >> $GITHUB_ENV
                   echo 'EOF' >> $GITHUB_ENV
 
+            - name: Copy Unsigned XPI
+              run: |
+                  cp ext/7tv-webextension-ext.xpi ext/7tv-webextension-ext-signed.xpi
+
             - name: Sign XPI (Firefox)
               id: xpi-sign
               continue-on-error: true
               uses: kewisch/action-web-ext@v1
               with:
                   cmd: sign
-                  source: ext/7tv-webextension-ext.xpi
+                  source: ext/7tv-webextension-ext-signed.xpi
                   channel: unlisted
                   apiKey: ${{ secrets.AMO_API_KEY }}
                   apiSecret: ${{ secrets.AMO_API_SECRET }}
@@ -281,7 +285,7 @@ jobs:
                   destination_dir: ""
 
     push:
-        name: Submit to CWS & Sign XPI
+        name: Submit to CWS/AMO
         runs-on: aws-runner
         needs: [ci, release]
         if: ${{ inputs.store-upload && inputs.nightly }}
