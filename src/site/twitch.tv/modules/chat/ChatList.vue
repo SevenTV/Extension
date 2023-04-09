@@ -1,6 +1,6 @@
 <template>
 	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
-		<div v-for="msg of displayedMessages" :key="msg.sym" v-memo="[msg]" :msg-id="msg.id" class="seventv-message">
+		<div v-for="msg of displayedMessages" :key="msg.sym" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
 				<component
 					:is="isModSliderEnabled && properties.isModerator && msg.author ? ModSlider : 'span'"

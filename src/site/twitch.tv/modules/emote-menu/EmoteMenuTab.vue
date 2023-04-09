@@ -8,7 +8,7 @@
 			</div>
 
 			<div class="emote-area">
-				<div v-for="es of sortedSets" :key="es.id" v-memo="[ctx.filter, es.emotes, selected]">
+				<div v-for="es of sortedSets" :key="es.id">
 					<EmoteMenuSet
 						:ref="'es-' + es.id"
 						:es="es"
