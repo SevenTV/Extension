@@ -1,7 +1,5 @@
 ### Version 3.0.4.7000
 
-**The changes listed here are not assigned to an official release**.
-
 -   Added hot-patching functionality to the extension
 -   Added chat rich embeds which allows twitch clips to preview in chat
 -   Added a "Copy Message" button
