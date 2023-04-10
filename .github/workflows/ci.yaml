@@ -40,7 +40,7 @@ concurrency:
 env:
     ARTIFACT_NAME: 7tv-webextension
     NIGHTLY_EXTENSION_ID_CWS: fphegifdehlodcepfkgofelcenelpedj
-    NIGHTLY_EXTENSION_ID_AMO: "{7cc17731-b734-4c98-a154-51d2bf266ef4}"
+    NIGHTLY_EXTENSION_ID_AMO: "moz-addon@7tv.app"
 
 jobs:
     ci:
@@ -86,7 +86,7 @@ jobs:
                   BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
-                  OUT_DIR=mv2 MV2=true yarn build:prod
+                  OUT_DIR=mv2 MOZILLA_ID=${{ env.NIGHTLY_EXTENSION_ID_AMO }} MV2=true yarn build:prod
 
             - name: Create Build Archives
               run: |
@@ -256,7 +256,7 @@ jobs:
                   destination_dir: ""
 
     push:
-        name: Submit to CWS/AMO
+        name: Submit to CWS / Sign XPI
         runs-on: aws-runner
         needs: [ci, release]
         if: ${{ inputs.store-upload && inputs.nightly }}
@@ -306,12 +306,31 @@ jobs:
                     --client-secret "$(sed '2q;d' c)" \
                     --refresh-token "$(sed '3q;d' c)"
 
-            - name: Upload to AMO
-              if: always()
-              uses: trmcnvn/firefox-addon@v1
+            - name: Copy Unsigned XPI
+              run: |
+                  cp ext/ext.xpi ext/ext-signable.xpi
+
+            - name: Sign XPI (Firefox)
+              id: xpi-sign
+              continue-on-error: true
+              uses: kewisch/action-web-ext@v1
               with:
-                  uuid: ${{ env.NIGHTLY_EXTENSION_ID_AMO }}
-                  xpi: ext/ext.xpi
-                  manifest: manifest/manifest.mv2.json
-                  api-key: ${{ secrets.AMO_API_KEY }}
-                  api-secret: ${{ secrets.AMO_API_SECRET }}
+                  cmd: sign
+                  source: ext/ext-signable.xpi
+                  channel: unlisted
+                  apiKey: ${{ secrets.AMO_API_KEY }}
+                  apiSecret: ${{ secrets.AMO_API_SECRET }}
+                  timeout: 600
+
+            - name: Move Signed XPI (Firefox)
+              if: ${{ steps.xpi-sign.outputs.target }}
+              run: mv ${{ steps.xpi-sign.outputs.target }} dist/ext-signed.xpi
+
+            - name: "Upload Artifact: Signed XPI"
+              if: ${{ steps.xpi-sign.outputs.target }}
+              uses: actions/upload-artifact@v3
+              with:
+                  name: installable
+                  retention-days: 60
+                  path: |
+                      dist/ext-signed.xpi
