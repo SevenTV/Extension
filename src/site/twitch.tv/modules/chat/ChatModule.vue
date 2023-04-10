@@ -347,6 +347,12 @@ export const config = [
 		disabledIf: () => !useConfig("highlights.basic.mention").value,
 		defaultValue: true,
 	}),
+	declareConfig("highlights.basic.moderator", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Moderator Highlights",
+		hint: "Whether or not to highlight messages from moderators",
+		defaultValue: true,
+	}),
 	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Show First-Time Chatter Highlights",

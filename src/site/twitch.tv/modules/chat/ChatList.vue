@@ -62,6 +62,7 @@ const pausedByVisibility = ref(false);
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 const showMentionHighlights = useConfig("highlights.basic.mention");
+const showModeratorHighlights = useConfig<boolean>("highlights.basic.moderator");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
 const shouldPlaySoundOnMention = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
@@ -484,6 +485,24 @@ watch(
 		} else {
 			chatHighlights.remove("~mention");
 			chatHighlights.remove("~reply");
+		}
+	},
+	{
+		immediate: true,
+	},
+);
+
+watch(
+	[showModeratorHighlights],
+	([enabled]) => {
+		if (enabled) {
+			chatHighlights.define("~moderator", {
+				test: (msg) => "moderator" in msg.badges,
+				label: "Moderator",
+				color: "#00bb00",
+			});
+		} else {
+			chatHighlights.remove("~moderator");
 		}
 	},
 	{
