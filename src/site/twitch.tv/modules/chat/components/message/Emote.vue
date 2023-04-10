@@ -6,6 +6,8 @@
 			:srcset="unload ? '' : processSrcSet(emote)"
 			:alt="emote.name"
 			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
+			loading="lazy"
+			decoding="async"
 			@load="onImageLoad"
 			@mouseenter="onShowTooltip"
 			@mouseleave="hide()"

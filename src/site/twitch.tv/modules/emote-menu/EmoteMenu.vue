@@ -32,7 +32,6 @@
 					v-for="(_, key) in visibleProviders"
 					v-show="key === activeProvider"
 					:key="key"
-					v-memo="[activeProvider === key, visibleProviders, ctx.filter]"
 					class="seventv-emote-menu-body"
 				>
 					<EmoteMenuTab
