@@ -308,7 +308,7 @@ jobs:
 
             - name: Copy Unsigned XPI
               run: |
-                  cp ext/7tv-webextension-ext.xpi ext/7tv-webextension-ext-signed.xpi
+                  cp ext/ext.xpi ext/ext-signable.xpi
 
             - name: Sign XPI (Firefox)
               id: xpi-sign
@@ -316,7 +316,7 @@ jobs:
               uses: kewisch/action-web-ext@v1
               with:
                   cmd: sign
-                  source: ext/7tv-webextension-ext-signed.xpi
+                  source: ext/ext-signable.xpi
                   channel: unlisted
                   apiKey: ${{ secrets.AMO_API_KEY }}
                   apiSecret: ${{ secrets.AMO_API_SECRET }}
