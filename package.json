@@ -29,6 +29,7 @@
 		"script:compile-emoji": "tsc -p script/script.tsconfig.json --outDir dist/ && node dist/compile-emojis.js"
 	},
 	"dependencies": {
+		"tldts": "^6.0.3",
 		"vue": "^3.2.47"
 	},
 	"devDependencies": {

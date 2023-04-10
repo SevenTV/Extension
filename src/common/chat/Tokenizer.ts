@@ -8,6 +8,7 @@ import type {
 	VoidToken,
 } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
+import { parse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
 
@@ -74,7 +75,7 @@ export class Tokenizer {
 			} else if (prevEmote && part.startsWith("ffz") && part.length > 3) {
 				// this is a temporary measure to hide ffz emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if (part.match(Regex.Link)) {
+			} else if (this.isValidLink(part)) {
 				// Check link
 				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
 
@@ -113,6 +114,10 @@ export class Tokenizer {
 		tokens.sort((a, b) => a.range[0] - b.range[0]);
 
 		return (this.msg.tokens = tokens);
+	}
+
+	private isValidLink(message: string): boolean {
+		return parse(message).isIcann ?? false;
 	}
 }
 
