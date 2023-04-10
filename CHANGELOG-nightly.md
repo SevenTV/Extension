@@ -1,12 +1,14 @@
-### Untitled Version
-
-**The changes listed here are not assigned to an official release**.
+### Version 3.0.4.7000
 
 -   Added hot-patching functionality to the extension
 -   Added chat rich embeds which allows twitch clips to preview in chat
 -   Added a "Copy Message" button
 -   Added an option to show thumbnail previews of streams when hovering over channels on the sidebar
+-   Temporarily disabled the "Most Used Emotes" feature, pending a refactor. This fixes severe input lag experienced by some users
+-   Made some internal changes which may decrease memory usage for some users
+-   Fixed bad performance on colon-completion by limiting the amount of items shown
 -   Fixed an issue which caused flickering when hovering on a deleted message
+-   Fixed a compatibility issue with another extension, causing distorted scrolling behavior in the settings menu
 
 ### Version 3.0.3.1000
 
