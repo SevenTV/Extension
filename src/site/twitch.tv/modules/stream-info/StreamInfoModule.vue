@@ -2,7 +2,7 @@
 	<!-- Insert  -->
 	<Teleport to="#seventv-stream-info">
 		<div v-if="shouldShowVideoStats">
-			{{ videoLatencyRef?.innerText }}
+			{{ videoLatency }}
 		</div>
 	</Teleport>
 </template>
@@ -10,23 +10,16 @@
 <script setup lang="ts">
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import { declareModule } from "@/composable/useModule";
-import { Ref, onMounted, onUnmounted, ref, watch } from "vue";
+import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 
 const { markAsReady } = declareModule("stream-info", {
 	name: "Stream Info",
 	depends_on: [],
 });
 const shouldShowVideoStats = useConfig<boolean>("channel.stream_info");
-const el = document.createElement("div");
-el.id = "seventv-stream-info";
-const containerEl = ref<HTMLElement>(el);
-let liveTimer = document.querySelector<HTMLElement>(".live-time")?.parentElement;
-const streamInfo = document.querySelector<HTMLElement>("#seventv-stream-info");
-if (!streamInfo && liveTimer) {
-	liveTimer.insertAdjacentElement("afterend", containerEl.value);
-}
 
-const videoLatencyRef = ref<HTMLElement>();
+const videoLatency = ref<string>("");
+const observer = new MutationObserver(updateVideoLatency);
 
 function findAndHideVideoStatsTable() {
 	const channelPlayerElement = document.querySelector<HTMLElement>("#channel-player");
@@ -60,30 +53,41 @@ function findAndHideVideoStatsTable() {
 	// We set the display to none
 	videoStatsTableElement.style.setProperty("display", "none");
 	const latency = videoStatsTableElement.querySelector<HTMLElement>("p[aria-label='Latency To Broadcaster']");
-	// console.log(latency);
 	if (!latency) return;
-	videoLatencyRef.value = latency;
+
+	observer.observe(latency, { characterData: true, subtree: true });
 
 	// Close the player settings
 	playerSettingsElement.click();
 }
 
-function updateVideoStats() {
-	let videoStatsTableElement = document.querySelector<HTMLElement>("div[data-a-target='player-overlay-video-stats']");
-	if (!videoStatsTableElement) return;
-	const latency = videoStatsTableElement.querySelector<HTMLElement>("p[aria-label='Latency To Broadcaster']");
-	// console.log(latency);
-	if (!latency) return;
-	videoLatencyRef.value = latency;
+function updateVideoLatency(mutationList: any): void {
+	mutationList.forEach((mutation: MutationRecord) => {
+		switch (mutation.type) {
+			case "characterData":
+				videoLatency.value = mutation.target.textContent ?? "";
+				break;
+		}
+	});
 }
 
-watch(videoLatencyRef, updateVideoStats);
+onBeforeMount(() => {
+	const el = document.createElement("div");
+	el.id = "seventv-stream-info";
+	const liveTimer = document.querySelector<HTMLElement>(".live-time")?.parentElement;
+	if (liveTimer) {
+		liveTimer.insertAdjacentElement("afterend", el);
+	}
+});
 
 onMounted(() => {
 	findAndHideVideoStatsTable();
 });
 
-onUnmounted(() => {});
+onUnmounted(() => {
+	observer.disconnect();
+	videoLatency.value = "";
+});
 
 markAsReady();
 </script>
