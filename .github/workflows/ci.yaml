@@ -241,7 +241,7 @@ jobs:
 
             - name: Build (Hosted)
               env:
-                  BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
+                  BRANCH: ${{ inputs.release && '' || 'nightly'  }}
               run: |
                   yarn build-hosted:prod
 
