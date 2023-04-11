@@ -320,7 +320,7 @@ jobs:
                   channel: unlisted
                   apiKey: ${{ secrets.AMO_API_KEY }}
                   apiSecret: ${{ secrets.AMO_API_SECRET }}
-                  timeout: 600
+                  timeout: 900000
 
             - name: Move Signed XPI (Firefox)
               if: ${{ steps.xpi-sign.outputs.target }}
