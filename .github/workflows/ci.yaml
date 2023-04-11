@@ -187,7 +187,7 @@ jobs:
                   cat ./package.json >> $GITHUB_ENV
                   echo 'EOF' >> $GITHUB_ENV
 
-                  echo "RELEASE_TAG=v${{ (inputs.nightly || env.IS_MASTER_COMMIT) && 'nightly-release' || fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
+                  echo "RELEASE_TAG=${{ (inputs.nightly || env.IS_MASTER_COMMIT) && 'nightly-release' || format('v{0}', fromJson(env.PACKAGE_JSON).version) }}" >> $GITHUB_OUTPUT
 
             - name: Create Nightly Release
               if: ${{ inputs.nightly || env.IS_MASTER_COMMIT }}
