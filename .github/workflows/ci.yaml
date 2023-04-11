@@ -337,7 +337,7 @@ jobs:
 
             - name: Move Signed XPI (Firefox)
               if: ${{ steps.xpi-sign.outputs.target }}
-              run: mv ${{ steps.xpi-sign.outputs.target }} dist/ext-signed.xpi
+              run: mv ${{ steps.xpi-sign.outputs.target }} ext/ext-signed.xpi
 
             - name: "Upload Artifact: Signed XPI"
               if: ${{ steps.xpi-sign.outputs.target }}
@@ -346,11 +346,11 @@ jobs:
                   name: installable
                   retention-days: 60
                   path: |
-                      dist/ext-signed.xpi
+                      ext/ext-signed.xpi
 
             - name: "Rename Signed Artifact"
               if: ${{ steps.xpi-sign.outputs.target }}
-              run: cp dist/ext-signed.xpi ext/7tv-webextension-ext.xpi
+              run: cp ext/ext-signed.xpi ext/7tv-webextension-ext.xpi
 
             - name: Update Release
               if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
