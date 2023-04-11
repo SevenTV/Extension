@@ -87,7 +87,7 @@ jobs:
             - name: Build App
               env:
                   BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
-                  EXTENSION_ID: ${{ ((inputs.nightly || env.IS_MASTER_COMMIT) && env.NIGHTLY_EXTENSION_ID_AMO) || (inputs.release && env.EXTENSION_ID_AMO) }}
+                  EXTENSION_ID: ${{ ((inputs.nightly || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_AMO) || (inputs.release && env.EXTENSION_ID_AMO) }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
                   OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID }} MV2=true yarn build:prod
@@ -187,10 +187,10 @@ jobs:
                   cat ./package.json >> $GITHUB_ENV
                   echo 'EOF' >> $GITHUB_ENV
 
-                  echo "RELEASE_TAG=${{ (inputs.nightly || env.IS_MASTER_COMMIT) && 'nightly-release' || format('v{0}', fromJson(env.PACKAGE_JSON).version) }}" >> $GITHUB_OUTPUT
+                  echo "RELEASE_TAG=${{ (inputs.nightly || env.IS_MASTER_COMMIT == 'true') && 'nightly-release' || format('v{0}', fromJson(env.PACKAGE_JSON).version) }}" >> $GITHUB_OUTPUT
 
             - name: Create Nightly Release
-              if: ${{ inputs.nightly || env.IS_MASTER_COMMIT }}
+              if: ${{ inputs.nightly || env.IS_MASTER_COMMIT == 'true' }}
               id: create_nightly_release
               uses: ncipollo/release-action@v1.12.0
               with:
@@ -204,7 +204,7 @@ jobs:
                   tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
             - name: Update Nightly Tag
-              if: ${{ inputs.nightly || env.IS_MASTER_COMMIT }}
+              if: ${{ inputs.nightly || env.IS_MASTER_COMMIT == 'true' }}
               run: |
                   git tag -f nightly-release
                   git push -f origin nightly-release
@@ -307,7 +307,7 @@ jobs:
               continue-on-error: true
               env:
                   CREDENTIALS: ${{ secrets.CWS }}
-                  EXTENSION_ID: ${{ (inputs.nightly && env.NIGHTLY_EXTENSION_ID_CWS) || (inputs.release && env.EXTENSION_ID_CWS) }}
+                  EXTENSION_ID: ${{ ((inputs.nightly || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) || ((inputs.release) && env.EXTENSION_ID_CWS) }}
               run: |
                   echo "${{ env.CREDENTIALS }}" >> c
 
