@@ -201,7 +201,7 @@ jobs:
                   body: ${{ github.event.head_commit.message }}
                   prerelease: true
                   name: Nightly Release
-                  tag: ${{ steps.release-tag }}
+                  tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
             - name: Update Nightly Tag
               if: ${{ inputs.nightly || env.IS_MASTER_COMMIT }}
@@ -229,7 +229,7 @@ jobs:
                   tag: ${{ steps.release-tag }}
 
         outputs:
-            release_tag: ${{ steps.release-tag }}
+            release_tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
     deploy:
         name: Deploy Hosted Build
