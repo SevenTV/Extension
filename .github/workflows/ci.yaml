@@ -187,7 +187,7 @@ jobs:
               id: release-tag
               run: |
                   if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
-                      echo "RELEASE_TAG=nightly-release" >> $GITHUB_ENV
+                      echo "RELEASE_TAG=nightly-release" >> $GITHUB_OUTPUT
                       exit 0
                   fi
 
