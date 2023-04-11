@@ -147,7 +147,7 @@ function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: 
 			if (usedTokens.has(chatter.displayName) || !chatter.displayName.toLowerCase().startsWith(lPrefix)) continue;
 
 			matches.push({
-				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName + " ",
+				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName,
 				priority: 10,
 			});
 		}
