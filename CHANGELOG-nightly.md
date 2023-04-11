@@ -1,3 +1,7 @@
+### Version 3.0.4.8000
+
+-   Fixed an issue which caused tab-completion to abruptly halt when a chatter's name is selected
+
 ### Version 3.0.4.7000
 
 -   Added hot-patching functionality to the extension
