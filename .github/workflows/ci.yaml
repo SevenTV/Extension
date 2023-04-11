@@ -321,6 +321,7 @@ jobs:
             - name: Copy Unsigned XPI
               run: |
                   cp ext/ext.xpi ext/ext-signable.xpi
+                  mkdir web-ext-artifacts/
 
             - name: Sign XPI (Firefox)
               id: xpi-sign
