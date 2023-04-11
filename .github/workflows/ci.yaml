@@ -13,15 +13,13 @@ on:
             - labeled
     workflow_dispatch:
         inputs:
-            nightly:
-                type: boolean
-                description: "Nightly Release"
-                default: true
-
-            release:
-                type: boolean
-                description: "Stable Release"
-                default: false
+            branch:
+                type: choice
+                description: "Branch"
+                options:
+                    - nightly
+                    - stable
+                default: nightly
 
             store-upload:
                 type: boolean
@@ -86,8 +84,8 @@ jobs:
 
             - name: Build App
               env:
-                  BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
-                  EXTENSION_ID: ${{ ((inputs.nightly || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_AMO) || (inputs.release && env.EXTENSION_ID_AMO) }}
+                  BRANCH: ${{ inputs.branch != 'stable' && inputs.branch || '' }}
+                  EXTENSION_ID: ${{ ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_AMO) || (inputs.release && env.EXTENSION_ID_AMO) }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
                   OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID }} MV2=true yarn build:prod
@@ -156,7 +154,7 @@ jobs:
         name: Create Release
         runs-on: aws-runner
         needs: [ci]
-        if: ${{ (inputs.nightly) || (inputs.release) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+        if: ${{ (inputs.branch) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
         steps:
             - uses: actions/checkout@v3
@@ -188,7 +186,7 @@ jobs:
             - name: Define Release Tag
               id: release-tag
               run: |
-                  if [[ "${{ inputs.nightly || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
+                  if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
                       echo "RELEASE_TAG=nightly-release" >> $GITHUB_ENV
                       exit 0
                   fi
@@ -196,7 +194,7 @@ jobs:
                   echo "RELEASE_TAG=${{ format('v{0}', fromJson(env.PACKAGE_JSON).version) }}" >> $GITHUB_OUTPUT
 
             - name: Create Nightly Release
-              if: ${{ inputs.nightly || env.IS_MASTER_COMMIT == 'true' }}
+              if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
               id: create_nightly_release
               uses: ncipollo/release-action@v1.12.0
               with:
@@ -210,13 +208,13 @@ jobs:
                   tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
             - name: Update Nightly Tag
-              if: ${{ inputs.nightly || env.IS_MASTER_COMMIT == 'true' }}
+              if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
               run: |
                   git tag -f nightly-release
                   git push -f origin nightly-release
 
             - name: Create Release
-              if: ${{ inputs.release }}
+              if: ${{ inputs.branch == 'stable' }}
               id: create_release
               uses: ncipollo/release-action@v1.12.0
               with:
@@ -258,7 +256,7 @@ jobs:
 
             - name: Build (Hosted)
               env:
-                  BRANCH: ${{ inputs.release && '' || 'nightly'  }}
+                  BRANCH: ${{ inputs.branch != 'stable' && inputs.branch || ''  }}
               run: |
                   yarn build-hosted:prod
 
@@ -276,7 +274,7 @@ jobs:
         name: Submit to CWS / Sign XPI
         runs-on: aws-runner
         needs: [ci, release]
-        if: ${{ inputs.store-upload && (inputs.nightly || inputs.release) }}
+        if: ${{ inputs.store-upload && inputs.branch }}
 
         steps:
             - uses: actions/checkout@v3
@@ -313,7 +311,7 @@ jobs:
               continue-on-error: true
               env:
                   CREDENTIALS: ${{ secrets.CWS }}
-                  EXTENSION_ID: ${{ ((inputs.nightly || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) || ((inputs.release) && env.EXTENSION_ID_CWS) }}
+                  EXTENSION_ID: ${{ ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) || ((inputs.release) && env.EXTENSION_ID_CWS) }}
               run: |
                   echo "${{ env.CREDENTIALS }}" >> c
 
