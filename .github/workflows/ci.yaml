@@ -180,13 +180,14 @@ jobs:
                       mv "$file" "7tv-webextension-$file"
                   done
 
-            - name: Define Release Tag
-              id: release-tag
-              run: |
+            - run: |
                   echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
                   cat ./package.json >> $GITHUB_ENV
                   echo 'EOF' >> $GITHUB_ENV
 
+            - name: Define Release Tag
+              id: release-tag
+              run: |
                   if [[ "${{ inputs.nightly || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
                       echo "RELEASE_TAG=nightly-release" >> $GITHUB_ENV
                       exit 0
