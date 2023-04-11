@@ -225,8 +225,8 @@ jobs:
                   omitPrereleaseDuringUpdate: true
                   replacesArtifacts: true
                   body: ${{ github.event.head_commit.message }}
-                  name: ${{ steps.release-tag }}
-                  tag: ${{ steps.release-tag }}
+                  name: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+                  tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
         outputs:
             release_tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
