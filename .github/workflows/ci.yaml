@@ -366,7 +366,6 @@ jobs:
               run: |
                   sudo apt-get update && sudo apt-get -y install bc
 
-                  BASE_URL="https://extension.7tv.gg"
                   VERSION=${{ needs.release.outputs.version }}
                   DEV_VERSION=$(echo ${{ needs.release.outputs.dev_version }} * 1000 / 1 | bc)
                   NIGHTLY_VERSION=$(echo $SEM_VERSION.$DEV_VERSION)
@@ -382,13 +381,14 @@ jobs:
                   cp ext/ext-signed.xpi $S3_PATH/ext.xpi
                   mv mozilla.template.json manifest.moz.json
 
-                  sed -i -e 's/stable#version/$(echo $VERSION)/g' ./manifest.moz.json
-                  sed -i -e 's/stable#update_link/$(echo $BASE_URL\/$VERSION\/ext.xpi)/g' ./manifest.moz.json
+                  BASE_URL="https:\/\/extension.7tv.gg"
+                  sed -i -e 's/stable#version/$VERSION/g' ./manifest.moz.json
+                  sed -i -e 's/stable#update_link/$BASE_URL\/$VERSION\/ext.xpi/g' ./manifest.moz.json
 
-                  sed -i -e 's/nightly#version/$(echo $NIGHTLY_VERSION)/g' ./manifest.moz.json
-                  sed -i -e 's/nightly#update_link/$(echo $BASE_URL\/$NIGHTLY_VERSION\/ext.xpi)/g' ./manifest.moz.json
+                  sed -i -e 's/nightly#version/$NIGHTLY_VERSION/g' ./manifest.moz.json
+                  sed -i -e 's/nightly#update_link/$BASE_URL\/$NIGHTLY_VERSION\/ext.xpi/g' ./manifest.moz.json
 
-                  mv manifest.moz.json s3/
+                  mv manifest.moz.json moz/
 
             - name: Upload Signed XPI to S3
               if: success()
