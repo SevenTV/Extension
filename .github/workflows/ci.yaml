@@ -367,8 +367,8 @@ jobs:
                   sudo apt-get update && sudo apt-get -y install bc
 
                   VERSION=${{ needs.release.outputs.version }}
-                  DEV_VERSION=$(echo ${{ needs.release.outputs.dev_version }} * 1000 / 1 | bc)
-                  NIGHTLY_VERSION=$VERSION.$DEV_VERSION
+                  DEV_VERSION=${{ needs.release.outputs.dev_version }}
+                  NIGHTLY_VERSION=$VERSION.$(echo $DEV_VERSION * 1000 / 1 | bc)
 
                   S3_PATH=moz/${{ needs.release.outputs.release_tag }}
                   mkdir -p $S3_PATH
