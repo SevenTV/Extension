@@ -1,0 +1,20 @@
+{
+	"addons": {
+		"moz-addon-prod@7tv.app": {
+			"updates": [
+				{
+					"version": "stable#version",
+					"update_link": "stable#update_link"
+				}
+			]
+		},
+		"moz-addon@7tv.app": {
+			"updates": [
+				{
+					"version": "nightly#version",
+					"update_link": "nightly#update_link"
+				}
+			]
+		}
+	}
+}
