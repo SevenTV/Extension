@@ -1,5 +1,5 @@
 <template>
-	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
+	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="uiFloatingMiddleware">
 		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
@@ -108,6 +108,7 @@ const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
 	TWITCH: true,
 	EMOJI: true,
 });
+const uiFloatingMiddleware = ref([shift({ mainAxis: true, crossAxis: true })]);
 
 const chatModule = getModuleRef("chat");
 const placement = useConfig<"regular" | "below" | "hidden">("ui.emote_menu.button_placement");
@@ -185,6 +186,14 @@ watch(
 	{ immediate: true },
 );
 
+// in the "Bellow input" format, sometimes the positioning styles for the menu are not correct
+// when first opened.I manually force the position to be recalculated
+watch(ctx, (newVal) => {
+	if (newVal.open) {
+		uiFloatingMiddleware.value = [shift({ mainAxis: true, crossAxis: true })];
+	}
+});
+
 // Handle change in the visibility of a provider while using search
 // and if the current active provider has no content, switch to the next available
 function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean) {
@@ -233,12 +242,16 @@ definePropertyHook(props.instance.component.autocompleteInputRef, "state", {
 // Handle click-outside
 // This closes the menu
 onClickOutside(containerRef, (e) => {
+	const emoteMenuButton = document.querySelector(".seventv-emote-menu-button");
+
 	if (settingsContext.open || !(e.target instanceof Node)) return;
 
 	// If the click was inside the input or on the button, ignore it
 	if (inputEl.value && inputEl.value.contains(e.target)) {
 		return;
 	} else if (props.buttonEl && props.buttonEl.contains(e.target)) {
+		return;
+	} else if (emoteMenuButton?.contains(e.target)) {
 		return;
 	}
 
