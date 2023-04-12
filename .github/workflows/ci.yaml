@@ -84,7 +84,7 @@ jobs:
 
             - name: Build App
               env:
-                  BRANCH: ${{ inputs.branch != 'stable' && inputs.branch || '' }}
+                  BRANCH: ${{ inputs.branch != 'stable' && inputs.branch || env.IS_MASTER_COMMIT && 'nightly' || ''  }}
                   EXTENSION_ID: ${{ ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_AMO) || (inputs.release && env.EXTENSION_ID_AMO) }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
@@ -261,7 +261,7 @@ jobs:
 
             - name: Build (Hosted)
               env:
-                  BRANCH: ${{ inputs.branch != 'stable' && inputs.branch || ''  }}
+                  BRANCH: ${{ inputs.branch != 'stable' && inputs.branch || env.IS_MASTER_COMMIT && 'nightly' || ''  }}
               run: |
                   yarn build-hosted:prod
 
