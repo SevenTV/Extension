@@ -362,7 +362,7 @@ jobs:
               run: cp ext/ext-signed.xpi ext/7tv-webextension-ext.xpi
 
             - name: "Update Mozilla Manifest"
-              if: success()
+              if: ${{ steps.xpi-sign.outputs.target }}
               run: |
                   sudo apt-get update && sudo apt-get -y install bc
 
