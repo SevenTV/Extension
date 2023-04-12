@@ -1,23 +1,22 @@
 <template>
-	<!-- Insert  -->
-	<Teleport to="#seventv-stream-info">
-		<div v-if="shouldShowVideoStats">
-			{{ videoLatency }}
-		</div>
+	<Teleport v-if="displayLatency" to="#seventv-stream-info">
+		<span class="seventv-stream-info" v-if="shouldShowVideoStats"> <GaugeIcon /> {{ videoLatency }} </span>
 	</Teleport>
 </template>
 
 <script setup lang="ts">
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import { declareModule } from "@/composable/useModule";
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import GaugeIcon from "@/assets/svg/icons/GaugeIcon.vue";
 
 const { markAsReady } = declareModule("stream-info", {
 	name: "Stream Info",
 	depends_on: [],
 });
-const shouldShowVideoStats = useConfig<boolean>("channel.stream_info");
 
+const shouldShowVideoStats = useConfig<boolean>("channel.stream_info");
+const displayLatency = ref<boolean>(false);
 const videoLatency = ref<string>("");
 const observer = new MutationObserver(updateVideoLatency);
 
@@ -61,27 +60,33 @@ function findAndHideVideoStatsTable() {
 	playerSettingsElement.click();
 }
 
-function updateVideoLatency(mutationList: any): void {
+function updateVideoLatency(mutationList: Array<MutationRecord>): void {
 	mutationList.forEach((mutation: MutationRecord) => {
 		switch (mutation.type) {
 			case "characterData":
-				videoLatency.value = mutation.target.textContent ?? "";
+				videoLatency.value = mutation.target.textContent?.replace(" sec.", "s") ?? "";
 				break;
 		}
 	});
 }
 
-onBeforeMount(() => {
-	const el = document.createElement("div");
-	el.id = "seventv-stream-info";
-	const liveTimer = document.querySelector<HTMLElement>(".live-time")?.parentElement;
-	if (liveTimer) {
-		liveTimer.insertAdjacentElement("afterend", el);
-	}
-});
-
 onMounted(() => {
 	findAndHideVideoStatsTable();
+
+	// Needs improvement
+	setTimeout(() => {
+		const n = document.querySelector<HTMLElement>(".live-time");
+		if (n) {
+			const newEl = document.createElement("div");
+			newEl.id = "seventv-stream-info";
+			const liveTimer = document.querySelector<HTMLElement>("#seventv-stream-info");
+			if (!liveTimer) {
+				n.parentElement?.insertAdjacentElement("afterend", newEl);
+			}
+		}
+
+		displayLatency.value = true;
+	}, 10000);
 });
 
 onUnmounted(() => {
@@ -96,9 +101,19 @@ markAsReady();
 export const config = [
 	declareConfig("channel.stream_info", "TOGGLE", {
 		path: ["Channel", "Stream-Info"],
-		label: "Stream Info",
-		hint: "Show additional information about stream",
+		label: "Latency Info",
+		hint: "Show Latency to Broadcaster",
 		defaultValue: false,
 	}),
 ];
 </script>
+
+<style>
+.seventv-stream-info {
+	font-family: Helvetica Neue, sans-serif;
+	font-variant-numeric: tabular-nums;
+}
+.seventv-stream-info > svg {
+	vertical-align: text-top;
+}
+</style>
