@@ -84,8 +84,8 @@ jobs:
 
             - name: Build App
               env:
-                  BRANCH: ${{ inputs.branch == 'stable' && '' || (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT) && 'nightly'  }}
-                  EXTENSION_ID: ${{ ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_AMO) || (inputs.release && env.EXTENSION_ID_AMO) }}
+                  BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}
+                  EXTENSION_ID: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_CWS || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
                   OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID }} MV2=true yarn build:prod
@@ -189,7 +189,7 @@ jobs:
                   echo "VERSION=${{ fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
                   echo "DEV_VERSION=${{ fromJson(env.PACKAGE_JSON).dev_version }}" >> $GITHUB_OUTPUT
 
-                  if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
+                  if [[ "${{ inputs.branch == 'nightly' }}" == "true" ]]; then
                       echo "RELEASE_TAG=nightly-release" >> $GITHUB_OUTPUT
                       exit 0
                   fi
@@ -261,7 +261,7 @@ jobs:
 
             - name: Build (Hosted)
               env:
-                  BRANCH: ${{ inputs.branch == 'stable' && '' || (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT) && 'nightly'  }}
+                  BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}
               run: |
                   yarn build-hosted:prod
 
@@ -316,7 +316,7 @@ jobs:
               continue-on-error: true
               env:
                   CREDENTIALS: ${{ secrets.CWS }}
-                  EXTENSION_ID: ${{ ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) || ((inputs.release) && env.EXTENSION_ID_CWS) }}
+                  EXTENSION_ID: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_CWS || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) }}
               run: |
                   echo "${{ env.CREDENTIALS }}" >> c
 
