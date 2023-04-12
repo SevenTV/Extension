@@ -4,7 +4,7 @@
 	"description": "Improve your viewing experience on Twitch & YouTube with new features, emotes, vanity and performance.",
 	"private": true,
 	"version": "3.0.4",
-	"dev_version": "8.59",
+	"dev_version": "8.6",
 	"scripts": {
 		"start": "NODE_ENV=dev yarn build:dev && NODE_ENV=dev vite --mode dev",
 		"build:section:app": "vite build --config vite.config.ts",

@@ -368,13 +368,7 @@ jobs:
 
                   VERSION=${{ needs.release.outputs.version }}
                   DEV_VERSION=$(echo ${{ needs.release.outputs.dev_version }} * 1000 / 1 | bc)
-                  NIGHTLY_VERSION=$(echo $SEM_VERSION.$DEV_VERSION)
-
-                  if [[ "${{ inputs.branch == 'nightly' }}" == "true" ]]; then
-                    BRANCH_VERSION=$(echo $NIGHTLY_VERSION)
-                  elif [[ "${{ inputs.branch == 'stable' }}" == "true" ]]; then
-                    BRANCH_VERSION=$(echo $VERSION)
-                  fi
+                  NIGHTLY_VERSION=$VERSION.$DEV_VERSION
 
                   S3_PATH=moz/${{ needs.release.outputs.release_tag }}
                   mkdir -p $S3_PATH
