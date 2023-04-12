@@ -1,4 +1,6 @@
+import { TwTypeMessage, TwTypeUser } from "@/assets/gql/tw.gql";
 import { imageHostToSrcset } from "./Image";
+import { ChatMessage, ChatUser } from "./chat/ChatMessage";
 
 const BTTV_ZeroWidth = ["SoSnowy", "IceCold", "SantaHat", "TopHat", "ReinDeer", "CandyCane", "cvMask", "cvHazmat"];
 
@@ -314,6 +316,28 @@ export function convertFfzBadges(data: FFZ.BadgesResponse): SevenTV.Cosmetic<"BA
 	}
 
 	return badges;
+}
+
+export function convertTwitchMessage(d: TwTypeMessage): ChatMessage {
+	const msg = new ChatMessage(d.id);
+	msg.body = d.content.text;
+	msg.author = convertTwitchUser(d.sender);
+	msg.badges = d.sender.displayBadges.reduce((con, badge) => {
+		con[badge.setID] = badge.version;
+		return con;
+	}, {} as Record<string, string>);
+	msg.timestamp = new Date(d.sentAt).getTime();
+
+	return msg;
+}
+
+function convertTwitchUser(d: TwTypeUser): ChatUser {
+	return {
+		id: d.id,
+		username: d.login,
+		displayName: d.displayName,
+		color: d.chatColor,
+	};
 }
 
 export function semanticVersionToNumber(ver: string): number {

@@ -28,12 +28,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import type { ChatMessage } from "@/common/chat/ChatMessage";
+import { ref, watchEffect } from "vue";
+import { convertTwitchMessage } from "@/common/Transform";
+import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
-import { useChatMessages } from "@/composable/chat/useChatMessages";
+import { useApollo } from "@/composable/useApollo";
 import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMessage.vue";
+import { twitchChatReplyQuery } from "@/assets/gql/tw.chat-replies.gql";
+import type { TwTypeMessage } from "@/assets/gql/tw.gql";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
@@ -53,16 +56,25 @@ const thread = ref<ChatMessage[]>([]);
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
-const { find } = useChatMessages(ctx);
-onMounted(() => {
-	currentMsg.value = find((m) => m.id === props.id);
-	if (!currentMsg.value) return;
+const apollo = useApollo();
 
-	const replies = find((m) => {
-		return !!(m.parent && m.parent.id === currentMsg.value!.id);
-	}, true);
+watchEffect(async () => {
+	if (!apollo) return;
 
-	thread.value = [...replies, currentMsg.value];
+	const resp = await apollo.query<{
+		message: TwTypeMessage;
+	}>({
+		query: twitchChatReplyQuery,
+		fetchPolicy: "no-cache",
+		variables: {
+			messageID: props.id,
+			channelID: ctx.id,
+		},
+	});
+	if (!resp.data || !resp.data.message) return;
+
+	currentMsg.value = convertTwitchMessage(resp.data.message);
+	thread.value = [...resp.data.message.replies.nodes.map((m) => convertTwitchMessage(m)), currentMsg.value];
 });
 </script>
 
