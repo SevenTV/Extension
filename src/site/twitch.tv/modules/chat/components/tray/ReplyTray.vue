@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
+import { log } from "@/common/Logger";
 import { convertTwitchMessage } from "@/common/Transform";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
@@ -66,17 +67,21 @@ const apollo = useApollo();
 watchEffect(async () => {
 	if (!apollo) return;
 
-	const resp = await apollo.query<{
-		message: TwTypeMessage;
-	}>({
-		query: twitchChatReplyQuery,
-		fetchPolicy: "no-cache",
-		variables: {
-			messageID: props.id,
-			channelID: ctx.id,
-		},
-	});
-	if (!resp.data || !resp.data.message) return;
+	const resp = await apollo
+		.query<{
+			message: TwTypeMessage;
+		}>({
+			query: twitchChatReplyQuery,
+			fetchPolicy: "no-cache",
+			variables: {
+				messageID: props.id,
+				channelID: ctx.id,
+			},
+		})
+		.catch((err) => {
+			log.error("failed to fetch chat replies", err.message);
+		});
+	if (!resp || !resp.data || !resp.data.message) return;
 
 	currentMsg.value = convertTwitchMessage(resp.data.message);
 	thread.value = [currentMsg.value, ...resp.data.message.replies.nodes.map((m) => convertTwitchMessage(m))];
