@@ -8,7 +8,7 @@ import type {
 	VoidToken,
 } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
-import { parse } from "tldts";
+import { parse as tldParse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
 
@@ -122,7 +122,7 @@ export class Tokenizer {
 	private isValidLink(message: string, callBack: (url: URL) => void): boolean {
 		try {
 			const url = new URL(`https://${message.replace(URL_PROTOCOL_REGEXP, "")}`);
-			const { isIcann, domain } = parse(url.hostname);
+			const { isIcann, domain } = tldParse(url.hostname);
 
 			if (domain && isIcann) {
 				callBack(url);
