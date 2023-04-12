@@ -27,6 +27,8 @@ export class Tokenizer {
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
 
+		let validUrl: URL | undefined = undefined;
+
 		const toVoid = (start: number, end: number) =>
 			({
 				kind: "VOID",
@@ -75,16 +77,13 @@ export class Tokenizer {
 			} else if (prevEmote && part.startsWith("ffz") && part.length > 3) {
 				// this is a temporary measure to hide ffz emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if (this.isValidLink(part)) {
-				// Check link
-				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
-
+			} else if (this.isValidLink(part, (url: URL) => {validUrl = url})) {
 				tokens.push({
 					kind: "LINK",
 					range: [cursor + 1, next - 1],
 					content: {
 						displayText: part,
-						url: "https://" + actualURL,
+						url: validUrl!.toString(),
 					},
 				} as LinkToken);
 			} else if (part.match(Regex.Mention) || maybeMention) {
@@ -116,8 +115,20 @@ export class Tokenizer {
 		return (this.msg.tokens = tokens);
 	}
 
-	private isValidLink(message: string): boolean {
-		return parse(message).isIcann ?? false;
+	private isValidLink(message: string, callBack: Function ): boolean {
+		try {
+			const url = new URL(`https://${message.replace(URL_PROTOCOL_REGEXP, "")}`);
+			const {isIcann, domain} = parse(url.hostname);
+
+			if(domain && isIcann) {
+				callBack(url)
+				return true;
+			}
+
+		} catch (e) {
+			void 0;
+		}
+		return false;
 	}
 }
 
