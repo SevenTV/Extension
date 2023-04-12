@@ -77,7 +77,11 @@ export class Tokenizer {
 			} else if (prevEmote && part.startsWith("ffz") && part.length > 3) {
 				// this is a temporary measure to hide ffz emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if (this.isValidLink(part, (url: URL) => {validUrl = url})) {
+			} else if (
+				this.isValidLink(part, (url: URL) => {
+					validUrl = url;
+				})
+			) {
 				tokens.push({
 					kind: "LINK",
 					range: [cursor + 1, next - 1],
@@ -115,16 +119,15 @@ export class Tokenizer {
 		return (this.msg.tokens = tokens);
 	}
 
-	private isValidLink(message: string, callBack: Function ): boolean {
+	private isValidLink(message: string, callBack: (url: URL) => void): boolean {
 		try {
 			const url = new URL(`https://${message.replace(URL_PROTOCOL_REGEXP, "")}`);
-			const {isIcann, domain} = parse(url.hostname);
+			const { isIcann, domain } = parse(url.hostname);
 
-			if(domain && isIcann) {
-				callBack(url)
+			if (domain && isIcann) {
+				callBack(url);
 				return true;
 			}
-
 		} catch (e) {
 			void 0;
 		}
