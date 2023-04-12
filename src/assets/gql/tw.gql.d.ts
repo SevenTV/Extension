@@ -14,11 +14,41 @@ export interface TwTypeUser {
 	id: string;
 	login: string;
 	displayName: string;
+	displayBadges: TwTypeBadge[];
+	chatColor: string;
 	profileImageURL: string;
 	stream: unknown;
 	channel: TwTypeChannel;
 	self: TwTypeUserSelfConnection;
 	blockedUsers: TwTypeUser[];
+}
+
+export interface TwTypeBadge {
+	clickAction: string | null;
+	clickURL: string | null;
+	id: string;
+	image1x: string;
+	image2x: string;
+	image4x: string;
+	setID: string;
+	title: string;
+	version: string;
+	__typename: string;
+}
+
+export interface TwTypeMessage {
+	id: string;
+	sentAt: string;
+	deletedAt: string | null;
+	content: {
+		text: string;
+	};
+	sender: TwTypeUser;
+	replies: {
+		id: string;
+		totalCount: number;
+		nodes: TwTypeMessage[];
+	};
 }
 
 export interface TwTypeChannel {

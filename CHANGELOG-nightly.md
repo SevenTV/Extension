@@ -1,5 +1,6 @@
-### Version 3.0.4.8000
+### Version 3.0.5.1000
 
+-   Reply Threads should now appear properly and show all messages
 -   Fixed an issue which caused tab-completion to abruptly halt when a chatter's name is selected
 
 ### Version 3.0.4.7000
