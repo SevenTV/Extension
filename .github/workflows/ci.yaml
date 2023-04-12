@@ -361,41 +361,6 @@ jobs:
               if: ${{ steps.xpi-sign.outputs.target }}
               run: cp ext/ext-signed.xpi ext/7tv-webextension-ext.xpi
 
-            - name: "Update Mozilla Manifest"
-              if: ${{ steps.xpi-sign.outputs.target }}
-              run: |
-                  sudo apt-get update && sudo apt-get -y install bc
-
-                  VERSION=${{ needs.release.outputs.version }}
-                  DEV_VERSION=${{ needs.release.outputs.dev_version }}
-                  NIGHTLY_VERSION=$VERSION.$(echo $DEV_VERSION * 1000 / 1 | bc)
-
-                  S3_PATH=moz/${{ needs.release.outputs.release_tag }}
-                  mkdir -p $S3_PATH
-                  cp ext/ext-signed.xpi $S3_PATH/ext.xpi
-                  mv mozilla.template.json manifest.moz.json
-
-                  BASE_URL="https://extension.7tv.gg"
-                  STABLE_URL=$(echo $BASE_URL/v$VERSION/ext.xpi)
-                  NIGHTLY_URL=$(echo $BASE_URL/v$NIGHTLY_VERSION/ext.xpi)
-                  sed -i -e 's|stable#version|'$VERSION'|g' ./manifest.moz.json
-                  sed -i -e 's|stable#update_link|'$STABLE_URL'|g' ./manifest.moz.json
-                  sed -i -e 's|nightly#version|'$NIGHTLY_VERSION'|g' ./manifest.moz.json
-                  sed -i -e 's|nightly#update_link|'$NIGHTLY_URL'|g' ./manifest.moz.json
-
-                  mv manifest.moz.json moz/
-
-            - name: Upload Signed XPI to S3
-              if: success()
-              uses: shallwefootball/s3-upload-action@master
-              with:
-                  endpoint: ${{ secrets.R2_API_ENDPOINT }}
-                  aws_key_id: ${{ secrets.R2_API_AK }}
-                  aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
-                  aws_bucket: 7tv-extension
-                  source_dir: "moz/"
-                  destination_dir: ""
-
             - name: Update Release
               if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
               uses: ncipollo/release-action@v1.12.0
