@@ -383,10 +383,10 @@ jobs:
                   mv mozilla.template.json manifest.moz.json
 
                   sed -i -e 's/stable#version/$(echo $VERSION)/g' ./manifest.moz.json
-                  sed -i -e 's/stable#update_link/$(echo $BASE_URL/$VERSION/ext.xpi)/g' ./manifest.moz.json
+                  sed -i -e 's/stable#update_link/$(echo $BASE_URL\/$VERSION\/ext.xpi)/g' ./manifest.moz.json
 
                   sed -i -e 's/nightly#version/$(echo $NIGHTLY_VERSION)/g' ./manifest.moz.json
-                  sed -i -e 's/nightly#update_link/$(echo $BASE_URL/$NIGHTLY_VERSION/ext.xpi)/g' ./manifest.moz.json
+                  sed -i -e 's/nightly#update_link/$(echo $BASE_URL\/$NIGHTLY_VERSION\/ext.xpi)/g' ./manifest.moz.json
 
                   mv manifest.moz.json s3/
 
