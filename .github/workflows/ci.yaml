@@ -381,12 +381,13 @@ jobs:
                   cp ext/ext-signed.xpi $S3_PATH/ext.xpi
                   mv mozilla.template.json manifest.moz.json
 
-                  BASE_URL="https:\/\/extension.7tv.gg"
-                  sed -i -e 's/stable#version/$VERSION/g' ./manifest.moz.json
-                  sed -i -e 's/stable#update_link/$BASE_URL\/$VERSION\/ext.xpi/g' ./manifest.moz.json
-
-                  sed -i -e 's/nightly#version/$NIGHTLY_VERSION/g' ./manifest.moz.json
-                  sed -i -e 's/nightly#update_link/$BASE_URL\/$NIGHTLY_VERSION\/ext.xpi/g' ./manifest.moz.json
+                  BASE_URL="https://extension.7tv.gg"
+                  STABLE_URL=$(echo $BASE_URL/$VERSION/ext.xpi)
+                  NIGHTLY_URL=$(echo $BASE_URL/$NIGHTLY_VERSION/ext.xpi)
+                  sed -i -e 's|stable#version|'$VERSION'|g' ./manifest.moz.json
+                  sed -i -e 's|stable#update_link|'$STABLE_URL'|g' ./manifest.moz.json
+                  sed -i -e 's|nightly#version|'$NIGHTLY_VERSION'|g' ./manifest.moz.json
+                  sed -i -e 's|nightly#update_link|'$NIGHTLY_URL'|g' ./manifest.moz.json
 
                   mv manifest.moz.json moz/
 
