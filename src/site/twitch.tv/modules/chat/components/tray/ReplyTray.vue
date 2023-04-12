@@ -14,17 +14,20 @@
 			<TwClose />
 		</div>
 	</div>
-	<div class="seventv-tray-user-message-container">
-		<UserMessage
-			v-for="m of thread"
-			:key="m.id"
-			:msg="m"
-			:emotes="emotes.active"
-			:as="'Reply'"
-			class="thread-msg"
-			:class="{ 'is-root-msg': currentMsg?.id === m.id }"
-		/>
-	</div>
+
+	<UiScrollable>
+		<div class="seventv-tray-user-message-container">
+			<UserMessage
+				v-for="m of thread"
+				:key="m.id"
+				:msg="m"
+				:emotes="emotes.active"
+				:as="'Reply'"
+				class="thread-msg"
+				:class="{ 'is-root-msg': currentMsg?.id === m.id }"
+			/>
+		</div>
+	</UiScrollable>
 </template>
 
 <script setup lang="ts">
@@ -40,6 +43,7 @@ import type { TwTypeMessage } from "@/assets/gql/tw.gql";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
+import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
 	close: () => void;
@@ -74,7 +78,7 @@ watchEffect(async () => {
 	if (!resp.data || !resp.data.message) return;
 
 	currentMsg.value = convertTwitchMessage(resp.data.message);
-	thread.value = [...resp.data.message.replies.nodes.map((m) => convertTwitchMessage(m)), currentMsg.value];
+	thread.value = [currentMsg.value, ...resp.data.message.replies.nodes.map((m) => convertTwitchMessage(m))];
 });
 </script>
 
@@ -117,8 +121,9 @@ watchEffect(async () => {
 
 .seventv-tray-user-message-container {
 	display: flex;
-	flex-direction: column-reverse;
+	flex-direction: column;
 	padding: 0.5rem 1rem;
+	max-height: 18.5rem;
 
 	.thread-msg {
 		padding-left: 1em;
