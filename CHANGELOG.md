@@ -1,3 +1,8 @@
+### Version 3.0.5
+
+-   Reply Threads should now appear properly and show all messages
+-   Fixed an issue which caused tab-completion to abruptly halt when a chatter's name is selected
+
 ### Version 3.0.4
 
 -   Added hot-patching functionality to the extension
