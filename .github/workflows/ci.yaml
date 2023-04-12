@@ -376,14 +376,14 @@ jobs:
                     BRANCH_VERSION=$(echo $VERSION)
                   fi
 
-                  S3_PATH=moz/$(echo $BRANCH_VERSION)
+                  S3_PATH=moz/${{ needs.release.outputs.release_tag }}
                   mkdir -p $S3_PATH
                   cp ext/ext-signed.xpi $S3_PATH/ext.xpi
                   mv mozilla.template.json manifest.moz.json
 
                   BASE_URL="https://extension.7tv.gg"
-                  STABLE_URL=$(echo $BASE_URL/$VERSION/ext.xpi)
-                  NIGHTLY_URL=$(echo $BASE_URL/$NIGHTLY_VERSION/ext.xpi)
+                  STABLE_URL=$(echo $BASE_URL/v$VERSION/ext.xpi)
+                  NIGHTLY_URL=$(echo $BASE_URL/v$NIGHTLY_VERSION/ext.xpi)
                   sed -i -e 's|stable#version|'$VERSION'|g' ./manifest.moz.json
                   sed -i -e 's|stable#update_link|'$STABLE_URL'|g' ./manifest.moz.json
                   sed -i -e 's|nightly#version|'$NIGHTLY_VERSION'|g' ./manifest.moz.json
