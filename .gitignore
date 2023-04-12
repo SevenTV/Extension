@@ -29,3 +29,5 @@ msg_types.json
 crx/*
 script/*.json
 
+# Yarn
+.yarn
