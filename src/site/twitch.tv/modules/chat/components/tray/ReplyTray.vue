@@ -22,6 +22,7 @@
 				:key="m.id"
 				:msg="m"
 				:emotes="emotes.active"
+				:force-timestamp="true"
 				:as="'Reply'"
 				class="thread-msg"
 				:class="{ 'is-root-msg': currentMsg?.id === m.id }"
