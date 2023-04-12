@@ -186,6 +186,9 @@ jobs:
             - name: Define Release Tag
               id: release-tag
               run: |
+                  echo "VERSION=${{ fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
+                  echo "DEV_VERSION=${{ fromJson(env.PACKAGE_JSON).dev_version }}" >> $GITHUB_OUTPUT
+
                   if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
                       echo "RELEASE_TAG=nightly-release" >> $GITHUB_OUTPUT
                       exit 0
@@ -234,6 +237,8 @@ jobs:
 
         outputs:
             release_tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+            version: ${{ steps.release-tag.outputs.VERSION }}
+            dev_version: ${{ steps.release-tag.outputs.DEV_VERSION }}
 
     deploy:
         name: Deploy Hosted Build
@@ -355,6 +360,44 @@ jobs:
             - name: "Rename Signed Artifact"
               if: ${{ steps.xpi-sign.outputs.target }}
               run: cp ext/ext-signed.xpi ext/7tv-webextension-ext.xpi
+
+            - name: "Update Mozilla Manifest"
+              if: success()
+              run: |
+                  BASE_URL="https://extension.7tv.gg"
+                  VERSION=${{ needs.release.outputs.version }}
+                  DEV_VERSION=$((${{ needs.release.outputs.dev_version }} * 1000))
+                  NIGHTLY_VERSION=$(echo $SEM_VERSION.$DEV_VERSION)
+
+                  if [[ "${{ inputs.branch == 'nightly' }}" == "true" ]]; then
+                    BRANCH_VERSION=$(echo $NIGHTLY_VERSION)
+                  elif [[ "${{ inputs.branch == 'stable' }}" == "true" ]]; then
+                    BRANCH_VERSION=$(echo $VERSION)
+                  fi
+
+                  S3_PATH=moz/$(echo $BRANCH_VERSION)
+                  mkdir -p $S3_PATH
+                  cp ext/ext-signed.xpi $S3_PATH/ext.xpi
+                  mv mozilla.template.json manifest.moz.json
+
+                  sed -i -e 's/stable#version/$(echo $VERSION)/g' ./manifest.moz.json
+                  sed -i -e 's/stable#update_link/$(echo $BASE_URL/$VERSION/ext.xpi)/g' ./manifest.moz.json
+
+                  sed -i -e 's/nightly#version/$(echo $NIGHTLY_VERSION)/g' ./manifest.moz.json
+                  sed -i -e 's/nightly#update_link/$(echo $BASE_URL/$NIGHTLY_VERSION/ext.xpi)/g' ./manifest.moz.json
+
+                  mv manifest.moz.json s3/
+
+            - name: Upload Signed XPI to S3
+              if: success()
+              uses: shallwefootball/s3-upload-action@master
+              with:
+                  endpoint: ${{ secrets.R2_API_ENDPOINT }}
+                  aws_key_id: ${{ secrets.R2_API_AK }}
+                  aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
+                  aws_bucket: 7tv-extension
+                  source_dir: "moz/"
+                  destination_dir: ""
 
             - name: Update Release
               if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
