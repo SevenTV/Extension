@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
+-   Changelog
 
 ### Version 3.0.5.1000
 
