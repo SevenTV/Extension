@@ -189,7 +189,7 @@ jobs:
                   echo "VERSION=${{ fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
                   echo "DEV_VERSION=${{ fromJson(env.PACKAGE_JSON).dev_version }}" >> $GITHUB_OUTPUT
 
-                  if [[ "${{ inputs.branch == 'nightly' }}" == "true" ]]; then
+                  if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
                       echo "RELEASE_TAG=nightly-release" >> $GITHUB_OUTPUT
                       exit 0
                   fi

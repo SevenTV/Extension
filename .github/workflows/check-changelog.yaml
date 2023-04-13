@@ -1,0 +1,42 @@
+name: Changelog Check
+
+on:
+    pull_request:
+        branches: [master]
+        types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+env:
+    COMMENT_BODY: "Please add a changelog entry for your changes, under `CHANGELOG-nightly.md`."
+
+jobs:
+    check-changelog:
+        runs-on: aws-runner
+        steps:
+            - name: Changelog check
+              uses: dangoslen/changelog-enforcer@v3
+              with:
+                  changeLogPath: "CHANGELOG-nightly.md"
+                  skipLabels: "skip changelog check"
+
+            - name: Missing Changelog
+              uses: actions/github-script@v5
+              if: failure()
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      github.rest.issues.listComments({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo
+                      }).then((comments) => {
+                        const comment = comments.data.find((comment) => comment.body === env.COMMENT_BODY)
+                        if (comment) {
+                          return
+                        }
+                        github.rest.issues.createComment({
+                          issue_number: context.issue.number,
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          body: env.COMMENT_BODY
+                        })
+                      })
