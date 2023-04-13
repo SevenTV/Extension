@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
+-   Fixed an issue where the detailed emote card would clip under existing chat messages
 
 ### Version 3.0.5.1000
 
