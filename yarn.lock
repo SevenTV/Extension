@@ -3788,6 +3788,18 @@ throttle-debounce@^3.0.1:
   resolved "https://registry.npmjs.org/throttle-debounce/-/throttle-debounce-3.0.1.tgz"
   integrity sha512-dTEWWNu6JmeVXY0ZYoPuH5cRIwc0MeGbJwah9KUNYSJwommQpCzTySTpEe8Gs1J23aeWEuAobe4Ag7EHVt/LOg==
 
+tldts-core@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/tldts-core/-/tldts-core-6.0.3.tgz#b59d87507c51cd2488c322b92020b973b608b59a"
+  integrity sha512-PLiEM2aCkfGifyr8npbd93eWIW4isFRB44vTiup5DRie6e2Qy3+9quwHb252v12JyoM+RmF1cxtDgwD2PVBOjA==
+
+tldts@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/tldts/-/tldts-6.0.3.tgz#6a4a8bb550f396d6d72818606150e0e0263ae826"
+  integrity sha512-rcdUIwrcGuMWe5+fg5FFBrmWTYdbfpHwkk1AjBKoSDbpsdAsYqJYKoZOVOHn8MQCYatADKGAx/SU+jpSKxSYNw==
+  dependencies:
+    tldts-core "^6.0.3"
+
 to-fast-properties@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/to-fast-properties/-/to-fast-properties-2.0.0.tgz"
