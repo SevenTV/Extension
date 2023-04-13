@@ -12,59 +12,12 @@ env:
 
 jobs:
     check-changelog:
-        runs-on: aws-runner
+        runs-on: ubuntu-latest
+
         steps:
             - name: Changelog check
-              continue-on-error: true
               id: check
               uses: dangoslen/changelog-enforcer@v3
               with:
                   changeLogPath: "CHANGELOG-nightly.md"
                   skipLabels: "skip changelog check"
-
-            - name: Comment
-              uses: actions/github-script@v5
-              if: ${{ steps.check.outputs.errorMessage != '' }} || ${{ env.HAS_SKIP_LABEL == 'true' }}
-              env:
-                  IS_ERROR: ${{ steps.check.outputs.errorMessage != '' }}
-              with:
-                  github-token: ${{ secrets.PAT }}
-                  script: |
-                      const { COMMENT_BODY, COMMENT_BODY_SKIP, HAS_SKIP_LABEL, IS_ERROR } = process.env;
-                      const body = HAS_SKIP_LABEL === "true" ? COMMENT_BODY_SKIP : COMMENT_BODY;
-                      const isError = IS_ERROR === "true";
-
-                      github.rest.issues.listComments({
-                        issue_number: context.issue.number,
-                        owner: context.repo.owner,
-                        repo: context.repo.repo
-                      }).then((comments) => {
-                        const comment = comments.data.find((comment) => comment.body === COMMENT_BODY || comment.body === COMMENT_BODY_SKIP)
-                        if (!isError && comment && body === COMMENT_BODY) {
-                          github.rest.issues.deleteComment({
-                            comment_id: comment.id,
-                            owner: context.repo.owner,
-                            repo: context.repo.repo
-                          })
-
-                          return
-                        }
-
-                        if (comment) {
-                          github.rest.issues.updateComment({
-                            comment_id: comment.id,
-                            owner: context.repo.owner,
-                            repo: context.repo.repo,
-                            body: body
-                          })
-
-                          return
-                        }
-
-                        github.rest.issues.createComment({
-                          issue_number: context.issue.number,
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          body: body
-                        })
-                      })
