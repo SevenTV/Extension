@@ -5,9 +5,6 @@ on:
         branches: [master]
         types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
 
-env:
-    COMMENT_BODY: "Please add a changelog entry for your changes, under `CHANGELOG-nightly.md`."
-
 jobs:
     check-changelog:
         runs-on: aws-runner
@@ -21,15 +18,19 @@ jobs:
             - name: Missing Changelog
               uses: actions/github-script@v5
               if: failure()
+              env:
+                  COMMENT_BODY: "Please add a changelog entry for your changes, under `CHANGELOG-nightly.md`."
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
+                      const { COMMENT_BODY } = process.env;
+
                       github.rest.issues.listComments({
                         issue_number: context.issue.number,
                         owner: context.repo.owner,
                         repo: context.repo.repo
                       }).then((comments) => {
-                        const comment = comments.data.find((comment) => comment.body === ${{ env.COMMENT_BODY }})
+                        const comment = comments.data.find((comment) => comment.body === COMMENT_BODY)
                         if (comment) {
                           return
                         }
@@ -37,6 +38,6 @@ jobs:
                           issue_number: context.issue.number,
                           owner: context.repo.owner,
                           repo: context.repo.repo,
-                          body: ${{ env.COMMENT_BODY }}
+                          body: COMMENT_BODY
                         })
                       })
