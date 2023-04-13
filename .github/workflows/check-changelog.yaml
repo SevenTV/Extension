@@ -29,7 +29,7 @@ jobs:
                         owner: context.repo.owner,
                         repo: context.repo.repo
                       }).then((comments) => {
-                        const comment = comments.data.find((comment) => comment.body === env.COMMENT_BODY)
+                        const comment = comments.data.find((comment) => comment.body === ${{ env.COMMENT_BODY }})
                         if (comment) {
                           return
                         }
@@ -37,6 +37,6 @@ jobs:
                           issue_number: context.issue.number,
                           owner: context.repo.owner,
                           repo: context.repo.repo,
-                          body: env.COMMENT_BODY
+                          body: ${{ env.COMMENT_BODY }}
                         })
                       })
