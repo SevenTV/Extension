@@ -15,6 +15,7 @@ jobs:
         runs-on: aws-runner
         steps:
             - name: Changelog check
+              id: check
               uses: dangoslen/changelog-enforcer@v3
               with:
                   changeLogPath: "CHANGELOG-nightly.md"
@@ -22,7 +23,7 @@ jobs:
 
             - name: Missing Changelog
               uses: actions/github-script@v5
-              if: failure() || ${{ env.HAS_SKIP_LABEL == 'true' }}
+              if: ${{ steps.check.outputs.errorMessage != '' }} || ${{ env.HAS_SKIP_LABEL == 'true' }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
@@ -56,7 +57,7 @@ jobs:
 
             - name: Changelog OK
               uses: actions/github-script@v5
-              if: success() && ${{ env.HAS_SKIP_LABEL != 'true' }}
+              if: ${{ steps.check.outputs.errorMessage == '' }} && ${{ env.HAS_SKIP_LABEL != 'true' }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
