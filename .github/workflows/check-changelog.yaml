@@ -28,7 +28,7 @@ jobs:
               env:
                   IS_ERROR: ${{ steps.check.outputs.errorMessage != '' }}
               with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  github-token: ${{ secrets.PAT }}
                   script: |
                       const { COMMENT_BODY, COMMENT_BODY_SKIP, HAS_SKIP_LABEL, IS_ERROR } = process.env;
                       const body = HAS_SKIP_LABEL === "true" ? COMMENT_BODY_SKIP : COMMENT_BODY;
