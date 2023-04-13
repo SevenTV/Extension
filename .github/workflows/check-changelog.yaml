@@ -61,6 +61,8 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
+                      const { COMMENT_BODY, COMMENT_BODY_SKIP } = process.env;
+
                       github.rest.issues.listComments({
                         issue_number: context.issue.number,
                         owner: context.repo.owner,
