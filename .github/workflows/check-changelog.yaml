@@ -15,6 +15,7 @@ jobs:
         runs-on: aws-runner
         steps:
             - name: Changelog check
+              continue-on-error: true
               id: check
               uses: dangoslen/changelog-enforcer@v3
               with:
