@@ -84,7 +84,7 @@ const historyLocation = ref(-1);
 
 const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
 
-function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab"): TabToken[] {
+function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: number): TabToken[] {
 	const usedTokens = new Set<string>();
 
 	const matches: TabToken[] = [];
@@ -147,13 +147,14 @@ function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab"): TabToke
 			if (usedTokens.has(chatter.displayName) || !chatter.displayName.toLowerCase().startsWith(lPrefix)) continue;
 
 			matches.push({
-				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName + " ",
+				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName,
 				priority: 10,
 			});
 		}
 	}
 
 	matches.sort((a, b) => a.priority + b.priority * (a.token.localeCompare(b.token) / 0.5));
+	if (typeof limit === "number" && matches.length > limit) matches.length = limit;
 
 	return matches;
 }
@@ -420,7 +421,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 	const results = native?.call(this, str, ...args) ?? [];
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
-	const tokens = findMatchingTokens(str.substring(1), "colon");
+	const tokens = findMatchingTokens(str.substring(1), "colon", 25);
 
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;

@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useTooltip } from "@/composable/useTooltip";

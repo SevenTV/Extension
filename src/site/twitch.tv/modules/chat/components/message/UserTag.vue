@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
-import { ChatUser } from "@/common/chat/ChatMessage";
+import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";

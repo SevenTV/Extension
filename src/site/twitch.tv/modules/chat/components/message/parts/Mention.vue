@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChatMessage, MentionToken } from "@/common/chat/ChatMessage";
+import type { ChatMessage, MentionToken } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useConfig } from "@/composable/useSettings";

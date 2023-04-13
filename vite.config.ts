@@ -20,6 +20,7 @@ const ignoreHMR = [
 	"ChatInputModule.vue",
 	"EmoteMenuModule.vue",
 	"SettingsModule.vue",
+	"SidebarPreviewsModule.vue",
 ];
 
 const alwaysHot = ["src/background/background.ts", "src/content/content.ts", "src/content/emoji.ts"];
@@ -137,6 +138,7 @@ export default defineConfig(() => {
 						dev: isDev,
 						branch: process.env.BRANCH as BranchName,
 						mv2: isDev || !!process.env.MV2,
+						mozillaID: process.env.MOZILLA_ID,
 					});
 
 					setTimeout(() => {

@@ -8,7 +8,7 @@
 			</div>
 
 			<div class="emote-area">
-				<div v-for="es of sortedSets" :key="es.id" v-memo="[ctx.filter, es.emotes, selected]">
+				<div v-for="es of sortedSets" :key="es.id">
 					<EmoteMenuSet
 						:ref="'es-' + es.id"
 						:es="es"
@@ -87,8 +87,11 @@ const cosmetics = useCosmetics(store.identity?.id ?? "");
 const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
-const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
-const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
+// const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
+// const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
+
+// "Most Used" is commented out pending refactor
+// Note the logic for favorites is also bad, though doesn't affect as many users
 
 function updateFavorites() {
 	return Array.from(favorites.value.values())
@@ -96,15 +99,15 @@ function updateFavorites() {
 		.filter((ae) => !!ae) as SevenTV.ActiveEmote[];
 }
 
-function updateUsage() {
-	if (!shouldShowUsage.value) return [];
-
-	return Array.from(usage.value.entries())
-		.sort((a, b) => b[1] - a[1])
-		.map((e) => emotes.find((ae) => ae.id === e[0]))
-		.filter((ae) => !!ae)
-		.slice(0, 50) as SevenTV.ActiveEmote[];
-}
+// function updateUsage() {
+// 	if (!shouldShowUsage.value) return [];
+//
+// 	return Array.from(usage.value.entries())
+// 		.sort((a, b) => b[1] - a[1])
+// 		.map((e) => emotes.find((ae) => ae.id === e[0]))
+// 		.filter((ae) => !!ae)
+// 		.slice(0, 50) as SevenTV.ActiveEmote[];
+// }
 
 if (props.provider === "FAVORITE") {
 	// create favorite set
@@ -114,19 +117,19 @@ if (props.provider === "FAVORITE") {
 		emotes: updateFavorites(),
 	} as SevenTV.EmoteSet));
 
-	const usageSet = (sets["USAGE"] = reactive({
-		id: "USAGE",
-		name: t("emote_menu.most_used_set"),
-		emotes: updateUsage(),
-	} as SevenTV.EmoteSet));
+	// const usageSet = (sets["USAGE"] = reactive({
+	// 	id: "USAGE",
+	// 	name: t("emote_menu.most_used_set"),
+	// 	emotes: updateUsage(),
+	// } as SevenTV.EmoteSet));
 
 	watch(favorites, () => {
 		favSet.emotes = updateFavorites();
 	});
 
-	watch([usage, shouldShowUsage], () => {
-		usageSet.emotes = updateUsage();
-	});
+	// watch([usage, shouldShowUsage], () => {
+	// 	usageSet.emotes = updateUsage();
+	// });
 }
 
 // Select an Emote Set to jump-scroll to

@@ -1,0 +1,23 @@
+name: Changelog Check
+
+on:
+    pull_request:
+        branches: [master]
+        types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+env:
+    COMMENT_BODY: "Please add a changelog entry for your changes, under `CHANGELOG-nightly.md`."
+    COMMENT_BODY_SKIP: "This PR has been marked with the `skip changelog check` label, so no changelog entry is required."
+    HAS_SKIP_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'skip changelog check') }}
+
+jobs:
+    check-changelog:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Changelog check
+              id: check
+              uses: dangoslen/changelog-enforcer@v3
+              with:
+                  changeLogPath: "CHANGELOG-nightly.md"
+                  skipLabels: "skip changelog check"

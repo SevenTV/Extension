@@ -340,6 +340,13 @@ watch(
 			border: none;
 			padding-left: 3rem;
 			color: currentColor;
+
+			outline: none;
+			transition: outline 140ms;
+
+			&:focus {
+				outline: 1px solid var(--seventv-primary);
+			}
 		}
 	}
 

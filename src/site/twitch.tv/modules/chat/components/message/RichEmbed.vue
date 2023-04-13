@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { RichEmbed } from "@/common/chat/ChatMessage";
+import type { RichEmbed } from "@/common/chat/ChatMessage";
 
 defineProps<{
 	richEmbed: RichEmbed;
