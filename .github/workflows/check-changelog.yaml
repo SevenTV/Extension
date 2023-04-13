@@ -5,6 +5,11 @@ on:
         branches: [master]
         types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
 
+env:
+    COMMENT_BODY: "Please add a changelog entry for your changes, under `CHANGELOG-nightly.md`."
+    COMMENT_BODY_SKIP: "This PR has been marked with the `skip changelog check` label, so no changelog entry is required."
+    HAS_SKIP_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'skip changelog check') }}
+
 jobs:
     check-changelog:
         runs-on: aws-runner
@@ -18,10 +23,6 @@ jobs:
             - name: Missing Changelog
               uses: actions/github-script@v5
               if: failure()
-              env:
-                  COMMENT_BODY: "Please add a changelog entry for your changes, under `CHANGELOG-nightly.md`."
-                  COMMENT_BODY_SKIP: "This PR has been marked with the `skip changelog check` label, so no changelog entry is required."
-                  HAS_SKIP_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'skip changelog check') }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
@@ -51,4 +52,25 @@ jobs:
                           repo: context.repo.repo,
                           body: body
                         })
+                      })
+
+            - name: Changelog OK
+              uses: actions/github-script@v5
+              if: success() && ${{ env.HAS_SKIP_LABEL != 'true' }}
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      github.rest.issues.listComments({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo
+                      }).then((comments) => {
+                        const comment = comments.data.find((comment) => comment.body === COMMENT_BODY || comment.body === COMMENT_BODY_SKIP)
+                        if (comment) {
+                          github.rest.issues.deleteComment({
+                            comment_id: comment.id,
+                            owner: context.repo.owner,
+                            repo: context.repo.repo
+                          })
+                        }
                       })
