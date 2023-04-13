@@ -22,7 +22,7 @@ jobs:
 
             - name: Missing Changelog
               uses: actions/github-script@v5
-              if: failure()
+              if: failure() || ${{ env.HAS_SKIP_LABEL == 'true' }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
