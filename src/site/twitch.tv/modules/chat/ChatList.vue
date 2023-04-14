@@ -41,6 +41,7 @@ import { MessagePartType, MessageType, ModerationType } from "@/site/twitch.tv/"
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
 import UserMessage from "./components/message/UserMessage.vue";
 import ModSlider from "./components/mod/ModSlider.vue";
+import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
 
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
@@ -60,6 +61,7 @@ const isHovering = toRef(properties, "hovering");
 const pausedByVisibility = ref(false);
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
+const showModerationMessages = useConfig<boolean>("chat.mod_messages");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
@@ -362,6 +364,16 @@ function onModerationMessage(msgData: Twitch.ModerationMessage) {
 			nextTick(() => {
 				while (messages.moderated.length > 100) messages.moderated.pop();
 			});
+		}
+
+		// basic timeout/ban message in the chat
+		if (showModerationMessages.value && !properties.isModerator) {
+			const m = new ChatMessage().setComponent(BasicSystemMessage, {
+				text:
+					msgData.userLogin +
+					(msgData.duration > 0 ? ` was timed out (${msgData.duration}s)` : " was permanently banned"),
+			});
+			messages.add(m);
 		}
 	}
 }

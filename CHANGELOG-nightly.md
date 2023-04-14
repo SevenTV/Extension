@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
+-   Added an option to show timeouts/bans directly in the chat without being a moderator
 -   Added a option to highlight your own chat messages
 
 ### Version 3.0.5.1000
