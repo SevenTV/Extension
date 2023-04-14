@@ -63,6 +63,7 @@ const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
+const showYouHighlights = useConfig<boolean>("highlights.basic.you");
 const shouldPlaySoundOnMention = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
 
@@ -194,6 +195,11 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 			msg.setHighlight("#c832c8", "First Message");
 		} else if (msgData.isReturningChatter) {
 			msg.setHighlight("#3296e6", "Returning Chatter");
+		}
+
+		// Assign highlight to your own message
+		if (msgData.nonce && showYouHighlights.value) {
+			msg.setHighlight("#3ad3e0", "You");
 		}
 
 		// assign parent message data
