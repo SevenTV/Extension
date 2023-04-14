@@ -4,6 +4,7 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
+-   Fixed switch focus to search bar after opening emote menu from "bellow input" mode
 
 ### Version 3.0.5.1000
 
