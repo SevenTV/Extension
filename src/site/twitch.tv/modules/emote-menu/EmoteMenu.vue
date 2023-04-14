@@ -120,7 +120,10 @@ onMounted(() => {
 		"emote-menu",
 		EmoteMenuButton,
 		{
-			onClick: () => (ctx.open = !ctx.open),
+			onClick: () => {
+				ctx.open = !ctx.open;
+				onFocusSearchEmoteInput();
+			},
 		},
 		1,
 	);
@@ -134,6 +137,14 @@ onKeyStroke("e", (ev) => {
 	toggle();
 	ev.preventDefault();
 });
+
+function onFocusSearchEmoteInput() {
+	nextTick(() => {
+		if (!searchInputRef.value) return;
+
+		searchInputRef.value.focus();
+	});
+}
 
 // Toggle the menu's visibility
 function toggle(native?: boolean) {
@@ -154,11 +165,7 @@ function toggle(native?: boolean) {
 	}
 
 	ctx.open = !ctx.open;
-	nextTick(() => {
-		if (!searchInputRef.value) return;
-
-		searchInputRef.value.focus();
-	});
+	onFocusSearchEmoteInput();
 }
 
 function handleEmoteUsage(s: string): string {
