@@ -464,10 +464,15 @@ watch(pageVisibility, (state) => {
 watch(
 	[identity, showMentionHighlights, shouldPlaySoundOnMention, shouldFlashTitleOnHighlight],
 	([identity, enabled, sound, flash]) => {
-		const rxs = identity ? `\\b${identity.username}\\b` : null;
-		if (!rxs) return;
+		if (!identity) return;
 
-		const rx = new RegExp(rxs, "i");
+		// Handle both username and displayName mentions
+		// Workaround \b not working properly with unicode characters
+		const hasMultiLangName = "displayName" in identity && identity.username !== identity.displayName.toLowerCase();
+		const rxs = hasMultiLangName
+			? `((?<=^|\\P{L})${identity.username}|${identity.displayName}(?=\\P{L}|$))`
+			: `\\b${identity.username}\\b`;
+		const rx = new RegExp(rxs, hasMultiLangName ? "iu" : "i");
 
 		if (enabled) {
 			chatHighlights.define("~mention", {

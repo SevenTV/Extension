@@ -4,6 +4,7 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
+-   Fixed mentions using the display name, not the international name
 
 ### Version 3.0.5.1000
 
