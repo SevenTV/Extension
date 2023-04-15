@@ -10,7 +10,7 @@
 			</div>
 
 			<UiScrollable>
-				<template v-for="(h, _, index) of blockedPhrases.getAll()" :key="h.id">
+				<template v-for="h of blockedPhrases.getAll()" :key="h.id">
 					<div class="item">
 						<!-- Pattern -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
