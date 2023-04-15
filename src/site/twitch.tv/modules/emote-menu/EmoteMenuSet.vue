@@ -44,7 +44,7 @@ import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import { useEmoteMenuContext } from "./EmoteMenuContext";
+import { EmoteMenuSortPropertyKey, useEmoteMenuContext } from "./EmoteMenuContext";
 import {
 	ElementLifecycle,
 	ElementLifecycleDirective as vElementLifecycle,
@@ -67,6 +67,8 @@ const observing = ref(false);
 const collapsedSets = useConfig<Set<string>>("ui.emote_menu.collapsed_sets");
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
+const sortBy = useConfig<EmoteMenuSortPropertyKey>("ui.emote_menu.sort_emotes_by");
+const sortDesc = useConfig<boolean>("ui.emote_menu.sort_emotes_desc");
 
 const { alt } = useMagicKeys();
 const collapsed = ref(isCollapsed());
@@ -86,6 +88,30 @@ function sortCase(ae: SevenTV.ActiveEmote): number {
 	return n;
 }
 
+const getEmoteMenuSortBy = (a: SevenTV.ActiveEmote, b: SevenTV.ActiveEmote): number => {
+	const nameSort = a.name.localeCompare(b.name);
+	switch (sortBy.value) {
+		case "Timestamp": {
+			if (!a.timestamp || !b.timestamp) {
+				return nameSort;
+			}
+			return a.timestamp > b.timestamp ? 1 : -1;
+		}
+		case "Name": {
+			return nameSort;
+		}
+		case "Listed": {
+			return a.data?.listed === b.data?.listed ? 1 : -1;
+		}
+		case "Animated": {
+			return a.data?.animated === b.data?.animated ? 1 : -1;
+		}
+		default: {
+			return nameSort;
+		}
+	}
+};
+
 // Filter active emotes with query
 const filterEmotes = debounceFn((filter = "") => {
 	const x = [] as SevenTV.ActiveEmote[];
@@ -98,12 +124,16 @@ const filterEmotes = debounceFn((filter = "") => {
 		x.push(e);
 	}
 
-	x.sort((a, b) => {
+	let sorting = x.sort((a, b) => {
 		const na = sortCase(a);
 		const nb = sortCase(b);
 
-		return na == nb ? a.name.localeCompare(b.name) : na > nb ? 1 : -1;
+		return na == nb ? getEmoteMenuSortBy(a, b) : na > nb ? 1 : -1;
 	});
+
+	if (sortDesc.value) {
+		sorting = sorting.reverse();
+	}
 
 	emotes.value = x;
 	emit("emotes-updated", x);
@@ -132,6 +162,8 @@ function onInsertEmote(ae: SevenTV.ActiveEmote): void {
 onKeyDown("Escape", () => {
 	ctx.open = false;
 });
+
+watch([sortBy, sortDesc], () => filterEmotes(ctx.filter));
 
 watch(
 	() => props.es.emotes,

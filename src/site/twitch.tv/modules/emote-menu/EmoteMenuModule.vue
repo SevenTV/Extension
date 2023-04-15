@@ -6,12 +6,12 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from "vue";
+import { debounceFn } from "@/common/Async";
 import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
-import EmoteMenu from "./EmoteMenu.vue";
-import { debounceFn } from "@/common/Async";
 import { useConfig } from "@/composable/useSettings";
+import EmoteMenu from "./EmoteMenu.vue";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
@@ -75,6 +75,13 @@ markAsReady();
 </script>
 
 <script lang="ts">
+import { EmoteMenuSortPropertyKey, emoteMenuSortProperties } from "./EmoteMenuContext";
+
+const emoteSortByProperties: Array<[string, string]> = Object.entries(emoteMenuSortProperties).map(([key, value]) => [
+	value,
+	key,
+]);
+
 export const config = [
 	declareConfig("ui.emote_menu_search", "TOGGLE", {
 		path: ["Appearance", "Interface"],
@@ -114,6 +121,18 @@ export const config = [
 		path: ["", ""],
 		label: "",
 		defaultValue: new Set(),
+	}),
+	declareConfig<EmoteMenuSortPropertyKey>("ui.emote_menu.sort_emotes_by", "DROPDOWN", {
+		path: ["Appearance", "Interface"],
+		label: "Emote Menu: Sort emotes by property",
+		options: emoteSortByProperties,
+		defaultValue: "Timestamp",
+	}),
+	declareConfig<boolean>("ui.emote_menu.sort_emotes_desc", "TOGGLE", {
+		path: ["Appearance", "Interface"],
+		label: "Emote Menu: Sort emotes by descending order",
+		hint: "Sort emotes by descending order, sort by ascending order if off",
+		defaultValue: true,
 	}),
 ];
 </script>
