@@ -27,11 +27,11 @@ export type EmoteMenuSortPropertyKey = "Name" | "Listed" | "Animated" | "Timesta
 
 type EmoteMenuSort = {
 	[key in EmoteMenuSortPropertyKey]: string;
-}
+};
 
 export const emoteMenuSortProperties: EmoteMenuSort = {
 	Name: "Name",
 	Listed: "Listed",
 	Animated: "Animated",
-	Timestamp: "Date added"
-}
+	Timestamp: "Date added",
+};

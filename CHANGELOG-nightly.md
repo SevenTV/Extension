@@ -4,7 +4,7 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
-
+-   Added sorting to the emote menu, default to newest added
 ### Version 3.0.5.1000
 
 -   Reply Threads should now appear properly and show all messages
