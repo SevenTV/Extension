@@ -31,6 +31,7 @@ import { convertCheerEmote, convertTwitchEmote } from "@/common/Transform";
 import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
 import { IsChatMessage, IsDisplayableMessage, IsModerationMessage } from "@/common/type-predicates/Messages";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatBlocking } from "@/composable/chat/useChatBlocking";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -56,6 +57,7 @@ const displayedMessages = toRef(messages, "displayed");
 const scroller = useChatScroller(ctx);
 const properties = useChatProperties(ctx);
 const chatHighlights = useChatHighlights(ctx);
+const chatBlocking = useChatBlocking(ctx);
 const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
 const pausedByVisibility = ref(false);
@@ -130,7 +132,9 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 };
 
 function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRender = true) {
+	let shouldRenderMessage = shouldRender;
 	const c = getMessageComponent(msgData.type);
+
 	if (c) {
 		msg.setComponent(c, { msgData: msgData });
 	}
@@ -291,6 +295,10 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		chatHighlights.checkMatch(highlightID, msg);
 	}
 
+	if (chatBlocking.doesMessageContainBlockedPhrase(msg)) {
+		shouldRenderMessage = false;
+	}
+
 	if (properties.isModerator) {
 		msg.pinnable = true;
 		msg.deletable = true;
@@ -298,7 +306,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	// Add message to store
 	// it will be rendered on the next tick
-	if (shouldRender) messages.add(msg);
+	if (shouldRenderMessage) messages.add(msg);
 }
 
 function onModerationMessage(msgData: Twitch.ModerationMessage) {

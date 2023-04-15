@@ -41,6 +41,7 @@ import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatBlocking } from "@/composable/chat/useChatBlocking";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -93,6 +94,7 @@ const scroller = useChatScroller(ctx, {
 });
 const properties = useChatProperties(ctx);
 const tools = useChatTools(ctx);
+const chatBlocking = useChatBlocking(ctx);
 
 // line limit
 const lineLimit = useConfig("chat.line_limit", 150);
@@ -252,6 +254,10 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 					if ((msg as Twitch.ChatMessage).isHistorical || msg.type === MessageType.CONNECTED) {
 						m.historical = true;
 						chatList.value?.onChatMessage(m, msg as Twitch.ChatMessage, false);
+
+						if (chatBlocking.doesMessageContainBlockedPhrase(m)) {
+							continue;
+						}
 
 						historical.push(m);
 						continue;

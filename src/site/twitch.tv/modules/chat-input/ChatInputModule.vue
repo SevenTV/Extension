@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { markRaw, reactive, ref } from "vue";
 import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import { declareConfig, useConfig } from "@/composable/useSettings";
@@ -129,6 +129,9 @@ markAsReady();
 </script>
 
 <script lang="ts">
+import { BlockedPhraseDef } from "@/composable/chat/useChatBlocking";
+import SettingsConfigBlocking from "@/site/global/settings/SettingsConfigBlocking.vue";
+
 export const config = [
 	declareConfig("chat_input.autocomplete.colon", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
@@ -173,6 +176,16 @@ export const config = [
 		label: "Quick Send",
 		hint: "If enabled, you can use the Ctrl+Enter shortcut to keep the current message in the input box after sending",
 		defaultValue: true,
+	}),
+	declareConfig<Map<string, BlockedPhraseDef>>("chat_input.blocking.phrases", "CUSTOM", {
+		path: ["Chat", "Blocking"],
+		custom: {
+			component: markRaw(SettingsConfigBlocking),
+			gridMode: "new-row",
+		},
+		label: "Blocked phrases",
+		hint: "Block specific words or phrases",
+		defaultValue: new Map(),
 	}),
 ];
 </script>
