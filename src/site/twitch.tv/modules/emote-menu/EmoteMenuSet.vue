@@ -124,7 +124,7 @@ const filterEmotes = debounceFn((filter = "") => {
 		x.push(e);
 	}
 
-	let sorting = x.sort((a, b) => {
+	const sorting = x.sort((a, b) => {
 		const na = sortCase(a);
 		const nb = sortCase(b);
 
@@ -132,7 +132,7 @@ const filterEmotes = debounceFn((filter = "") => {
 	});
 
 	if (sortDesc.value) {
-		sorting = sorting.reverse();
+		sorting.reverse();
 	}
 
 	emotes.value = x;
