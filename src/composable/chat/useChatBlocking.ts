@@ -31,7 +31,7 @@ export function useChatBlocking(ctx: ChannelContext) {
 	let data = m.get(ctx);
 	if (!data) {
 		data = reactive<ChatBlocking>({
-			blockedPhrases: {}
+			blockedPhrases: {},
 		});
 
 		watch(
@@ -62,10 +62,7 @@ export function useChatBlocking(ctx: ChannelContext) {
 
 		const items: [string, BlockedPhraseDef][] = Array.from(Object.values(data.blockedPhrases))
 			.filter((h) => h.persist)
-			.map((h) => [
-				h.id,
-				toRaw(h),
-			]);
+			.map((h) => [h.id, toRaw(h)]);
 
 		blockedPhrases.value = new Map(items);
 	}, 250);
@@ -123,7 +120,7 @@ export function useChatBlocking(ctx: ChannelContext) {
 	}
 
 	function doesMessageContainBlockedPhrase(message: ChatMessage<ComponentFactory>) {
-		return Object.values(getAll()).some((s) => checkMatch(s, message))
+		return Object.values(getAll()).some((s) => checkMatch(s, message));
 	}
 
 	function getAll(): Record<string, BlockedPhraseDef> {
@@ -153,6 +150,6 @@ export function useChatBlocking(ctx: ChannelContext) {
 		doesMessageContainBlockedPhrase,
 		save,
 		updateId,
-		checkMatch
+		checkMatch,
 	};
 }
