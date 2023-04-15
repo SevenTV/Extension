@@ -91,23 +91,19 @@ export function useChatBlocking(ctx: ChannelContext) {
 		save();
 	}
 
-	function checkMatch(key: string, msg: ChatMessage): boolean {
-		if (!data) return false;
-
-		const h = data?.blockedPhrases[key];
-
-		if (!h) return false;
+	function checkMatch(blockedPhraseDef: BlockedPhraseDef, msg: ChatMessage): boolean {
+		if (!data || !blockedPhraseDef) return false;
 
 		let ok = false;
 
-		if (h.regexp) {
-			let regexp = h.cachedRegExp;
+		if (blockedPhraseDef.regexp) {
+			let regexp = blockedPhraseDef.cachedRegExp;
 			if (!regexp) {
 				try {
-					regexp = new RegExp(h.pattern as string, "i");
-					Object.defineProperty(h, "cachedRegExp", { value: regexp });
+					regexp = new RegExp(blockedPhraseDef.pattern as string, "i");
+					Object.defineProperty(blockedPhraseDef, "cachedRegExp", { value: regexp });
 				} catch (err) {
-					log.warn("<ChatBlocking>", "Invalid regexp:", h.pattern ?? "");
+					log.warn("<ChatBlocking>", "Invalid regexp:", blockedPhraseDef.pattern ?? "");
 
 					msg.setHighlight("#878787", "Error " + (err as Error).message);
 					return false;
@@ -115,25 +111,19 @@ export function useChatBlocking(ctx: ChannelContext) {
 			}
 
 			ok = regexp.test(msg.body);
-		} else if (h.pattern) {
-			ok = h.caseSensitive
-				? msg.body.includes(h.pattern)
-				: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
-		} else if (typeof h.test === "function") {
-			ok = h.test(msg);
+		} else if (blockedPhraseDef.pattern) {
+			ok = blockedPhraseDef.caseSensitive
+				? msg.body.includes(blockedPhraseDef.pattern)
+				: msg.body.toLowerCase().includes(blockedPhraseDef.pattern.toLowerCase());
+		} else if (typeof blockedPhraseDef.test === "function") {
+			ok = blockedPhraseDef.test(msg);
 		}
 
 		return ok;
 	}
 
 	function doesMessageContainBlockedPhrase(message: ChatMessage<ComponentFactory>) {
-		const messageIds: string[] = [];
-		for (const blockedPhraseID in getAll()) {
-			if (checkMatch(blockedPhraseID, message)) {
-				messageIds.push(message.id)
-			}
-		}
-		return messageIds.includes(message.id);
+		return Object.values(getAll()).some((s) => checkMatch(s, message))
 	}
 
 	function getAll(): Record<string, BlockedPhraseDef> {
