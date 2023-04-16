@@ -4,6 +4,7 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
+-   Fixed the "Below input" setting, with which you can switch the menu by pressing the button
 
 ### Version 3.0.5.1000
 
