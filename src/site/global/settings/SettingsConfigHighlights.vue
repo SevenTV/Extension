@@ -5,6 +5,7 @@
 			<div class="item heading">
 				<div>Pattern</div>
 				<div>Label</div>
+				<div>Channel ID</div>
 				<div class="centered">Flash Title</div>
 				<div class="centered">RegExp</div>
 				<div>Case Sensitive</div>
@@ -31,6 +32,16 @@
 								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
 								v-model="h.label"
 								@blur="onInputBlur(h, 'label')"
+							/>
+						</div>
+
+						<!-- ChannelID -->
+						<div name="channelID" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'channelID')">
+							<span>{{ h.channelID }}</span>
+							<FormInput
+								:ref="(c) => inputs.channelID.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.channelID"
+								@blur="onInputBlur(h, 'channelID')"
 							/>
 						</div>
 
@@ -122,6 +133,7 @@ const newInput = ref("");
 const inputs = reactive({
 	pattern: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 	label: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
+	channelID: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 });
 const interactRef = ref<HTMLElement[]>();
 
@@ -265,7 +277,7 @@ main.seventv-settings-custom-highlights {
 		.item {
 			display: grid;
 			grid-auto-flow: row dense;
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 20% 12rem 12rem 1fr 1fr 1fr 1fr 1fr;
 			column-gap: 3rem;
 			padding: 1rem;
 

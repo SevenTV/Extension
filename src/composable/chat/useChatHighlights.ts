@@ -22,6 +22,7 @@ export interface HighlightDef {
 
 	color: string;
 	label: string;
+	channelID: string;
 	caseSensitive?: boolean;
 	flashTitle?: boolean;
 	flashTitleFn?: (msg: ChatMessage) => string;
@@ -146,6 +147,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		const h = data?.highlights[key];
 		if (!h) return false;
+		console.log(h.channelID, msg.channelID)
+		console.log(h.channelID, h.channelID != msg.channelID)
+		if(h.channelID && h.channelID != msg.channelID) return false;
 
 		let ok = false;
 
