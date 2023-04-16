@@ -4,7 +4,8 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
--   Add option to hide suspicious user highlight
+-   Added an option to hide suspicious user highlights
+-   Added an option to hide low trust user highlights
 
 ### Version 3.0.5.1000
 
