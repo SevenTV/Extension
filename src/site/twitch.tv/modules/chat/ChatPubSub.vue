@@ -6,6 +6,7 @@ import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { PubSubMessage, PubSubMessageData, usePubSub } from "@/composable/usePubSub";
+import { useConfig } from "@/composable/useSettings";
 
 const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
