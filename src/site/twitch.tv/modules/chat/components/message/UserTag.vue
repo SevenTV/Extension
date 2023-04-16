@@ -18,6 +18,7 @@
 			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
 			class="seventv-chat-user-username"
 			@click="(e) => emit('nameClick', e)"
+			@dblclick="authorDoubleClickHandler"
 		>
 			<span v-cosmetic-paint="paint ? paint.id : null">
 				<span v-if="asMention">@</span>
@@ -34,6 +35,7 @@ import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
+import { useConfig } from "@/composable/useSettings";
 import Badge from "./Badge.vue";
 
 const props = defineProps<{
@@ -46,16 +48,23 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(event: "nameClick", e: MouseEvent): void;
+	(event: "nameDoubleClick", e: MouseEvent): void;
 	(event: "badgeClick", e: MouseEvent, badge: Twitch.ChatBadge): void;
 }>();
 
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
+const isAuthorDoubleClick = useConfig<true | false>("chat_input.autocomplete.author_doubleClick");
+
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
 const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
+
+const authorDoubleClickHandler = (event: MouseEvent) => {
+	if (isAuthorDoubleClick.value) emit("nameDoubleClick", event);
+};
 
 if (props.badges && properties.twitchBadgeSets) {
 	for (const [key, value] of Object.entries(props.badges)) {

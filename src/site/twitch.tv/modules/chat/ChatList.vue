@@ -7,7 +7,12 @@
 					v-bind="{ msg }"
 				>
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
-						<UserMessage :msg="msg" :emotes="emotes.active" :chatters="messages.chattersByUsername" />
+						<UserMessage
+							:msg="msg"
+							:emotes="emotes.active"
+							:chatters="messages.chattersByUsername"
+							@name-double-click="(event) => emit('nameDoubleClick', event)"
+						/>
 					</component>
 				</component>
 			</template>
@@ -46,6 +51,10 @@ import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
 	messageHandler: Twitch.MessageHandlerAPI | null;
+}>();
+
+const emit = defineEmits<{
+	(event: "nameDoubleClick", e: ChatUser["username"]): void;
 }>();
 
 const ctx = useChannelContext();

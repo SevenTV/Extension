@@ -41,7 +41,8 @@
 			:badges="msg.badges"
 			:msg-id="msg.sym"
 			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
-			@badge-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
+			@name-double-click="emit('nameDoubleClick', msg.author!.username)"
+			@badge-click="(ev) => openViewerCard(ev, msg.author!.username,msg.id)"
 		/>
 
 		<span v-if="!hideAuthor">
@@ -128,6 +129,10 @@ const props = withDefaults(
 	}>(),
 	{ as: "Chat" },
 );
+
+const emit = defineEmits<{
+	(event: "nameDoubleClick", e: ChatUser["username"]): void;
+}>();
 
 const msg = toRef(props, "msg");
 const msgEl = ref<HTMLSpanElement | null>();

@@ -10,7 +10,12 @@
 			@mouseleave="properties.hovering = false"
 		>
 			<div id="seventv-message-container" class="seventv-message-container">
-				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
+				<ChatList
+					ref="chatList"
+					:list="list"
+					:message-handler="messageHandler"
+					@name-double-click="handleNameDoubleClick"
+				/>
 			</div>
 
 			<!-- New Messages during Scrolling Pause -->
@@ -39,7 +44,7 @@ import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -94,9 +99,27 @@ const scroller = useChatScroller(ctx, {
 const properties = useChatProperties(ctx);
 const tools = useChatTools(ctx);
 
+const autocompleteInputRef = ref<null | Twitch.ChatInputController["autocompleteInputRef"]>(null);
+
+const handleNameDoubleClick = (username: ChatUser["username"]) => {
+	if (!autocompleteInputRef.value) return log.error("ref to input not found, cannot set value to autocomplete input");
+
+	if (username && username.length) {
+		// the context may be lost, I process just in case the value changes in the input
+		try {
+			autocompleteInputRef.value.setValue(`${autocompleteInputRef.value.getValue()} @${username}`);
+			autocompleteInputRef.value.componentRef.focus();
+		} catch (e) {
+			const error = e as Error;
+			log.error("error to set autocomplete input value from double click", error.message as string);
+		}
+	}
+};
+
 // line limit
 const lineLimit = useConfig("chat.line_limit", 150);
 const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
+const isAuthorDoubleClick = useConfig<true | false>("chat_input.autocomplete.author_doubleClick");
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
@@ -230,6 +253,21 @@ if (a instanceof ObserverPromise) {
 	until(useTimeout(1e4))
 		.toBeTruthy()
 		.then(() => a.disconnect());
+}
+
+if (isAuthorDoubleClick.value) {
+	const ChatInputControllerComponent = awaitComponents<Twitch.ChatInputController>({
+		parentSelector: ".chat-room__content",
+		maxDepth: 150,
+		predicate: (n) => n.onEmotePickerButtonClick,
+	});
+
+	ChatInputControllerComponent.then(
+		([chatInputController]) => {
+			autocompleteInputRef.value = chatInputController.autocompleteInputRef;
+		},
+		() => null,
+	);
 }
 
 const messageBufferComponent = ref<Twitch.MessageBufferComponent | null>(null);

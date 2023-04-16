@@ -162,6 +162,12 @@ export const config = [
 		hint: "Whether or not to consider the usernames of active chatters when using tab-completion",
 		defaultValue: true,
 	}),
+	declareConfig("chat_input.autocomplete.author_doubleClick", "TOGGLE", {
+		path: ["Chat", "Autocompletion"],
+		label: "Double click on the message author",
+		hint: "When you double-click on the message author in a chat, their nickname is added to send a personal message",
+		defaultValue: false,
+	}),
 	declareConfig("chat_input.spam.bypass_duplicate", "TOGGLE", {
 		path: ["Chat", "Typing"],
 		label: "Bypass Duplicate Message Check",
