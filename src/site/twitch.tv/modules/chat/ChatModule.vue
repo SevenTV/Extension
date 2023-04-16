@@ -353,16 +353,16 @@ export const config = [
 		disabledIf: () => !useConfig("highlights.basic.mention").value,
 		defaultValue: true,
 	}),
-	declareConfig<boolean>("highlights.basic.suspicious_user", "TOGGLE", {
+	declareConfig<boolean>("highlights.basic.monitored_low_trust_user", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
-		label: "Show Suspicious User Highlights",
-		hint: "Whether or not to highlight users who are marked as a suspicious user",
+		label: "Show Monitored Suspicious User Highlights (Moderator only)",
+		hint: "Whether or not to highlight users who are a monitored suspicious user",
 		defaultValue: true,
 	}),
-	declareConfig<boolean>("highlights.basic.low_trust_user", "TOGGLE", {
+	declareConfig<boolean>("highlights.basic.restricted_low_trust_user", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
-		label: "Show Low Trust User Highlights",
-		hint: "Whether or not to highlight users who are marked as a low trust user",
+		label: "Show Restricted Suspicious User Highlights (Moderator only)",
+		hint: "Whether or not to highlight users who are a restricted suspicious user",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {
