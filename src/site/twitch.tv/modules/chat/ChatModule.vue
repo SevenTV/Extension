@@ -356,7 +356,13 @@ export const config = [
 	declareConfig<boolean>("highlights.basic.suspicious_user", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Show Suspicious User Highlights",
-		hint: "Whether or not to highlight users who are marked as suspicious user",
+		hint: "Whether or not to highlight users who are marked as a suspicious user",
+		defaultValue: true,
+	}),
+	declareConfig<boolean>("highlights.basic.low_trust_user", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Low Trust User Highlights",
+		hint: "Whether or not to highlight users who are marked as a low trust user",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {
