@@ -147,7 +147,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		const h = data?.highlights[key];
 		if (!h) return false;
-		if(h.channelID && h.channelID != msg.channelID) return false;
+		if (h.channelID && h.channelID != msg.channelID) return false;
 
 		let ok = false;
 

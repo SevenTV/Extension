@@ -4,6 +4,7 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
+-   Added an option to set a channel id for custom highlights so the highlight will only trigger in a specific channel
 
 ### Version 3.0.5.1000
 
