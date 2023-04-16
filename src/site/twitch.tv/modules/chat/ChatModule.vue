@@ -148,6 +148,12 @@ export const config = [
 		hint: "Enable the mod slider in channels where you are moderator",
 		defaultValue: true,
 	}),
+	declareConfig("chat.mod_messages", "TOGGLE", {
+		path: ["Chat", "Moderation"],
+		label: "Moderation Messages",
+		hint: "If enabled, you will see timeouts/bans in the chat even if you are not a moderator",
+		defaultValue: false,
+	}),
 	declareConfig("chat.ignore_clear_chat", "TOGGLE", {
 		path: ["Chat", "Moderation"],
 		label: "Ignore Clear Chat",
