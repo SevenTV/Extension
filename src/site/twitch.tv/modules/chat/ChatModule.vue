@@ -353,6 +353,12 @@ export const config = [
 		disabledIf: () => !useConfig("highlights.basic.mention").value,
 		defaultValue: true,
 	}),
+	declareConfig<boolean>("highlights.basic.suspicious_user", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Suspicious User Highlights",
+		hint: "Whether or not to highlight users who are marked as suspicious user",
+		defaultValue: true,
+	}),
 	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Show First-Time Chatter Highlights",
