@@ -4,7 +4,9 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
--   Fixed an issue in the emote menu where a selected provider without channel emotes would not reopen when emote menu was reopened
+-   Added options to change what emotes are displayed in the colon list and tab-completion carousel
+-   Fixed an issue in the emote menu where the previously selected provider would close if a set was empty
+-   Fixed emote cards sometimes not showing who added the emote
 
 ### Version 3.0.5.1000
 
