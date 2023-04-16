@@ -10,6 +10,7 @@ import { PubSubMessage, PubSubMessageData, usePubSub } from "@/composable/usePub
 const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
 const pubsub = usePubSub();
+const showSuspiciousUser = useConfig<boolean>("highlights.basic.suspicious_user");
 
 // Update the event listener in case the socket is updated
 watchEffect(() => {
@@ -60,6 +61,8 @@ function onPubSubMessage(ev: MessageEvent) {
 async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMessage) {
 	const ctx = msg.low_trust_user;
 	if (!ctx) return;
+
+	if (!showSuspiciousUser.value) return;
 
 	// Find the message
 	const matchedMsg = await messages.awaitMessage(msg.message_id).catch((err) => {
