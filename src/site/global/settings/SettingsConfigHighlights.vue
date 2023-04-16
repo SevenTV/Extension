@@ -242,6 +242,7 @@ watch(newInput, (val, old) => {
 		{
 			color: "#8803fc",
 			label: "",
+			channelID: "",
 			pattern: val,
 		},
 		true,

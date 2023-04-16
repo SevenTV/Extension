@@ -22,7 +22,7 @@ export interface HighlightDef {
 
 	color: string;
 	label: string;
-	channelID: string;
+	channelID?: string;
 	caseSensitive?: boolean;
 	flashTitle?: boolean;
 	flashTitleFn?: (msg: ChatMessage) => string;
