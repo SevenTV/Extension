@@ -67,7 +67,7 @@ const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
 const shouldPlaySoundOnMention = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
-const showSuspiciousUser = useConfig<boolean>("highlights.basic.suspicious_user");
+const showLowTrustUser = useConfig<boolean>("highlights.basic.low_trust_user");
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
@@ -140,7 +140,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		msg.setComponent(typeMap[0], { msgData: msgData });
 	}
 
-	if (msgData.type === MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE && showSuspiciousUser.value) {
+	if (msgData.type === MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE && showLowTrustUser.value) {
 		msg.setHighlight("#ff7d00", "Restricted Suspicious User");
 	}
 
