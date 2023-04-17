@@ -144,6 +144,7 @@ const meStyle = useConfig<number>("chat.slash_me_style");
 const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
 const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
+const hideModifiers = useConfig<boolean>("chat.hide_emote_modifiers");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
@@ -166,6 +167,7 @@ function doTokenize() {
 		chatterMap: props.chatters ?? {},
 		emoteMap: props.emotes ?? {},
 		localEmoteMap: { ...cosmetics.emotes, ...props.msg.nativeEmotes },
+		hideModifiers: hideModifiers.value,
 	});
 
 	const result: MessageTokenOrText[] = [];

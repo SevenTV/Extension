@@ -142,6 +142,12 @@ export const config = [
 		},
 		defaultValue: 1,
 	}),
+	declareConfig("chat.hide_emote_modifiers", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Hide Emote Modifiers",
+		hint: "Hide BTTV and FFZ emote modifiers (!w, ffzHyper, etc.)",
+		defaultValue: true,
+	}),
 	declareConfig("chat.mod_slider", "TOGGLE", {
 		path: ["Chat", "Moderation"],
 		label: "Mod Slider",
