@@ -91,19 +91,19 @@ function sortCase(ae: SevenTV.ActiveEmote): number {
 const getEmoteMenuSortBy = (a: SevenTV.ActiveEmote, b: SevenTV.ActiveEmote): number => {
 	const nameSort = a.name.localeCompare(b.name);
 	switch (sortBy.value) {
-		case "Timestamp": {
+		case "timestamp": {
 			if (!a.timestamp || !b.timestamp) {
 				return nameSort;
 			}
 			return a.timestamp > b.timestamp ? 1 : -1;
 		}
-		case "Name": {
+		case "name": {
 			return nameSort;
 		}
-		case "Listed": {
+		case "listed": {
 			return a.data?.listed === b.data?.listed ? 1 : -1;
 		}
-		case "Animated": {
+		case "animated": {
 			return a.data?.animated === b.data?.animated ? 1 : -1;
 		}
 		default: {

@@ -124,15 +124,14 @@ export const config = [
 	}),
 	declareConfig<EmoteMenuSortPropertyKey>("ui.emote_menu.sort_emotes_by", "DROPDOWN", {
 		path: ["Appearance", "Interface"],
-		label: "Emote Menu: Sort emotes by property",
+		label: "Emote Menu: Sorting",
 		options: emoteSortByProperties,
-		defaultValue: "Timestamp",
+		defaultValue: "timestamp",
 	}),
 	declareConfig<boolean>("ui.emote_menu.sort_emotes_desc", "TOGGLE", {
 		path: ["Appearance", "Interface"],
-		label: "Emote Menu: Sort emotes by descending order",
-		hint: "Sort emotes by descending order, sort by ascending order if off",
-		defaultValue: true,
+		label: "Emote Menu: Reverse Sorting Order",
+		defaultValue: false,
 	}),
 ];
 </script>
