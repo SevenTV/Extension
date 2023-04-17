@@ -1,14 +1,9 @@
 <!-- eslint-disable no-fallthrough -->
 <template>
 	<Teleport v-if="ctx.id" :to="containerEl">
-		<UiScrollable
-			ref="scrollerRef"
-			class="seventv-chat-scroller"
-			@container-scroll="scroller.onScroll"
-			@container-wheel="scroller.onWheel"
-			@mouseenter="properties.hovering = true"
-			@mouseleave="properties.hovering = false"
-		>
+		<UiScrollable ref="scrollerRef" class="seventv-chat-scroller" @container-scroll="scroller.onScroll"
+			@container-wheel="scroller.onWheel" @mouseenter="properties.hovering = true"
+			@mouseleave="properties.hovering = false">
 			<div id="seventv-message-container" class="seventv-message-container">
 				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
 			</div>
@@ -41,12 +36,12 @@ import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { useChatBlocking } from "@/composable/chat/useChatBlocking";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { useChatTools } from "@/composable/chat/useChatTools";
+import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
@@ -94,7 +89,7 @@ const scroller = useChatScroller(ctx, {
 });
 const properties = useChatProperties(ctx);
 const tools = useChatTools(ctx);
-const chatBlocking = useChatBlocking(ctx);
+const chatHighlights = useChatHighlights(ctx);
 
 // line limit
 const lineLimit = useConfig("chat.line_limit", 150);
@@ -255,7 +250,7 @@ watch(messageBufferComponentDbc, (msgBuf, old) => {
 						m.historical = true;
 						chatList.value?.onChatMessage(m, msg as Twitch.ChatMessage, false);
 
-						if (chatBlocking.doesMessageContainBlockedPhrase(m)) {
+						if (chatHighlights.doesMessageContainBlockedPhrase(m)) {
 							continue;
 						}
 
@@ -380,7 +375,7 @@ seventv-container.seventv-chat-list {
 	overflow: auto !important;
 	overflow-x: hidden !important;
 
-	> seventv-container {
+	>seventv-container {
 		display: none;
 	}
 
@@ -407,7 +402,7 @@ seventv-container.seventv-chat-list {
 			border-radius: 0.33em;
 			background-color: black;
 
-			> .seventv-scrollbar-thumb {
+			>.seventv-scrollbar-thumb {
 				position: absolute;
 				width: 100%;
 
@@ -461,9 +456,11 @@ seventv-container.seventv-chat-list {
 
 .community-highlight {
 	background-color: var(--seventv-background-transparent-1) !important;
+
 	@at-root .seventv-transparent & {
 		backdrop-filter: blur(1em);
 	}
+
 	transition: background-color 0.25s;
 
 	&:hover {
