@@ -23,7 +23,7 @@ export class Tokenizer {
 
 		const textParts = this.msg.body.split(" ");
 		const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
-		const showModifiers = opt.showModifiers ?? true;
+		const showModifiers = opt.showModifiers;
 
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
