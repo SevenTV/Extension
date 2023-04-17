@@ -90,10 +90,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 			const items: [string, HighlightDef][] = Array.from(Object.values(data.highlights))
 				.filter((h) => h.persist)
 				.filter((h) => h.isBlocked)
-				.map((h) => [
-					h.id,
-					toRaw(h),
-				]);
+				.map((h) => [h.id, toRaw(h)]);
 			blockedPhrases.value = new Map(items);
 		} else {
 			// Remove as blocked highlight and re-instate as normal highlight
@@ -275,6 +272,6 @@ export function useChatHighlights(ctx: ChannelContext) {
 		checkMatch,
 		updateSoundData,
 		updateFlashTitle,
-		doesMessageContainBlockedPhrase
+		doesMessageContainBlockedPhrase,
 	};
 }

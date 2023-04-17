@@ -1,8 +1,12 @@
 <template>
 	<template v-for="inst in autocompleteProvider.instances" :key="inst.identifier">
 		<ChatInput v-if="shouldMount.get(inst)" :instance="inst" />
-		<ChatSpam v-if="shouldMount.get(inst)" :instance="inst" :suggest="suggestBypassDuplicateCheck || false"
-			@suggest-answer="onBypassSuggestionAnswer" />
+		<ChatSpam
+			v-if="shouldMount.get(inst)"
+			:instance="inst"
+			:suggest="suggestBypassDuplicateCheck || false"
+			@suggest-answer="onBypassSuggestionAnswer"
+		/>
 	</template>
 </template>
 

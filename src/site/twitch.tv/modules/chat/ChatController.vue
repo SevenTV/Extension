@@ -1,9 +1,14 @@
 <!-- eslint-disable no-fallthrough -->
 <template>
 	<Teleport v-if="ctx.id" :to="containerEl">
-		<UiScrollable ref="scrollerRef" class="seventv-chat-scroller" @container-scroll="scroller.onScroll"
-			@container-wheel="scroller.onWheel" @mouseenter="properties.hovering = true"
-			@mouseleave="properties.hovering = false">
+		<UiScrollable
+			ref="scrollerRef"
+			class="seventv-chat-scroller"
+			@container-scroll="scroller.onScroll"
+			@container-wheel="scroller.onWheel"
+			@mouseenter="properties.hovering = true"
+			@mouseleave="properties.hovering = false"
+		>
 			<div id="seventv-message-container" class="seventv-message-container">
 				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
 			</div>
@@ -37,11 +42,11 @@ import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/com
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { useChatTools } from "@/composable/chat/useChatTools";
-import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
@@ -375,7 +380,7 @@ seventv-container.seventv-chat-list {
 	overflow: auto !important;
 	overflow-x: hidden !important;
 
-	>seventv-container {
+	> seventv-container {
 		display: none;
 	}
 
@@ -402,7 +407,7 @@ seventv-container.seventv-chat-list {
 			border-radius: 0.33em;
 			background-color: black;
 
-			>.seventv-scrollbar-thumb {
+			> .seventv-scrollbar-thumb {
 				position: absolute;
 				width: 100%;
 
