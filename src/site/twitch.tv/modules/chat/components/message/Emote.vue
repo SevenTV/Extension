@@ -35,16 +35,18 @@
 		</template>
 
 		<template v-if="showEmoteCard">
-			<UiFloating
-				class="seventv-emote-card-float"
-				:anchor="boxRef"
-				placement="right-end"
-				:middleware="[shift({ mainAxis: true, crossAxis: true }), autoPlacement()]"
-				:emit-clickout="true"
-				@clickout="showEmoteCard = false"
-			>
-				<EmoteCard :emote="emote" :size="[baseWidth, baseHeight]" />
-			</UiFloating>
+			<Teleport to="#seventv-message-container">
+				<UiFloating
+					class="seventv-emote-card-float"
+					:anchor="boxRef"
+					placement="right-end"
+					:middleware="[shift({ mainAxis: true, crossAxis: true }), autoPlacement()]"
+					:emit-clickout="true"
+					@clickout="showEmoteCard = false"
+				>
+					<EmoteCard :emote="emote" :size="[baseWidth, baseHeight]" />
+				</UiFloating>
+			</Teleport>
 		</template>
 	</div>
 </template>
