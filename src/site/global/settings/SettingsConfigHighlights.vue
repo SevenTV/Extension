@@ -5,7 +5,7 @@
 			<div class="item heading">
 				<div>Pattern</div>
 				<div>Label</div>
-				<div>Channel ID</div>
+				<div>Channel</div>
 				<div class="centered">Flash Title</div>
 				<div class="centered">RegExp</div>
 				<div>Case Sensitive</div>
@@ -35,18 +35,18 @@
 							/>
 						</div>
 
-						<!-- ChannelID -->
+						<!-- Channel -->
 						<div
-							name="channelID"
+							name="channel"
 							class="use-virtual-input"
 							tabindex="0"
-							@click="onInputFocus(h, 'channelID')"
+							@click="onInputFocus(h, 'channel')"
 						>
-							<span>{{ h.channelID }}</span>
+							<span>{{ h.channel }}</span>
 							<FormInput
-								:ref="(c) => inputs.channelID.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.channelID"
-								@blur="onInputBlur(h, 'channelID')"
+								:ref="(c) => inputs.channel.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.channel"
+								@blur="onInputBlur(h, 'channel')"
 							/>
 						</div>
 
@@ -138,7 +138,7 @@ const newInput = ref("");
 const inputs = reactive({
 	pattern: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 	label: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
-	channelID: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
+	channel: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 });
 const interactRef = ref<HTMLElement[]>();
 
@@ -242,7 +242,7 @@ watch(newInput, (val, old) => {
 		{
 			color: "#8803fc",
 			label: "",
-			channelID: "",
+			channel: "",
 			pattern: val,
 		},
 		true,

@@ -22,7 +22,7 @@ export interface HighlightDef {
 
 	color: string;
 	label: string;
-	channelID?: string;
+	channel?: string;
 	caseSensitive?: boolean;
 	flashTitle?: boolean;
 	flashTitleFn?: (msg: ChatMessage) => string;
@@ -147,7 +147,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		const h = data?.highlights[key];
 		if (!h) return false;
-		if (h.channelID && h.channelID != msg.channelID) return false;
+		if (h.channel && h.channel.toLowerCase() != window.location.href.split("twitch.tv/")[1].toLowerCase()) return false;
 
 		let ok = false;
 
