@@ -4,6 +4,9 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
+-   Added options to change what emotes are displayed in the colon list and tab-completion carousel
+-   Fixed emote cards sometimes not showing who added the emote
+-   Fixed an issue where the detailed emote card would clip under existing chat messages
 -   Fixed the "Below input" setting, with which you can switch the menu by pressing the button
 
 ### Version 3.0.5.1000
