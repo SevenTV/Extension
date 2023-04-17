@@ -147,7 +147,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		const h = data?.highlights[key];
 		if (!h) return false;
-		if (h.channel && h.channel.toLowerCase() != window.location.href.split("twitch.tv/")[1].toLowerCase()) return false;
+		if (h.channel && h.channel.toLowerCase() != window.location.href.split("twitch.tv/")[1].toLowerCase()) { 
+			return false; 
+		}
 
 		let ok = false;
 

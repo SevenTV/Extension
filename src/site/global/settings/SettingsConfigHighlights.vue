@@ -36,12 +36,7 @@
 						</div>
 
 						<!-- Channel -->
-						<div
-							name="channel"
-							class="use-virtual-input"
-							tabindex="0"
-							@click="onInputFocus(h, 'channel')"
-						>
+						<div name="channel" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'channel')">
 							<span>{{ h.channel }}</span>
 							<FormInput
 								:ref="(c) => inputs.channel.set(h, c as InstanceType<typeof FormInput>)"
