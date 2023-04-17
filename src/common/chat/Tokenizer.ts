@@ -23,6 +23,7 @@ export class Tokenizer {
 
 		const textParts = this.msg.body.split(" ");
 		const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
+		const showModifiers = opt.showModifiers;
 
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
@@ -70,10 +71,10 @@ export class Tokenizer {
 						}),
 					);
 				}
-			} else if (nextEmote && backwardModifierBlacklist.has(part)) {
+			} else if (!showModifiers && nextEmote && backwardModifierBlacklist.has(part)) {
 				// this is a temporary measure to hide bttv emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if (prevEmote && part.startsWith("ffz") && part.length > 3) {
+			} else if (!showModifiers && prevEmote && part.startsWith("ffz") && part.length > 3) {
 				// this is a temporary measure to hide ffz emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
 			} else if ((parsedUrl = this.isValidLink(part))) {
@@ -136,4 +137,5 @@ export interface TokenizeOptions {
 	localEmoteMap?: Record<string, SevenTV.ActiveEmote>;
 	filteredWords?: string[];
 	actorUsername?: string;
+	showModifiers?: boolean;
 }
