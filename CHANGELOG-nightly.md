@@ -6,8 +6,11 @@
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
 -   Added a blocked phrases feature
 -   Added options to change what emotes are displayed in the colon list and tab-completion carousel
+-   Fixed an issue in the emote menu where the previously selected provider would close if a set was empty
 -   Fixed emote cards sometimes not showing who added the emote
 -   Fixed an issue where the detailed emote card would clip under existing chat messages
+-   Added an option to hide monitored suspicious user highlights
+-   Added an option to hide restricted suspicious user highlights
 
 ### Version 3.0.5.1000
 
