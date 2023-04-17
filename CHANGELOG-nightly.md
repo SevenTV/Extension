@@ -7,6 +7,7 @@
 -   Added options to change what emotes are displayed in the colon list and tab-completion carousel
 -   Fixed emote cards sometimes not showing who added the emote
 -   Fixed an issue where the detailed emote card would clip under existing chat messages
+-   Added tooltip to show full message when hovering over replies in chat
 
 ### Version 3.0.5.1000
 
