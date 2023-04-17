@@ -90,7 +90,7 @@ function sortCase(ae: SevenTV.ActiveEmote): number {
 const filterEmotes = debounceFn((filter = "") => {
 	const x = [] as SevenTV.ActiveEmote[];
 
-	if (props.es.provider && props.es.emotes.length === 0) {
+	if (props.es.provider && !props.es.emotes.length) {
 		return;
 	}
 
