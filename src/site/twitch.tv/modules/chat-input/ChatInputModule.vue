@@ -143,6 +143,17 @@ export const config = [
 		hint: "Whether or not to also include emojis in the colon-completion list (This may impact performance)",
 		defaultValue: false,
 	}),
+	declareConfig("chat_input.autocomplete.colon.mode", "DROPDOWN", {
+		path: ["Chat", "Autocompletion"],
+		label: "Colon-completion: Mode",
+		disabledIf: () => !useConfig("chat_input.autocomplete.colon").value,
+		hint: "What emotes should be displayed in the colon-completion list",
+		options: [
+			["Must start with input", 0],
+			["Must include input", 1],
+		],
+		defaultValue: 1,
+	}),
 	declareConfig("chat_input.autocomplete.carousel", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
 		label: "Tab-completion Carousel",
@@ -155,6 +166,17 @@ export const config = [
 		disabledIf: () => !useConfig("chat_input.autocomplete.carousel").value,
 		hint: "Whether or not to allow using left/right arrow keys to navigate the tab-completion carousel",
 		defaultValue: true,
+	}),
+	declareConfig("chat_input.autocomplete.carousel.mode", "DROPDOWN", {
+		path: ["Chat", "Autocompletion"],
+		label: "Tab-completion: Mode",
+		disabledIf: () => !useConfig("chat_input.autocomplete.carousel").value,
+		hint: "What emotes should be displayed in the tab-completion carousel",
+		options: [
+			["Must start with input", 0],
+			["Must include input", 1],
+		],
+		defaultValue: 0,
 	}),
 	declareConfig("chat_input.autocomplete.chatters", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
