@@ -27,7 +27,6 @@ defineProps<{
 }>();
 </script>
 <style scoped lang="scss">
-@import "@/assets/style/tw-tooltip.scss";
 .seventv-chat-message-container {
 	display: block;
 	position: relative;
