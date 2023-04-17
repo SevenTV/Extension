@@ -98,7 +98,7 @@ watchEffect(async () => {
 
 		subtitle.value = emote.subscriptionTier?.split("_").join(" ") ?? emote.type;
 	} else if (props.emote.provider === "7TV") {
-		const { onResult: onEmoteActor } = useQuery<userQuery.Result, userQuery.Variables>(
+		const { result: emoteActorResult } = useQuery<userQuery.Result, userQuery.Variables>(
 			userQuery,
 			{
 				id: props.emote.actor_id ?? "",
@@ -108,14 +108,18 @@ watchEffect(async () => {
 			}),
 		);
 
-		onEmoteActor((res) => {
-			if (!res.data?.user) return;
+		watch(
+			emoteActorResult,
+			(value) => {
+				if (!value?.user) return;
 
-			actor.id = res.data.user.id;
-			actor.username = res.data.user.username;
-			actor.displayName = res.data.user.display_name;
-			actor.avatarURL = res.data.user.avatar_url;
-		});
+				actor.id = value?.user.id;
+				actor.username = value?.user.username;
+				actor.displayName = value?.user.display_name;
+				actor.avatarURL = value?.user.avatar_url;
+			},
+			{ immediate: true },
+		);
 
 		timestamp.value = new Date(props.emote.timestamp ?? 0).toLocaleDateString();
 	}
