@@ -148,6 +148,12 @@ export const config = [
 		hint: "Enable the mod slider in channels where you are moderator",
 		defaultValue: true,
 	}),
+	declareConfig("chat.mod_messages", "TOGGLE", {
+		path: ["Chat", "Moderation"],
+		label: "Moderation Messages",
+		hint: "If enabled, you will see timeouts/bans in the chat even if you are not a moderator",
+		defaultValue: false,
+	}),
 	declareConfig("chat.ignore_clear_chat", "TOGGLE", {
 		path: ["Chat", "Moderation"],
 		label: "Ignore Clear Chat",
@@ -314,6 +320,18 @@ export const config = [
 			["Keep", 3],
 		],
 		defaultValue: 1,
+	}),
+	declareConfig("chat.timestamp_with_seconds", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Timestamp Seconds",
+		hint: "If checked, timestamps in chat will also show seconds",
+		defaultValue: false,
+	}),
+	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
+		path: ["Chat", "Message Tools"],
+		label: "Copy Icon",
+		hint: "Show a 'Copy' icon when hovering over a chat message to copy the message",
+		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
 		path: ["Highlights", "Built-In"],

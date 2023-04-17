@@ -10,6 +10,7 @@ interface ManifestOptions {
 	mv2?: boolean;
 	branch?: BranchName;
 	dev?: boolean;
+	mozillaID?: string;
 	version: string;
 }
 
@@ -30,6 +31,17 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 			default_popup: "index.html#/popup?noheader=1",
 			default_area: "navbar",
 		},
+
+		...(opt.mozillaID
+			? {
+					browser_specific_settings: {
+						gecko: {
+							update_url: "https://extension.7tv.gg/manifest.moz.json",
+							id: opt.mozillaID,
+						},
+					},
+			  }
+			: {}),
 
 		background: {
 			service_worker: "background.js",

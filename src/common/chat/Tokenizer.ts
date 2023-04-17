@@ -8,6 +8,7 @@ import type {
 	VoidToken,
 } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
+import { parse as tldParse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
 
@@ -25,6 +26,7 @@ export class Tokenizer {
 
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
+		let parsedUrl: URL | null = null;
 
 		const toVoid = (start: number, end: number) =>
 			({
@@ -74,16 +76,13 @@ export class Tokenizer {
 			} else if (prevEmote && part.startsWith("ffz") && part.length > 3) {
 				// this is a temporary measure to hide ffz emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if (part.match(Regex.Link)) {
-				// Check link
-				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
-
+			} else if ((parsedUrl = this.isValidLink(part))) {
 				tokens.push({
 					kind: "LINK",
 					range: [cursor + 1, next - 1],
 					content: {
 						displayText: part,
-						url: "https://" + actualURL,
+						url: parsedUrl.toString(),
 					},
 				} as LinkToken);
 			} else if (part.match(Regex.Mention) || maybeMention) {
@@ -113,6 +112,21 @@ export class Tokenizer {
 		tokens.sort((a, b) => a.range[0] - b.range[0]);
 
 		return (this.msg.tokens = tokens);
+	}
+
+	private isValidLink(message: string): URL | null {
+		try {
+			const url = new URL(`https://${message.replace(URL_PROTOCOL_REGEXP, "")}`);
+			const { isIcann, domain } = tldParse(url.hostname);
+
+			if (domain && isIcann) {
+				return url;
+			}
+		} catch (e) {
+			void 0;
+		}
+
+		return null;
 	}
 }
 

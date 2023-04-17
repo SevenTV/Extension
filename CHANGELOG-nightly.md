@@ -1,6 +1,33 @@
+### Untitled Version
+
+**The changes listed here are not assigned to an official release**.
+
+-   Links in chat messages now respect known TLDs instead of matching any url-like pattern
+-   Added an option to show timeouts/bans directly in the chat without being a moderator
+-   Added options to change what emotes are displayed in the colon list and tab-completion carousel
+-   Fixed emote cards sometimes not showing who added the emote
+-   Fixed an issue where the detailed emote card would clip under existing chat messages
+
+### Version 3.0.5.1000
+
+-   Reply Threads should now appear properly and show all messages
+-   Fixed an issue which caused tab-completion to abruptly halt when a chatter's name is selected
+
+### Version 3.0.4.7000
+
+-   Added hot-patching functionality to the extension
+-   Added chat rich embeds which allows twitch clips to preview in chat
+-   Added a "Copy Message" button
+-   Added an option to show thumbnail previews of streams when hovering over channels on the sidebar
+-   Temporarily disabled the "Most Used Emotes" feature, pending a refactor. This fixes severe input lag experienced by some users
+-   Made some internal changes which may decrease memory usage for some users
+-   Fixed bad performance on colon-completion by limiting the amount of items shown
+-   Fixed an issue which caused flickering when hovering on a deleted message
+-   Fixed a compatibility issue with another extension, causing distorted scrolling behavior in the settings menu
+
 ### Version 3.0.3.1000
 
-- Disabled YouTube support temporarily due an issue with request pattern
+-   Disabled YouTube support temporarily due an issue with request pattern
 
 ### Version 3.0.2.3000
 
@@ -9,7 +36,6 @@
 -   Fixed the Most Used Emotes tab ignoring visibility setting
 -   Fixed sub emotes not showing in colon-complete while FFZ is enabled
 -   Fixed an issue which caused VOD chat to crash for some users
-
 
 ### Version 3.0.2.2000
 
@@ -47,6 +73,7 @@
 -   Fixed an issue which caused duplicate colon-complete matches with FFZ
 -   Fixed an issue that caused tab-completion to break with FFZ
 -   Fixed an issue where emotes in colon-complete wouldn't load on Mozilla Firefox
+-   Added visual settings for highlighted messages, allows changing opacity and over-all style
 
 ### Version 3.0.0.19000 (Beta 19 RC)
 

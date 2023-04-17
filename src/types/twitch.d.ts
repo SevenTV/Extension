@@ -585,6 +585,44 @@ declare module Twitch {
 		}[T];
 	};
 
+	export type SidebarCardComponent = ReactExtended.WritableComponent<{
+		avatarAlt: string;
+		avatarSrc: string;
+		collapsed: boolean;
+		"data-a-id": string;
+		"data-test-selector": string;
+		dispatch: () => unknown;
+		isInspecting: boolean;
+		isPromoted: boolean;
+		isWatchParty: boolean;
+		latencyTracking: {};
+		latencyTrackingConfig: { isNonCritical: boolean };
+		linkTo: {
+			pathname: string;
+			state: {
+				channelView: string;
+				content: string;
+				content_index: number;
+				item_tracking_id: string;
+				medium: string;
+			};
+		};
+		metadataLeft: string | ReactExtended.ReactRuntimeElement;
+		metadataRight: string | ReactExtended.ReactRuntimeElement;
+		offline: boolean;
+		onClick: () => void;
+		onContextMenu: () => void;
+		onMiddleClick: () => void;
+		primaryColorHex: string;
+		register: () => void;
+		rootTrackerExists: boolean;
+		title: string;
+		titleElement: string | ReactExtended.ReactRuntimeElement;
+		tooltipContent: string | ReactExtended.ReactRuntimeElement;
+		unregister: () => void;
+		userLogin: string;
+	}>;
+
 	export enum Theme {
 		"Light",
 		"Dark",

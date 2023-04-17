@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 
 defineProps<{

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, provide, ref, watch } from "vue";
+import { defineAsyncComponent, onMounted, provide, ref, watch } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
@@ -17,7 +17,8 @@ import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useConfig, useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import type { TwModuleID } from "@/types/tw.module";
-import ModuleWrapper from "../ModuleWrapper.vue";
+
+const ModuleWrapper = defineAsyncComponent(() => import("../global/ModuleWrapper.vue"));
 
 const store = useStore();
 const ua = useUserAgent();

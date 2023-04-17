@@ -32,7 +32,6 @@
 					v-for="(_, key) in visibleProviders"
 					v-show="key === activeProvider"
 					:key="key"
-					v-memo="[activeProvider === key, visibleProviders, ctx.filter]"
 					class="seventv-emote-menu-body"
 				>
 					<EmoteMenuTab
@@ -377,6 +376,13 @@ onUnmounted(() => {
 					border: 1px solid var(--seventv-border-transparent-1);
 					padding-left: 3rem;
 					color: currentColor;
+
+					outline: none;
+					transition: outline 140ms;
+
+					&:focus {
+						outline: 1px solid var(--seventv-primary);
+					}
 				}
 			}
 		}

@@ -29,6 +29,22 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 		actor: null,
 		timestamp: 0,
 	};
+	public richEmbed: RichEmbed = {
+		title: "",
+		author_name: "",
+		twitch_metadata: {
+			clip_metadata: {
+				game: "",
+				channel_display_name: "",
+				slug: "",
+				id: "",
+				broadcaster_id: "",
+				curator_id: "",
+			},
+		},
+		thumbnail_url: "",
+		request_url: "",
+	};
 	public pinnable = false;
 	public deletable = false;
 	public slashMe = false;
@@ -187,4 +203,21 @@ export interface ChatMessageModeration {
 	actionType: null | "BAN" | "TIMEOUT" | "DELETE";
 	actor: ChatUser | null;
 	timestamp: number;
+}
+
+export interface RichEmbed {
+	title: string;
+	author_name: string;
+	twitch_metadata: {
+		clip_metadata: {
+			game: string;
+			channel_display_name: string;
+			slug: string;
+			id: string;
+			broadcaster_id: string;
+			curator_id: string;
+		};
+	};
+	thumbnail_url: string;
+	request_url: string;
 }

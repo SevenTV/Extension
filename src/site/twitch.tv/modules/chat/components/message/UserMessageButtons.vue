@@ -1,17 +1,37 @@
 <template>
 	<div class="seventv-chat-message-buttons">
 		<div
+			v-if="showCopyIcon && !msg.moderation.deleted"
+			ref="copyButtonRef"
+			v-tooltip="'Copy'"
+			class="seventv-button"
+			@click="copyMessage()"
+		>
+			<CopyIcon />
+		</div>
+		<div
 			v-if="msg.pinnable && !msg.moderation.deleted"
 			ref="pinButtonRef"
+			v-tooltip="'Pin'"
 			class="seventv-button"
 			@click="pinPrompt = true"
 		>
 			<PinIcon />
 		</div>
-		<div class="seventv-button" @click="openReplyTray">
+		<div v-tooltip="'Reply'" class="seventv-button" @click="openReplyTray">
 			<component :is="msg.parent ? TwChatReply : ReplyIcon" />
 		</div>
 	</div>
+
+	<!-- Toast for Copy -->
+	<template v-if="copyToastOpen && copyToastContainer">
+		<Teleport :to="copyToastContainer">
+			<UiCopiedMessageToast title="Message Copied" @close="copyToastOpen = false">
+				Message from
+				<UserTag v-if="msg.author" :user="msg.author" /> has been copied
+			</UiCopiedMessageToast>
+		</Teleport>
+	</template>
 
 	<!-- Prompt for Pin -->
 	<template v-if="pinPrompt && pinPromptContainer">
@@ -31,13 +51,17 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import { useTimeoutFn } from "@vueuse/shared";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useFloatScreen } from "@/composable/useFloatContext";
+import { useConfig } from "@/composable/useSettings";
+import CopyIcon from "@/assets/svg/icons/CopyIcon.vue";
 import PinIcon from "@/assets/svg/icons/PinIcon.vue";
 import ReplyIcon from "@/assets/svg/icons/ReplyIcon.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import UserTag from "./UserTag.vue";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
+import UiCopiedMessageToast from "@/ui/UiCopiedMessageToast.vue";
 import { useTray } from "../tray/ChatTray";
 import { shift } from "@floating-ui/dom";
 
@@ -61,6 +85,25 @@ const tray = useTray("Reply", () => ({
 		  }
 		: {}),
 }));
+
+const showCopyIcon = useConfig<boolean>("chat.copy_icon_toggle");
+const copyToastOpen = ref(false);
+const copyButtonRef = ref<HTMLElement>();
+const copyToastContainer = useFloatScreen(copyButtonRef, {
+	enabled: () => copyToastOpen.value,
+	middleware: [shift({ padding: 8 })],
+});
+
+function copyMessage() {
+	if (copyToastOpen.value) return;
+
+	navigator.clipboard.writeText(props.msg.body);
+	copyToastOpen.value = true;
+
+	useTimeoutFn(() => {
+		copyToastOpen.value = false;
+	}, 1000);
+}
 
 const pinPrompt = ref(false);
 const pinButtonRef = ref<HTMLElement>();

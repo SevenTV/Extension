@@ -420,9 +420,9 @@ seventv-container.seventv-chat-list {
 		white-space: nowrap;
 		padding: 0.5em;
 		border-radius: 0.33em;
-		color: #fff;
-		background-color: rgba(0, 0, 0, 50%);
-		outline: 0.25rem solid var(--seventv-muted);
+		color: currentColor;
+		background-color: var(--seventv-background-transparent-1);
+		outline: 0.25rem solid var(--seventv-border-transparent-1);
 
 		span:nth-of-type(1) {
 			margin-right: 0.25rem;

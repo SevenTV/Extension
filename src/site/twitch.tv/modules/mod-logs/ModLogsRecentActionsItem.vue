@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useIntervalFn } from "@vueuse/shared";
-import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
+import type { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
 import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMessage.vue";
 import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
 import formatDistance from "date-fns/formatDistance";
