@@ -359,10 +359,10 @@ export const config = [
 		hint: "Whether or not to highlight users who are chatting for the first time",
 		defaultValue: true,
 	}),
-	declareConfig<boolean>("highlights.basic.you", "TOGGLE", {
+	declareConfig<boolean>("highlights.basic.self", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Show Highlights for Your Own Messages",
-		hint: "Whether or not to highlight messages sent by you",
+		hint: "Whether or not to highlight messages sent by yourself",
 		defaultValue: false,
 	}),
 	declareConfig<Map<string, HighlightDef>>("highlights.custom", "CUSTOM", {
