@@ -3,23 +3,23 @@ description: File a feature request
 title: "[REQUEST] <title>"
 labels: enhancement
 body:
-    - type: checkboxes
-      attributes:
-          label: Is there an existing issue for this?
-          description: Please [search here](https://github.com/SevenTV/Extension/issues) to see if an issue already exists for your feature.
-          options:
-              - label: I have searched the existing issues
-                required: true
-    - type: checkboxes
-      attributes:
-          label: This feature does not exist in the latest nightly version
-          description: Please make sure you have installed the latest nightly version and verified it is not a feature already.
-          options:
-              - label: I have checked the latest nightly version
-                required: true
-    - type: textarea
-      attributes:
-          label: Feature Description
-          description: A clear & concise description of what you're requesting.
-      validations:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please [search here](https://github.com/SevenTV/Extension/issues) to see if an issue already exists for your feature.
+      options:
+        - label: I have searched the existing issues
           required: true
+  - type: checkboxes
+    attributes:
+      label: This feature does not exist in the latest nightly version
+      description: Please make sure you have installed the latest nightly version and verified it is not a feature already.
+      options:
+        - label: I have checked the latest nightly version
+          required: true
+  - type: textarea
+    attributes:
+      label: Feature Description
+      description: A clear & concise description of what you're requesting.
+    validations:
+      required: true
