@@ -14,7 +14,7 @@
 					ref="chatList"
 					:list="list"
 					:message-handler="messageHandler"
-					@name-double-click="handleNameDoubleClick"
+					@author-quick-pick-name-click="handlerAuthorQuickPickNameClick"
 				/>
 			</div>
 
@@ -101,11 +101,12 @@ const tools = useChatTools(ctx);
 
 const autocompleteInputRef = ref<null | Twitch.ChatInputController["autocompleteInputRef"]>(null);
 
-const handleNameDoubleClick = (username: ChatUser["username"]) => {
+const handlerAuthorQuickPickNameClick = (username: ChatUser["username"]) => {
 	if (!autocompleteInputRef.value) return log.error("ref to input not found, cannot set value to autocomplete input");
 
 	if (username && username.length) {
-		// the context may be lost, I process just in case the value changes in the input
+		// // React component's context might be lost if we switched to another stream,
+		// if "ChatInputController" doesn't load in time, I handle this script.
 		try {
 			autocompleteInputRef.value.setValue(`${autocompleteInputRef.value.getValue()} @${username}`);
 			autocompleteInputRef.value.componentRef.focus();
@@ -119,7 +120,6 @@ const handleNameDoubleClick = (username: ChatUser["username"]) => {
 // line limit
 const lineLimit = useConfig("chat.line_limit", 150);
 const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
-const isAuthorDoubleClick = useConfig<true | false>("chat_input.autocomplete.author_doubleClick");
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
@@ -255,20 +255,18 @@ if (a instanceof ObserverPromise) {
 		.then(() => a.disconnect());
 }
 
-if (isAuthorDoubleClick.value) {
-	const ChatInputControllerComponent = awaitComponents<Twitch.ChatInputController>({
-		parentSelector: ".chat-room__content",
-		maxDepth: 150,
-		predicate: (n) => n.onEmotePickerButtonClick,
-	});
+const ChatInputControllerComponent = awaitComponents<Twitch.ChatInputController>({
+	parentSelector: ".chat-room__content",
+	maxDepth: 150,
+	predicate: (n) => n.onEmotePickerButtonClick,
+});
 
-	ChatInputControllerComponent.then(
-		([chatInputController]) => {
-			autocompleteInputRef.value = chatInputController.autocompleteInputRef;
-		},
-		() => null,
-	);
-}
+ChatInputControllerComponent.then(
+	([chatInputController]) => {
+		autocompleteInputRef.value = chatInputController.autocompleteInputRef;
+	},
+	() => null,
+);
 
 const messageBufferComponent = ref<Twitch.MessageBufferComponent | null>(null);
 const messageBufferComponentDbc = refDebounced(messageBufferComponent, 100);

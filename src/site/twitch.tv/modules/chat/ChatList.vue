@@ -11,7 +11,7 @@
 							:msg="msg"
 							:emotes="emotes.active"
 							:chatters="messages.chattersByUsername"
-							@name-double-click="(event) => emit('nameDoubleClick', event)"
+							@author-quick-pick-name-click="(event) => emit('authorQuickPickNameClick', event)"
 						/>
 					</component>
 				</component>
@@ -54,7 +54,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(event: "nameDoubleClick", e: ChatUser["username"]): void;
+	(event: "authorQuickPickNameClick", e: ChatUser["username"]): void;
 }>();
 
 const ctx = useChannelContext();

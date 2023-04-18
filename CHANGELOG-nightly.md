@@ -4,7 +4,7 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
--   Added new chat autocompletion setting option. Double click on the message author
+-   Added new chat autocompletion setting option. Quickly add a nickname to a message
 
 ### Version 3.0.5.1000
 

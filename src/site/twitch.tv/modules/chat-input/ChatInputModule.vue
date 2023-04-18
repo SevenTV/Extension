@@ -162,11 +162,15 @@ export const config = [
 		hint: "Whether or not to consider the usernames of active chatters when using tab-completion",
 		defaultValue: true,
 	}),
-	declareConfig("chat_input.autocomplete.author_doubleClick", "TOGGLE", {
+	declareConfig("chat_input.autocomplete.author_quick_pick", "DROPDOWN", {
 		path: ["Chat", "Autocompletion"],
-		label: "Double click on the message author",
-		hint: "When you double-click on the message author in a chat, their nickname is added to send a personal message",
-		defaultValue: false,
+		label: "Quickly add a nickname to a message",
+		hint: "An option that allows you to quickly add the nickname of the author of the message in the chat in the message input field",
+		options: [
+			["Right click", 0],
+			["Left double click", 1],
+		],
+		defaultValue: 0,
 	}),
 	declareConfig("chat_input.spam.bypass_duplicate", "TOGGLE", {
 		path: ["Chat", "Typing"],

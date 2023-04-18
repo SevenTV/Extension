@@ -18,7 +18,8 @@
 			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
 			class="seventv-chat-user-username"
 			@click="(e) => emit('nameClick', e)"
-			@dblclick="authorDoubleClickHandler"
+			@dblclick="(event) => authorQuickPickClickHandler(1, event)"
+			@click.right="(event) => authorQuickPickClickHandler(0, event)"
 		>
 			<span v-cosmetic-paint="paint ? paint.id : null">
 				<span v-if="asMention">@</span>
@@ -48,22 +49,25 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(event: "nameClick", e: MouseEvent): void;
-	(event: "nameDoubleClick", e: MouseEvent): void;
+	(event: "authorQuickPickNameClick"): void;
 	(event: "badgeClick", e: MouseEvent, badge: Twitch.ChatBadge): void;
 }>();
 
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
-const isAuthorDoubleClick = useConfig<true | false>("chat_input.autocomplete.author_doubleClick");
+const authorQuickPickValue = useConfig<0 | 1>("chat_input.autocomplete.author_quick_pick");
 
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
 const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
 
-const authorDoubleClickHandler = (event: MouseEvent) => {
-	if (isAuthorDoubleClick.value) emit("nameDoubleClick", event);
+const authorQuickPickClickHandler = (eventType: 0 | 1, event: MouseEvent) => {
+	if (authorQuickPickValue.value === eventType) {
+		event.preventDefault();
+		emit("authorQuickPickNameClick");
+	}
 };
 
 if (props.badges && properties.twitchBadgeSets) {

@@ -41,7 +41,7 @@
 			:badges="msg.badges"
 			:msg-id="msg.sym"
 			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
-			@name-double-click="emit('nameDoubleClick', msg.author!.username)"
+			@author-quick-pick-name-click="emit('authorQuickPickNameClick', msg.author!.username)"
 			@badge-click="(ev) => openViewerCard(ev, msg.author!.username,msg.id)"
 		/>
 
@@ -131,7 +131,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-	(event: "nameDoubleClick", e: ChatUser["username"]): void;
+	(event: "authorQuickPickNameClick", e: ChatUser["username"]): void;
 }>();
 
 const msg = toRef(props, "msg");
