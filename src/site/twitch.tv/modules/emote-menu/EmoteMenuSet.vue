@@ -116,6 +116,10 @@ const getEmoteMenuSortBy = (a: SevenTV.ActiveEmote, b: SevenTV.ActiveEmote): num
 const filterEmotes = debounceFn((filter = "") => {
 	const x = [] as SevenTV.ActiveEmote[];
 
+	if (props.es.provider && !props.es.emotes.length) {
+		return;
+	}
+
 	for (const e of props.es.emotes) {
 		if (filter && !e.name.toLowerCase().includes(filter.toLowerCase())) {
 			continue;

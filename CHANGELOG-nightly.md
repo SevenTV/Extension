@@ -6,6 +6,11 @@
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
 -   Added sorting to the emote menu, default to newest added
 -   Added options to change what emotes are displayed in the colon list and tab-completion carousel
+-   Added an option to show the text bit for BTTV and FFZ emote modifiers
+-   Added an option to hide monitored suspicious user highlights
+-   Added an option to hide restricted suspicious user highlights
+-   Added an option to highlight your own chat messages
+-   Fixed an issue in the emote menu where the previously selected provider would close if a set was empty
 -   Fixed emote cards sometimes not showing who added the emote
 -   Fixed an issue where the detailed emote card would clip under existing chat messages
 
