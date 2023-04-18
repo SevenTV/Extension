@@ -89,6 +89,7 @@ const stop = watch(
 			nextTick(() => stop());
 			return;
 		}
+
 		paint.value = shouldRenderPaint.value && paints && paints.size ? paints.values().next().value : null;
 		activeBadges.value = [...badges.values()];
 	},
