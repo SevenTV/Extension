@@ -142,6 +142,12 @@ export const config = [
 		},
 		defaultValue: 1,
 	}),
+	declareConfig("chat.show_emote_modifiers", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Show Emote Modifiers",
+		hint: "Show text pollution from BTTV and FFZ emote modifiers (!w, ffzHyper, etc.). Modifiers are not supported yet, this setting only affects the display of their text form",
+		defaultValue: false,
+	}),
 	declareConfig("chat.mod_slider", "TOGGLE", {
 		path: ["Chat", "Moderation"],
 		label: "Mod Slider",
@@ -351,6 +357,18 @@ export const config = [
 		label: "Flash Title on Mention",
 		hint: "When tabbed out, the username of users who mention you will flash in the title",
 		disabledIf: () => !useConfig("highlights.basic.mention").value,
+		defaultValue: true,
+	}),
+	declareConfig<boolean>("highlights.basic.monitored_low_trust_user", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Monitored Suspicious User Highlights (Moderator only)",
+		hint: "Whether or not to highlight users who are a monitored suspicious user",
+		defaultValue: true,
+	}),
+	declareConfig<boolean>("highlights.basic.restricted_low_trust_user", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Restricted Suspicious User Highlights (Moderator only)",
+		hint: "Whether or not to highlight users who are a restricted suspicious user",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {
