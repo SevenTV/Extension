@@ -15,7 +15,7 @@
 
 		<!-- Message Author -->
 		<span
-			v-tooltip="shouldRenderTooltip && paint && paint.data ? `Paint: ${paint.data.name}` : ''"
+			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
 			class="seventv-chat-user-username"
 			@click="(e) => emit('nameClick', e)"
 		>
@@ -53,7 +53,7 @@ const emit = defineEmits<{
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
-const shouldRenderTooltip = useConfig("vanity.nametag_paints");
+const shouldRenderPaint = useConfig("vanity.nametag_paints");
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
@@ -89,8 +89,7 @@ const stop = watch(
 			nextTick(() => stop());
 			return;
 		}
-
-		paint.value = paints && paints.size ? paints.values().next().value : null;
+		paint.value = shouldRenderPaint.value && paints && paints.size ? paints.values().next().value : null;
 		activeBadges.value = [...badges.values()];
 	},
 	{ immediate: true },
