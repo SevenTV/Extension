@@ -142,6 +142,12 @@ export const config = [
 		},
 		defaultValue: 1,
 	}),
+	declareConfig("chat.show_emote_modifiers", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Show Emote Modifiers",
+		hint: "Show text pollution from BTTV and FFZ emote modifiers (!w, ffzHyper, etc.). Modifiers are not supported yet, this setting only affects the display of their text form",
+		defaultValue: false,
+	}),
 	declareConfig("chat.mod_slider", "TOGGLE", {
 		path: ["Chat", "Moderation"],
 		label: "Mod Slider",
@@ -370,6 +376,12 @@ export const config = [
 		label: "Show First-Time Chatter Highlights",
 		hint: "Whether or not to highlight users who are chatting for the first time",
 		defaultValue: true,
+	}),
+	declareConfig<boolean>("highlights.basic.self", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Highlights for Your Own Messages",
+		hint: "Whether or not to highlight messages sent by yourself",
+		defaultValue: false,
 	}),
 	declareConfig<Map<string, HighlightDef>>("highlights.custom", "CUSTOM", {
 		path: ["Highlights", ""],
