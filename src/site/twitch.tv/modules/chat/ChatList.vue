@@ -456,9 +456,9 @@ watch([alt, isHovering], ([isAlt, isHover]) => {
 watch(
 	[identity, showSelfHighlights],
 	([identity, enabled]) => {
-		if (enabled) {
+		if (enabled && identity) {
 			chatHighlights.define("~self", {
-				test: (msg) => msg.author?.id === identity?.id,
+				test: (msg) => !!(msg.author && identity) && msg.author.id === identity.id,
 				label: "You",
 				color: "#3ad3e0",
 			});
