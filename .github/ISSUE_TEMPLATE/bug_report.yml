@@ -1,0 +1,49 @@
+name: 🐛 Bug Report
+description: File a bug report
+title: "[BUG] <title>"
+labels: bug
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please [search here](https://github.com/SevenTV/Extension/issues) to see if an issue already exists for your problem.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: checkboxes
+    attributes:
+      label: This issue exists in the latest nightly version
+      description: Please make sure you have installed the latest nightly version and verified it is still an issue.
+      options:
+        - label: I am using the latest nightly version
+          required: true
+  - type: dropdown
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Opera
+        - Microsoft Edge
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: A clear & concise description of what you're experiencing.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A clear & concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+    validations:
+      required: true
