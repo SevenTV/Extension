@@ -5,7 +5,7 @@
 			<div class="item heading">
 				<div>Pattern</div>
 				<div>Label</div>
-				<div>Blocked</div>
+				<div>Ignored</div>
 				<div class="centered">RegExp</div>
 				<div>Case Sensitive</div>
 				<div class="centered">Flash Title</div>
@@ -18,25 +18,19 @@
 						<!-- Pattern -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
 							<span>{{ h.pattern }}</span>
-							<FormInput
-								:ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.pattern"
-								@blur="onInputBlur(h, 'pattern')"
-							/>
+							<FormInput :ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.pattern" @blur="onInputBlur(h, 'pattern')" />
 						</div>
 
 						<!-- Label -->
 						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
 							<span>{{ h.label }}</span>
-							<FormInput
-								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.label"
-								@blur="onInputBlur(h, 'label')"
-							/>
+							<FormInput :ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.label" @blur="onInputBlur(h, 'label')" />
 						</div>
 
-						<div name="is-blocked">
-							<FormCheckbox :checked="!!h.isBlocked" @update:checked="onModeChange(h, $event)" />
+						<div name="is-ignored">
+							<FormCheckbox :checked="!!h.isIgnored" @update:checked="onModeChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: RegExp -->
@@ -46,38 +40,23 @@
 
 						<!-- Checkbox: Case Sensitive -->
 						<div name="case-sensitive" class="centered">
-							<FormCheckbox
-								:checked="!!h.caseSensitive"
-								@update:checked="onCaseSensitiveChange(h, $event)"
-							/>
+							<FormCheckbox :checked="!!h.caseSensitive" @update:checked="onCaseSensitiveChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: Flash Title -->
 						<div name="flash-title" class="centered">
-							<FormCheckbox
-								v-if="!h.isBlocked"
-								:checked="!!h.flashTitle"
-								@update:checked="onFlashTitleChange(h, $event)"
-							/>
+							<FormCheckbox v-if="!h.isIgnored" :checked="!!h.flashTitle"
+								@update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<div name="color">
-							<input
-								v-if="!h.isBlocked"
-								v-model="h.color"
-								type="color"
-								@input="onColorChange(h, $event as InputEvent)"
-							/>
+							<input v-if="!h.isIgnored" v-model="h.color" type="color"
+								@input="onColorChange(h, $event as InputEvent)" />
 						</div>
 
 						<div ref="interactRef" name="interact">
-							<button
-								v-if="!h.isBlocked"
-								ref="soundEffectButton"
-								class="sound-button"
-								:class="{ 'has-sound': !!h.soundFile }"
-								tabindex="0"
-							>
+							<button v-if="!h.isIgnored" ref="soundEffectButton" class="sound-button"
+								:class="{ 'has-sound': !!h.soundFile }" tabindex="0">
 								<CompactDiscIcon v-tooltip="'Set Custom Sound'" />
 								<div class="sound-options">
 									<UiFloating v-if="interactRef?.[index]" :anchor="interactRef[index]">
@@ -91,11 +70,9 @@
 											<label>
 												Custom Sound{{ h.soundFile ? "" : "..." }}
 												<p v-if="h.soundFile">{{ h.soundFile.name }}</p>
-												<input
-													type="file"
+												<input type="file"
 													accept="audio/midi, audio/mpeg, audio/ogg, audio/wav, audio/webm, audio/vorbis, audio/ogg"
-													@input="onUploadSoundFile(h, $event)"
-												/>
+													@input="onUploadSoundFile(h, $event)" />
 											</label>
 										</button>
 									</UiFloating>
@@ -157,8 +134,8 @@ function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
 }
 
 function onModeChange(h: HighlightDef, checked: boolean): void {
-	h.isBlocked = checked;
-	highlights.saveAsBlocked(h.id, checked);
+	h.isIgnored = checked;
+	highlights.saveAsIgnored(h.id, checked);
 }
 
 function onFlashTitleChange(h: HighlightDef, checked: boolean): void {
@@ -246,7 +223,6 @@ watch(newInput, (val, old) => {
 			color: "#8803fc",
 			label: "",
 			pattern: val,
-			isBlocked: false,
 		},
 		true,
 	);
@@ -291,7 +267,7 @@ main.seventv-settings-custom-highlights {
 			column-gap: 3rem;
 			padding: 1rem;
 
-			> div {
+			>div {
 				align-self: center;
 
 				&.centered {
@@ -308,7 +284,7 @@ main.seventv-settings-custom-highlights {
 				border-bottom: 0.25rem solid var(--seventv-primary);
 			}
 
-			&:not(.create-new) > .use-virtual-input {
+			&:not(.create-new)>.use-virtual-input {
 				cursor: text;
 				padding: 0.5rem;
 				display: block;
@@ -337,7 +313,7 @@ main.seventv-settings-custom-highlights {
 				}
 			}
 
-			[name="color"] > input {
+			[name="color"]>input {
 				&::-webkit-color-swatch-wrapper {
 					padding: 0;
 				}
@@ -373,7 +349,7 @@ main.seventv-settings-custom-highlights {
 					border-radius: 50%;
 				}
 
-				.sound-button:focus-within > .sound-options {
+				.sound-button:focus-within>.sound-options {
 					position: fixed;
 					width: 9rem;
 					display: block;

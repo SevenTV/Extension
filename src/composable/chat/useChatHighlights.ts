@@ -22,7 +22,7 @@ export interface HighlightDef {
 
 	color: string;
 	label: string;
-	isBlocked: boolean;
+	isIgnored?: boolean;
 	caseSensitive?: boolean;
 	flashTitle?: boolean;
 	flashTitleFn?: (msg: ChatMessage) => string;
@@ -39,7 +39,7 @@ export interface HighlightDef {
 const m = new WeakMap<ChannelContext, ChatHighlights>();
 
 const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
-const blockedPhrases = useConfig<Map<string, HighlightDef>>("highlights.blocked");
+const ignores = useConfig<Map<string, HighlightDef>>("highlights.ignores");
 const soundVolume = useConfig<number>("highlights.sound_volume");
 
 export function useChatHighlights(ctx: ChannelContext) {
@@ -82,19 +82,19 @@ export function useChatHighlights(ctx: ChannelContext) {
 		m.set(ctx, data);
 	}
 
-	const saveAsBlocked = debounceFn(function (id: string, isBlocked: boolean): void {
+	const saveAsIgnored = debounceFn(function (id: string, isIgnored: boolean): void {
 		if (!data) return;
 
-		// Add blocked highlights to their own config
-		if (isBlocked) {
+		// Add ignored highlights to their own config
+		if (isIgnored) {
 			const items: [string, HighlightDef][] = Array.from(Object.values(data.highlights))
 				.filter((h) => h.persist)
-				.filter((h) => h.isBlocked)
+				.filter((h) => h.isIgnored)
 				.map((h) => [h.id, toRaw(h)]);
-			blockedPhrases.value = new Map(items);
+			ignores.value = new Map(items);
 		} else {
-			// Remove as blocked highlight and re-instate as normal highlight
-			blockedPhrases.value.delete(id);
+			// Remove as ignored highlight and re-instate as normal highlight
+			ignores.value.delete(id);
 		}
 
 		save();
@@ -158,7 +158,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!data) return;
 
 		delete data.highlights[id];
-		blockedPhrases.value.delete(id);
+		ignores.value.delete(id);
 		save();
 	}
 
@@ -257,9 +257,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 		save();
 	}
 
-	function doesMessageContainBlockedPhrase(message: ChatMessage<ComponentFactory>) {
-		const allBlockedTerms = Object.values(getAll()).filter((f) => f.isBlocked);
-		return allBlockedTerms.some((s) => checkMatch(s.id, message, true));
+	function checkIgnored(message: ChatMessage<ComponentFactory>) {
+		const allIgnores = Object.values(getAll()).filter((f) => f.isIgnored);
+		return allIgnores.some((s) => checkMatch(s.id, message, true));
 	}
 
 	return {
@@ -267,11 +267,11 @@ export function useChatHighlights(ctx: ChannelContext) {
 		remove,
 		getAll,
 		save,
-		saveAsBlocked,
+		saveAsIgnored,
 		updateId,
 		checkMatch,
 		updateSoundData,
 		updateFlashTitle,
-		doesMessageContainBlockedPhrase,
+		checkIgnored,
 	};
 }

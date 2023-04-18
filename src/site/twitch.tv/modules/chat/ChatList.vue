@@ -2,10 +2,8 @@
 	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
 		<div v-for="msg of displayedMessages" :key="msg.sym" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
-				<component
-					:is="isModSliderEnabled && properties.isModerator && msg.author ? ModSlider : 'span'"
-					v-bind="{ msg }"
-				>
+				<component :is="isModSliderEnabled && properties.isModerator && msg.author ? ModSlider : 'span'"
+					v-bind="{ msg }">
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
 						<UserMessage :msg="msg" :emotes="emotes.active" :chatters="messages.chattersByUsername" />
 					</component>
@@ -207,9 +205,9 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 			const parentMsgAuthor =
 				msgData.reply.parentUserLogin && msgData.reply.parentDisplayName
 					? {
-							username: msgData.reply.parentUserLogin,
-							displayName: msgData.reply.parentDisplayName,
-					  }
+						username: msgData.reply.parentUserLogin,
+						displayName: msgData.reply.parentDisplayName,
+					}
 					: null;
 
 			msg.parent = {
@@ -251,15 +249,15 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 						},
 						data: e.cheerAmount
 							? convertCheerEmote({
-									alt: e.alt,
-									cheerAmount: e.cheerAmount,
-									cheerColor: e.cheerColor,
-									images: e.images,
-							  })
+								alt: e.alt,
+								cheerAmount: e.cheerAmount,
+								cheerColor: e.cheerColor,
+								images: e.images,
+							})
 							: convertTwitchEmote({
-									id: e.emoteID,
-									token: e.alt,
-							  } as Partial<Twitch.TwitchEmote>),
+								id: e.emoteID,
+								token: e.alt,
+							} as Partial<Twitch.TwitchEmote>),
 					};
 					break;
 				}
@@ -295,7 +293,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		chatHighlights.checkMatch(highlightID, msg);
 	}
 
-	if (chatHighlights.doesMessageContainBlockedPhrase(msg)) {
+	if (chatHighlights.checkIgnored(msg)) {
 		shouldRenderMessage = false;
 	}
 
@@ -508,7 +506,6 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`
 					: undefined,
 				flashTitle: true,
-				isBlocked: false,
 			});
 
 			chatHighlights.define("~reply", {
@@ -520,7 +517,6 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`
 					: undefined,
 				flashTitle: true,
-				isBlocked: false,
 			});
 		} else {
 			chatHighlights.remove("~mention");
