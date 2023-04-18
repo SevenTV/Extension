@@ -371,7 +371,7 @@ export const config = [
 		hint: "Whether or not to highlight users who are a restricted suspicious user",
 		defaultValue: true,
 	}),
-  declareConfig<boolean>("highlights.basic.moderator", "TOGGLE", {
+	declareConfig<boolean>("highlights.basic.moderator", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Show Moderator Highlights",
 		hint: "Whether or not to highlight messages from moderators",
