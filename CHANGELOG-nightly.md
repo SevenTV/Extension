@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   Fixed unwanted nametag paint tooltip when nametag paints are disabled
+-   Fixed tooltips of nametag paints appearing even if they are disabled
 
 ### Version 3.0.6.1000
 
