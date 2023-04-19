@@ -1,5 +1,5 @@
 <template>
-	<main class="seventv-settings-custom-highlights">
+	<main class="seventv-settings-custom-ignores">
 		<div class="tabs"></div>
 		<div class="list">
 			<div class="item heading">
@@ -7,12 +7,10 @@
 				<div>Label</div>
 				<div class="centered">RegExp</div>
 				<div>Case Sensitive</div>
-				<div class="centered">Flash Title</div>
-				<div>Color</div>
 			</div>
 
 			<UiScrollable>
-				<template v-for="(h, _, index) of highlights.getAll()" :key="h.id">
+				<template v-for="(h) of ignores.getAllIgnored()" :key="h.id">
 					<div class="item">
 						<!-- Pattern -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
@@ -38,41 +36,8 @@
 							<FormCheckbox :checked="!!h.caseSensitive" @update:checked="onCaseSensitiveChange(h, $event)" />
 						</div>
 
-						<!-- Checkbox: Flash Title -->
-						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
-						</div>
-
-						<div name="color">
-							<input v-model="h.color" type="color" @input="onColorChange(h, $event as InputEvent)" />
-						</div>
-
 						<div ref="interactRef" name="interact">
-							<button ref="soundEffectButton" class="sound-button" :class="{ 'has-sound': !!h.soundFile }"
-								tabindex="0">
-								<CompactDiscIcon v-tooltip="'Set Custom Sound'" />
-								<div class="sound-options">
-									<UiFloating v-if="interactRef?.[index]" :anchor="interactRef[index]">
-										<button :active="!h.soundPath && !h.soundFile" @click="onRemoveSound(h)">
-											No Sound
-										</button>
-										<button :active="!!h.soundPath && !h.soundFile" @click="onUseDefaultSound(h)">
-											Default Sound
-										</button>
-										<button :active="!!h.soundFile">
-											<label>
-												Custom Sound{{ h.soundFile ? "" : "..." }}
-												<p v-if="h.soundFile">{{ h.soundFile.name }}</p>
-												<input type="file"
-													accept="audio/midi, audio/mpeg, audio/ogg, audio/wav, audio/webm, audio/vorbis, audio/ogg"
-													@input="onUploadSoundFile(h, $event)" />
-											</label>
-										</button>
-									</UiFloating>
-								</div>
-							</button>
-
-							<CloseIcon v-tooltip="'Remove'" tabindex="0" @click="onDeleteHighlight(h)" />
+							<CloseIcon v-tooltip="'Remove'" tabindex="0" @click="onDeleteIgnore(h)" />
 						</div>
 					</div>
 				</template>
@@ -81,7 +46,7 @@
 			<!-- New -->
 			<div class="item create-new">
 				<div name="pattern">
-					<FormInput v-model="newInput" label="New Highlight..."> hi </FormInput>
+					<FormInput v-model="newInput" label="New Ignore..."> hi </FormInput>
 				</div>
 			</div>
 		</div>
@@ -91,124 +56,62 @@
 <script setup lang="ts">
 import { nextTick, reactive, ref, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { HighlightDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
+import { useChatHighlights, IgnoreDef } from "@/composable/chat/useChatHighlights";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
-import CompactDiscIcon from "@/assets/svg/icons/CompactDiscIcon.vue";
-import UiFloating from "@/ui/UiFloating.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import FormCheckbox from "../components/FormCheckbox.vue";
 import FormInput from "../components/FormInput.vue";
 import { v4 as uuid } from "uuid";
 
 const ctx = useChannelContext(); // this will be an empty context, as config is not tied to channel
-const highlights = useChatHighlights(ctx);
+const ignores = useChatHighlights(ctx, true);
 
 const newInput = ref("");
 const inputs = reactive({
-	pattern: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
-	label: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
+	pattern: new WeakMap<IgnoreDef, InstanceType<typeof FormInput>>(),
+	label: new WeakMap<IgnoreDef, InstanceType<typeof FormInput>>(),
 });
 const interactRef = ref<HTMLElement[]>();
 
-function onInputFocus(h: HighlightDef, inputName: keyof typeof inputs): void {
+function onInputFocus(h: IgnoreDef, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
 	if (!input) return;
 
 	input.focus();
 }
 
-function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
+function onInputBlur(h: IgnoreDef, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
 	if (!input) return;
 
 	const id = uuid();
-	highlights.updateId("new-highlight", id);
-	highlights.save();
+	ignores.updateId("new-ignore", id);
+	ignores.save();
 }
 
-function onFlashTitleChange(h: HighlightDef, checked: boolean): void {
-	h.flashTitle = checked;
-	highlights.updateFlashTitle(h);
-	highlights.save();
-}
-
-function onRegExpStateChange(h: HighlightDef, checked: boolean): void {
+function onRegExpStateChange(h: IgnoreDef, checked: boolean): void {
 	h.regexp = checked;
-	highlights.save();
+	ignores.save();
 }
 
-function onCaseSensitiveChange(h: HighlightDef, checked: boolean): void {
+function onCaseSensitiveChange(h: IgnoreDef, checked: boolean): void {
 	h.caseSensitive = checked;
-	highlights.save();
+	ignores.save();
 }
 
-function onColorChange(h: HighlightDef, ev: InputEvent): void {
-	if (!(ev.target instanceof HTMLInputElement)) return;
-	const color = ev.target.value;
-
-	h.color = color;
-	highlights.save();
+function onDeleteIgnore(h: IgnoreDef): void {
+	ignores.remove(h.id);
+	ignores.save();
 }
 
-function onUploadSoundFile(h: HighlightDef, ev: Event): void {
-	if (!(ev.target instanceof HTMLInputElement)) return;
-	const file = ev.target.files?.[0];
-	if (!file) return;
-
-	const reader = new FileReader();
-	reader.onload = (ev) => {
-		if (!(ev.target instanceof FileReader)) return;
-		const data = ev.target.result;
-		if (!(data instanceof ArrayBuffer)) return;
-		// file can't be more than 50KB (sanity value to avoid saturating IndexedDB)
-		if (data.byteLength > 50 * 1024) return alert("File is too large! (max 50KB)");
-
-		delete h.soundPath;
-		h.soundFile = {
-			name: file.name,
-			type: file.type,
-			data,
-		};
-
-		highlights.updateSoundData(h);
-		highlights.save();
-	};
-
-	ev.target.value = "";
-	reader.readAsArrayBuffer(file);
-}
-
-function onUseDefaultSound(h: HighlightDef): void {
-	delete h.soundFile;
-	delete h.soundDef;
-	h.soundPath = "#ping";
-
-	highlights.save();
-}
-
-function onRemoveSound(h: HighlightDef): void {
-	delete h.soundFile;
-	delete h.soundPath;
-	delete h.soundDef;
-
-	highlights.updateSoundData(h);
-	highlights.save();
-}
-
-function onDeleteHighlight(h: HighlightDef): void {
-	highlights.remove(h.id);
-	highlights.save();
-}
-
-// Watch for user writing to "new highlight" input
-// If they do, we create a new highlight and switch focus
+// Watch for user writing to "new ignore" input
+// If they do, we create a new ignore and switch focus
 watch(newInput, (val, old) => {
 	if (!val || old) return;
 
-	const h = highlights.define(
-		"new-highlight",
+	const h = ignores.define(
+		"new-ignore",
 		{
-			color: "#8803fc",
 			label: "",
 			pattern: val,
 		},
@@ -226,7 +129,7 @@ watch(newInput, (val, old) => {
 </script>
 
 <style scoped lang="scss">
-main.seventv-settings-custom-highlights {
+main.seventv-settings-custom-ignores {
 	display: grid;
 	padding: 0.25rem;
 	grid-template-rows: 0 max-content;
@@ -251,7 +154,7 @@ main.seventv-settings-custom-highlights {
 		.item {
 			display: grid;
 			grid-auto-flow: row dense;
-			grid-template-columns: 20% 9rem repeat(6, 1fr);
+			grid-template-columns: 20% 9rem repeat(3, 1fr);
 			column-gap: 3rem;
 			padding: 1rem;
 
