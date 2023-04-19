@@ -623,6 +623,15 @@ declare module Twitch {
 		userLogin: string;
 	}>;
 
+	export type MediaPlayerInstanceComponent = ReactExtended.WritableComponent<{}> & {
+		getPlayerMetadata: () => PlayerMetadata;
+	};
+
+	export interface PlayerMetadata {
+		playSessionId: string;
+		latencyToBroadcaster: number;
+	}
+
 	export enum Theme {
 		"Light",
 		"Dark",

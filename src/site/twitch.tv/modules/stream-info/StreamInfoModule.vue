@@ -1,6 +1,7 @@
 <template>
 	<Teleport v-if="displayLatency" to="#seventv-stream-info">
-		<span class="seventv-stream-info" v-if="shouldShowVideoStats"> <GaugeIcon /> {{ videoLatency }} </span>
+		<figure><GaugeIcon /></figure>
+		<span class="seventv-stream-info" v-if="shouldShowVideoStats">{{ videoLatency }}s</span>
 	</Teleport>
 </template>
 
@@ -9,89 +10,65 @@ import { declareConfig, useConfig } from "@/composable/useSettings";
 import { declareModule } from "@/composable/useModule";
 import { onMounted, onUnmounted, ref } from "vue";
 import GaugeIcon from "@/assets/svg/icons/GaugeIcon.vue";
+import { useComponentHook } from "@/common/ReactHooks";
 
 const { markAsReady } = declareModule("stream-info", {
 	name: "Stream Info",
 	depends_on: [],
 });
 
-const shouldShowVideoStats = useConfig<boolean>("channel.stream_info");
+const shouldShowVideoStats = useConfig<boolean>("channel.latency_info");
 const displayLatency = ref<boolean>(false);
 const videoLatency = ref<string>("");
-const observer = new MutationObserver(updateVideoLatency);
 
-function findAndHideVideoStatsTable() {
-	const channelPlayerElement = document.querySelector<HTMLElement>("#channel-player");
-	if (!channelPlayerElement) return;
+const mediaPlayerComponent = useComponentHook<Twitch.MediaPlayerInstanceComponent>({
+	predicate: (el) => el.props && el.props.mediaPlayerInstance,
+});
 
-	// Get the player settings button
-	const playerSettingsElement = channelPlayerElement.querySelector<HTMLElement>("button[aria-label='Settings']");
-	if (!playerSettingsElement) return;
-	// Open the player settings
-	playerSettingsElement.click();
+// This does not render instaneously
+// Need to find alternative hook for rendering the stream-info element
+useComponentHook<ReactExtended.AnyReactComponent>(
+	{
+		predicate: (el) => el.props && el.instance,
+	},
+	{
+		hooks: {
+			render(inst, cur) {
+				if (
+					inst.component?.instance?.d?.parentElement?.attributes?.getNamedItem("aria-label")?.nodeValue !==
+					"Viewer Count"
+				)
+					return cur;
 
-	const settingsModalElement = document.querySelector<HTMLElement>("div[data-a-target='player-settings-menu']");
-	if (!settingsModalElement) return;
-
-	// Find the advanced settings
-	const advancedElement = settingsModalElement.querySelector<HTMLElement>(
-		"button[data-a-target='player-settings-menu-item-advanced']",
-	);
-	if (!advancedElement) return;
-	advancedElement.click();
-
-	const videoStatsElement = settingsModalElement.querySelectorAll<HTMLElement>("label.tw-toggle__button")[2];
-	if (!videoStatsElement) return;
-
-	let videoStatsTableElement = document.querySelector<HTMLElement>("div[data-a-target='player-overlay-video-stats']");
-	// Only open the video stats once
-	if (!videoStatsTableElement) videoStatsElement.click();
-	// If opening didn't work, we return
-	videoStatsTableElement = document.querySelector<HTMLElement>("div[data-a-target='player-overlay-video-stats']");
-	if (!videoStatsTableElement) return;
-	// We set the display to none
-	videoStatsTableElement.style.setProperty("display", "none");
-	const latency = videoStatsTableElement.querySelector<HTMLElement>("p[aria-label='Latency To Broadcaster']");
-	if (!latency) return;
-
-	observer.observe(latency, { characterData: true, subtree: true });
-
-	// Close the player settings
-	playerSettingsElement.click();
-}
-
-function updateVideoLatency(mutationList: Array<MutationRecord>): void {
-	mutationList.forEach((mutation: MutationRecord) => {
-		switch (mutation.type) {
-			case "characterData":
-				videoLatency.value = mutation.target.textContent?.replace(" sec.", "s") ?? "";
-				break;
-		}
-	});
-}
+				const exists = document.querySelector<HTMLElement>("#seventv-stream-info");
+				if (!exists) {
+					const siblingEl =
+						inst.component?.instance?.d?.parentElement?.parentElement?.parentElement?.parentElement
+							?.lastChild;
+					if (!siblingEl) return cur;
+					const newEl = document.createElement("div");
+					newEl.id = "seventv-stream-info";
+					siblingEl.insertAdjacentElement("afterend", newEl);
+					displayLatency.value = true;
+				}
+				return cur;
+			},
+		},
+	},
+);
 
 onMounted(() => {
-	findAndHideVideoStatsTable();
-
-	// Needs improvement
-	setTimeout(() => {
-		const n = document.querySelector<HTMLElement>(".live-time");
-		if (n) {
-			const newEl = document.createElement("div");
-			newEl.id = "seventv-stream-info";
-			const liveTimer = document.querySelector<HTMLElement>("#seventv-stream-info");
-			if (!liveTimer) {
-				n.parentElement?.insertAdjacentElement("afterend", newEl);
-			}
+	setInterval(() => {
+		// Only retrive data for 1 player
+		if (mediaPlayerComponent.instances.length === 1) {
+			let videoStats = mediaPlayerComponent.instances[0]?.component.getPlayerMetadata();
+			videoLatency.value = (videoStats.latencyToBroadcaster / 1000).toFixed(2);
 		}
-
-		displayLatency.value = true;
-	}, 10000);
+	}, 2000);
 });
 
 onUnmounted(() => {
-	observer.disconnect();
-	videoLatency.value = "";
+	displayLatency.value = false;
 });
 
 markAsReady();
@@ -99,7 +76,7 @@ markAsReady();
 
 <script lang="ts">
 export const config = [
-	declareConfig("channel.stream_info", "TOGGLE", {
+	declareConfig("channel.latency_info", "TOGGLE", {
 		path: ["Channel", "Stream-Info"],
 		label: "Latency Info",
 		hint: "Show Latency to Broadcaster",
@@ -109,11 +86,18 @@ export const config = [
 </script>
 
 <style>
+#seventv-stream-info {
+	margin-right: 1rem !important;
+	display: inline-flex;
+}
+#seventv-stream-info > figure {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding-right: 0.5rem;
+}
 .seventv-stream-info {
 	font-family: Helvetica Neue, sans-serif;
 	font-variant-numeric: tabular-nums;
-}
-.seventv-stream-info > svg {
-	vertical-align: text-top;
 }
 </style>
