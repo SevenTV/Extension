@@ -57,7 +57,7 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 	if (!data) {
 		data = reactive<ChatHighlights>({
 			highlights: {},
-			ignores: {}
+			ignores: {},
 		});
 
 		watch(
@@ -115,7 +115,7 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 				.map((h) => [
 					h.id,
 					toRaw({
-						...h
+						...h,
 					}),
 				]);
 			ignores.value = new Map(items);
@@ -135,7 +135,11 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 		}
 	}, 250);
 
-	function define(id: string, def: Omit<HighlightDef | IgnoreDef, "id">, persist?: boolean): HighlightDef | IgnoreDef {
+	function define(
+		id: string,
+		def: Omit<HighlightDef | IgnoreDef, "id">,
+		persist?: boolean,
+	): HighlightDef | IgnoreDef {
 		if (!data) return {} as HighlightDef | IgnoreDef;
 
 		if (isHighlight(def)) {
@@ -341,4 +345,4 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 
 const isHighlight = (def: Omit<HighlightDef | IgnoreDef, "id">): def is HighlightDef => {
 	return (def as HighlightDef).color !== undefined;
-}
+};

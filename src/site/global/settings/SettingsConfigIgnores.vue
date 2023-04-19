@@ -10,20 +10,26 @@
 			</div>
 
 			<UiScrollable>
-				<template v-for="(h) of ignores.getAllIgnored()" :key="h.id">
+				<template v-for="h of ignores.getAllIgnored()" :key="h.id">
 					<div class="item">
 						<!-- Pattern -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
 							<span>{{ h.pattern }}</span>
-							<FormInput :ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.pattern" @blur="onInputBlur(h, 'pattern')" />
+							<FormInput
+								:ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.pattern"
+								@blur="onInputBlur(h, 'pattern')"
+							/>
 						</div>
 
 						<!-- Label -->
 						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
 							<span>{{ h.label }}</span>
-							<FormInput :ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.label" @blur="onInputBlur(h, 'label')" />
+							<FormInput
+								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.label"
+								@blur="onInputBlur(h, 'label')"
+							/>
 						</div>
 
 						<!-- Checkbox: RegExp -->
@@ -33,7 +39,10 @@
 
 						<!-- Checkbox: Case Sensitive -->
 						<div name="case-sensitive" class="centered">
-							<FormCheckbox :checked="!!h.caseSensitive" @update:checked="onCaseSensitiveChange(h, $event)" />
+							<FormCheckbox
+								:checked="!!h.caseSensitive"
+								@update:checked="onCaseSensitiveChange(h, $event)"
+							/>
 						</div>
 
 						<div ref="interactRef" name="interact">
@@ -56,7 +65,7 @@
 <script setup lang="ts">
 import { nextTick, reactive, ref, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { useChatHighlights, IgnoreDef } from "@/composable/chat/useChatHighlights";
+import { IgnoreDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import FormCheckbox from "../components/FormCheckbox.vue";
@@ -158,7 +167,7 @@ main.seventv-settings-custom-ignores {
 			column-gap: 3rem;
 			padding: 1rem;
 
-			>div {
+			> div {
 				align-self: center;
 
 				&.centered {
@@ -175,7 +184,7 @@ main.seventv-settings-custom-ignores {
 				border-bottom: 0.25rem solid var(--seventv-primary);
 			}
 
-			&:not(.create-new)>.use-virtual-input {
+			&:not(.create-new) > .use-virtual-input {
 				cursor: text;
 				padding: 0.5rem;
 				display: block;
@@ -204,7 +213,7 @@ main.seventv-settings-custom-ignores {
 				}
 			}
 
-			[name="color"]>input {
+			[name="color"] > input {
 				&::-webkit-color-swatch-wrapper {
 					padding: 0;
 				}
@@ -240,7 +249,7 @@ main.seventv-settings-custom-ignores {
 					border-radius: 50%;
 				}
 
-				.sound-button:focus-within>.sound-options {
+				.sound-button:focus-within > .sound-options {
 					position: fixed;
 					width: 9rem;
 					display: block;
