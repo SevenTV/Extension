@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--
+-   Fixed tooltips of nametag paints appearing even if they are disabled
 
 ### Version 3.0.6.1000
 

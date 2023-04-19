@@ -1,5 +1,4 @@
 import type { Directive, DirectiveBinding } from "vue";
-import { useConfig } from "@/composable/useSettings";
 
 const ATTR_SEVENTV_PAINT_ID = "data-seventv-cosmetic-paint-id";
 const ATTR_SEVENTV_TEXT = "data-seventv-painted-text";
@@ -18,9 +17,6 @@ export const TextPaintDirective = {
 } as Directive<HTMLElement, string | null>;
 
 function updateElementStyles(el: HTMLElement, paintID: string | null): void {
-	const shouldRender = useConfig("vanity.nametag_paints"); // TODO: better way to handle disable of paints
-	if (!shouldRender.value) return;
-
 	if (!paintID || (el.hasAttribute(ATTR_SEVENTV_PAINT_ID) && el.getAttribute(ATTR_SEVENTV_PAINT_ID) !== paintID)) {
 		el.style.backgroundImage = "";
 		el.style.filter = "";
