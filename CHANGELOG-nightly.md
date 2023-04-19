@@ -8,7 +8,7 @@
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
--   Added an option to ignore messages via highlights
+-   Added an option to ignore messages in chat settings
 -   Added options to change what emotes are displayed in the colon list and tab-completion carousel
 -   Added an option to show the text bit for BTTV and FFZ emote modifiers
 -   Added an option to hide monitored suspicious user highlights

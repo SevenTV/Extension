@@ -118,7 +118,7 @@ function onDeleteIgnore(h: IgnoreDef): void {
 watch(newInput, (val, old) => {
 	if (!val || old) return;
 
-	const h = ignores.define(
+	const h = ignores.defineIgnore(
 		"new-ignore",
 		{
 			label: "",

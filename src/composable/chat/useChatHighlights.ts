@@ -1,5 +1,5 @@
 import { inject, markRaw, reactive, ref, toRaw, watch } from "vue";
-import { toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
+import { IgnoredUpdater, toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { SITE_ASSETS_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
@@ -135,37 +135,35 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 		}
 	}, 250);
 
-	function define(
-		id: string,
-		def: Omit<HighlightDef | IgnoreDef, "id">,
-		persist?: boolean,
-	): HighlightDef | IgnoreDef {
-		if (!data) return {} as HighlightDef | IgnoreDef;
+	function define(id: string, def: Omit<HighlightDef, "id">, persist?: boolean): HighlightDef {
+		if (!data) return {} as HighlightDef;
 
-		if (isHighlight(def)) {
-			const h = (data.highlights[id] = { ...def, id, persist });
-			updateSoundData(h);
+		const h = (data.highlights[id] = { ...def, id, persist });
+		updateSoundData(h);
 
-			if (!persist) return h;
+		if (!persist) return h;
 
-			// Store to DB\andymilonakis
-			customHighlights.value.set(id, markRaw(h));
+		// Store to DB\andymilonakis
+		customHighlights.value.set(id, markRaw(h));
 
-			save();
+		save();
 
-			return h;
-		} else {
-			const h = (data.ignores[id] = { ...def, id, persist });
+		return h;
+	}
 
-			if (!persist) return h;
+	function defineIgnore(id: string, def: Omit<IgnoreDef, "id">, persist?: boolean): IgnoreDef {
+		if (!data) return {} as IgnoreDef;
 
-			// Store to DB\andymilonakis
-			ignores.value.set(id, markRaw(h));
+		const h = (data.ignores[id] = { ...def, id, persist });
 
-			save();
+		if (!persist) return h;
 
-			return h;
-		}
+		// Store to DB\andymilonakis
+		ignores.value.set(id, markRaw(h));
+
+		save();
+
+		return h;
 	}
 
 	function updateSoundData(h: HighlightDef) {
@@ -317,6 +315,7 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 
 	return {
 		define,
+		defineIgnore,
 		remove,
 		getAll,
 		getAllIgnored,
