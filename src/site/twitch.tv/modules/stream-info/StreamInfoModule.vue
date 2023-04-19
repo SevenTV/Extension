@@ -1,7 +1,7 @@
 <template>
 	<Teleport v-if="displayLatency" to="#seventv-stream-info">
 		<figure><GaugeIcon /></figure>
-		<span class="seventv-stream-info" v-if="shouldShowVideoStats">{{ videoLatency }}s</span>
+		<span v-if="shouldShowVideoStats" class="seventv-stream-info">{{ videoLatency }}s</span>
 	</Teleport>
 </template>
 
@@ -61,7 +61,7 @@ onMounted(() => {
 	setInterval(() => {
 		// Only retrive data for 1 player
 		if (mediaPlayerComponent.instances.length === 1) {
-			let videoStats = mediaPlayerComponent.instances[0]?.component.getPlayerMetadata();
+			const videoStats = mediaPlayerComponent.instances[0]?.component.getPlayerMetadata();
 			videoLatency.value = (videoStats.latencyToBroadcaster / 1000).toFixed(2);
 		}
 	}, 2000);
