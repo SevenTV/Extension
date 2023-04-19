@@ -35,8 +35,8 @@ useComponentHook<ReactExtended.AnyReactComponent>(
 		hooks: {
 			render(inst, cur) {
 				if (
-					inst.component?.instance?.d?.parentElement?.attributes?.getNamedItem("aria-label")?.nodeValue !==
-					"Viewer Count"
+					inst.component?.instance?.d?.parentElement?.attributes?.getNamedItem("data-a-target")?.nodeValue !==
+					"animated-channel-viewers-count"
 				)
 					return cur;
 
