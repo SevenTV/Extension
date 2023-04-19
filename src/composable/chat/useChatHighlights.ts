@@ -1,5 +1,5 @@
-import { CustomRefFactory, inject, markRaw, reactive, ref, toRaw, watch } from "vue";
-import { IgnoredUpdater, toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
+import { inject, markRaw, reactive, ref, toRaw, watch } from "vue";
+import { toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { SITE_ASSETS_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
@@ -166,20 +166,6 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 
 			return h;
 		}
-	}
-
-	function defineIgnore(id: string, def: Omit<IgnoreDef, "id">, persist?: boolean): IgnoreDef {
-		if (!data) return {} as IgnoreDef;
-
-		const h = (data.ignores[id] = { ...def, id, persist });
-
-		if (!persist) return h;
-
-		// Store to DB
-		ignores.value.set(id, markRaw(h));
-		save();
-
-		return h;
 	}
 
 	function updateSoundData(h: HighlightDef) {
