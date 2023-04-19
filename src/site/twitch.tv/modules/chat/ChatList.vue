@@ -65,8 +65,10 @@ const showModerationMessages = useConfig<boolean>("chat.mod_messages");
 const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
+const showSelfHighlights = useConfig<boolean>("highlights.basic.self");
 const shouldPlaySoundOnMention = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
+const showRestrictedLowTrustUser = useConfig<boolean>("highlights.basic.restricted_low_trust_user");
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
@@ -139,7 +141,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		msg.setComponent(typeMap[0], { msgData: msgData });
 	}
 
-	if (msgData.type === MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE) {
+	if (msgData.type === MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE && showRestrictedLowTrustUser.value) {
 		msg.setHighlight("#ff7d00", "Restricted Suspicious User");
 	}
 
@@ -449,6 +451,25 @@ watch([alt, isHovering], ([isAlt, isHover]) => {
 		pausedByHotkey = false;
 	}
 });
+
+// Assign highlight to your own message
+watch(
+	[identity, showSelfHighlights],
+	([identity, enabled]) => {
+		if (enabled && identity) {
+			chatHighlights.define("~self", {
+				test: (msg) => !!(msg.author && identity) && msg.author.id === identity.id,
+				label: "You",
+				color: "#3ad3e0",
+			});
+		} else {
+			chatHighlights.remove("~self");
+		}
+	},
+	{
+		immediate: true,
+	},
+);
 
 // Pause scrolling when page is not visible
 watch(pageVisibility, (state) => {
