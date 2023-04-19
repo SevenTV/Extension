@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--
+-   Fixed unwanted nametag paint tooltip when nametag paints are disabled
 
 ### Version 3.0.6.1000
 
@@ -16,7 +16,6 @@
 -   Fixed an issue in the emote menu where the previously selected provider would close if a set was empty
 -   Fixed emote cards sometimes not showing who added the emote
 -   Fixed an issue where the detailed emote card would clip under existing chat messages
--   Fixed unwanted nametag paint tooltip when nametag paints are disabled
 
 ### Version 3.0.5.1000
 
