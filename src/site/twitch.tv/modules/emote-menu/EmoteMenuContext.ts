@@ -23,15 +23,21 @@ export function useEmoteMenuContext(): EmoteMenuContext {
 	return data;
 }
 
-export type EmoteMenuSortPropertyKey = "name" | "listed" | "animated" | "timestamp";
+export type SortPropertyKey = "name" | "listed" | "animated" | "timestamp";
 
-type EmoteMenuSort = {
-	[key in EmoteMenuSortPropertyKey]: string;
-};
-
-export const emoteMenuSortProperties: EmoteMenuSort = {
+const SortPropertyKeyValues: Record<SortPropertyKey, string> = {
 	name: "Name",
 	listed: "Listed",
 	animated: "Animated",
-	timestamp: "Date added",
+	timestamp: "Date added"
+}
+
+const options: [string, SevenTV.SettingType][] = Object.entries(SortPropertyKeyValues).map(([k, v]) => [v, k])
+
+export const emoteMenuSortProperties: SevenTV.SettingNode<SevenTV.SettingType, "DROPDOWN"> = {
+	key: "ui.emote_menu.sort_by",
+	label: "Sort by",
+	type: "DROPDOWN",
+	defaultValue: "timestamp",
+	options
 };

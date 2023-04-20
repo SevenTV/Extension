@@ -13,21 +13,10 @@
 		</div>
 
 		<div v-if="observing" v-element-lifecycle="onObserve" class="seventv-emote-set">
-			<div
-				v-for="ae of emotes"
-				:key="ae.id"
-				class="seventv-emote-container"
-				:disabled="isEmoteDisabled(es, ae)"
-				:ratio="determineRatio(ae)"
-				:load-state="loaded[ae.id]"
-				:set-id="es.id"
-				:emote-id="ae.id"
-				:zero-width="(ae.flags || 0 & 256) !== 0"
-				:favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
-				tabindex="0"
-				@click="onInsertEmote(ae)"
-				@keydown.enter.prevent="onInsertEmote(ae)"
-			>
+			<div v-for="ae of emotes" :key="ae.id" class="seventv-emote-container" :disabled="isEmoteDisabled(es, ae)"
+				:ratio="determineRatio(ae)" :load-state="loaded[ae.id]" :set-id="es.id" :emote-id="ae.id"
+				:zero-width="(ae.flags || 0 & 256) !== 0" :favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
+				tabindex="0" @click="onInsertEmote(ae)" @keydown.enter.prevent="onInsertEmote(ae)">
 				<template v-if="loaded[ae.id]">
 					<Emote :emote="ae" :unload="!loaded[ae.id]" />
 				</template>
@@ -44,7 +33,7 @@ import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import { EmoteMenuSortPropertyKey, useEmoteMenuContext } from "./EmoteMenuContext";
+import { SortPropertyKey, useEmoteMenuContext } from "./EmoteMenuContext";
 import {
 	ElementLifecycle,
 	ElementLifecycleDirective as vElementLifecycle,
@@ -67,8 +56,8 @@ const observing = ref(false);
 const collapsedSets = useConfig<Set<string>>("ui.emote_menu.collapsed_sets");
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
-const sortBy = useConfig<EmoteMenuSortPropertyKey>("ui.emote_menu.sort_emotes_by");
-const sortDesc = useConfig<boolean>("ui.emote_menu.sort_emotes_desc");
+const sortBy = useConfig<SortPropertyKey>("ui.emote_menu.sort_by");
+const sortDesc = useConfig<boolean>("ui.emote_menu.order_desc");
 
 const { alt } = useMagicKeys();
 const collapsed = ref(isCollapsed());
@@ -282,7 +271,7 @@ defineExpose({
 			display: none;
 		}
 
-		.seventv-set-header > .seventv-set-chevron > svg {
+		.seventv-set-header>.seventv-set-chevron>svg {
 			transform: rotate(90deg);
 		}
 	}
@@ -323,7 +312,7 @@ defineExpose({
 		height: 2rem;
 		border-radius: 0.25rem;
 
-		> svg {
+		>svg {
 			transition: transform 0.25s ease;
 			transform: rotate(180deg);
 		}
@@ -333,6 +322,7 @@ defineExpose({
 		}
 	}
 }
+
 .seventv-emote-container {
 	display: grid;
 	background: hsla(0deg, 0%, 50%, 6%);
@@ -354,9 +344,11 @@ defineExpose({
 		0% {
 			background: hsla(0deg, 0%, 50%, 6%);
 		}
+
 		50% {
 			background: hsla(0deg, 0%, 50%, 12%);
 		}
+
 		100% {
 			background: hsla(0deg, 0%, 50%, 6%);
 		}
@@ -365,6 +357,7 @@ defineExpose({
 	&[zero-width="true"] {
 		border: 0.1rem solid rgb(220, 170, 50);
 	}
+
 	&[favorite="true"] {
 		border: 0.1rem solid rgb(50, 200, 250);
 	}
@@ -382,12 +375,15 @@ defineExpose({
 	&[ratio="1"] {
 		width: 4rem;
 	}
+
 	&[ratio="2"] {
 		width: 6.25rem;
 	}
+
 	&[ratio="3"] {
 		width: 8.5rem;
 	}
+
 	&[ratio="4"] {
 		width: 13rem;
 	}

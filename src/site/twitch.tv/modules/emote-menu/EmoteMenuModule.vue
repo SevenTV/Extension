@@ -12,6 +12,7 @@ import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
 import { useConfig } from "@/composable/useSettings";
 import EmoteMenu from "./EmoteMenu.vue";
+import { SortPropertyKey } from "./EmoteMenuContext";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
@@ -75,13 +76,6 @@ markAsReady();
 </script>
 
 <script lang="ts">
-import { EmoteMenuSortPropertyKey, emoteMenuSortProperties } from "./EmoteMenuContext";
-
-const emoteSortByProperties: Array<[string, string]> = Object.entries(emoteMenuSortProperties).map(([key, value]) => [
-	value,
-	key,
-]);
-
 export const config = [
 	declareConfig("ui.emote_menu_search", "TOGGLE", {
 		path: ["Appearance", "Interface"],
@@ -122,15 +116,12 @@ export const config = [
 		label: "",
 		defaultValue: new Set(),
 	}),
-	declareConfig<EmoteMenuSortPropertyKey>("ui.emote_menu.sort_emotes_by", "DROPDOWN", {
-		path: ["Appearance", "Interface"],
-		label: "Emote Menu: Sorting",
-		options: emoteSortByProperties,
+	declareConfig<SortPropertyKey>("ui.emote_menu.sort_by", "NONE", {
 		defaultValue: "timestamp",
+		label: ""
 	}),
-	declareConfig<boolean>("ui.emote_menu.sort_emotes_desc", "TOGGLE", {
-		path: ["Appearance", "Interface"],
-		label: "Emote Menu: Reverse Sorting Order",
+	declareConfig<boolean>("ui.emote_menu.order_desc", "NONE", {
+		label: "",
 		defaultValue: false,
 	}),
 ];

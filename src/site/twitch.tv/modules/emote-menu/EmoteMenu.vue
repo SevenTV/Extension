@@ -6,42 +6,44 @@
 				<div class="seventv-emote-menu-header">
 					<div class="seventv-emote-menu-header-providers">
 						<template v-for="(b, key) in visibleProviders">
-							<div
-								v-if="b"
-								:key="key"
-								class="seventv-emote-menu-provider-icon"
-								:selected="key === activeProvider"
-								@click="activeProvider = key"
-							>
+							<div v-if="b" :key="key" class="seventv-emote-menu-provider-icon"
+								:selected="key === activeProvider" @click="activeProvider = key">
 								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
 								<StarIcon v-else />
 								<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
 							</div>
 						</template>
 					</div>
-					<div v-if="!isSearchInputEnabled" class="emote-search">
-						<input ref="searchInputRef" v-model="ctx.filter" class="emote-search-input" />
-						<div class="search-icon">
-							<SearchIcon />
+					<div class="emote-search-sort-container">
+						<div v-if="!isSearchInputEnabled" class="emote-search">
+							<input ref="searchInputRef" v-model="ctx.filter" class="emote-search-input" />
+							<div class="search-icon">
+								<SearchIcon />
+							</div>
+						</div>
+						<div class="emote-sort" ref="sortByRef">
+							<UiFloating v-if="showSortBySelect" class="emote-sort-menu" :anchor="sortByRef"
+								placement="left-start" :middleware="[shift({ mainAxis: true, crossAxis: true })]"
+								:emit-clickout="true" @clickout="showSortBySelect = false">
+								<FormDropdown :node="emoteMenuSortProperties" :onChange="toggleShowSortBy" />
+							</UiFloating>
+							<UiButton ref="sortByRef" @click="toggleShowSortBy()">
+								<BarsSortIcon />
+							</UiButton>
+							<UiButton @click="changeSortOrder()">
+								<SortDown v-if="sortDesc" />
+								<SortUpIcon v-else />
+							</UiButton>
 						</div>
 					</div>
 				</div>
 
 				<!-- Emote menu body -->
-				<div
-					v-for="(_, key) in visibleProviders"
-					v-show="key === activeProvider"
-					:key="key"
-					class="seventv-emote-menu-body"
-				>
-					<EmoteMenuTab
-						:provider="key"
-						:selected="key === activeProvider"
-						@emote-clicked="onEmoteClick"
+				<div v-for="(_, key) in visibleProviders" v-show="key === activeProvider" :key="key"
+					class="seventv-emote-menu-body">
+					<EmoteMenuTab :provider="key" :selected="key === activeProvider" @emote-clicked="onEmoteClick"
 						@provider-visible="onProviderVisibilityChange(key, $event)"
-						@toggle-settings="settingsContext.toggle()"
-						@toggle-native-menu="toggle(true)"
-					/>
+						@toggle-settings="settingsContext.toggle()" @toggle-native-menu="toggle(true)" />
 				</div>
 			</div>
 		</div>
@@ -71,10 +73,15 @@ import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import EmoteMenuButton from "./EmoteMenuButton.vue";
-import { useEmoteMenuContext } from "./EmoteMenuContext";
+import { emoteMenuSortProperties, useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
+import UiButton from "@/ui/UiButton.vue";
+import BarsSortIcon from "@/assets/svg/icons/BarsSortIcon.vue";
+import SortDown from "@/assets/svg/icons/SortDown.vue";
+import SortUpIcon from "@/assets/svg/icons/SortUpIcon.vue";
+import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
 
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
@@ -86,6 +93,8 @@ const props = defineProps<{
 const anchorEl = ref<HTMLElement | undefined>();
 const inputEl = ref<HTMLElement | undefined>();
 const containerRef = ref<HTMLElement | undefined>();
+const sortByRef = ref<HTMLButtonElement | undefined>();
+const showSortBySelect = ref(false);
 
 const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.props.channelID ?? "";
@@ -98,6 +107,7 @@ const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
+const sortDesc = useConfig<boolean>("ui.emote_menu.order_desc");
 
 const activeProvider = ref<EmoteMenuTabName | null>("7TV");
 const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
@@ -134,6 +144,14 @@ onKeyStroke("e", (ev) => {
 	toggle();
 	ev.preventDefault();
 });
+
+function toggleShowSortBy() {
+	showSortBySelect.value = !showSortBySelect.value;
+}
+
+function changeSortOrder() {
+	sortDesc.value = !sortDesc.value;
+}
 
 // Toggle the menu's visibility
 function toggle(native?: boolean) {
@@ -273,6 +291,7 @@ onUnmounted(() => {
 	font-size: 2rem;
 
 	transition: color 150ms ease-in-out;
+
 	&.menu-open {
 		color: var(--seventv-primary);
 	}
@@ -292,9 +311,11 @@ onUnmounted(() => {
 		overflow: clip;
 		border-radius: 0.25rem;
 		background-color: var(--seventv-background-transparent-1);
+
 		@at-root .seventv-transparent & {
 			backdrop-filter: blur(1rem);
 		}
+
 		outline: 0.1rem solid var(--seventv-border-transparent-1);
 
 		.seventv-emote-menu-header {
@@ -326,62 +347,73 @@ onUnmounted(() => {
 						background: #80808029;
 					}
 
-					transition: width 90ms ease-in-out, background 150ms ease-in-out;
+					transition: width 90ms ease-in-out,
+					background 150ms ease-in-out;
+
 					&[selected="true"] {
 						background: var(--seventv-highlight-neutral-1);
 						color: var(--seventv-text-color-normal);
 						width: 6em;
 					}
 
-					> svg {
+					>svg {
 						width: 2rem;
 						height: 2rem;
 					}
-					> span {
+
+					>span {
 						font-family: Roboto, monospace;
 						font-weight: 600;
 					}
 				}
 			}
 
-			.emote-search {
+			.emote-search-sort-container {
+				display: flex;
 				padding: 0 0.75rem 0.75rem;
-				width: 100%;
-				position: relative;
 
-				.search-icon {
-					position: absolute;
-					display: flex;
-					align-items: center;
-					top: 0;
-					left: 1rem;
-					height: 3rem;
-					width: 3rem;
-					user-select: none;
-					pointer-events: none;
-					padding: 0.85rem;
-					color: var(--seventv-border-transparent-1);
-
-					> svg {
-						height: 100%;
-						width: 100%;
-					}
+				.emote-sort {
+					display: inline-flex;
 				}
 
-				.emote-search-input {
-					background-color: var(--seventv-background-shade-1);
-					border-radius: 0.4rem;
-					height: 3rem;
+				.emote-search {
 					width: 100%;
-					border: 1px solid var(--seventv-border-transparent-1);
-					padding-left: 3rem;
-					color: currentColor;
+					position: relative;
 
-					outline: none;
-					transition: outline 140ms;
+					.search-icon {
+						position: absolute;
+						display: flex;
+						align-items: center;
+						top: 0;
+						left: 1rem;
+						height: 3rem;
+						width: 3rem;
+						user-select: none;
+						pointer-events: none;
+						padding: 0.85rem;
+						color: var(--seventv-border-transparent-1);
 
-					&:focus {
-						outline: 1px solid var(--seventv-primary);
+						>svg {
+							height: 100%;
+							width: 100%;
+						}
+					}
+
+					.emote-search-input {
+						background-color: var(--seventv-background-shade-1);
+						border-radius: 0.4rem;
+						height: 3rem;
+						width: 100%;
+						border: 1px solid var(--seventv-border-transparent-1);
+						padding-left: 3rem;
+						color: currentColor;
+
+						outline: none;
+						transition: outline 140ms;
+
+						&:focus {
+							outline: 1px solid var(--seventv-primary);
+						}
 					}
 				}
 			}

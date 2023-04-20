@@ -1,5 +1,5 @@
 <template>
-	<select :id="node.key" v-model="setting">
+	<select :id="node.key" v-model="setting" @change="onChange?.()">
 		<option v-for="([option, value], i) of node.options" :key="i" :value="value ?? option">
 			{{ option }}
 		</option>
@@ -11,6 +11,7 @@ import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType, "DROPDOWN">;
+	onChange?: () => void;
 }>();
 
 const setting = useConfig(props.node.key);
