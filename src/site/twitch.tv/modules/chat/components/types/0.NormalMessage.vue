@@ -5,7 +5,10 @@
 				<div class="seventv-chat-reply-icon">
 					<TwChatReply />
 				</div>
-				<div class="seventv-reply-message-part">
+				<div
+					v-tooltip="`Replying to @${msgData.reply.parentDisplayName}: ${msgData.reply.parentMessageBody}`"
+					class="seventv-reply-message-part"
+				>
 					{{ `Replying to @${msgData.reply.parentDisplayName}: ${msgData.reply.parentMessageBody}` }}
 				</div>
 			</div>
