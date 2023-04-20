@@ -1,5 +1,5 @@
 import { inject, markRaw, reactive, ref, toRaw, watch } from "vue";
-import { IgnoredUpdater, toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
+import { toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { SITE_ASSETS_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
