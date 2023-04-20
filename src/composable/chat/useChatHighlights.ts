@@ -1,5 +1,5 @@
 import { inject, markRaw, reactive, ref, toRaw, watch } from "vue";
-import { toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
+import { IgnoredUpdater, toReactive, until, useDocumentVisibility, useIntervalFn, useTitle } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { SITE_ASSETS_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
@@ -39,13 +39,15 @@ export interface HighlightDef extends IgnoreDef {
 	};
 }
 
+export type HighlightType = HighlightDef | IgnoreDef;
+
 const m = new WeakMap<ChannelContext, ChatHighlights>();
 
 const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
 const ignores = useConfig<Map<string, IgnoreDef>>("chat.ignores");
 const soundVolume = useConfig<number>("highlights.sound_volume");
 
-export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
+export function useChatHighlights(ctx: ChannelContext, useIgnores?: boolean) {
 	const visibility = useDocumentVisibility();
 
 	const assetsBase = inject(SITE_ASSETS_URL, "");
@@ -106,10 +108,12 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 		m.set(ctx, data);
 	}
 
+	const storeType: Record<string, HighlightType> = useIgnores ? data.ignores : data.highlights;
+
 	const save = debounceFn(function (): void {
 		if (!data) return;
 
-		if (useIgnored) {
+		if (useIgnores) {
 			const items: [string, IgnoreDef][] = Array.from(Object.values(data.ignores))
 				.filter((h) => h.persist)
 				.map((h) => [
@@ -135,31 +139,22 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 		}
 	}, 250);
 
-	function define(id: string, def: Omit<HighlightDef, "id">, persist?: boolean): HighlightDef {
-		if (!data) return {} as HighlightDef;
+	function define(id: string, def: Omit<HighlightType, "id">, persist?: boolean): HighlightType {
+		if (!data) return {} as HighlightType;
 
-		const h = (data.highlights[id] = { ...def, id, persist });
-		updateSoundData(h);
-
-		if (!persist) return h;
-
-		// Store to DB\andymilonakis
-		customHighlights.value.set(id, markRaw(h));
-
-		save();
-
-		return h;
-	}
-
-	function defineIgnore(id: string, def: Omit<IgnoreDef, "id">, persist?: boolean): IgnoreDef {
-		if (!data) return {} as IgnoreDef;
-
-		const h = (data.ignores[id] = { ...def, id, persist });
+		const h: HighlightType = (storeType[id] = { ...def, id, persist });
+		if (!useIgnores && isHighlight(h)) {
+			updateSoundData(h);
+		}
 
 		if (!persist) return h;
 
-		// Store to DB\andymilonakis
-		ignores.value.set(id, markRaw(h));
+		// Store to DB
+		if (!useIgnores && isHighlight(h)) {
+			customHighlights.value.set(id, markRaw(h));
+		} else {
+			ignores.value.set(id, markRaw(h));
+		}
 
 		save();
 
@@ -190,18 +185,15 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 	function remove(id: string): void {
 		if (!data) return;
 
-		if (useIgnored) {
-			delete data.ignores[id];
-		} else {
-			delete data.highlights[id];
-		}
+		delete storeType[id];
+
 		save();
 	}
 
 	function checkMatch(key: string, msg: ChatMessage): boolean {
 		if (!data) return false;
 
-		const h = useIgnored ? data?.ignores[key] : data?.highlights[key];
+		const h = storeType[key];
 		if (!h) return false;
 
 		let ok = false;
@@ -229,7 +221,7 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 			ok = h.test(msg);
 		}
 
-		if (ok && !useIgnored && isHighlight(h)) {
+		if (ok && !useIgnores && isHighlight(h)) {
 			msg.setHighlight(h.color, h.label);
 
 			if (h.soundDef && !msg.historical) {
@@ -273,52 +265,35 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 			});
 	}
 
-	function getAll(): Record<string, HighlightDef> {
+	function getAll(): Record<string, HighlightType> {
 		if (!data) return {};
 
-		return toReactive(data.highlights);
-	}
-
-	function getAllIgnored(): Record<string, IgnoreDef> {
-		if (!data) return {};
-
-		return toReactive(data.ignores);
+		return toReactive(storeType);
 	}
 
 	function updateId(oldId: string, newId: string): void {
 		if (!data) return;
-		if (useIgnored) {
-			const h = data.ignores[oldId];
-			if (!h) return;
 
-			data.ignores[newId] = h;
-			delete data.ignores[oldId];
+		const h = storeType[oldId];
+		if (!h) return;
 
-			h.id = newId;
-		} else {
-			const h = data.highlights[oldId];
-			if (!h) return;
+		storeType[newId] = h;
+		delete storeType[oldId];
 
-			data.highlights[newId] = h;
-			delete data.highlights[oldId];
-
-			h.id = newId;
-		}
+		h.id = newId;
 
 		save();
 	}
 
 	function checkIgnored(message: ChatMessage<ComponentFactory>) {
-		const allIgnores = Object.values(getAllIgnored());
+		const allIgnores = Object.values(getAll());
 		return allIgnores.some((s) => checkMatch(s.id, message));
 	}
 
 	return {
 		define,
-		defineIgnore,
 		remove,
 		getAll,
-		getAllIgnored,
 		save,
 		updateId,
 		checkMatch,
@@ -328,6 +303,6 @@ export function useChatHighlights(ctx: ChannelContext, useIgnored?: boolean) {
 	};
 }
 
-const isHighlight = (def: Omit<HighlightDef | IgnoreDef, "id">): def is HighlightDef => {
+export const isHighlight = (def: Omit<HighlightType, "id">): def is HighlightDef => {
 	return (def as HighlightDef).color !== undefined;
 };

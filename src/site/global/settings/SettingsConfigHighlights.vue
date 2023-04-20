@@ -7,8 +7,8 @@
 				<div>Label</div>
 				<div class="centered">RegExp</div>
 				<div>Case Sensitive</div>
-				<div class="centered">Flash Title</div>
-				<div>Color</div>
+				<div v-if="!useIgnores" class="centered">Flash Title</div>
+				<div v-if="!useIgnores">Color</div>
 			</div>
 
 			<UiScrollable>
@@ -17,21 +17,15 @@
 						<!-- Pattern -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
 							<span>{{ h.pattern }}</span>
-							<FormInput
-								:ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.pattern"
-								@blur="onInputBlur(h, 'pattern')"
-							/>
+							<FormInput :ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.pattern" @blur="onInputBlur(h, 'pattern')" />
 						</div>
 
 						<!-- Label -->
 						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
 							<span>{{ h.label }}</span>
-							<FormInput
-								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.label"
-								@blur="onInputBlur(h, 'label')"
-							/>
+							<FormInput :ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.label" @blur="onInputBlur(h, 'label')" />
 						</div>
 
 						<!-- Checkbox: RegExp -->
@@ -41,28 +35,23 @@
 
 						<!-- Checkbox: Case Sensitive -->
 						<div name="case-sensitive" class="centered">
-							<FormCheckbox
-								:checked="!!h.caseSensitive"
-								@update:checked="onCaseSensitiveChange(h, $event)"
-							/>
+							<FormCheckbox :checked="!!h.caseSensitive" @update:checked="onCaseSensitiveChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: Flash Title -->
 						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
+							<FormCheckbox v-if="!useIgnores && isHighlight(h)" :checked="!!h.flashTitle"
+								@update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<div name="color">
-							<input v-model="h.color" type="color" @input="onColorChange(h, $event as InputEvent)" />
+							<input v-if="!useIgnores && isHighlight(h)" v-model="h.color" type="color"
+								@input="onColorChange(h, $event as InputEvent)" />
 						</div>
 
 						<div ref="interactRef" name="interact">
-							<button
-								ref="soundEffectButton"
-								class="sound-button"
-								:class="{ 'has-sound': !!h.soundFile }"
-								tabindex="0"
-							>
+							<button v-if="!useIgnores && isHighlight(h)" ref="soundEffectButton" class="sound-button"
+								:class="{ 'has-sound': !!h.soundFile }" tabindex="0">
 								<CompactDiscIcon v-tooltip="'Set Custom Sound'" />
 								<div class="sound-options">
 									<UiFloating v-if="interactRef?.[index]" :anchor="interactRef[index]">
@@ -76,11 +65,9 @@
 											<label>
 												Custom Sound{{ h.soundFile ? "" : "..." }}
 												<p v-if="h.soundFile">{{ h.soundFile.name }}</p>
-												<input
-													type="file"
+												<input type="file"
 													accept="audio/midi, audio/mpeg, audio/ogg, audio/wav, audio/webm, audio/vorbis, audio/ogg"
-													@input="onUploadSoundFile(h, $event)"
-												/>
+													@input="onUploadSoundFile(h, $event)" />
 											</label>
 										</button>
 									</UiFloating>
@@ -96,7 +83,7 @@
 			<!-- New -->
 			<div class="item create-new">
 				<div name="pattern">
-					<FormInput v-model="newInput" label="New Highlight..."> hi </FormInput>
+					<FormInput v-model="newInput" :label="newLabel"></FormInput>
 				</div>
 			</div>
 		</div>
@@ -106,7 +93,7 @@
 <script setup lang="ts">
 import { nextTick, reactive, ref, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { HighlightDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
+import { HighlightDef, useChatHighlights, HighlightType, isHighlight } from "@/composable/chat/useChatHighlights";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import CompactDiscIcon from "@/assets/svg/icons/CompactDiscIcon.vue";
 import UiFloating from "@/ui/UiFloating.vue";
@@ -115,29 +102,33 @@ import FormCheckbox from "../components/FormCheckbox.vue";
 import FormInput from "../components/FormInput.vue";
 import { v4 as uuid } from "uuid";
 
-const ctx = useChannelContext(); // this will be an empty context, as config is not tied to channel
-const highlights = useChatHighlights(ctx);
+const props = defineProps<{
+	useIgnores: boolean;
+}>();
 
+const ctx = useChannelContext(); // this will be an empty context, as config is not tied to channel
+const highlights = useChatHighlights(ctx, props.useIgnores);
 const newInput = ref("");
 const inputs = reactive({
-	pattern: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
-	label: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
+	pattern: new WeakMap<HighlightType, InstanceType<typeof FormInput>>(),
+	label: new WeakMap<HighlightType, InstanceType<typeof FormInput>>(),
 });
 const interactRef = ref<HTMLElement[]>();
+const newLabel = `New ${props.useIgnores ? "Ignore" : "Highlight"}`;
 
-function onInputFocus(h: HighlightDef, inputName: keyof typeof inputs): void {
+function onInputFocus(h: HighlightType, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
 	if (!input) return;
 
 	input.focus();
 }
 
-function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
+function onInputBlur(h: HighlightType, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
 	if (!input) return;
 
 	const id = uuid();
-	highlights.updateId("new-highlight", id);
+	highlights.updateId(props.useIgnores ? "new-ignore" : "new-highlight", id);
 	highlights.save();
 }
 
@@ -152,7 +143,7 @@ function onRegExpStateChange(h: HighlightDef, checked: boolean): void {
 	highlights.save();
 }
 
-function onCaseSensitiveChange(h: HighlightDef, checked: boolean): void {
+function onCaseSensitiveChange(h: HighlightType, checked: boolean): void {
 	h.caseSensitive = checked;
 	highlights.save();
 }
@@ -210,7 +201,7 @@ function onRemoveSound(h: HighlightDef): void {
 	highlights.save();
 }
 
-function onDeleteHighlight(h: HighlightDef): void {
+function onDeleteHighlight(h: HighlightType): void {
 	highlights.remove(h.id);
 	highlights.save();
 }
@@ -221,11 +212,13 @@ watch(newInput, (val, old) => {
 	if (!val || old) return;
 
 	const h = highlights.define(
-		"new-highlight",
+		props.useIgnores ? "new-ignore" : "new-highlight",
 		{
-			color: "#8803fc",
 			label: "",
 			pattern: val,
+			...[props.useIgnores && {
+				color: "#8803fc",
+			}]
 		},
 		true,
 	);
@@ -270,7 +263,7 @@ main.seventv-settings-custom-highlights {
 			column-gap: 3rem;
 			padding: 1rem;
 
-			> div {
+			>div {
 				align-self: center;
 
 				&.centered {
@@ -287,7 +280,7 @@ main.seventv-settings-custom-highlights {
 				border-bottom: 0.25rem solid var(--seventv-primary);
 			}
 
-			&:not(.create-new) > .use-virtual-input {
+			&:not(.create-new)>.use-virtual-input {
 				cursor: text;
 				padding: 0.5rem;
 				display: block;
@@ -316,7 +309,7 @@ main.seventv-settings-custom-highlights {
 				}
 			}
 
-			[name="color"] > input {
+			[name="color"]>input {
 				&::-webkit-color-swatch-wrapper {
 					padding: 0;
 				}
@@ -352,7 +345,7 @@ main.seventv-settings-custom-highlights {
 					border-radius: 50%;
 				}
 
-				.sound-button:focus-within > .sound-options {
+				.sound-button:focus-within>.sound-options {
 					position: fixed;
 					width: 9rem;
 					display: block;
