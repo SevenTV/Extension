@@ -57,6 +57,8 @@ const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji"
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
 const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.carousel");
 const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
+const colonCompletionMode = useConfig<number>("chat_input.autocomplete.colon.mode");
+const tabCompletionMode = useConfig<number>("chat_input.autocomplete.carousel.mode");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -89,12 +91,17 @@ function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: 
 
 	const matches: TabToken[] = [];
 
+	// Test modes
+	// 0: startsWith
+	// 1: includes
+	const testMode = mode === "tab" ? tabCompletionMode.value : colonCompletionMode.value;
+
 	const prefix = str.toLowerCase();
 	const test = (token: string) =>
 		({
-			tab: token.toLowerCase().startsWith(prefix),
-			colon: token.toLowerCase().includes(prefix),
-		}[mode]);
+			0: token.toLowerCase().startsWith(prefix),
+			1: token.toLowerCase().includes(prefix),
+		}[testMode]);
 
 	for (const [token, ae] of Object.entries(cosmetics.emotes)) {
 		if (usedTokens.has(token) || !test(token)) continue;

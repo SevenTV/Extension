@@ -57,7 +57,7 @@ const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
 const authorQuickPickValue = useConfig<0 | 1>("chat_input.autocomplete.author_quick_pick");
-
+const shouldRenderPaint = useConfig("vanity.nametag_paints");
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
@@ -101,7 +101,7 @@ const stop = watch(
 			return;
 		}
 
-		paint.value = paints && paints.size ? paints.values().next().value : null;
+		paint.value = shouldRenderPaint.value && paints && paints.size ? paints.values().next().value : null;
 		activeBadges.value = [...badges.values()];
 	},
 	{ immediate: true },
