@@ -118,7 +118,7 @@ export const config = [
 	}),
 	declareConfig<SortPropertyKey>("ui.emote_menu.sort_by", "NONE", {
 		defaultValue: "timestamp",
-		label: ""
+		label: "",
 	}),
 	declareConfig<boolean>("ui.emote_menu.order_desc", "NONE", {
 		label: "",
