@@ -108,7 +108,10 @@ const handlerAuthorQuickPickNameClick = (username: ChatUser["username"]) => {
 		// // React component's context might be lost if we switched to another stream,
 		// if "ChatInputController" doesn't load in time, I handle this script.
 		try {
-			autocompleteInputRef.value.setValue(`${autocompleteInputRef.value.getValue()} @${username}`);
+			const currentInputValue = autocompleteInputRef.value.getValue();
+			const authorPickTemplate = `@${username},`;
+
+			autocompleteInputRef.value.setValue(`${currentInputValue} ${authorPickTemplate} `);
 			autocompleteInputRef.value.componentRef.focus();
 		} catch (e) {
 			const error = e as Error;
