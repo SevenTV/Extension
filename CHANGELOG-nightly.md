@@ -2,6 +2,11 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   Added a tooltip to show the full message when hovering over replies in chat
+-   Fixed tooltips of nametag paints appearing even if they are disabled
+
+### Version 3.0.6.1000
+
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern
 -   Added an option to show timeouts/bans directly in the chat without being a moderator
 -   Added sorting to the emote menu, default to newest added
