@@ -1,5 +1,5 @@
 <template>
-	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
+	<UiFloating :anchor="anchorEl" placement="top" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
 		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
@@ -83,6 +83,9 @@ const props = defineProps<{
 	buttonEl?: HTMLButtonElement;
 }>();
 
+let chatObserver: MutationObserver | undefined;
+
+const containerEl = ref<HTMLElement | undefined>();
 const anchorEl = ref<HTMLElement | undefined>();
 const inputEl = ref<HTMLElement | undefined>();
 const containerRef = ref<HTMLElement | undefined>();
@@ -124,6 +127,24 @@ onMounted(() => {
 		},
 		1,
 	);
+
+	if (!containerEl.value) return;
+
+	chatObserver = new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			mutation.addedNodes.forEach((node) => {
+				if (node instanceof Element) {
+					const textArea = node.querySelector(".seventv-chat-input-textarea");
+
+					if (textArea) {
+						inputEl.value = textArea as HTMLElement;
+					}
+				}
+			});
+		}
+	});
+
+	chatObserver.observe(containerEl.value, { childList: true });
 });
 
 // Shortcut (ctrl+e)
@@ -245,16 +266,21 @@ onClickOutside(containerRef, (e) => {
 	ctx.open = false;
 });
 
-// Capture anchor / input elements
+// Initialize anchor, input, and container elements
 watchEffect(() => {
-	if (!anchorEl.value && props.instance.domNodes.root) {
-		const n = props.instance.domNodes.root.querySelector(".seventv-chat-input-textarea");
-		if (!n) return;
+	if (!containerEl.value && !anchorEl.value) {
+		const container = document.querySelector<HTMLElement>(".seventv-chat-input-container");
+		if (!container) return;
 
-		const anchor = n.querySelector("[data-test-selector='chat-input']") ?? n;
+		containerEl.value = container;
+		anchorEl.value = container;
+	}
 
-		anchorEl.value = (anchor ?? n) as HTMLElement;
-		inputEl.value = n as HTMLElement;
+	if (!inputEl.value && props.instance.domNodes.root) {
+		const textArea = props.instance.domNodes.root.querySelector(".seventv-chat-input-textarea");
+		if (!textArea) return;
+
+		inputEl.value = textArea as HTMLElement;
 	}
 });
 
