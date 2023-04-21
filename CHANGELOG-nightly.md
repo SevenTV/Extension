@@ -4,6 +4,7 @@
 
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
+-   Fixed a bug that caused the menu to appear in the top left corner of the browser
 
 ### Version 3.0.6.1000
 
