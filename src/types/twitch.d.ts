@@ -623,6 +623,11 @@ declare module Twitch {
 		userLogin: string;
 	}>;
 
+	// TODO: Needs more research on how this differs from MediaPlayerInstanceComponent
+	// export type MainPlayerInstanceComponent = ReactExtended.WritableComponent<{
+	// 	getMainPlayerMetadata: () => PlayerMetadata;
+	// }>;
+
 	export type MediaPlayerInstanceComponent = ReactExtended.WritableComponent<{}> & {
 		getPlayerMetadata: () => PlayerMetadata;
 	};
