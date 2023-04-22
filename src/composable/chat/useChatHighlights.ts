@@ -139,7 +139,11 @@ export function useChatHighlights(ctx: ChannelContext, useIgnores?: boolean) {
 		}
 	}, 250);
 
-	function define(id: string, def: Omit<HighlightType, "id">, persist?: boolean): HighlightType {
+	function define(
+		id: string,
+		def: Omit<HighlightDef, "id"> | Omit<IgnoreDef, "id">,
+		persist?: boolean,
+	): HighlightType {
 		if (!data) return {} as HighlightType;
 
 		const h: HighlightType = (storeType[id] = { ...def, id, persist });

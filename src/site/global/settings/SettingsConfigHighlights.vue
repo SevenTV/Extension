@@ -167,7 +167,7 @@ function onFlashTitleChange(h: HighlightDef, checked: boolean): void {
 	highlights.save();
 }
 
-function onRegExpStateChange(h: HighlightDef, checked: boolean): void {
+function onRegExpStateChange(h: HighlightType, checked: boolean): void {
 	h.regexp = checked;
 	highlights.save();
 }
