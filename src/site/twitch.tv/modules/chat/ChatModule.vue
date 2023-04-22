@@ -1,13 +1,9 @@
 <template>
 	<template v-for="(inst, i) of chatController.instances" :key="inst.identifier">
-		<ChatController
-			v-if="dependenciesMet && isHookableDbc && shouldMount.get(inst)"
-			:list="chatList.instances[0] ?? undefined"
-			:controller="chatController.instances[i]"
-			:room="chatRoom.instances[0] ?? undefined"
-			:buffer="chatBuffer.instances[0] ?? undefined"
-			:events="chatEvents.instances[0] ?? undefined"
-		/>
+		<ChatController v-if="dependenciesMet && isHookableDbc && shouldMount.get(inst)"
+			:list="chatList.instances[0] ?? undefined" :controller="chatController.instances[i]"
+			:room="chatRoom.instances[0] ?? undefined" :buffer="chatBuffer.instances[0] ?? undefined"
+			:events="chatEvents.instances[0] ?? undefined" />
 	</template>
 </template>
 
@@ -103,6 +99,7 @@ defineExpose({
 import { HighlightDef, IgnoreDef } from "@/composable/chat/useChatHighlights";
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
+import SettingsConfigIgnoresWrapper from "@/site/global/settings/SettingsConfigIgnoresWrapper.vue";
 
 export const config = [
 	declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
@@ -396,7 +393,7 @@ export const config = [
 	declareConfig<Map<string, IgnoreDef>>("chat.ignores", "CUSTOM", {
 		path: ["Chat", "Ignores"],
 		custom: {
-			component: markRaw(SettingsConfigHighlights),
+			component: markRaw(SettingsConfigIgnoresWrapper),
 			gridMode: "new-row",
 		},
 		label: "Ignores",
