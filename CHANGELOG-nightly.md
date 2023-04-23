@@ -4,6 +4,7 @@
 
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
+-   Added a option to hide the Subscriber Leaderboard on top.
 
 ### Version 3.0.6.1000
 
