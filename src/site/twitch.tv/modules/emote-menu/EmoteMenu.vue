@@ -271,7 +271,7 @@ watchEffect(() => {
 		const textArea = props.instance.domNodes.root.querySelector(".seventv-chat-input-textarea");
 		if (!textArea) return;
 
-		anchorEl.value = props.instance.domNodes.root;
+		anchorEl.value = props.instance.domNodes.root as HTMLElement;
 		inputEl.value = textArea as HTMLElement;
 	}
 });
