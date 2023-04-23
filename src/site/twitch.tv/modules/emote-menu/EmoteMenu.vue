@@ -265,7 +265,7 @@ onClickOutside(containerRef, (e) => {
 	ctx.open = false;
 });
 
-// Initialize anchor and input
+// Initialize anchor and input elements
 watchEffect(() => {
 	if (!anchorEl.value) {
 		const container = document.querySelector<HTMLElement>(".seventv-chat-input-container");
@@ -283,6 +283,8 @@ watchEffect(() => {
 });
 
 onUnmounted(() => {
+	if (chatObserver) chatObserver.disconnect();
+
 	unsetPropertyHook(props.instance.component.autocompleteInputRef, "state");
 	unsetPropertyHook(props.instance.component, "onBitsIconClick");
 });
