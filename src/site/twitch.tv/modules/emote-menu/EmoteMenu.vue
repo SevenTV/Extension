@@ -85,7 +85,6 @@ const props = defineProps<{
 
 let chatObserver: MutationObserver | undefined;
 
-const containerEl = ref<HTMLElement | undefined>();
 const anchorEl = ref<HTMLElement | undefined>();
 const inputEl = ref<HTMLElement | undefined>();
 const containerRef = ref<HTMLElement | undefined>();
@@ -128,7 +127,7 @@ onMounted(() => {
 		1,
 	);
 
-	if (!containerEl.value) return;
+	if (!anchorEl.value) return;
 
 	chatObserver = new MutationObserver((mutations) => {
 		for (const mutation of mutations) {
@@ -144,7 +143,7 @@ onMounted(() => {
 		}
 	});
 
-	chatObserver.observe(containerEl.value, { childList: true });
+	chatObserver.observe(anchorEl.value, { childList: true });
 });
 
 // Shortcut (ctrl+e)
@@ -266,13 +265,12 @@ onClickOutside(containerRef, (e) => {
 	ctx.open = false;
 });
 
-// Initialize anchor, input, and container elements
+// Initialize anchor and input
 watchEffect(() => {
-	if (!containerEl.value && !anchorEl.value) {
+	if (!anchorEl.value) {
 		const container = document.querySelector<HTMLElement>(".seventv-chat-input-container");
 		if (!container) return;
 
-		containerEl.value = container;
 		anchorEl.value = container;
 	}
 
