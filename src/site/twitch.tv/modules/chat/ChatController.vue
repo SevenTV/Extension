@@ -236,16 +236,14 @@ const gift_leaderboard = awaitComponents<Twitch.MessageCardOpeners>({
 
 			// Hide the element using CSS
 			if (channelLeaderboard) {
-				channelLeaderboard.setAttribute("style","display: none;");
+				channelLeaderboard.setAttribute("style", "display: none;");
 			}
 		}
 		return n.props && (n.props.onShowViewerCard || n.openUserCard);
 	},
 });
 
-gift_leaderboard.then(
-	() => null,
-);
+gift_leaderboard.then(() => null);
 
 if (a instanceof ObserverPromise) {
 	until(useTimeout(1e4))
