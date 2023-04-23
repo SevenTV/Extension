@@ -267,17 +267,11 @@ onClickOutside(containerRef, (e) => {
 
 // Initialize anchor and input elements
 watchEffect(() => {
-	if (!anchorEl.value) {
-		const container = document.querySelector<HTMLElement>(".seventv-chat-input-container");
-		if (!container) return;
-
-		anchorEl.value = container;
-	}
-
-	if (!inputEl.value && props.instance.domNodes.root) {
+	if (!inputEl.value && !anchorEl.value && props.instance.domNodes.root) {
 		const textArea = props.instance.domNodes.root.querySelector(".seventv-chat-input-textarea");
 		if (!textArea) return;
 
+		anchorEl.value = props.instance.domNodes.root;
 		inputEl.value = textArea as HTMLElement;
 	}
 });
