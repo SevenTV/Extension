@@ -230,19 +230,22 @@ a.then(
 const gift_leaderboard = awaitComponents<Twitch.MessageCardOpeners>({
 	parentSelector: '[data-test-selector="channel-leaderboard-container"]',
 	predicate: (n) => {
-		if(hideGiftedSubsBanner.value){
+		if (hideGiftedSubsBanner.value) {
 			// Find the element with the data-test-selector attribute
 			const channelLeaderboard = document.querySelector('[data-test-selector="channel-leaderboard-container"]');
 
 			// Hide the element using CSS
 			if (channelLeaderboard) {
-			channelLeaderboard.setAttribute("style","display: none;");
+				channelLeaderboard.setAttribute("style","display: none;");
 			}
 		}
 		return n.props && (n.props.onShowViewerCard || n.openUserCard);
 	},
 });
 
+gift_leaderboard.then(
+	() => null,
+);
 
 if (a instanceof ObserverPromise) {
 	until(useTimeout(1e4))
