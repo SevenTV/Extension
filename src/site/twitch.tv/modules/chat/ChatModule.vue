@@ -433,5 +433,11 @@ export const config = [
 		hint: "Whether or not to display nametag paints",
 		defaultValue: true,
 	}),
+	declareConfig("chat.hide_gifted_subs", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Hide Gifted Subscribers Banner",
+		hint: "Hides the gifted subscriber banner on top of chat",
+		defaultValue: false,
+	}),
 ];
 </script>

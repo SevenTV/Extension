@@ -97,6 +97,7 @@ const tools = useChatTools(ctx);
 // line limit
 const lineLimit = useConfig("chat.line_limit", 150);
 const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
+const hideGiftedSubsBanner = useConfig<boolean>("chat.hide_gifted_subs");
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
@@ -225,6 +226,23 @@ a.then(
 	},
 	() => null,
 );
+
+const gift_leaderboard = awaitComponents<Twitch.MessageCardOpeners>({
+	parentSelector: '[data-test-selector="channel-leaderboard-container"]',
+	predicate: (n) => {
+		if(hideGiftedSubsBanner.value){
+			// Find the element with the data-test-selector attribute
+			const channelLeaderboard = document.querySelector('[data-test-selector="channel-leaderboard-container"]');
+
+			// Hide the element using CSS
+			if (channelLeaderboard) {
+			channelLeaderboard.setAttribute("style","display: none;");
+			}
+		}
+		return n.props && (n.props.onShowViewerCard || n.openUserCard);
+	},
+});
+
 
 if (a instanceof ObserverPromise) {
 	until(useTimeout(1e4))
