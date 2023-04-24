@@ -4,6 +4,7 @@
 
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
+-   Changed Readme to inculde better Windows docs for more clear Instructions
 
 ### Version 3.0.6.1000
 

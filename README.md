@@ -4,13 +4,15 @@ This is a complete rewrite of the [Web Extension](https://github.com/seventv/sev
 
 ### Building
 
--   make deps
--   make production
+Before you can start building the extension, you'll need to make sure you have some necessary tools installed on your system. You'll need Node.js, which you can download from the [official website](https://nodejs.org/en/), and you'll also need the Yarn package manager, which you can install globally by running `npm install --global yarn`.
+
+- On Linux, run `make deps` to install dependencies, then `make production` to build the extension.
+- On Windows, run `yarn` to install dependencies, then `yarn build:prod` to build the extension.
 
 For a development/nightly (non-stable) build, set `BRANCH=nightly` in your environment variables.
 
-Build output located in `dist/`.
-
+After the build process is complete, the compiled extension will be located in the `dist/` directory. You can load this directory as an unpacked extension through your browser's extension settings to test it out.
+ 
 ### Contributing
 
 This extension is configured to work with HMR (Hot Module Replacement), which makes development significantly faster and more enjoyable than the traditional methods for making web extensions. This allows the developer to see changes reflect in real-time, even while on a remote website.
@@ -21,9 +23,18 @@ We use [Vite](https://vitejs.dev/) as a primary tool for development and bundlin
 
 Getting the extension to work locally is fast and easy, follow these steps:
 
--   Clone the repo: `git clone git@github.com:SevenTV/Extension.git`
--   Install dependencies: `make deps`
--   Run `yarn start`
+##### Linux
+
+- Clone the repo: `git clone git@github.com:SevenTV/Extension.git`
+- Install dependencies: run `make deps`.
+- Run `yarn start` to start the development server.
+
+##### Windows
+
+- Clone the repo: `git clone git@github.com:SevenTV/Extension.git`
+- Install dependencies: run `yarn`. You may also need to install the node package `win-node-env` globally with `npm install -g win-node-env`.
+- Run `yarn start` to start the development server. 
+You may also need to allow PowerShell scripts to run by setting the execution policy to unrestricted with the command `Set-ExecutionPolicy Unrestricted`.
 
 The extension will now be compiled into its initial bundle, which may take up to twenty seconds. In dev mode, it is configured to connect to the vite server, which will start right after the bundle is complete.
 
@@ -44,5 +55,10 @@ The background script sets up some extension API-specific listeners for matters 
 #### Site Script
 
 Most of the logic inside the Extension runs under the Site Script, located under `src/sites`. Each folder there corresponds to an origin, such as `twitch.tv` or `youtube.com`. A module system exists to neatly section off features into their own space.
-
 The site script works with HMR (Hot Module Replacement) and any changes to components within will hot-update accordingly, making UI building very efficient.
+
+### License
+
+This project is released under the [Commons Clause](https://commonsclause.com/) License Condition v1.0, which restricts the sale of the software, but allows for free use, modification, and distribution.
+
+Please review the [LICENSE.md](LICENSE.md) file for more information.
