@@ -333,6 +333,12 @@ export const config = [
 		hint: "If checked, timestamps in chat will also show seconds",
 		defaultValue: false,
 	}),
+	declareConfig<boolean>("chat.timestamp_12hour", "TOGGLE", {
+		path: ["Chat", "Style"],
+		label: "Timestamp 12-hour Format",
+		defaultValue: false,
+		hint: "If checked, timestamp will use 12-hour format",
+	}),
 	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
 		path: ["Chat", "Message Tools"],
 		label: "Copy Icon",

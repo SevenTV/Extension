@@ -145,7 +145,7 @@ const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
 const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
 const showModifiers = useConfig<boolean>("chat.show_emote_modifiers");
-
+const displayAs12HourTimestamp = useConfig<boolean>("chat.timestamp_12hour");
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
@@ -246,9 +246,10 @@ watchEffect(() => {
 				hour: "numeric",
 				minute: "numeric",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
+				hour12: displayAs12HourTimestamp.value,
 			},
 			props.msg.timestamp,
-		).replace(/ (A|P)M/, "");
+		);
 	}
 });
 </script>
@@ -302,6 +303,7 @@ watchEffect(() => {
 		margin-right: 0 !important;
 	}
 }
+
 .deleted {
 	&:not(:hover) > .seventv-chat-message-body {
 		display: var(--seventv-chat-deleted-display);

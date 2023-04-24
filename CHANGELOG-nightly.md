@@ -5,6 +5,7 @@
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Added a "Site Layout" menu where certain features of the Twitch website can be hidden
 -   Added Emojis for the emoji groups
+-   Added an option to toggle chat timestamp format (12/24-hour)
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com
 
