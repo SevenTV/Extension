@@ -9,24 +9,16 @@
 
 			<div class="emote-area">
 				<div v-for="es of sortedSets" :key="es.id">
-					<EmoteMenuSet
-						:ref="'es-' + es.id"
-						:es="es"
-						@emote-clicked="(ae) => emit('emote-clicked', ae)"
-						@emotes-updated="(emotes) => updateVisibility(es, !!emotes.length)"
-					/>
+					<EmoteMenuSet :ref="'es-' + es.id" :es="es" @emote-clicked="(ae) => emit('emote-clicked', ae)"
+						@emotes-updated="(emotes) => updateVisibility(es, !!emotes.length)" />
 				</div>
 			</div>
 		</UiScrollable>
 		<div class="sidebar">
 			<div class="sidebar-icons">
 				<template v-for="es in sortedSets" :key="es.id">
-					<div
-						v-if="es.emotes.length"
-						class="set-sidebar-icon-container"
-						:selected="selectedSet == es.id"
-						@click="select(es.id, $refs['es-' + es.id] as InstanceType<typeof EmoteMenuSet>[])"
-					>
+					<div v-if="es.emotes.length" class="set-sidebar-icon-container" :selected="selectedSet == es.id"
+						@click="select(es.id, $refs['es-' + es.id] as InstanceType<typeof EmoteMenuSet>[])">
 						<div class="set-sidebar-icon">
 							<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
 							<Logo v-else class="logo" :provider="es.provider" />
@@ -35,7 +27,10 @@
 				</template>
 			</div>
 			<div class="settings-button-container">
-				<div class="settings-button" @click="emit('toggle-settings')">
+				<div class="tab-button" v-if="isSearchInputEnabled">
+					<EmoteMenuSortDropdown />
+				</div>
+				<div class="tab-button settings-button" @click="emit('toggle-settings')">
 					<GearsIcon :provider="'7TV'" />
 					<div v-if="!updater.isUpToDate" class="seventv-emote-menu-settings-button-update-flair" />
 				</div>
@@ -60,6 +55,7 @@ import type { EmoteMenuTabName } from "./EmoteMenu.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuSet from "./EmoteMenuSet.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
+import EmoteMenuSortDropdown from "./EmoteMenuSortDropdown.vue";
 
 const props = defineProps<{
 	provider: EmoteMenuTabName;
@@ -87,6 +83,8 @@ const cosmetics = useCosmetics(store.identity?.id ?? "");
 const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
+const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
+
 // const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 // const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
 
@@ -204,6 +202,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	flex-shrink: 1;
 	display: flex;
 }
+
 .scroll-area {
 	width: 28rem;
 	flex-shrink: 0;
@@ -255,12 +254,11 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 		width: 100%;
 		margin-top: auto;
 		float: bottom;
-		height: 4rem;
 		flex-shrink: 0;
 		padding: auto;
 		border-top: 1px solid var(--seventv-border-transparent-1);
 
-		.settings-button {
+		.tab-button {
 			display: flex;
 			margin: 0.5rem;
 			padding: 0.5rem;
@@ -272,19 +270,21 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 				background: hsla(0deg, 0%, 50%, 32%);
 			}
 
-			> svg {
+			>svg {
 				height: 2rem;
 				width: 2rem;
 			}
 
-			> .seventv-emote-menu-settings-button-update-flair {
-				position: absolute;
-				height: 1rem;
-				width: 1rem;
-				transform: translateY(-0.25rem);
-				right: 0.65rem;
+			&.settings-button {
+				>.seventv-emote-menu-settings-button-update-flair {
+					position: absolute;
+					height: 1rem;
+					width: 1rem;
+					transform: translateY(-0.25rem);
+					right: 0.65rem;
 
-				@include flair-pulsating(#3eed58);
+					@include flair-pulsating(#3eed58);
+				}
 			}
 		}
 	}

@@ -12,7 +12,7 @@ import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
 import { useConfig } from "@/composable/useSettings";
 import EmoteMenu from "./EmoteMenu.vue";
-import { SortPropertyKey } from "./EmoteMenuContext";
+import { SortOrderKey, SortPropertyKey } from "./EmoteMenuContext";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
@@ -120,9 +120,9 @@ export const config = [
 		defaultValue: "timestamp",
 		label: "",
 	}),
-	declareConfig<boolean>("ui.emote_menu.order_desc", "NONE", {
+	declareConfig<SortOrderKey>("ui.emote_menu.sort_order", "NONE", {
 		label: "",
-		defaultValue: false,
+		defaultValue: "asc",
 	}),
 ];
 </script>

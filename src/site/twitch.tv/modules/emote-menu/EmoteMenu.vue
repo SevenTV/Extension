@@ -6,13 +6,8 @@
 				<div class="seventv-emote-menu-header">
 					<div class="seventv-emote-menu-header-providers">
 						<template v-for="(b, key) in visibleProviders">
-							<div
-								v-if="b"
-								:key="key"
-								class="seventv-emote-menu-provider-icon"
-								:selected="key === activeProvider"
-								@click="activeProvider = key"
-							>
+							<div v-if="b" :key="key" class="seventv-emote-menu-provider-icon"
+								:selected="key === activeProvider" @click="activeProvider = key">
 								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
 								<StarIcon v-else />
 								<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
@@ -22,48 +17,20 @@
 					<div class="emote-search-sort-container">
 						<div v-if="!isSearchInputEnabled" class="emote-search">
 							<input ref="searchInputRef" v-model="ctx.filter" class="emote-search-input" />
-							<div class="search-icon">
+							<div class="emote-search-icon search-icon">
 								<SearchIcon />
 							</div>
-						</div>
-						<div ref="sortByRef" class="emote-sort">
-							<UiFloating
-								v-if="showSortBySelect"
-								class="emote-sort-menu"
-								:anchor="sortByRef"
-								placement="left-start"
-								:middleware="[shift({ mainAxis: true, crossAxis: true })]"
-								:emit-clickout="true"
-								@clickout="showSortBySelect = false"
-							>
-								<FormDropdown :node="emoteMenuSortProperties" :on-change="toggleShowSortBy" />
-							</UiFloating>
-							<UiButton ref="sortByRef" @click="toggleShowSortBy()">
-								<BarsSortIcon />
-							</UiButton>
-							<UiButton @click="changeSortOrder()">
-								<SortDown v-if="sortDesc" />
-								<SortUpIcon v-else />
-							</UiButton>
+							<EmoteMenuSortDropdown class="emote-search-icon sort-icon" />
 						</div>
 					</div>
 				</div>
 
 				<!-- Emote menu body -->
-				<div
-					v-for="(_, key) in visibleProviders"
-					v-show="key === activeProvider"
-					:key="key"
-					class="seventv-emote-menu-body"
-				>
-					<EmoteMenuTab
-						:provider="key"
-						:selected="key === activeProvider"
-						@emote-clicked="onEmoteClick"
+				<div v-for="(_, key) in visibleProviders" v-show="key === activeProvider" :key="key"
+					class="seventv-emote-menu-body">
+					<EmoteMenuTab :provider="key" :selected="key === activeProvider" @emote-clicked="onEmoteClick"
 						@provider-visible="onProviderVisibilityChange(key, $event)"
-						@toggle-settings="settingsContext.toggle()"
-						@toggle-native-menu="toggle(true)"
-					/>
+						@toggle-settings="settingsContext.toggle()" @toggle-native-menu="toggle(true)" />
 				</div>
 			</div>
 		</div>
@@ -89,19 +56,15 @@ import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useSettingsMenu } from "@/site/global/settings/Settings";
-import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
-import BarsSortIcon from "@/assets/svg/icons/BarsSortIcon.vue";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
-import SortDown from "@/assets/svg/icons/SortDown.vue";
-import SortUpIcon from "@/assets/svg/icons/SortUpIcon.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import EmoteMenuButton from "./EmoteMenuButton.vue";
-import { emoteMenuSortProperties, useEmoteMenuContext } from "./EmoteMenuContext";
+import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
-import UiButton from "@/ui/UiButton.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
+import EmoteMenuSortDropdown from "./EmoteMenuSortDropdown.vue";
 
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
@@ -113,8 +76,6 @@ const props = defineProps<{
 const anchorEl = ref<HTMLElement | undefined>();
 const inputEl = ref<HTMLElement | undefined>();
 const containerRef = ref<HTMLElement | undefined>();
-const sortByRef = ref<HTMLButtonElement | undefined>();
-const showSortBySelect = ref(false);
 
 const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.props.channelID ?? "";
@@ -127,7 +88,6 @@ const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
-const sortDesc = useConfig<boolean>("ui.emote_menu.order_desc");
 
 const activeProvider = ref<EmoteMenuTabName | null>("7TV");
 const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
@@ -164,14 +124,6 @@ onKeyStroke("e", (ev) => {
 	toggle();
 	ev.preventDefault();
 });
-
-function toggleShowSortBy() {
-	showSortBySelect.value = !showSortBySelect.value;
-}
-
-function changeSortOrder() {
-	sortDesc.value = !sortDesc.value;
-}
 
 // Toggle the menu's visibility
 function toggle(native?: boolean) {
@@ -367,7 +319,8 @@ onUnmounted(() => {
 						background: #80808029;
 					}
 
-					transition: width 90ms ease-in-out, background 150ms ease-in-out;
+					transition: width 90ms ease-in-out,
+					background 150ms ease-in-out;
 
 					&[selected="true"] {
 						background: var(--seventv-highlight-neutral-1);
@@ -375,12 +328,12 @@ onUnmounted(() => {
 						width: 6em;
 					}
 
-					> svg {
+					>svg {
 						width: 2rem;
 						height: 2rem;
 					}
 
-					> span {
+					>span {
 						font-family: Roboto, monospace;
 						font-weight: 600;
 					}
@@ -390,31 +343,38 @@ onUnmounted(() => {
 			.emote-search-sort-container {
 				display: flex;
 				padding: 0 0.75rem 0.75rem;
+				position: relative;
 
-				.emote-sort {
-					display: inline-flex;
-				}
 
 				.emote-search {
 					width: 100%;
 					position: relative;
 
-					.search-icon {
+					.emote-search-icon {
 						position: absolute;
 						display: flex;
 						align-items: center;
 						top: 0;
-						left: 1rem;
 						height: 3rem;
 						width: 3rem;
-						user-select: none;
-						pointer-events: none;
 						padding: 0.85rem;
-						color: var(--seventv-border-transparent-1);
 
-						> svg {
+						>svg {
 							height: 100%;
 							width: 100%;
+						}
+
+						&.sort-icon {
+							cursor: pointer;
+							right: 1rem;
+							color: var(--seventv-text-color-normal);
+						}
+
+						&.search-icon {
+							left: 1rem;
+							user-select: none;
+							pointer-events: none;
+							color: var(--seventv-border-transparent-1);
 						}
 					}
 

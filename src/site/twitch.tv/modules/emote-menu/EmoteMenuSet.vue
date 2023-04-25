@@ -13,21 +13,10 @@
 		</div>
 
 		<div v-if="observing" v-element-lifecycle="onObserve" class="seventv-emote-set">
-			<div
-				v-for="ae of emotes"
-				:key="ae.id"
-				class="seventv-emote-container"
-				:disabled="isEmoteDisabled(es, ae)"
-				:ratio="determineRatio(ae)"
-				:load-state="loaded[ae.id]"
-				:set-id="es.id"
-				:emote-id="ae.id"
-				:zero-width="(ae.flags || 0 & 256) !== 0"
-				:favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
-				tabindex="0"
-				@click="onInsertEmote(ae)"
-				@keydown.enter.prevent="onInsertEmote(ae)"
-			>
+			<div v-for="ae of emotes" :key="ae.id" class="seventv-emote-container" :disabled="isEmoteDisabled(es, ae)"
+				:ratio="determineRatio(ae)" :load-state="loaded[ae.id]" :set-id="es.id" :emote-id="ae.id"
+				:zero-width="(ae.flags || 0 & 256) !== 0" :favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
+				tabindex="0" @click="onInsertEmote(ae)" @keydown.enter.prevent="onInsertEmote(ae)">
 				<template v-if="loaded[ae.id]">
 					<Emote :emote="ae" :unload="!loaded[ae.id]" />
 				</template>
@@ -44,7 +33,7 @@ import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import { SortPropertyKey, useEmoteMenuContext } from "./EmoteMenuContext";
+import { SortOrderKey, SortPropertyKey, useEmoteMenuContext } from "./EmoteMenuContext";
 import {
 	ElementLifecycle,
 	ElementLifecycleDirective as vElementLifecycle,
@@ -68,7 +57,7 @@ const collapsedSets = useConfig<Set<string>>("ui.emote_menu.collapsed_sets");
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 const sortBy = useConfig<SortPropertyKey>("ui.emote_menu.sort_by");
-const sortDesc = useConfig<boolean>("ui.emote_menu.order_desc");
+const sortOrder = useConfig<SortOrderKey>("ui.emote_menu.sort_order");
 
 const { alt } = useMagicKeys();
 const collapsed = ref(isCollapsed());
@@ -135,7 +124,7 @@ const filterEmotes = debounceFn((filter = "") => {
 		return na == nb ? getEmoteMenuSortBy(a, b) : na > nb ? 1 : -1;
 	});
 
-	if (sortDesc.value) {
+	if (sortOrder.value === "desc") {
 		sorting.reverse();
 	}
 
@@ -167,7 +156,7 @@ onKeyDown("Escape", () => {
 	ctx.open = false;
 });
 
-watch([sortBy, sortDesc], () => filterEmotes(ctx.filter));
+watch([sortBy, sortOrder], () => filterEmotes(ctx.filter));
 
 watch(
 	() => props.es.emotes,
@@ -282,7 +271,7 @@ defineExpose({
 			display: none;
 		}
 
-		.seventv-set-header > .seventv-set-chevron > svg {
+		.seventv-set-header>.seventv-set-chevron>svg {
 			transform: rotate(90deg);
 		}
 	}
@@ -323,7 +312,7 @@ defineExpose({
 		height: 2rem;
 		border-radius: 0.25rem;
 
-		> svg {
+		>svg {
 			transition: transform 0.25s ease;
 			transform: rotate(180deg);
 		}

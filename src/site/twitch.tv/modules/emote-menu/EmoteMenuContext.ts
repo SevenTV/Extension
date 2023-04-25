@@ -24,6 +24,7 @@ export function useEmoteMenuContext(): EmoteMenuContext {
 }
 
 export type SortPropertyKey = "name" | "listed" | "animated" | "timestamp";
+export type SortOrderKey = "asc" | "desc";
 
 const SortPropertyKeyValues: Record<SortPropertyKey, string> = {
 	name: "Name",
@@ -32,12 +33,25 @@ const SortPropertyKeyValues: Record<SortPropertyKey, string> = {
 	timestamp: "Date added",
 };
 
-const options: [string, SevenTV.SettingType][] = Object.entries(SortPropertyKeyValues).map(([k, v]) => [v, k]);
+const SortOrderKeyValues: Record<SortOrderKey, string> = {
+	asc: "Ascending",
+	desc: "Descending",
+};
+
+const getKeyValueOptions = (keyValues: Record<SortPropertyKey, string> | Record<SortOrderKey, string>): [string, SevenTV.SettingType][] => Object.entries(keyValues).map(([k, v]) => [v, k])
 
 export const emoteMenuSortProperties: SevenTV.SettingNode<SevenTV.SettingType, "DROPDOWN"> = {
 	key: "ui.emote_menu.sort_by",
 	label: "Sort by",
 	type: "DROPDOWN",
 	defaultValue: "timestamp",
-	options,
+	options: getKeyValueOptions(SortPropertyKeyValues)
 };
+
+export const emoteMenuSortOrderProperties: SevenTV.SettingNode<SevenTV.SettingType, "DROPDOWN"> = {
+	key: "ui.emote_menu.sort_order",
+	label: "Sort order",
+	type: "DROPDOWN",
+	defaultValue: "asc",
+	options: getKeyValueOptions(SortOrderKeyValues)
+}
