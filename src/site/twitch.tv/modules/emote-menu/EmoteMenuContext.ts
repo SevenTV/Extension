@@ -38,14 +38,16 @@ const SortOrderKeyValues: Record<SortOrderKey, string> = {
 	desc: "Descending",
 };
 
-const getKeyValueOptions = (keyValues: Record<SortPropertyKey, string> | Record<SortOrderKey, string>): [string, SevenTV.SettingType][] => Object.entries(keyValues).map(([k, v]) => [v, k])
+const getKeyValueOptions = (
+	keyValues: Record<SortPropertyKey, string> | Record<SortOrderKey, string>,
+): [string, SevenTV.SettingType][] => Object.entries(keyValues).map(([k, v]) => [v, k]);
 
 export const emoteMenuSortProperties: SevenTV.SettingNode<SevenTV.SettingType, "DROPDOWN"> = {
 	key: "ui.emote_menu.sort_by",
 	label: "Sort by",
 	type: "DROPDOWN",
 	defaultValue: "timestamp",
-	options: getKeyValueOptions(SortPropertyKeyValues)
+	options: getKeyValueOptions(SortPropertyKeyValues),
 };
 
 export const emoteMenuSortOrderProperties: SevenTV.SettingNode<SevenTV.SettingType, "DROPDOWN"> = {
@@ -53,5 +55,5 @@ export const emoteMenuSortOrderProperties: SevenTV.SettingNode<SevenTV.SettingTy
 	label: "Sort order",
 	type: "DROPDOWN",
 	defaultValue: "asc",
-	options: getKeyValueOptions(SortOrderKeyValues)
-}
+	options: getKeyValueOptions(SortOrderKeyValues),
+};

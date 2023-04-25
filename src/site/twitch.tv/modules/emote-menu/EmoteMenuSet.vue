@@ -13,10 +13,21 @@
 		</div>
 
 		<div v-if="observing" v-element-lifecycle="onObserve" class="seventv-emote-set">
-			<div v-for="ae of emotes" :key="ae.id" class="seventv-emote-container" :disabled="isEmoteDisabled(es, ae)"
-				:ratio="determineRatio(ae)" :load-state="loaded[ae.id]" :set-id="es.id" :emote-id="ae.id"
-				:zero-width="(ae.flags || 0 & 256) !== 0" :favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
-				tabindex="0" @click="onInsertEmote(ae)" @keydown.enter.prevent="onInsertEmote(ae)">
+			<div
+				v-for="ae of emotes"
+				:key="ae.id"
+				class="seventv-emote-container"
+				:disabled="isEmoteDisabled(es, ae)"
+				:ratio="determineRatio(ae)"
+				:load-state="loaded[ae.id]"
+				:set-id="es.id"
+				:emote-id="ae.id"
+				:zero-width="(ae.flags || 0 & 256) !== 0"
+				:favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
+				tabindex="0"
+				@click="onInsertEmote(ae)"
+				@keydown.enter.prevent="onInsertEmote(ae)"
+			>
 				<template v-if="loaded[ae.id]">
 					<Emote :emote="ae" :unload="!loaded[ae.id]" />
 				</template>
@@ -271,7 +282,7 @@ defineExpose({
 			display: none;
 		}
 
-		.seventv-set-header>.seventv-set-chevron>svg {
+		.seventv-set-header > .seventv-set-chevron > svg {
 			transform: rotate(90deg);
 		}
 	}
@@ -312,7 +323,7 @@ defineExpose({
 		height: 2rem;
 		border-radius: 0.25rem;
 
-		>svg {
+		> svg {
 			transition: transform 0.25s ease;
 			transform: rotate(180deg);
 		}
