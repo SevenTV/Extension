@@ -7,6 +7,7 @@
 -   Added a "Copy Message" button
 -   Added an option to show thumbnail previews of streams when hovering over channels on the sidebar
 -   Fixed an issue which caused flickering when hovering on a deleted message
+-   Added an option to show the Latency to Broadcaster next to viewer count section 
 
 ### Version 3.0.3.1000
 
