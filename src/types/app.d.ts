@@ -123,7 +123,16 @@ declare namespace SevenTV {
 	type SettingType = boolean | number | string | object;
 
 	namespace SettingNode {
-		type ComponentType = "SELECT" | "DROPDOWN" | "CHECKBOX" | "INPUT" | "COLOR" | "TOGGLE" | "SLIDER" | "CUSTOM" | "NONE";
+		type ComponentType =
+			| "SELECT"
+			| "DROPDOWN"
+			| "CHECKBOX"
+			| "INPUT"
+			| "COLOR"
+			| "TOGGLE"
+			| "SLIDER"
+			| "CUSTOM"
+			| "NONE";
 	}
 
 	interface ActiveEmote {
@@ -431,8 +440,8 @@ declare namespace FFZ {
 type Only<T, U> = {
 	[P in keyof T]: T[P];
 } & {
-		[P in keyof U]?: never;
-	};
+	[P in keyof U]?: never;
+};
 
 type Either<T, U> = Only<T, U> | Only<U, T>;
 
@@ -441,6 +450,6 @@ declare type ComponentFactory = abstract new (...args: any) => any;
 
 type NestedKeyOf<ObjectType extends object> = {
 	[Key in keyof ObjectType]: ObjectType[Key] extends object
-	? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
-	: Key;
+		? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
+		: Key;
 }[keyof ObjectType];

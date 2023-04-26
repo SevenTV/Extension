@@ -1,6 +1,12 @@
 <template>
-	<div :data-key="node.key" class="seventv-settings-node" tabindex="0" :disabled="node.disabledIf?.()"
-		:grid-mode="node.custom?.gridMode" @mouseover="onHover">
+	<div
+		:data-key="node.key"
+		class="seventv-settings-node"
+		tabindex="0"
+		:disabled="node.disabledIf?.()"
+		:grid-mode="node.custom?.gridMode"
+		@mouseover="onHover"
+	>
 		<div class="label">
 			<div class="title" :class="{ unseen }">
 				{{ node.label }}
@@ -21,12 +27,12 @@
 <script setup lang="ts">
 import { useTimeoutFn } from "@vueuse/shared";
 import FormCheckbox from "@/site/global/settings/control/FormCheckbox.vue";
+import FormColor from "@/site/global/settings/control/FormColor.vue";
 import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
 import FormInput from "@/site/global/settings/control/FormInput.vue";
 import FormSelect from "@/site/global/settings/control/FormSelect.vue";
 import FormSlider from "@/site/global/settings/control/FormSlider.vue";
 import FormToggle from "@/site/global/settings/control/FormToggle.vue";
-import FormColor from "@/site/global/settings/control/FormColor.vue";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
@@ -133,7 +139,6 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 	}
 
 	@media (max-width: 60rem) {
-
 		.subtitle,
 		.seventv-settings-node-control,
 		.content {

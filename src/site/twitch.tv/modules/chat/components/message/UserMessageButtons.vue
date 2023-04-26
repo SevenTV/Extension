@@ -1,11 +1,21 @@
 <template>
 	<div class="seventv-chat-message-buttons">
-		<div v-if="showCopyIcon && !msg.moderation.deleted" ref="copyButtonRef" v-tooltip="'Copy'" class="seventv-button"
-			@click="copyMessage()">
+		<div
+			v-if="showCopyIcon && !msg.moderation.deleted"
+			ref="copyButtonRef"
+			v-tooltip="'Copy'"
+			class="seventv-button"
+			@click="copyMessage()"
+		>
 			<CopyIcon />
 		</div>
-		<div v-if="msg.pinnable && !msg.moderation.deleted" ref="pinButtonRef" v-tooltip="'Pin'" class="seventv-button"
-			@click="pinPrompt = true">
+		<div
+			v-if="msg.pinnable && !msg.moderation.deleted"
+			ref="pinButtonRef"
+			v-tooltip="'Pin'"
+			class="seventv-button"
+			@click="pinPrompt = true"
+		>
 			<PinIcon />
 		</div>
 		<div v-tooltip="'Reply'" class="seventv-button" @click="openReplyTray">
@@ -26,8 +36,12 @@
 	<!-- Prompt for Pin -->
 	<template v-if="pinPrompt && pinPromptContainer">
 		<Teleport :to="pinPromptContainer">
-			<UiConfirmPrompt title="Pin Message?" :choices="['yes', 'no']" @close="pinPrompt = false"
-				@answer="onPinAnswer($event)">
+			<UiConfirmPrompt
+				title="Pin Message?"
+				:choices="['yes', 'no']"
+				@close="pinPrompt = false"
+				@answer="onPinAnswer($event)"
+			>
 				Are you sure you want to pin this message by
 				<UserTag v-if="msg.author" :user="msg.author" />?
 			</UiConfirmPrompt>
@@ -65,10 +79,10 @@ const tray = useTray("Reply", () => ({
 	deleted: props.msg.parent?.deleted ?? props.msg.moderation.deleted,
 	...(props.msg.parent?.author ?? props.msg.author
 		? {
-			authorID: props.msg.parent?.uid ?? props.msg.author?.id,
-			username: props.msg.parent?.author?.username ?? props.msg.author?.username,
-			displayName: props.msg.parent?.author?.displayName ?? props.msg.author?.displayName,
-		}
+				authorID: props.msg.parent?.uid ?? props.msg.author?.id,
+				username: props.msg.parent?.author?.username ?? props.msg.author?.username,
+				displayName: props.msg.parent?.author?.displayName ?? props.msg.author?.displayName,
+		  }
 		: {}),
 }));
 

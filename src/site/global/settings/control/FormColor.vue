@@ -1,5 +1,5 @@
 <template>
-	<input v-model.lazy="setting" :id="node.key" type="color" :valid="isValid" />
+	<input :id="node.key" v-model.lazy="setting" type="color" :valid="isValid" />
 </template>
 
 <script setup lang="ts">
