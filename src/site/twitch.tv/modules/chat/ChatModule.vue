@@ -1,13 +1,9 @@
 <template>
 	<template v-for="(inst, i) of chatController.instances" :key="inst.identifier">
-		<ChatController
-			v-if="dependenciesMet && isHookableDbc && shouldMount.get(inst)"
-			:list="chatList.instances[0] ?? undefined"
-			:controller="chatController.instances[i]"
-			:room="chatRoom.instances[0] ?? undefined"
-			:buffer="chatBuffer.instances[0] ?? undefined"
-			:events="chatEvents.instances[0] ?? undefined"
-		/>
+		<ChatController v-if="dependenciesMet && isHookableDbc && shouldMount.get(inst)"
+			:list="chatList.instances[0] ?? undefined" :controller="chatController.instances[i]"
+			:room="chatRoom.instances[0] ?? undefined" :buffer="chatBuffer.instances[0] ?? undefined"
+			:events="chatEvents.instances[0] ?? undefined" />
 	</template>
 </template>
 
@@ -332,6 +328,12 @@ export const config = [
 		label: "Timestamp Seconds",
 		hint: "If checked, timestamps in chat will also show seconds",
 		defaultValue: false,
+	}),
+	declareConfig("chat.message_buttons_color", "COLOR", {
+		path: ["Chat", "Style"],
+		label: "Message Buttons Color",
+		hint: "Choose color for message buttons",
+		defaultValue: "#ffffff"
 	}),
 	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
 		path: ["Chat", "Message Tools"],

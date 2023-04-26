@@ -1,12 +1,6 @@
 <template>
-	<div
-		:data-key="node.key"
-		class="seventv-settings-node"
-		tabindex="0"
-		:disabled="node.disabledIf?.()"
-		:grid-mode="node.custom?.gridMode"
-		@mouseover="onHover"
-	>
+	<div :data-key="node.key" class="seventv-settings-node" tabindex="0" :disabled="node.disabledIf?.()"
+		:grid-mode="node.custom?.gridMode" @mouseover="onHover">
 		<div class="label">
 			<div class="title" :class="{ unseen }">
 				{{ node.label }}
@@ -32,6 +26,7 @@ import FormInput from "@/site/global/settings/control/FormInput.vue";
 import FormSelect from "@/site/global/settings/control/FormSelect.vue";
 import FormSlider from "@/site/global/settings/control/FormSlider.vue";
 import FormToggle from "@/site/global/settings/control/FormToggle.vue";
+import FormColor from "@/site/global/settings/control/FormColor.vue";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
@@ -52,6 +47,7 @@ const standard = {
 	DROPDOWN: FormDropdown,
 	CHECKBOX: FormCheckbox,
 	INPUT: FormInput,
+	COLOR: FormColor,
 	TOGGLE: FormToggle,
 	SLIDER: FormSlider,
 	CUSTOM: undefined,
@@ -74,6 +70,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 	padding: 0.25rem 0;
 
 	transition: background-color 90ms ease-out;
+
 	&:hover {
 		background-color: hsla(0deg, 0%, 0%, 10%);
 	}
@@ -136,6 +133,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 	}
 
 	@media (max-width: 60rem) {
+
 		.subtitle,
 		.seventv-settings-node-control,
 		.content {
@@ -145,6 +143,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		&:focus-within {
 			grid-template-rows: 1fr 1fr 1fr;
 			grid-template-rows: 1fr;
+
 			.subtitle,
 			.seventv-settings-node-control,
 			.content {
