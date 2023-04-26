@@ -6,8 +6,13 @@
 				<div class="seventv-emote-menu-header">
 					<div class="seventv-emote-menu-header-providers">
 						<template v-for="(b, key) in visibleProviders">
-							<div v-if="b" :key="key" class="seventv-emote-menu-provider-icon"
-								:selected="key === activeProvider" @click="activeProvider = key">
+							<div
+								v-if="b"
+								:key="key"
+								class="seventv-emote-menu-provider-icon"
+								:selected="key === activeProvider"
+								@click="activeProvider = key"
+							>
 								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
 								<StarIcon v-else />
 								<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
@@ -26,11 +31,20 @@
 				</div>
 
 				<!-- Emote menu body -->
-				<div v-for="(_, key) in visibleProviders" v-show="key === activeProvider" :key="key"
-					class="seventv-emote-menu-body">
-					<EmoteMenuTab :provider="key" :selected="key === activeProvider" @emote-clicked="onEmoteClick"
+				<div
+					v-for="(_, key) in visibleProviders"
+					v-show="key === activeProvider"
+					:key="key"
+					class="seventv-emote-menu-body"
+				>
+					<EmoteMenuTab
+						:provider="key"
+						:selected="key === activeProvider"
+						@emote-clicked="onEmoteClick"
 						@provider-visible="onProviderVisibilityChange(key, $event)"
-						@toggle-settings="settingsContext.toggle()" @toggle-native-menu="toggle(true)" />
+						@toggle-settings="settingsContext.toggle()"
+						@toggle-native-menu="toggle(true)"
+					/>
 				</div>
 			</div>
 		</div>
@@ -62,9 +76,9 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 import EmoteMenuButton from "./EmoteMenuButton.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
+import EmoteMenuSortWrapper from "./sorting/EmoteMenuSortWrapper.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
-import EmoteMenuSortWrapper from "./sorting/EmoteMenuSortWrapper.vue";
 
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
@@ -319,8 +333,7 @@ onUnmounted(() => {
 						background: #80808029;
 					}
 
-					transition: width 90ms ease-in-out,
-					background 150ms ease-in-out;
+					transition: width 90ms ease-in-out, background 150ms ease-in-out;
 
 					&[selected="true"] {
 						background: var(--seventv-highlight-neutral-1);
@@ -328,12 +341,12 @@ onUnmounted(() => {
 						width: 6em;
 					}
 
-					>svg {
+					> svg {
 						width: 2rem;
 						height: 2rem;
 					}
 
-					>span {
+					> span {
 						font-family: Roboto, monospace;
 						font-weight: 600;
 					}
@@ -358,11 +371,10 @@ onUnmounted(() => {
 						width: 3rem;
 						padding: 0.85rem;
 
-						>svg {
+						> svg {
 							height: 100%;
 							width: 100%;
 						}
-
 
 						&.search-icon {
 							left: 1rem;
@@ -370,7 +382,6 @@ onUnmounted(() => {
 							pointer-events: none;
 							color: var(--seventv-border-transparent-1);
 						}
-
 					}
 
 					:deep(.emote-search-icon.sort-icon) {
@@ -382,7 +393,7 @@ onUnmounted(() => {
 						width: 3rem;
 						padding: 0.85rem;
 
-						>svg {
+						> svg {
 							height: 100%;
 							width: 100%;
 						}
