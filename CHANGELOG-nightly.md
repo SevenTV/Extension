@@ -4,6 +4,7 @@
 
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
+-   Added an option to change message buttons color
 
 ### Version 3.0.6.1000
 
