@@ -1,0 +1,24 @@
+<template>
+    <div :class="props.containerClass" @click="toggleShowSortBy()" ref="sortMenuAnchorRef">
+        <BarsSortIcon />
+    </div>
+    <EmoteMenuSortContextMenu v-if="showSortMenu" :anchor="sortMenuAnchorRef"
+        :on-close-dropdown="() => showSortMenu = false" />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import BarsSortIcon from "@/assets/svg/icons/BarsSortIcon.vue";
+import EmoteMenuSortContextMenu from './EmoteMenuSortContextMenu.vue';
+
+const props = defineProps<{
+    containerClass?: string;
+}>();
+
+const sortMenuAnchorRef = ref<HTMLDivElement>();
+const showSortMenu = ref(false);
+
+function toggleShowSortBy() {
+    showSortMenu.value = !showSortMenu.value;
+}
+</script>
