@@ -75,6 +75,7 @@ import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
+import { useTooltip } from "@/composable/useTooltip";
 
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
@@ -194,6 +195,9 @@ function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean
 	}
 }
 
+const { hide } = useTooltip();
+
+const isShift = useKeyModifier("Shift", { initial: false });
 function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	const inputRef = props.instance.component.autocompleteInputRef;
 	if (!inputRef) return log.warn("ref to input not found, cannot insert emote");
@@ -208,6 +212,12 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 
 	inputRef.setValue(current + (emote.unicode ?? emote.name) + " ");
 	props.instance.component.chatInputRef.focus();
+
+	if (!isShift.value) {
+		toggle();
+		hide();
+	}
+	
 }
 
 defineFunctionHook(props.instance.component, "onBitsIconClick", function (old) {
