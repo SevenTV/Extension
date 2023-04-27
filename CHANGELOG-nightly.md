@@ -2,7 +2,8 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   Automatically close emote menu after selection, unless shift key is held down
+-   Automatically close the emote menu after sending a chat message
+-   Added option to automatically close emote menu after making a selection, unless the shift key is held down
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 

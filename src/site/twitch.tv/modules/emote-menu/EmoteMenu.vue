@@ -137,6 +137,8 @@ onKeyStroke("e", (ev) => {
 	ev.preventDefault();
 });
 
+const { hide } = useTooltip();
+
 // Toggle the menu's visibility
 function toggle(native?: boolean) {
 	const t = props.instance.component;
@@ -148,6 +150,7 @@ function toggle(native?: boolean) {
 
 	if (ctx.open) {
 		t.props.closeEmotePicker();
+		hide();
 	} else {
 		t.props.clearMenus();
 		t.closeBitsCard();
@@ -196,8 +199,6 @@ function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean
 	}
 }
 
-const { hide } = useTooltip();
-
 const isShift = useKeyModifier("Shift", { initial: false });
 function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	const inputRef = props.instance.component.autocompleteInputRef;
@@ -217,7 +218,6 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	if (shouldCloseAfterSelection.value) {
 		if (!isShift.value) {
 			toggle();
-			hide();
 		}
 	}
 }
@@ -255,6 +255,15 @@ onClickOutside(containerRef, (e) => {
 	}
 
 	ctx.open = false;
+});
+
+//Close menu when chat message sent. Message send determined by enter pressed + chat input has focus
+onKeyStroke("Enter", () => {
+	let isChatInputFocused = document.activeElement?.getAttribute("data-a-target") === "chat-input";
+
+	if (ctx.open && isChatInputFocused) {
+		toggle();
+	}
 });
 
 // Capture anchor / input elements
