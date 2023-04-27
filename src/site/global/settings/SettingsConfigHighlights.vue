@@ -5,6 +5,7 @@
 			<div class="item heading">
 				<div>Pattern</div>
 				<div>Label</div>
+				<div>Highlight Type</div>
 				<div class="centered">Flash Title</div>
 				<div class="centered">RegExp</div>
 				<div>Case Sensitive</div>
@@ -31,6 +32,15 @@
 								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
 								v-model="h.label"
 								@blur="onInputBlur(h, 'label')"
+							/>
+						</div>
+
+						<!-- Dropdown: Highlight Type (username or message) -->
+						<div name="highlight-type">
+							<FormDropdown
+								:value="h.highlightType ?? `message`"
+								:options="[`message`, `username`]"
+								@change="onHighlightTypeChange(h, $event)"
 							/>
 						</div>
 
@@ -112,6 +122,7 @@ import CompactDiscIcon from "@/assets/svg/icons/CompactDiscIcon.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import FormCheckbox from "../components/FormCheckbox.vue";
+import FormDropdown from "../components/FormDropdown.vue";
 import FormInput from "../components/FormInput.vue";
 import { v4 as uuid } from "uuid";
 
@@ -138,6 +149,13 @@ function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
 
 	const id = uuid();
 	highlights.updateId("new-highlight", id);
+	highlights.save();
+}
+
+function onHighlightTypeChange(h: HighlightDef, ev: InputEvent) {
+	if (!(ev.target instanceof HTMLSelectElement)) return;
+
+	h.highlightType = ev.target.value as HighlightDef["highlightType"];
 	highlights.save();
 }
 
@@ -265,7 +283,7 @@ main.seventv-settings-custom-highlights {
 		.item {
 			display: grid;
 			grid-auto-flow: row dense;
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 20% 9rem 5.5rem 1fr 1fr 1fr 1fr 1fr;
 			column-gap: 3rem;
 			padding: 1rem;
 
@@ -311,6 +329,10 @@ main.seventv-settings-custom-highlights {
 						height: initial;
 					}
 				}
+			}
+
+			[name="highlight-type"] > select {
+				max-width: 120%;
 			}
 
 			[name="color"] > input {

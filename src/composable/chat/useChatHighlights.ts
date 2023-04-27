@@ -20,6 +20,7 @@ export interface HighlightDef {
 	regexp?: boolean;
 	readonly cachedRegExp?: RegExp;
 
+	highlightType?: "username" | "message";
 	color: string;
 	label: string;
 	caseSensitive?: boolean;
@@ -163,11 +164,17 @@ export function useChatHighlights(ctx: ChannelContext) {
 				}
 			}
 
-			ok = regexp.test(msg.body);
+			ok = h.highlightType === "username" ? regexp.test(msg.author!.username) : regexp.test(msg.body);
 		} else if (h.pattern) {
-			ok = h.caseSensitive
-				? msg.body.includes(h.pattern)
-				: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
+			if (h.highlightType === "username") {
+				ok = h.caseSensitive
+					? msg.author?.username.includes(h.pattern)
+					: msg.author?.username.toLowerCase().includes(h.pattern.toLowerCase());
+			} else {
+				ok = h.caseSensitive
+					? msg.body.includes(h.pattern)
+					: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
+			}
 		} else if (typeof h.test === "function") {
 			ok = h.test(msg);
 		}

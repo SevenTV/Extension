@@ -397,7 +397,7 @@ watch(
 	}
 }
 .seventv-settings-settings-area {
-	width: 80rem;
+	width: 85rem;
 	max-height: 60rem;
 }
 </style>
