@@ -99,6 +99,7 @@ const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
+const shouldCloseAfterSelection = useConfig<Map<string, number>>("ui.emote_menu.close_after_selection");
 
 const activeProvider = ref<EmoteMenuTabName | null>("7TV");
 const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
@@ -213,9 +214,11 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	inputRef.setValue(current + (emote.unicode ?? emote.name) + " ");
 	props.instance.component.chatInputRef.focus();
 
-	if (!isShift.value) {
-		toggle();
-		hide();
+	if (shouldCloseAfterSelection.value) {
+		if (!isShift.value) {
+			toggle();
+			hide();
+		}
 	}
 }
 

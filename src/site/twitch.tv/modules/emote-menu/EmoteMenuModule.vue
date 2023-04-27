@@ -76,6 +76,12 @@ markAsReady();
 
 <script lang="ts">
 export const config = [
+	declareConfig("ui.emote_menu.close_after_selection", "TOGGLE", {
+		path: ["Appearance", "Interface"],
+		label: "Close Emote Menu After Selection",
+		hint: "Automatically close the emote menu after making a selection, unless the shift key is held down",
+		defaultValue: false,
+	}),
 	declareConfig("ui.emote_menu_search", "TOGGLE", {
 		path: ["Appearance", "Interface"],
 		label: "Emote Menu: Live Input Search",
