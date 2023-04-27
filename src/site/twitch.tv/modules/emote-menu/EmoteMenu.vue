@@ -66,6 +66,7 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
+import { useTooltip } from "@/composable/useTooltip";
 import { useSettingsMenu } from "@/site/global/settings/Settings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
@@ -75,7 +76,6 @@ import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
-import { useTooltip } from "@/composable/useTooltip";
 
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
@@ -217,7 +217,6 @@ function onEmoteClick(emote: SevenTV.ActiveEmote) {
 		toggle();
 		hide();
 	}
-	
 }
 
 defineFunctionHook(props.instance.component, "onBitsIconClick", function (old) {
