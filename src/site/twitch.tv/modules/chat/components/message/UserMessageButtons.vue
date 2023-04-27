@@ -93,7 +93,6 @@ const copyToastContainer = useFloatScreen(copyButtonRef, {
 	enabled: () => copyToastOpen.value,
 	middleware: [shift({ padding: 8 })],
 });
-const messageButtonColor = useConfig<string>("chat.message_buttons_color");
 
 function copyMessage() {
 	if (copyToastOpen.value) return;
@@ -144,7 +143,7 @@ function onPinAnswer(answer: string): void {
 		padding: 0.5rem;
 		border-radius: 0.25rem;
 		background-color: var(--color-background-body);
-		color: v-bind(messageButtonColor);
+		color: var(--seventv-chat-message-buttons-color);
 		font-size: 1.25rem;
 		fill: currentColor;
 		user-select: none;

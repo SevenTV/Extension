@@ -338,6 +338,9 @@ export const config = [
 		label: "Message Buttons Color",
 		hint: "Choose color for message buttons",
 		defaultValue: "#ffffff",
+		effect(v: string) {
+			document.body.style.setProperty("--seventv-chat-message-buttons-color", v);
+		},
 	}),
 	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
 		path: ["Chat", "Message Tools"],
