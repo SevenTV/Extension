@@ -1,11 +1,12 @@
 <template>
-	<div ref="sortMenuAnchorRef" :class="props.containerClass" @click="toggleShowSortBy()">
+	<div ref="sortMenuAnchorRef" :class="props.containerClass" @click="toggleShowSortBy">
 		<BarsSortIcon />
 	</div>
 	<EmoteMenuSortContextMenu
 		v-if="showSortMenu"
 		:anchor="sortMenuAnchorRef"
-		:on-close-dropdown="() => (showSortMenu = false)"
+		:on-close-dropdown="toggleShowSortBy"
+		:ignored-clickout-refs="ignoredClickoutRefs"
 	/>
 </template>
 
@@ -20,6 +21,7 @@ const props = defineProps<{
 
 const sortMenuAnchorRef = ref<HTMLDivElement>();
 const showSortMenu = ref(false);
+const ignoredClickoutRefs = ref([sortMenuAnchorRef]);
 
 function toggleShowSortBy() {
 	showSortMenu.value = !showSortMenu.value;

@@ -6,13 +6,14 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watchEffect } from "vue";
-import { onClickOutside } from "@vueuse/core";
+import { MaybeElementRef, onClickOutside } from "@vueuse/core";
 import { Middleware, Placement, VirtualElement, autoUpdate, computePosition } from "@floating-ui/dom";
 
 const props = defineProps<{
 	anchor?: Element;
 	position?: [x: number, y: number];
 	emitClickout?: boolean;
+	ignoredClickoutRefs?: (MaybeElementRef | string)[];
 	middleware?: Middleware[];
 	placement?: Placement;
 }>();
@@ -63,7 +64,9 @@ watchEffect(() => {
 	stopClickout = undefined;
 
 	if (props.emitClickout) {
-		stopClickout = onClickOutside(el.value, (ev) => emit("clickout", ev));
+		stopClickout = onClickOutside(el.value, (ev) => emit("clickout", ev), {
+			ignore: props.ignoredClickoutRefs,
+		});
 	}
 });
 
