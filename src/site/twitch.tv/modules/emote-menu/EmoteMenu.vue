@@ -259,7 +259,7 @@ onClickOutside(containerRef, (e) => {
 
 //Close menu when chat message sent. Message send determined by enter pressed + chat input has focus
 onKeyStroke("Enter", () => {
-	let isChatInputFocused = document.activeElement?.getAttribute("data-a-target") === "chat-input";
+	const isChatInputFocused = document.activeElement?.getAttribute("data-a-target") === "chat-input";
 
 	if (ctx.open && isChatInputFocused) {
 		toggle();
