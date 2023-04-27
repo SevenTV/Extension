@@ -106,6 +106,7 @@ import RichEmbed from "./RichEmbed.vue";
 import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
+import { TimestampFormatKey } from "../../ChatModule.vue";
 import ModIcons from "../mod/ModIcons.vue";
 import intlFormat from "date-fns/fp/intlFormat";
 
@@ -145,7 +146,7 @@ const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
 const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
 const showModifiers = useConfig<boolean>("chat.show_emote_modifiers");
-const displayAs12HourTimestamp = useConfig<boolean>("chat.timestamp_12hour");
+const timestampFormat = useConfig<TimestampFormatKey>("chat.timestamp_format");
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
@@ -227,6 +228,17 @@ function getPart(part: AnyToken) {
 	}
 }
 
+const useTimestampFormat = () => {
+	switch (timestampFormat.value) {
+		case "infer":
+			return undefined;
+		case "12":
+			return true;
+		case "24":
+			return false;
+	}
+};
+
 watchEffect(() => {
 	if (!msg.value || !msgEl.value) return;
 
@@ -246,7 +258,7 @@ watchEffect(() => {
 				hour: "numeric",
 				minute: "numeric",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
-				hour12: displayAs12HourTimestamp.value,
+				hour12: useTimestampFormat(),
 			},
 			props.msg.timestamp,
 		);

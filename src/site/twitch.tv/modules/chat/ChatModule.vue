@@ -104,6 +104,16 @@ import { HighlightDef } from "@/composable/chat/useChatHighlights";
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
 
+export type TimestampFormatKey = "infer" | "12" | "24";
+
+const timestampKeyValues: Record<TimestampFormatKey, string> = {
+	infer: "Infer",
+	"12": "12-hour",
+	"24": "24-hour",
+};
+
+const timestampFormatOptions = Object.entries(timestampKeyValues).map(([k, v]) => [v, k]);
+
 export const config = [
 	declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
 		path: ["General", ""],
@@ -333,11 +343,12 @@ export const config = [
 		hint: "If checked, timestamps in chat will also show seconds",
 		defaultValue: false,
 	}),
-	declareConfig<boolean>("chat.timestamp_12hour", "TOGGLE", {
+	declareConfig<TimestampFormatKey>("chat.timestamp_format", "DROPDOWN", {
 		path: ["Chat", "Style"],
-		label: "Timestamp 12-hour Format",
-		defaultValue: false,
-		hint: "If checked, timestamp will use 12-hour format",
+		label: "Timestamp Format",
+		defaultValue: "infer",
+		hint: "Infer will get the format from the current locale.",
+		options: timestampFormatOptions,
 	}),
 	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
 		path: ["Chat", "Message Tools"],
