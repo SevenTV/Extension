@@ -164,12 +164,20 @@ export function useChatHighlights(ctx: ChannelContext) {
 				}
 			}
 
-			ok = h.highlightType === "username" ? regexp.test(msg.author!.username) : regexp.test(msg.body);
+			if (h.highlightType === "username") {
+				if (msg.author) {
+					ok = regexp.test(msg.author.username);
+				}
+			} else {
+				ok = regexp.test(msg.body);
+			}
 		} else if (h.pattern) {
 			if (h.highlightType === "username") {
-				ok = h.caseSensitive
-					? msg.author?.username.includes(h.pattern)
-					: msg.author?.username.toLowerCase().includes(h.pattern.toLowerCase());
+				if (msg.author) {
+					ok = h.caseSensitive
+						? msg.author.username.includes(h.pattern)
+						: msg.author.username.toLowerCase().includes(h.pattern.toLowerCase());
+				}
 			} else {
 				ok = h.caseSensitive
 					? msg.body.includes(h.pattern)
