@@ -84,7 +84,7 @@ export const config = [
 	declareConfig("hide.subscribe_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Subscribe Button",
-		hint: "If checked, the 'Subscribe' button will be hidden",
+		hint: "If checked, the 'Subscribe' button will be hidden (includes 'gift a sub' button)",
 		defaultValue: false,
 	}),
 	declareConfig("hide.prime_offers", "TOGGLE", {
@@ -219,6 +219,7 @@ export const config = [
 }
 
 .seventv-hide-subscribe-button {
+	button[data-a-target="subscribed-button"],
 	button[data-a-target="subscribe-button"] {
 		display: none !important;
 	}
