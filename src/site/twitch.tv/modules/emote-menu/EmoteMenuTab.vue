@@ -29,6 +29,13 @@
 					>
 						<div class="set-sidebar-icon">
 							<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
+							<div v-else-if="es.provider === 'EMOJI'" class="emoji-group">
+								<SingleEmoji
+									:id="emojiGroupIcons[emojiCategories.indexOf(es.name)]"
+									:alt="es.name"
+									:style="{ width: `100%`, height: `100%` }"
+								/>
+							</div>
 							<Logo v-else class="logo" :provider="es.provider" />
 						</div>
 					</div>
@@ -54,6 +61,7 @@ import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
+import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import type { EmoteMenuTabName } from "./EmoteMenu.vue";
@@ -89,6 +97,20 @@ const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 // const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 // const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
+
+//Emote icons for groups
+const emojiGroupIcons = ["26bd", "1f43b", "1f6a9", "1f354", "1f4a1", "1f44b", "1f603", "1f523", "1f698"];
+const emojiCategories = [
+	"Activities",
+	"Animals & Nature",
+	"Flags",
+	"Food & Drink",
+	"Objects",
+	"People & Body",
+	"Smileys & Emotion",
+	"Symbols",
+	"Travel & Places",
+];
 
 // "Most Used" is commented out pending refactor
 // Note the logic for favorites is also bad, though doesn't affect as many users
@@ -309,6 +331,10 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 }
 
 .logo {
+	width: 100%;
+	height: 100%;
+}
+.emoji-group {
 	width: 100%;
 	height: 100%;
 }
