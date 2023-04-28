@@ -4,7 +4,7 @@
 
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
-
+-   Added better documentation for windows
 ### Version 3.0.6.1000
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern

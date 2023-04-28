@@ -75,6 +75,32 @@ The extension will now be compiled into its initial bundle, which may take up to
 
 The build files will be located in the `dist/` folder: add this folder as an unpacked extension via the chrome extensions page.
 
+#### Working Locally (Windows)
+If you're using Windows, there are some additional steps you'll need to take before you can build and run the extension. Here's what you need to do:
+
+Execute Powershell as administrator.
+
+Run the following command: `wsl --install`
+
+After restarting, open your Linux shell and run the following commands:
+
+-   `sudo apt-get install gcc g++ make`
+-   `curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -`
+-   `sudo apt-get install -y nodejs`
+-   `curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null`
+-   `echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list`
+-   `sudo apt-get update && sudo apt-get install yarn`
+
+Now that you have the dependencies installed, you can get the extension to work locally by following these steps:
+
+-   Clone the repo: `git clone git@github.com:SevenTV/Extension.git`
+-   Install dependencies: `make deps`
+-   Run `yarn start`
+
+The extension will now be compiled into its initial bundle, which may take up to twenty seconds. In dev mode, it is configured to connect to the vite server, which will start right after the bundle is complete.
+
+The build files will be located in the `dist/` folder: add this folder as an unpacked extension via the chrome extensions page.
+
 #### Extension Loader
 
 This repository is adapted as a BrowserExtension. It uses a `manifest.json` and the [Extension API](https://developer.chrome.com/docs/extensions/reference/) to run inside a browser.
