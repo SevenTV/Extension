@@ -57,6 +57,8 @@ const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji"
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
 const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.carousel");
 const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
+const colonCompletionMode = useConfig<number>("chat_input.autocomplete.colon.mode");
+const tabCompletionMode = useConfig<number>("chat_input.autocomplete.carousel.mode");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -84,17 +86,22 @@ const historyLocation = ref(-1);
 
 const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
 
-function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab"): TabToken[] {
+function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: number): TabToken[] {
 	const usedTokens = new Set<string>();
 
 	const matches: TabToken[] = [];
 
+	// Test modes
+	// 0: startsWith
+	// 1: includes
+	const testMode = mode === "tab" ? tabCompletionMode.value : colonCompletionMode.value;
+
 	const prefix = str.toLowerCase();
 	const test = (token: string) =>
 		({
-			tab: token.toLowerCase().startsWith(prefix),
-			colon: token.toLowerCase().includes(prefix),
-		}[mode]);
+			0: token.toLowerCase().startsWith(prefix),
+			1: token.toLowerCase().includes(prefix),
+		}[testMode]);
 
 	for (const [token, ae] of Object.entries(cosmetics.emotes)) {
 		if (usedTokens.has(token) || !test(token)) continue;
@@ -147,13 +154,14 @@ function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab"): TabToke
 			if (usedTokens.has(chatter.displayName) || !chatter.displayName.toLowerCase().startsWith(lPrefix)) continue;
 
 			matches.push({
-				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName + " ",
+				token: (tokenStartsWithAt ? "@" : "") + chatter.displayName,
 				priority: 10,
 			});
 		}
 	}
 
 	matches.sort((a, b) => a.priority + b.priority * (a.token.localeCompare(b.token) / 0.5));
+	if (typeof limit === "number" && matches.length > limit) matches.length = limit;
 
 	return matches;
 }
@@ -420,7 +428,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 	const results = native?.call(this, str, ...args) ?? [];
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
-	const tokens = findMatchingTokens(str.substring(1), "colon");
+	const tokens = findMatchingTokens(str.substring(1), "colon", 25);
 
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;

@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
-import { ChatMessage } from "@/common/chat/ChatMessage";
+import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useFloatScreen } from "@/composable/useFloatContext";
 import { useConfig } from "@/composable/useSettings";
 import CopyIcon from "@/assets/svg/icons/CopyIcon.vue";

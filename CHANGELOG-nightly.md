@@ -2,11 +2,38 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   Added a tooltip to show the full message when hovering over replies in chat
+-   Fixed tooltips of nametag paints appearing even if they are disabled
+
+### Version 3.0.6.1000
+
+-   Links in chat messages now respect known TLDs instead of matching any url-like pattern
+-   Added an option to show timeouts/bans directly in the chat without being a moderator
+-   Added options to change what emotes are displayed in the colon list and tab-completion carousel
+-   Added an option to show the text bit for BTTV and FFZ emote modifiers
+-   Added an option to hide monitored suspicious user highlights
+-   Added an option to hide restricted suspicious user highlights
+-   Added an option to highlight your own chat messages
+-   Fixed an issue in the emote menu where the previously selected provider would close if a set was empty
+-   Fixed emote cards sometimes not showing who added the emote
+-   Fixed an issue where the detailed emote card would clip under existing chat messages
+
+### Version 3.0.5.1000
+
+-   Reply Threads should now appear properly and show all messages
+-   Fixed an issue which caused tab-completion to abruptly halt when a chatter's name is selected
+
+### Version 3.0.4.7000
+
 -   Added hot-patching functionality to the extension
 -   Added chat rich embeds which allows twitch clips to preview in chat
 -   Added a "Copy Message" button
 -   Added an option to show thumbnail previews of streams when hovering over channels on the sidebar
+-   Temporarily disabled the "Most Used Emotes" feature, pending a refactor. This fixes severe input lag experienced by some users
+-   Made some internal changes which may decrease memory usage for some users
+-   Fixed bad performance on colon-completion by limiting the amount of items shown
 -   Fixed an issue which caused flickering when hovering on a deleted message
+-   Fixed a compatibility issue with another extension, causing distorted scrolling behavior in the settings menu
 
 ### Version 3.0.3.1000
 

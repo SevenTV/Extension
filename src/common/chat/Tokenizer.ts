@@ -8,6 +8,7 @@ import type {
 	VoidToken,
 } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
+import { parse as tldParse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
 
@@ -22,9 +23,11 @@ export class Tokenizer {
 
 		const textParts = this.msg.body.split(" ");
 		const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
+		const showModifiers = opt.showModifiers;
 
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
+		let parsedUrl: URL | null = null;
 
 		const toVoid = (start: number, end: number) =>
 			({
@@ -68,22 +71,19 @@ export class Tokenizer {
 						}),
 					);
 				}
-			} else if (nextEmote && backwardModifierBlacklist.has(part)) {
+			} else if (!showModifiers && nextEmote && backwardModifierBlacklist.has(part)) {
 				// this is a temporary measure to hide bttv emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if (prevEmote && part.startsWith("ffz") && part.length > 3) {
+			} else if (!showModifiers && prevEmote && part.startsWith("ffz") && part.length > 3) {
 				// this is a temporary measure to hide ffz emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if (part.match(Regex.Link)) {
-				// Check link
-				const actualURL = part.replace(URL_PROTOCOL_REGEXP, "");
-
+			} else if ((parsedUrl = this.isValidLink(part))) {
 				tokens.push({
 					kind: "LINK",
 					range: [cursor + 1, next - 1],
 					content: {
 						displayText: part,
-						url: "https://" + actualURL,
+						url: parsedUrl.toString(),
 					},
 				} as LinkToken);
 			} else if (part.match(Regex.Mention) || maybeMention) {
@@ -114,6 +114,21 @@ export class Tokenizer {
 
 		return (this.msg.tokens = tokens);
 	}
+
+	private isValidLink(message: string): URL | null {
+		try {
+			const url = new URL(`https://${message.replace(URL_PROTOCOL_REGEXP, "")}`);
+			const { isIcann, domain } = tldParse(url.hostname);
+
+			if (domain && isIcann) {
+				return url;
+			}
+		} catch (e) {
+			void 0;
+		}
+
+		return null;
+	}
 }
 
 export interface TokenizeOptions {
@@ -122,4 +137,5 @@ export interface TokenizeOptions {
 	localEmoteMap?: Record<string, SevenTV.ActiveEmote>;
 	filteredWords?: string[];
 	actorUsername?: string;
+	showModifiers?: boolean;
 }

@@ -6,10 +6,12 @@ import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { PubSubMessage, PubSubMessageData, usePubSub } from "@/composable/usePubSub";
+import { useConfig } from "@/composable/useSettings";
 
 const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
 const pubsub = usePubSub();
+const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored_low_trust_user");
 
 // Update the event listener in case the socket is updated
 watchEffect(() => {
@@ -60,6 +62,8 @@ function onPubSubMessage(ev: MessageEvent) {
 async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMessage) {
 	const ctx = msg.low_trust_user;
 	if (!ctx) return;
+
+	if (!showMonitoredLowTrustUser.value) return;
 
 	// Find the message
 	const matchedMsg = await messages.awaitMessage(msg.message_id).catch((err) => {

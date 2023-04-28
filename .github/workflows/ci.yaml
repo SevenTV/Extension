@@ -13,15 +13,13 @@ on:
             - labeled
     workflow_dispatch:
         inputs:
-            nightly:
-                type: boolean
-                description: "Nightly Release"
-                default: true
-
-            release:
-                type: boolean
-                description: "Stable Release"
-                default: false
+            branch:
+                type: choice
+                description: "Branch"
+                options:
+                    - nightly
+                    - stable
+                default: nightly
 
             store-upload:
                 type: boolean
@@ -39,8 +37,11 @@ concurrency:
 
 env:
     ARTIFACT_NAME: 7tv-webextension
+    EXTENSION_ID_CWS: ammjkodgmmoknidbanneddgankgfejfh
+    EXTENSION_ID_AMO: "moz-addon-prod@7tv.app"
     NIGHTLY_EXTENSION_ID_CWS: fphegifdehlodcepfkgofelcenelpedj
-    NIGHTLY_EXTENSION_ID_AMO: "{7cc17731-b734-4c98-a154-51d2bf266ef4}"
+    NIGHTLY_EXTENSION_ID_AMO: "moz-addon@7tv.app"
+    IS_MASTER_COMMIT: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master' }}
 
 jobs:
     ci:
@@ -83,10 +84,11 @@ jobs:
 
             - name: Build App
               env:
-                  BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
+                  BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}
+                  EXTENSION_ID: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_CWS || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
-                  OUT_DIR=mv2 MV2=true yarn build:prod
+                  OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID }} MV2=true yarn build:prod
 
             - name: Create Build Archives
               run: |
@@ -152,7 +154,7 @@ jobs:
         name: Create Release
         runs-on: aws-runner
         needs: [ci]
-        if: ${{ (inputs.nightly) || (inputs.release) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+        if: ${{ (inputs.branch) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
         steps:
             - uses: actions/checkout@v3
@@ -181,8 +183,21 @@ jobs:
                   cat ./package.json >> $GITHUB_ENV
                   echo 'EOF' >> $GITHUB_ENV
 
+            - name: Define Release Tag
+              id: release-tag
+              run: |
+                  echo "VERSION=${{ fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
+                  echo "DEV_VERSION=${{ fromJson(env.PACKAGE_JSON).dev_version }}" >> $GITHUB_OUTPUT
+
+                  if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
+                      echo "RELEASE_TAG=nightly-release" >> $GITHUB_OUTPUT
+                      exit 0
+                  fi
+
+                  echo "RELEASE_TAG=${{ format('v{0}', fromJson(env.PACKAGE_JSON).version) }}" >> $GITHUB_OUTPUT
+
             - name: Create Nightly Release
-              if: ${{ inputs.nightly || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+              if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
               id: create_nightly_release
               uses: ncipollo/release-action@v1.12.0
               with:
@@ -193,16 +208,16 @@ jobs:
                   body: ${{ github.event.head_commit.message }}
                   prerelease: true
                   name: Nightly Release
-                  tag: nightly-release
+                  tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
             - name: Update Nightly Tag
-              if: ${{ inputs.nightly || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+              if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
               run: |
                   git tag -f nightly-release
                   git push -f origin nightly-release
 
             - name: Create Release
-              if: ${{ inputs.release }}
+              if: ${{ inputs.branch == 'stable' }}
               id: create_release
               uses: ncipollo/release-action@v1.12.0
               with:
@@ -217,14 +232,19 @@ jobs:
                   omitPrereleaseDuringUpdate: true
                   replacesArtifacts: true
                   body: ${{ github.event.head_commit.message }}
-                  name: v${{ fromJson(env.PACKAGE_JSON).version }}
-                  tag: v${{ fromJson(env.PACKAGE_JSON).version }}
+                  name: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+                  tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+
+        outputs:
+            release_tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+            version: ${{ steps.release-tag.outputs.VERSION }}
+            dev_version: ${{ steps.release-tag.outputs.DEV_VERSION }}
 
     deploy:
         name: Deploy Hosted Build
         runs-on: aws-runner
         needs: [ci, release]
-        if: ${{ inputs.deploy }}
+        if: ${{ inputs.deploy || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
         steps:
             - uses: actions/checkout@v3
@@ -241,7 +261,7 @@ jobs:
 
             - name: Build (Hosted)
               env:
-                  BRANCH: ${{ inputs.nightly && 'nightly' || ''  }}
+                  BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}
               run: |
                   yarn build-hosted:prod
 
@@ -256,10 +276,10 @@ jobs:
                   destination_dir: ""
 
     push:
-        name: Submit to CWS/AMO
+        name: Submit to CWS / Sign XPI
         runs-on: aws-runner
         needs: [ci, release]
-        if: ${{ inputs.store-upload && inputs.nightly }}
+        if: ${{ inputs.store-upload && inputs.branch }}
 
         steps:
             - uses: actions/checkout@v3
@@ -293,9 +313,10 @@ jobs:
                   npm install -g chrome-webstore-upload-cli
 
             - name: Upload to CWS
+              continue-on-error: true
               env:
                   CREDENTIALS: ${{ secrets.CWS }}
-                  EXTENSION_ID: ${{ env.NIGHTLY_EXTENSION_ID_CWS }}
+                  EXTENSION_ID: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_CWS || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) }}
               run: |
                   echo "${{ env.CREDENTIALS }}" >> c
 
@@ -306,12 +327,49 @@ jobs:
                     --client-secret "$(sed '2q;d' c)" \
                     --refresh-token "$(sed '3q;d' c)"
 
-            - name: Upload to AMO
-              if: always()
-              uses: trmcnvn/firefox-addon@v1
+            - name: Copy Unsigned XPI
+              run: |
+                  cp ext/ext.xpi ext/ext-signable.xpi
+                  mkdir web-ext-artifacts/
+
+            - name: Sign XPI (Firefox)
+              id: xpi-sign
+              continue-on-error: true
+              uses: kewisch/action-web-ext@v1
               with:
-                  uuid: ${{ env.NIGHTLY_EXTENSION_ID_AMO }}
-                  xpi: ext/ext.xpi
-                  manifest: manifest/manifest.mv2.json
-                  api-key: ${{ secrets.AMO_API_KEY }}
-                  api-secret: ${{ secrets.AMO_API_SECRET }}
+                  cmd: sign
+                  source: ext/ext-signable.xpi
+                  channel: unlisted
+                  apiKey: ${{ secrets.AMO_API_KEY }}
+                  apiSecret: ${{ secrets.AMO_API_SECRET }}
+                  timeout: 900000
+
+            - name: Move Signed XPI (Firefox)
+              if: ${{ steps.xpi-sign.outputs.target }}
+              run: mv ${{ steps.xpi-sign.outputs.target }} ext/ext-signed.xpi
+
+            - name: "Upload Artifact: Signed XPI"
+              if: ${{ steps.xpi-sign.outputs.target }}
+              uses: actions/upload-artifact@v3
+              with:
+                  name: installable
+                  retention-days: 60
+                  path: |
+                      ext/ext-signed.xpi
+
+            - name: "Rename Signed Artifact"
+              if: ${{ steps.xpi-sign.outputs.target }}
+              run: cp ext/ext-signed.xpi ext/7tv-webextension-ext.xpi
+
+            - name: Update Release
+              if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
+              uses: ncipollo/release-action@v1.12.0
+              with:
+                  allowUpdates: true
+                  artifacts: "ext/7tv-webextension-ext.xpi"
+                  body: ${{ github.event.head_commit.message }}
+                  omitNameDuringUpdate: true
+                  omitPrereleaseDuringUpdate: true
+                  omitDraftDuringUpdate: true
+                  omitBodyDuringUpdate: true
+                  tag: ${{ needs.release.outputs.release_tag }}
