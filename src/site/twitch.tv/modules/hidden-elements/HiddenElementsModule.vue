@@ -4,7 +4,7 @@
 import { onMounted, watch } from "vue";
 import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
-import { hiddenElementSettings, hideFrontPageCarousel } from "./hiddenElements";
+import { hiddenElementSettings } from "./hiddenElements";
 
 const { markAsReady } = declareModule("hidden-elements", {
 	name: "Hidden Elements",
@@ -27,10 +27,6 @@ onMounted(() => {
 		},
 		{ deep: true },
 	);
-
-	if (hideFrontPageCarousel.value == true) {
-		document.querySelector(`div[data-a-target="front-page-carousel"]`)?.remove();
-	}
 });
 
 markAsReady();
@@ -133,13 +129,6 @@ export const config = [
 		path: ["Hide", "Video Player"],
 		label: "Hide Player Controls",
 		hint: "If checked, the controls shown at the bottom of a stream on hover will be hidden",
-		defaultValue: false,
-	}),
-	// Front page
-	declareConfig("hide.frontpage-carousel", "TOGGLE", {
-		path: ["Hide", "Home Page"],
-		label: "Hide Featured Streams",
-		hint: "If checked, the carousel displaying featured streams on the home page will be removed",
 		defaultValue: false,
 	}),
 ];

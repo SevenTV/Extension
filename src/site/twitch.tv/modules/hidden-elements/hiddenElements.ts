@@ -17,9 +17,6 @@ const hideLiveNotificationButton = useConfig<boolean>("hide.live_notification_bu
 const hideSubscribeButton = useConfig<boolean>("hide.subscribe_button");
 const hideChatInputBox = useConfig<boolean>("hide.chat_input_box");
 
-/**
- * Reactive settings, do not require page refresh when toggling
- */
 export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean> }> = [
 	{ class: "seventv-hide-leaderboard", isHidden: hideLeaderboard },
 	{ class: "seventv-hide-buttons-below-chatbox", isHidden: hideButtonsBelowChatbox },
@@ -37,8 +34,3 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-subscribe-button", isHidden: hideSubscribeButton },
 	{ class: "seventv-hide-chat-input-box", isHidden: hideChatInputBox },
 ];
-
-/**
- * Requires page refresh when toggling
- */
-export const hideFrontPageCarousel = useConfig<boolean>("hide.frontpage-carousel");
