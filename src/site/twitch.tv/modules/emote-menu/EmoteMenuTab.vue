@@ -98,17 +98,17 @@ const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 // const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
 
 // Emote icons for groups
-const emojiGroupIcons = ["26bd", "1f43b", "1f6a9", "1f354", "1f4a1", "1f44b", "1f603", "1f523", "1f698"];
+const emojiGroupIcons = ["1f603", "1f44b", "1f43b", "1f354", "26bd", "1f698", "1f4a1", "1f523", "1f6a9"];
 const emojiCategories = [
-	"Activities",
-	"Animals & Nature",
-	"Flags",
-	"Food & Drink",
-	"Objects",
-	"People & Body",
 	"Smileys & Emotion",
-	"Symbols",
+	"People & Body",
+	"Animals & Nature",
+	"Food & Drink",
+	"Activities",
 	"Travel & Places",
+	"Objects",
+	"Symbols",
+	"Flags",
 ];
 
 // "Most Used" is commented out pending refactor
@@ -174,6 +174,9 @@ function sortCase(es: SevenTV.EmoteSet) {
 function sortFn(a: SevenTV.EmoteSet, b: SevenTV.EmoteSet) {
 	const c1 = sortCase(a);
 	const c2 = sortCase(b);
+	
+	if ( a.provider === 'EMOJI' && b.provider === 'EMOJI' && ( emojiCategories.indexOf(a.name) > -1 && emojiCategories.indexOf(b.name) > -1 ) )
+		return emojiCategories.indexOf(a.name) - emojiCategories.indexOf(b.name)
 
 	return c1 == c2 ? a.name.localeCompare(b.name) : c1 > c2 ? 1 : -1;
 }
@@ -207,7 +210,7 @@ const filterSets = debounceFn(() => {
 
 		ary.splice(0, ary.length, ...Object.values(res).map((e) => ({ ...e.set, emotes: e.emotes })));
 	}
-
+	console.log("ary",ary)
 	// Sort emote sets
 	ary.sort(sortFn);
 	sortedSets.value = ary;
