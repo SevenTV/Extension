@@ -28,14 +28,13 @@
 						@click="select(es.id, $refs['es-' + es.id] as InstanceType<typeof EmoteMenuSet>[])"
 					>
 						<div class="set-sidebar-icon">
-							<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
-							<div v-else-if="es.provider === 'EMOJI'" class="emoji-group">
+							<div v-if="es.provider === 'EMOJI' && emojiCategories.indexOf(es.name) > -1" class="emoji-group">
 								<SingleEmoji
 									:id="emojiGroupIcons[emojiCategories.indexOf(es.name)]"
 									:alt="es.name"
-									:style="{ width: `100%`, height: `100%` }"
 								/>
 							</div>
+							<img v-else-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
 							<Logo v-else class="logo" :provider="es.provider" />
 						</div>
 					</div>
@@ -98,7 +97,7 @@ const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 // const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 // const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
 
-//Emote icons for groups
+// Emote icons for groups
 const emojiGroupIcons = ["26bd", "1f43b", "1f6a9", "1f354", "1f4a1", "1f44b", "1f603", "1f523", "1f698"];
 const emojiCategories = [
 	"Activities",
