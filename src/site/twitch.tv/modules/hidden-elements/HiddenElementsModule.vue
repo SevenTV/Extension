@@ -1,7 +1,7 @@
 <template />
 
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { watchEffect } from "vue";
 import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
 import { hiddenElementSettings } from "./hiddenElements";
@@ -11,22 +11,10 @@ const { markAsReady } = declareModule("hidden-elements", {
 	depends_on: [],
 });
 
-function updateHiddenElements(): void {
+watchEffect(() => {
 	hiddenElementSettings.forEach((setting) => {
 		document.body.classList.toggle(setting.class, setting.isHidden.value);
 	});
-}
-
-onMounted(() => {
-	updateHiddenElements();
-
-	watch(
-		() => hiddenElementSettings,
-		() => {
-			updateHiddenElements();
-		},
-		{ deep: true },
-	);
 });
 
 markAsReady();
@@ -38,94 +26,94 @@ markAsReady();
  */
 export const config = [
 	// Chat elements
-	declareConfig("hide.channel_leaderboard", "TOGGLE", {
+	declareConfig("layout.hide_channel_leaderboard", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Channel Leaderboard",
 		hint: "If checked, the channel leaderboard at the top of chat will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("hide.chat_input_box", "TOGGLE", {
+	declareConfig("layout.hide_chat_input_box", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Chat Input Box",
 		hint: "If checked, the 'Send a message' chatbox will be hidden (WARNING! the 7tv icon will disappear but can be accessed again at the top right of Twitch)",
 		defaultValue: false,
 	}),
-	declareConfig("hide.buttons_below_chatbox", "TOGGLE", {
+	declareConfig("layout.hide_buttons_below_chatbox", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Buttons Below Chatbox",
 		hint: "If checked, the buttons below the chatbox will be hidden (such as channel points, settings, 'chat', etc.)",
 		defaultValue: false,
 	}),
-	declareConfig("hide.stream_chat_bar", "TOGGLE", {
+	declareConfig("layout.hide_stream_chat_bar", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Stream Chat Bar",
 		hint: "If checked, the bar above chat which says 'Stream Chat' will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("hide.community_highlights", "TOGGLE", {
+	declareConfig("layout.hide_community_highlights", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Community Highlights",
 		hint: "If checked, community highlights at the top of chat will be hidden (such as hype trains, pinned messages, drops, etc.)",
 		defaultValue: false,
 	}),
 	// Main page elements (Twitch Features)
-	declareConfig("hide.react_buttons", "TOGGLE", {
+	declareConfig("layout.hide_react_buttons", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide React Buttons",
 		hint: "If checked, the 'React' buttons will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("hide.bits_buttons", "TOGGLE", {
+	declareConfig("layout.hide_bits_buttons", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Bits Buttons",
 		hint: "If checked, the 'Bits' related buttons will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("hide.subscribe_button", "TOGGLE", {
+	declareConfig("layout.hide_subscribe_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Subscribe Button",
 		hint: "If checked, the 'Subscribe' button will be hidden (includes 'gift a sub' button)",
 		defaultValue: false,
 	}),
-	declareConfig("hide.prime_offers", "TOGGLE", {
+	declareConfig("layout.hide_prime_offers", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Prime Offers",
 		hint: "If checked, the 'Prime Offers' button on the top bar will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("hide.unfollow_button", "TOGGLE", {
+	declareConfig("layout.hide_unfollow_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Unfollow Button",
 		hint: "If checked, the 'Unfollow' button will be hidden (under stream and in theater mode)",
 		defaultValue: false,
 	}),
-	declareConfig("hide.live_notification_button", "TOGGLE", {
+	declareConfig("layout.hide_live_notification_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Live Notification Button",
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
 		defaultValue: false,
 	}),
 	// Side bar elements
-	declareConfig("hide.recommended_channels", "TOGGLE", {
+	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Side Bar"],
 		label: "Hide Recommended Channels",
 		hint: "If checked, the 'recommended channels' section of the side bar will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("hide.viewers_also_watch", "TOGGLE", {
+	declareConfig("layout.hide_viewers_also_watch", "TOGGLE", {
 		path: ["Site Layout", "Side Bar"],
 		label: "Hide Viewers Also Watch",
 		hint: "If checked, the 'viewers also watch' section of the side bar will be hidden",
 		defaultValue: false,
 	}),
 	// Player elements
-	declareConfig("hide.top_bar_of_stream", "TOGGLE", {
+	declareConfig("layout.hide_top_bar_of_stream", "TOGGLE", {
 		path: ["Site Layout", "Video Player"],
 		label: "Hide Top Bar of Stream",
 		hint: "If checked, the top bar of the stream which shows on hover will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("hide.player_controls", "TOGGLE", {
+	declareConfig("layout.hide_player_controls", "TOGGLE", {
 		path: ["Site Layout", "Video Player"],
 		label: "Hide Player Controls",
 		hint: "If checked, the controls shown at the bottom of a stream on hover will be hidden",
