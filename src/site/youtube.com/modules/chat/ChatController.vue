@@ -1,6 +1,6 @@
 <template>
 	<ChatData />
-	<ChatAutocomplete />
+	<ChatAutocomplete :w="w" />
 </template>
 
 <script setup lang="ts">
@@ -12,6 +12,7 @@ import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatData from "./ChatData.vue";
 
 const props = defineProps<{
+	w: Window;
 	channelId: string;
 	chatList: YouTube.LiveChatItemListRenderer;
 }>();
