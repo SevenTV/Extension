@@ -28,11 +28,11 @@
 						@click="select(es.id, $refs['es-' + es.id] as InstanceType<typeof EmoteMenuSet>[])"
 					>
 						<div class="set-sidebar-icon">
-							<div v-if="es.provider === 'EMOJI' && emojiCategories.indexOf(es.name) > -1" class="emoji-group">
-								<SingleEmoji
-									:id="emojiGroupIcons[emojiCategories.indexOf(es.name)]"
-									:alt="es.name"
-								/>
+							<div
+								v-if="es.provider === 'EMOJI' && emojiCategories.indexOf(es.name) > -1"
+								class="emoji-group"
+							>
+								<SingleEmoji :id="emojiGroupIcons[emojiCategories.indexOf(es.name)]" :alt="es.name" />
 							</div>
 							<img v-else-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
 							<Logo v-else class="logo" :provider="es.provider" />
