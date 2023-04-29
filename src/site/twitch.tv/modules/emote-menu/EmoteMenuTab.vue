@@ -176,10 +176,10 @@ function sortFn(a: SevenTV.EmoteSet, b: SevenTV.EmoteSet) {
 	const c2 = sortCase(b);
 
 	if (
-		a.provider === 'EMOJI' &&
-		b.provider === 'EMOJI' &&
+		a.provider === "EMOJI" &&
+		b.provider === "EMOJI" &&
 		emojiCategories.indexOf(a.name) > -1 &&
-		emojiCategories.indexOf(b.name) > -1 
+		emojiCategories.indexOf(b.name) > -1
 	)
 		return emojiCategories.indexOf(a.name) - emojiCategories.indexOf(b.name);
 
@@ -215,7 +215,7 @@ const filterSets = debounceFn(() => {
 
 		ary.splice(0, ary.length, ...Object.values(res).map((e) => ({ ...e.set, emotes: e.emotes })));
 	}
-	
+
 	// Sort emote sets
 	ary.sort(sortFn);
 	sortedSets.value = ary;
