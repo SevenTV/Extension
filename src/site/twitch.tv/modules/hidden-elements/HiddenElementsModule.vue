@@ -71,8 +71,8 @@ export const config = [
 	}),
 	declareConfig("layout.hide_subscribe_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
-		label: "Hide Subscribe Button",
-		hint: "If checked, the 'Subscribe' button will be hidden (includes 'gift a sub' button)",
+		label: "Hide Subscribe Buttons",
+		hint: "If checked, the 'Subscribe' buttons will be hidden under stream and in theater mode (includes 'gift a sub' button)",
 		defaultValue: false,
 	}),
 	declareConfig("layout.hide_prime_offers", "TOGGLE", {
@@ -143,10 +143,8 @@ export const config = [
 }
 
 .seventv-hide-react-buttons {
-	div[class$="theatre-social-panel"]
-		button[class="ScCoreButton-sc-ocjdkq-0 ScCoreButtonSecondary-sc-ocjdkq-2 ibtYyW bTKXKk"],
-	div[data-target="channel-header-right"]
-		button[class="ScCoreButton-sc-ocjdkq-0 ScCoreButtonText-sc-ocjdkq-3 ibtYyW jYfhUy"] {
+	div[class$="theatre-social-panel"] > div:first-child,
+	div[data-target="channel-header-right"] > div:first-child {
 		display: none !important;
 	}
 }
@@ -171,7 +169,7 @@ export const config = [
 }
 
 .seventv-hide-community-highlights {
-	div[class="Layout-sc-1xcs6mc-0 kAIqwe"] {
+	div[class^="community-highlight-stack"] {
 		display: none !important;
 	}
 }
