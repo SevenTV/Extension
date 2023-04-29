@@ -266,7 +266,7 @@ function onUsernameDoubleClick() {
 	document.getSelection()?.empty();
 }
 
-let clickTimer: number = -1;
+let clickTimer = -1;
 function handleUsernameClick(ev: MouseEvent) {
 	if (clickToFocusOnChatterEnabled.value) {
 		const target = ev.currentTarget;

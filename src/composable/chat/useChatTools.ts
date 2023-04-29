@@ -33,9 +33,7 @@ export function useChatTools(ctx: ChannelContext) {
 
 	function openViewerCard(e: MouseEvent, username: string, msgID: string, currentTarget?: EventTarget | null) {
 		// If not handled synchronously, MouseEvent.currentTarget becomes null. Allow callers to pass in currentTarget optionally to solve this.
-		let target = e.currentTarget ? e.currentTarget : currentTarget;
-
-		console.log(target, currentTarget);
+		const target = e.currentTarget ? e.currentTarget : currentTarget;
 
 		if (!data || !e || !target || !username) return false;
 

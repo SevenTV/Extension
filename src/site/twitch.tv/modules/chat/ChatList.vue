@@ -403,7 +403,6 @@ function handleClick(e: MouseEvent) {
 		if (clickedElement.parentNode) {
 			if (clickedElement.parentNode.parentNode) {
 				const parentOfParent = clickedElement.parentNode.parentNode as Element;
-				console.log(parentOfParent);
 				if (parentOfParent.classList.contains("seventv-chat-user-username")) {
 					return;
 				}
