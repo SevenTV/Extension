@@ -82,12 +82,12 @@ watchEffect(() => {
 				}
 				// in prod mode we apply the single-file stylesheet from the main document
 				case "LINK": {
-					if (sheet.id === "seventv-stylesheet") break;
+					if (sheet.id !== "seventv-stylesheet") break;
 
 					const link = (x = document.createElement("link"));
 					link.rel = "stylesheet";
 					link.href = (sheet as HTMLLinkElement).href;
-					link.id = "seventv-stylesheet";
+					link.id = sheet.id;
 					break;
 				}
 			}
