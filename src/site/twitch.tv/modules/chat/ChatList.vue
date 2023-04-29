@@ -7,7 +7,12 @@
 					v-bind="{ msg }"
 				>
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
-						<UserMessage :msg="msg" :emotes="emotes.active" :chatters="messages.chattersByUsername" />
+						<UserMessage
+							:msg="msg"
+							:emotes="emotes.active"
+							:chatters="messages.chattersByUsername"
+							:focusedChatters="focusedChatters.ref"
+						/>
 					</component>
 				</component>
 			</template>
@@ -19,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, ref, toRef, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
 import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn, watchDebounced } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
@@ -72,6 +77,7 @@ const showRestrictedLowTrustUser = useConfig<boolean>("highlights.basic.restrict
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
+const focusedChatters = { ref: ref<Array<string>>([]) };
 
 // Unrender messages out of view
 const chatListEl = ref<HTMLElement>();
@@ -380,6 +386,31 @@ function onMessageIdUpdate(msg: Twitch.IDUpdateMessage) {
 		found.setID(msg.id);
 		found.setDeliveryState("SENT");
 	}
+}
+
+onMounted(() => {
+	window.addEventListener("click", handleClick);
+});
+
+onUnmounted(() => {
+	window.removeEventListener("click", handleClick);
+});
+
+// Reset focused chatter state when clicking anywhere but a username
+function handleClick(e: MouseEvent) {
+	if (e.target) {
+		const clickedElement = e.target as Element;
+		if (clickedElement.parentNode) {
+			if (clickedElement.parentNode.parentNode) {
+				const parentOfParent = clickedElement.parentNode.parentNode as Element;
+				console.log(parentOfParent);
+				if (parentOfParent.classList.contains("seventv-chat-user-username")) {
+					return;
+				}
+			}
+		}
+	}
+	focusedChatters.ref.value = [];
 }
 
 // Keep track of props

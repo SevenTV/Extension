@@ -31,10 +31,15 @@ export function useChatTools(ctx: ChannelContext) {
 		data[platorm][key] = value;
 	}
 
-	function openViewerCard(e: MouseEvent, username: string, msgID: string) {
-		if (!data || !e || !e.currentTarget || !username) return false;
+	function openViewerCard(e: MouseEvent, username: string, msgID: string, currentTarget?: EventTarget | null) {
+		// If not handled synchronously, MouseEvent.currentTarget becomes null. Allow callers to pass in currentTarget optionally to solve this.
+		let target = e.currentTarget ? e.currentTarget : currentTarget;
 
-		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		console.log(target, currentTarget);
+
+		if (!data || !e || !target || !username) return false;
+
+		const rect = (target as HTMLElement).getBoundingClientRect();
 		data[ctx.platform].onShowViewerCard(username, 0, msgID, rect.bottom);
 		return true;
 	}

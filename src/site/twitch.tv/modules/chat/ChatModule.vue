@@ -339,6 +339,12 @@ export const config = [
 		hint: "Show a 'Copy' icon when hovering over a chat message to copy the message",
 		defaultValue: true,
 	}),
+	declareConfig("chat.click_to_focus_on_chatter", "TOGGLE", {
+		path: ["Chat", "Message Tools"],
+		label: "Focus on Chatter",
+		hint: "Double click on a username in chat to focus on their messages, by dimming all others",
+		defaultValue: true,
+	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
 		label: "Show Mention Highlights",

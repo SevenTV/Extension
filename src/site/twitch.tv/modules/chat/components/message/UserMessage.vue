@@ -7,6 +7,7 @@
 			deleted: !hideDeletionState && (msg.moderation.banned || msg.moderation.deleted),
 			'has-mention': as == 'Chat' && msg.mentions.has('#actor'),
 			'has-highlight': as == 'Chat' && msg.highlight,
+			'not-focused': focusedChatters.value.length != 0 && !isUserFocused(),
 		}"
 		:state="msg.deliveryState"
 		:style="{
@@ -40,7 +41,7 @@
 			:user="msg.author"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
-			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
+			@name-click="handleUsernameClick"
 			@badge-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
 		/>
 
@@ -88,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch, watchEffect } from "vue";
+import { Ref, ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
@@ -125,6 +126,7 @@ const props = withDefaults(
 		hideDeletionState?: boolean;
 		showButtons?: boolean;
 		forceTimestamp?: boolean;
+		focusedChatters: Ref<Array<string>>;
 	}>(),
 	{ as: "Chat" },
 );
@@ -145,6 +147,7 @@ const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
 const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
 const showModifiers = useConfig<boolean>("chat.show_emote_modifiers");
+const clickToFocusOnChatterEnabled = useConfig<boolean>("chat.click_to_focus_on_chatter");
 
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
@@ -251,6 +254,36 @@ watchEffect(() => {
 		).replace(/ (A|P)M/, "");
 	}
 });
+
+function isUserFocused() {
+	return props.focusedChatters.value.includes(msg.value.author!.username);
+}
+
+function onUsernameDoubleClick() {
+	props.focusedChatters.value.push(msg.value.author!.username);
+
+	// Clear blue selection after double clicking username
+	document.getSelection()?.empty();
+}
+
+let clickTimer: number = -1;
+function handleUsernameClick(ev: MouseEvent) {
+	if (clickToFocusOnChatterEnabled.value) {
+		const target = ev.currentTarget;
+		if (ev.detail === 1) {
+			clickTimer = setTimeout(() => {
+				// Single click
+				openViewerCard(ev, msg.value.author!.username, msg.value.id, target);
+			}, 300);
+		} else if (ev.detail >= 2) {
+			// Double click
+			clearTimeout(clickTimer);
+			onUsernameDoubleClick();
+		}
+	} else {
+		openViewerCard(ev, msg.value.author!.username, msg.value.id);
+	}
+}
 </script>
 
 <style scoped lang="scss">
@@ -314,6 +347,9 @@ watchEffect(() => {
 			visibility: hidden;
 		}
 	}
+}
+.not-focused {
+	opacity: var(--seventv-chat-deleted-opacity);
 }
 
 .seventv-chat-message-moderated {
