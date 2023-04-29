@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
-import { useIntervalFn } from "@vueuse/core";
+import { ref } from "vue";
+import { watchDebounced } from "@vueuse/core";
 import { decodeYoutubeParams } from "@/common/Decode";
 import { declareModule } from "@/composable/useModule";
 import ChatController from "./ChatController.vue";
@@ -18,25 +18,17 @@ const { markAsReady } = declareModule("chat", {
 
 const channelID = ref("");
 const w = ref(window);
+const nav = (window as Window & { navigation?: EventTarget }).navigation!;
+const navLocation = ref<string>("");
 const ChatList = ref<CustomElementConstructor | null>(null);
 const chatList = ref<YouTube.LiveChatItemListRenderer | null>(null);
 const ChatInput = ref<CustomElementConstructor | null>(null);
 
-useIntervalFn(
-	async () => {
-		const frames = window.frames as unknown as Record<string, HTMLIFrameElement | undefined>;
+nav.addEventListener("navigate", (ev: YouTubeNavigateEvent) => {
+	if (!ev.destination) return;
 
-		const f = frames["chatframe"];
-
-		w.value = (f ? f.contentWindow : window) as Window & typeof globalThis;
-		ChatList.value = await w.value.customElements.whenDefined("yt-live-chat-item-list-renderer");
-		ChatInput.value = await w.value.customElements.whenDefined("yt-live-chat-message-input-renderer");
-	},
-	1e3,
-	{
-		immediateCallback: true,
-	},
-);
+	navLocation.value = ev.destination.url;
+});
 
 async function captureChannelId(w: Window): Promise<void> {
 	const input = w.document.querySelector<YouTube.LiveChatMessageInputRenderer>("yt-live-chat-message-input-renderer");
@@ -54,51 +46,73 @@ async function captureChannelId(w: Window): Promise<void> {
 	channelID.value = decoded;
 }
 
-watchEffect(() => {
-	if (!w.value) return;
-	if (!ChatList.value) return;
+watchDebounced(
+	navLocation,
+	async () => {
+		const frames = window.frames as unknown as Record<string, HTMLIFrameElement | undefined>;
 
-	chatList.value = new ChatList.value() as YouTube.LiveChatItemListRenderer;
+		const f = frames["chatframe"];
 
-	// Apply stylesheet to frame
-	const sheets = window.document.querySelectorAll<HTMLLinkElement | HTMLStyleElement>(
-		"#seventv-stylesheet, [data-vite-dev-id]",
-	);
+		w.value = (f ? f.contentWindow : window) as Window & typeof globalThis;
+		if (!w.value) return;
 
-	// if inside an iframe we must port styles to it
-	if (sheets.length && w.value.frameElement) {
-		sheets.forEach((sheet) => {
-			let x: HTMLLinkElement | HTMLStyleElement | undefined;
+		ChatList.value = await w.value.customElements.whenDefined("yt-live-chat-item-list-renderer");
+		ChatInput.value = await w.value.customElements.whenDefined("yt-live-chat-message-input-renderer");
+		chatList.value = new ChatList.value() as YouTube.LiveChatItemListRenderer;
 
-			switch (sheet.tagName) {
-				// in dev mode we apply vite's generated stylesheets
-				case "STYLE": {
-					if (!sheet.dataset.viteDevId) break;
+		// Apply stylesheet to frame
+		const sheets = window.document.querySelectorAll<HTMLLinkElement | HTMLStyleElement>(
+			"#seventv-stylesheet, [data-vite-dev-id]",
+		);
 
-					const style = (x = document.createElement("style"));
-					style.appendChild(document.createTextNode(sheet.innerHTML));
+		// if inside an iframe we must port styles to it
+		if (sheets.length && w.value.frameElement) {
+			sheets.forEach((sheet) => {
+				let x: HTMLLinkElement | HTMLStyleElement | undefined;
 
-					break;
+				switch (sheet.tagName) {
+					// in dev mode we apply vite's generated stylesheets
+					case "STYLE": {
+						if (!sheet.dataset.viteDevId) break;
+
+						const style = (x = document.createElement("style"));
+						style.appendChild(document.createTextNode(sheet.innerHTML));
+
+						break;
+					}
+					// in prod mode we apply the single-file stylesheet from the main document
+					case "LINK": {
+						if (sheet.id !== "seventv-stylesheet") break;
+
+						const link = (x = document.createElement("link"));
+						link.rel = "stylesheet";
+						link.href = (sheet as HTMLLinkElement).href;
+						link.id = sheet.id;
+						break;
+					}
 				}
-				// in prod mode we apply the single-file stylesheet from the main document
-				case "LINK": {
-					if (sheet.id !== "seventv-stylesheet") break;
+				if (!x) return;
 
-					const link = (x = document.createElement("link"));
-					link.rel = "stylesheet";
-					link.href = (sheet as HTMLLinkElement).href;
-					link.id = sheet.id;
-					break;
-				}
-			}
-			if (!x) return;
+				w.value.document.head.appendChild(x);
+			});
+		}
 
-			w.value.document.head.appendChild(x);
-		});
-	}
-
-	captureChannelId(w.value);
-});
+		captureChannelId(w.value);
+	},
+	{
+		debounce: 2e3,
+		immediate: true,
+	},
+);
 
 markAsReady();
+
+interface YouTubeNavigateEvent extends Event {
+	destination?: {
+		id: string | null;
+		index: number;
+		url: string;
+		sameDocument: boolean;
+	};
+}
 </script>

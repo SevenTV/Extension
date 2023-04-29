@@ -28,6 +28,7 @@ watch(emotes.active, () => {
 
 watchEffect(async () => {
 	InputFieldRenderer.value = await props.w.customElements.whenDefined("yt-live-chat-text-input-field-renderer");
+	if (!InputFieldRenderer.value) return;
 
 	inputField.value = new InputFieldRenderer.value() as YouTube.LiveChatTextInputFieldRenderer;
 });
