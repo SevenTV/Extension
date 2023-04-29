@@ -174,9 +174,14 @@ function sortCase(es: SevenTV.EmoteSet) {
 function sortFn(a: SevenTV.EmoteSet, b: SevenTV.EmoteSet) {
 	const c1 = sortCase(a);
 	const c2 = sortCase(b);
-	
-	if ( a.provider === 'EMOJI' && b.provider === 'EMOJI' && ( emojiCategories.indexOf(a.name) > -1 && emojiCategories.indexOf(b.name) > -1 ) )
-		return emojiCategories.indexOf(a.name) - emojiCategories.indexOf(b.name)
+
+	if (
+		a.provider === 'EMOJI' &&
+		b.provider === 'EMOJI' &&
+		emojiCategories.indexOf(a.name) > -1 &&
+		emojiCategories.indexOf(b.name) > -1 
+	)
+		return emojiCategories.indexOf(a.name) - emojiCategories.indexOf(b.name);
 
 	return c1 == c2 ? a.name.localeCompare(b.name) : c1 > c2 ? 1 : -1;
 }
@@ -210,7 +215,7 @@ const filterSets = debounceFn(() => {
 
 		ary.splice(0, ary.length, ...Object.values(res).map((e) => ({ ...e.set, emotes: e.emotes })));
 	}
-	console.log("ary",ary)
+	
 	// Sort emote sets
 	ary.sort(sortFn);
 	sortedSets.value = ary;
