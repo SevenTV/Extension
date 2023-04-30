@@ -196,6 +196,10 @@ export const config = [
 	button[data-test-selector="unfollow-button"] {
 		display: none !important;
 	}
+	// Prevents "React" button from overlapping the notification / subscribe button
+	div[data-target="channel-header-right"] > div:first-child {
+		margin-right: -1rem !important;
+	}
 }
 
 .seventv-hide-live-notification-button {
