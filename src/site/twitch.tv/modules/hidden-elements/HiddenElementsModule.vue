@@ -206,6 +206,15 @@ export const config = [
 	button[data-a-target="notifications-toggle"] {
 		display: none !important;
 	}
+	// Remove entire div containing live noti button to get rid of left padding
+	div[data-target="channel-header-right"]
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(2) {
+		display: none !important;
+	}
 }
 
 .seventv-hide-subscribe-button {
