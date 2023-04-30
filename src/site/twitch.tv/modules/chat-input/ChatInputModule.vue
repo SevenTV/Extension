@@ -129,6 +129,22 @@ markAsReady();
 </script>
 
 <script lang="ts">
+export type EmojiSkinToneType =
+	| "original"
+	| "light-skin-tone"
+	| "medium-light-skin-tone"
+	| "medium-skin-tone"
+	| "medium-dark-skin-tone"
+	| "dark-skin-tone";
+const emojiSkinToneTypeProperties: Record<EmojiSkinToneType, string> = {
+	original: "👋",
+	"light-skin-tone": "👋🏻",
+	"medium-light-skin-tone": "👋🏼",
+	"medium-skin-tone": "👋🏽",
+	"medium-dark-skin-tone": "👋🏾",
+	"dark-skin-tone": "👋🏿",
+};
+const emojiSkinToneOptions = Object.entries(emojiSkinToneTypeProperties).map(([key, value]) => [value, key]);
 export const config = [
 	declareConfig("chat_input.autocomplete.colon", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
@@ -142,6 +158,14 @@ export const config = [
 		disabledIf: () => !useConfig("chat_input.autocomplete.colon").value,
 		hint: "Whether or not to also include emojis in the colon-completion list (This may impact performance)",
 		defaultValue: false,
+	}),
+	declareConfig<EmojiSkinToneType>("chat_input.autocomplete.emoji.skin_tone", "DROPDOWN", {
+		path: ["Chat", "Autocompletion"],
+		label: "Emoji skin tone preference",
+		disabledIf: () => !useConfig("chat_input.autocomplete.colon.emoji").value,
+		hint: "Choose skin tone for emojis in autocompletion",
+		defaultValue: "original",
+		options: emojiSkinToneOptions,
 	}),
 	declareConfig("chat_input.autocomplete.colon.mode", "DROPDOWN", {
 		path: ["Chat", "Autocompletion"],

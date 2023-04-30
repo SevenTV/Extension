@@ -5,6 +5,7 @@
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com
+-   Added preferred emoji skin type for autocompletion
 
 ### Version 3.0.6.1000
 

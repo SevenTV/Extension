@@ -33,6 +33,7 @@ import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import ChatInputCarousel from "./ChatInputCarousel.vue";
+import { EmojiSkinToneType } from "./ChatInputModule.vue";
 
 export interface TabToken {
 	token: string;
@@ -59,6 +60,7 @@ const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.caro
 const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
 const colonCompletionMode = useConfig<number>("chat_input.autocomplete.colon.mode");
 const tabCompletionMode = useConfig<number>("chat_input.autocomplete.carousel.mode");
+const emojiSkinToneType = useConfig<EmojiSkinToneType>("chat_input.autocomplete.emoji.skin_tone");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -437,6 +439,18 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 			continue;
 		}
 
+		if (emote.name.includes("skin-tone") && emojiSkinToneType.value === "original") {
+			continue;
+		}
+
+		if (emojiSkinToneType.value !== "original") {
+			const emoteSkinTonePart = emote.name.indexOf(":-") + 2;
+			const skinTones = emote.name.substring(emoteSkinTonePart, emote.name.length).split(",");
+			if (!skinTones.includes(emojiSkinToneType.value)) {
+				continue;
+			}
+		}
+
 		const host = emote?.data?.host ?? { url: "", files: [] };
 		const srcset = host.srcset ?? imageHostToSrcset(host, emote.provider, ua.preferredFormat);
 
@@ -574,10 +588,16 @@ if (mentionProvider) {
 }
 
 const emoteProvider = props.instance.component.providers.find((provider) => provider.autocompleteType == "emote");
-if (emoteProvider) {
-	providers.value.emote = emoteProvider;
-	defineFunctionHook(emoteProvider, "getMatches", getMatchesHook);
-}
+watch(
+	emojiSkinToneType,
+	() => {
+		if (emoteProvider) {
+			providers.value.emote = emoteProvider;
+			defineFunctionHook(emoteProvider, "getMatches", getMatchesHook);
+		}
+	},
+	{ immediate: true },
+);
 
 defineFunctionHook(props.instance.component, "componentDidUpdate", function (this, ...args: unknown[]) {
 	if (mod?.instance && typeof this.props.setTray === "function") {
