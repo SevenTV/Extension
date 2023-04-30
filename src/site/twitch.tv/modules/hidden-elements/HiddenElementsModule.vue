@@ -175,13 +175,15 @@ export const config = [
 }
 
 .seventv-hide-recommended-channels {
-	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(3) {
+	div[data-a-target="side-nav-bar"] #side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(3),
+	div[data-a-target="side-nav-bar-collapsed"] #side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(2) {
 		display: none !important;
 	}
 }
 
 .seventv-hide-viewers-also-watch {
-	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(4) {
+	div[data-a-target="side-nav-bar"] #side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(4),
+	div[data-a-target="side-nav-bar-collapsed"] #side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(3) {
 		display: none !important;
 	}
 }
