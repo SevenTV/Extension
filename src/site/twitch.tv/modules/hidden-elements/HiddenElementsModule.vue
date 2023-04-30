@@ -95,13 +95,13 @@ export const config = [
 	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
-		path: ["Site Layout", "Side Bar"],
+		path: ["Site Layout", "Sidebar"],
 		label: "Hide Recommended Channels",
 		hint: "If checked, the 'recommended channels' section of the side bar will be hidden",
 		defaultValue: false,
 	}),
 	declareConfig("layout.hide_viewers_also_watch", "TOGGLE", {
-		path: ["Site Layout", "Side Bar"],
+		path: ["Site Layout", "Sidebar"],
 		label: "Hide Viewers Also Watch",
 		hint: "If checked, the 'viewers also watch' section of the side bar will be hidden",
 		defaultValue: false,
