@@ -16,6 +16,9 @@ const hideUnfollowButton = useConfig<boolean>("layout.hide_unfollow_button");
 const hideLiveNotificationButton = useConfig<boolean>("layout.hide_live_notification_button");
 const hideSubscribeButton = useConfig<boolean>("layout.hide_subscribe_button");
 const hideChatInputBox = useConfig<boolean>("layout.hide_chat_input_box");
+const hideUptime = useConfig<boolean>("layout.hide_uptime");
+const hideViewerCount = useConfig<boolean>("layout.hide_viewer_count");
+const hideSquadSteamButton = useConfig<boolean>("layout.hide_squad_stream_button");
 
 export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean> }> = [
 	{ class: "seventv-hide-leaderboard", isHidden: hideLeaderboard },
@@ -33,4 +36,7 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-live-notification-button", isHidden: hideLiveNotificationButton },
 	{ class: "seventv-hide-subscribe-button", isHidden: hideSubscribeButton },
 	{ class: "seventv-hide-chat-input-box", isHidden: hideChatInputBox },
+	{ class: "seventv-hide-uptime", isHidden: hideUptime },
+	{ class: "seventv-hide-viewer-count", isHidden: hideViewerCount },
+	{ class: "seventv-hide-squad-stream-button", isHidden: hideSquadSteamButton },
 ];

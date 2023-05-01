@@ -119,6 +119,24 @@ export const config = [
 		hint: "If checked, the controls shown at the bottom of a stream on hover will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_uptime", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Uptime",
+		hint: "If checked, the uptime under the stream will be hidden",
+		defaultValue: false,
+	}),
+	declareConfig("layout.hide_viewer_count", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Viewer Count",
+		hint: "If checked, the viewer count under the stream will be hidden",
+		defaultValue: false,
+	}),
+	declareConfig("layout.hide_squad_stream_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Squad Stream Button",
+		hint: "If checked, the 'Squad Stream' button under the stream will be hidden",
+		defaultValue: false,
+	}),
 ];
 </script>
 
@@ -213,6 +231,25 @@ export const config = [
 
 .seventv-hide-chat-input-box {
 	div[class$="chat-input__textarea"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-uptime {
+	span[class="live-time"] {
+		display: none !important;
+	}
+}
+.seventv-hide-viewer-count {
+	p[data-a-target="animated-channel-viewers-count"] {
+		display: none !important;
+	}
+	svg[type="color-text-accessible-red"] {
+		display: none !important;
+	}
+}
+.seventv-hide-squad-stream-button {
+	a[href$="squad"] {
 		display: none !important;
 	}
 }
