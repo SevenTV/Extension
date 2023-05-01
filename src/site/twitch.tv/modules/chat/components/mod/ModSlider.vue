@@ -37,6 +37,8 @@ import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
+import { useChatScroller } from "@/composable/chat/useChatScroller";
+import { useConfig } from "@/composable/useSettings";
 import { ModSliderData, maxVal } from "./ModSliderBackend";
 
 const props = defineProps<{
@@ -46,6 +48,8 @@ const props = defineProps<{
 const ctx = useChannelContext();
 const moderation = useChatModeration(ctx, props.msg.author?.username ?? "");
 const properties = useChatProperties(ctx);
+const scroller = useChatScroller(ctx);
+const shouldPauseChat = useConfig<boolean>("chat.mod_slider_pause_chat");
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -64,6 +68,7 @@ watch(
 );
 
 const handleDown = (e: PointerEvent) => {
+	if (shouldPauseChat.value) scroller.pause();
 	e.stopPropagation();
 	initial = e.pageX;
 	tracking.value = true;
@@ -95,6 +100,8 @@ const handleRelease = (e: PointerEvent): void => {
 
 	data.calculate(0);
 	(e.target as HTMLElement).releasePointerCapture(e.pointerId);
+
+	if (shouldPauseChat.value) scroller.unpause();
 };
 
 const update = (e: PointerEvent): void => {

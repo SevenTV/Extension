@@ -154,6 +154,12 @@ export const config = [
 		hint: "Enable the mod slider in channels where you are moderator",
 		defaultValue: true,
 	}),
+	declareConfig("chat.mod_slider_pause_chat", "TOGGLE", {
+		path: ["Chat", "Moderation"],
+		label: "Mod Slider: Pause Chat",
+		hint: "Pauses the chat while the mod slider is being used",
+		defaultValue: false,
+	}),
 	declareConfig("chat.mod_messages", "TOGGLE", {
 		path: ["Chat", "Moderation"],
 		label: "Moderation Messages",
