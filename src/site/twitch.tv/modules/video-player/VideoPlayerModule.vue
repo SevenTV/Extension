@@ -16,19 +16,19 @@ const videoPlayerClickHandler = document.querySelector('div[data-a-target="playe
 const video = document.querySelector('div[data-a-target="video-player"] video') as HTMLMediaElement;
 
 function pauseOnClick(): void {
-    if (video && !video.paused) {
+	if (video && !video.paused) {
 		video.pause();
 	}
 }
 
 watchEffect(() => {
-    if (videoPlayerClickHandler) {
-        if (pauseOnClickEnabled.value) {
-            videoPlayerClickHandler.addEventListener("click", pauseOnClick);
-        } else {
-            videoPlayerClickHandler.removeEventListener("click", pauseOnClick);
-        }
-    }
+	if (videoPlayerClickHandler) {
+		if (pauseOnClickEnabled.value) {
+			videoPlayerClickHandler.addEventListener("click", pauseOnClick);
+		} else {
+			videoPlayerClickHandler.removeEventListener("click", pauseOnClick);
+		}
+	}
 });
 
 markAsReady();
