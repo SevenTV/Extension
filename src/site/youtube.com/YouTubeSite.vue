@@ -22,6 +22,7 @@ store.setPlatform("YOUTUBE", []);
 
 // Import modules
 const modules = import.meta.glob("./modules/**/*Module.vue", { eager: true, import: "default" });
+
 for (const key in modules) {
 	const modPath = key.split("/");
 	const modKey = modPath.splice(modPath.length - 2, 1).pop();

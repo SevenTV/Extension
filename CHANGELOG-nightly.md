@@ -4,6 +4,8 @@
 
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Fixed tooltips of nametag paints appearing even if they are disabled
+-   Reinstated functionality on youtube.com
+-   Added a "Site Layout" menu where certain features of the Twitch website can be hidden
 -   Added an option to highlight messages from moderators
 
 ### Version 3.0.6.1000

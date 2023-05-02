@@ -1,6 +1,52 @@
-# 7TV Web Extension v3
+<p align="center">
+  <a href="https://7tv.app">
+    <picture>
+      <img src="public/icon/icon-128.png" height="128">
+    </picture>
+    <h1 align="center">7TV Web Extension</h1>
+  </a>
+</p>
 
-This is a complete rewrite of the [Web Extension](https://github.com/seventv/seventv) for 7TV.
+<p align="center">
+  <a aria-label="Chrome web store stable" href="https://chrome.google.com/webstore/detail/7tv/ammjkodgmmoknidbanneddgankgfejfh">
+    <img src="https://img.shields.io/chrome-web-store/v/ammjkodgmmoknidbanneddgankgfejfh?label=Chrome%20Web%20Store%20Stable&style=for-the-badge">
+  </a>
+  <a aria-label="Rating" href="https://chrome.google.com/webstore/detail/7tv/ammjkodgmmoknidbanneddgankgfejfh/reviews">
+    <img src="https://img.shields.io/chrome-web-store/rating/ammjkodgmmoknidbanneddgankgfejfh?style=for-the-badge">
+  </a>
+  <a aria-label="Users" href="https://chrome.google.com/webstore/detail/7tv/ammjkodgmmoknidbanneddgankgfejfh">
+    <img src="https://img.shields.io/chrome-web-store/users/ammjkodgmmoknidbanneddgankgfejfh?style=for-the-badge">
+  </a>
+</p>
+
+<p align="center">
+  <a aria-label="Chrome web store nightly" href="https://chrome.google.com/webstore/detail/7tv/fphegifdehlodcepfkgofelcenelpedj">
+    <img src="https://img.shields.io/chrome-web-store/v/fphegifdehlodcepfkgofelcenelpedj?label=Chrome%20Web%20Store%20Nightly&style=for-the-badge">
+  </a>
+  <a aria-label="Rating" href="https://chrome.google.com/webstore/detail/7tv/fphegifdehlodcepfkgofelcenelpedj/reviews">
+    <img src="https://img.shields.io/chrome-web-store/rating/fphegifdehlodcepfkgofelcenelpedj?style=for-the-badge">
+  </a>
+  <a aria-label="Users" href="https://chrome.google.com/webstore/detail/7tv/fphegifdehlodcepfkgofelcenelpedj">
+    <img src="https://img.shields.io/chrome-web-store/users/fphegifdehlodcepfkgofelcenelpedj?style=for-the-badge">
+  </a>
+</p>
+
+<p align="center">
+  <a aria-label="GitHub release" href="https://github.com/SevenTV/Extension/releases">
+    <img src="https://img.shields.io/github/v/release/SevenTV/Extension?style=for-the-badge">
+  </a>
+  <a aria-label="GitHub contributors" href="https://github.com/SevenTV/Extension/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/SevenTV/Extension?style=for-the-badge">
+  </a>
+  <a aria-label="GitHub issues" href="https://github.com/SevenTV/Extension/issues">
+    <img src="https://img.shields.io/github/issues/SevenTV/Extension?style=for-the-badge">
+  </a>
+  <a aria-label="GitHub pull requests" href="https://github.com/SevenTV/Extension/pulls">
+    <img src="https://img.shields.io/github/issues-pr/SevenTV/Extension?style=for-the-badge">
+  </a>
+</p>
+
+## Development
 
 ### Building
 
