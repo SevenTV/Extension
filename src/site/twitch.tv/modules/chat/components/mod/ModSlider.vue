@@ -50,6 +50,7 @@ const moderation = useChatModeration(ctx, props.msg.author?.username ?? "");
 const properties = useChatProperties(ctx);
 const scroller = useChatScroller(ctx);
 const shouldPauseChat = useConfig<boolean>("chat.mod_slider_pause_chat");
+const pausedByModSlider = ref(false);
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -68,7 +69,10 @@ watch(
 );
 
 const handleDown = (e: PointerEvent) => {
-	if (shouldPauseChat.value) scroller.pause();
+	if (shouldPauseChat.value && !scroller.paused) {
+		scroller.pause();
+		pausedByModSlider.value = true;
+	}
 	e.stopPropagation();
 	initial = e.pageX;
 	tracking.value = true;
@@ -101,7 +105,10 @@ const handleRelease = (e: PointerEvent): void => {
 	data.calculate(0);
 	(e.target as HTMLElement).releasePointerCapture(e.pointerId);
 
-	if (shouldPauseChat.value) scroller.unpause();
+	if (shouldPauseChat.value && pausedByModSlider.value) {
+		scroller.unpause();
+		pausedByModSlider.value = false;
+	}
 };
 
 const update = (e: PointerEvent): void => {
