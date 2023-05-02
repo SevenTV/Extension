@@ -6,6 +6,7 @@
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com
 -   Added a "Site Layout" menu where certain features of the Twitch website can be hidden
+-   Added ability to pause stream when clicking on the video player in Channel -> Video Player settings
 
 ### Version 3.0.6.1000
 
