@@ -18,7 +18,7 @@ import type { ChatMessage, MentionToken } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useConfig } from "@/composable/useSettings";
-import UserTag from "../UserTag.vue";
+import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
 
 const props = defineProps<{
 	token: MentionToken;

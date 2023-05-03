@@ -1,5 +1,34 @@
 import gql from "graphql-tag";
 
+export const twitchBadgeFragment = gql`
+	fragment badge on Badge {
+		id
+		setID
+		version
+		title
+		image1x: imageURL(size: NORMAL)
+		image2x: imageURL(size: DOUBLE)
+		image4x: imageURL(size: QUADRUPLE)
+		clickAction
+		clickURL
+	}
+`;
+
+export const twitchMessageSenderFragment = gql`
+	fragment messageSender on User {
+		id
+		login
+		chatColor
+		displayName
+		displayBadges(channelID: $channelID) {
+			...badge
+		}
+		__typename
+	}
+
+	${twitchBadgeFragment}
+`;
+
 export const twitchMessageFragments = gql`
 	fragment messageFields on Message {
 		id
@@ -67,28 +96,8 @@ export const twitchMessageFragments = gql`
 		__typename
 	}
 
-	fragment messageSender on User {
-		id
-		login
-		chatColor
-		displayName
-		displayBadges(channelID: $channelID) {
-			...badge
-		}
-		__typename
-	}
-
-	fragment badge on Badge {
-		id
-		setID
-		version
-		title
-		image1x: imageURL(size: NORMAL)
-		image2x: imageURL(size: DOUBLE)
-		image4x: imageURL(size: QUADRUPLE)
-		clickAction
-		clickURL
-	}
+	${twitchMessageSenderFragment}
+	${twitchBadgeFragment}
 `;
 
 export const twitchSubProductsFragments = gql`
@@ -119,6 +128,39 @@ export const twitchSubProductsFragments = gql`
 			cumulativeTenure
 		}
 	}
+`;
+
+export const twitchSubSummaryFragment = gql`
+	fragment subSummary on SubscriptionSummary {
+		id
+		name
+		offers {
+			id
+			currency
+			exponent
+			price
+			promoDescription
+		}
+		emotes {
+			id
+			token
+			subscriptionTier
+		}
+		url
+		tier
+		modifiers {
+			code
+			name
+			subscriptionTier
+		}
+		self {
+			subscribedTier
+			cumulativeTenure
+		}
+	}
+`;
+
+export const twitchSubProductFragment = gql`
 	fragment subProduct on SubscriptionProduct {
 		id
 		url
@@ -135,7 +177,50 @@ export const twitchSubProductsFragments = gql`
 			token
 		}
 		offers {
-			...subProductOfferFragment
+			id
+			tplr
+			platform
+			eligibility {
+				benefitsStartAt
+				isEligible
+			}
+			giftType
+			listing {
+				chargeModel {
+					internal {
+						previewPrice {
+							id
+							currency
+							exponent
+							price
+							total
+							discount {
+								price
+								total
+							}
+						}
+						plan {
+							interval {
+								duration
+								unit
+							}
+						}
+					}
+				}
+			}
+			promotion {
+				id
+				name
+				promoDisplay {
+					discountPercent
+					discountType
+				}
+				priority
+			}
+			quantity {
+				min
+				max
+			}
 		}
 		emoteModifiers {
 			...subscriptionProductEmoteModifier
@@ -172,52 +257,7 @@ export const twitchSubProductsFragments = gql`
 			}
 		}
 	}
-	fragment subProductOfferFragment on Offer {
-		id
-		tplr
-		platform
-		eligibility {
-			benefitsStartAt
-			isEligible
-		}
-		giftType
-		listing {
-			chargeModel {
-				internal {
-					previewPrice {
-						id
-						currency
-						exponent
-						price
-						total
-						discount {
-							price
-							total
-						}
-					}
-					plan {
-						interval {
-							duration
-							unit
-						}
-					}
-				}
-			}
-		}
-		promotion {
-			id
-			name
-			promoDisplay {
-				discountPercent
-				discountType
-			}
-			priority
-		}
-		quantity {
-			min
-			max
-		}
-	}
+
 	fragment subscriptionProductEmoteModifier on EmoteModifier {
 		code
 		name

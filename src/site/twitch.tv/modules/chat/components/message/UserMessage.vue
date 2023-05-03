@@ -102,7 +102,7 @@ import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
-import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
+import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
 import RichEmbed from "./RichEmbed.vue";
 import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";

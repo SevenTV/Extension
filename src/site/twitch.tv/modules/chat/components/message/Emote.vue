@@ -11,7 +11,7 @@
 			@load="onImageLoad"
 			@mouseenter="onShowTooltip"
 			@mouseleave="hide()"
-			@click="(ev) => [onShowEmoteCard(ev), emit('emote-click', ev, emote)]"
+			@click="(ev: MouseEvent) => [onShowEmoteCard(ev), emit('emote-click', ev, emote)]"
 		/>
 		<SingleEmoji
 			v-else-if="!unload && emote.id"

@@ -17,10 +17,19 @@ export interface TwTypeUser {
 	displayBadges: TwTypeBadge[];
 	chatColor: string;
 	profileImageURL: string;
+	bannerImageURL?: string;
 	stream: unknown;
 	channel: TwTypeChannel;
 	self: TwTypeUserSelfConnection;
 	blockedUsers: TwTypeUser[];
+	moderationSettings: {
+		canAccessViewerCardModLogs: boolean;
+	};
+	relationship?: {
+		followedAt: string;
+		cumulativeTenure: null | string;
+		subscriptionBenefits: null | string;
+	};
 }
 
 export interface TwTypeBadge {

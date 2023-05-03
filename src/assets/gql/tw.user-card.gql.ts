@@ -1,4 +1,4 @@
-import { twitchMessageFragments, twitchSubProductsFragments } from "./tw.fragment.gql";
+import { twitchBadgeFragment, twitchSubProductFragment } from "./tw.fragment.gql";
 import { TwTypeMessage, TwTypeUser } from "./tw.gql";
 import gql from "graphql-tag";
 
@@ -7,14 +7,13 @@ export const twitchUserCardQuery = gql`
 		$channelID: ID
 		$channelLogin: String!
 		$hasChannelID: Boolean!
-		$giftRecipientLogin: String!
+		$targetLogin: String!
 		$isViewerBadgeCollectionEnabled: Boolean!
-		$withStandardGifting: Boolean!
 	) {
-		activeTargetUser: user(login: $giftRecipientLogin) {
+		activeTargetUser: user(login: $targetLogin) {
 			id
 		}
-		targetUser: user(login: $giftRecipientLogin, lookupType: ALL) {
+		targetUser: user(login: $targetLogin, lookupType: ALL) {
 			id
 			login
 			bannerImageURL
@@ -46,7 +45,7 @@ export const twitchUserCardQuery = gql`
 			login
 			displayName
 			subscriptionProducts {
-				...subscriptionProduct
+				...subProduct
 			}
 			self {
 				banStatus {
@@ -67,7 +66,7 @@ export const twitchUserCardQuery = gql`
 				id
 			}
 		}
-		channelViewer(userLogin: $giftRecipientLogin, channelLogin: $channelLogin) {
+		channelViewer(userLogin: $targetLogin, channelLogin: $channelLogin) {
 			id
 			earnedBadges @include(if: $isViewerBadgeCollectionEnabled) {
 				...badge
@@ -82,8 +81,8 @@ export const twitchUserCardQuery = gql`
 		}
 	}
 
-	${twitchSubProductsFragments}
-	${twitchMessageFragments}
+	${twitchSubProductFragment}
+	${twitchBadgeFragment}
 `;
 
 export namespace twitchUserCardQuery {
@@ -91,7 +90,7 @@ export namespace twitchUserCardQuery {
 		channelID: string;
 		channelLogin: string;
 		hasChannelID: boolean;
-		giftRecipientLogin: string;
+		targetLogin: string;
 		isViewerBadgeCollectionEnabled: boolean;
 		withStandardGifting: boolean;
 	}
@@ -145,14 +144,67 @@ export namespace twitchUserCardQuery {
 				version: string;
 			}[];
 		};
-		channel: {
-			id: string;
-			moderationSettings: {
-				canAccessViewerCardModLogs: boolean;
-			};
-		};
+		channel: Pick<TwTypeUser, "id" | "moderationSettings">;
 	}
 }
+
+export const twitchUserCardModLogsQuery = gql`
+	query ViewerCardModLogs($channelLogin: String!, $targetID: ID!) {
+		targetUser: user(id: $targetID) {
+			id
+			login
+		}
+		channelUser: user(login: $channelLogin) {
+			id
+			login
+			modLogs {
+				...modLogs
+			}
+		}
+		currentUser {
+			login
+			id
+		}
+	}
+
+	fragment modLogs on ModLogs {
+		messages: messagesBySender(
+			senderID: $targetID
+			first: 1
+			includeMessageCount: true
+			includeTargetedActions: true
+			includeAutoModCaughtMessages: true
+		) {
+			messageCount
+		}
+		bans: targetedModActions(targetID: $targetID, actionType: BAN_USER) {
+			edges {
+				cursor
+				node {
+					...targetedModAction
+				}
+			}
+			actionCount
+			pageInfo {
+				hasNextPage
+				hasPreviousPage
+			}
+		}
+		timeouts: targetedModActions(targetID: $targetID, actionType: TIMEOUT_USER) {
+			edges {
+				cursor
+				node {
+					...targetedModAction
+				}
+			}
+			actionCount
+			pageInfo {
+				hasNextPage
+				hasPreviousPage
+			}
+		}
+	}
+`;
 
 export const twitchUserCardMessagesQuery = gql`
 	query UserCardMessagesBySender($senderID: ID!, $channelLogin: String!, $cursor: Cursor) {
@@ -171,12 +223,7 @@ export const twitchUserCardMessagesQuery = gql`
 					edges {
 						cursor
 						node {
-							id
-							sentAt
-							sender {
-								...messageSender
-							}
-							text
+							...modLogsMessageFields
 						}
 					}
 					pageInfo {
@@ -187,7 +234,19 @@ export const twitchUserCardMessagesQuery = gql`
 		}
 	}
 
-	${twitchMessageFragments}
+	fragment modLogsMessageFields on ModLogsMessage {
+		id
+		sentAt
+		sender {
+			id
+			login
+			displayName
+			chatColor
+		}
+		content {
+			text
+		}
+	}
 `;
 
 export namespace twitchUserCardMessagesQuery {
