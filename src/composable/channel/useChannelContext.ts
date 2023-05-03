@@ -16,7 +16,12 @@ export class ChannelContext {
 	loaded = false;
 
 	setCurrentChannel(channel: CurrentChannel): boolean {
-		if (this.id === channel.id) return false;
+		if (this.id === channel.id) {
+			this.username = channel.username;
+			this.displayName = channel.displayName;
+
+			return false;
+		}
 
 		const oldID = this.id;
 
