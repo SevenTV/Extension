@@ -127,7 +127,6 @@ const props = withDefaults(
 		hideDeletionState?: boolean;
 		showButtons?: boolean;
 		forceTimestamp?: boolean;
-		focusedChatters: Ref<Array<string>>;
 	}>(),
 	{ as: "Chat" },
 );

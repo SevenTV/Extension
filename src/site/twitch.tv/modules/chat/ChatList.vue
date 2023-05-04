@@ -7,12 +7,7 @@
 					v-bind="{ msg }"
 				>
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
-						<UserMessage
-							:msg="msg"
-							:emotes="emotes.active"
-							:chatters="messages.chattersByUsername"
-							:focusedChatters="focusedChatters.ref"
-						/>
+						<UserMessage :msg="msg" :emotes="emotes.active" :chatters="messages.chattersByUsername" />
 					</component>
 				</component>
 			</template>
