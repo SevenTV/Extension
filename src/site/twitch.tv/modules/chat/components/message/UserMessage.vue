@@ -7,7 +7,7 @@
 			deleted: !hideDeletionState && (msg.moderation.banned || msg.moderation.deleted),
 			'has-mention': as == 'Chat' && msg.mentions.has('#actor'),
 			'has-highlight': as == 'Chat' && msg.highlight,
-			'not-focused': focusedChatters.value.length != 0 && !isUserFocused(),
+			'not-focused': focusedChatters && focusedChatters.length != 0 && !isUserFocused(),
 		}"
 		:state="msg.deliveryState"
 		:style="{
@@ -99,6 +99,7 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatTools } from "@/composable/chat/useChatTools";
+import { useFocusedChatters } from "@/composable/chat/useFocusedChatters";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
@@ -138,6 +139,7 @@ const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const { openViewerCard } = useChatTools(ctx);
 const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? "");
+const focusedChatters = useFocusedChatters();
 
 const emoteScale = useConfig<number>("chat.emote_scale");
 
@@ -256,11 +258,13 @@ watchEffect(() => {
 });
 
 function isUserFocused() {
-	return props.focusedChatters.value.includes(msg.value.author!.username);
+	if (!focusedChatters) return false;
+	return focusedChatters.value.includes(msg.value.author!.username);
 }
 
 function onUsernameDoubleClick() {
-	props.focusedChatters.value.push(msg.value.author!.username);
+	if (!focusedChatters) return;
+	focusedChatters.value.push(msg.value.author!.username);
 
 	// Clear blue selection after double clicking username
 	document.getSelection()?.empty();

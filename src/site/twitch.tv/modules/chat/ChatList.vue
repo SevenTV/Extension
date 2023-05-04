@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, toRef, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, provide, reactive, ref, toRef, watch } from "vue";
 import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn, watchDebounced } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
@@ -41,6 +41,7 @@ import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
+import { FOCUSED_CHATTERS_KEY } from "@/composable/chat/useFocusedChatters";
 import { useConfig } from "@/composable/useSettings";
 import { MessagePartType, MessageType, ModerationType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
@@ -77,7 +78,9 @@ const showRestrictedLowTrustUser = useConfig<boolean>("highlights.basic.restrict
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
-const focusedChatters = { ref: ref<Array<string>>([]) };
+const focusedChatters = ref<Array<string>>([]);
+
+provide(FOCUSED_CHATTERS_KEY, focusedChatters);
 
 // Unrender messages out of view
 const chatListEl = ref<HTMLElement>();
@@ -409,7 +412,7 @@ function handleClick(e: MouseEvent) {
 			}
 		}
 	}
-	focusedChatters.ref.value = [];
+	focusedChatters.value = [];
 }
 
 // Keep track of props
