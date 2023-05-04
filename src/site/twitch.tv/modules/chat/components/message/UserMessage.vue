@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, toRef, watch, watchEffect } from "vue";
+import { ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
