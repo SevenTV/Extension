@@ -1,5 +1,5 @@
 <template>
-	<UiDraggable :handle="dragHandle">
+	<main class="seventv-user-card-container">
 		<div ref="cardRef" class="seventv-user-card">
 			<div class="header">
 				<div ref="dragHandle" class="identity">
@@ -15,32 +15,37 @@
 					</div>
 					<div class="badges"></div>
 				</div>
-				<div class="greystates">greystates</div>
+				<div class="greystates"></div>
 				<div class="actions">
-					<div class="rightactions">rightactions</div>
-					<div class="leftactions">leftactions</div>
+					<div class="rightactions"></div>
+					<div class="leftactions"></div>
 				</div>
 			</div>
-			<div class="data">
-				<div class="tabs">tabs</div>
-				<div class="datalisting">datalisting</div>
+			<div class="seventv-user-card-data">
+				<div class="tabs"></div>
+				<UiScrollable ref="scroller">
+					<UserCardMessageList :timeline="data.messages" :scroller="scroller" />
+				</UiScrollable>
 			</div>
 		</div>
-	</UiDraggable>
+	</main>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch, watchEffect } from "vue";
+import { onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
-import type { ChatUser } from "@/common/chat/ChatMessage";
+import { log } from "@/common/Logger";
+import { convertTwitchMessage } from "@/common/Transform";
+import type { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useApollo } from "@/composable/useApollo";
-import { TwTypeMessage } from "@/assets/gql/tw.gql";
 import { twitchUserCardQuery } from "@/assets/gql/tw.user-card.gql";
 import { twitchUserCardMessagesQuery } from "@/assets/gql/tw.user-card.gql";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
-import UiDraggable from "@/ui/UiDraggable.vue";
+import UserCardMessageList from "./UserCardMessageList.vue";
+import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
 	target: ChatUser;
@@ -48,13 +53,16 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: "close"): void;
+	(e: "mount-handle", handle: HTMLDivElement): void;
 }>();
 
 const ctx = useChannelContext();
+const messages = useChatMessages(ctx);
 const { identity } = storeToRefs(useStore());
 
 const apollo = useApollo();
 
+const scroller = ref<InstanceType<typeof UiScrollable> | undefined>();
 const dragHandle = ref<HTMLDivElement | undefined>();
 const cardRef = ref<HTMLElement | null>(null);
 const data = reactive({
@@ -70,10 +78,10 @@ const data = reactive({
 			followedAt: "",
 		},
 	},
-	messages: [] as TwTypeMessage[],
+	messages: {} as Record<string, ChatMessage[]>,
 });
 
-async function fetchMessageLogs(): Promise<TwTypeMessage[]> {
+async function fetchMessageLogs(): Promise<ChatMessage[]> {
 	if (!data.targetUser || !apollo) return [];
 
 	const msgResp = await apollo
@@ -87,52 +95,45 @@ async function fetchMessageLogs(): Promise<TwTypeMessage[]> {
 		.catch((err) => Promise.reject(err));
 	if (!msgResp || msgResp.errors?.length || !Array.isArray(msgResp.data.channel.logs.bySender.edges)) return [];
 
-	return msgResp.data.channel.logs.bySender.edges.map((edge) => edge.node);
+	return msgResp.data.channel.logs.bySender.edges.map((edge) => convertTwitchMessage(edge.node));
 }
 
 watchEffect(async () => {
 	if (!apollo) return;
 
-	const resp = await apollo.query<twitchUserCardQuery.Response, twitchUserCardQuery.Variables>({
-		query: twitchUserCardQuery,
-		variables: {
-			channelID: ctx.id,
-			channelLogin: ctx.username,
-			hasChannelID: true,
-			targetLogin: props.target.username,
-			withStandardGifting: false,
-			isViewerBadgeCollectionEnabled: false,
-		},
-	});
-	if (!resp) return;
+	apollo
+		.query<twitchUserCardQuery.Response, twitchUserCardQuery.Variables>({
+			query: twitchUserCardQuery,
+			variables: {
+				channelID: ctx.id,
+				channelLogin: ctx.username,
+				hasChannelID: true,
+				targetLogin: props.target.username,
+				withStandardGifting: false,
+				isViewerBadgeCollectionEnabled: false,
+			},
+		})
+		.then((resp) => {
+			// Capture privilege state
+			if (resp.data.channelUser && resp.data.channelUser.self) {
+				data.isActorModerator = resp.data.channelUser.self.isModerator;
+			}
 
-	// Capture privilege state
-	if (resp.data.channelUser && resp.data.channelUser.self) {
-		data.isActorModerator = resp.data.channelUser.self.isModerator;
-	}
+			// Capture log access
+			if (resp.data.channel) {
+				data.canActorAccessLogs = resp.data.channel.moderationSettings?.canAccessViewerCardModLogs ?? false;
+			}
 
-	// Capture log access
-	if (resp.data.channel) {
-		data.canActorAccessLogs = resp.data.channel.moderationSettings?.canAccessViewerCardModLogs ?? false;
-	}
-
-	if (resp.data.targetUser) {
-		data.targetUser.id = resp.data.targetUser.id;
-		data.targetUser.username = resp.data.targetUser.login;
-		data.targetUser.displayName = resp.data.targetUser.displayName;
-		data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
-		data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
-		data.targetUser.relationship.followedAt = resp.data.targetUser.relationship?.followedAt ?? "";
-	}
-
-	// Query messages if the permission is met
-	if (
-		!data.messages.length && // Don't query if we already have messages
-		data.targetUser &&
-		(data.canActorAccessLogs || (identity.value && data.targetUser.id === identity.value.id))
-	) {
-		data.messages = await fetchMessageLogs();
-	}
+			if (resp.data.targetUser) {
+				data.targetUser.id = resp.data.targetUser.id;
+				data.targetUser.username = resp.data.targetUser.login;
+				data.targetUser.displayName = resp.data.targetUser.displayName;
+				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
+				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
+				data.targetUser.relationship.followedAt = resp.data.targetUser.relationship?.followedAt ?? "";
+			}
+		})
+		.catch((err) => log.error("failed to query user card", err));
 });
 
 watch(
@@ -143,9 +144,46 @@ watch(
 		cardRef.value.style.setProperty("--seventv-user-card-banner-url", `url(${url})`);
 	},
 );
+
+onMounted(async () => {
+	if (dragHandle.value) {
+		emit("mount-handle", dragHandle.value);
+	}
+
+	// Display live messages
+	const msgList = [] as ChatMessage[];
+	msgList.push(...messages.find((msg) => !!msg.author && msg.author.id === props.target.id, true));
+
+	// Query messages if the permission is met
+	if (data.targetUser && (data.canActorAccessLogs || (identity.value && data.targetUser.id === identity.value.id))) {
+		msgList.unshift(...(await fetchMessageLogs()));
+	}
+
+	msgList.sort((a, b) => a.timestamp - b.timestamp);
+
+	// iterate by msg timestamp and group them into data.messagesd
+	const liveMessages = messages.find((msg) => !!msg.author && msg.author.id === props.target.id, true);
+	const liveIDs = new Set<string>(liveMessages.map((m) => m.id));
+
+	for (const msg of msgList) {
+		if (!msg.timestamp) continue;
+
+		const date = new Date(msg.timestamp);
+		const key = liveIDs.has(msg.id) ? "LIVE" : `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
+		if (!data.messages[key]) data.messages[key] = [];
+		data.messages[key].push(msg);
+	}
+});
 </script>
 
 <style scoped lang="scss">
+main.seventv-user-card-container {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 .seventv-user-card {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -155,10 +193,10 @@ watch(
 		"header"
 		"data";
 
-	height: 36rem;
+	height: 42rem;
 	width: 32rem;
 
-	box-shadow: 0 0 1rem 0 hsla(0deg, 0%, 0%, 20%);
+	box-shadow: 0 0 0.5rem 0.5rem hsla(0deg, 0, 0, 20%);
 	background-color: var(--seventv-background-transparent-1);
 	backdrop-filter: blur(2rem);
 	border-radius: 0.5rem;
@@ -189,12 +227,15 @@ watch(
 
 	background: var(--seventv-user-card-banner-url);
 	background-repeat: no-repeat;
+	background-position: center top;
+	background-size: cover;
+
 	&::before {
 		content: " ";
 		position: fixed;
 		width: 100%;
 		height: 9rem;
-		opacity: 0.6;
+		opacity: 0.68;
 		background-color: black;
 	}
 }
@@ -203,8 +244,8 @@ watch(
 	cursor: pointer;
 	z-index: 10;
 	position: absolute;
-	right: 0;
-	top: 0;
+	right: 0.5rem;
+	top: 0.5rem;
 	height: 2rem;
 	width: 2rem;
 
@@ -215,7 +256,7 @@ watch(
 		border-radius: 0.25rem;
 
 		&:hover {
-			background-color: var(--seventv-background-transparent-2);
+			background-color: var(--seventv-highlight-neutral-1);
 		}
 	}
 }
@@ -280,22 +321,19 @@ watch(
 	grid-area: leftactions;
 }
 
-.data {
+.seventv-user-card-data {
 	display: grid;
 	grid-template-columns: 1fr;
-	grid-template-rows: 0.4fr 1.6fr;
+	grid-template-rows: 0.5fr 2.5fr;
 	grid-auto-flow: row;
 	grid-template-areas:
 		"tabs"
-		"datalisting";
+		"messagelist";
 	grid-area: data;
+	background-color: var(--seventv-background-transparent-2);
 }
 
 .tabs {
 	grid-area: tabs;
-}
-
-.datalisting {
-	grid-area: datalisting;
 }
 </style>

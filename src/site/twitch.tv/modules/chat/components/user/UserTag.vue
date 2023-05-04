@@ -8,7 +8,7 @@
 				:badge="badge"
 				:alt="badge.title"
 				type="twitch"
-				@click="handleClick('badge', $event, badge)"
+				@click="handleClick()"
 			/>
 			<Badge v-for="badge of activeBadges" :key="badge.id" :badge="badge" :alt="badge.data.tooltip" type="app" />
 		</span>
@@ -17,7 +17,7 @@
 		<span
 			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
 			class="seventv-chat-user-username"
-			@click="handleClick('name', $event)"
+			@click="handleClick()"
 		>
 			<span v-cosmetic-paint="paint ? paint.id : null">
 				<span v-if="asMention">@</span>
@@ -27,15 +27,17 @@
 		</span>
 	</div>
 
-	<template v-if="showUserCard">
-		<Teleport to="#seventv-message-container">
-			<UiFloating
-				:anchor="tagRef"
-				placement="right-end"
-				:middleware="[shift({ mainAxis: true, crossAxis: true, padding: 32 }), autoPlacement()]"
+	<template v-if="showUserCard && tagRef">
+		<Teleport to="#seventv-float-context">
+			<UiDraggable
+				class="seventv-user-card-float"
+				:handle="cardHandle"
+				:initial-anchor="tagRef"
+				:initial-middleware="[shift({ mainAxis: true, crossAxis: true }), autoPlacement()]"
+				:once="true"
 			>
-				<UserCard :target="props.user" @close="showUserCard = false" />
-			</UiFloating>
+				<UserCard :target="props.user" @close="showUserCard = false" @mount-handle="cardHandle = $event" />
+			</UiDraggable>
 		</Teleport>
 	</template>
 </template>
@@ -49,7 +51,7 @@ import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import Badge from "./Badge.vue";
 import UserCard from "./UserCard.vue";
-import UiFloating from "@/ui/UiFloating.vue";
+import UiDraggable from "@/ui/UiDraggable.vue";
 import { autoPlacement, shift } from "@floating-ui/dom";
 
 const props = defineProps<{
@@ -60,11 +62,6 @@ const props = defineProps<{
 	badges?: Record<string, string>;
 }>();
 
-const emit = defineEmits<{
-	(event: "nameClick", e: MouseEvent): void;
-	(event: "badgeClick", e: MouseEvent, badge: Twitch.ChatBadge): void;
-}>();
-
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
@@ -73,17 +70,12 @@ const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
+const cardHandle = ref<HTMLDivElement>();
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
 const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
 
-function handleClick(surface: "name" | "badge", ev: MouseEvent, badge?: Twitch.ChatBadge) {
+function handleClick() {
 	showUserCard.value = !showUserCard.value;
-
-	if (surface === "name") {
-		emit("nameClick", ev);
-	} else if (surface === "badge" && badge) {
-		emit("badgeClick", ev, badge);
-	}
 }
 
 if (props.badges && properties.twitchBadgeSets) {
@@ -148,5 +140,9 @@ const stop = watch(
 	.seventv-chat-user-username {
 		font-weight: 700;
 	}
+}
+
+.seventv-user-card-float {
+	position: fixed;
 }
 </style>

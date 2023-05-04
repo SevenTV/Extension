@@ -39,6 +39,14 @@ export const twitchUserCardQuery = gql`
 					}
 				}
 			}
+			stream {
+				id
+				game {
+					id
+					displayName
+				}
+				viewersCount
+			}
 		}
 		channelUser: user(login: $channelLogin) {
 			id
@@ -224,6 +232,8 @@ export const twitchUserCardMessagesQuery = gql`
 						cursor
 						node {
 							...modLogsMessageFields
+							...autoModCaughtMessage
+							...targetedModAction
 						}
 					}
 					pageInfo {
@@ -238,15 +248,72 @@ export const twitchUserCardMessagesQuery = gql`
 		id
 		sentAt
 		sender {
-			id
-			login
-			displayName
-			chatColor
+			...sender
 		}
 		content {
 			text
 		}
 	}
+
+	fragment autoModCaughtMessage on AutoModCaughtMessage {
+		id
+		category
+		modLogsMessage {
+			id
+			sentAt
+			content {
+				text
+			}
+			sender {
+				...sender
+			}
+		}
+		resolvedAt
+		resolver {
+			...sender
+		}
+		status
+	}
+
+	fragment targetedModAction on ModLogsTargetedModActionsEntry {
+		id
+		action
+		timestamp
+		channel {
+			id
+			login
+		}
+		target {
+			id
+			login
+		}
+		user {
+			id
+			login
+		}
+		details {
+			...targetedModActionDetails
+		}
+	}
+
+	fragment targetedModActionDetails on TargetedModActionDetails {
+		bannedAt
+		durationSeconds
+		expiresAt
+		reason
+	}
+
+	fragment sender on User {
+		id
+		login
+		displayName
+		chatColor
+		displayBadges {
+			...badge
+		}
+	}
+
+	${twitchBadgeFragment}
 `;
 
 export namespace twitchUserCardMessagesQuery {

@@ -41,6 +41,7 @@
 					:anchor="boxRef"
 					placement="right-end"
 					:middleware="[shift({ mainAxis: true, crossAxis: true }), autoPlacement()]"
+					:once="true"
 					:emit-clickout="true"
 					@clickout="showEmoteCard = false"
 				>

@@ -35,14 +35,7 @@
 		</template>
 
 		<!-- Chat Author -->
-		<UserTag
-			v-if="msg.author && !hideAuthor"
-			:user="msg.author"
-			:badges="msg.badges"
-			:msg-id="msg.sym"
-			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
-			@badge-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
-		/>
+		<UserTag v-if="msg.author && !hideAuthor" :user="msg.author" :badges="msg.badges" :msg-id="msg.sym" />
 
 		<span v-if="!hideAuthor">
 			{{ !msg.slashMe ? ": " : " " }}
@@ -97,7 +90,6 @@ import { IsEmoteToken, IsLinkToken, IsMentionToken } from "@/common/type-predica
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
-import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
@@ -135,7 +127,6 @@ const msgEl = ref<HTMLSpanElement | null>();
 
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
-const { openViewerCard } = useChatTools(ctx);
 const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? "");
 
 const emoteScale = useConfig<number>("chat.emote_scale");
@@ -253,8 +244,8 @@ watchEffect(() => {
 			{ locale },
 			{
 				localeMatcher: "lookup",
-				hour: "numeric",
-				minute: "numeric",
+				hour: "2-digit",
+				minute: "2-digit",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
 				hour12: useTimestampFormat(),
 			},
@@ -337,6 +328,8 @@ watchEffect(() => {
 
 .seventv-chat-message-timestamp {
 	margin-right: 0.5rem;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.1rem;
 	color: var(--seventv-muted);
 }
 </style>
