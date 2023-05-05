@@ -1,6 +1,6 @@
 <template>
 	<div class="seventv-user-card-message-timeline">
-		<section v-for="(messages, date) in timeline" :key="date" :timeline-id="date">
+		<section v-for="[date, messages] of Object.entries(timeline).reverse()" :key="date" :timeline-id="date">
 			<div selector="date-boundary" />
 			<label>{{ date }}</label>
 			<div selector="date-boundary" />
@@ -13,35 +13,19 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, watchEffect } from "vue";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import UserMessage from "../message/UserMessage.vue";
 
-const props = defineProps<{
+defineProps<{
 	timeline: Record<string, ChatMessage[]>;
 	scroller?: InstanceType<typeof UiScrollable>;
 }>();
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
-
-const init = ref(false);
-
-watchEffect(() => {
-	if (init.value) return;
-
-	// scroll to bottom initially
-	nextTick(() => {
-		if (!props.scroller || !props.scroller.container) return;
-
-		props.scroller.container.scrollTo({ top: props.scroller.container.scrollHeight });
-	});
-
-	init.value = true;
-});
 </script>
 
 <style scoped lang="scss">

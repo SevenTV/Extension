@@ -18,7 +18,6 @@ export interface TwTypeUser {
 	chatColor: string;
 	profileImageURL: string;
 	bannerImageURL?: string;
-	stream: unknown;
 	channel: TwTypeChannel;
 	self: TwTypeUserSelfConnection;
 	blockedUsers: TwTypeUser[];
@@ -29,6 +28,16 @@ export interface TwTypeUser {
 		followedAt: string;
 		cumulativeTenure: null | string;
 		subscriptionBenefits: null | string;
+	};
+	stream?: TwTypeStream;
+}
+
+export interface TwTypeStream {
+	id: string;
+	viewersCount: number;
+	game?: {
+		id: string;
+		displayName: string;
 	};
 }
 
