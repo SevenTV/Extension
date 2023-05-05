@@ -27,9 +27,20 @@
 					<div class="rightactions"></div>
 					<div class="leftactions"></div>
 				</div>
+				<!-- Mod Icons -->
+				<UserCardMod v-if="data.isActorModerator" />
 			</div>
 			<div class="seventv-user-card-data">
-				<div class="tabs"></div>
+				<div class="tabs">
+					<UserCardTabs
+						:active-tab="data.activeTab"
+						:message-count="data.count.messages"
+						:ban-count="data.count.bans"
+						:timeout-count="data.count.timeouts"
+						:comment-count="data.count.comments"
+						@switch="data.activeTab = $event"
+					/>
+				</div>
 				<UiScrollable ref="scroller" @container-scroll="onScroll">
 					<UserCardMessageList :timeline="data.messages" :scroller="scroller" />
 				</UiScrollable>
@@ -48,10 +59,15 @@ import type { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useApollo } from "@/composable/useApollo";
-import { twitchUserCardQuery } from "@/assets/gql/tw.user-card.gql";
-import { twitchUserCardMessagesQuery } from "@/assets/gql/tw.user-card.gql";
+import {
+	twitchUserCardMessagesQuery,
+	twitchUserCardModLogsQuery,
+	twitchUserCardQuery,
+} from "@/assets/gql/tw.user-card.gql";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import UserCardMessageList from "./UserCardMessageList.vue";
+import UserCardMod from "./UserCardMod.vue";
+import UserCardTabs, { UserCardTabName } from "./UserCardTabs.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
@@ -73,6 +89,7 @@ const scroller = ref<InstanceType<typeof UiScrollable> | undefined>();
 const dragHandle = ref<HTMLDivElement | undefined>();
 const cardRef = ref<HTMLElement | null>(null);
 const data = reactive({
+	activeTab: "messages" as UserCardTabName,
 	canActorAccessLogs: false,
 	isActorModerator: false,
 	targetUser: {
@@ -92,6 +109,12 @@ const data = reactive({
 	},
 	messages: {} as Record<string, ChatMessage[]>,
 	messageCursors: new WeakMap<ChatMessage, string>(),
+	count: {
+		messages: 0,
+		bans: 0,
+		timeouts: 0,
+		comments: 0,
+	},
 });
 
 async function fetchMessageLogs(after?: ChatMessage): Promise<ChatMessage[]> {
@@ -122,6 +145,26 @@ async function fetchMessageLogs(after?: ChatMessage): Promise<ChatMessage[]> {
 	}
 
 	return result;
+}
+
+async function fetchModeratorData(): Promise<void> {
+	if (!data.targetUser || !apollo) return;
+
+	const resp = await apollo
+		.query<twitchUserCardModLogsQuery.Response, twitchUserCardModLogsQuery.Variables>({
+			query: twitchUserCardModLogsQuery,
+			variables: {
+				channelLogin: ctx.username,
+				targetID: data.targetUser.id,
+			},
+		})
+		.catch((err) => Promise.reject(err));
+	if (!resp || resp.errors?.length || !resp.data.channelUser) return;
+
+	data.count.messages = resp.data.channelUser.modLogs.messages.messageCount;
+	data.count.bans = resp.data.channelUser.modLogs.bans.actionCount;
+	data.count.timeouts = resp.data.channelUser.modLogs.timeouts.actionCount;
+	data.count.comments = resp.data.channelUser.modLogs.comments?.edges.length ?? 0;
 }
 
 function onScroll(): void {
@@ -228,6 +271,7 @@ watchEffect(async () => {
 				(data.canActorAccessLogs || (identity.value && data.targetUser.id === identity.value.id))
 			) {
 				addMessages(await fetchMessageLogs());
+				fetchModeratorData();
 			}
 		})
 		.catch((err) => log.error("failed to query user card", err));
@@ -286,12 +330,13 @@ main.seventv-user-card-container {
 .header {
 	display: grid;
 	grid-template-columns: 1fr;
-	grid-template-rows: 9rem 1fr 1fr;
+	grid-template-rows: 9rem 1fr 1fr 1fr;
 	grid-auto-flow: row;
 	grid-template-areas:
 		"identity"
 		"greystates"
-		"actions";
+		"actions"
+		"modactions";
 	grid-area: header;
 }
 

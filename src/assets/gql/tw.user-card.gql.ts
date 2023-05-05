@@ -211,8 +211,125 @@ export const twitchUserCardModLogsQuery = gql`
 				hasPreviousPage
 			}
 		}
+		comments(targetID: $targetID) {
+			edges {
+				cursor
+				node {
+					id
+				}
+			}
+		}
+	}
+
+	fragment targetedModAction on ModLogsTargetedModActionsEntry {
+		id
+		action
+		timestamp
+		channel {
+			id
+			login
+		}
+		target {
+			id
+			login
+		}
+		user {
+			id
+			login
+		}
+		details {
+			...targetedModActionDetails
+		}
+	}
+
+	fragment targetedModActionDetails on TargetedModActionDetails {
+		bannedAt
+		durationSeconds
+		expiresAt
+		reason
 	}
 `;
+
+export namespace twitchUserCardModLogsQuery {
+	export interface Variables {
+		channelLogin: string;
+		targetID: string;
+	}
+
+	export interface Response {
+		targetUser: {
+			id: string;
+			login: string;
+		};
+		channelUser: {
+			id: string;
+			login: string;
+			modLogs: {
+				messages: {
+					messageCount: number;
+				};
+				bans: {
+					edges: {
+						cursor: string;
+						node: {
+							id: string;
+							actionType: string;
+							createdAt: string;
+							durationSeconds: number;
+							reason: string;
+							creator: {
+								id: string;
+								login: string;
+								displayName: string;
+								profileImageURL: string;
+							};
+						};
+					}[];
+					actionCount: number;
+					pageInfo: {
+						hasNextPage: boolean;
+						hasPreviousPage: boolean;
+					};
+				};
+				timeouts: {
+					edges: {
+						cursor: string;
+						node: {
+							id: string;
+							actionType: string;
+							createdAt: string;
+							durationSeconds: number;
+							reason: string;
+							creator: {
+								id: string;
+								login: string;
+								displayName: string;
+								profileImageURL: string;
+							};
+						};
+					}[];
+					actionCount: number;
+					pageInfo: {
+						hasNextPage: boolean;
+						hasPreviousPage: boolean;
+					};
+				};
+				comments: {
+					edges: {
+						cursor: string;
+						node: {
+							id: string;
+						};
+					}[];
+				};
+			};
+		};
+		currentUser: {
+			login: string;
+			id: string;
+		};
+	}
+}
 
 export const twitchUserCardMessagesQuery = gql`
 	query UserCardMessagesBySender($senderID: ID!, $channelLogin: String!, $cursor: Cursor) {

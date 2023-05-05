@@ -46,7 +46,7 @@ const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 				const btn = document.querySelector<HTMLElement>(selector);
 				if (!btn) return;
 
-				btn.addEventListener("click", () => {
+				btn.addEventListener("switch", () => {
 					chrome.runtime.sendMessage(
 						{
 							type: "permission-request",
