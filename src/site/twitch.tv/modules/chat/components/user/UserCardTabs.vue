@@ -6,7 +6,7 @@
 			:selected="activeTab === btn.id"
 			@click="emit('switch', btn.id)"
 		>
-			{{ formatCount(btn.count) }}
+			{{ formatCount(btn.count, btn.maxCount) }}
 			<p>{{ btn.label }}</p>
 		</button>
 	</div>
@@ -32,15 +32,15 @@ export type UserCardTabName = "messages" | "timeouts" | "bans" | "comments";
 const buttons = computed(
 	() =>
 		[
-			{ id: "messages", label: "Messages", count: props.messageCount },
-			{ id: "timeouts", label: "Timeouts", count: props.timeoutCount },
-			{ id: "bans", label: "Bans", count: props.banCount },
-			{ id: "comments", label: "Comments", count: props.commentCount },
-		] as { id: UserCardTabName; label: string; count: number }[],
+			{ id: "messages", label: "Messages", count: props.messageCount, maxCount: 1000 },
+			{ id: "timeouts", label: "Timeouts", count: props.timeoutCount, maxCount: 99 },
+			{ id: "bans", label: "Bans", count: props.banCount, maxCount: 99 },
+			{ id: "comments", label: "Comments", count: props.commentCount, maxCount: 10 },
+		] as { id: UserCardTabName; label: string; count: number; maxCount: number }[],
 );
 
-function formatCount(count: number): string {
-	return count >= 1000 ? "1000+" : count.toString();
+function formatCount(count: number, maxCount: number): string {
+	return count >= maxCount ? maxCount.toString() + "+" : count.toString();
 }
 </script>
 

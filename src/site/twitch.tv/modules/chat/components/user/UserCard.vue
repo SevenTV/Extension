@@ -155,6 +155,7 @@ async function fetchModeratorData(): Promise<void> {
 			query: twitchUserCardModLogsQuery,
 			variables: {
 				channelLogin: ctx.username,
+				channelID: ctx.id,
 				targetID: data.targetUser.id,
 			},
 		})
@@ -164,7 +165,7 @@ async function fetchModeratorData(): Promise<void> {
 	data.count.messages = resp.data.channelUser.modLogs.messages.messageCount;
 	data.count.bans = resp.data.channelUser.modLogs.bans.actionCount;
 	data.count.timeouts = resp.data.channelUser.modLogs.timeouts.actionCount;
-	data.count.comments = resp.data.channelUser.modLogs.comments?.edges.length ?? 0;
+	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
 }
 
 function onScroll(): void {

@@ -263,3 +263,27 @@ export const twitchSubProductFragment = gql`
 		name
 	}
 `;
+
+export const twitchModCommentFragment = gql`
+	fragment modComment on ModLogsComment {
+		id
+		timestamp
+		text
+		author {
+			...modCommentUser
+		}
+		channel {
+			...modCommentUser
+		}
+		target {
+			...modCommentUser
+		}
+	}
+
+	fragment modCommentUser on User {
+		id
+		login
+		displayName
+		chatColor
+	}
+`;

@@ -69,6 +69,17 @@ export interface TwTypeMessage {
 	};
 }
 
+export interface TwTypeModComment {
+	id: string;
+	author: TwTypeUser;
+	channel: TwTypeUser;
+	details: {
+		text: string;
+	};
+	target: TwTypeUser;
+	timestamp: string;
+}
+
 export interface TwTypeChannel {
 	id: string;
 	localEmoteSets: TwTypeEmoteSet[];

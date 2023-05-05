@@ -1,5 +1,5 @@
-import { twitchBadgeFragment, twitchSubProductFragment } from "./tw.fragment.gql";
-import { TwTypeMessage, TwTypeUser } from "./tw.gql";
+import { twitchBadgeFragment, twitchModCommentFragment, twitchSubProductFragment } from "./tw.fragment.gql";
+import { TwTypeMessage, TwTypeModComment, TwTypeUser } from "./tw.gql";
 import gql from "graphql-tag";
 
 export const twitchUserCardQuery = gql`
@@ -157,7 +157,7 @@ export namespace twitchUserCardQuery {
 }
 
 export const twitchUserCardModLogsQuery = gql`
-	query ViewerCardModLogs($channelLogin: String!, $targetID: ID!) {
+	query ViewerCardModLogs($channelLogin: String!, $channelID: ID!, $targetID: ID!) {
 		targetUser: user(id: $targetID) {
 			id
 			login
@@ -172,6 +172,22 @@ export const twitchUserCardModLogsQuery = gql`
 		currentUser {
 			login
 			id
+		}
+		viewerCardModLogs(targetID: $targetID, channelID: $channelID) {
+			comments(first: 100) {
+				... on ModLogsCommentConnection {
+					edges {
+						cursor
+						node {
+							...modComment
+						}
+					}
+					pageInfo {
+						hasNextPage
+						hasPreviousPage
+					}
+				}
+			}
 		}
 	}
 
@@ -211,14 +227,6 @@ export const twitchUserCardModLogsQuery = gql`
 				hasPreviousPage
 			}
 		}
-		comments(targetID: $targetID) {
-			edges {
-				cursor
-				node {
-					id
-				}
-			}
-		}
 	}
 
 	fragment targetedModAction on ModLogsTargetedModActionsEntry {
@@ -248,10 +256,13 @@ export const twitchUserCardModLogsQuery = gql`
 		expiresAt
 		reason
 	}
+
+	${twitchModCommentFragment}
 `;
 
 export namespace twitchUserCardModLogsQuery {
 	export interface Variables {
+		channelID: string;
 		channelLogin: string;
 		targetID: string;
 	}
@@ -314,19 +325,19 @@ export namespace twitchUserCardModLogsQuery {
 						hasPreviousPage: boolean;
 					};
 				};
-				comments: {
-					edges: {
-						cursor: string;
-						node: {
-							id: string;
-						};
-					}[];
-				};
 			};
 		};
 		currentUser: {
 			login: string;
 			id: string;
+		};
+		viewerCardModLogs: {
+			comments: {
+				edges: {
+					cursor: string;
+					node: TwTypeModComment;
+				}[];
+			};
 		};
 	}
 }
@@ -432,6 +443,34 @@ export const twitchUserCardMessagesQuery = gql`
 
 	${twitchBadgeFragment}
 `;
+
+export const twitchCreateModeratorCommentMutation = gql`
+	mutation CreateModeratorComment($input: CreateModeratorCommentInput!) {
+		createModeratorComment(input: $input) {
+			comment {
+				...modComment
+			}
+		}
+	}
+
+	${twitchModCommentFragment}
+`;
+
+export namespace twitchCreateModeratorCommentMutation {
+	export interface Variables {
+		input: {
+			channelID: string;
+			targetID: string;
+			comment: string;
+		};
+	}
+
+	export interface Response {
+		createModeratorComment: {
+			comment: TwTypeModComment;
+		};
+	}
+}
 
 export namespace twitchUserCardMessagesQuery {
 	export interface Variables {
