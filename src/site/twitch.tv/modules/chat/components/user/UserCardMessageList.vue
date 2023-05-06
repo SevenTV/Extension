@@ -1,39 +1,71 @@
 <template>
-	<div class="seventv-user-card-message-timeline">
-		<section v-for="[date, messages] of Object.entries(timeline).reverse()" :key="date" :timeline-id="date">
+	<div v-if="ready" class="seventv-user-card-message-timeline">
+		<section v-for="[date, messages] of activeTimeline" :key="date" :timeline-id="date">
 			<div selector="date-boundary" />
 			<label>{{ date }}</label>
 			<div selector="date-boundary" />
 
 			<div class="seventv-user-card-message-timeline-list">
-				<UserMessage v-for="msg of messages" :key="msg.sym" :msg="msg" :emotes="emotes.active" />
+				<template v-for="msg of messages" :key="msg.sym">
+					<component
+						:is="msg.instance"
+						v-if="msg.instance && msg.instance !== NormalMessage"
+						v-bind="msg.componentProps"
+						:msg="msg"
+					>
+						<UserMessage :msg="msg" :emotes="emotes.active" />
+					</component>
+					<UserMessage v-else :msg="msg" :emotes="emotes.active" />
+				</template>
 			</div>
 		</section>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
+import { computed, watch } from "vue";
+import { refAutoReset } from "@vueuse/core";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import type { UserCardTabName } from "./UserCardTabs.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import UserMessage from "../message/UserMessage.vue";
+import NormalMessage from "../types/0.NormalMessage.vue";
 
 const props = defineProps<{
+	activeTab: UserCardTabName;
 	timeline: Record<string, ChatMessage[]>;
 	scroller?: InstanceType<typeof UiScrollable>;
 }>();
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
+const ready = refAutoReset(true, 10);
+const activeTimeline = computed(() => Object.entries(props.timeline).reverse());
+
+function scrollToLive(): void {
+	if (!props.scroller?.container) return;
+	props.scroller.container.scrollTo({
+		top: props.scroller.container.scrollHeight,
+	});
+}
+
+watch(
+	() => props.activeTab,
+	() => {
+		ready.value = false;
+
+		setTimeout(() => {
+			scrollToLive();
+		}, 10);
+	},
+);
 
 watch(props.timeline, () => {
 	if (!props.scroller?.container || props.scroller.container.scrollTop !== 0) return;
 
-	props.scroller.container.scrollTo({
-		top: props.scroller.container.scrollHeight,
-	});
+	scrollToLive();
 });
 </script>
 
@@ -84,6 +116,7 @@ section {
 	.seventv-user-card-message-timeline-list {
 		grid-area: msg;
 		display: grid;
+		grid-template-columns: 1fr;
 		row-gap: 1rem;
 		margin: 0 0.5rem;
 	}

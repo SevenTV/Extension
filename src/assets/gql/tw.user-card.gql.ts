@@ -1,5 +1,5 @@
 import { twitchBadgeFragment, twitchModCommentFragment, twitchSubProductFragment } from "./tw.fragment.gql";
-import { TwTypeMessage, TwTypeModComment, TwTypeUser } from "./tw.gql";
+import { TwTypeMessage, TwTypeModComment, TwTypeModEntry, TwTypeUser } from "./tw.gql";
 import gql from "graphql-tag";
 
 export const twitchUserCardQuery = gql`
@@ -282,19 +282,7 @@ export namespace twitchUserCardModLogsQuery {
 				bans: {
 					edges: {
 						cursor: string;
-						node: {
-							id: string;
-							actionType: string;
-							createdAt: string;
-							durationSeconds: number;
-							reason: string;
-							creator: {
-								id: string;
-								login: string;
-								displayName: string;
-								profileImageURL: string;
-							};
-						};
+						node: TwTypeModEntry;
 					}[];
 					actionCount: number;
 					pageInfo: {
@@ -305,19 +293,7 @@ export namespace twitchUserCardModLogsQuery {
 				timeouts: {
 					edges: {
 						cursor: string;
-						node: {
-							id: string;
-							actionType: string;
-							createdAt: string;
-							durationSeconds: number;
-							reason: string;
-							creator: {
-								id: string;
-								login: string;
-								displayName: string;
-								profileImageURL: string;
-							};
-						};
+						node: TwTypeModEntry;
 					}[];
 					actionCount: number;
 					pageInfo: {

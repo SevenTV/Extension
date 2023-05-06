@@ -80,6 +80,23 @@ export interface TwTypeModComment {
 	timestamp: string;
 }
 
+export interface TwTypeModEntry {
+	id: string;
+	action: "TIMEOUT_USER" | "UNTIMEOUT_USER" | "BAN_USER" | "UNBAN_USER";
+	details: TwTypeModActionDetails;
+	timestamp: string;
+	channel: Pick<TwTypeUser, "id" | "login">;
+	target: Pick<TwTypeUser, "id" | "login">;
+	user: Pick<TwTypeUser, "id" | "login">;
+}
+
+export interface TwTypeModActionDetails {
+	bannedAt: string;
+	durationSeconds: number;
+	expiresAt: string;
+	reason: string | null;
+}
+
 export interface TwTypeChannel {
 	id: string;
 	localEmoteSets: TwTypeEmoteSet[];

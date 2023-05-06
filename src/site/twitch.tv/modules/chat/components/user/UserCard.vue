@@ -42,7 +42,11 @@
 					/>
 				</div>
 				<UiScrollable ref="scroller" @container-scroll="onScroll">
-					<UserCardMessageList :timeline="data.messages" :scroller="scroller" />
+					<UserCardMessageList
+						:active-tab="data.activeTab"
+						:timeline="getActiveTimeline()"
+						:scroller="scroller"
+					/>
 				</UiScrollable>
 			</div>
 		</div>
@@ -51,11 +55,12 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
 import { convertTwitchMessage } from "@/common/Transform";
-import type { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
+import { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useApollo } from "@/composable/useApollo";
@@ -69,6 +74,7 @@ import UserCardMessageList from "./UserCardMessageList.vue";
 import UserCardMod from "./UserCardMod.vue";
 import UserCardTabs, { UserCardTabName } from "./UserCardTabs.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
+import BasicSystemMessage from "../types/BasicSystemMessage.vue";
 
 const props = defineProps<{
 	target: ChatUser;
@@ -84,6 +90,7 @@ const messages = useChatMessages(ctx);
 const { identity } = storeToRefs(useStore());
 
 const apollo = useApollo();
+const { t } = useI18n();
 
 const scroller = ref<InstanceType<typeof UiScrollable> | undefined>();
 const dragHandle = ref<HTMLDivElement | undefined>();
@@ -107,8 +114,13 @@ const data = reactive({
 		game: "",
 		viewCount: 0,
 	},
-	messages: {} as Record<string, ChatMessage[]>,
 	messageCursors: new WeakMap<ChatMessage, string>(),
+	timelines: {
+		messages: {} as Record<string, ChatMessage[]>,
+		bans: {} as Record<string, ChatMessage[]>,
+		timeouts: {} as Record<string, ChatMessage[]>,
+		comments: {} as Record<string, ChatMessage[]>,
+	},
 	count: {
 		messages: 0,
 		bans: 0,
@@ -117,8 +129,12 @@ const data = reactive({
 	},
 });
 
+function getActiveTimeline(): Record<string, ChatMessage[]> {
+	return data.timelines[data.activeTab];
+}
+
 async function fetchMessageLogs(after?: ChatMessage): Promise<ChatMessage[]> {
-	if (!data.targetUser || !apollo) return [];
+	if (!data.targetUser || !apollo || data.activeTab !== "messages") return [];
 
 	const cursor = after ? data.messageCursors.get(after) : undefined;
 	const msgResp = await apollo
@@ -166,6 +182,41 @@ async function fetchModeratorData(): Promise<void> {
 	data.count.bans = resp.data.channelUser.modLogs.bans.actionCount;
 	data.count.timeouts = resp.data.channelUser.modLogs.timeouts.actionCount;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
+
+	const timeouts = resp.data.channelUser.modLogs.timeouts.edges;
+	const bans = resp.data.channelUser.modLogs.bans.edges;
+
+	for (const [tabName, a] of [
+		["timeouts", timeouts] as [UserCardTabName, typeof timeouts],
+		["bans", bans] as [UserCardTabName, typeof bans],
+	]) {
+		const result = [] as ChatMessage[];
+
+		for (const e of a) {
+			const key = {
+				TIMEOUT_USER: e.node.details.reason
+					? "chat.system.mod_timeout_user_reason"
+					: "chat.system.mod_timeout_user",
+				UNTIMEOUT_USER: "chat.system.mod_undo_timeout_user",
+				BAN_USER: e.node.details.reason ? "chat.system.mod_ban_user_reason" : "chat.system.mod_ban_user",
+				UNBAN_USER: "chat.system.mod_undo_ban_user",
+			}[e.node.action];
+
+			const m = new ChatMessage(e.node.id).setComponent(BasicSystemMessage, {
+				text: t(key, {
+					actor: e.node.user?.login,
+					victim: e.node.target?.login,
+					duration: e.node.details?.durationSeconds,
+					reason: e.node.details?.reason,
+				}),
+			});
+			m.setTimestamp(Date.parse(e.node.timestamp));
+
+			result.push(m);
+		}
+
+		addMessages(result, tabName);
+	}
 }
 
 function onScroll(): void {
@@ -175,11 +226,11 @@ function onScroll(): void {
 	if (container.scrollTop > 0) return;
 
 	const key = getTimelineKey(
-		new Date(Math.min(...Object.keys(data.messages).map((key) => Date.parse(key) || Infinity))),
+		new Date(Math.min(...Object.keys(data.timelines.messages).map((key) => Date.parse(key) || Infinity))),
 	);
 	if (!key) return;
 
-	const timeline = data.messages[key];
+	const timeline = data.timelines.messages[key];
 	if (!timeline) return;
 
 	const firstMsg = timeline[0];
@@ -201,8 +252,12 @@ function getTimelineKey(date: Date): string {
 	return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-function addMessages(msgs: ChatMessage[]): void {
-	// iterate by msg timestamp and group them into data.messagesd
+/**
+ * Add messages to the timeline
+ */
+function addMessages(msgs: ChatMessage[], timelineName: UserCardTabName = "messages"): void {
+	const tl = data.timelines[timelineName];
+
 	const liveMessages = messages.find((msg) => !!msg.author && msg.author.id === props.target.id, true);
 	const liveIDs = new Set<string>(liveMessages.map((m) => m.id));
 
@@ -211,11 +266,11 @@ function addMessages(msgs: ChatMessage[]): void {
 
 		const key = liveIDs.has(msg.id) ? "LIVE" : getTimelineKey(new Date(msg.timestamp));
 
-		if (!data.messages[key]) data.messages[key] = [];
-		else if (data.messages[key].find((m) => m.id === msg.id)) continue;
+		if (!tl[key]) tl[key] = [];
+		else if (tl[key].find((m) => m.id === msg.id)) continue;
 
-		data.messages[key].unshift(msg);
-		data.messages[key].sort((a, b) => a.timestamp - b.timestamp);
+		tl[key].unshift(msg);
+		tl[key].sort((a, b) => a.timestamp - b.timestamp);
 	}
 }
 
