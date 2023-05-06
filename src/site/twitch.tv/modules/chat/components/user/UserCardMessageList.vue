@@ -13,19 +13,28 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from "vue";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import UserMessage from "../message/UserMessage.vue";
 
-defineProps<{
+const props = defineProps<{
 	timeline: Record<string, ChatMessage[]>;
 	scroller?: InstanceType<typeof UiScrollable>;
 }>();
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
+
+watch(props.timeline, () => {
+	if (!props.scroller?.container || props.scroller.container.scrollTop !== 0) return;
+
+	props.scroller.container.scrollTo({
+		top: props.scroller.container.scrollHeight,
+	});
+});
 </script>
 
 <style scoped lang="scss">

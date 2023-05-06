@@ -53,7 +53,7 @@ function formatCount(count: number, maxCount: number): string {
 	grid-template-areas: ". . . .";
 
 	// downwards shadow
-	box-shadow: -0rem 0.25rem 0.25rem rgba(0, 0, 0, 0.35);
+	box-shadow: -0rem 0.25rem 0.25rem rgba(0, 0, 0, 35%);
 }
 
 button {
