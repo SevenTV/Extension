@@ -7,6 +7,7 @@
 				<div>Label</div>
 				<div class="centered">Flash Title</div>
 				<div class="centered">RegExp</div>
+				<div class="centered">Username</div>
 				<div>Case Sensitive</div>
 				<div>Color</div>
 			</div>
@@ -42,6 +43,11 @@
 						<!-- Checkbox: RegExp -->
 						<div name="is-regexp" class="centered">
 							<FormCheckbox :checked="!!h.regexp" @update:checked="onRegExpStateChange(h, $event)" />
+						</div>
+
+						<!-- Checkbox: Username -->
+						<div name="is-username" class="centered">
+							<FormCheckbox :checked="!!h.username" @update:checked="onUsernameStateChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: Case Sensitive -->
@@ -135,7 +141,12 @@ function onInputFocus(h: HighlightDef, inputName: keyof typeof inputs): void {
 function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
 	if (!input) return;
-
+	
+	if (h.username) {
+		h.pattern = h.pattern?.toLowerCase()
+		console.log(`h.username is ${h.username} setting h.pattern: ${h.pattern}`)
+	}
+	
 	const id = uuid();
 	highlights.updateId("new-highlight", id);
 	highlights.save();
@@ -149,6 +160,19 @@ function onFlashTitleChange(h: HighlightDef, checked: boolean): void {
 
 function onRegExpStateChange(h: HighlightDef, checked: boolean): void {
 	h.regexp = checked;
+	if (h.regexp) {
+		h.username = false;
+	}
+	highlights.save();
+}
+
+function onUsernameStateChange(h: HighlightDef, checked: boolean): void {
+	h.username = checked;
+	if (h.username && h.pattern) {
+		h.regexp = false;
+		h.pattern = h.pattern.toLocaleLowerCase()
+		console.log(`username checkbox was set to true, h.pattern: ${h.pattern}`)
+	}
 	highlights.save();
 }
 
