@@ -6,6 +6,7 @@
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com
 -   Added a "Site Layout" menu where certain features of the Twitch website can be hidden
+-   fixed clickability of URLs if they are surrounded by special characters
 
 ### Version 3.0.6.1000
 
