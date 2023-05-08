@@ -4,6 +4,7 @@
 		<UiScrollable
 			ref="scrollerRef"
 			class="seventv-chat-scroller"
+			:class="{ 'hidden-scroll-to-community-tab': isActiveCommunityTab }"
 			@container-scroll="scroller.onScroll"
 			@container-wheel="scroller.onWheel"
 			@mouseenter="properties.hovering = true"
@@ -33,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onUnmounted, ref, toRaw, toRefs, watch, watchEffect } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, toRaw, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
@@ -100,6 +101,11 @@ const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
+
+// Community tab handler
+const communityTabToggleButton = document.querySelector("[data-test-selector='chat-viewer-list']");
+const isActiveCommunityTab = ref(false);
+const updateScrollToCommunityTab = () => (isActiveCommunityTab.value = !isActiveCommunityTab.value);
 
 // Capture the chat root node
 watchEffect(() => {
@@ -343,6 +349,10 @@ const resizeObserver = new ResizeObserver(() => {
 });
 resizeObserver.observe(containerEl.value);
 
+onMounted(() => {
+	communityTabToggleButton?.addEventListener("click", updateScrollToCommunityTab);
+});
+
 onBeforeUnmount(() => {
 	messages.clear();
 });
@@ -362,6 +372,8 @@ onUnmounted(() => {
 	unsetPropertyHook(room.value.component, "props");
 
 	document.body.style.removeProperty("--seventv-channel-accent");
+
+	communityTabToggleButton?.removeEventListener("click", updateScrollToCommunityTab);
 });
 </script>
 
@@ -451,6 +463,11 @@ seventv-container.seventv-chat-list {
 
 .seventv-chat-scroller {
 	height: 100%;
+
+	&.hidden-scroll-to-community-tab {
+		opacity: 0;
+		visibility: hidden;
+	}
 }
 
 .community-highlight {
