@@ -1,13 +1,13 @@
 <template>
 	<main class="seventv-user-card-container">
 		<div ref="cardRef" class="seventv-user-card">
-			<div class="header">
-				<div ref="dragHandle" class="identity">
-					<div class="menuactions">
+			<div class="seventv-user-card-header">
+				<div ref="dragHandle" class="seventv-user-card-identity">
+					<div class="seventv-user-card-menuactions">
 						<CloseIcon class="close-button" @click="emit('close')" />
 					</div>
 
-					<div class="avatar">
+					<div class="seventv-user-card-avatar">
 						<img v-if="data.targetUser.avatarURL" :src="data.targetUser.avatarURL" />
 					</div>
 					<div class="seventv-user-card-usertag">
@@ -20,19 +20,20 @@
 						</div>
 					</div>
 
-					<div class="badges"></div>
+					<div class="seventv-user-card-badges"></div>
 				</div>
-				<div class="greystates"></div>
-				<div class="actions">
+				<div class="seventv-user-card-greystates"></div>
+				<div class="seventv-user-card-actions">
 					<div class="rightactions"></div>
 					<div class="leftactions"></div>
 				</div>
 				<!-- Mod Icons -->
 				<UserCardMod v-if="data.isActorModerator" />
 			</div>
-			<div class="seventv-user-card-data">
-				<div class="tabs">
+			<div class="seventv-user-card-data" :show-tabs="data.isActorModerator">
+				<div class="seventv-user-card-tabs">
 					<UserCardTabs
+						v-if="data.isActorModerator"
 						:active-tab="data.activeTab"
 						:message-count="data.count.messages"
 						:ban-count="data.count.bans"
@@ -44,8 +45,10 @@
 				<UiScrollable ref="scroller" @container-scroll="onScroll">
 					<UserCardMessageList
 						:active-tab="data.activeTab"
+						:target-id="data.targetUser.id"
 						:timeline="getActiveTimeline()"
 						:scroller="scroller"
+						@add-mod-comment="addModComment"
 					/>
 				</UiScrollable>
 			</div>
@@ -64,6 +67,7 @@ import { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useApollo } from "@/composable/useApollo";
+import { TwTypeModComment } from "@/assets/gql/tw.gql";
 import {
 	twitchUserCardMessagesQuery,
 	twitchUserCardModLogsQuery,
@@ -99,6 +103,7 @@ const data = reactive({
 	activeTab: "messages" as UserCardTabName,
 	canActorAccessLogs: false,
 	isActorModerator: false,
+	isActorBroadcaster: false,
 	targetUser: {
 		id: props.target.id,
 		username: props.target.username,
@@ -186,6 +191,7 @@ async function fetchModeratorData(): Promise<void> {
 	const timeouts = resp.data.channelUser.modLogs.timeouts.edges;
 	const bans = resp.data.channelUser.modLogs.bans.edges;
 
+	// Add timeouts and bans to the timeline
 	for (const [tabName, a] of [
 		["timeouts", timeouts] as [UserCardTabName, typeof timeouts],
 		["bans", bans] as [UserCardTabName, typeof bans],
@@ -194,12 +200,10 @@ async function fetchModeratorData(): Promise<void> {
 
 		for (const e of a) {
 			const key = {
-				TIMEOUT_USER: e.node.details.reason
-					? "chat.system.mod_timeout_user_reason"
-					: "chat.system.mod_timeout_user",
-				UNTIMEOUT_USER: "chat.system.mod_undo_timeout_user",
-				BAN_USER: e.node.details.reason ? "chat.system.mod_ban_user_reason" : "chat.system.mod_ban_user",
-				UNBAN_USER: "chat.system.mod_undo_ban_user",
+				TIMEOUT_USER: e.node.details.reason ? "messages.mod_timeout_user_reason" : "messages.mod_timeout_user",
+				UNTIMEOUT_USER: "messages.mod_undo_timeout_user",
+				BAN_USER: e.node.details.reason ? "messages.mod_ban_user_reason" : "messages.mod_ban_user",
+				UNBAN_USER: "messages.mod_undo_ban_user",
 			}[e.node.action];
 
 			const m = new ChatMessage(e.node.id).setComponent(BasicSystemMessage, {
@@ -217,6 +221,25 @@ async function fetchModeratorData(): Promise<void> {
 
 		addMessages(result, tabName);
 	}
+
+	// Add comments to the timeline
+	for (const e of resp.data.viewerCardModLogs.comments.edges) {
+		addModComment(e.node);
+	}
+}
+
+function addModComment(e: TwTypeModComment): void {
+	const m = new ChatMessage(e.id);
+	m.setAuthor({
+		id: e.author.id,
+		username: e.author.login,
+		displayName: e.author.displayName,
+		color: e.author.chatColor,
+	});
+	m.setTimestamp(Date.parse(e.timestamp));
+	m.body = e.text;
+
+	addMessages([m], "comments");
 }
 
 function onScroll(): void {
@@ -298,7 +321,8 @@ watchEffect(async () => {
 		.then(async (resp) => {
 			// Capture privilege state
 			if (resp.data.channelUser && resp.data.channelUser.self) {
-				data.isActorModerator = resp.data.channelUser.self.isModerator;
+				data.isActorBroadcaster = resp.data.currentUser.id === ctx.id;
+				data.isActorModerator = resp.data.channelUser.self.isModerator || data.isActorBroadcaster;
 			}
 
 			// Capture log access
@@ -326,8 +350,10 @@ watchEffect(async () => {
 				data.targetUser &&
 				(data.canActorAccessLogs || (identity.value && data.targetUser.id === identity.value.id))
 			) {
-				addMessages(await fetchMessageLogs());
-				fetchModeratorData();
+				addMessages(
+					(await fetchMessageLogs().catch((err) => log.error("failed to fetch message logs", err))) ?? [],
+				);
+				fetchModeratorData().catch((err) => log.error("failed to fetch moderator data", err));
 			}
 		})
 		.catch((err) => log.error("failed to query user card", err));
@@ -377,13 +403,13 @@ main.seventv-user-card-container {
 	height: 42rem;
 	width: 32rem;
 
-	box-shadow: 0 0 0.5rem 0.5rem hsla(0deg, 0, 0, 20%);
+	box-shadow: 0 0 0.5rem 0.5rem hsla(0deg, 0%, 0%, 20%);
 	background-color: var(--seventv-background-transparent-1);
 	backdrop-filter: blur(2rem);
 	border-radius: 0.5rem;
 }
 
-.header {
+.seventv-user-card-header {
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: 9rem 1fr 1fr 1fr;
@@ -396,7 +422,7 @@ main.seventv-user-card-container {
 	grid-area: header;
 }
 
-.identity {
+.seventv-user-card-identity {
 	cursor: move;
 	display: grid;
 	grid-template-columns: 9rem 1fr;
@@ -422,7 +448,7 @@ main.seventv-user-card-container {
 	}
 }
 
-.menuactions {
+.seventv-user-card-menuactions {
 	cursor: pointer;
 	z-index: 10;
 	position: absolute;
@@ -443,7 +469,7 @@ main.seventv-user-card-container {
 	}
 }
 
-.avatar {
+.seventv-user-card-avatar {
 	display: grid;
 	align-content: center;
 	justify-content: center;
@@ -494,11 +520,11 @@ main.seventv-user-card-container {
 	}
 }
 
-.badges {
+.seventv-user-card-badges {
 	grid-area: badges;
 }
 
-.greystates {
+.seventv-user-card-greystates {
 	display: grid;
 	grid-auto-rows: 1fr;
 	gap: 0.5em 0;
@@ -507,7 +533,7 @@ main.seventv-user-card-container {
 	grid-area: greystates;
 }
 
-.actions {
+.seventv-user-card-actions {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: 1fr;
@@ -540,9 +566,14 @@ main.seventv-user-card-container {
 		"messagelist";
 	grid-area: data;
 	background-color: var(--seventv-background-transparent-2);
+
+	&[show-tabs="false"] {
+		grid-template-rows: 1fr;
+		grid-template-areas: "messagelist";
+	}
 }
 
-.tabs {
+.seventv-user-card-tabs {
 	grid-area: tabs;
 }
 </style>

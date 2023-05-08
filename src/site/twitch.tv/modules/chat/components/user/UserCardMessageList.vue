@@ -1,6 +1,6 @@
 <template>
 	<div v-if="ready" class="seventv-user-card-message-timeline">
-		<section v-for="[date, messages] of activeTimeline" :key="date" :timeline-id="date">
+		<section v-for="[date, messages] of Object.entries(props.timeline).reverse()" :key="date" :timeline-id="date">
 			<div selector="date-boundary" />
 			<label>{{ date }}</label>
 			<div selector="date-boundary" />
@@ -13,21 +13,48 @@
 						v-bind="msg.componentProps"
 						:msg="msg"
 					>
-						<UserMessage :msg="msg" :emotes="emotes.active" />
+						<UserMessage
+							:msg="msg"
+							:emotes="emotes.active"
+							:hide-mod-icons="true"
+							:force-timestamp="true"
+						/>
 					</component>
-					<UserMessage v-else :msg="msg" :emotes="emotes.active" />
+
+					<template v-else>
+						<UserMessage
+							:msg="msg"
+							:emotes="emotes.active"
+							:hide-mod-icons="true"
+							:force-timestamp="true"
+						/>
+					</template>
 				</template>
 			</div>
 		</section>
+
+		<div v-if="activeTab === 'comments'" class="seventv-user-card-mod-comment-input-container">
+			<input
+				id="seventv-user-card-mod-comment-input"
+				v-model="commentText"
+				:placeholder="t('user_card.add_comment_input_placeholder')"
+				@keydown.enter="addModComment"
+			/>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { refAutoReset } from "@vueuse/core";
+import { log } from "@/common/Logger";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useApollo } from "@/composable/useApollo";
+import { TwTypeModComment } from "@/assets/gql/tw.gql";
+import { twitchUserCardCreateModCommentMut } from "@/assets/gql/tw.user-card.gql";
 import type { UserCardTabName } from "./UserCardTabs.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import UserMessage from "../message/UserMessage.vue";
@@ -35,20 +62,53 @@ import NormalMessage from "../types/0.NormalMessage.vue";
 
 const props = defineProps<{
 	activeTab: UserCardTabName;
+	targetId: string;
 	timeline: Record<string, ChatMessage[]>;
 	scroller?: InstanceType<typeof UiScrollable>;
 }>();
 
+const emit = defineEmits<{
+	(e: "add-mod-comment", comment: TwTypeModComment): void;
+}>();
+
+const { t } = useI18n();
+
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
+
 const ready = refAutoReset(true, 10);
-const activeTimeline = computed(() => Object.entries(props.timeline).reverse());
+const apollo = useApollo();
+const commentText = ref("");
 
 function scrollToLive(): void {
 	if (!props.scroller?.container) return;
 	props.scroller.container.scrollTo({
 		top: props.scroller.container.scrollHeight,
 	});
+}
+
+async function addModComment(): Promise<void> {
+	if (!commentText.value || !apollo) return;
+
+	const text = commentText.value;
+	commentText.value = "";
+
+	const resp = await apollo
+		.mutate<twitchUserCardCreateModCommentMut.Response, twitchUserCardCreateModCommentMut.Variables>({
+			mutation: twitchUserCardCreateModCommentMut,
+			variables: {
+				input: {
+					channelID: ctx.id,
+					targetID: props.targetId,
+					text,
+				},
+			},
+		})
+		.catch((err) => log.error("failed to add mod comment", err));
+	if (!resp || !resp.data || !resp.data.createModeratorComment) return;
+
+	emit("add-mod-comment", resp.data?.createModeratorComment.comment);
+	nextTick(scrollToLive);
 }
 
 watch(
@@ -119,6 +179,37 @@ section {
 		grid-template-columns: 1fr;
 		row-gap: 1rem;
 		margin: 0 0.5rem;
+
+		&:hover {
+			.seventv-user-card-mod-comment-button {
+				visibility: visible;
+			}
+		}
+	}
+}
+
+.seventv-user-card-mod-comment-input-container {
+	position: sticky;
+	bottom: 0;
+	padding: 0.5rem 0;
+
+	display: grid;
+	grid-template-columns: 1fr;
+	width: 100%;
+
+	input {
+		background-color: var(--seventv-background-shade-1);
+		border: none;
+		color: var(--seventv-text-color-normal);
+		outline: 0.1rem solid var(--seventv-input-border);
+		border-radius: 0.25rem;
+		padding: 0.5rem 1rem;
+		margin: 0 1rem;
+		transition: outline 140ms ease-in-out;
+
+		&:focus {
+			outline: 0.1rem solid var(--seventv-primary);
+		}
 	}
 }
 </style>

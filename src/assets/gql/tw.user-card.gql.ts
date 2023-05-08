@@ -420,34 +420,6 @@ export const twitchUserCardMessagesQuery = gql`
 	${twitchBadgeFragment}
 `;
 
-export const twitchCreateModeratorCommentMutation = gql`
-	mutation CreateModeratorComment($input: CreateModeratorCommentInput!) {
-		createModeratorComment(input: $input) {
-			comment {
-				...modComment
-			}
-		}
-	}
-
-	${twitchModCommentFragment}
-`;
-
-export namespace twitchCreateModeratorCommentMutation {
-	export interface Variables {
-		input: {
-			channelID: string;
-			targetID: string;
-			comment: string;
-		};
-	}
-
-	export interface Response {
-		createModeratorComment: {
-			comment: TwTypeModComment;
-		};
-	}
-}
-
 export namespace twitchUserCardMessagesQuery {
 	export interface Variables {
 		senderID: string;
@@ -469,6 +441,61 @@ export namespace twitchUserCardMessagesQuery {
 					};
 				};
 			};
+		};
+	}
+}
+
+export const twitchUserCardCreateModCommentMut = gql`
+	mutation createModComment($input: CreateModeratorCommentInput!) {
+		createModeratorComment(input: $input) {
+			comment {
+				...modComment
+			}
+		}
+	}
+
+	${twitchModCommentFragment}
+`;
+
+export const twitchUserCardDeleteModCommentMut = gql`
+	mutation deleteModeratorComment($input: DeleteModeratorCommentInput!) {
+		deleteModeratorComment(input: $input) {
+			comment {
+				...modComment
+			}
+		}
+	}
+
+	${twitchModCommentFragment}
+`;
+
+export namespace twitchUserCardCreateModCommentMut {
+	export interface Variables {
+		input: {
+			channelID: string;
+			targetID: string;
+			text: string;
+		};
+	}
+
+	export interface Response {
+		createModeratorComment: {
+			comment: TwTypeModComment;
+		};
+	}
+}
+
+export namespace twitchUserCardDeleteModCommentMut {
+	export interface Variables {
+		input: {
+			ID: string;
+			channelID: string;
+		};
+	}
+
+	export interface Response {
+		deleteModeratorComment: {
+			comment: TwTypeModComment;
 		};
 	}
 }

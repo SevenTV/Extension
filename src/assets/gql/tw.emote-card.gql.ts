@@ -1,3 +1,4 @@
+import { twitchSubProductFragment, twitchSubProductsFragments } from "./tw.fragment.gql";
 import { TwTypeEmote } from "./tw.gql";
 import { gql } from "graphql-tag";
 
@@ -76,6 +77,9 @@ export const emoteCardQuery = gql`
 			type
 		}
 	}
+
+	${twitchSubProductFragment}
+	${twitchSubProductsFragments}
 `;
 
 export namespace emoteCardQuery {

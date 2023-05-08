@@ -30,7 +30,7 @@
 		</template>
 
 		<!-- Mod Icons -->
-		<template v-if="properties.isModerator && properties.showModerationIcons">
+		<template v-if="properties.isModerator && properties.showModerationIcons && !hideModIcons">
 			<ModIcons :msg="msg" />
 		</template>
 
@@ -115,6 +115,7 @@ const props = withDefaults(
 		isModerator?: boolean;
 		hideAuthor?: boolean;
 		hideModeration?: boolean;
+		hideModIcons?: boolean;
 		hideDeletionState?: boolean;
 		showButtons?: boolean;
 		forceTimestamp?: boolean;

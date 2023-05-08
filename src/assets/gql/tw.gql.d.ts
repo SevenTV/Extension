@@ -73,9 +73,7 @@ export interface TwTypeModComment {
 	id: string;
 	author: TwTypeUser;
 	channel: TwTypeUser;
-	details: {
-		text: string;
-	};
+	text: string;
 	target: TwTypeUser;
 	timestamp: string;
 }
