@@ -2,6 +2,7 @@
 	<main class="seventv-user-card-container">
 		<div ref="cardRef" class="seventv-user-card">
 			<div class="seventv-user-card-header">
+				<!--Identity (avatar, nametag, badges) -->
 				<div ref="dragHandle" class="seventv-user-card-identity">
 					<div class="seventv-user-card-menuactions">
 						<CloseIcon class="close-button" @click="emit('close')" />
@@ -12,23 +13,30 @@
 					</div>
 					<div class="seventv-user-card-usertag">
 						<p>{{ data.targetUser.displayName }}</p>
-
-						<!-- LIVE Indicator -->
-						<div v-if="data.stream.live" class="seventv-user-card-live-badge">
-							<span>LIVE</span>
-							<span>{{ data.stream.viewCount }}</span>
-						</div>
 					</div>
 
-					<div class="seventv-user-card-badges"></div>
+					<div class="seventv-user-card-badges">
+						<Badge
+							v-for="badge of data.targetUser.badges"
+							:key="badge.id"
+							:badge="badge"
+							:alt="badge.data.tooltip"
+							type="app"
+						/>
+					</div>
 				</div>
-				<div class="seventv-user-card-greystates"></div>
-				<div class="seventv-user-card-actions">
-					<div class="rightactions"></div>
-					<div class="leftactions"></div>
+
+				<div class="seventv-user-card-states">
+					<div class="seventv-user-card-greystates">
+						<p v-if="data.targetUser.relationship.followedAt">
+							{{ t("user_card.account_created_date", { date: data.targetUser.relationship.followedAt }) }}
+						</p>
+					</div>
+
+					<UserCardActions />
+					<!-- Mod Icons -->
+					<UserCardMod v-if="data.isActorModerator" />
 				</div>
-				<!-- Mod Icons -->
-				<UserCardMod v-if="data.isActorModerator" />
 			</div>
 			<div class="seventv-user-card-data" :show-tabs="data.isActorModerator">
 				<div class="seventv-user-card-tabs">
@@ -63,10 +71,12 @@ import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
 import { convertTwitchMessage } from "@/common/Transform";
+import { convertTwitchBadge } from "@/common/Transform";
 import { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useApollo } from "@/composable/useApollo";
+import { useCosmetics } from "@/composable/useCosmetics";
 import { TwTypeModComment } from "@/assets/gql/tw.gql";
 import {
 	twitchUserCardMessagesQuery,
@@ -74,11 +84,14 @@ import {
 	twitchUserCardQuery,
 } from "@/assets/gql/tw.user-card.gql";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
+import Badge from "./Badge.vue";
+import UserCardActions from "./UserCardActions.vue";
 import UserCardMessageList from "./UserCardMessageList.vue";
 import UserCardMod from "./UserCardMod.vue";
 import UserCardTabs, { UserCardTabName } from "./UserCardTabs.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import BasicSystemMessage from "../types/BasicSystemMessage.vue";
+import formatDate from "date-fns/fp/format";
 
 const props = defineProps<{
 	target: ChatUser;
@@ -92,6 +105,7 @@ const emit = defineEmits<{
 const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
 const { identity } = storeToRefs(useStore());
+const cosmetics = useCosmetics(props.target.id);
 
 const apollo = useApollo();
 const { t } = useI18n();
@@ -110,6 +124,7 @@ const data = reactive({
 		displayName: props.target.displayName,
 		bannerURL: "",
 		avatarURL: "",
+		badges: [] as SevenTV.Cosmetic<"BADGE">[],
 		relationship: {
 			followedAt: "",
 		},
@@ -315,7 +330,7 @@ watchEffect(async () => {
 				hasChannelID: true,
 				targetLogin: props.target.username,
 				withStandardGifting: false,
-				isViewerBadgeCollectionEnabled: false,
+				isViewerBadgeCollectionEnabled: true,
 			},
 		})
 		.then(async (resp) => {
@@ -336,12 +351,26 @@ watchEffect(async () => {
 				data.targetUser.displayName = resp.data.targetUser.displayName;
 				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
 				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
-				data.targetUser.relationship.followedAt = resp.data.targetUser.relationship?.followedAt ?? "";
+				data.targetUser.relationship.followedAt = resp.data.targetUser.relationship?.followedAt
+					? formatDate("PPP")(new Date(resp.data.targetUser.relationship.followedAt))
+					: "";
 
 				if (resp.data.targetUser.stream) {
 					data.stream.live = true;
 					data.stream.game = resp.data.targetUser.stream.game?.displayName ?? "";
 					data.stream.viewCount = resp.data.targetUser.stream.viewersCount;
+				}
+
+				data.targetUser.badges.length = 0;
+				for (let i = 0; i < resp.data.channelViewer.earnedBadges.length; i++) {
+					const badge = convertTwitchBadge(resp.data.channelViewer.earnedBadges[i]);
+					if (!badge) continue;
+
+					data.targetUser.badges[i] = badge;
+				}
+
+				for (const badge of cosmetics.badges.values()) {
+					data.targetUser.badges.push(badge);
 				}
 			}
 
@@ -355,6 +384,8 @@ watchEffect(async () => {
 				);
 				fetchModeratorData().catch((err) => log.error("failed to fetch moderator data", err));
 			}
+
+			console;
 		})
 		.catch((err) => log.error("failed to query user card", err));
 });
@@ -385,6 +416,9 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
+$cardWidth: 32rem;
+$cardHeight: 42rem;
+
 main.seventv-user-card-container {
 	display: block;
 	width: 100%;
@@ -400,8 +434,8 @@ main.seventv-user-card-container {
 		"header"
 		"data";
 
-	height: 42rem;
-	width: 32rem;
+	max-height: $cardHeight;
+	width: $cardWidth;
 
 	box-shadow: 0 0 0.5rem 0.5rem hsla(0deg, 0%, 0%, 20%);
 	background-color: var(--seventv-background-transparent-1);
@@ -410,153 +444,125 @@ main.seventv-user-card-container {
 }
 
 .seventv-user-card-header {
+	grid-area: header;
 	display: grid;
-	grid-template-columns: 1fr;
-	grid-template-rows: 9rem 1fr 1fr 1fr;
-	grid-auto-flow: row;
+	grid-template-rows: 1fr 1fr;
 	grid-template-areas:
 		"identity"
-		"greystates"
-		"actions"
-		"modactions";
-	grid-area: header;
-}
+		"states";
 
-.seventv-user-card-identity {
-	cursor: move;
-	display: grid;
-	grid-template-columns: 9rem 1fr;
-	grid-template-rows: 1fr 1fr;
-	grid-auto-flow: row;
-	grid-template-areas:
-		"avatar usertag"
-		"avatar badges";
-	grid-area: identity;
+	.seventv-user-card-menuactions {
+		cursor: pointer;
+		z-index: 10;
+		position: absolute;
+		right: 0.5rem;
+		top: 0.5rem;
+		height: 2rem;
+		width: 2rem;
 
-	background: var(--seventv-user-card-banner-url);
-	background-repeat: no-repeat;
-	background-position: center top;
-	background-size: cover;
+		.close-button {
+			padding: 0.25rem;
+			width: 100%;
+			height: 100%;
+			border-radius: 0.25rem;
 
-	&::before {
-		content: " ";
-		position: fixed;
-		width: 100%;
-		height: 9rem;
-		opacity: 0.68;
-		background-color: var(--seventv-background-transparent-1);
+			&:hover {
+				background-color: var(--seventv-highlight-neutral-1);
+			}
+		}
 	}
-}
 
-.seventv-user-card-menuactions {
-	cursor: pointer;
-	z-index: 10;
-	position: absolute;
-	right: 0.5rem;
-	top: 0.5rem;
-	height: 2rem;
-	width: 2rem;
+	.seventv-user-card-identity {
+		cursor: move;
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		grid-template-rows: auto 1fr;
+		grid-auto-flow: row;
+		row-gap: 0.25rem;
+		grid-template-areas:
+			"avatar usertag"
+			"avatar badges";
+		grid-area: identity;
 
-	.close-button {
-		padding: 0.25rem;
-		width: 100%;
-		height: 100%;
-		border-radius: 0.25rem;
+		background: var(--seventv-user-card-banner-url);
+		background-repeat: no-repeat;
+		background-position: center top;
+		background-size: cover;
 
-		&:hover {
-			background-color: var(--seventv-highlight-neutral-1);
+		&::before {
+			content: " ";
+			position: fixed;
+			width: $cardWidth;
+			height: 8rem;
+			opacity: 0.68;
+			background-color: var(--seventv-background-transparent-1);
+		}
+
+		.seventv-user-card-avatar {
+			display: grid;
+			align-content: center;
+			justify-content: center;
+			padding: 0.5rem;
+			grid-area: avatar;
+
+			img {
+				clip-path: circle(50% at 50% 50%);
+			}
+		}
+
+		.seventv-user-card-usertag {
+			grid-area: usertag;
+			z-index: 1;
+			display: block;
+			padding-top: 1rem;
+			max-width: 21rem;
+
+			p {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				font-size: 1.35rem;
+				font-weight: 900;
+			}
+		}
+
+		.seventv-user-card-badges {
+			grid-area: badges;
+			// grid: position each badge next to the other on the same row, wrapping if necessary
+			display: flex;
+			flex-wrap: wrap;
+			max-width: 18rem;
+			gap: 0.5rem;
+			align-self: start;
+			z-index: 1;
+
+			> * {
+				// position badges on the same row
+				grid-row: 1;
+			}
 		}
 	}
 }
 
-.seventv-user-card-avatar {
-	display: grid;
-	align-content: center;
-	justify-content: center;
-	grid-area: avatar;
+.seventv-user-card-states {
+	grid-area: states;
+	display: block;
+	background-color: var(--seventv-background-transparent-2);
 
-	img {
-		clip-path: circle(50% at 50% 50%);
-	}
-}
-
-.seventv-user-card-usertag {
-	grid-area: usertag;
-	display: inline-block;
-	align-content: space-around;
-	padding: 0.25rem 0;
-	z-index: 1;
-
-	p {
-		font-size: 1.5rem;
-		font-weight: 900;
-	}
-
-	.seventv-user-card-live-badge {
-		grid-area: live;
+	.seventv-user-card-greystates {
+		grid-area: greystates;
 		z-index: 1;
+		overflow: clip;
+		padding: 0.5rem 1rem;
 
-		display: inline-block;
-		padding: 0 0.25rem;
-		font-size: 1rem;
-		font-weight: 900;
-
-		span {
-			padding: 0 0.25rem;
-		}
-
-		:nth-child(1) {
-			border-top-left-radius: 0.25rem;
-			border-bottom-left-radius: 0.25rem;
-			background-color: rgb(255, 60, 60);
-		}
-
-		:nth-child(2) {
-			background-color: var(--seventv-text-color-normal);
-			color: var(--seventv-background-shade-1);
-			border-top-right-radius: 0.25rem;
-			border-bottom-right-radius: 0.25rem;
+		p {
+			font-size: 1rem;
 		}
 	}
-}
-
-.seventv-user-card-badges {
-	grid-area: badges;
-}
-
-.seventv-user-card-greystates {
-	display: grid;
-	grid-auto-rows: 1fr;
-	gap: 0.5em 0;
-	grid-auto-flow: row;
-	z-index: 1;
-	grid-area: greystates;
-}
-
-.seventv-user-card-actions {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 1fr;
-	gap: 0 1rem;
-	grid-auto-flow: row;
-	grid-template-areas: "leftactions rightactions";
-	grid-area: actions;
-}
-
-.rightactions {
-	grid-area: rightactions;
-}
-
-.leftactions {
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	grid-template-rows: 1fr;
-	grid-auto-flow: row;
-	grid-template-areas: ". . .";
-	grid-area: leftactions;
 }
 
 .seventv-user-card-data {
+	grid-area: data;
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: 0.5fr 2.5fr;
@@ -564,7 +570,6 @@ main.seventv-user-card-container {
 	grid-template-areas:
 		"tabs"
 		"messagelist";
-	grid-area: data;
 	background-color: var(--seventv-background-transparent-2);
 
 	&[show-tabs="false"] {

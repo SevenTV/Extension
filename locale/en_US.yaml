@@ -14,6 +14,10 @@ messages:
 
 user_card:
     add_comment_input_placeholder: Add a comment
+    account_created_date: Account created on {date}
+    following_since_date: Following since {date}
+    subscription_tier: Tier {tier}
+    subscription_length: Subscribed for {length} months
 
 # Emote Menu
 # This interface allows the user to pick from available emotes

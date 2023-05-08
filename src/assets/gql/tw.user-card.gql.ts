@@ -1,5 +1,5 @@
 import { twitchBadgeFragment, twitchModCommentFragment, twitchSubProductFragment } from "./tw.fragment.gql";
-import { TwTypeMessage, TwTypeModComment, TwTypeModEntry, TwTypeUser } from "./tw.gql";
+import { TwTypeBadge, TwTypeMessage, TwTypeModComment, TwTypeModEntry, TwTypeUser } from "./tw.gql";
 import gql from "graphql-tag";
 
 export const twitchUserCardQuery = gql`
@@ -144,13 +144,7 @@ export namespace twitchUserCardQuery {
 		};
 		channelViewer: {
 			id: string;
-			earnedBadges: {
-				id: string;
-				displayName: string;
-				description: string;
-				imageURL: string;
-				version: string;
-			}[];
+			earnedBadges: TwTypeBadge[];
 		};
 		channel: Pick<TwTypeUser, "id" | "moderationSettings">;
 	}

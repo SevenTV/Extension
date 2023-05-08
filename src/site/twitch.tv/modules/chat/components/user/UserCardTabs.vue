@@ -46,6 +46,7 @@ function formatCount(count: number, maxCount: number): string {
 
 <style scoped lang="scss">
 .seventv-user-card-tabs {
+	border-top: 0.1rem solid var(--seventv-background-transparent-1);
 	height: 100%;
 
 	display: grid;
