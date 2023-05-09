@@ -359,14 +359,14 @@ jobs:
 
             - name: "Rename Signed Artifact"
               if: ${{ steps.xpi-sign.outputs.target }}
-              run: cp ext/ext-signed.xpi ext/7tv-webextension-ext.xpi
+              run: cp ext/ext-signed.xpi ext/7tv-webextension-ext-signed.xpi
 
             - name: Update Release
               if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
               uses: ncipollo/release-action@v1.12.0
               with:
                   allowUpdates: true
-                  artifacts: "ext/7tv-webextension-ext.xpi"
+                  artifacts: "ext/7tv-webextension-ext-signed.xpi"
                   body: ${{ github.event.head_commit.message }}
                   omitNameDuringUpdate: true
                   omitPrereleaseDuringUpdate: true
