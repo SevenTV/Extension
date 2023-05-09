@@ -85,10 +85,10 @@ jobs:
             - name: Build App
               env:
                   BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}
-                  EXTENSION_ID: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_CWS || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) }}
+                  EXTENSION_ID_MOZ: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_AMO || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_AMO) }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
-                  OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID }} MV2=true yarn build:prod
+                  OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID_MOZ }} MV2=true yarn build:prod
 
             - name: Create Build Archives
               run: |
@@ -359,14 +359,14 @@ jobs:
 
             - name: "Rename Signed Artifact"
               if: ${{ steps.xpi-sign.outputs.target }}
-              run: cp ext/ext-signed.xpi ext/7tv-webextension-ext.xpi
+              run: cp ext/ext-signed.xpi ext/7tv-webextension-ext-signed.xpi
 
             - name: Update Release
               if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
               uses: ncipollo/release-action@v1.12.0
               with:
                   allowUpdates: true
-                  artifacts: "ext/7tv-webextension-ext.xpi"
+                  artifacts: "ext/7tv-webextension-ext-signed.xpi"
                   body: ${{ github.event.head_commit.message }}
                   omitNameDuringUpdate: true
                   omitPrereleaseDuringUpdate: true
