@@ -12,7 +12,7 @@
 						<img v-if="data.targetUser.avatarURL" :src="data.targetUser.avatarURL" />
 					</div>
 					<div class="seventv-user-card-usertag">
-						<p>{{ data.targetUser.displayName }}</p>
+						<UserTag :user="data.targetUser" :hide-badges="true" />
 					</div>
 
 					<div class="seventv-user-card-badges">
@@ -39,21 +39,19 @@
 				</div>
 			</div>
 			<div class="seventv-user-card-data" :show-tabs="data.isActorModerator">
-				<div class="seventv-user-card-tabs">
-					<UserCardTabs
-						v-if="data.isActorModerator"
-						:active-tab="data.activeTab"
-						:message-count="data.count.messages"
-						:ban-count="data.count.bans"
-						:timeout-count="data.count.timeouts"
-						:comment-count="data.count.comments"
-						@switch="data.activeTab = $event"
-					/>
-				</div>
+				<UserCardTabs
+					v-if="data.isActorModerator"
+					:active-tab="data.activeTab"
+					:message-count="data.count.messages"
+					:ban-count="data.count.bans"
+					:timeout-count="data.count.timeouts"
+					:comment-count="data.count.comments"
+					@switch="data.activeTab = $event"
+				/>
 				<UiScrollable ref="scroller" @container-scroll="onScroll">
 					<UserCardMessageList
 						:active-tab="data.activeTab"
-						:target-id="data.targetUser.id"
+						:target="data.targetUser"
 						:timeline="getActiveTimeline()"
 						:scroller="scroller"
 						@add-mod-comment="addModComment"
@@ -89,6 +87,7 @@ import UserCardActions from "./UserCardActions.vue";
 import UserCardMessageList from "./UserCardMessageList.vue";
 import UserCardMod from "./UserCardMod.vue";
 import UserCardTabs, { UserCardTabName } from "./UserCardTabs.vue";
+import UserTag from "./UserTag.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import BasicSystemMessage from "../types/BasicSystemMessage.vue";
 import formatDate from "date-fns/fp/format";
@@ -362,11 +361,14 @@ watchEffect(async () => {
 				}
 
 				data.targetUser.badges.length = 0;
-				for (let i = 0; i < resp.data.channelViewer.earnedBadges.length; i++) {
-					const badge = convertTwitchBadge(resp.data.channelViewer.earnedBadges[i]);
-					if (!badge) continue;
 
-					data.targetUser.badges[i] = badge;
+				if (resp.data.channelViewer && resp.data.channelViewer.earnedBadges?.length) {
+					for (let i = 0; i < resp.data.channelViewer.earnedBadges.length; i++) {
+						const badge = convertTwitchBadge(resp.data.channelViewer.earnedBadges[i]);
+						if (!badge) continue;
+
+						data.targetUser.badges[i] = badge;
+					}
 				}
 
 				for (const badge of cosmetics.badges.values()) {
@@ -421,14 +423,12 @@ $cardHeight: 42rem;
 
 main.seventv-user-card-container {
 	display: block;
-	width: 100%;
-	height: 100%;
 }
 
 .seventv-user-card {
 	display: grid;
 	grid-template-columns: 1fr;
-	grid-template-rows: 45% 55%;
+	grid-template-rows: min-content 1fr;
 	grid-auto-flow: column;
 	grid-template-areas:
 		"header"
@@ -546,7 +546,14 @@ main.seventv-user-card-container {
 
 .seventv-user-card-states {
 	grid-area: states;
-	display: block;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: repeat(3, auto);
+	grid-template-areas:
+		"greystates"
+		"actions"
+		"mod";
+	align-content: space-between;
 	background-color: var(--seventv-background-transparent-2);
 
 	.seventv-user-card-greystates {
@@ -559,6 +566,14 @@ main.seventv-user-card-container {
 			font-size: 1rem;
 		}
 	}
+
+	.seventv-user-card-actions {
+		grid-area: actions;
+	}
+
+	.seventv-user-card-mod {
+		grid-area: mod;
+	}
 }
 
 .seventv-user-card-data {
@@ -567,10 +582,10 @@ main.seventv-user-card-container {
 	grid-template-columns: 1fr;
 	grid-template-rows: 0.5fr 2.5fr;
 	grid-auto-flow: row;
+	max-height: 26rem;
 	grid-template-areas:
 		"tabs"
 		"messagelist";
-	background-color: var(--seventv-background-transparent-2);
 
 	&[show-tabs="false"] {
 		grid-template-rows: 1fr;

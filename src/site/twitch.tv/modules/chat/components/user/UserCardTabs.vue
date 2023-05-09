@@ -46,14 +46,13 @@ function formatCount(count: number, maxCount: number): string {
 
 <style scoped lang="scss">
 .seventv-user-card-tabs {
-	border-top: 0.1rem solid var(--seventv-background-transparent-1);
-	height: 100%;
+	border-top: 0.1rem solid hsla(0deg, 0%, 100%, 0.1);
 
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
 	grid-template-areas: ". . . .";
 
-	// downwards shadow
+	height: 4rem;
 	box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 35%);
 }
 

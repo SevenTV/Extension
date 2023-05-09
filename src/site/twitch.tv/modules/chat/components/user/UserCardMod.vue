@@ -21,7 +21,7 @@ const timeoutOptions = ["1s", "30s", "1m", "5m", "30m", "1h", "4h", "12h", "1d"]
 	grid-template-rows: 1fr;
 	grid-template-areas: ". . .";
 	height: 2rem;
-	border-top: 0.1rem solid var(--seventv-background-lesser-transparent-1);
+	border-top: 0.1rem solid hsla(0deg, 0%, 100%, 0.1);
 
 	.seventv-user-card-mod-timeout-options {
 		display: grid;

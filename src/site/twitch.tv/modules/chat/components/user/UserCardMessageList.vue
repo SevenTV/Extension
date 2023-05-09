@@ -1,37 +1,50 @@
 <template>
 	<div v-if="ready" class="seventv-user-card-message-timeline">
-		<section v-for="[date, messages] of Object.entries(props.timeline).reverse()" :key="date" :timeline-id="date">
-			<div selector="date-boundary" />
-			<label>{{ date }}</label>
-			<div selector="date-boundary" />
+		<template v-if="Object.keys(props.timeline).length">
+			<section
+				v-for="[date, messages] of Object.entries(props.timeline).reverse()"
+				:key="date"
+				:timeline-id="date"
+			>
+				<div selector="date-boundary" />
+				<label>{{ date }}</label>
+				<div selector="date-boundary" />
 
-			<div class="seventv-user-card-message-timeline-list">
-				<template v-for="msg of messages" :key="msg.sym">
-					<component
-						:is="msg.instance"
-						v-if="msg.instance && msg.instance !== NormalMessage"
-						v-bind="msg.componentProps"
-						:msg="msg"
-					>
-						<UserMessage
+				<div class="seventv-user-card-message-timeline-list">
+					<template v-for="msg of messages" :key="msg.sym">
+						<component
+							:is="msg.instance"
+							v-if="msg.instance && msg.instance !== NormalMessage"
+							v-bind="msg.componentProps"
 							:msg="msg"
-							:emotes="emotes.active"
-							:hide-mod-icons="true"
-							:force-timestamp="true"
-						/>
-					</component>
+						>
+							<UserMessage
+								:msg="msg"
+								:emotes="emotes.active"
+								:hide-mod-icons="true"
+								:force-timestamp="true"
+							/>
+						</component>
 
-					<template v-else>
-						<UserMessage
-							:msg="msg"
-							:emotes="emotes.active"
-							:hide-mod-icons="true"
-							:force-timestamp="true"
-						/>
+						<template v-else>
+							<UserMessage
+								:msg="msg"
+								:emotes="emotes.active"
+								:hide-mod-icons="true"
+								:force-timestamp="true"
+							/>
+						</template>
 					</template>
-				</template>
+				</div>
+			</section>
+		</template>
+		<template v-else>
+			<div class="seventv-user-card-message-timeline-empty">
+				<p>
+					{{ t(`user_card.no_${activeTab}`, { user: target.displayName }) }}
+				</p>
 			</div>
-		</section>
+		</template>
 
 		<div v-if="activeTab === 'comments'" class="seventv-user-card-mod-comment-input-container">
 			<input
@@ -49,7 +62,7 @@ import { nextTick, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { refAutoReset } from "@vueuse/core";
 import { log } from "@/common/Logger";
-import type { ChatMessage } from "@/common/chat/ChatMessage";
+import type { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useApollo } from "@/composable/useApollo";
@@ -62,7 +75,7 @@ import NormalMessage from "../types/0.NormalMessage.vue";
 
 const props = defineProps<{
 	activeTab: UserCardTabName;
-	targetId: string;
+	target: ChatUser;
 	timeline: Record<string, ChatMessage[]>;
 	scroller?: InstanceType<typeof UiScrollable>;
 }>();
@@ -99,7 +112,7 @@ async function addModComment(): Promise<void> {
 			variables: {
 				input: {
 					channelID: ctx.id,
-					targetID: props.targetId,
+					targetID: props.target.id,
 					text,
 				},
 			},
@@ -186,6 +199,11 @@ section {
 			}
 		}
 	}
+}
+
+.seventv-user-card-message-timeline-empty {
+	text-align: center;
+	margin: 4rem 0;
 }
 
 .seventv-user-card-mod-comment-input-container {
