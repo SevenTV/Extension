@@ -82,7 +82,10 @@ bc.addEventListener("message", (ev) => {
 	);
 
 	for (const node of newNodes) {
-		useConfig(node.key).value = node.value;
+		const n = useConfig(node.key);
+		if (!n || !n.value) continue;
+
+		n.value = node.value;
 	}
 });
 
