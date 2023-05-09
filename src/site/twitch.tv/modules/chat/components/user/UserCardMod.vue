@@ -30,14 +30,14 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import GavelIcon from "@/assets/svg/icons/GavelIcon.vue";
 import ShieldIcon from "@/assets/svg/icons/ShieldIcon.vue";
-import type { UserCardData } from "./UserCard.vue";
 
 const props = defineProps<{
-	target: UserCardData["targetUser"];
+	target: ChatUser;
 	isBanned?: boolean;
 	isModerator?: boolean;
 	isBroadcaster?: boolean;

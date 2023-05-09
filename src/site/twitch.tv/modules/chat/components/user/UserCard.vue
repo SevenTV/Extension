@@ -95,7 +95,8 @@ import Badge from "./Badge.vue";
 import UserCardActions from "./UserCardActions.vue";
 import UserCardMessageList from "./UserCardMessageList.vue";
 import UserCardMod from "./UserCardMod.vue";
-import UserCardTabs, { UserCardTabName } from "./UserCardTabs.vue";
+import UserCardTabs from "./UserCardTabs.vue";
+import type { UserCardTabName } from "./UserCardTabs.vue";
 import UserTag from "./UserTag.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import BasicSystemMessage from "../types/BasicSystemMessage.vue";
@@ -133,6 +134,7 @@ const data = reactive({
 		displayName: props.target.displayName,
 		bannerURL: "",
 		avatarURL: "",
+		color: "",
 		badges: [] as SevenTV.Cosmetic<"BADGE">[],
 		relationship: {
 			followedAt: "",
@@ -149,7 +151,7 @@ const data = reactive({
 		bans: {} as Record<string, ChatMessage[]>,
 		timeouts: {} as Record<string, ChatMessage[]>,
 		comments: {} as Record<string, ChatMessage[]>,
-	},
+	} as Record<UserCardTabName, Record<string, ChatMessage[]>>,
 	count: {
 		messages: 0,
 		bans: 0,
@@ -157,8 +159,6 @@ const data = reactive({
 		comments: 0,
 	},
 });
-
-export type UserCardData = typeof data;
 
 function getActiveTimeline(): Record<string, ChatMessage[]> {
 	return data.timelines[data.activeTab];

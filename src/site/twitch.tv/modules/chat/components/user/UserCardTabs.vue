@@ -15,6 +15,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+export type UserCardTabName = "messages" | "timeouts" | "bans" | "comments";
+
 const props = defineProps<{
 	activeTab: UserCardTabName;
 	messageCount: number;
@@ -26,8 +28,6 @@ const props = defineProps<{
 const emit = defineEmits<{
 	(e: "switch", tab: UserCardTabName): void;
 }>();
-
-export type UserCardTabName = "messages" | "timeouts" | "bans" | "comments";
 
 const buttons = computed(
 	() =>

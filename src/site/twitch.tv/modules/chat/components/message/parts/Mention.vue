@@ -7,6 +7,7 @@
 						id: '',
 						username: tag.toLowerCase(),
 						displayName: tag,
+						color: '',
 					}
 				"
 				:as-mention="asMention"
