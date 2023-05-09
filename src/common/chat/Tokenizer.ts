@@ -10,7 +10,6 @@ export class Tokenizer {
 
 	tokenize(opt: TokenizeOptions) {
 		const tokens = [] as AnyToken[];
-
 		const textParts = this.msg.body.split(" ");
 		const textPartsStr = textParts.join(" ");
 
