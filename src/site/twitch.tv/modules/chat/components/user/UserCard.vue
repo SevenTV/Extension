@@ -39,9 +39,11 @@
 					<UserCardMod
 						v-if="data.isActorModerator"
 						:target="data.targetUser"
-						:is-banned="false"
+						:ban="data.ban"
 						:is-broadcaster="data.isActorBroadcaster"
 						:is-moderator="data.isActorModerator"
+						@victim-banned="data.ban = $event"
+						@victim-unbanned="data.ban = null"
 					/>
 				</div>
 			</div>
@@ -83,7 +85,7 @@ import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useApollo } from "@/composable/useApollo";
 import { useCosmetics } from "@/composable/useCosmetics";
-import { TwTypeModComment } from "@/assets/gql/tw.gql";
+import { TwTypeChatBanStatus, TwTypeModComment } from "@/assets/gql/tw.gql";
 import {
 	twitchUserCardMessagesQuery,
 	twitchUserCardModLogsQuery,
@@ -128,6 +130,7 @@ const data = reactive({
 	canActorAccessLogs: false,
 	isActorModerator: false,
 	isActorBroadcaster: false,
+	ban: null as TwTypeChatBanStatus | null,
 	targetUser: {
 		id: props.target.id,
 		username: props.target.username,
@@ -213,6 +216,8 @@ async function fetchModeratorData(): Promise<void> {
 	data.count.bans = resp.data.channelUser.modLogs.bans.actionCount;
 	data.count.timeouts = resp.data.channelUser.modLogs.timeouts.actionCount;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
+
+	data.ban = resp.data.banStatus;
 
 	const timeouts = resp.data.channelUser.modLogs.timeouts.edges;
 	const bans = resp.data.channelUser.modLogs.bans.edges;

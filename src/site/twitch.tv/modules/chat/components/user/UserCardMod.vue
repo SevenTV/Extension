@@ -1,13 +1,14 @@
 <template>
 	<div class="seventv-user-card-mod">
-		<div class="seventv-user-card-mod-side seventv-user-card-mod-ban" :is-banned="isBanned ? '1' : '0'">
+		<div class="seventv-user-card-mod-side seventv-user-card-mod-ban" :is-banned="ban ? '1' : '0'">
 			<GavelIcon
-				v-tooltip="isBanned ? t('user_card.unban_button') : t('user_card.ban_button')"
-				:slashed="isBanned"
+				v-tooltip="ban ? t('user_card.unban_button') : t('user_card.ban_button')"
+				:slashed="!!ban"
+				@click="ban ? unbanUser() : banUser('')"
 			/>
 		</div>
 
-		<div class="seventv-user-card-mod-timeout-options">
+		<div v-show="!ban" class="seventv-user-card-mod-timeout-options">
 			<button
 				v-for="opt of timeoutOptions"
 				:key="opt"
@@ -33,14 +34,20 @@ import { useI18n } from "vue-i18n";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
+import { TwTypeChatBanStatus } from "@/assets/gql/tw.gql";
 import GavelIcon from "@/assets/svg/icons/GavelIcon.vue";
 import ShieldIcon from "@/assets/svg/icons/ShieldIcon.vue";
 
 const props = defineProps<{
 	target: ChatUser;
-	isBanned?: boolean;
+	ban?: TwTypeChatBanStatus | null;
 	isModerator?: boolean;
 	isBroadcaster?: boolean;
+}>();
+
+const emit = defineEmits<{
+	(e: "victim-banned", data: TwTypeChatBanStatus): void;
+	(e: "victim-unbanned"): void;
 }>();
 
 const { t } = useI18n();
@@ -50,7 +57,16 @@ const mod = useChatModeration(ctx, props.target.username);
 
 async function banUser(duration: string): Promise<void> {
 	const resp = await mod.banUserFromChat(duration)?.catch(() => void 0);
+	if (!resp || resp.errors?.length || !resp.data?.banUserFromChatRoom.ban) return;
+
+	emit("victim-banned", resp.data?.banUserFromChatRoom.ban);
+}
+
+async function unbanUser(): Promise<void> {
+	const resp = await mod.unbanUserFromChat()?.catch(() => void 0);
 	if (!resp || resp.errors?.length) return;
+
+	emit("victim-unbanned");
 }
 
 const timeoutOptions = ["1s", "30s", "1m", "10m", "30m", "1h", "4h", "12h", "1d", "7d", "14d"];

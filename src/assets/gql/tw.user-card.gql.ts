@@ -1,5 +1,12 @@
 import { twitchBadgeFragment, twitchModCommentFragment, twitchSubProductFragment } from "./tw.fragment.gql";
-import { TwTypeBadge, TwTypeMessage, TwTypeModComment, TwTypeModEntry, TwTypeUser } from "./tw.gql";
+import {
+	TwTypeBadge,
+	TwTypeChatBanStatus,
+	TwTypeMessage,
+	TwTypeModComment,
+	TwTypeModEntry,
+	TwTypeUser,
+} from "./tw.gql";
 import gql from "graphql-tag";
 
 export const twitchUserCardQuery = gql`
@@ -167,7 +174,7 @@ export const twitchUserCardModLogsQuery = gql`
 			login
 			id
 		}
-		chatRoomBanStatus(channelID: $channelID, userID: $targetID) {
+		banStatus: chatRoomBanStatus(channelID: $channelID, userID: $targetID) {
 			bannedUser {
 				id
 				login
@@ -317,6 +324,7 @@ export namespace twitchUserCardModLogsQuery {
 			login: string;
 			id: string;
 		};
+		banStatus: TwTypeChatBanStatus;
 		viewerCardModLogs: {
 			comments: {
 				edges: {
