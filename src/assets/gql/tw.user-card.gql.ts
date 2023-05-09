@@ -167,6 +167,22 @@ export const twitchUserCardModLogsQuery = gql`
 			login
 			id
 		}
+		chatRoomBanStatus(channelID: $channelID, userID: $targetID) {
+			bannedUser {
+				id
+				login
+				displayName
+			}
+			createdAt
+			expiresAt
+			isPermanent
+			moderator {
+				id
+				login
+				displayName
+			}
+			reason
+		}
 		viewerCardModLogs(targetID: $targetID, channelID: $channelID) {
 			comments(first: 100) {
 				... on ModLogsCommentConnection {

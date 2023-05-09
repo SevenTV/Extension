@@ -5,6 +5,7 @@
 				<!--Identity (avatar, nametag, badges) -->
 				<div ref="dragHandle" class="seventv-user-card-identity">
 					<div class="seventv-user-card-menuactions">
+						<LogoTwitch v-tooltip="t('user_card.native')" @click="openNativeCard" />
 						<CloseIcon class="close-button" @click="emit('close')" />
 					</div>
 
@@ -12,7 +13,7 @@
 						<img v-if="data.targetUser.avatarURL" :src="data.targetUser.avatarURL" />
 					</div>
 					<div class="seventv-user-card-usertag">
-						<UserTag :user="data.targetUser" :hide-badges="true" />
+						<UserTag :user="data.targetUser" :hide-badges="true" :clickable="false" />
 					</div>
 
 					<div class="seventv-user-card-badges">
@@ -26,16 +27,22 @@
 					</div>
 				</div>
 
-				<div class="seventv-user-card-states">
+				<div class="seventv-user-card-interactive">
 					<div class="seventv-user-card-greystates">
 						<p v-if="data.targetUser.relationship.followedAt">
-							{{ t("user_card.account_created_date", { date: data.targetUser.relationship.followedAt }) }}
+							{{ t("user_card.following_since_date", { date: data.targetUser.relationship.followedAt }) }}
 						</p>
 					</div>
 
 					<UserCardActions />
 					<!-- Mod Icons -->
-					<UserCardMod v-if="data.isActorModerator" />
+					<UserCardMod
+						v-if="data.isActorModerator"
+						:target="data.targetUser"
+						:is-banned="false"
+						:is-broadcaster="data.isActorBroadcaster"
+						:is-moderator="data.isActorModerator"
+					/>
 				</div>
 			</div>
 			<div class="seventv-user-card-data" :show-tabs="data.isActorModerator">
@@ -73,6 +80,7 @@ import { convertTwitchBadge } from "@/common/Transform";
 import { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
+import { useChatTools } from "@/composable/chat/useChatTools";
 import { useApollo } from "@/composable/useApollo";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { TwTypeModComment } from "@/assets/gql/tw.gql";
@@ -82,6 +90,7 @@ import {
 	twitchUserCardQuery,
 } from "@/assets/gql/tw.user-card.gql";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
+import LogoTwitch from "@/assets/svg/logos/LogoTwitch.vue";
 import Badge from "./Badge.vue";
 import UserCardActions from "./UserCardActions.vue";
 import UserCardMessageList from "./UserCardMessageList.vue";
@@ -105,6 +114,7 @@ const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
 const { identity } = storeToRefs(useStore());
 const cosmetics = useCosmetics(props.target.id);
+const tools = useChatTools(ctx);
 
 const apollo = useApollo();
 const { t } = useI18n();
@@ -147,6 +157,8 @@ const data = reactive({
 		comments: 0,
 	},
 });
+
+export type UserCardData = typeof data;
 
 function getActiveTimeline(): Record<string, ChatMessage[]> {
 	return data.timelines[data.activeTab];
@@ -224,7 +236,7 @@ async function fetchModeratorData(): Promise<void> {
 				text: t(key, {
 					actor: e.node.user?.login,
 					victim: e.node.target?.login,
-					duration: e.node.details?.durationSeconds,
+					duration: e.node.details?.durationSeconds + " seconds",
 					reason: e.node.details?.reason,
 				}),
 			});
@@ -315,6 +327,15 @@ function scrollTo(h: number): void {
 	if (!scroller.value || !scroller.value.container) return;
 
 	scroller.value.container.scrollTo({ top: h });
+}
+
+function openNativeCard(ev: MouseEvent): void {
+	if (!data.targetUser.username) return;
+
+	const ok = tools.openViewerCard(ev, data.targetUser.username, "");
+	if (!ok) return;
+
+	emit("close");
 }
 
 watchEffect(async () => {
@@ -446,7 +467,7 @@ main.seventv-user-card-container {
 .seventv-user-card-header {
 	grid-area: header;
 	display: grid;
-	grid-template-rows: 1fr 1fr;
+	grid-template-rows: 1fr auto;
 	grid-template-areas:
 		"identity"
 		"states";
@@ -458,9 +479,10 @@ main.seventv-user-card-container {
 		right: 0.5rem;
 		top: 0.5rem;
 		height: 2rem;
-		width: 2rem;
+		display: flex;
+		column-gap: 0.25rem;
 
-		.close-button {
+		svg {
 			padding: 0.25rem;
 			width: 100%;
 			height: 100%;
@@ -537,14 +559,14 @@ main.seventv-user-card-container {
 			z-index: 1;
 
 			> * {
-				// position badges on the same row
+				cursor: pointer;
 				grid-row: 1;
 			}
 		}
 	}
 }
 
-.seventv-user-card-states {
+.seventv-user-card-interactive {
 	grid-area: states;
 	display: grid;
 	grid-template-columns: 1fr;

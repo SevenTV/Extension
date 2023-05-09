@@ -18,10 +18,14 @@ user_card:
     following_since_date: Following since {date}
     subscription_tier: Tier {tier}
     subscription_length: Subscribed for {length} months
+    native: Open Native User Card
     no_messages: "{user} has not chatted here"
     no_timeouts: "{user} hasn't been timed out before"
     no_bans: "{user} hasn't been banned before"
     no_comments: "No mod comments have been written for {user}"
+    timeout_button: "{duration} timeout"
+    ban_button: "Ban"
+    unban_button: "Unban"
 
 # Emote Menu
 # This interface allows the user to pick from available emotes

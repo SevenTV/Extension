@@ -46,7 +46,7 @@ function formatCount(count: number, maxCount: number): string {
 
 <style scoped lang="scss">
 .seventv-user-card-tabs {
-	border-top: 0.1rem solid hsla(0deg, 0%, 100%, 0.1);
+	border-top: 0.1rem solid hsla(0deg, 0%, 100%, 10%);
 
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);

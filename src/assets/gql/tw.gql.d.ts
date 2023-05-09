@@ -95,6 +95,15 @@ export interface TwTypeModActionDetails {
 	reason: string | null;
 }
 
+export interface TwTypeChatBanStatus {
+	bannedUser: TwTypeUser;
+	createdAt: string;
+	expiresAt: string;
+	isPermanent: boolean;
+	moderator: TwTypeUser;
+	reason: string;
+}
+
 export interface TwTypeChannel {
 	id: string;
 	localEmoteSets: TwTypeEmoteSet[];

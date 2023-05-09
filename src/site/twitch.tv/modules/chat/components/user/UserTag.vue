@@ -54,13 +54,19 @@ import UserCard from "./UserCard.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import { autoPlacement, shift } from "@floating-ui/dom";
 
-const props = defineProps<{
-	user: ChatUser;
-	msgId?: symbol;
-	asMention?: boolean;
-	hideBadges?: boolean;
-	badges?: Record<string, string>;
-}>();
+const props = withDefaults(
+	defineProps<{
+		user: ChatUser;
+		msgId?: symbol;
+		asMention?: boolean;
+		hideBadges?: boolean;
+		clickable?: boolean;
+		badges?: Record<string, string>;
+	}>(),
+	{
+		clickable: true,
+	},
+);
 
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
@@ -75,6 +81,8 @@ const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
 const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
 
 function handleClick() {
+	if (!props.clickable) return;
+
 	showUserCard.value = !showUserCard.value;
 }
 
