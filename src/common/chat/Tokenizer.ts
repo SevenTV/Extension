@@ -12,7 +12,6 @@ export class Tokenizer {
 		const tokens = [] as AnyToken[];
 		const textParts = this.msg.body.split(" ");
 		const textPartsStr = textParts.join(" ");
-
 		const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
 		const showModifiers = opt.showModifiers;
 		const urlMatcherInText = new UrlMatcherInText();
