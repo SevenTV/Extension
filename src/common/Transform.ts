@@ -124,7 +124,7 @@ export function convertBttvEmoteSet(data: BTTV.UserResponse, channelID: string):
 
 	return {
 		id: "BTTV#" + channelID,
-		name: channelID == "GLOBAL" ? "Global emotes" : "Channel emotes",
+		name: channelID == "GLOBAL" ? "Global Emotes" : "Channel Emotes",
 		immutable: true,
 		privileged: true,
 		tags: [],
@@ -192,7 +192,7 @@ export function convertFFZEmoteSet(data: FFZ.RoomResponse, channelID: string): S
 
 	return {
 		id: "FFZ#" + channelID,
-		name: channelID == "GLOBAL" ? " Global emotes" : "Channel emotes",
+		name: channelID == "GLOBAL" ? " Global Emotes" : "Channel Emotes",
 		immutable: true,
 		privileged: true,
 		tags: [],
