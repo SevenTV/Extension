@@ -40,7 +40,7 @@ import { log } from "@/common/Logger";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { ChannelRole, useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -183,9 +183,17 @@ definePropertyHook(controller.value.component, "props", {
 			};
 		}
 
+		for (const [role, ok] of [
+			["VIP", v.isCurrentUserVIP],
+			["EDITOR", v.isCurrentUserEditor],
+			["MODERATOR", v.isCurrentUserModerator || v.channelID === v.userID],
+			["BROADCASTER", v.channelID === v.userID],
+		] as [ChannelRole, boolean][]) {
+			if (!ok) continue;
+			ctx.actor.roles.add(role);
+		}
+
 		// Keep track of chat props
-		properties.isModerator = v.isCurrentUserModerator;
-		properties.isVIP = v.isCurrentUserVIP;
 		properties.isDarkTheme = v.theme;
 
 		// Send presence upon message sent

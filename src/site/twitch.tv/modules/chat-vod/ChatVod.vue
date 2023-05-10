@@ -105,8 +105,10 @@ definePropertyHook(props.controller.component, "props", {
 		}
 
 		if (v.canCurrentUserBan || v.canCurrentUserDelete) {
+			ctx.actor.roles.add("MODERATOR");
 			properties.showModerationIcons = true;
-			properties.isModerator = true;
+		} else {
+			ctx.actor.roles.delete("MODERATOR");
 		}
 	},
 });

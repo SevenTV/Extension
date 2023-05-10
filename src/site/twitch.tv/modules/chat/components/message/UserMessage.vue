@@ -30,7 +30,7 @@
 		</template>
 
 		<!-- Mod Icons -->
-		<template v-if="properties.isModerator && properties.showModerationIcons && !hideModIcons">
+		<template v-if="ctx.actor.roles.has('MODERATOR') && properties.showModerationIcons && !hideModIcons">
 			<ModIcons :msg="msg" />
 		</template>
 
