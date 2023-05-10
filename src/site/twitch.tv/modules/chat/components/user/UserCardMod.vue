@@ -20,11 +20,11 @@
 		</div>
 
 		<div
-			v-if="isBroadcaster"
+			v-if="ctx.actor.roles.has('BROADCASTER')"
 			class="seventv-user-card-mod-side seventv-user-card-mod-moderator"
-			:is-mod="isModerator ? '1' : '0'"
+			:is-mod="mod ? '1' : '0'"
 		>
-			<ShieldIcon v-tooltip="isModerator" :slashed="isModerator" />
+			<ShieldIcon v-tooltip="mod" :slashed="mod" @click="mod ? modUser() : null" />
 		</div>
 	</div>
 </template>
@@ -41,13 +41,14 @@ import ShieldIcon from "@/assets/svg/icons/ShieldIcon.vue";
 const props = defineProps<{
 	target: ChatUser;
 	ban?: TwTypeChatBanStatus | null;
-	isModerator?: boolean;
-	isBroadcaster?: boolean;
+	mod?: boolean;
 }>();
 
 const emit = defineEmits<{
 	(e: "victim-banned", data: TwTypeChatBanStatus): void;
 	(e: "victim-unbanned"): void;
+	(e: "victim-modded"): void;
+	(e: "victim-unmodded"): void;
 }>();
 
 const { t } = useI18n();
@@ -56,17 +57,24 @@ const ctx = useChannelContext();
 const mod = useChatModeration(ctx, props.target.username);
 
 async function banUser(duration: string): Promise<void> {
-	const resp = await mod.banUserFromChat(duration)?.catch(() => void 0);
+	const resp = await mod.banUserFromChat(duration).catch(() => void 0);
 	if (!resp || resp.errors?.length || !resp.data?.banUserFromChatRoom.ban) return;
 
 	emit("victim-banned", resp.data?.banUserFromChatRoom.ban);
 }
 
 async function unbanUser(): Promise<void> {
-	const resp = await mod.unbanUserFromChat()?.catch(() => void 0);
+	const resp = await mod.unbanUserFromChat().catch(() => void 0);
 	if (!resp || resp.errors?.length) return;
 
 	emit("victim-unbanned");
+}
+
+async function modUser(): Promise<void> {
+	const resp = await mod.modUser("").catch(() => void 0);
+	if (!resp || resp.errors?.length) return;
+
+	emit("victim-modded");
 }
 
 const timeoutOptions = ["1s", "30s", "1m", "10m", "30m", "1h", "4h", "12h", "1d", "7d", "14d"];

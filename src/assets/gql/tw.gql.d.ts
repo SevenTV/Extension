@@ -24,6 +24,7 @@ export interface TwTypeUser {
 	moderationSettings: {
 		canAccessViewerCardModLogs: boolean;
 	};
+	isModerator: boolean;
 	relationship?: {
 		followedAt: string;
 		cumulativeTenure: null | string;

@@ -11,9 +11,9 @@ import gql from "graphql-tag";
 
 export const twitchUserCardQuery = gql`
 	query ViewerCard(
-		$channelID: ID
+		$channelID: ID!
+		$channelIDStr: String!
 		$channelLogin: String!
-		$hasChannelID: Boolean!
 		$targetLogin: String!
 		$isViewerBadgeCollectionEnabled: Boolean!
 	) {
@@ -31,7 +31,7 @@ export const twitchUserCardQuery = gql`
 			}
 			profileImageURL(width: 70)
 			createdAt
-			relationship(targetUserID: $channelID) @include(if: $hasChannelID) {
+			relationship(targetUserID: $channelID) {
 				cumulativeTenure: subscriptionTenure(tenureMethod: CUMULATIVE) {
 					months
 					daysRemaining
@@ -46,6 +46,7 @@ export const twitchUserCardQuery = gql`
 					}
 				}
 			}
+			isModerator(channelID: $channelIDStr)
 			stream {
 				id
 				game {
@@ -72,14 +73,6 @@ export const twitchUserCardQuery = gql`
 		currentUser {
 			login
 			id
-			roles {
-				isSiteAdmin
-				isStaff
-				isGlobalMod
-			}
-			blockedUsers {
-				id
-			}
 		}
 		channelViewer(userLogin: $targetLogin, channelLogin: $channelLogin) {
 			id
@@ -103,8 +96,8 @@ export const twitchUserCardQuery = gql`
 export namespace twitchUserCardQuery {
 	export interface Variables {
 		channelID: string;
+		channelIDStr: string;
 		channelLogin: string;
-		hasChannelID: boolean;
 		targetLogin: string;
 		isViewerBadgeCollectionEnabled: boolean;
 		withStandardGifting: boolean;
@@ -140,11 +133,6 @@ export namespace twitchUserCardQuery {
 		currentUser: {
 			login: string;
 			id: string;
-			roles: {
-				isSiteAdmin: boolean;
-				isStaff: boolean;
-				isGlobalMod: boolean;
-			};
 			blockedUsers: {
 				id: string;
 			}[];

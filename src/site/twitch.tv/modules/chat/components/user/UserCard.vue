@@ -35,21 +35,26 @@
 					</div>
 
 					<UserCardActions />
+
 					<!-- Mod Icons -->
 					<UserCardMod
-						v-if="data.isActorModerator"
+						v-if="
+							(ctx.actor.roles.has('MODERATOR') && !data.targetUser.isModerator) ||
+							ctx.actor.roles.has('BROADCASTER')
+						"
 						:target="data.targetUser"
 						:ban="data.ban"
-						:is-broadcaster="data.isActorBroadcaster"
-						:is-moderator="data.isActorModerator"
+						:mod="data.targetUser.isModerator"
 						@victim-banned="data.ban = $event"
 						@victim-unbanned="data.ban = null"
+						@victim-modded="data.targetUser.isModerator = true"
+						@victim-unmodded="data.targetUser.isModerator = false"
 					/>
 				</div>
 			</div>
-			<div class="seventv-user-card-data" :show-tabs="data.isActorModerator">
+			<div class="seventv-user-card-data" :show-tabs="ctx.actor.roles.has('MODERATOR')">
 				<UserCardTabs
-					v-if="data.isActorModerator"
+					v-if="ctx.actor.roles.has('MODERATOR')"
 					:active-tab="data.activeTab"
 					:message-count="data.count.messages"
 					:ban-count="data.count.bans"
@@ -128,8 +133,6 @@ const cardRef = ref<HTMLElement | null>(null);
 const data = reactive({
 	activeTab: "messages" as UserCardTabName,
 	canActorAccessLogs: false,
-	isActorModerator: false,
-	isActorBroadcaster: false,
 	ban: null as TwTypeChatBanStatus | null,
 	targetUser: {
 		id: props.target.id,
@@ -137,6 +140,7 @@ const data = reactive({
 		displayName: props.target.displayName,
 		bannerURL: "",
 		avatarURL: "",
+		isModerator: false,
 		color: "",
 		badges: [] as SevenTV.Cosmetic<"BADGE">[],
 		relationship: {
@@ -351,20 +355,14 @@ watchEffect(async () => {
 			query: twitchUserCardQuery,
 			variables: {
 				channelID: ctx.id,
+				channelIDStr: ctx.id,
 				channelLogin: ctx.username,
-				hasChannelID: true,
 				targetLogin: props.target.username,
 				withStandardGifting: false,
 				isViewerBadgeCollectionEnabled: true,
 			},
 		})
 		.then(async (resp) => {
-			// Capture privilege state
-			if (resp.data.channelUser && resp.data.channelUser.self) {
-				data.isActorBroadcaster = resp.data.currentUser.id === ctx.id;
-				data.isActorModerator = resp.data.channelUser.self.isModerator || data.isActorBroadcaster;
-			}
-
 			// Capture log access
 			if (resp.data.channel) {
 				data.canActorAccessLogs = resp.data.channel.moderationSettings?.canAccessViewerCardModLogs ?? false;
@@ -387,6 +385,7 @@ watchEffect(async () => {
 				}
 
 				data.targetUser.badges.length = 0;
+				data.targetUser.isModerator = resp.data.targetUser.isModerator || resp.data.targetUser.id === ctx.id;
 
 				if (resp.data.channelViewer && resp.data.channelViewer.earnedBadges?.length) {
 					for (let i = 0; i < resp.data.channelViewer.earnedBadges.length; i++) {
@@ -412,8 +411,6 @@ watchEffect(async () => {
 				);
 				fetchModeratorData().catch((err) => log.error("failed to fetch moderator data", err));
 			}
-
-			console;
 		})
 		.catch((err) => log.error("failed to query user card", err));
 });
