@@ -98,7 +98,7 @@ const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 // const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
 
 // Emote icons for groups
-const emojiGroupIcons = ["1f603", "1f44b", "1f43b", "1f354", "26bd", "1f698", "1f4a1", "1f523", "1f6a9"];
+const emojiGroupIcons = ["1f603", "1f44b", "1f343", "1f354", "26bd", "1f698", "1f4a1", "1f523", "1f6a9"];
 const emojiCategories = [
 	"Smileys & Emotion",
 	"People & Body",
