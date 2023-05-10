@@ -6,7 +6,7 @@
 				<Logo v-else class="logo" :provider="es.provider" />
 			</div>
 
-			<span>{{ es.name }}</span>
+			<span>{{ getLocaleName() }}</span>
 			<div class="seventv-set-chevron" @click="toggleCollapsed">
 				<DropdownIcon />
 			</div>
@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
 import { onKeyDown, until, useMagicKeys, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
@@ -59,6 +60,8 @@ const emit = defineEmits<{
 	(e: "emote-clicked", ae: SevenTV.ActiveEmote): void;
 	(e: "emotes-updated", emotes: SevenTV.ActiveEmote[]): void;
 }>();
+
+const { t, te } = useI18n();
 
 const ctx = useEmoteMenuContext();
 const emotes = ref<SevenTV.ActiveEmote[]>([]);
@@ -131,6 +134,11 @@ function onInsertEmote(ae: SevenTV.ActiveEmote): void {
 	}
 
 	emit("emote-clicked", ae);
+}
+
+function getLocaleName(): string {
+	const k = `emote_menu.sets.${props.es.name}`;
+	return te(k) ? t(k) : props.es.name;
 }
 
 onKeyDown("Escape", () => {
