@@ -4,7 +4,7 @@
 			<UserTag
 				:user="
 					token.content.user ?? {
-						id: '',
+						id: uuid(),
 						username: tag.toLowerCase(),
 						displayName: tag,
 						color: '',
@@ -24,6 +24,7 @@
 import type { ChatMessage, MentionToken } from "@/common/chat/ChatMessage";
 import { useConfig } from "@/composable/useSettings";
 import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
+import { v4 as uuid } from "uuid";
 
 const props = defineProps<{
 	token: MentionToken;
