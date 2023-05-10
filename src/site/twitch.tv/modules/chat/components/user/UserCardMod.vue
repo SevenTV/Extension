@@ -22,9 +22,13 @@
 		<div
 			v-if="ctx.actor.roles.has('BROADCASTER')"
 			class="seventv-user-card-mod-side seventv-user-card-mod-moderator"
-			:is-mod="mod ? '1' : '0'"
+			:is-mod="isModerator ? '1' : '0'"
 		>
-			<ShieldIcon v-tooltip="mod" :slashed="mod" @click="mod ? modUser() : null" />
+			<ShieldIcon
+				v-tooltip="isModerator ? t('user_card.unmod_button') : t('user_card.mod_button')"
+				:slashed="isModerator"
+				@click="setMod(!!isModerator)"
+			/>
 		</div>
 	</div>
 </template>
@@ -41,7 +45,7 @@ import ShieldIcon from "@/assets/svg/icons/ShieldIcon.vue";
 const props = defineProps<{
 	target: ChatUser;
 	ban?: TwTypeChatBanStatus | null;
-	mod?: boolean;
+	isModerator?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -70,11 +74,11 @@ async function unbanUser(): Promise<void> {
 	emit("victim-unbanned");
 }
 
-async function modUser(): Promise<void> {
-	const resp = await mod.modUser("").catch(() => void 0);
+async function setMod(v: boolean): Promise<void> {
+	const resp = await mod.setUserModerator(props.target.id, v).catch(() => void 0);
 	if (!resp || resp.errors?.length) return;
 
-	emit("victim-modded");
+	!v ? emit("victim-modded") : emit("victim-unmodded");
 }
 
 const timeoutOptions = ["1s", "30s", "1m", "10m", "30m", "1h", "4h", "12h", "1d", "7d", "14d"];

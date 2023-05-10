@@ -44,7 +44,7 @@
 						"
 						:target="data.targetUser"
 						:ban="data.ban"
-						:mod="data.targetUser.isModerator"
+						:is-moderator="data.targetUser.isModerator"
 						@victim-banned="data.ban = $event"
 						@victim-unbanned="data.ban = null"
 						@victim-modded="data.targetUser.isModerator = true"

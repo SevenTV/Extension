@@ -24,8 +24,10 @@ user_card:
     no_bans: "{user} hasn't been banned before"
     no_comments: "No mod comments have been written for {user}"
     timeout_button: "{duration} timeout"
-    ban_button: "Ban"
-    unban_button: "Unban"
+    ban_button: Ban
+    unban_button: Unban
+    mod_button: Mod
+    unmod_button: Unmod
 
 # Emote Menu
 # This interface allows the user to pick from available emotes

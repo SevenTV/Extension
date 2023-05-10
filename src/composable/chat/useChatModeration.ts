@@ -1,6 +1,6 @@
 import { twitchBanUserQuery, twitchUnbanUserQuery } from "@/assets/gql/tw.chat-bans.gql";
 import { twitchPinMessageQuery } from "@/assets/gql/tw.chat-pin.gql";
-import { ModOrUnmodUser, twitchModUserMut } from "@/assets/gql/tw.mod-user.gql";
+import { ModOrUnmodUser, twitchModUserMut, twitchUnmodUserMut } from "@/assets/gql/tw.mod-user.gql";
 import { useChatMessages } from "./useChatMessages";
 import { ChannelContext } from "../channel/useChannelContext";
 import { useApollo } from "../useApollo";
@@ -71,12 +71,12 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 		});
 	}
 
-	function modUser(victimID: string) {
+	function setUserModerator(victimID: string, mod: boolean) {
 		const apollo = useApollo();
 		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate<ModOrUnmodUser.Response, ModOrUnmodUser.Variables>({
-			mutation: twitchModUserMut,
+			mutation: !mod ? twitchModUserMut : twitchUnmodUserMut,
 			variables: {
 				input: {
 					channelID: ctx.id,
@@ -95,6 +95,6 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 		unbanUserFromChat,
 		pinChatMessage,
 		deleteChatMessage,
-		modUser,
+		setUserModerator,
 	};
 }

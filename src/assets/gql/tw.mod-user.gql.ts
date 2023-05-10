@@ -20,8 +20,8 @@ export const twitchModUserMut = gql`
 `;
 
 export const twitchUnmodUserMut = gql`
-	mutation UnmodUser($input: ModUserInput!) {
-		result: modUser(input: $input) {
+	mutation UnmodUser($input: UnmodUserInput!) {
+		result: unmodUser(input: $input) {
 			channel {
 				id
 				login
