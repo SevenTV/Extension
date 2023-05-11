@@ -12,7 +12,8 @@
 	"stylelint.configBasedir": "${workspaceFolder}",
 	"stylelint.config": {
 		"rules": {
-			"color-function-notation": "legacy"
+			"color-function-notation": "legacy",
+			"declaration-block-no-redundant-longhand-properties": null
 		},
 		"overrides": [
 			{

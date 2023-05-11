@@ -90,10 +90,16 @@ export const step: OnboardingStepRoute = {
 <style scoped lang="scss">
 main {
 	display: grid;
-	grid-template: "header" max-content "cards" 1fr "interact" 1fr "footer" 1fr / 1fr;
+	grid-template-columns: 1fr;
 	width: 100%;
 	height: 100%;
+	grid-template-rows: max-content 1fr 1fr 1fr;
 	grid-auto-flow: row;
+	grid-template-areas:
+		"header"
+		"cards"
+		"interact"
+		"footer";
 }
 
 .header {
@@ -169,9 +175,11 @@ main {
 
 	.card-box[name="personal-emotes"] {
 		display: grid;
-		grid-template: ". . ." 1fr / 0.5fr 1fr 0.5fr;
+		grid-template-columns: 0.5fr 1fr 0.5fr;
+		grid-template-rows: 1fr;
 		gap: 0.5rem;
 		padding: 0 0.5rem;
+		grid-template-areas: ". . .";
 
 		> :last-child,
 		> :first-child {

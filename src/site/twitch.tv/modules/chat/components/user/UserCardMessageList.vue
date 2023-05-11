@@ -166,6 +166,7 @@ section {
 		grid-area: dateboundleft;
 		height: 0.1rem;
 	}
+
 	div:nth-of-type(2) {
 		grid-area: dateboundright;
 		height: 0.1rem;
@@ -210,7 +211,6 @@ section {
 	position: sticky;
 	bottom: 0;
 	padding: 0.5rem 0;
-
 	display: grid;
 	grid-template-columns: 1fr;
 	width: 100%;

@@ -109,8 +109,8 @@ const timeoutOptions = ["1s", "30s", "1m", "10m", "30m", "1h", "4h", "12h", "1d"
 		justify-content: center;
 	}
 
-	.seventv-user-card-mod-timeout-options > button,
-	.seventv-user-card-mod-side {
+	.seventv-user-card-mod-side,
+	.seventv-user-card-mod-timeout-options > button {
 		cursor: pointer;
 		transition: color 0.1s ease-in-out;
 

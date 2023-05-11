@@ -3,6 +3,9 @@ extends:
     - "stylelint-config-standard"
 rules:
     color-function-notation: "legacy"
+    declaration-block-no-redundant-longhand-properties:
+        - true
+        - ignoreShorthands: ["/grid/"]
 ignoreFiles: ["locale/*.ts"]
 overrides:
     - files: ["**/*.scss"]

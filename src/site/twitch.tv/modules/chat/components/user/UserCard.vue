@@ -441,8 +441,8 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-$cardWidth: 32rem;
-$cardHeight: 42rem;
+$card-width: 32rem;
+$card-height: 42rem;
 
 main.seventv-user-card-container {
 	display: block;
@@ -456,14 +456,44 @@ main.seventv-user-card-container {
 	grid-template-areas:
 		"header"
 		"data";
-
-	max-height: $cardHeight;
-	width: $cardWidth;
-
+	max-height: $card-height;
+	width: $card-width;
 	box-shadow: 0 0 0.5rem 0.5rem hsla(0deg, 0%, 0%, 20%);
 	background-color: var(--seventv-background-transparent-1);
 	backdrop-filter: blur(2rem);
 	border-radius: 0.5rem;
+}
+
+.seventv-user-card-interactive {
+	grid-area: states;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: repeat(3, auto);
+	grid-template-areas:
+		"greystates"
+		"actions"
+		"mod";
+	align-content: space-between;
+	background-color: var(--seventv-background-transparent-2);
+
+	.seventv-user-card-greystates {
+		grid-area: greystates;
+		z-index: 1;
+		overflow: clip;
+		padding: 0.5rem 1rem;
+
+		p {
+			font-size: 1rem;
+		}
+	}
+
+	.seventv-user-card-actions {
+		grid-area: actions;
+	}
+
+	.seventv-user-card-mod {
+		grid-area: mod;
+	}
 }
 
 .seventv-user-card-header {
@@ -507,7 +537,6 @@ main.seventv-user-card-container {
 			"avatar usertag"
 			"avatar badges";
 		grid-area: identity;
-
 		background: var(--seventv-user-card-banner-url);
 		background-repeat: no-repeat;
 		background-position: center top;
@@ -516,7 +545,7 @@ main.seventv-user-card-container {
 		&::before {
 			content: " ";
 			position: fixed;
-			width: $cardWidth;
+			width: $card-width;
 			height: 8rem;
 			opacity: 0.68;
 			background-color: var(--seventv-background-transparent-1);
@@ -552,6 +581,7 @@ main.seventv-user-card-container {
 
 		.seventv-user-card-badges {
 			grid-area: badges;
+
 			// grid: position each badge next to the other on the same row, wrapping if necessary
 			display: flex;
 			flex-wrap: wrap;
@@ -565,38 +595,6 @@ main.seventv-user-card-container {
 				grid-row: 1;
 			}
 		}
-	}
-}
-
-.seventv-user-card-interactive {
-	grid-area: states;
-	display: grid;
-	grid-template-columns: 1fr;
-	grid-template-rows: repeat(3, auto);
-	grid-template-areas:
-		"greystates"
-		"actions"
-		"mod";
-	align-content: space-between;
-	background-color: var(--seventv-background-transparent-2);
-
-	.seventv-user-card-greystates {
-		grid-area: greystates;
-		z-index: 1;
-		overflow: clip;
-		padding: 0.5rem 1rem;
-
-		p {
-			font-size: 1rem;
-		}
-	}
-
-	.seventv-user-card-actions {
-		grid-area: actions;
-	}
-
-	.seventv-user-card-mod {
-		grid-area: mod;
 	}
 }
 
