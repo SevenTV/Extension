@@ -6,6 +6,7 @@
 	--seventv-subscriber-color: rgb(220, 170, 50);
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .tw-root--theme-dark,
 body[theme="dark"] {
 	--seventv-text-color-normal: #f0f0f0;
@@ -38,6 +39,7 @@ body[theme="dark"] {
 	}
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .tw-root--theme-light,
 body[theme="light"] {
 	--seventv-text-color-normal: #161616;
@@ -75,12 +77,11 @@ body[theme="light"] {
 
 .seventv-painted-content {
 	background-size: cover !important;
-	background-color: currentColor;
+	background-color: currentcolor;
 }
 
 .seventv-painted-content[data-seventv-painted-text="true"] {
 	-webkit-text-fill-color: transparent;
-	-webkit-background-clip: text !important;
 	background-clip: text !important;
 	font-weight: 700;
 }

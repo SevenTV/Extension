@@ -89,10 +89,12 @@ main.onboarding-platforms {
 		h1 {
 			font-size: 4vw;
 		}
+
 		p {
 			font-size: 1vw;
 		}
 	}
+
 	.sites {
 		display: grid;
 		grid-template-columns: repeat(2, auto);
@@ -116,27 +118,31 @@ main.onboarding-platforms {
 			}
 
 			transition: outline-color 0.5s ease-in-out;
+
 			&:hover {
 				cursor: pointer;
 				user-select: none;
 				outline-color: var(--seventv-text-color-normal);
 			}
+
 			&[selected="true"] {
 				outline-color: var(--seventv-accent);
 				outline-width: 0.2rem;
-				animation: onSelect 0.5s ease-in-out;
+				animation: "on-select" 0.5s ease-in-out;
 			}
 
-			@keyframes onSelect {
+			@keyframes on-select {
 				25% {
 					transform: scale(1.05);
 				}
+
 				100% {
 					transform: scale(1);
 				}
 			}
 		}
 	}
+
 	.data {
 		display: grid;
 		grid-area: data;

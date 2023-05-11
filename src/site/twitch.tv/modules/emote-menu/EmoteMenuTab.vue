@@ -227,12 +227,13 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 });
 </script>
 <style scoped lang="scss">
-@import "@/assets/style/flair.scss";
+@import "@/assets/style/flair";
 
 .emote-area-container {
 	flex-shrink: 1;
 	display: flex;
 }
+
 .scroll-area {
 	width: 28rem;
 	flex-shrink: 0;
@@ -245,7 +246,6 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	width: 100%;
 	padding: 0.25rem 1rem;
 	cursor: pointer;
-
 	transition: background 0.2s ease-in-out;
 
 	svg,
@@ -341,6 +341,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	width: 100%;
 	height: 100%;
 }
+
 .emoji-group {
 	width: 100%;
 	height: 100%;

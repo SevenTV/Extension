@@ -20,6 +20,7 @@ const actor = useActor();
 		border: 1px solid var(--seventv-border-transparent-1);
 		border-radius: 0.4rem;
 	}
+
 	.seventv-website {
 		width: 100%;
 		height: 100%;

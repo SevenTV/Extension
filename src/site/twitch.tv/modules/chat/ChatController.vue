@@ -404,7 +404,6 @@ seventv-container.seventv-chat-list {
 			> .seventv-scrollbar-thumb {
 				position: absolute;
 				width: 100%;
-
 				background-color: rgb(77, 77, 77);
 			}
 		}
@@ -420,17 +419,9 @@ seventv-container.seventv-chat-list {
 		white-space: nowrap;
 		padding: 0.5em;
 		border-radius: 0.33em;
-		color: currentColor;
+		color: currentcolor;
 		background-color: var(--seventv-background-transparent-1);
 		outline: 0.25rem solid var(--seventv-border-transparent-1);
-
-		span:nth-of-type(1) {
-			margin-right: 0.25rem;
-
-			&.capped::after {
-				content: "+";
-			}
-		}
 
 		span,
 		svg {
@@ -441,6 +432,14 @@ seventv-container.seventv-chat-list {
 		svg {
 			font-size: 1.5rem;
 			margin-right: 0.5em;
+		}
+
+		span:nth-of-type(1) {
+			margin-right: 0.25rem;
+
+			&.capped::after {
+				content: "+";
+			}
 		}
 
 		@at-root .seventv-transparent & {
@@ -455,9 +454,11 @@ seventv-container.seventv-chat-list {
 
 .community-highlight {
 	background-color: var(--seventv-background-transparent-1) !important;
+
 	@at-root .seventv-transparent & {
 		backdrop-filter: blur(1em);
 	}
+
 	transition: background-color 0.25s;
 
 	&:hover {
@@ -465,6 +466,7 @@ seventv-container.seventv-chat-list {
 	}
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .chat-list--default.seventv-checked {
 	display: none !important;
 }

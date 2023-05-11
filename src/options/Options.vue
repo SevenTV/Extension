@@ -36,7 +36,7 @@ document.body.setAttribute("theme", "dark");
 </script>
 
 <style lang="scss">
-@import "@/assets/style/global.scss";
+@import "@/assets/style/global";
 
 html[data-seventv-app] {
 	box-sizing: border-box;
@@ -45,8 +45,8 @@ html[data-seventv-app] {
 	width: 100%;
 
 	*,
-	*:before,
-	*:after {
+	*::before,
+	*::after {
 		box-sizing: inherit;
 		margin: 0;
 	}
@@ -62,21 +62,6 @@ body[data-seventv-app] {
 #app {
 	height: 100%;
 	width: 100%;
-}
-
-.seventv-options {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	background: var(--seventv-background-shade-1);
-
-	&.no-header {
-		background: none;
-
-		.general-heading {
-			display: none;
-		}
-	}
 }
 
 .general-heading {
@@ -95,6 +80,21 @@ body[data-seventv-app] {
 			font-size: 2rem;
 			font-size: 2vw;
 			margin-right: 0.15rem;
+		}
+	}
+}
+
+.seventv-options {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background: var(--seventv-background-shade-1);
+
+	&.no-header {
+		background: none;
+
+		.general-heading {
+			display: none;
 		}
 	}
 }
