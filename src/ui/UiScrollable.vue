@@ -282,15 +282,11 @@ onUnmounted(() => {
 		top: 0;
 		right: 0;
 		height: 100%;
-
 		padding: 0 0.1rem;
 		box-sizing: border-box;
-
 		cursor: pointer;
-
 		opacity: 0;
 		transition: 0.3s linear opacity;
-
 		z-index: 9999;
 
 		.scrollbar-thumb {
@@ -298,14 +294,15 @@ onUnmounted(() => {
 			width: 0.4rem;
 			background-color: var(--theme-background-scrollbar-thumb);
 
-			$clipAngle: 0.15em;
+			$clip-angle: 0.15em;
+
 			clip-path: polygon(
 				50% 0,
-				100% $clipAngle,
-				100% calc(100% - $clipAngle),
+				100% $clip-angle,
+				100% calc(100% - $clip-angle),
 				50% 100%,
-				0 calc(100% - $clipAngle),
-				0 $clipAngle
+				0 calc(100% - $clip-angle),
+				0 $clip-angle
 			);
 
 			&:hover {

@@ -19,5 +19,5 @@ const isEnabled = useConfig<boolean>("chat.mod_logs.enabled");
 </script>
 
 <style scoped lang="scss">
-@import "@/assets/style/tw-tooltip.scss";
+@import "@/assets/style/tw-tooltip";
 </style>

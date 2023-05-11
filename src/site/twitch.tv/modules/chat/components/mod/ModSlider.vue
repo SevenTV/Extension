@@ -125,6 +125,7 @@ const update = (e: PointerEvent): void => {
 	overflow: hidden;
 	height: 100%;
 	transition: background-color 0.2s ease;
+
 	.text {
 		position: relative;
 		white-space: nowrap;
@@ -135,14 +136,17 @@ const update = (e: PointerEvent): void => {
 		transition: opacity 0.2s ease;
 	}
 }
+
 .unban-background {
 	@extend %background;
+
 	left: 100%;
 	background-color: green;
 }
 
 .ban-background {
 	@extend %background;
+
 	right: 100%;
 }
 
@@ -151,6 +155,7 @@ const update = (e: PointerEvent): void => {
 	height: 100%;
 	z-index: 999;
 	position: absolute;
+
 	.grabbable-outer {
 		height: 100%;
 		display: inline-flex;
@@ -158,6 +163,7 @@ const update = (e: PointerEvent): void => {
 		width: 2rem;
 		pointer-events: all;
 		cursor: grab;
+
 		.grabbable-inner {
 			height: 100%;
 			border: 0.1rem outset var(--color-border-input);

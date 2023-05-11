@@ -266,6 +266,7 @@ export const step: OnboardingStepRoute = {
 .question-leave-active {
 	transition: transform 270ms cubic-bezier(0.48, 1.29, 0, -1.57), opacity 300ms;
 }
+
 .question-enter-from,
 .question-leave-to {
 	transform: translateY(1rem);
@@ -291,6 +292,7 @@ main {
 		h1 {
 			font-size: max(1rem, 3vw);
 		}
+
 		p {
 			font-size: max(1rem, 1vw);
 		}
@@ -323,6 +325,7 @@ main {
 			a {
 				cursor: pointer;
 				color: var(--seventv-accent);
+
 				&:hover {
 					text-decoration: underline;
 				}
@@ -338,7 +341,6 @@ main {
 			font-size: max(1rem, 2vw);
 			display: grid;
 			gap: 1em;
-
 			align-items: center;
 
 			.question {
@@ -351,29 +353,6 @@ main {
 
 				border-radius: 0.25rem;
 
-				.options {
-					display: flex;
-					justify-content: flex-end;
-					align-self: center;
-					align-content: center;
-					gap: 1em;
-					grid-template-columns: repeat(2, 1fr);
-
-					button {
-						max-width: 6vw;
-						&:hover {
-							outline-width: 0.15rem;
-						}
-					}
-
-					:nth-child(1) {
-						outline-color: rgba(128, 255, 128, 25%);
-					}
-					:nth-child(2) {
-						outline-color: rgba(255, 128, 128, 25%);
-					}
-				}
-
 				.config {
 					background-color: var(--seventv-background-shade-2);
 					border-radius: 0.25rem;
@@ -384,8 +363,34 @@ main {
 					text-align: start;
 					max-height: 50vh;
 					margin: 0 15vw;
+
 					button {
 						font-size: 2vw;
+					}
+				}
+
+				.options {
+					display: flex;
+					justify-content: flex-end;
+					align-self: center;
+					align-content: center;
+					gap: 1em;
+					grid-template-columns: repeat(2, 1fr);
+
+					button {
+						max-width: 6vw;
+
+						&:hover {
+							outline-width: 0.15rem;
+						}
+					}
+
+					:nth-child(1) {
+						outline-color: rgba(128, 255, 128, 25%);
+					}
+
+					:nth-child(2) {
+						outline-color: rgba(255, 128, 128, 25%);
 					}
 				}
 			}

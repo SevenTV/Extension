@@ -250,29 +250,6 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.seventv-emote-set-container {
-	position: relative;
-
-	&[collapsed="true"] {
-		.seventv-emote-set {
-			display: none;
-		}
-
-		.seventv-set-header > .seventv-set-chevron > svg {
-			transform: rotate(90deg);
-		}
-	}
-}
-
-.seventv-set-header-icon {
-	font-size: 2rem;
-	max-width: 2rem;
-	max-height: 2rem;
-	border-radius: 0.5rem;
-	margin-right: 1rem;
-	overflow: clip;
-}
-
 .seventv-emote-set {
 	display: inline-flex;
 	flex-wrap: wrap;
@@ -281,9 +258,9 @@ defineExpose({
 
 .seventv-set-header {
 	display: grid;
+
 	// icon, name, then at the end the chevron
 	grid-template-columns: auto 1fr 1.5rem;
-
 	height: 3rem;
 	padding: 0.5rem 1.25rem;
 	position: sticky;
@@ -309,6 +286,30 @@ defineExpose({
 		}
 	}
 }
+
+.seventv-emote-set-container {
+	position: relative;
+
+	&[collapsed="true"] {
+		.seventv-emote-set {
+			display: none;
+		}
+
+		.seventv-set-header > .seventv-set-chevron > svg {
+			transform: rotate(90deg);
+		}
+	}
+}
+
+.seventv-set-header-icon {
+	font-size: 2rem;
+	max-width: 2rem;
+	max-height: 2rem;
+	border-radius: 0.5rem;
+	margin-right: 1rem;
+	overflow: clip;
+}
+
 .seventv-emote-container {
 	display: grid;
 	background: hsla(0deg, 0%, 50%, 6%);
@@ -330,9 +331,11 @@ defineExpose({
 		0% {
 			background: hsla(0deg, 0%, 50%, 6%);
 		}
+
 		50% {
 			background: hsla(0deg, 0%, 50%, 12%);
 		}
+
 		100% {
 			background: hsla(0deg, 0%, 50%, 6%);
 		}
@@ -341,6 +344,7 @@ defineExpose({
 	&[zero-width="true"] {
 		border: 0.1rem solid rgb(220, 170, 50);
 	}
+
 	&[favorite="true"] {
 		border: 0.1rem solid rgb(50, 200, 250);
 	}
@@ -358,12 +362,15 @@ defineExpose({
 	&[ratio="1"] {
 		width: 4rem;
 	}
+
 	&[ratio="2"] {
 		width: 6.25rem;
 	}
+
 	&[ratio="3"] {
 		width: 8.5rem;
 	}
+
 	&[ratio="4"] {
 		width: 13rem;
 	}

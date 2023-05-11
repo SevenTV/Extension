@@ -271,8 +271,8 @@ onUnmounted(() => {
 	width: 100%;
 	height: 100%;
 	font-size: 2rem;
-
 	transition: color 150ms ease-in-out;
+
 	&.menu-open {
 		color: var(--seventv-primary);
 	}
@@ -284,7 +284,6 @@ onUnmounted(() => {
 
 	.seventv-emote-menu {
 		position: relative;
-
 		max-height: calc(100vh - 15rem);
 		display: flex;
 		flex-direction: column;
@@ -292,9 +291,11 @@ onUnmounted(() => {
 		overflow: clip;
 		border-radius: 0.25rem;
 		background-color: var(--seventv-background-transparent-1);
+
 		@at-root .seventv-transparent & {
 			backdrop-filter: blur(1rem);
 		}
+
 		outline: 0.1rem solid var(--seventv-border-transparent-1);
 
 		.seventv-emote-menu-header {
@@ -327,6 +328,7 @@ onUnmounted(() => {
 					}
 
 					transition: width 90ms ease-in-out, background 150ms ease-in-out;
+
 					&[selected="true"] {
 						background: var(--seventv-highlight-neutral-1);
 						color: var(--seventv-text-color-normal);
@@ -337,6 +339,7 @@ onUnmounted(() => {
 						width: 2rem;
 						height: 2rem;
 					}
+
 					> span {
 						font-family: Roboto, monospace;
 						font-weight: 600;
@@ -375,8 +378,7 @@ onUnmounted(() => {
 					width: 100%;
 					border: 1px solid var(--seventv-border-transparent-1);
 					padding-left: 3rem;
-					color: currentColor;
-
+					color: currentcolor;
 					outline: none;
 					transition: outline 140ms;
 
