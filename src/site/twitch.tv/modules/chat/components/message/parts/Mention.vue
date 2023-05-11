@@ -22,7 +22,7 @@ import UserTag from "../UserTag.vue";
 
 const props = defineProps<{
 	token: MentionToken;
-	msg: ChatMessage;
+	msg?: ChatMessage;
 }>();
 
 const shouldRenderColoredMentions = useConfig("chat.colored_mentions");
@@ -30,6 +30,8 @@ const ctx = useChannelContext();
 const tools = useChatTools(ctx);
 
 function onClick(ev: MouseEvent) {
+	if (!props.msg) return;
+
 	tools.openViewerCard(ev, props.token.content.recipient, props.msg.id);
 }
 </script>

@@ -12,7 +12,7 @@
 				:selected="platform.selected"
 				@click="toggle(platform)"
 			>
-				<component :is="platform.icon" />
+				<component :is="(platform.icon as AnyInstanceType)" />
 			</div>
 		</div>
 		<div v-t="'onboarding.platforms_mutable_note'" class="data" />

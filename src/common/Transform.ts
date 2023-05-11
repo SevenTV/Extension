@@ -44,7 +44,7 @@ export function convertTwitchEmote(
 	const emote: SevenTV.Emote = {
 		id: data.id ?? "",
 		name: data.token ?? "",
-		flags: 0,
+		flags: 0 as SevenTV.EmoteFlags,
 		tags: [],
 		state: [],
 		lifecycle: 3,
@@ -88,7 +88,7 @@ export function convertCheerEmote(data: Twitch.ChatMessage.EmotePart["content"])
 	return {
 		id: data.emoteID ?? "",
 		name: `${data.alt} ${data.cheerAmount}`,
-		flags: 0,
+		flags: 0 as SevenTV.EmoteFlags,
 		tags: [],
 		state: [],
 		lifecycle: 3,
@@ -154,7 +154,7 @@ export function convertBttvEmote(data: BTTV.Emote): SevenTV.Emote {
 	return {
 		id: data.id,
 		name: data.code,
-		flags: BTTV_ZeroWidth.indexOf(data.code) > -1 ? 256 : 0,
+		flags: (BTTV_ZeroWidth.indexOf(data.code) > -1 ? 256 : 0) as SevenTV.EmoteFlags,
 		tags: [],
 		state: [],
 		lifecycle: 3,
@@ -229,7 +229,7 @@ export function convertFFZEmote(data: FFZ.Emote): SevenTV.Emote {
 	return {
 		id: data.id.toString(),
 		name: data.name,
-		flags: 0,
+		flags: 0 as SevenTV.EmoteFlags,
 		tags: [],
 		state: [],
 		lifecycle: 3,

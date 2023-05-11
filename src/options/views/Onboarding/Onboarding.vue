@@ -3,7 +3,7 @@
 		<div v-if="ctx.activeStep" class="active-content">
 			<Transition name="step-animation" mode="out-in">
 				<KeepAlive>
-					<component :is="ctx.activeStep.component" @completed="toStep(1)" />
+					<component :is="(ctx.activeStep.component as AnyInstanceType)" @completed="toStep(1)" />
 				</KeepAlive>
 			</Transition>
 		</div>
