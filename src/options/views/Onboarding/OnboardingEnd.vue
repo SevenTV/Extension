@@ -134,9 +134,10 @@ export const step: OnboardingStepRoute = {
 main.onboarding-end {
 	width: 100%;
 	display: grid;
-	grid-template-areas:
+	grid-template:
 		"header header header"
-		"discord rate social";
+		"discord rate social"
+		". . .";
 	place-items: center;
 
 	> div:not(.header) {
