@@ -83,5 +83,7 @@ body[theme="light"] {
 .seventv-painted-content[data-seventv-painted-text="true"] {
 	-webkit-text-fill-color: transparent;
 	background-clip: text !important;
+	/* stylelint-disable-next-line property-no-vendor-prefix */
+	-webkit-background-clip: text !important;
 	font-weight: 700;
 }
