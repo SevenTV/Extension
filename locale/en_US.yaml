@@ -98,3 +98,14 @@ emote_menu:
     native: Open Native Menu
     favorite_set: Favorite Emotes
     most_used_set: Most Used Emotes
+    sets:
+        Global Emotes: Global Emotes
+        Smileys & Emotion: Smileys & Emotion
+        People & Body: People & Body
+        Animals & Nature: Animals & Nature
+        Food & Drink: Food & Drink
+        Travel & Places: Travel & Places
+        Activities: Activities
+        Objects: Objects
+        Symbols: Symbols
+        Flags: Flags

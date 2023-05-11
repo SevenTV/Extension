@@ -100,6 +100,7 @@ import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
+import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
 import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
 import RichEmbed from "./RichEmbed.vue";
@@ -145,7 +146,7 @@ const highlightStyle = useConfig<number>("highlights.display_style");
 const highlightOpacity = useConfig<number>("highlights.opacity");
 const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_seconds");
 const showModifiers = useConfig<boolean>("chat.show_emote_modifiers");
-
+const timestampFormat = useConfig<TimestampFormatKey>("chat.timestamp_format");
 // Get the locale to format the timestamp
 const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
 
@@ -227,6 +228,17 @@ function getPart(part: AnyToken) {
 	}
 }
 
+const useTimestampFormat = () => {
+	switch (timestampFormat.value) {
+		case "infer":
+			return undefined;
+		case "12":
+			return true;
+		case "24":
+			return false;
+	}
+};
+
 watchEffect(() => {
 	if (!msg.value || !msgEl.value) return;
 
@@ -246,9 +258,10 @@ watchEffect(() => {
 				hour: "numeric",
 				minute: "numeric",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
+				hour12: useTimestampFormat(),
 			},
 			props.msg.timestamp,
-		).replace(/ (A|P)M/, "");
+		);
 	}
 });
 </script>
@@ -302,6 +315,7 @@ watchEffect(() => {
 		margin-right: 0 !important;
 	}
 }
+
 .deleted {
 	&:not(:hover) > .seventv-chat-message-body {
 		display: var(--seventv-chat-deleted-display);
