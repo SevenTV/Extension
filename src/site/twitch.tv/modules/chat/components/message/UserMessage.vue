@@ -100,13 +100,13 @@ import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
+import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
 import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
 import RichEmbed from "./RichEmbed.vue";
 import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";
 import Mention from "./parts/Mention.vue";
-import { TimestampFormatKey } from "../../ChatModule.vue";
 import ModIcons from "../mod/ModIcons.vue";
 import intlFormat from "date-fns/fp/intlFormat";
 

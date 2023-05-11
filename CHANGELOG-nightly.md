@@ -8,7 +8,6 @@
 -   Added an option to choose chat timestamp format
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com
--   Fixed tooltips of nametag paints appearing even if they are disabled
 
 ### Version 3.0.6.1000
 
