@@ -3,7 +3,7 @@
 		<div v-if="ctx.activeStep" class="active-content">
 			<Transition name="step-animation" mode="out-in">
 				<KeepAlive>
-					<component :is="ctx.activeStep.component" @completed="toStep(1)" />
+					<component :is="(ctx.activeStep.component as AnyInstanceType)" @completed="toStep(1)" />
 				</KeepAlive>
 			</Transition>
 		</div>
@@ -170,7 +170,6 @@ main.onboarding {
 		position: fixed;
 		bottom: 0;
 		min-height: 6rem;
-
 		display: flex;
 		width: 100%;
 		justify-content: space-evenly;
@@ -182,6 +181,7 @@ main.onboarding {
 			display: flex;
 			align-items: middle;
 		}
+
 		a {
 			display: inline-block;
 			width: max(1rem, 1.25vw);
@@ -189,8 +189,8 @@ main.onboarding {
 			clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 			background: var(--seventv-muted);
 			margin: 0 0.25vw;
-
 			transition: background 0.25s ease, transform 140ms ease;
+
 			&:hover {
 				cursor: pointer;
 				background: var(--seventv-text-color-normal);
@@ -213,6 +213,7 @@ main.onboarding {
 			padding: 0 2vw;
 			margin: 0.5rem 0;
 		}
+
 		&.at-start {
 			button {
 				display: none;

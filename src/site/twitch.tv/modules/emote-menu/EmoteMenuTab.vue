@@ -28,7 +28,13 @@
 						@click="select(es.id, $refs['es-' + es.id] as InstanceType<typeof EmoteMenuSet>[])"
 					>
 						<div class="set-sidebar-icon">
-							<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
+							<div
+								v-if="es.provider === 'EMOJI' && emojiCategories.indexOf(es.name) > -1"
+								class="emoji-group"
+							>
+								<SingleEmoji :id="emojiGroupIcons[emojiCategories.indexOf(es.name)]" :alt="es.name" />
+							</div>
+							<img v-else-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
 							<Logo v-else class="logo" :provider="es.provider" />
 						</div>
 					</div>
@@ -55,6 +61,7 @@ import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
+import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import type { EmoteMenuTabName } from "./EmoteMenu.vue";
@@ -93,6 +100,20 @@ const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
 
 // const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 // const shouldShowUsage = useConfig<boolean>("ui.emote_menu.most_used");
+
+// Emote icons for groups
+const emojiGroupIcons = ["1f603", "1f44b", "1f343", "1f354", "26bd", "1f698", "1f4a1", "1f523", "1f6a9"];
+const emojiCategories = [
+	"Smileys & Emotion",
+	"People & Body",
+	"Animals & Nature",
+	"Food & Drink",
+	"Activities",
+	"Travel & Places",
+	"Objects",
+	"Symbols",
+	"Flags",
+];
 
 // "Most Used" is commented out pending refactor
 // Note the logic for favorites is also bad, though doesn't affect as many users
@@ -158,6 +179,14 @@ function sortFn(a: SevenTV.EmoteSet, b: SevenTV.EmoteSet) {
 	const c1 = sortCase(a);
 	const c2 = sortCase(b);
 
+	if (
+		a.provider === "EMOJI" &&
+		b.provider === "EMOJI" &&
+		emojiCategories.indexOf(a.name) > -1 &&
+		emojiCategories.indexOf(b.name) > -1
+	)
+		return emojiCategories.indexOf(a.name) - emojiCategories.indexOf(b.name);
+
 	return c1 == c2 ? a.name.localeCompare(b.name) : c1 > c2 ? 1 : -1;
 }
 
@@ -202,7 +231,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 });
 </script>
 <style scoped lang="scss">
-@import "@/assets/style/flair.scss";
+@import "@/assets/style/flair";
 
 .emote-area-container {
 	flex-shrink: 1;
@@ -221,7 +250,6 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	width: 100%;
 	padding: 0.25rem 1rem;
 	cursor: pointer;
-
 	transition: background 0.2s ease-in-out;
 
 	svg,
@@ -331,6 +359,11 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 }
 
 .logo {
+	width: 100%;
+	height: 100%;
+}
+
+.emoji-group {
 	width: 100%;
 	height: 100%;
 }

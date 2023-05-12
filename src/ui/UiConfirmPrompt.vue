@@ -67,6 +67,7 @@ main.seventv-confirm-prompt {
 			font-size: 1.5rem;
 			font-weight: 600;
 		}
+
 		svg {
 			font-size: 2rem;
 			cursor: pointer;

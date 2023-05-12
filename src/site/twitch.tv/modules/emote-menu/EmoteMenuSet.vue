@@ -6,7 +6,7 @@
 				<Logo v-else class="logo" :provider="es.provider" />
 			</div>
 
-			<span>{{ es.name }}</span>
+			<span>{{ getLocaleName() }}</span>
 			<div class="seventv-set-chevron" @click="toggleCollapsed">
 				<DropdownIcon />
 			</div>
@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
 import { onKeyDown, until, useMagicKeys, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
@@ -59,6 +60,8 @@ const emit = defineEmits<{
 	(e: "emote-clicked", ae: SevenTV.ActiveEmote): void;
 	(e: "emotes-updated", emotes: SevenTV.ActiveEmote[]): void;
 }>();
+
+const { t, te } = useI18n();
 
 const ctx = useEmoteMenuContext();
 const emotes = ref<SevenTV.ActiveEmote[]>([]);
@@ -161,6 +164,11 @@ function onInsertEmote(ae: SevenTV.ActiveEmote): void {
 	}
 
 	emit("emote-clicked", ae);
+}
+
+function getLocaleName(): string {
+	const k = `emote_menu.sets.${props.es.name}`;
+	return te(k) ? t(k) : props.es.name;
 }
 
 onKeyDown("Escape", () => {
@@ -274,29 +282,6 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.seventv-emote-set-container {
-	position: relative;
-
-	&[collapsed="true"] {
-		.seventv-emote-set {
-			display: none;
-		}
-
-		.seventv-set-header > .seventv-set-chevron > svg {
-			transform: rotate(90deg);
-		}
-	}
-}
-
-.seventv-set-header-icon {
-	font-size: 2rem;
-	max-width: 2rem;
-	max-height: 2rem;
-	border-radius: 0.5rem;
-	margin-right: 1rem;
-	overflow: clip;
-}
-
 .seventv-emote-set {
 	display: inline-flex;
 	flex-wrap: wrap;
@@ -305,9 +290,9 @@ defineExpose({
 
 .seventv-set-header {
 	display: grid;
+
 	// icon, name, then at the end the chevron
 	grid-template-columns: auto 1fr 1.5rem;
-
 	height: 3rem;
 	padding: 0.5rem 1.25rem;
 	position: sticky;
@@ -332,6 +317,29 @@ defineExpose({
 			background-color: hsla(0deg, 0%, 30%, 32%);
 		}
 	}
+}
+
+.seventv-emote-set-container {
+	position: relative;
+
+	&[collapsed="true"] {
+		.seventv-emote-set {
+			display: none;
+		}
+
+		.seventv-set-header > .seventv-set-chevron > svg {
+			transform: rotate(90deg);
+		}
+	}
+}
+
+.seventv-set-header-icon {
+	font-size: 2rem;
+	max-width: 2rem;
+	max-height: 2rem;
+	border-radius: 0.5rem;
+	margin-right: 1rem;
+	overflow: clip;
 }
 
 .seventv-emote-container {

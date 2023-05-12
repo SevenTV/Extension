@@ -275,7 +275,6 @@ onUnmounted(() => {
 	width: 100%;
 	height: 100%;
 	font-size: 2rem;
-
 	transition: color 150ms ease-in-out;
 
 	&.menu-open {
@@ -289,7 +288,6 @@ onUnmounted(() => {
 
 	.seventv-emote-menu {
 		position: relative;
-
 		max-height: calc(100vh - 15rem);
 		display: flex;
 		flex-direction: column;

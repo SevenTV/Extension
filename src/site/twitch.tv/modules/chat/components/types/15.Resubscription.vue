@@ -55,11 +55,14 @@ const plan = props.msgData.methods?.plan == "Prime" ? "Prime" : "Tier " + props.
 
 .sub-part {
 	display: flex;
+
 	.sub-message-text {
 		margin-left: 0.25rem;
+
 		.bold {
 			font-weight: 700;
 		}
+
 		.sub-name {
 			display: block;
 			color: var(--color-text-link);
