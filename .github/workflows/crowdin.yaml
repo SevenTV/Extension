@@ -94,7 +94,7 @@ jobs:
 
             - name: Create Pull Request
               if: ${{ steps.count.outputs.lines != '0' }}
-              uses: peter-evans/create-pull-request@v4
+              uses: peter-evans/create-pull-request@v5
               with:
                   title: "[CI] New Crowdin Translations"
                   body: The latest approved translations from Crowdin
