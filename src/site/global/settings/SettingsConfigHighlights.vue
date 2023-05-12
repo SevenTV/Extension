@@ -273,7 +273,6 @@ main.seventv-settings-custom-highlights {
 	grid-template-areas:
 		"tabs"
 		"list";
-
 	overflow-x: auto;
 
 	.tabs {
@@ -312,6 +311,16 @@ main.seventv-settings-custom-highlights {
 				border-bottom: 0.25rem solid var(--seventv-primary);
 			}
 
+			[name="color"] > input {
+				&::-webkit-color-swatch-wrapper {
+					padding: 0;
+				}
+
+				&::-webkit-color-swatch {
+					border: none;
+				}
+			}
+
 			&:not(.create-new) > .use-virtual-input {
 				cursor: text;
 				padding: 0.5rem;
@@ -338,16 +347,6 @@ main.seventv-settings-custom-highlights {
 						width: 100%;
 						height: initial;
 					}
-				}
-			}
-
-			[name="color"] > input {
-				&::-webkit-color-swatch-wrapper {
-					padding: 0;
-				}
-
-				&::-webkit-color-swatch {
-					border: none;
 				}
 			}
 

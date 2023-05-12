@@ -53,6 +53,7 @@ main.onboarding-compat {
 		h1 {
 			font-size: 4vw;
 		}
+
 		p {
 			font-size: 1vw;
 		}

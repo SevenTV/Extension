@@ -152,7 +152,6 @@ svg.seventv-emoji {
 	grid-column: 1;
 	grid-row: 1;
 	margin: auto;
-
 	object-fit: contain;
 
 	&:hover {

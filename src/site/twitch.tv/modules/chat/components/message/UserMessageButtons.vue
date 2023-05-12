@@ -144,7 +144,7 @@ function onPinAnswer(answer: string): void {
 		border-radius: 0.25rem;
 		background-color: var(--color-background-body);
 		font-size: 1.25rem;
-		fill: currentColor;
+		fill: currentcolor;
 		user-select: none;
 		z-index: 1;
 

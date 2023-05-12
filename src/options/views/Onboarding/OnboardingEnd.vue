@@ -113,15 +113,31 @@ export const step: OnboardingStepRoute = {
 </script>
 
 <style scoped lang="scss">
+.social {
+	grid-area: social;
+	display: flex !important;
+
+	> div {
+		display: grid;
+		justify-content: center;
+	}
+
+	svg {
+		cursor: pointer;
+		background: rgb(29, 161, 242);
+		border-radius: 0.25rem;
+		padding: 0.5rem;
+		font-size: 3vw;
+	}
+}
+
 main.onboarding-end {
 	width: 100%;
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	grid-template-rows: 1fr 1fr 1fr;
-	grid-template-areas:
+	grid-template:
 		"header header header"
-		"discord rate social";
-
+		"discord rate social"
+		". . .";
 	place-items: center;
 
 	> div:not(.header) {
@@ -151,6 +167,7 @@ main.onboarding-end {
 
 	margin: 0 5%;
 }
+
 .header {
 	grid-area: header;
 	justify-self: center;
@@ -161,15 +178,18 @@ main.onboarding-end {
 	h1 {
 		font-size: 4vw;
 	}
+
 	p {
 		font-size: 1vw;
 	}
 }
+
 .discord {
 	grid-area: discord;
 	background: var(--seventv-background-shade-2);
 	border-radius: 0.25rem;
 }
+
 .rate {
 	grid-area: rate;
 	display: grid p {
@@ -181,25 +201,7 @@ main.onboarding-end {
 		display: grid;
 		justify-content: center;
 		grid-template-columns: repeat(5, 3rem);
-
 		font-size: 2.5rem;
-	}
-}
-.social {
-	grid-area: social;
-	display: flex !important;
-
-	> div {
-		display: grid;
-		justify-content: center;
-	}
-
-	svg {
-		cursor: pointer;
-		background: rgb(29, 161, 242);
-		border-radius: 0.25rem;
-		padding: 0.5rem;
-		font-size: 3vw;
 	}
 }
 </style>

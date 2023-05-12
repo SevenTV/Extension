@@ -5,10 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import type { ChatMessage, LinkToken } from "@/common/chat/ChatMessage";
+import type { LinkToken } from "@/common/chat/ChatMessage";
 
 defineProps<{
 	token: LinkToken;
-	msg: ChatMessage;
 }>();
 </script>

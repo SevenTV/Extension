@@ -7,7 +7,7 @@ import SettingsViewProfileVue from "./SettingsViewProfile.vue";
 
 class SettingsMenuContext {
 	open = false;
-	view: ComponentFactory | null = null;
+	view: AnyInstanceType | null = null;
 
 	category = "";
 	scrollpoint = "";
