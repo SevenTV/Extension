@@ -20,9 +20,7 @@ button {
 	background: var(--seventv-input-background);
 	outline: 0.01em solid var(--seventv-input-border);
 	padding: 0 0.5em;
-
 	white-space: nowrap;
-
 	text-align: center;
 	font-weight: 600;
 	font-size: 1.25em;
@@ -32,6 +30,7 @@ button {
 	}
 
 	transition: opacity 170ms ease-in-out;
+
 	&:focus-within {
 		opacity: 0.65;
 	}
@@ -57,6 +56,7 @@ button {
 
 	.ui-button-icon {
 		display: inline-grid;
+
 		> :only-child {
 			margin-left: 0.5rem;
 		}

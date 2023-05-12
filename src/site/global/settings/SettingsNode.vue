@@ -66,15 +66,10 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 <style scoped lang="scss">
 .seventv-settings-node {
 	display: grid;
-	grid-template-columns: 1fr auto;
-	grid-template-rows: 1fr auto;
+	grid-template: "label control" 1fr "content content" auto / 1fr auto;
 	grid-auto-flow: row;
-	grid-template-areas:
-		"label control"
-		"content content";
 	row-gap: 1rem;
 	padding: 0.25rem 0;
-
 	transition: background-color 90ms ease-out;
 
 	&:hover {
@@ -88,11 +83,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 
 	.label {
 		display: grid;
-		grid-template-columns: 1fr;
-		grid-template-rows: 1fr auto;
-		grid-template-areas:
-			"title"
-			"subtitle";
+		grid-template: "title" 1fr "subtitle" auto / 1fr;
 		grid-area: label;
 		margin: 0 1rem;
 		gap: 0.5rem;
@@ -138,7 +129,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		grid-area: control;
 	}
 
-	@media (max-width: 60rem) {
+	@media (width <= 60rem) {
 		.subtitle,
 		.seventv-settings-node-control,
 		.content {

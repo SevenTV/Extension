@@ -145,7 +145,7 @@ function onPinAnswer(answer: string): void {
 		background-color: var(--color-background-body);
 		color: var(--seventv-chat-message-buttons-color);
 		font-size: 1.25rem;
-		fill: currentColor;
+		fill: currentcolor;
 		user-select: none;
 		z-index: 1;
 

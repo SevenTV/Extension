@@ -205,7 +205,7 @@ watch(
 </script>
 
 <style scoped lang="scss">
-@media (max-width: 1120px) {
+@media (width <= 1120px) {
 	:deep(.seventv-settings-expanded) {
 		display: none !important;
 	}
@@ -222,10 +222,11 @@ watch(
 	}
 }
 
-@media (max-width: 960px) {
+@media (width <= 960px) {
 	:deep(.seventv-settings-compact) {
 		display: none !important;
 	}
+
 	.seventv-settings-settings-area {
 		width: 27rem !important;
 	}
@@ -236,7 +237,6 @@ watch(
 	flex-direction: column;
 	max-height: calc(100vh - 10rem);
 	pointer-events: all;
-
 	background: var(--seventv-background-shade-1);
 	border-radius: 0.25rem;
 	outline: 0.1rem solid var(--seventv-border-transparent-1);
@@ -265,6 +265,7 @@ watch(
 		height: 4rem;
 		flex-grow: 1;
 	}
+
 	.seventv-settings-header-icon {
 		display: flex;
 		height: 100%;
@@ -276,9 +277,10 @@ watch(
 			width: 3rem;
 		}
 	}
+
 	.seventv-header-button {
 		cursor: pointer;
-		color: currentColor;
+		color: currentcolor;
 
 		&:hover {
 			background: hsla(0deg, 0%, 30%, 32%);
@@ -299,7 +301,6 @@ watch(
 
 .seventv-settings-sidebar {
 	width: 20rem;
-
 	display: flex;
 	flex-direction: column;
 	flex-shrink: 0;
@@ -339,8 +340,7 @@ watch(
 			width: 100%;
 			border: none;
 			padding-left: 3rem;
-			color: currentColor;
-
+			color: currentcolor;
 			outline: none;
 			transition: outline 140ms;
 
@@ -377,6 +377,7 @@ watch(
 				overflow: clip;
 				border-radius: 50%;
 			}
+
 			.seventv-settings-sidebar-profile-text {
 				margin-left: 1rem;
 				font-size: 1.5rem;
@@ -389,6 +390,7 @@ watch(
 			display: flex;
 			margin-left: auto;
 			cursor: pointer;
+
 			> svg {
 				height: 2rem;
 				width: 100%;
@@ -396,6 +398,7 @@ watch(
 		}
 	}
 }
+
 .seventv-settings-settings-area {
 	width: 80rem;
 	max-height: 60rem;

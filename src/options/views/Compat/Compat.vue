@@ -156,6 +156,27 @@ type ExtensionInfo = chrome.management.ExtensionInfo & { versionName?: string };
 </script>
 
 <style scoped lang="scss">
+.seventv-compat-permission-request {
+	display: flex;
+	justify-content: center;
+	column-gap: 1rem;
+	padding: 1rem;
+	text-align: center;
+
+	button {
+		margin: 1rem 0;
+		padding: 0 3rem;
+		font-size: 2rem;
+		text-align: center;
+		height: 4rem;
+	}
+
+	p {
+		font-size: 1.25rem;
+		text-align: center;
+	}
+}
+
 main.seventv-compat {
 	width: 100%;
 	padding: 0.25rem;
@@ -211,6 +232,7 @@ main.seventv-compat {
 			display: flex;
 			align-items: flex-end;
 		}
+
 		.ext-compat-interact > button {
 			all: unset;
 			padding: 0.25rem 0.5rem;
@@ -249,27 +271,6 @@ main.seventv-compat {
 					margin-left: 0.5rem;
 				}
 			}
-		}
-	}
-
-	.seventv-compat-permission-request {
-		display: flex;
-		justify-content: center;
-		column-gap: 1rem;
-		padding: 1rem;
-		text-align: center;
-
-		button {
-			margin: 1rem 0;
-			padding: 0 3rem;
-			font-size: 2rem;
-			text-align: center;
-			height: 4rem;
-		}
-
-		p {
-			font-size: 1.25rem;
-			text-align: center;
 		}
 	}
 }
