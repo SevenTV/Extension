@@ -414,8 +414,7 @@ onUnmounted(() => {
 						width: 100%;
 						border: 1px solid var(--seventv-border-transparent-1);
 						padding-left: 3rem;
-						color: currentColor;
-
+						color: currentcolor;
 						outline: none;
 						transition: outline 140ms;
 
