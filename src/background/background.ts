@@ -1,8 +1,7 @@
+import { HOSTNAME_SUPPORTED_REGEXP } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import "./messaging";
 import "./sync";
-
-const HOSTNAME_SUPPORTED_REGEXP = /([a-z0-9]+[.])*(youtube|kick)[.]com/;
 
 // Connect to Vite server
 //
@@ -15,7 +14,7 @@ function useHotReloading() {
 		const { event } = JSON.parse(e.data);
 		if (event === "defined-match") {
 			log.info("Background files changed, reloading extension...");
-			chrome.runtime.reload();
+			setTimeout(() => chrome.runtime.reload(), 100);
 		}
 	};
 }

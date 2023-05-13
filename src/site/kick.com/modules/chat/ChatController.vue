@@ -49,8 +49,8 @@ watchEffect(async () => {
 // Watch for message list updates
 watch(
 	chatList,
-	async (el, old) => {
-		if (!el || (old && el === old)) return;
+	async (el) => {
+		if (!el) return;
 
 		// Obtain the shallow message list
 		// This will be used to set up an efficient-ish mutation observer
