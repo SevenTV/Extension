@@ -8,8 +8,8 @@
 		@clickout="props.onCloseDropdown"
 	>
 		<div class="sort-context-menu">
-			<FormDropdown :node="emoteMenuSortProperties" :on-change="props.onCloseDropdown" />
-			<FormDropdown :node="emoteMenuSortOrderProperties" :on-change="props.onCloseDropdown" />
+			<FormDropdown :node="emoteMenuSortProperties" @change="props.onCloseDropdown" />
+			<FormDropdown :node="emoteMenuSortOrderProperties" @change="props.onCloseDropdown" />
 		</div>
 	</UiFloating>
 </template>
