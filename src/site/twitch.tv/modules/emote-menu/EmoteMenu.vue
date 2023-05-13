@@ -352,7 +352,6 @@ onUnmounted(() => {
 			}
 
 			.emote-search-sort-container {
-				display: flex;
 				padding: 0 0.75rem 0.75rem;
 				position: relative;
 
@@ -362,7 +361,6 @@ onUnmounted(() => {
 
 					.emote-search-icon {
 						position: absolute;
-						display: flex;
 						align-items: center;
 						top: 0;
 						height: 3rem;
@@ -379,31 +377,6 @@ onUnmounted(() => {
 							user-select: none;
 							pointer-events: none;
 							color: var(--seventv-border-transparent-1);
-						}
-					}
-
-					:deep(.emote-search-icon.sort-icon) {
-						position: absolute;
-						display: flex;
-						align-items: center;
-						top: 0;
-						height: 3rem;
-						width: 3rem;
-						padding: 0.85rem;
-
-						> svg {
-							height: 100%;
-							width: 100%;
-						}
-
-						cursor: pointer;
-						right: 1rem;
-						color: var(--seventv-text-color-secondary);
-
-						&:active,
-						&:focus,
-						&:hover {
-							color: var(--seventv-text-color-normal);
 						}
 					}
 

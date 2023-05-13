@@ -319,24 +319,6 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 				@include flair-pulsating(#3eed58);
 			}
 		}
-
-		:deep(.sort-button) {
-			display: flex;
-			margin: 0.5rem;
-			padding: 0.5rem;
-			border-radius: 0.25rem;
-			justify-content: center;
-			cursor: pointer;
-
-			&:hover {
-				background: hsla(0deg, 0%, 50%, 32%);
-			}
-
-			> svg {
-				height: 2rem;
-				width: 2rem;
-			}
-		}
 	}
 }
 
