@@ -2,7 +2,7 @@ import { log } from "@/common/Logger";
 import "./messaging";
 import "./sync";
 
-const HOSTNAME_YT_REGEXP = /([a-z0-9]+[.])*youtube[.]com/;
+const HOSTNAME_SUPPORTED_REGEXP = /([a-z0-9]+[.])*(youtube|kick)[.]com/;
 
 // Connect to Vite server
 //
@@ -76,7 +76,7 @@ if (!chrome.scripting) {
 		}
 
 		const loc = new URL(t.url);
-		if (HOSTNAME_YT_REGEXP.test(loc.host)) {
+		if (HOSTNAME_SUPPORTED_REGEXP.test(loc.host)) {
 			chrome.tabs.executeScript(tabId, {
 				file: "content.js",
 			});
@@ -87,7 +87,7 @@ if (!chrome.scripting) {
 		{
 			id: "seventv-youtube",
 			js: ["content.js"],
-			matches: ["*://*.youtube.com/*"],
+			matches: ["*://*.youtube.com/*", "*://*.kick.com/*"],
 		},
 	]);
 }

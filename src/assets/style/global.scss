@@ -8,7 +8,8 @@
 
 /* stylelint-disable-next-line selector-class-pattern */
 .tw-root--theme-dark,
-body[theme="dark"] {
+body[theme="dark"],
+body[seventv-kick="true"] {
 	--seventv-text-color-normal: #f0f0f0;
 	--seventv-text-color-secondary: #f0f0f078;
 	--seventv-input-background: #232323;

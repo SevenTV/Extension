@@ -93,7 +93,7 @@ import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
 import type { AnyToken, ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
-import { IsEmotePart as IsEmoteToken, IsLinkToken, IsMentionToken } from "@/common/type-predicates/MessageTokens";
+import { IsEmoteToken, IsLinkToken, IsMentionToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
