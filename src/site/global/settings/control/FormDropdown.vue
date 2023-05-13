@@ -11,7 +11,6 @@ import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType, "DROPDOWN">;
-	onChange?: () => void;
 }>();
 
 const emit = defineEmits<{
