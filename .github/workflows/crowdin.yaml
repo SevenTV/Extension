@@ -24,7 +24,7 @@ jobs:
 
             - name: crowdin action
               if: steps.changes.outputs.crowdin == 'true'
-              uses: crowdin/github-action@1.5.2
+              uses: crowdin/github-action@v1.8.0
               with:
                   upload_sources: true
                   upload_translations: false
@@ -69,7 +69,7 @@ jobs:
                   git checkout ${{ env.BASE_BRANCH }}
 
             - name: Download Crowdin Translations
-              uses: crowdin/github-action@1.5.2
+              uses: crowdin/github-action@v1.8.0
               with:
                   upload_sources: false
                   upload_translations: false
@@ -94,7 +94,7 @@ jobs:
 
             - name: Create Pull Request
               if: ${{ steps.count.outputs.lines != '0' }}
-              uses: peter-evans/create-pull-request@v4
+              uses: peter-evans/create-pull-request@v5
               with:
                   title: "[CI] New Crowdin Translations"
                   body: The latest approved translations from Crowdin
