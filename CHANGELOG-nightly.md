@@ -2,6 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   Added support for a new site: [kick.com](https://kick.com/)
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Added a "Site Layout" menu where certain features of the Twitch website can be hidden
 -   Added Emojis for the emoji groups
