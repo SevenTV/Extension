@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'change'): void
+	(e: "change"): void;
 }>();
 
 const setting = useConfig(props.node.key);
