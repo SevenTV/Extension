@@ -1,25 +1,28 @@
 <template>
 	<template v-if="shallowList">
 		<ChatObserver :list-element="shallowList" />
+		<ChatAutocomplete />
 	</template>
 	<ChatData />
 </template>
 
 <script setup lang="ts">
-import { watchEffect } from "vue";
+import { inject, watchEffect } from "vue";
 import { ref } from "vue";
 import { watch } from "vue";
+import { toRefs } from "vue";
 import { ObserverPromise } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import ChatData from "@/site/youtube.com/modules/chat/ChatData.vue";
+import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatObserver from "./ChatObserver.vue";
+import { KICK_CHANNEL_KEY } from "../..";
 
-const props = defineProps<{
-	channelId: string;
-	channelSlug: string;
-}>();
+const { id: channelID, username: channelUsername } = toRefs(
+	inject(KICK_CHANNEL_KEY, { id: "", username: "", currentMessage: "" }),
+);
 
-const ctx = useChannelContext(props.channelId);
+const ctx = useChannelContext(channelID.value);
 
 // The list
 const chatList = ref<HTMLDivElement | null>(null);
@@ -28,9 +31,9 @@ const shallowList = ref<HTMLDivElement | null>(null);
 watchEffect(async () => {
 	// Update channel context
 	const ok = ctx.setCurrentChannel({
-		id: props.channelId,
-		username: props.channelSlug,
-		displayName: props.channelSlug,
+		id: channelID.value,
+		username: channelUsername.value,
+		displayName: channelUsername.value,
 	});
 	if (ok) {
 		chatList.value = null;
