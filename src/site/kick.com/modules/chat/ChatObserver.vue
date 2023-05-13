@@ -48,6 +48,9 @@ useMutationObserver(
 	(records) => {
 		for (const rec of records) {
 			rec.addedNodes.forEach((n) => (n instanceof HTMLDivElement ? validateMessageElement(n) : null));
+			rec.removedNodes.forEach((n) =>
+				n instanceof HTMLDivElement ? messageMap.delete(n.getAttribute("data-chat-entry")!) : null,
+			);
 		}
 	},
 	{ childList: true },
