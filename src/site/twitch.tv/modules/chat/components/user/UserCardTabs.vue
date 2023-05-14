@@ -52,6 +52,7 @@ function formatCount(count: number, maxCount: number): string {
 	grid-template-areas: ". . . .";
 	height: 4rem;
 	box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 35%);
+	background-color: var(--seventv-background-transparent-1);
 }
 
 button {

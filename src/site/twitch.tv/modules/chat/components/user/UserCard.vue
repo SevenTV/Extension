@@ -459,7 +459,8 @@ main.seventv-user-card-container {
 	max-height: $card-height;
 	width: $card-width;
 	box-shadow: 0 0 0.5rem 0.5rem hsla(0deg, 0%, 0%, 20%);
-	background-color: var(--seventv-background-transparent-1);
+	outline: 1px solid var(--seventv-background-shade-1);
+	background-color: var(--seventv-background-transparent-3);
 	backdrop-filter: blur(2rem);
 	border-radius: 0.5rem;
 }
@@ -474,7 +475,6 @@ main.seventv-user-card-container {
 		"actions"
 		"mod";
 	align-content: space-between;
-	background-color: var(--seventv-background-transparent-2);
 
 	.seventv-user-card-greystates {
 		grid-area: greystates;
