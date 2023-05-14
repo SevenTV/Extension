@@ -1,3 +1,4 @@
+import { TwTypeChatBanStatus } from "./tw.gql";
 import gql from "graphql-tag";
 
 export const twitchBanUserQuery = gql`
@@ -38,9 +39,11 @@ export namespace twitchBanUserQuery {
 		};
 	}
 	export interface Result {
-		ban: null | object;
-		error: null | {
-			code: string;
+		banUserFromChatRoom: {
+			ban: null | TwTypeChatBanStatus;
+			error: null | {
+				code: string;
+			};
 		};
 	}
 }

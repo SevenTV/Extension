@@ -30,7 +30,7 @@
 		</template>
 
 		<!-- Mod Icons -->
-		<template v-if="properties.isModerator && properties.showModerationIcons">
+		<template v-if="ctx.actor.roles.has('MODERATOR') && properties.showModerationIcons && !hideModIcons">
 			<ModIcons :msg="msg" />
 		</template>
 
@@ -40,8 +40,7 @@
 			:user="msg.author"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
-			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
-			@badge-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
+			@open-native-card="openViewerCard($event, msg.author.username, msg.id)"
 		/>
 
 		<span v-if="!hideAuthor">
@@ -102,7 +101,7 @@ import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
-import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
+import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
 import RichEmbed from "./RichEmbed.vue";
 import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";
@@ -123,6 +122,7 @@ const props = withDefaults(
 		isModerator?: boolean;
 		hideAuthor?: boolean;
 		hideModeration?: boolean;
+		hideModIcons?: boolean;
 		hideDeletionState?: boolean;
 		showButtons?: boolean;
 		forceTimestamp?: boolean;
@@ -253,8 +253,8 @@ watchEffect(() => {
 			{ locale },
 			{
 				localeMatcher: "lookup",
-				hour: "numeric",
-				minute: "numeric",
+				hour: "2-digit",
+				minute: "2-digit",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
 				hour12: useTimestampFormat(),
 			},
@@ -337,6 +337,8 @@ watchEffect(() => {
 
 .seventv-chat-message-timestamp {
 	margin-right: 0.5rem;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.1rem;
 	color: var(--seventv-muted);
 }
 </style>

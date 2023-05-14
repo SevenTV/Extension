@@ -36,7 +36,6 @@ import { reactive, ref, toRef, watch } from "vue";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
-import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { ModSliderData, maxVal } from "./ModSliderBackend";
 
 const props = defineProps<{
@@ -45,7 +44,6 @@ const props = defineProps<{
 
 const ctx = useChannelContext();
 const moderation = useChatModeration(ctx, props.msg.author?.username ?? "");
-const properties = useChatProperties(ctx);
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -56,7 +54,7 @@ let initial = 0;
 const canModerate = ref(false);
 
 watch(
-	() => [properties.isModerator],
+	() => [ctx.actor.roles.has("MODERATOR")],
 	(a) => {
 		canModerate.value = a.every((x) => x);
 	},
