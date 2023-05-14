@@ -3,14 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from "vue";
-import { watchEffect } from "vue";
-import { toRef } from "vue";
-import { watch } from "vue";
+import { inject, ref, toRef, watch, watchEffect } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
-import { KICK_CHANNEL_KEY } from "../..";
+import { KICK_CHANNEL_KEY } from "@/site/kick.com";
 
 export interface TabToken {
 	token: string;

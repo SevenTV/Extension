@@ -66,7 +66,7 @@ const props = defineProps<{
 	events?: HookedInstance<Twitch.ChatEventComponent>;
 }>();
 
-const mod = getModule("chat")!;
+const mod = getModule<"TWITCH", "chat">("chat")!;
 const { sendMessage: sendWorkerMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);

@@ -14,7 +14,7 @@ import { declareModule } from "@/composable/useModule";
 import { ChatRoom, KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
 import ChatController from "./ChatController.vue";
 
-const { markAsReady } = declareModule("chat", {
+const { markAsReady } = declareModule<"KICK">("chat", {
 	name: "Chat",
 	depends_on: [],
 });
