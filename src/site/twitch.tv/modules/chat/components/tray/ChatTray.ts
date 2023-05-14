@@ -90,7 +90,7 @@ export function useTray<T extends keyof Twitch.ChatTray.Type>(
 	props?: () => TrayProps<T>,
 	tray?: Twitch.ChatTray<T>,
 ) {
-	const mod = getModuleRef("chat-input");
+	const mod = getModuleRef<"TWITCH", "chat-input">("chat-input");
 
 	function clear(): void {
 		if (!mod.value || typeof mod.value.instance?.setTray !== "function") return;
