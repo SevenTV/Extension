@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
-- No unreleased changes yet.
+-   Enable AVIF images on Firefox >= 113 by default
 
 ### Version 3.0.7.1000
 
