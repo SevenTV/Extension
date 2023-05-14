@@ -12,9 +12,9 @@
 					<div class="seventv-user-card-avatar">
 						<img v-if="data.targetUser.avatarURL" :src="data.targetUser.avatarURL" />
 					</div>
-					<div class="seventv-user-card-usertag">
+					<a :href="getProfileURL()" target="_blank" class="seventv-user-card-usertag">
 						<UserTag :user="data.targetUser" :hide-badges="true" :clickable="false" />
-					</div>
+					</a>
 
 					<div class="seventv-user-card-badges">
 						<Badge
@@ -347,6 +347,10 @@ function openNativeCard(ev: MouseEvent): void {
 	emit("close");
 }
 
+function getProfileURL(): string {
+	return window.location.origin + "/" + props.target.username;
+}
+
 watchEffect(async () => {
 	if (!apollo) return;
 
@@ -564,6 +568,7 @@ main.seventv-user-card-container {
 		}
 
 		.seventv-user-card-usertag {
+			all: unset;
 			grid-area: usertag;
 			z-index: 1;
 			display: block;
