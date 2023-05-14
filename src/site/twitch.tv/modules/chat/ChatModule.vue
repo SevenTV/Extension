@@ -350,8 +350,14 @@ export const config = [
 		hint: "Infer will get the format from the current locale.",
 		options: timestampFormatOptions,
 	}),
+	declareConfig("chat.user_card", "TOGGLE", {
+		path: ["Chat", "Tools"],
+		label: "Improve the User Card",
+		hint: "Replace the default user card with a faster, more useful version",
+		defaultValue: true,
+	}),
 	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
-		path: ["Chat", "Message Tools"],
+		path: ["Chat", "Tools"],
 		label: "Copy Icon",
 		hint: "Show a 'Copy' icon when hovering over a chat message to copy the message",
 		defaultValue: true,

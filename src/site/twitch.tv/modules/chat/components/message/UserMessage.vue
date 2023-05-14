@@ -35,7 +35,13 @@
 		</template>
 
 		<!-- Chat Author -->
-		<UserTag v-if="msg.author && !hideAuthor" :user="msg.author" :badges="msg.badges" :msg-id="msg.sym" />
+		<UserTag
+			v-if="msg.author && !hideAuthor"
+			:user="msg.author"
+			:badges="msg.badges"
+			:msg-id="msg.sym"
+			@open-native-card="openViewerCard($event, msg.author.username, msg.id)"
+		/>
 
 		<span v-if="!hideAuthor">
 			{{ !msg.slashMe ? ": " : " " }}
@@ -90,6 +96,7 @@ import { IsEmoteToken, IsLinkToken, IsMentionToken } from "@/common/type-predica
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
+import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
@@ -128,6 +135,7 @@ const msgEl = ref<HTMLSpanElement | null>();
 
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
+const { openViewerCard } = useChatTools(ctx);
 const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? "");
 
 const emoteScale = useConfig<number>("chat.emote_scale");

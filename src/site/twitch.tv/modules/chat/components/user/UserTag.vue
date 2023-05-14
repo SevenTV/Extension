@@ -8,7 +8,7 @@
 				:badge="badge"
 				:alt="badge.title"
 				type="twitch"
-				@click="handleClick()"
+				@click="handleClick($event)"
 			/>
 			<Badge v-for="badge of activeBadges" :key="badge.id" :badge="badge" :alt="badge.data.tooltip" type="app" />
 		</span>
@@ -17,7 +17,7 @@
 		<span
 			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
 			class="seventv-chat-user-username"
-			@click="handleClick()"
+			@click="handleClick($event)"
 		>
 			<span v-cosmetic-paint="paint ? paint.id : null">
 				<span v-if="asMention">@</span>
@@ -68,10 +68,15 @@ const props = withDefaults(
 	},
 );
 
+const emit = defineEmits<{
+	(e: "open-native-card", ev: MouseEvent): void;
+}>();
+
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
 const shouldRenderPaint = useConfig("vanity.nametag_paints");
+const betterUserCardEnabled = useConfig("chat.user_card");
 const twitchBadges = ref([] as Twitch.ChatBadge[]);
 
 const tagRef = ref<HTMLDivElement>();
@@ -80,8 +85,12 @@ const cardHandle = ref<HTMLDivElement>();
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
 const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
 
-function handleClick() {
+function handleClick(ev: MouseEvent) {
 	if (!props.clickable) return;
+	if (!betterUserCardEnabled.value) {
+		emit("open-native-card", ev);
+		return;
+	}
 
 	showUserCard.value = !showUserCard.value;
 }
