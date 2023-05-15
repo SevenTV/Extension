@@ -33,7 +33,7 @@
 	},
 	"devDependencies": {
 		"@apollo/client": "^3.7.14",
-		"@floating-ui/dom": "^1.2.7",
+		"@floating-ui/dom": "^1.2.8",
 		"@intlify/unplugin-vue-i18n": "^0.10.0",
 		"@trivago/prettier-plugin-sort-imports": "^4.1.1",
 		"@types/chrome": "^0.0.235",
