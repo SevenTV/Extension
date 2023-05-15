@@ -36,7 +36,7 @@
 		"@floating-ui/dom": "^1.2.8",
 		"@intlify/unplugin-vue-i18n": "^0.10.0",
 		"@trivago/prettier-plugin-sort-imports": "^4.1.1",
-		"@types/chrome": "^0.0.235",
+		"@types/chrome": "^0.0.236",
 		"@types/dompurify": "^3.0.2",
 		"@types/fs-extra": "^11.0.1",
 		"@types/marked": "^4.3.0",
