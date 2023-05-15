@@ -85,7 +85,7 @@
 		"vite-plugin-chrome-extension": "^0.0.7",
 		"vue-i18n": "9.2.2",
 		"vue-router": "4.2.0",
-		"vue-tsc": "^1.6.4",
+		"vue-tsc": "^1.6.5",
 		"webextension-polyfill-ts": "^0.26.0"
 	}
 }
