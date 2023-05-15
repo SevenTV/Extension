@@ -65,7 +65,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 
 		// By default the extension is enabled only on Twitch
 		host_permissions: ["*://*.twitch.tv/*"],
-		permissions: ["scripting", "storage", "activeTab", "cookies"],
+		permissions: ["scripting", "storage", "activeTab"],
 		optional_permissions: ["management"],
 
 		// Declare YouTube as an optional host permission
