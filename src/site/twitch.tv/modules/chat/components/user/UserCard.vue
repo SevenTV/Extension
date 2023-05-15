@@ -33,6 +33,19 @@
 						<p v-if="data.targetUser.relationship.followedAt">
 							{{ t("user_card.following_since_date", { date: data.targetUser.relationship.followedAt }) }}
 						</p>
+						<p v-if="data.targetUser.relationship.subscription.months">
+							{{
+								data.targetUser.relationship.subscription.isSubscribed
+									? `${t("user_card.subscription_tier", {
+											tier: data.targetUser.relationship.subscription.tier[0],
+									  })} - ${t("user_card.subscription_length", {
+											length: data.targetUser.relationship.subscription.months,
+									  })}`
+									: t("user_card.previously_subscription_length", {
+											length: data.targetUser.relationship.subscription.months,
+									  })
+							}}
+						</p>
 					</div>
 
 					<UserCardActions />
@@ -146,6 +159,11 @@ const data = reactive({
 		badges: [] as SevenTV.Cosmetic<"BADGE">[],
 		relationship: {
 			followedAt: "",
+			subscription: {
+				isSubscribed: false,
+				tier: "",
+				months: 0,
+			},
 		},
 	},
 	stream: {
@@ -382,6 +400,14 @@ watchEffect(async () => {
 				data.targetUser.relationship.followedAt = resp.data.targetUser.relationship?.followedAt
 					? formatDate("PPP")(new Date(resp.data.targetUser.relationship.followedAt))
 					: "";
+				data.targetUser.relationship.subscription.months =
+					resp.data.targetUser.relationship?.cumulativeTenure?.months ?? 0;
+
+				if (resp.data.targetUser.relationship?.subscriptionBenefit) {
+					data.targetUser.relationship.subscription.isSubscribed = true;
+					data.targetUser.relationship.subscription.tier =
+						resp.data.targetUser.relationship?.subscriptionBenefit!.tier;
+				}
 
 				if (resp.data.targetUser.stream) {
 					data.stream.live = true;
