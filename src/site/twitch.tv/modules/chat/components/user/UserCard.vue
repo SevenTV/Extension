@@ -583,6 +583,7 @@ main.seventv-user-card-container {
 				font-weight: 900;
 			}
 		}
+
 		.seventv-user-card-usertag {
 			all: unset;
 		}
