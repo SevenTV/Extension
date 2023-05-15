@@ -29,7 +29,7 @@
 		"script:compile-emoji": "tsc -p script/script.tsconfig.json --outDir dist/ && node dist/compile-emojis.js"
 	},
 	"dependencies": {
-		"vue": "^3.3.1"
+		"vue": "^3.3.2"
 	},
 	"devDependencies": {
 		"@apollo/client": "^3.7.14",
