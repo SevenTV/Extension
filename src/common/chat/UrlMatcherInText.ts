@@ -1,4 +1,5 @@
 import { AnyToken, LinkToken } from "./ChatMessage";
+import { log } from "../Logger";
 import { parse as tldParse } from "tldts";
 
 export interface UrlMatcherOptions {
@@ -23,7 +24,7 @@ export class UrlMatcherInText {
 		const { findUrlRegex, cleanUrlRegex } = this.urlMatcherOptions;
 
 		if (!findUrlRegex && !cleanUrlRegex) {
-			console.error("UrlMatcherInText: No regex provided for finding urls");
+			log.error("UrlMatcherInText: No regex provided for finding urls");
 			return this;
 		}
 
@@ -66,7 +67,7 @@ export class UrlMatcherInText {
 
 	private addUrl(url: URL, range: [number, number]) {
 		if (!url && range.length < 2) {
-			console.error("UrlMatcherInText: No url provided for adding");
+			log.error("UrlMatcherInText: No url provided for adding");
 			return;
 		}
 
