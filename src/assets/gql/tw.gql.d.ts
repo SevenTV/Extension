@@ -21,6 +21,7 @@ export interface TwTypeUser {
 	channel: TwTypeChannel;
 	self: TwTypeUserSelfConnection;
 	blockedUsers: TwTypeUser[];
+	createdAt: string;
 	moderationSettings: {
 		canAccessViewerCardModLogs: boolean;
 	};
