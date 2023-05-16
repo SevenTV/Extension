@@ -12,10 +12,11 @@
 					<div class="seventv-user-card-avatar">
 						<img v-if="data.targetUser.avatarURL" :src="data.targetUser.avatarURL" />
 					</div>
-					<a :href="getProfileURL()" target="_blank" class="seventv-user-card-usertag">
-						<UserTag :user="data.targetUser" :hide-badges="true" :clickable="false" />
-					</a>
-
+					<div class="seventv-user-card-usertag-container">
+						<a :href="getProfileURL()" target="_blank" class="seventv-user-card-usertag">
+							<UserTag :user="data.targetUser" :hide-badges="true" :clickable="false" />
+						</a>
+					</div>
 					<div class="seventv-user-card-badges">
 						<Badge
 							v-for="badge of data.targetUser.badges"
@@ -567,8 +568,7 @@ main.seventv-user-card-container {
 			}
 		}
 
-		.seventv-user-card-usertag {
-			all: unset;
+		.seventv-user-card-usertag-container {
 			grid-area: usertag;
 			z-index: 1;
 			display: block;
@@ -582,6 +582,10 @@ main.seventv-user-card-container {
 				font-size: 1.35rem;
 				font-weight: 900;
 			}
+		}
+
+		.seventv-user-card-usertag {
+			all: unset;
 		}
 
 		.seventv-user-card-badges {
