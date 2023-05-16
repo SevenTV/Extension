@@ -3,7 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Enabled AVIF images on Firefox >= 113 by default
--   Changed the Usercard so you will only be redirected to another persons stream if you're clicking on the name
+-   Fixed an issue where clicking the upper drag region in the User Card opened the user's channel
 
 ### Version 3.0.7.1000
 
