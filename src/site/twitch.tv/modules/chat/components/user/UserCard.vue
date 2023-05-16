@@ -33,17 +33,21 @@
 						<p v-if="data.targetUser.relationship.followedAt">
 							{{ t("user_card.following_since_date", { date: data.targetUser.relationship.followedAt }) }}
 						</p>
-						<p v-if="data.targetUser.relationship.subscription.months">
+
+						<p v-if="data.targetUser.relationship.subscription.isSubscribed">
 							{{
-								data.targetUser.relationship.subscription.isSubscribed
-									? `${t("user_card.subscription_tier", {
-											tier: data.targetUser.relationship.subscription.tier[0],
-									  })} - ${t("user_card.subscription_length", {
-											length: data.targetUser.relationship.subscription.months,
-									  })}`
-									: t("user_card.previously_subscription_length", {
-											length: data.targetUser.relationship.subscription.months,
-									  })
+								`${t("user_card.subscription_tier", {
+									tier: data.targetUser.relationship.subscription.tier[0],
+								})} -
+							${t("user_card.subscription_length", { length: data.targetUser.relationship.subscription.months })}`
+							}}
+						</p>
+
+						<p v-else-if="data.targetUser.relationship.subscription.months">
+							{{
+								t("user_card.previously_subscription_length", {
+									length: data.targetUser.relationship.subscription.months,
+								})
 							}}
 						</p>
 					</div>
