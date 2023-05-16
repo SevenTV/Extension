@@ -6,6 +6,7 @@ import type ChatVodModuleVue from "@/site/twitch.tv/modules/chat-vod/ChatVodModu
 import type ChatModuleVue from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import type EmoteMenuModuleVue from "@/site/twitch.tv/modules/emote-menu/EmoteMenuModule.vue";
 import type HiddenElementsModuleVue from "@/site/twitch.tv/modules/hidden-elements/HiddenElementsModule.vue";
+import type MediaPlayerModuleVue from "@/site/twitch.tv/modules/media-player/MediaPlayerModule.vue";
 import type ModLogsModule from "@/site/twitch.tv/modules/mod-logs/ModLogsModule.vue";
 import type SettingsModuleVue from "@/site/twitch.tv/modules/settings/SettingsModule.vue";
 import type SidebarPreviewsModuleVue from "@/site/twitch.tv/modules/sidebar-previews/SidebarPreviewsModule.vue";
@@ -18,6 +19,7 @@ declare type TwModuleComponentMap = {
 	"chat-vod": typeof ChatVodModuleVue;
 	"emote-menu": typeof EmoteMenuModuleVue;
 	"hidden-elements": typeof HiddenElementsModuleVue;
+	"media-player": typeof MediaPlayerModuleVue;
 	"mod-logs": typeof ModLogsModule;
 	"sidebar-previews": typeof SidebarPreviewsModuleVue;
 	autoclaim: typeof AutoclaimModuleVue;

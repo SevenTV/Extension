@@ -12,6 +12,7 @@ import PaintIcon from "./PaintIcon.vue";
 import PuzzlePieceIcon from "./PuzzlePieceIcon.vue";
 import SiteLayoutIcon from "./SiteLayoutIcon.vue";
 import TvIcon from "./TvIcon.vue";
+import VideoIcon from "./VideoIcon.vue";
 import YouTubeIcon from "./YouTubeIcon.vue";
 
 const props = withDefaults(
@@ -31,6 +32,7 @@ const c = {
 	Channel: TvIcon,
 	Compatibility: PuzzlePieceIcon,
 	"Site Layout": SiteLayoutIcon,
+	Player: VideoIcon,
 
 	"Enable YouTube": YouTubeIcon,
 }[props.name];

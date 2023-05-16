@@ -623,6 +623,77 @@ declare module Twitch {
 		userLogin: string;
 	}>;
 
+	export type ModViewViewerCount = ReactExtended.WritableComponent<{}> & {
+		DOMNode: HTMLElement;
+	};
+
+	export type MediaPlayerComponent = ReactExtended.WritableComponent<{
+		playSessionId: string;
+		adPlaying: boolean;
+		mediaPlayerInstance: {
+			core: {
+				adjustments: object;
+				autoPlayOptions: null;
+				id: number;
+				isLoaded: boolean;
+				mediaSinkManager: {
+					video: HTMLVideoElement;
+				};
+				paused: boolean;
+				state: PlayerState;
+			};
+		};
+	}> & {
+		getMuted: (e) => boolean;
+		getVolume: (e) => number;
+		isCurrentlyPlaying: (e) => boolean;
+		pause: (e) => void;
+		play: (e) => void;
+		setMuted: (e, t) => void;
+		setVolume: (e, t) => void;
+	};
+
+	export interface PlayerState {
+		autoQualityMode: boolean;
+		averageBitrate: number;
+		bandwidthEstimate: number;
+		bufferedPosition: number;
+		duration: number;
+		liveLatency: number;
+		liveLowLatency: boolean;
+		liveLowLatencyEnabled: boolean;
+		looping: boolean;
+		muted: boolean;
+		path: string;
+		playbackRate: number;
+		position: number;
+		protocol: string;
+		qualities: VideoQuality[];
+		quality: VideoQuality;
+		sessionId: string;
+		startOffset: number;
+		state: string;
+		statistics: {
+			bitrate: number;
+			decodedFrames: number;
+			droppedFrames: number;
+			framerate: number;
+			renderedFrames: number;
+		};
+		volume: number;
+	}
+
+	export interface VideoQuality {
+		bitrate: number;
+		codecs: string;
+		framerate: number;
+		group: string;
+		height: number;
+		isDefault: boolean;
+		name: string;
+		width: number;
+	}
+
 	export enum Theme {
 		"Light",
 		"Dark",
