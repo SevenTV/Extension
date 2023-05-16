@@ -30,6 +30,10 @@
 
 				<div class="seventv-user-card-interactive">
 					<div class="seventv-user-card-greystates">
+						<p v-if="data.targetUser.createdAt">
+							{{ t("user_card.account_created_date", { date: data.targetUser.createdAt }) }}
+						</p>
+
 						<p v-if="data.targetUser.relationship.followedAt">
 							{{ t("user_card.following_since_date", { date: data.targetUser.relationship.followedAt }) }}
 						</p>
@@ -158,6 +162,7 @@ const data = reactive({
 		displayName: props.target.displayName,
 		bannerURL: "",
 		avatarURL: "",
+		createdAt: "",
 		isModerator: false,
 		color: "",
 		badges: [] as SevenTV.Cosmetic<"BADGE">[],
@@ -374,6 +379,10 @@ function getProfileURL(): string {
 	return window.location.origin + "/" + props.target.username;
 }
 
+function formatDateToString(date?: string): string {
+	return date ? formatDate("PPP")(new Date(date)) : "";
+}
+
 watchEffect(async () => {
 	if (!apollo) return;
 
@@ -401,9 +410,10 @@ watchEffect(async () => {
 				data.targetUser.displayName = resp.data.targetUser.displayName;
 				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
 				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
-				data.targetUser.relationship.followedAt = resp.data.targetUser.relationship?.followedAt
-					? formatDate("PPP")(new Date(resp.data.targetUser.relationship.followedAt))
-					: "";
+				data.targetUser.relationship.followedAt = formatDateToString(
+					resp.data.targetUser.relationship?.followedAt,
+				);
+				data.targetUser.createdAt = formatDateToString(resp.data.targetUser.createdAt);
 				data.targetUser.relationship.subscription.months =
 					resp.data.targetUser.relationship?.cumulativeTenure?.months ?? 0;
 
