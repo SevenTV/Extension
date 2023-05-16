@@ -1,16 +1,6 @@
-import type {
-	AnyToken,
-	ChatMessage,
-	ChatUser,
-	EmoteToken,
-	LinkToken,
-	MentionToken,
-	VoidToken,
-} from "@/common/chat/ChatMessage";
+import type { AnyToken, ChatMessage, ChatUser, EmoteToken, MentionToken, VoidToken } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
-import { parse as tldParse } from "tldts";
-
-const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
+import { UrlMatcherInText } from "./UrlMatcherInText";
 
 const backwardModifierBlacklist = new Set(["w!", "h!", "v!"]);
 
@@ -22,12 +12,14 @@ export class Tokenizer {
 		const tokens = [] as AnyToken[];
 
 		const textParts = this.msg.body.split(" ");
+		const textPartsStr = textParts.join(" ");
+
 		const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
 		const showModifiers = opt.showModifiers;
+		const urlMatcherInText = new UrlMatcherInText();
 
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
-		let parsedUrl: URL | null = null;
 
 		const toVoid = (start: number, end: number) =>
 			({
@@ -77,15 +69,6 @@ export class Tokenizer {
 			} else if (!showModifiers && prevEmote && part.startsWith("ffz") && part.length > 3) {
 				// this is a temporary measure to hide ffz emote modifiers
 				tokens.push(toVoid(cursor, next - 1));
-			} else if ((parsedUrl = this.isValidLink(part))) {
-				tokens.push({
-					kind: "LINK",
-					range: [cursor + 1, next - 1],
-					content: {
-						displayText: part,
-						url: parsedUrl.toString(),
-					},
-				} as LinkToken);
 			} else if (part.match(Regex.Mention) || maybeMention) {
 				//  Check mention
 				const commaAt = part.indexOf(",");
@@ -110,24 +93,12 @@ export class Tokenizer {
 			if (!maybeEmote && !!part) lastEmoteToken = undefined;
 		}
 
+		// find links in message
+		urlMatcherInText.getMatchUrl(textPartsStr).addUrlTokens(tokens);
+
 		tokens.sort((a, b) => a.range[0] - b.range[0]);
 
 		return (this.msg.tokens = tokens);
-	}
-
-	private isValidLink(message: string): URL | null {
-		try {
-			const url = new URL(`https://${message.replace(URL_PROTOCOL_REGEXP, "")}`);
-			const { isIcann, domain } = tldParse(url.hostname);
-
-			if (domain && isIcann) {
-				return url;
-			}
-		} catch (e) {
-			void 0;
-		}
-
-		return null;
 	}
 }
 
