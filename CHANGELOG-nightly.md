@@ -2,7 +2,8 @@
 
 **The changes listed here are not assigned to an official release**.
 
-- Changed the Usercard so you will only be redirected to another persons stream if you're clicking on the name
+-   Enabled AVIF images on Firefox >= 113 by default
+-   Changed the Usercard so you will only be redirected to another persons stream if you're clicking on the name
 
 ### Version 3.0.7.1000
 
