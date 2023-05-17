@@ -21,16 +21,31 @@ export interface TwTypeUser {
 	channel: TwTypeChannel;
 	self: TwTypeUserSelfConnection;
 	blockedUsers: TwTypeUser[];
+	createdAt: string;
 	moderationSettings: {
 		canAccessViewerCardModLogs: boolean;
 	};
 	isModerator: boolean;
 	relationship?: {
 		followedAt: string;
-		cumulativeTenure: null | string;
-		subscriptionBenefits: null | string;
+		cumulativeTenure: null | TwCumulativeTenure;
+		subscriptionBenefit: null | TwSubscriptionBenefit;
 	};
 	stream?: TwTypeStream;
+}
+
+export interface TwCumulativeTenure {
+	months: number;
+	daysRemaining: number;
+}
+
+export interface TwSubscriptionBenefit {
+	id: string;
+	tier: string;
+	purchasedWithPrime: boolean;
+	gift: {
+		isGift: boolean;
+	};
 }
 
 export interface TwTypeStream {

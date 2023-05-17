@@ -30,8 +30,33 @@
 
 				<div class="seventv-user-card-interactive">
 					<div class="seventv-user-card-greystates">
+						<p v-if="data.targetUser.createdAt">
+							<CakeIcon />
+							{{ t("user_card.account_created_date", { date: data.targetUser.createdAt }) }}
+						</p>
+
 						<p v-if="data.targetUser.relationship.followedAt">
+							<HeartIcon />
 							{{ t("user_card.following_since_date", { date: data.targetUser.relationship.followedAt }) }}
+						</p>
+
+						<p v-if="data.targetUser.relationship.subscription.isSubscribed">
+							<StarIcon />
+							{{
+								`${t("user_card.subscription_tier", {
+									tier: data.targetUser.relationship.subscription.tier[0],
+								})} -
+							${t("user_card.subscription_length", { length: data.targetUser.relationship.subscription.months })}`
+							}}
+						</p>
+
+						<p v-else-if="data.targetUser.relationship.subscription.months">
+							<StarIcon />
+							{{
+								t("user_card.previously_subscription_length", {
+									length: data.targetUser.relationship.subscription.months,
+								})
+							}}
 						</p>
 					</div>
 
@@ -97,7 +122,10 @@ import {
 	twitchUserCardModLogsQuery,
 	twitchUserCardQuery,
 } from "@/assets/gql/tw.user-card.gql";
+import CakeIcon from "@/assets/svg/icons/CakeIcon.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
+import HeartIcon from "@/assets/svg/icons/HeartIcon.vue";
+import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import LogoTwitch from "@/assets/svg/logos/LogoTwitch.vue";
 import Badge from "./Badge.vue";
 import UserCardActions from "./UserCardActions.vue";
@@ -141,11 +169,17 @@ const data = reactive({
 		displayName: props.target.displayName,
 		bannerURL: "",
 		avatarURL: "",
+		createdAt: "",
 		isModerator: false,
 		color: "",
 		badges: [] as SevenTV.Cosmetic<"BADGE">[],
 		relationship: {
 			followedAt: "",
+			subscription: {
+				isSubscribed: false,
+				tier: "",
+				months: 0,
+			},
 		},
 	},
 	stream: {
@@ -352,6 +386,10 @@ function getProfileURL(): string {
 	return window.location.origin + "/" + props.target.username;
 }
 
+function formatDateToString(date?: string): string {
+	return date ? formatDate("PPP")(new Date(date)) : "";
+}
+
 watchEffect(async () => {
 	if (!apollo) return;
 
@@ -379,9 +417,18 @@ watchEffect(async () => {
 				data.targetUser.displayName = resp.data.targetUser.displayName;
 				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
 				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
-				data.targetUser.relationship.followedAt = resp.data.targetUser.relationship?.followedAt
-					? formatDate("PPP")(new Date(resp.data.targetUser.relationship.followedAt))
-					: "";
+				data.targetUser.relationship.followedAt = formatDateToString(
+					resp.data.targetUser.relationship?.followedAt,
+				);
+				data.targetUser.createdAt = formatDateToString(resp.data.targetUser.createdAt);
+				data.targetUser.relationship.subscription.months =
+					resp.data.targetUser.relationship?.cumulativeTenure?.months ?? 0;
+
+				if (resp.data.targetUser.relationship?.subscriptionBenefit) {
+					data.targetUser.relationship.subscription.isSubscribed = true;
+					data.targetUser.relationship.subscription.tier =
+						resp.data.targetUser.relationship?.subscriptionBenefit!.tier;
+				}
 
 				if (resp.data.targetUser.stream) {
 					data.stream.live = true;
@@ -447,7 +494,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 $card-width: 32rem;
-$card-height: 42rem;
+$card-height: 48rem;
 
 main.seventv-user-card-container {
 	display: block;
@@ -483,12 +530,22 @@ main.seventv-user-card-container {
 
 	.seventv-user-card-greystates {
 		grid-area: greystates;
+		display: grid;
+		row-gap: 0.5rem;
 		z-index: 1;
 		overflow: clip;
-		padding: 0.5rem 1rem;
+		padding: 1rem;
 
 		p {
-			font-size: 1rem;
+			font-size: 1.25rem;
+			display: inline-grid;
+			grid-template-columns: auto 1fr;
+			gap: 1rem;
+		}
+
+		svg {
+			margin-top: -0.25rem;
+			font-size: 2rem;
 		}
 	}
 
