@@ -145,9 +145,11 @@ if (props.emote.data?.owner?.style?.color) {
 
 .seventv-tooltip-compact {
 	background-color: rgba(0, 0, 0, 0.65%);
+
 	@at-root .seventv-transparent & {
 		backdrop-filter: blur(0.25em);
 	}
+
 	border-radius: 0.33em;
 	padding: 0.25em;
 }

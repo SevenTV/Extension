@@ -6,8 +6,10 @@
 	--seventv-subscriber-color: rgb(220, 170, 50);
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .tw-root--theme-dark,
-body[theme="dark"] {
+body[theme="dark"],
+body[seventv-kick="true"] {
 	--seventv-text-color-normal: #f0f0f0;
 	--seventv-text-color-secondary: #f0f0f078;
 	--seventv-input-background: #232323;
@@ -17,7 +19,7 @@ body[theme="dark"] {
 	--seventv-embed-background-highlight: #26262b;
 	--seventv-embed-border: #121214;
 	--seventv-highlight-neutral-1: #8080803b;
-	--seventv-background-transparent-1: #161616;
+	--seventv-background-transparent-1: #171717;
 	--seventv-background-lesser-transparent-1: #191919;
 	--seventv-background-transparent-2: #131313;
 	--seventv-background-transparent-3: #111;
@@ -31,13 +33,14 @@ body[theme="dark"] {
 	--seventv-muted: #999;
 
 	&.seventv-transparent {
-		--seventv-background-transparent-1: #161616c4;
+		--seventv-background-transparent-1: #171717c4;
 		--seventv-background-lesser-transparent-1: #161616f2;
 		--seventv-background-transparent-2: #13131397;
 		--seventv-background-transparent-3: #111111b5;
 	}
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .tw-root--theme-light,
 body[theme="light"] {
 	--seventv-text-color-normal: #161616;
@@ -75,12 +78,13 @@ body[theme="light"] {
 
 .seventv-painted-content {
 	background-size: cover !important;
-	background-color: currentColor;
+	background-color: currentcolor;
 }
 
 .seventv-painted-content[data-seventv-painted-text="true"] {
 	-webkit-text-fill-color: transparent;
-	-webkit-background-clip: text !important;
 	background-clip: text !important;
+	/* stylelint-disable-next-line property-no-vendor-prefix */
+	-webkit-background-clip: text !important;
 	font-weight: 700;
 }

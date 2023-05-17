@@ -32,21 +32,6 @@ defineProps<{
 	position: relative;
 	overflow-wrap: anywhere;
 
-	&:hover,
-	&:focus-within {
-		.seventv-chat-message-background {
-			border-radius: 0.25rem;
-			background: hsla(0deg, 0%, 60%, 24%);
-		}
-		.seventv-buttons-container {
-			visibility: visible;
-		}
-
-		:deep(.seventv-chat-message-buttons) {
-			visibility: visible;
-		}
-	}
-
 	.seventv-chat-message-background {
 		position: relative;
 		padding: 0.5rem 1rem;
@@ -59,7 +44,7 @@ defineProps<{
 
 			.seventv-chat-reply-icon {
 				align-items: center;
-				fill: currentColor;
+				fill: currentcolor;
 				display: inline-flex;
 			}
 
@@ -69,6 +54,22 @@ defineProps<{
 				white-space: nowrap;
 				margin-left: 0.5rem;
 			}
+		}
+	}
+
+	&:hover,
+	&:focus-within {
+		.seventv-chat-message-background {
+			border-radius: 0.25rem;
+			background: hsla(0deg, 0%, 60%, 24%);
+		}
+
+		.seventv-buttons-container {
+			visibility: visible;
+		}
+
+		:deep(.seventv-chat-message-buttons) {
+			visibility: visible;
 		}
 	}
 }

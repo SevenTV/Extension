@@ -35,7 +35,7 @@ const emit = defineEmits<{
 	(e: "suggest-answer", answer: string): void;
 }>();
 
-const chatModule = getModuleRef("chat");
+const chatModule = getModuleRef<"TWITCH", "chat">("chat");
 const rootEl = toRef(props.instance.domNodes, "root");
 const suggestContainer = useFloatScreen(rootEl, {
 	enabled: () => props.suggest,
@@ -68,7 +68,7 @@ function handleDuplicateMessage(content: string): string {
 watch(
 	chatModule,
 	(mod) => {
-		if (!mod.instance) return;
+		if (!mod || !mod.instance) return;
 
 		mod.instance.messageSendMiddleware.set("handle-dupe", handleDuplicateMessage);
 	},
@@ -76,7 +76,7 @@ watch(
 );
 
 onUnmounted(() => {
-	if (!chatModule.value.instance) return;
+	if (!chatModule.value?.instance) return;
 
 	chatModule.value.instance.messageSendMiddleware.delete("handle-dupe");
 });

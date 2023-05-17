@@ -39,6 +39,7 @@ export const config = [
 .settings-menu-leave-active {
 	transition: opacity 120ms;
 }
+
 .settings-menu-enter-from,
 .settings-menu-leave-to {
 	opacity: 0;

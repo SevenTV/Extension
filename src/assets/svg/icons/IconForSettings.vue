@@ -1,5 +1,5 @@
 <template>
-	<component :is="c" />
+	<component :is="(c as AnyInstanceType)" />
 </template>
 
 <script setup lang="ts">

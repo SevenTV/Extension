@@ -52,6 +52,7 @@ defineProps<{
 			display: inline-block;
 			color: var(--seventv-muted);
 		}
+
 		.reward-cost {
 			color: var(--seventv-muted);
 			margin-left: 1rem;

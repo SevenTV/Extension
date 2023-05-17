@@ -26,6 +26,7 @@ import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
+import KickSite from "./kick.com/KickSite.vue";
 
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
 const YouTubeSite = defineAsyncComponent(() => import("@/site/youtube.com/YouTubeSite.vue"));
@@ -99,6 +100,7 @@ onMounted(() => {
 	platformComponent.value = {
 		"twitch.tv": markRaw(TwitchSite),
 		"youtube.com": markRaw(YouTubeSite),
+		"kick.com": markRaw(KickSite),
 	}[domain];
 });
 
@@ -109,7 +111,7 @@ if (domain === "twitch.tv") {
 </script>
 
 <style lang="scss">
-@import "@/assets/style/global.scss";
+@import "@/assets/style/global";
 
 #seventv-emoji-container {
 	position: fixed;
