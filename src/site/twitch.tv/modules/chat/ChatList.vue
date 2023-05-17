@@ -394,7 +394,7 @@ watch(
 		} else if (handler) {
 			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
 				const ok = onMessage(msg);
-				if (ok) return ""; // message was rendered by the extension
+				if (ok) return old?.call(this, msg); // message was rendered by the extension
 
 				// message was not rendered by the extension
 				unhandled.set(msg.id, msg);
