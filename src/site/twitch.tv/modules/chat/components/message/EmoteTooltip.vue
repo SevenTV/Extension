@@ -136,6 +136,7 @@ if (props.emote.data?.owner?.style?.color) {
 
 <style scoped lang="scss">
 .seventv-tooltip {
+	width: max-content;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
