@@ -120,6 +120,7 @@ function onCategoryClick(): void {
 		height: 2rem;
 		width: 2rem;
 	}
+
 	.dropdown-icon {
 		display: flex;
 		align-items: center;
@@ -133,6 +134,7 @@ function onCategoryClick(): void {
 		&:hover {
 			background-color: hsla(0deg, 0%, 30%, 32%);
 		}
+
 		> svg {
 			transition: transform 0.2s ease;
 			transform: rotate(90deg);
@@ -155,6 +157,7 @@ function onCategoryClick(): void {
 			&:hover {
 				background-color: hsla(0deg, 0%, 20%, 20%);
 			}
+
 			&.intersect {
 				background-color: hsla(0deg, 0%, 30%, 32%);
 			}
@@ -165,6 +168,7 @@ function onCategoryClick(): void {
 		.seventv-settings-category-dropdown {
 			height: 100%;
 		}
+
 		.dropdown-icon {
 			> svg {
 				transform: rotate(180deg);

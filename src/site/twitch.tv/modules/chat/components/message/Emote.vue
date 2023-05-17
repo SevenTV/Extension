@@ -11,7 +11,7 @@
 			@load="onImageLoad"
 			@mouseenter="onShowTooltip"
 			@mouseleave="hide()"
-			@click="(ev) => [onShowEmoteCard(ev), emit('emote-click', ev, emote)]"
+			@click="(ev: MouseEvent) => [onShowEmoteCard(ev), emit('emote-click', ev, emote)]"
 		/>
 		<SingleEmoji
 			v-else-if="!unload && emote.id"
@@ -41,6 +41,7 @@
 					:anchor="boxRef"
 					placement="right-end"
 					:middleware="[shift({ mainAxis: true, crossAxis: true }), autoPlacement()]"
+					:once="true"
 					:emit-clickout="true"
 					@clickout="showEmoteCard = false"
 				>
@@ -152,7 +153,6 @@ svg.seventv-emoji {
 	grid-column: 1;
 	grid-row: 1;
 	margin: auto;
-
 	object-fit: contain;
 
 	&:hover {

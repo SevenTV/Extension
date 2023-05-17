@@ -39,6 +39,7 @@ main.seventv-settings-compat {
 		text-align: center;
 		font-size: 2rem;
 	}
+
 	iframe {
 		height: 100%;
 		width: inherit;

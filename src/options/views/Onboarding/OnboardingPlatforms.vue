@@ -12,7 +12,7 @@
 				:selected="platform.selected"
 				@click="toggle(platform)"
 			>
-				<component :is="platform.icon" />
+				<component :is="(platform.icon as AnyInstanceType)" />
 			</div>
 		</div>
 		<div v-t="'onboarding.platforms_mutable_note'" class="data" />
@@ -50,6 +50,7 @@ onDeactivated(() => {
 const platforms = ref<PlatformDef[]>([
 	{ name: "Twitch", icon: markRaw(LogoBrandTwitch), selected: true },
 	{ name: "YouTube", icon: markRaw(LogoBrandYouTube), hosts: ["*://*.youtube.com/*"], selected: true },
+	{ name: "Kick", icon: markRaw(LogoBrandKick), hosts: ["*://*.kick.com/*"], selected: true },
 ]);
 
 function toggle(p: PlatformDef) {
@@ -59,6 +60,7 @@ function toggle(p: PlatformDef) {
 
 <script lang="ts">
 import { markRaw, onActivated, onDeactivated, ref } from "vue";
+import LogoBrandKick from "@/assets/svg/logos/LogoBrandKick.vue";
 import LogoBrandTwitch from "@/assets/svg/logos/LogoBrandTwitch.vue";
 import LogoBrandYouTube from "@/assets/svg/logos/LogoBrandYouTube.vue";
 import { OnboardingStepRoute, useOnboarding } from "./Onboarding";
@@ -89,13 +91,15 @@ main.onboarding-platforms {
 		h1 {
 			font-size: 4vw;
 		}
+
 		p {
 			font-size: 1vw;
 		}
 	}
+
 	.sites {
 		display: grid;
-		grid-template-columns: repeat(2, auto);
+		grid-template-columns: repeat(3, auto);
 		gap: 4vw;
 		grid-area: sites;
 		justify-self: center;
@@ -116,27 +120,31 @@ main.onboarding-platforms {
 			}
 
 			transition: outline-color 0.5s ease-in-out;
+
 			&:hover {
 				cursor: pointer;
 				user-select: none;
 				outline-color: var(--seventv-text-color-normal);
 			}
+
 			&[selected="true"] {
 				outline-color: var(--seventv-accent);
 				outline-width: 0.2rem;
-				animation: onSelect 0.5s ease-in-out;
+				animation: on-select 0.5s ease-in-out;
 			}
 
-			@keyframes onSelect {
+			@keyframes on-select {
 				25% {
 					transform: scale(1.05);
 				}
+
 				100% {
 					transform: scale(1);
 				}
 			}
 		}
 	}
+
 	.data {
 		display: grid;
 		grid-area: data;

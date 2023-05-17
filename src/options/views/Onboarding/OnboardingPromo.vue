@@ -113,6 +113,7 @@ main {
 	h1 {
 		font-size: 4vw;
 	}
+
 	sub {
 		font-size: 0.95vw;
 	}
@@ -123,7 +124,6 @@ main {
 	grid-template-columns: repeat(4, 1fr);
 	grid-template-rows: 1fr 20%;
 	grid-area: cards;
-
 	align-items: end;
 	justify-items: center;
 	margin: 0 15vw;
@@ -147,6 +147,7 @@ main {
 			color: var(--seventv-muted);
 			height: 10rem;
 			width: 100rem;
+
 			&:hover {
 				cursor: help;
 			}
@@ -254,16 +255,13 @@ main {
 		height: 3vw;
 		font-size: 1.5vw;
 		box-shadow: none;
-
 		background-image: linear-gradient(90deg, rgb(250, 170, 0) 0, rgb(255, 200, 50) 10%, rgb(250, 170, 0) 50%);
-
 		animation-duration: 2s;
 		animation-fill-mode: forwards;
 		animation-iteration-count: infinite;
 		animation-name: bg;
 		animation-timing-function: linear;
 		background-size: 200% 0.1rem;
-
 		color: rgb(0, 0, 0);
 
 		&:hover {
@@ -274,6 +272,7 @@ main {
 			0% {
 				background-position: 0 0;
 			}
+
 			100% {
 				background-position: 200% 100%;
 			}

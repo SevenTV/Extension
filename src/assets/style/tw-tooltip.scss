@@ -44,19 +44,16 @@
 	margin-top: -1.3rem;
 	align-items: center;
 	justify-content: center;
-
 	position: absolute;
 	width: fit-content;
 	white-space: nowrap;
 	padding: 0.25em 0.35em;
-
 	margin-left: -3.5em;
 	z-index: 9999;
-
 	visibility: hidden;
 	opacity: 0;
 
-	&:after {
+	&::after {
 		content: "";
 		position: absolute;
 		margin: -0.4rem -0.5rem -0.5rem -0.4rem;
@@ -71,10 +68,11 @@
 
 .tooltip-under {
 	@extend %tooltip;
+
 	top: 170%;
 	left: 50%;
 
-	&:after {
+	&::after {
 		bottom: 100%;
 		left: 50%;
 	}
@@ -82,30 +80,35 @@
 
 .tooltip-over {
 	@extend %tooltip;
+
 	bottom: 125%;
 	left: 75%;
 
-	&:after {
+	&::after {
 		top: 100%;
 		left: 50%;
 	}
 }
+
 .tooltip-left {
 	@extend %tooltip;
+
 	right: 135%;
 	top: 50%;
 
-	&:after {
+	&::after {
 		left: 100%;
 		top: 50%;
 	}
 }
+
 .tooltip-right {
 	@extend %tooltip;
+
 	left: 290%;
 	top: 50%;
 
-	&:after {
+	&::after {
 		right: 100%;
 		top: 50%;
 	}

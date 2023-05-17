@@ -1,9 +1,16 @@
 <template>
-	<span class="mention-token" @click="onClick">
-		<span v-if="shouldRenderColoredMentions && token.content.user" :style="{ color: token.content.user.color }">
+	<span class="mention-token">
+		<span v-if="shouldRenderColoredMentions" :style="{ color: token.content.user?.color }">
 			<UserTag
-				:user="token.content.user"
-				:as-mention="token.content.displayText.charAt(0) === '@'"
+				:user="
+					token.content.user ?? {
+						id: uuid(),
+						username: tag.toLowerCase(),
+						displayName: tag,
+						color: '',
+					}
+				"
+				:as-mention="asMention"
 				:hide-badges="true"
 			/>
 		</span>
@@ -15,23 +22,19 @@
 
 <script setup lang="ts">
 import type { ChatMessage, MentionToken } from "@/common/chat/ChatMessage";
-import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { useChatTools } from "@/composable/chat/useChatTools";
 import { useConfig } from "@/composable/useSettings";
-import UserTag from "../UserTag.vue";
+import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
+import { v4 as uuid } from "uuid";
 
 const props = defineProps<{
 	token: MentionToken;
-	msg: ChatMessage;
+	msg?: ChatMessage;
 }>();
 
 const shouldRenderColoredMentions = useConfig("chat.colored_mentions");
-const ctx = useChannelContext();
-const tools = useChatTools(ctx);
 
-function onClick(ev: MouseEvent) {
-	tools.openViewerCard(ev, props.token.content.recipient, props.msg.id);
-}
+const asMention = props.token.content.displayText.charAt(0) === "@";
+const tag = asMention ? props.token.content.displayText.slice(1) : props.token.content.displayText;
 </script>
 
 <style scoped lang="scss">

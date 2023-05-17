@@ -1,8 +1,7 @@
+import { HOSTNAME_SUPPORTED_REGEXP } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import "./messaging";
 import "./sync";
-
-const HOSTNAME_YT_REGEXP = /([a-z0-9]+[.])*youtube[.]com/;
 
 // Connect to Vite server
 //
@@ -15,7 +14,7 @@ function useHotReloading() {
 		const { event } = JSON.parse(e.data);
 		if (event === "defined-match") {
 			log.info("Background files changed, reloading extension...");
-			chrome.runtime.reload();
+			setTimeout(() => chrome.runtime.reload(), 100);
 		}
 	};
 }
@@ -76,7 +75,7 @@ if (!chrome.scripting) {
 		}
 
 		const loc = new URL(t.url);
-		if (HOSTNAME_YT_REGEXP.test(loc.host)) {
+		if (HOSTNAME_SUPPORTED_REGEXP.test(loc.host)) {
 			chrome.tabs.executeScript(tabId, {
 				file: "content.js",
 			});
@@ -87,7 +86,7 @@ if (!chrome.scripting) {
 		{
 			id: "seventv-youtube",
 			js: ["content.js"],
-			matches: ["*://*.youtube.com/*"],
+			matches: ["*://*.youtube.com/*", "*://*.kick.com/*"],
 		},
 	]);
 }

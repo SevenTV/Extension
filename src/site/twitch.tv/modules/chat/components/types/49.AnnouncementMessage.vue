@@ -51,6 +51,7 @@ const className =
 			display: inline-flex;
 			padding: 0 0.5rem;
 		}
+
 		.announce-title {
 			font-weight: 600;
 		}
@@ -61,6 +62,7 @@ const className =
 	}
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .announcement-line--primary {
 	border-color: var(--seventv-primary-color, currentColor);
 }

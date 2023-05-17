@@ -44,6 +44,7 @@ onMounted(() => {
 	@at-root .seventv-transparent & {
 		backdrop-filter: blur(0.88em);
 	}
+
 	border-radius: 0.25rem;
 
 	&[active="true"] {
