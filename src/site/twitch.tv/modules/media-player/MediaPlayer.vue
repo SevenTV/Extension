@@ -63,20 +63,24 @@ definePropertyHook(props.instance.component, "props", {
 
 		// we need to re-add the event listener when the mediaPlayer props changes
 		addClickHandler();
-	}
+	},
 });
 
-watch(liveLatency, (n) => {
-	const mediaPlayer = props.instance.component.props?.mediaPlayerInstance;
-	if (mediaPlayer) {
-		videoStats.value.droppedFrames = mediaPlayer.getDroppedFrames();
-		videoStats.value.bitrate = (mediaPlayer.getVideoBitRate() / 1000)?.toFixed(0) ?? "0";
-		videoStats.value.framerate = mediaPlayer.getVideoFrameRate();
-		videoStats.value.playbackRate = mediaPlayer.getPlaybackRate();
-		videoStats.value.width = mediaPlayer.getVideoWidth();
-		videoStats.value.height = mediaPlayer.getVideoHeight();
-	}
-}, {immediate: true});
+watch(
+	liveLatency,
+	() => {
+		const mediaPlayer = props.instance.component.props?.mediaPlayerInstance;
+		if (mediaPlayer) {
+			videoStats.value.droppedFrames = mediaPlayer.getDroppedFrames();
+			videoStats.value.bitrate = (mediaPlayer.getVideoBitRate() / 1000)?.toFixed(0) ?? "0";
+			videoStats.value.framerate = mediaPlayer.getVideoFrameRate();
+			videoStats.value.playbackRate = mediaPlayer.getPlaybackRate();
+			videoStats.value.width = mediaPlayer.getVideoWidth();
+			videoStats.value.height = mediaPlayer.getVideoHeight();
+		}
+	},
+	{ immediate: true },
+);
 
 const videoStatsRef = ref();
 const videoStatsTooltip = useTooltip(VideoStatsTooltip, videoStats.value);
@@ -86,7 +90,7 @@ watch(
 	(n) => {
 		n ? (doTeleport.value = true) : (doTeleport.value = false);
 	},
-	{ immediate: true }
+	{ immediate: true },
 );
 
 function pauseOnClick() {

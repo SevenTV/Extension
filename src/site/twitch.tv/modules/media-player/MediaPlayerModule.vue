@@ -16,7 +16,7 @@ const { markAsReady } = declareModule("media-player", {
 	depends_on: [],
 });
 
-const videoStatsTeleportLocation = ref<HTMLElement|null|undefined>();
+const videoStatsTeleportLocation = ref<HTMLElement | null | undefined>();
 
 // hook for the media player instance
 const mediaPlayerComponent = useComponentHook<Twitch.MediaPlayerComponent>({
