@@ -9,7 +9,7 @@
 			>
 				<figure v-if="videoStats.playbackRate > 1"><ForwardIcon /></figure>
 				<figure v-else><GaugeIcon /></figure>
-				<span>{{ videoStats.liveLatency }}s</span>
+				<span>{{ liveLatency }}s</span>
 			</div>
 		</Teleport>
 	</template>
@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
 import { onUnmounted, ref, toRef, watch } from "vue";
-import { isNumber } from "@vueuse/core";
 import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineNamedEventHandler,
@@ -33,7 +32,7 @@ import VideoStatsTooltip from "./VideoStatsTooltip.vue";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.MediaPlayerComponent>;
-	videoStatsTeleportLocation: HTMLElement | undefined;
+	videoStatsTeleportLocation: HTMLElement | null | undefined;
 }>();
 
 const teleportLocation = toRef(props, "videoStatsTeleportLocation");
@@ -42,10 +41,8 @@ const doTeleport = ref<boolean>(false);
 const shouldShowVideoStats = useConfig<boolean>("player.video_stats");
 const actionOnClick = useConfig<number>("player.action_onclick");
 
-const mediaPlayerProps = ref<Twitch.MediaPlayerComponent["props"]>();
-// const statePath = ref<string>();
+const liveLatency = ref<string>();
 const videoStats = ref({
-	liveLatency: "-.--",
 	droppedFrames: 0,
 	playbackRate: 0,
 	bitrate: "0",
@@ -54,106 +51,70 @@ const videoStats = ref({
 	framerate: 0,
 });
 
-if (props.instance.component.props) {
-	definePropertyHook(props.instance.component, "props", {
-		value: (v: Twitch.MediaPlayerComponent["props"]) => {
-			mediaPlayerProps.value = v;
-			if (v.mediaPlayerInstance) {
-				definePropertyHook(v.mediaPlayerInstance.core, "state", {
-					value: (v) => {
-						definePropertyHook(v, "liveLatency", {
-							value: (v) => {
-								if (isNumber(v)) videoStats.value.liveLatency = v?.toFixed(2) ?? "-.--";
-							},
-						});
-						definePropertyHook(v, "statistics", {
-							value: (v) => {
-								definePropertyHook(v, "droppedFrames", {
-									value: (v) => {
-										if (isNumber(v)) videoStats.value.droppedFrames = v;
-									},
-								});
-								definePropertyHook(v, "bitrate", {
-									value: (v) => {
-										if (isNumber(v)) videoStats.value.bitrate = (v / 1000)?.toFixed(0) ?? "0";
-									},
-								});
-								definePropertyHook(v, "framerate", {
-									value: (v) => {
-										if (isNumber(v)) videoStats.value.framerate = v;
-									},
-								});
-							},
-						});
-						definePropertyHook(v, "playbackRate", {
-							value: (v) => {
-								// Twitch automatically applies a 1.03x speed up when latency is large
-								if (isNumber(v)) videoStats.value.playbackRate = v;
-							},
-						});
-						definePropertyHook(v, "quality", {
-							value: (v) => {
-								definePropertyHook(v, "height", {
-									value: (v) => {
-										if (isNumber(v)) videoStats.value.height = v;
-									},
-								});
-								definePropertyHook(v, "width", {
-									value: (v) => {
-										if (isNumber(v)) videoStats.value.width = v;
-									},
-								});
-							},
-						});
-						// if (v.path) {
-						//     statePath.value = v.path;
-						// }
-					},
-				});
-			}
-		},
-	});
-}
+definePropertyHook(props.instance.component, "props", {
+	value: (v: Twitch.MediaPlayerComponent["props"]) => {
+		if (v.mediaPlayerInstance) {
+			definePropertyHook(v.mediaPlayerInstance.core.state, "liveLatency", {
+				value: (v: number) => {
+					liveLatency.value = v?.toFixed(2) ?? "-.--";
+				},
+			});
+		}
+
+		// we need to re-add the event listener when the mediaPlayer props changes
+		addClickHandler();
+	}
+});
+
+watch(liveLatency, (n) => {
+	const mediaPlayer = props.instance.component.props?.mediaPlayerInstance;
+	if (mediaPlayer) {
+		videoStats.value.droppedFrames = mediaPlayer.getDroppedFrames();
+		videoStats.value.bitrate = (mediaPlayer.getVideoBitRate() / 1000)?.toFixed(0) ?? "0";
+		videoStats.value.framerate = mediaPlayer.getVideoFrameRate();
+		videoStats.value.playbackRate = mediaPlayer.getPlaybackRate();
+		videoStats.value.width = mediaPlayer.getVideoWidth();
+		videoStats.value.height = mediaPlayer.getVideoHeight();
+	}
+}, {immediate: true});
 
 const videoStatsRef = ref();
 const videoStatsTooltip = useTooltip(VideoStatsTooltip, videoStats.value);
-
-watch(videoStats, (n) => {
-	videoStats.value = n;
-});
 
 watch(
 	teleportLocation,
 	(n) => {
 		n ? (doTeleport.value = true) : (doTeleport.value = false);
 	},
-	{ immediate: true },
+	{ immediate: true }
 );
 
 function pauseOnClick() {
-	if (!mediaPlayerProps.value) return;
-	const mediaPlayer = props.instance.component.props;
-	if (props.instance.component.isCurrentlyPlaying(mediaPlayer)) {
-		props.instance.component.pause(mediaPlayer);
+	if (!props.instance.component.props) return;
+	const mediaPlayer = props.instance.component.props.mediaPlayerInstance;
+	if (mediaPlayer.isPaused()) {
+		mediaPlayer.play();
 	} else {
-		props.instance.component.play(mediaPlayer);
+		mediaPlayer.pause();
 	}
 }
 
 function muteOnClick() {
-	if (!mediaPlayerProps.value) return;
-	const mediaPlayer = props.instance.component.props;
-	props.instance.component.setMuted(!props.instance.component.getMuted(mediaPlayer), { userTriggered: true });
+	if (!props.instance.component.props) return;
+	const mediaPlayer = props.instance.component.props.mediaPlayerInstance;
+	mediaPlayer.setMuted(!mediaPlayer.isMuted());
 }
 
 function addClickHandler() {
-	const videoElement = props.instance.component.props?.mediaPlayerInstance?.core?.mediaSinkManager?.video;
+	const mediaPlayer = props.instance.component.props?.mediaPlayerInstance;
+	if (!mediaPlayer) return;
+	// getHTMLVideoELement function not working as expected
+	const videoElement = mediaPlayer.core.mediaSinkManager.video;
 	if (!videoElement) return;
 
 	const overlayContainer = videoElement.nextElementSibling?.querySelector<HTMLElement>(
 		"div[data-a-target='player-overlay-click-handler']",
 	);
-
 	if (!overlayContainer) return;
 
 	if (actionOnClick.value === 1) {
@@ -166,24 +127,10 @@ function addClickHandler() {
 }
 
 // watch for setting changes of the "action"
-watch(actionOnClick, addClickHandler, { immediate: true });
-
-// watch for video path changes of player
-watch(mediaPlayerProps, () => {
-	// we need to re-add the event listener when the mediaPlayer path changes
-	addClickHandler();
-});
+watch(actionOnClick, addClickHandler);
 
 onUnmounted(() => {
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.state, "liveLatency");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.state.statistics, "droppedFrames");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.state, "statistics");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.state.quality, "width");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.state.quality, "height");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.state.quality, "framerate");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.state, "quality");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core, "state");
-	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance?.core.mediaSinkManager, "video");
+	unsetPropertyHook(props.instance.component.props.mediaPlayerInstance.core.state, "liveLatency");
 	unsetPropertyHook(props.instance.component, "props");
 });
 </script>

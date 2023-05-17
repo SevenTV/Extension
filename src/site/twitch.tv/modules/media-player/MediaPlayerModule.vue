@@ -8,19 +8,19 @@
 import { declareConfig } from "@/composable/useSettings";
 import { declareModule } from "@/composable/useModule";
 import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
-import MediaPlayer from "./MediaPlayer.vue";
 import { ref } from "vue";
+import MediaPlayer from "./MediaPlayer.vue";
 
 const { markAsReady } = declareModule("media-player", {
 	name: "Media Player",
 	depends_on: [],
 });
 
-const videoStatsTeleportLocation = ref<HTMLElement>();
+const videoStatsTeleportLocation = ref<HTMLElement|null|undefined>();
 
 // hook for the media player instance
 const mediaPlayerComponent = useComponentHook<Twitch.MediaPlayerComponent>({
-	predicate: (el) => el.props && el.props.mediaPlayerInstance,
+	predicate: (el) => el.setPlayerActive && el.props && el.props.playerEvents && el.props.mediaPlayerInstance,
 });
 
 // hook to render video stats in the channel page view
@@ -37,9 +37,7 @@ useComponentHook(
 				if (rootNode) {
 					const teleLoc = rootNode.querySelector<HTMLElement>("[data-a-target*='channel-viewers-count']")
 						?.parentElement?.parentElement?.parentElement;
-					if (teleLoc) {
-						videoStatsTeleportLocation.value = teleLoc;
-					}
+					videoStatsTeleportLocation.value = teleLoc;
 				}
 			},
 		},
@@ -57,9 +55,7 @@ useComponentHook(
 			update(inst) {
 				const teleLoc = (inst as HookedInstance<Twitch.ModViewViewerCount>).component.DOMNode.parentElement
 					?.parentElement;
-				if (teleLoc) {
-					videoStatsTeleportLocation.value = teleLoc;
-				}
+				videoStatsTeleportLocation.value = teleLoc;
 			},
 		},
 	},

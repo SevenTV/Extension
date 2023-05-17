@@ -628,8 +628,6 @@ declare module Twitch {
 	};
 
 	export type MediaPlayerComponent = ReactExtended.WritableComponent<{
-		playSessionId: string;
-		adPlaying: boolean;
 		mediaPlayerInstance: {
 			core: {
 				adjustments: object;
@@ -642,16 +640,24 @@ declare module Twitch {
 				paused: boolean;
 				state: PlayerState;
 			};
+			getHTMLVideoELement: () => HTMLVideoElement | ReactExtended.ReactRuntimeElement;
+			getLiveLatency: () => number;
+			getDroppedFrames: () => number;
+			getVideoBitRate: () => number;
+			getVideoFrameRate: () => number;
+			getPlaybackRate: () => number;
+			getVideoWidth: () => number;
+			getVideoHeight: () => number;
+			getVolume: () => number;
+			isMuted: () => boolean;
+			isPaused: () => boolean;
+			pause: () => void;
+			play: () => void;
+			setMuted: (e) => void;
+			setVolume: (e) => void;
+			setPlaybackRate: (e) => void;
 		};
-	}> & {
-		getMuted: (e) => boolean;
-		getVolume: (e) => number;
-		isCurrentlyPlaying: (e) => boolean;
-		pause: (e) => void;
-		play: (e) => void;
-		setMuted: (e, t) => void;
-		setVolume: (e, t) => void;
-	};
+	}>;
 
 	export interface PlayerState {
 		autoQualityMode: boolean;

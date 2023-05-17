@@ -9,7 +9,7 @@
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com
 -   Added an option to hide player extensions
--   Added an option to show Steam Stats such as Latency, Resoultion, Bitrate, etc. next to viewer count section
+-   Added an option to show stream stats such as latency, resolution, bitrate, etc. next to viewer count section
 -   Added click actions to video player (pause/unpause and mute/unmute)
 
 ### Version 3.0.6.1000
