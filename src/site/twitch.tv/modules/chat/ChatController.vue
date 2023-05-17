@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, toRaw, toRefs, watch, watchEffect } from "vue";
+import { nextTick, onBeforeUnmount, onUnmounted, ref, toRaw, toRefs, watch, watchEffect } from "vue";
 import { refDebounced, until, useTimeout } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
@@ -65,12 +65,13 @@ const props = defineProps<{
 	room: HookedInstance<Twitch.ChatRoomComponent>;
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 	events?: HookedInstance<Twitch.ChatEventComponent>;
+	communityTab: HookedInstance<Twitch.ChatCommunityTab>;
 }>();
 
 const mod = getModule("chat")!;
 const { sendMessage: sendWorkerMessage } = useWorker();
 
-const { list, controller, room } = toRefs(props);
+const { list, controller, room, communityTab } = toRefs(props);
 
 const el = document.createElement("seventv-container");
 el.id = "seventv-chat-controller";
@@ -102,10 +103,16 @@ const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
 
-// Community tab handler
-const communityTabToggleButton = document.querySelector("[data-test-selector='chat-viewer-list']");
 const isActiveCommunityTab = ref(false);
-const updateScrollToCommunityTab = () => (isActiveCommunityTab.value = !isActiveCommunityTab.value);
+
+if (communityTab.value?.component.props.isCommunityTabEnabled) {
+	// Community tab toggle menu handler
+	definePropertyHook(communityTab.value.component, "props", {
+		value(v) {
+			isActiveCommunityTab.value = v.chatView === 2;
+		},
+	});
+}
 
 // Capture the chat root node
 watchEffect(() => {
@@ -349,10 +356,6 @@ const resizeObserver = new ResizeObserver(() => {
 });
 resizeObserver.observe(containerEl.value);
 
-onMounted(() => {
-	communityTabToggleButton?.addEventListener("click", updateScrollToCommunityTab);
-});
-
 onBeforeUnmount(() => {
 	messages.clear();
 });
@@ -370,10 +373,9 @@ onUnmounted(() => {
 	unsetPropertyHook(list.value.component, "props");
 	unsetPropertyHook(controller.value.component, "props");
 	unsetPropertyHook(room.value.component, "props");
+	unsetPropertyHook(communityTab.value.component, "props");
 
 	document.body.style.removeProperty("--seventv-channel-accent");
-
-	communityTabToggleButton?.removeEventListener("click", updateScrollToCommunityTab);
 });
 </script>
 

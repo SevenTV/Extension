@@ -7,6 +7,7 @@
 			:room="chatRoom.instances[0] ?? undefined"
 			:buffer="chatBuffer.instances[0] ?? undefined"
 			:events="chatEvents.instances[0] ?? undefined"
+			:community-tab="chatCommunityTab.instances[0] ?? undefined"
 		/>
 	</template>
 </template>
@@ -29,6 +30,12 @@ const chatRoom = useComponentHook<Twitch.ChatRoomComponent>({
 	parentSelector: ".chat-room__content",
 	maxDepth: 100,
 	predicate: (n) => n.props?.primaryColorHex !== undefined,
+});
+
+const chatCommunityTab = useComponentHook<Twitch.ChatCommunityTab>({
+	parentSelector: ".stream-chat",
+	maxDepth: 100,
+	predicate: (n) => "chatView" in n.props && n.props?.isCommunityTabEnabled,
 });
 
 const chatList = useComponentHook<Twitch.ChatListComponent>(

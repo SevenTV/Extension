@@ -217,6 +217,11 @@ declare module Twitch {
 		onClearChatEvent: (e: { channel: string }) => void;
 	};
 
+	export type ChatCommunityTab = ReactExtended.WritableComponent<{
+		chatView: number;
+		isCommunityTabEnabled: boolean;
+	}>;
+
 	export interface MessageHandlerAPI {
 		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
 		removeMessageHandler: (event: (msg: ChatMessage) => void) => void;
