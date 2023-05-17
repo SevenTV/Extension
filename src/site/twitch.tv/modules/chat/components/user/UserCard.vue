@@ -31,14 +31,17 @@
 				<div class="seventv-user-card-interactive">
 					<div class="seventv-user-card-greystates">
 						<p v-if="data.targetUser.createdAt">
+							<CakeIcon />
 							{{ t("user_card.account_created_date", { date: data.targetUser.createdAt }) }}
 						</p>
 
 						<p v-if="data.targetUser.relationship.followedAt">
+							<HeartIcon />
 							{{ t("user_card.following_since_date", { date: data.targetUser.relationship.followedAt }) }}
 						</p>
 
 						<p v-if="data.targetUser.relationship.subscription.isSubscribed">
+							<StarIcon />
 							{{
 								`${t("user_card.subscription_tier", {
 									tier: data.targetUser.relationship.subscription.tier[0],
@@ -48,6 +51,7 @@
 						</p>
 
 						<p v-else-if="data.targetUser.relationship.subscription.months">
+							<StarIcon />
 							{{
 								t("user_card.previously_subscription_length", {
 									length: data.targetUser.relationship.subscription.months,
@@ -118,7 +122,10 @@ import {
 	twitchUserCardModLogsQuery,
 	twitchUserCardQuery,
 } from "@/assets/gql/tw.user-card.gql";
+import CakeIcon from "@/assets/svg/icons/CakeIcon.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
+import HeartIcon from "@/assets/svg/icons/HeartIcon.vue";
+import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import LogoTwitch from "@/assets/svg/logos/LogoTwitch.vue";
 import Badge from "./Badge.vue";
 import UserCardActions from "./UserCardActions.vue";
@@ -487,7 +494,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 $card-width: 32rem;
-$card-height: 42rem;
+$card-height: 48rem;
 
 main.seventv-user-card-container {
 	display: block;
@@ -523,12 +530,22 @@ main.seventv-user-card-container {
 
 	.seventv-user-card-greystates {
 		grid-area: greystates;
+		display: grid;
+		row-gap: 0.5rem;
 		z-index: 1;
 		overflow: clip;
-		padding: 0.5rem 1rem;
+		padding: 1rem;
 
 		p {
-			font-size: 1rem;
+			font-size: 1.25rem;
+			display: inline-grid;
+			grid-template-columns: auto 1fr;
+			gap: 1rem;
+		}
+
+		svg {
+			margin-top: -0.25rem;
+			font-size: 2rem;
 		}
 	}
 
