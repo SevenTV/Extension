@@ -7,6 +7,8 @@ export const CHANNEL_CTX = Symbol("seventv-channel-context");
 
 const { sendMessage, target } = useWorker();
 
+export type ChannelRole = "BROADCASTER" | "EDITOR" | "MODERATOR" | "VIP" | "SUBSCRIBER" | "FOLLOWER";
+
 export class ChannelContext {
 	platform: Platform = "UNKNOWN";
 	id = "";
@@ -15,8 +17,17 @@ export class ChannelContext {
 	user: SevenTV.User | null = null;
 	loaded = false;
 
+	actor = {
+		roles: new Set<ChannelRole>(),
+	};
+
 	setCurrentChannel(channel: CurrentChannel): boolean {
-		if (this.id === channel.id) return false;
+		if (this.id === channel.id) {
+			this.username = channel.username;
+			this.displayName = channel.displayName;
+
+			return false;
+		}
 
 		const oldID = this.id;
 

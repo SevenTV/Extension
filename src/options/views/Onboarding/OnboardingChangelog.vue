@@ -29,10 +29,9 @@ main {
 	display: grid;
 	justify-content: center;
 	max-width: 44rem;
-
 	margin: 0 20%;
 
-	@media screen and (max-width: 1000px) {
+	@media screen and (width <= 1000px) {
 		margin: 0 1rem;
 	}
 }

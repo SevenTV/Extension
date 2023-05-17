@@ -1,5 +1,53 @@
 locale: English (United States)
 
+# Chat Messages
+# System strings
+messages:
+    anon_timeout_user: "{user} was timed out for {duration}"
+    anon_ban_user: "{user} was permanently banned"
+    mod_timeout_user: "{actor} timed out {victim} for {duration}"
+    mod_timeout_user_reason: "{actor} timed out {victim} for {duration} ({reason})"
+    mod_undo_timeout_user: "{actor} removed timeout on {victim}"
+    mod_ban_user: "{actor} banned {victim}"
+    mod_ban_user_reason: "{actor} banned {victim} ({reason})"
+    mod_undo_ban_user: "{actor} unbanned {victim}"
+
+user_card:
+    add_comment_input_placeholder: Add a comment
+    account_created_date: Account created on {date}
+    following_since_date: Following since {date}
+    subscription_tier: Tier {tier}
+    subscription_length: Subscribed for {length} months
+    previously_subscription_length: Previously subscribed for {length} months
+    native: Open Native User Card
+    no_messages: "{user} has not chatted here"
+    no_timeouts: "{user} hasn't been timed out before"
+    no_bans: "{user} hasn't been banned before"
+    no_comments: "No mod comments have been written for {user}"
+    timeout_button: "{duration} timeout"
+    ban_button: Ban
+    unban_button: Unban
+    mod_button: Mod
+    unmod_button: Unmod
+
+# Emote Menu
+# This interface allows the user to pick from available emotes
+emote_menu:
+    native: Open Native Menu
+    favorite_set: Favorite Emotes
+    most_used_set: Most Used Emotes
+    sets:
+        Global Emotes: Global Emotes
+        Smileys & Emotion: Smileys & Emotion
+        People & Body: People & Body
+        Animals & Nature: Animals & Nature
+        Food & Drink: Food & Drink
+        Travel & Places: Travel & Places
+        Activities: Activities
+        Objects: Objects
+        Symbols: Symbols
+        Flags: Flags
+
 # Onboarding Page
 # A page that is shown to new users to help them get started with 7TV
 #
@@ -93,8 +141,3 @@ onboarding:
     button_done: Done
     button_join: Join
     button_review: Review
-
-emote_menu:
-    native: Open Native Menu
-    favorite_set: Favorite Emotes
-    most_used_set: Most Used Emotes

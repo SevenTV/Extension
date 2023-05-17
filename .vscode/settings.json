@@ -2,5 +2,32 @@
 	"javascript.preferences.importModuleSpecifier": "non-relative",
 	"javascript.preferences.quoteStyle": "double",
 	"editor.formatOnSave": true,
-	"editor.defaultFormatter": "esbenp.prettier-vscode"
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"css.validate": false,
+	"scss.validate": false,
+	"stylelint.enable": true,
+	"stylelint.configFile": ".stylelintrc",
+	"stylelint.validate": ["css", "scss", "vue"],
+	"stylelint.packageManager": "yarn",
+	"stylelint.configBasedir": "${workspaceFolder}",
+	"stylelint.config": {
+		"rules": {
+			"color-function-notation": "legacy",
+			"declaration-block-no-redundant-longhand-properties": null
+		},
+		"overrides": [
+			{
+				"files": ["**/*.scss"],
+				"extends": ["stylelint-config-standard-scss"]
+			},
+			{
+				"files": ["**/*.vue"],
+				"extends": ["stylelint-config-standard-scss", "stylelint-config-standard-vue/scss"]
+			},
+			{
+				"files": ["**/*.{vue,scss}"],
+				"rules": {}
+			}
+		]
+	}
 }

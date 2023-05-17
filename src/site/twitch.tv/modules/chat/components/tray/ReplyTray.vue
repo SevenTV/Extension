@@ -95,7 +95,7 @@ watchEffect(async () => {
 
 	.seventv-tray-icon {
 		font-size: 1.25em;
-		fill: currentColor;
+		fill: currentcolor;
 		padding: 0.5rem;
 		flex-shrink: 0;
 
@@ -115,9 +115,11 @@ watchEffect(async () => {
 		vertical-align: middle;
 		align-items: center;
 	}
+
 	.seventv-close {
 		float: right;
 		cursor: pointer;
+
 		&:hover {
 			background-color: hsla(0deg, 0%, 60%, 24%);
 			border-radius: 0.4rem;
@@ -136,6 +138,7 @@ watchEffect(async () => {
 		padding-bottom: 0.5em;
 		border-left: 0.25em solid grey;
 	}
+
 	.is-root-msg {
 		margin-bottom: 0.5em;
 		padding-left: 0;

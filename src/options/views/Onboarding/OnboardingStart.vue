@@ -70,7 +70,6 @@ main.onboarding-start {
 	display: grid;
 	grid-template-columns: 40% 60%;
 	grid-template-rows: repeat(2, auto);
-
 	margin: 5%;
 	width: 100%;
 
@@ -108,7 +107,7 @@ main.onboarding-start {
 		}
 	}
 
-	@media screen and (max-width: 800px) {
+	@media screen and (width <= 800px) {
 		grid-template-columns: 100%;
 		grid-template-rows: repeat(4, auto);
 
