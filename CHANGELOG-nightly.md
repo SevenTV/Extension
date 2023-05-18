@@ -6,6 +6,7 @@
 -   Added sub duration & account creation date in the User Card
 -   Added a button to open an emote's full page from the emote card
 -   Fixed an issue where clicking the upper drag region in the User Card opened the user's channel
+-   Fixed UserCard content overflowing due to long messages
 
 ### Version 3.0.7.1000
 

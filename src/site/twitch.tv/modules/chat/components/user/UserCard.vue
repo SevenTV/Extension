@@ -671,6 +671,7 @@ main.seventv-user-card-container {
 	grid-template-rows: 0.5fr 2.5fr;
 	grid-auto-flow: row;
 	max-height: 26rem;
+	word-break: break-word;
 	grid-template-areas:
 		"tabs"
 		"messagelist";
