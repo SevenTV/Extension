@@ -41,6 +41,7 @@ const doTeleport = ref<boolean>(false);
 const shouldShowVideoStats = useConfig<boolean>("player.video_stats");
 const actionOnClick = useConfig<number>("player.action_onclick");
 
+const mediaPlayerInstance = ref();
 const liveLatency = ref<string>();
 const videoStats = ref({
 	droppedFrames: 0,
@@ -49,22 +50,35 @@ const videoStats = ref({
 	width: 0,
 	height: 0,
 	framerate: 0,
+	bufferSize: 0,
 });
 
 definePropertyHook(props.instance.component, "props", {
 	value: (v: Twitch.MediaPlayerComponent["props"]) => {
-		if (v.mediaPlayerInstance) {
-			definePropertyHook(v.mediaPlayerInstance.core.state, "liveLatency", {
-				value: (v: number) => {
-					liveLatency.value = v?.toFixed(2) ?? "-.--";
-				},
-			});
-		}
+		mediaPlayerInstance.value = v.mediaPlayerInstance;
 
 		// we need to re-add the event listener when the mediaPlayer props changes
 		addClickHandler();
 	},
 });
+
+watch(
+	mediaPlayerInstance,
+	(mediaPlayer, old) => {
+		if (old && mediaPlayer !== old) {
+			unsetPropertyHook(old.core.state, "liveLatency");
+		} else {
+			if (!mediaPlayer) return;
+
+			definePropertyHook(mediaPlayer.core.state, "liveLatency", {
+				value: (v: number) => {
+					liveLatency.value = v?.toFixed(2) ?? "-.--";
+				},
+			});
+		}
+	},
+	{ immediate: true },
+);
 
 watch(
 	liveLatency,
@@ -77,6 +91,7 @@ watch(
 			videoStats.value.playbackRate = mediaPlayer.getPlaybackRate();
 			videoStats.value.width = mediaPlayer.getVideoWidth();
 			videoStats.value.height = mediaPlayer.getVideoHeight();
+			videoStats.value.bufferSize = mediaPlayer.getBufferDuration();
 		}
 	},
 	{ immediate: true },
@@ -114,9 +129,9 @@ function addClickHandler() {
 	if (!mediaPlayer) return;
 	// getHTMLVideoELement function not working as expected
 	const videoElement = mediaPlayer.core.mediaSinkManager.video;
-	if (!videoElement) return;
+	if (!videoElement || !videoElement.nextElementSibling) return;
 
-	const overlayContainer = videoElement.nextElementSibling?.querySelector<HTMLElement>(
+	const overlayContainer = videoElement.nextElementSibling.querySelector<HTMLElement>(
 		"div[data-a-target='player-overlay-click-handler']",
 	);
 	if (!overlayContainer) return;

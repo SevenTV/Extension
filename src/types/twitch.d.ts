@@ -641,6 +641,7 @@ declare module Twitch {
 				state: PlayerState;
 			};
 			getHTMLVideoELement: () => HTMLVideoElement | ReactExtended.ReactRuntimeElement;
+			getBufferDuration: () => number;
 			getLiveLatency: () => number;
 			getDroppedFrames: () => number;
 			getVideoBitRate: () => number;

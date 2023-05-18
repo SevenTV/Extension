@@ -34,11 +34,10 @@ useComponentHook(
 		hooks: {
 			update(inst) {
 				const rootNode = inst.domNodes.root;
-				if (rootNode) {
-					const teleLoc = rootNode.querySelector<HTMLElement>("[data-a-target*='channel-viewers-count']")
-						?.parentElement?.parentElement?.parentElement;
-					videoStatsTeleportLocation.value = teleLoc;
-				}
+				if (!rootNode) return;
+				const teleLoc = rootNode.querySelector<HTMLElement>("[data-a-target*='channel-viewers-count']")
+					?.parentElement?.parentElement?.parentElement;
+				videoStatsTeleportLocation.value = teleLoc;
 			},
 		},
 	},

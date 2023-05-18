@@ -1,12 +1,15 @@
 <template>
 	<div ref="tooltip" class="seventv-tooltip" tooltip-type="video-stats">
 		<div class="details">
-			<p>Video: {{ props.width }}x{{ props.height }}p{{ props.framerate }}</p>
+			<p>Video: {{ props.width }}x{{ props.height }}</p>
+			<p>Framerate: {{ props.framerate }}</p>
 			<p>Bitrate: {{ props.bitrate }} kbps</p>
 			<p>Dropped Frames: {{ props.droppedFrames }}</p>
-			<br />
+			<p>Playback Rate: {{ props.playbackRate.toFixed(2) }}x</p>
+			<p>Buffer Size: {{ props.bufferSize.toFixed(2) }}s</p>
+		</div>
+		<div class="tooltip-title">
 			<p>Stream Latency</p>
-			<p v-if="props.playbackRate > 1">Playing at {{ props.playbackRate.toFixed(2) }}x to reduce delay</p>
 		</div>
 	</div>
 </template>
@@ -19,6 +22,7 @@ const props = defineProps<{
 	height: number;
 	width: number;
 	framerate: number;
+	bufferSize: number;
 }>();
 </script>
 
@@ -31,5 +35,9 @@ const props = defineProps<{
 .details {
 	padding-bottom: 0.25rem;
 	margin-bottom: 0.25rem;
+}
+.tooltip-title {
+	padding-top: 0.25rem;
+	margin-top: 0.25rem;
 }
 </style>
