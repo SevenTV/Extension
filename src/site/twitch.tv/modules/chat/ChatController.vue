@@ -457,6 +457,7 @@ seventv-container.seventv-chat-list {
 }
 
 .seventv-chat-scroller {
+	z-index: 1;
 	height: 100%;
 }
 
