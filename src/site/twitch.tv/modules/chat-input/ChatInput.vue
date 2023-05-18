@@ -44,7 +44,7 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
-const mod = getModule("chat-input");
+const mod = getModule<"TWITCH", "chat-input">("chat-input");
 const store = useStore();
 const ctx = useChannelContext(props.instance.component.componentRef.props.channelID);
 const messages = useChatMessages(ctx);

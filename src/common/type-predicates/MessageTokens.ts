@@ -8,7 +8,7 @@ export function IsLinkToken(part: AnyToken): part is LinkToken {
 	return part.kind === "LINK";
 }
 
-export function IsEmotePart(part: AnyToken): part is EmoteToken {
+export function IsEmoteToken(part: AnyToken): part is EmoteToken {
 	return part.kind === "EMOTE";
 }
 

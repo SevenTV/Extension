@@ -18,7 +18,7 @@ main {
 	background-color: var(--seventv-background-shade-1);
 
 	> div {
-		// height: 600px;
+		height: 600px;
 		width: 800px;
 	}
 }

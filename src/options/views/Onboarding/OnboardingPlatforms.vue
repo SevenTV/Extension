@@ -50,6 +50,7 @@ onDeactivated(() => {
 const platforms = ref<PlatformDef[]>([
 	{ name: "Twitch", icon: markRaw(LogoBrandTwitch), selected: true },
 	{ name: "YouTube", icon: markRaw(LogoBrandYouTube), hosts: ["*://*.youtube.com/*"], selected: true },
+	{ name: "Kick", icon: markRaw(LogoBrandKick), hosts: ["*://*.kick.com/*"], selected: true },
 ]);
 
 function toggle(p: PlatformDef) {
@@ -59,6 +60,7 @@ function toggle(p: PlatformDef) {
 
 <script lang="ts">
 import { markRaw, onActivated, onDeactivated, ref } from "vue";
+import LogoBrandKick from "@/assets/svg/logos/LogoBrandKick.vue";
 import LogoBrandTwitch from "@/assets/svg/logos/LogoBrandTwitch.vue";
 import LogoBrandYouTube from "@/assets/svg/logos/LogoBrandYouTube.vue";
 import { OnboardingStepRoute, useOnboarding } from "./Onboarding";
@@ -97,7 +99,7 @@ main.onboarding-platforms {
 
 	.sites {
 		display: grid;
-		grid-template-columns: repeat(2, auto);
+		grid-template-columns: repeat(3, auto);
 		gap: 4vw;
 		grid-area: sites;
 		justify-self: center;
@@ -128,7 +130,7 @@ main.onboarding-platforms {
 			&[selected="true"] {
 				outline-color: var(--seventv-accent);
 				outline-width: 0.2rem;
-				animation: "on-select" 0.5s ease-in-out;
+				animation: on-select 0.5s ease-in-out;
 			}
 
 			@keyframes on-select {

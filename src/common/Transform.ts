@@ -1,4 +1,4 @@
-import { TwTypeMessage, TwTypeUser } from "@/assets/gql/tw.gql";
+import { TwTypeBadge, TwTypeMessage, TwTypeUser } from "@/assets/gql/tw.gql";
 import { imageHostToSrcset } from "./Image";
 import { ChatMessage, ChatUser } from "./chat/ChatMessage";
 
@@ -318,14 +318,40 @@ export function convertFfzBadges(data: FFZ.BadgesResponse): SevenTV.Cosmetic<"BA
 	return badges;
 }
 
+export function convertTwitchBadge(data: TwTypeBadge): SevenTV.Cosmetic<"BADGE"> {
+	const sp = data.image1x.slice(6).split("/");
+	const baseURL = sp.slice(0, sp.length - 1).join("/");
+
+	return {
+		id: data.setID + ":" + data.version,
+		kind: "BADGE",
+		provider: "TWITCH",
+		data: {
+			name: data.title,
+			host: {
+				url: baseURL,
+				files: [
+					{ name: "1", format: "PNG" },
+					{ name: "2", format: "PNG" },
+					{ name: "3", format: "PNG" },
+				],
+			},
+			tooltip: data.title,
+		},
+	};
+}
+
 export function convertTwitchMessage(d: TwTypeMessage): ChatMessage {
 	const msg = new ChatMessage(d.id);
-	msg.body = d.content.text;
-	msg.author = convertTwitchUser(d.sender);
-	msg.badges = d.sender.displayBadges.reduce((con, badge) => {
-		con[badge.setID] = badge.version;
-		return con;
-	}, {} as Record<string, string>);
+	msg.body = d.content?.text ?? "";
+	msg.author = d.sender ? convertTwitchUser(d.sender) : null;
+	msg.badges =
+		d.sender && Array.isArray(d.sender.displayBadges)
+			? d.sender.displayBadges.reduce((con, badge) => {
+					con[badge.setID] = badge.version;
+					return con;
+			  }, {} as Record<string, string>)
+			: {};
 	msg.timestamp = new Date(d.sentAt).getTime();
 
 	return msg;

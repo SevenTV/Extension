@@ -1,5 +1,5 @@
 <template>
-	<main class="seventv-float-context">
+	<main id="seventv-float-context">
 		<div v-for="screen of ctx.screens" :key="screen.sym" class="seventv-float-screen-parent">
 			<FloatScreen :screen="screen" @container-created="onContainerCreated" />
 		</div>

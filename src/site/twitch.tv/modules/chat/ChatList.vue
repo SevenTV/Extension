@@ -3,7 +3,7 @@
 		<div v-for="msg of displayedMessages" :key="msg.sym" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
 				<component
-					:is="isModSliderEnabled && properties.isModerator && msg.author ? ModSlider : 'span'"
+					:is="isModSliderEnabled && ctx.actor.roles.has('MODERATOR') && msg.author ? ModSlider : 'span'"
 					v-bind="{ msg }"
 				>
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
@@ -175,7 +175,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 		// check blocked state and ignore if blocked
 		if (msg.author && properties.blockedUsers.has(msg.author.id)) {
-			if (!properties.isModerator) {
+			if (!ctx.actor.roles.has("MODERATOR")) {
 				log.debug("Ignored message from blocked user", msg.author.id);
 				return;
 			}
@@ -299,7 +299,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		shouldRender = false;
 	}
 
-	if (properties.isModerator) {
+	if (ctx.actor.roles.has("MODERATOR")) {
 		msg.pinnable = true;
 		msg.deletable = true;
 	}
@@ -369,7 +369,7 @@ function onModerationMessage(msgData: Twitch.ModerationMessage) {
 		}
 
 		// basic timeout/ban message in the chat
-		if (showModerationMessages.value && !properties.isModerator) {
+		if (showModerationMessages.value && !ctx.actor.roles.has("MODERATOR")) {
 			const m = new ChatMessage().setComponent(BasicSystemMessage, {
 				text:
 					msgData.userLogin +

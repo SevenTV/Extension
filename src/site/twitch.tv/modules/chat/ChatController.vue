@@ -40,7 +40,7 @@ import { log } from "@/common/Logger";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { ChannelRole, useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -67,7 +67,7 @@ const props = defineProps<{
 	events?: HookedInstance<Twitch.ChatEventComponent>;
 }>();
 
-const mod = getModule("chat")!;
+const mod = getModule<"TWITCH", "chat">("chat")!;
 const { sendMessage: sendWorkerMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);
@@ -185,9 +185,17 @@ definePropertyHook(controller.value.component, "props", {
 			};
 		}
 
+		for (const [role, ok] of [
+			["VIP", v.isCurrentUserVIP],
+			["EDITOR", v.isCurrentUserEditor],
+			["MODERATOR", v.isCurrentUserModerator || v.channelID === v.userID],
+			["BROADCASTER", v.channelID === v.userID],
+		] as [ChannelRole, boolean][]) {
+			if (!ok) continue;
+			ctx.actor.roles.add(role);
+		}
+
 		// Keep track of chat props
-		properties.isModerator = v.isCurrentUserModerator;
-		properties.isVIP = v.isCurrentUserVIP;
 		properties.isDarkTheme = v.theme;
 
 		// Send presence upon message sent
@@ -455,6 +463,7 @@ seventv-container.seventv-chat-list {
 }
 
 .seventv-chat-scroller {
+	z-index: 1;
 	height: 100%;
 }
 

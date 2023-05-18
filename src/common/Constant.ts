@@ -18,3 +18,5 @@ export const SITE_ACTIVE_WINDOW: InjectionKey<Window> = Symbol("seventv-site-act
 
 export const UNICODE_TAG_0 = "\u{E0000}";
 export const UNICODE_TAG_0_REGEX = new RegExp(UNICODE_TAG_0, "g");
+
+export const HOSTNAME_SUPPORTED_REGEXP = /([a-z0-9]+[.])*(youtube|kick)[.]com/;
