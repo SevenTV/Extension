@@ -44,26 +44,31 @@ if (menuButtons) {
 }
 </script>
 <style scoped lang="scss">
-@import "@/assets/style/tw-tooltip.scss";
-@import "@/assets/style/flair.scss";
+@import "@/assets/style/tw-tooltip";
+@import "@/assets/style/flair";
 
 .top-nav {
 	.seventv-settings-menu-button {
 		margin: 0.5rem;
+
 		> span {
 			transition: opacity 0.1s ease-in 0.2s;
 		}
 	}
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .modview-dock__drop-zone {
 	.seventv-settings-menu-button {
 		margin: 0 0.5rem 1rem;
+
 		> span {
 			transition: opacity 0.1s ease-in 0.2s;
 		}
 	}
 }
+
+/* stylelint-disable-next-line no-descending-specificity */
 .seventv-settings-menu-button {
 	> button {
 		> svg {

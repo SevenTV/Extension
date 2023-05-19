@@ -13,7 +13,9 @@ const browser = agent.getBrowser();
 const data = reactive<UserAgentHelper>({
 	agent,
 	browser,
-	avif: browser.name === "Chrome" && parseInt(browser.version as string, 10) >= 100,
+	avif:
+		(browser.name === "Chrome" && parseInt(browser.version as string, 10) >= 100) ||
+		(browser.name === "Firefox" && parseInt(browser.version as string, 10) >= 113),
 	preferredFormat: "WEBP",
 });
 

@@ -30,7 +30,7 @@
 		</template>
 
 		<!-- Mod Icons -->
-		<template v-if="properties.isModerator && properties.showModerationIcons">
+		<template v-if="ctx.actor.roles.has('MODERATOR') && properties.showModerationIcons && !hideModIcons">
 			<ModIcons :msg="msg" />
 		</template>
 
@@ -40,8 +40,7 @@
 			:user="msg.author"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
-			@name-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
-			@badge-click="(ev) => openViewerCard(ev, msg.author!.username, msg.id)"
+			@open-native-card="openViewerCard($event, msg.author.username, msg.id)"
 		/>
 
 		<span v-if="!hideAuthor">
@@ -52,7 +51,7 @@
 		<span class="seventv-chat-message-body">
 			<template v-for="(token, index) of tokens" :key="index">
 				<span v-if="typeof token === 'string'" class="text-token">{{ token }}</span>
-				<span v-else-if="IsEmotePart(token)">
+				<span v-else-if="IsEmoteToken(token)">
 					<Emote
 						class="emote-token"
 						:emote="token.content.emote"
@@ -66,7 +65,7 @@
 					</span>
 				</span>
 				<template v-else>
-					<Component :is="getPart(token)" :token="token" :msg="msg" />
+					<component :is="getToken(token)" v-bind="{ token, msg }" />
 				</template>
 			</template>
 		</span>
@@ -93,7 +92,7 @@ import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
 import type { AnyToken, ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
-import { IsEmotePart, IsLinkPart, IsMentionPart } from "@/common/type-predicates/MessageParts";
+import { IsEmoteToken, IsLinkToken, IsMentionToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -102,7 +101,7 @@ import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
-import UserTag from "@/site/twitch.tv/modules/chat/components/message/UserTag.vue";
+import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
 import RichEmbed from "./RichEmbed.vue";
 import UserMessageButtons from "./UserMessageButtons.vue";
 import Link from "./parts/Link.vue";
@@ -123,6 +122,7 @@ const props = withDefaults(
 		isModerator?: boolean;
 		hideAuthor?: boolean;
 		hideModeration?: boolean;
+		hideModIcons?: boolean;
 		hideDeletionState?: boolean;
 		showButtons?: boolean;
 		forceTimestamp?: boolean;
@@ -159,7 +159,7 @@ const timestamp = ref("");
 // Tokenize the message
 type MessageTokenOrText = AnyToken | string;
 const tokenizer = props.msg.getTokenizer();
-const tokens = ref([] as MessageTokenOrText[]);
+const tokens = ref<MessageTokenOrText[]>([]);
 
 function doTokenize() {
 	if (!tokenizer) return;
@@ -218,12 +218,10 @@ if (props.msg.historical) {
 	);
 }
 
-function getPart(part: AnyToken) {
-	if (IsEmotePart(part)) {
-		return Emote;
-	} else if (IsMentionPart(part)) {
+function getToken(token: AnyToken): AnyInstanceType {
+	if (IsMentionToken(token)) {
 		return Mention;
-	} else if (IsLinkPart(part)) {
+	} else if (IsLinkToken(token)) {
 		return Link;
 	}
 }
@@ -255,8 +253,8 @@ watchEffect(() => {
 			{ locale },
 			{
 				localeMatcher: "lookup",
-				hour: "numeric",
-				minute: "numeric",
+				hour: "2-digit",
+				minute: "2-digit",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
 				hour12: useTimestampFormat(),
 			},
@@ -271,10 +269,7 @@ watchEffect(() => {
 	display: block;
 
 	&.has-highlight {
-		margin-top: -0.5rem;
-		margin-bottom: -0.5rem;
-		margin-left: -1rem;
-		margin-right: -0.75rem;
+		margin: -0.5rem -0.75rem -0.5rem -1rem;
 
 		&[data-highlight-style="0"] {
 			border: 0.25rem solid;
@@ -293,7 +288,6 @@ watchEffect(() => {
 					justify-content: end;
 					color: var(--seventv-highlight-color);
 					transform: translateY(-1.5em);
-
 					font-weight: 600;
 					text-transform: uppercase;
 					font-size: 0.88rem;
@@ -316,6 +310,17 @@ watchEffect(() => {
 	}
 }
 
+.seventv-chat-message-moderated {
+	&::before {
+		content: "—";
+	}
+
+	display: inline-block;
+	font-style: italic;
+	vertical-align: center;
+	color: var(--seventv-muted);
+}
+
 .deleted {
 	&:not(:hover) > .seventv-chat-message-body {
 		display: var(--seventv-chat-deleted-display);
@@ -330,19 +335,10 @@ watchEffect(() => {
 	}
 }
 
-.seventv-chat-message-moderated {
-	&::before {
-		content: "—";
-	}
-
-	display: inline-block;
-	font-style: italic;
-	vertical-align: center;
-	color: var(--seventv-muted);
-}
-
 .seventv-chat-message-timestamp {
 	margin-right: 0.5rem;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.1rem;
 	color: var(--seventv-muted);
 }
 </style>

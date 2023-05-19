@@ -40,7 +40,7 @@ import { log } from "@/common/Logger";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { ChannelRole, useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -66,7 +66,7 @@ const props = defineProps<{
 	events?: HookedInstance<Twitch.ChatEventComponent>;
 }>();
 
-const mod = getModule("chat")!;
+const mod = getModule<"TWITCH", "chat">("chat")!;
 const { sendMessage: sendWorkerMessage } = useWorker();
 
 const { list, controller, room } = toRefs(props);
@@ -183,9 +183,17 @@ definePropertyHook(controller.value.component, "props", {
 			};
 		}
 
+		for (const [role, ok] of [
+			["VIP", v.isCurrentUserVIP],
+			["EDITOR", v.isCurrentUserEditor],
+			["MODERATOR", v.isCurrentUserModerator || v.channelID === v.userID],
+			["BROADCASTER", v.channelID === v.userID],
+		] as [ChannelRole, boolean][]) {
+			if (!ok) continue;
+			ctx.actor.roles.add(role);
+		}
+
 		// Keep track of chat props
-		properties.isModerator = v.isCurrentUserModerator;
-		properties.isVIP = v.isCurrentUserVIP;
 		properties.isDarkTheme = v.theme;
 
 		// Send presence upon message sent
@@ -404,7 +412,6 @@ seventv-container.seventv-chat-list {
 			> .seventv-scrollbar-thumb {
 				position: absolute;
 				width: 100%;
-
 				background-color: rgb(77, 77, 77);
 			}
 		}
@@ -420,17 +427,9 @@ seventv-container.seventv-chat-list {
 		white-space: nowrap;
 		padding: 0.5em;
 		border-radius: 0.33em;
-		color: currentColor;
+		color: currentcolor;
 		background-color: var(--seventv-background-transparent-1);
 		outline: 0.25rem solid var(--seventv-border-transparent-1);
-
-		span:nth-of-type(1) {
-			margin-right: 0.25rem;
-
-			&.capped::after {
-				content: "+";
-			}
-		}
 
 		span,
 		svg {
@@ -443,6 +442,14 @@ seventv-container.seventv-chat-list {
 			margin-right: 0.5em;
 		}
 
+		span:nth-of-type(1) {
+			margin-right: 0.25rem;
+
+			&.capped::after {
+				content: "+";
+			}
+		}
+
 		@at-root .seventv-transparent & {
 			backdrop-filter: blur(0.5em);
 		}
@@ -450,14 +457,17 @@ seventv-container.seventv-chat-list {
 }
 
 .seventv-chat-scroller {
+	z-index: 1;
 	height: 100%;
 }
 
 .community-highlight {
 	background-color: var(--seventv-background-transparent-1) !important;
+
 	@at-root .seventv-transparent & {
 		backdrop-filter: blur(1em);
 	}
+
 	transition: background-color 0.25s;
 
 	&:hover {
@@ -465,6 +475,7 @@ seventv-container.seventv-chat-list {
 	}
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .chat-list--default.seventv-checked {
 	display: none !important;
 }

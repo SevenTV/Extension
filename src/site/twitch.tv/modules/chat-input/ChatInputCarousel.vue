@@ -97,7 +97,6 @@ useEventListener(
 	column-gap: 0.5rem;
 	min-height: 5rem;
 	padding: 1rem;
-
 	background: var(--seventv-background-transparent-1);
 	outline: 0.1rem solid var(--seventv-border-transparent-1);
 	border-radius: 0.25rem;
@@ -131,6 +130,7 @@ useEventListener(
 		justify-content: flex-end;
 		border-top-left-radius: 0;
 		border-bottom-left-radius: 0;
+
 		> svg {
 			margin-right: -0.5rem;
 			transform: rotate(-90deg);

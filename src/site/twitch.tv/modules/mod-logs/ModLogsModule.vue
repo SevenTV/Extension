@@ -32,10 +32,10 @@ const com = ref<InstanceType<typeof ModLogs> | undefined>();
 
 await until(dependenciesMet).toBe(true);
 
-const inputController = getModule("chat-input-controller");
+const inputController = getModule<"TWITCH", "chat-input-controller">("chat-input-controller");
 if (!inputController?.instance) throw new Error("ChatInputController not found");
 
-const chatController = getModule("chat");
+const chatController = getModule<"TWITCH", "chat">("chat");
 if (!chatController?.instance) throw new Error("ChatController not found");
 
 // insert button

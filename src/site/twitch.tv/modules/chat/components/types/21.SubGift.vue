@@ -42,17 +42,21 @@ defineProps<{
 
 .sub-part {
 	display: flex;
+
 	.gift-icon {
 		display: flex;
 		flex-shrink: 0;
 		padding-right: 1.6rem;
 		margin: auto 0;
 	}
+
 	.sub-message-text {
 		margin-left: 0.25rem;
+
 		.bold {
 			font-weight: 700;
 		}
+
 		.sub-name {
 			display: block;
 			color: var(--color-text-link);

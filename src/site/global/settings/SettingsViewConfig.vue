@@ -35,6 +35,7 @@ watch(
 	flex-direction: column;
 	height: 100%;
 	width: 100%;
+
 	> :first-child {
 		flex-grow: 1;
 	}
