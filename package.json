@@ -39,7 +39,7 @@
 		"@types/chrome": "^0.0.236",
 		"@types/dompurify": "^3.0.2",
 		"@types/fs-extra": "^11.0.1",
-		"@types/marked": "^4.3.0",
+		"@types/marked": "^5.0.0",
 		"@types/node": "^20.2.1",
 		"@types/sharedworker": "^0.0.96",
 		"@types/ua-parser-js": "^0.7.36",
