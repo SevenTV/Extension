@@ -1,6 +1,10 @@
 <template>
 	<template v-for="inst in mediaPlayerComponent.instances" :key="inst.identifier">
-		<MediaPlayer :instance="inst" :video-stats-teleport-location="videoStatsTeleportLocation" />
+		<MediaPlayer
+			:instance="inst"
+			:video-stats-teleport-location="videoStatsTeleportLocation"
+			:advanced-controls="playerAdvancedOptionsComponent.instances"
+		/>
 	</template>
 </template>
 
@@ -21,6 +25,11 @@ const videoStatsTeleportLocation = ref<HTMLElement | null | undefined>();
 // hook for the media player instance
 const mediaPlayerComponent = useComponentHook<Twitch.MediaPlayerComponent>({
 	predicate: (el) => el.setPlayerActive && el.props && el.props.playerEvents && el.props.mediaPlayerInstance,
+});
+
+// hook for the media player instance advanced controls
+const playerAdvancedOptionsComponent = useComponentHook<Twitch.MediaPlayerAdvancedControls>({
+	predicate: (el) => el.props && el.setStatsOverlay,
 });
 
 // hook to render video stats in the channel page view

@@ -4,6 +4,7 @@
 			<div
 				id="seventv-video-stats"
 				ref="videoStatsRef"
+				@click="openStatsOverlay"
 				@mouseenter="videoStatsTooltip.show(videoStatsRef)"
 				@mouseleave="videoStatsTooltip.hide()"
 			>
@@ -33,7 +34,15 @@ import VideoStatsTooltip from "./VideoStatsTooltip.vue";
 const props = defineProps<{
 	instance: HookedInstance<Twitch.MediaPlayerComponent>;
 	videoStatsTeleportLocation: HTMLElement | null | undefined;
+	advancedControls: Array<HookedInstance<Twitch.MediaPlayerAdvancedControls>>;
 }>();
+
+function openStatsOverlay() {
+	if (props.advancedControls.length !== 1) return;
+	const controls = props.advancedControls[0].component;
+	const isOpen = document.querySelector("[data-a-target='player-overlay-video-stats']");
+	controls.setStatsOverlay(isOpen ? 0 : 1);
+}
 
 const teleportLocation = toRef(props, "videoStatsTeleportLocation");
 const doTeleport = ref<boolean>(false);
@@ -160,6 +169,11 @@ onUnmounted(() => {
 	display: inline-flex;
 	font-family: "Helvetica Neue", sans-serif;
 	font-variant-numeric: tabular-nums;
+	cursor: pointer;
+
+	&:hover {
+		background: hsla(0deg, 0%, 30%, 32%);
+	}
 }
 #seventv-video-stats > figure {
 	display: flex !important;

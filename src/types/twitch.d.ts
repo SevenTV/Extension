@@ -627,6 +627,10 @@ declare module Twitch {
 		DOMNode: HTMLElement;
 	};
 
+	export type MediaPlayerAdvancedControls = ReactExtended.WritableComponent<{}> & {
+		setStatsOverlay: (e) => void;
+	};
+
 	export type MediaPlayerComponent = ReactExtended.WritableComponent<{
 		mediaPlayerInstance: {
 			core: {
