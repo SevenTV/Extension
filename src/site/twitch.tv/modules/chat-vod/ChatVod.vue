@@ -24,8 +24,8 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
-import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMessage.vue";
 import type { TwTypeUser } from "@/assets/gql/tw.gql";
+import UserMessage from "@/app/chat/UserMessage.vue";
 import { MessagePartType } from "../..";
 import intervalToDuration from "date-fns/fp/intervalToDuration";
 

@@ -58,8 +58,8 @@ import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
 import EmoteCard from "@/site/global/components/EmoteCard.vue";
-import EmoteTooltip from "@/site/twitch.tv/modules/chat/components/message/EmoteTooltip.vue";
 import SingleEmoji from "@/assets/svg/emoji/SingleEmoji.vue";
+import EmoteTooltip from "./EmoteTooltip.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { autoPlacement, shift } from "@floating-ui/dom";
 

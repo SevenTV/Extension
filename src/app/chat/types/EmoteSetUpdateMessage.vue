@@ -77,8 +77,8 @@ import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import Emote from "../message/Emote.vue";
-import UserTag from "../user/UserTag.vue";
+import Emote from "../Emote.vue";
+import UserTag from "../UserTag.vue";
 
 const props = defineProps<{
 	appUser: SevenTV.User;

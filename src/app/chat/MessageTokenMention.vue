@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import type { ChatMessage, MentionToken } from "@/common/chat/ChatMessage";
 import { useConfig } from "@/composable/useSettings";
-import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
+import UserTag from "./UserTag.vue";
 import { v4 as uuid } from "uuid";
 
 const props = defineProps<{

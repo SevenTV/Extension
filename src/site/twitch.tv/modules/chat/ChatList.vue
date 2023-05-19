@@ -39,9 +39,9 @@ import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { useConfig } from "@/composable/useSettings";
 import { MessagePartType, MessageType, ModerationType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
-import UserMessage from "./components/message/UserMessage.vue";
 import ModSlider from "./components/mod/ModSlider.vue";
-import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
+import UserMessage from "@/app/chat/UserMessage.vue";
+import BasicSystemMessage from "@/app/chat/types/BasicSystemMessage.vue";
 
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
@@ -76,10 +76,10 @@ const list = toRef(props, "list");
 // Unrender messages out of view
 const chatListEl = ref<HTMLElement>();
 
-const types = import.meta.glob<object>("./components/types/*.vue", { eager: true, import: "default" });
+const types = import.meta.glob<object>("@/app/chat/types/*.vue", { eager: true, import: "default" });
 const typeMap = {} as Record<number, ComponentFactory>;
 
-const componentRegexp = /\.\/components\/types\/(\d+)\.(\w+)\.vue$/;
+const componentRegexp = /src\/app\/chat\/types\/(\d+)\.(\w+)\.vue$/;
 for (const [path, component] of Object.entries(types)) {
 	const [, type] = path.match(componentRegexp) ?? [];
 	if (!type) continue;

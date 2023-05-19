@@ -134,8 +134,8 @@ import UserCardMod from "./UserCardMod.vue";
 import UserCardTabs from "./UserCardTabs.vue";
 import type { UserCardTabName } from "./UserCardTabs.vue";
 import UserTag from "./UserTag.vue";
+import BasicSystemMessage from "./types/BasicSystemMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import BasicSystemMessage from "../types/BasicSystemMessage.vue";
 import formatDate from "date-fns/fp/format";
 
 const props = defineProps<{

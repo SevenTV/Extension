@@ -69,9 +69,9 @@ import { useApollo } from "@/composable/useApollo";
 import { TwTypeModComment } from "@/assets/gql/tw.gql";
 import { twitchUserCardCreateModCommentMut } from "@/assets/gql/tw.user-card.gql";
 import type { UserCardTabName } from "./UserCardTabs.vue";
+import UserMessage from "./UserMessage.vue";
+import NormalMessage from "./types/0.NormalMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import UserMessage from "../message/UserMessage.vue";
-import NormalMessage from "../types/0.NormalMessage.vue";
 
 const props = defineProps<{
 	activeTab: UserCardTabName;

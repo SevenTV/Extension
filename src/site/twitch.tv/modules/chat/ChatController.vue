@@ -55,7 +55,7 @@ import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import ChatPubSub from "./ChatPubSub.vue";
 import ChatTray from "./components/tray/ChatTray.vue";
-import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
+import BasicSystemMessage from "@/app/chat/types/BasicSystemMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
