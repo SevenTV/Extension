@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { inject, reactive, ref, watch } from "vue";
-import { OPTIONS_CONTEXT_KEY } from "@/options/keys";
+import { OPTIONS_CONTEXT_KEY } from "@/app/options/keys";
 import UiButton from "@/ui/UiButton.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 

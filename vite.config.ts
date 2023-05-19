@@ -90,7 +90,7 @@ export default defineConfig(() => {
 						switch (info.name) {
 							// Options Page
 							case "options":
-								return `src/options/options${isDev ? "" : ".js"}`;
+								return `src/app/options/options${isDev ? "" : ".js"}`;
 							// Catch-all, extension scripts
 							default:
 								return path.basename(info.facadeModuleId.replace(".ts", ".js"));

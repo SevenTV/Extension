@@ -1,11 +1,11 @@
 import { createApp } from "vue";
 import { createHead } from "@vueuse/head";
 import { SITE_ASSETS_URL } from "@/common/Constant";
+import Options from "@/app/options/Options.vue";
+import { router } from "@/app/options/router/router";
 import { TooltipDirective } from "@/directive/TooltipDirective";
 import "@/i18n";
 import { setupI18n } from "@/i18n";
-import Options from "@/options/Options.vue";
-import { router } from "@/options/router/router";
 
 const app = createApp(Options);
 const head = createHead({
