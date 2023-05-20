@@ -337,11 +337,17 @@ declare interface YouTubeIdentity {
 	username: string;
 }
 
-declare type Platform = "TWITCH" | "YOUTUBE" | "UNKNOWN";
+declare interface KickIdentity {
+	id: string;
+	username: string;
+}
+
+declare type Platform = "TWITCH" | "YOUTUBE" | "KICK" | "UNKNOWN";
 
 declare type PlatformIdentity<T extends Platform> = {
 	TWITCH: TwitchIdentity;
 	YOUTUBE: YouTubeIdentity;
+	KICK: KickIdentity;
 	UNKNOWN: null;
 }[T];
 
@@ -350,6 +356,7 @@ interface CurrentChannel {
 	username: string;
 	displayName: string;
 	user?: SevenTV.User;
+	active: boolean;
 }
 
 declare namespace BTTV {
@@ -437,6 +444,7 @@ type Either<T, U> = Only<T, U> | Only<U, T>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare type ComponentFactory = abstract new (...args: any) => any;
+declare type AnyInstanceType = InstanceType<ComponentFactory>;
 
 type NestedKeyOf<ObjectType extends object> = {
 	[Key in keyof ObjectType]: ObjectType[Key] extends object

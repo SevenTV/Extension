@@ -11,7 +11,7 @@ import { getModule } from "@/composable/useModule";
 import { useUserAgent } from "@/composable/useUserAgent";
 import { YtModuleID } from "@/types/yt.module";
 
-const ModuleWrapper = defineAsyncComponent(() => import("../global/ModuleWrapper.vue"));
+const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
 
 const store = useStore();
 const ua = useUserAgent();
@@ -22,6 +22,7 @@ store.setPlatform("YOUTUBE", []);
 
 // Import modules
 const modules = import.meta.glob("./modules/**/*Module.vue", { eager: true, import: "default" });
+
 for (const key in modules) {
 	const modPath = key.split("/");
 	const modKey = modPath.splice(modPath.length - 2, 1).pop();

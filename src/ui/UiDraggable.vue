@@ -16,6 +16,7 @@ const props = defineProps<{
 	initialPlacement?: Placement;
 	emitClickout?: boolean;
 	handle?: HTMLDivElement;
+	once?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -132,7 +133,7 @@ watch(
 						updatePosition(tX, tY);
 					}
 					init = false;
-				} else {
+				} else if (!props.once) {
 					updatePosition(x.value, y.value);
 				}
 			},

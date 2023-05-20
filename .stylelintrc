@@ -1,0 +1,19 @@
+plugins: ["stylelint-scss"]
+extends:
+    - "stylelint-config-standard"
+rules:
+    color-function-notation: "legacy"
+    declaration-block-no-redundant-longhand-properties:
+        - true
+        - ignoreShorthands: ["/grid/"]
+ignoreFiles: ["locale/*.ts"]
+overrides:
+    - files: ["**/*.scss"]
+      extends:
+          - "stylelint-config-standard-scss"
+    - files: ["**/*.vue"]
+      extends:
+          - "stylelint-config-standard-scss"
+          - "stylelint-config-standard-vue/scss"
+    - files: ["**/*.{vue,scss}"]
+      rules: {}

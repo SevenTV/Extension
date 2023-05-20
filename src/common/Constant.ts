@@ -14,6 +14,9 @@ export const SITE_NAV_PATHNAME: InjectionKey<Ref<string>> = Symbol("seventv-site
 export const SITE_WORKER_URL: InjectionKey<string> = Symbol("seventv-site-worker-url");
 export const SITE_ASSETS_URL: InjectionKey<string> = Symbol("seventv-site-assets-url");
 export const SITE_EXT_OPTIONS_URL: InjectionKey<string> = Symbol("seventv-site-ext-options-url");
+export const SITE_ACTIVE_WINDOW: InjectionKey<Window> = Symbol("seventv-site-active-window");
 
 export const UNICODE_TAG_0 = "\u{E0000}";
 export const UNICODE_TAG_0_REGEX = new RegExp(UNICODE_TAG_0, "g");
+
+export const HOSTNAME_SUPPORTED_REGEXP = /([a-z0-9]+[.])*(youtube|kick)[.]com/;

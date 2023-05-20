@@ -24,7 +24,7 @@ const setting = useConfig<boolean>(props.node.key);
 </script>
 
 <style scoped lang="scss">
-@import "@/assets/style/shape.scss";
+@import "@/assets/style/shape";
 
 .seventv-toggle-outer {
 	display: flex;
@@ -52,17 +52,14 @@ const setting = useConfig<boolean>(props.node.key);
 
 .seventv-toggle {
 	background-color: var(--seventv-input-background);
-	bottom: 0;
+	inset: 0;
 	cursor: pointer;
-	left: 0;
 	position: absolute;
-	right: 0;
-	top: 0;
 	transition: 0.25s;
 	outline: 0.01rem solid var(--seventv-input-border);
 }
 
-.seventv-toggle:before {
+.seventv-toggle::before {
 	background-color: var(--seventv-input-border);
 	bottom: 0.3rem;
 	content: "";
@@ -73,7 +70,7 @@ const setting = useConfig<boolean>(props.node.key);
 	width: 1.4rem;
 }
 
-input:checked + .seventv-toggle:before {
+input:checked + .seventv-toggle::before {
 	background-color: var(--seventv-primary);
 	transform: translateX(2rem);
 }
@@ -82,7 +79,7 @@ input:checked + .seventv-toggle:before {
 	border-radius: 0.25rem;
 }
 
-.seventv-toggle.round:before {
+.seventv-toggle.round::before {
 	border-radius: 0.25rem;
 }
 </style>

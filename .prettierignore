@@ -1,5 +1,5 @@
 /dist
 /node_modules
 /Typings
-/src/assets/blob/emoji.json
-
+/public/assets/emoji/emoji.json
+/.github/*

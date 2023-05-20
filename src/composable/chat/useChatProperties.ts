@@ -2,8 +2,6 @@ import { reactive } from "vue";
 import { ChannelContext } from "../channel/useChannelContext";
 
 interface ChatProperties {
-	isModerator: boolean;
-	isVIP: boolean;
 	isDarkTheme: number;
 	primaryColorHex: string | null;
 	useHighContrastColors: boolean;
@@ -25,8 +23,6 @@ export function useChatProperties(ctx: ChannelContext) {
 	let data = m.get(ctx);
 	if (!data) {
 		data = reactive<ChatProperties>({
-			isModerator: false,
-			isVIP: false,
 			isDarkTheme: 1,
 			primaryColorHex: null as string | null,
 			useHighContrastColors: true,

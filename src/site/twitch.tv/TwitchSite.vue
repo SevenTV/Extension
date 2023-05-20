@@ -18,7 +18,7 @@ import { synchronizeFrankerFaceZ, useConfig, useSettings } from "@/composable/us
 import { useUserAgent } from "@/composable/useUserAgent";
 import type { TwModuleID } from "@/types/tw.module";
 
-const ModuleWrapper = defineAsyncComponent(() => import("../global/ModuleWrapper.vue"));
+const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
 
 const store = useStore();
 const ua = useUserAgent();

@@ -1,5 +1,5 @@
 <template>
-	<component :is="c" />
+	<component :is="(c as AnyInstanceType)" />
 </template>
 
 <script setup lang="ts">
@@ -10,6 +10,7 @@ import GearsIcon from "./GearsIcon.vue";
 import HomeIcon from "./HomeIcon.vue";
 import PaintIcon from "./PaintIcon.vue";
 import PuzzlePieceIcon from "./PuzzlePieceIcon.vue";
+import SiteLayoutIcon from "./SiteLayoutIcon.vue";
 import TvIcon from "./TvIcon.vue";
 import YouTubeIcon from "./YouTubeIcon.vue";
 
@@ -29,6 +30,7 @@ const c = {
 	General: GearsIcon,
 	Channel: TvIcon,
 	Compatibility: PuzzlePieceIcon,
+	"Site Layout": SiteLayoutIcon,
 
 	"Enable YouTube": YouTubeIcon,
 }[props.name];

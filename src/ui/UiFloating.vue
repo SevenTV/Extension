@@ -15,6 +15,7 @@ const props = defineProps<{
 	emitClickout?: boolean;
 	middleware?: Middleware[];
 	placement?: Placement;
+	once?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -45,7 +46,7 @@ watchEffect(() => {
 		}),
 	} as VirtualElement;
 
-	stopUpdating = autoUpdate(currentAnchor ?? virtual, currentContainer, () => {
+	const compute = () => {
 		computePosition(currentAnchor ?? virtual, currentContainer, {
 			middleware: currentMiddleware,
 			placement: currentPlacement,
@@ -53,7 +54,13 @@ watchEffect(() => {
 			currentContainer.style.top = `${y}px`;
 			currentContainer.style.left = `${x}px`;
 		});
-	});
+	};
+
+	if (!props.once) {
+		stopUpdating = autoUpdate(currentAnchor ?? virtual, currentContainer, compute);
+	} else {
+		compute();
+	}
 });
 
 let stopClickout: (() => void) | undefined;

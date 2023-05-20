@@ -93,7 +93,7 @@ export class Dexie7 extends Dexie {
 		});
 	}
 
-	async expireDocuments(exemptChannels?: string[]): Promise<void> {
+	async expireDocuments(exemptChannels: string[] = []): Promise<void> {
 		const now = Date.now();
 		const oneHour = 1000 * 60 * 60;
 
@@ -119,12 +119,22 @@ export class Dexie7 extends Dexie {
 				.delete();
 
 			// Clean up entitlements
-			this.entitlements.filter((e) => !exemptChannels?.includes(e.scope?.split(":")[1] ?? "")).delete();
+			this.entitlements
+				.filter(
+					(e) => !e.scope || e.scope.split(",").every((v) => !exemptChannels.includes(v.split(":")[1] ?? "")),
+				)
+				.delete();
 
 			// Delete channels
 			this.channels
 				.where("id")
 				.anyOf(channels.map((c) => c.id))
+				.delete();
+
+			// Clean up cosmetics
+			this.cosmetics
+				.where("timestamp")
+				.below(now - oneHour * 24)
 				.delete();
 		}
 	}

@@ -29,6 +29,7 @@ import Global from "./global/Global.vue";
 
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
 const YouTubeSite = defineAsyncComponent(() => import("@/site/youtube.com/YouTubeSite.vue"));
+const KickSite = defineAsyncComponent(() => import("@/site/kick.com/KickSite.vue"));
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {
@@ -63,9 +64,8 @@ db.ready().then(async () => {
 });
 
 // Spawn SharedWorker
-const netChannel = new BroadcastChannel("SEVENTV#NETWORK");
 const { init, target } = useWorker();
-init(netChannel, inject(SITE_WORKER_URL, ""));
+init(inject(SITE_WORKER_URL, ""));
 
 target.addEventListener("ready", () => {
 	log.info("Worker ready");
@@ -82,7 +82,10 @@ bc.addEventListener("message", (ev) => {
 	);
 
 	for (const node of newNodes) {
-		useConfig(node.key).value = node.value;
+		const n = useConfig(node.key);
+		if (!n || !n.value) continue;
+
+		n.value = node.value;
 	}
 });
 
@@ -96,6 +99,7 @@ onMounted(() => {
 	platformComponent.value = {
 		"twitch.tv": markRaw(TwitchSite),
 		"youtube.com": markRaw(YouTubeSite),
+		"kick.com": markRaw(KickSite),
 	}[domain];
 });
 
@@ -106,7 +110,7 @@ if (domain === "twitch.tv") {
 </script>
 
 <style lang="scss">
-@import "@/assets/style/global.scss";
+@import "@/assets/style/global";
 
 #seventv-emoji-container {
 	position: fixed;
