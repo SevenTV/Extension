@@ -26,12 +26,11 @@ export class EventAPI {
 
 	constructor(private driver: WorkerDriver) {}
 
-	private getContext(channelID: string): EventContext {
+	private getContext(): EventContext {
 		return {
 			db: this.driver.db,
 			driver: this.driver,
 			eventAPI: this,
-			channelID,
 		};
 	}
 
@@ -103,9 +102,7 @@ export class EventAPI {
 	}
 
 	private onDispatch(msg: EventAPIMessage<"DISPATCH">): void {
-		for (const channelID of msg.data.rec.channels) {
-			handleDispatchedEvent(this.getContext(channelID), msg.data.type, msg.data.body);
-		}
+		handleDispatchedEvent(this.getContext(), msg.data.type, msg.data.body);
 
 		log.debugWithObjects(["<EventAPI>", "Dispatch received"], [msg.data]);
 	}
@@ -227,16 +224,20 @@ export class EventAPI {
 		return sub.find((c) => Object.entries(condition).every(([key, value]) => c.condition[key] === value)) ?? null;
 	}
 
-	findSubscriptionByID(id: number): SubscriptionRecord | null {
+	findSubscriptionByID(id: number[]): SubscriptionRecord[] {
+		const result = [] as SubscriptionRecord[];
+
 		for (const type in this.subscriptions) {
 			const sub = this.subscriptions[type];
 			if (!sub) continue;
 
-			const found = sub.find((c) => c.id === id);
-			if (found) return found;
+			const found = sub.find((c) => typeof c.id === "number" && id.includes(c.id));
+			if (!found) continue;
+
+			result.push(found);
 		}
 
-		return null;
+		return result;
 	}
 
 	sendMessage<O extends keyof typeof EventAPIOpCode>(msg: EventAPIMessage<O>): void {

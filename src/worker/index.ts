@@ -1,7 +1,7 @@
 import type { LogType } from "@/common/Logger";
 import type { Dexie7 } from "@/db/idb";
 import { WorkerDriver } from "./worker.driver";
-import type { EventAPI, SubscriptionRecord } from "./worker.events";
+import type { EventAPI } from "./worker.events";
 
 export interface WorkerMessage<T extends WorkerMessageType> {
 	type: WorkerMessageType;
@@ -115,7 +115,6 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 		type: string;
 		matches: number[];
 		body: ChangeMap<SevenTV.ObjectKind>;
-		rec: SubscriptionRecord;
 	};
 	HELLO: {
 		session_id: string;
