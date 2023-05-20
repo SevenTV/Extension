@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   No unreleased changes yet.
+-   Added an option to highlight messages from specific user.
 
 ### Version 3.0.8.1000
 

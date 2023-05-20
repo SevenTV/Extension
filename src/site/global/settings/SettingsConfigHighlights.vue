@@ -7,8 +7,10 @@
 				<div>Label</div>
 				<div class="centered">Flash Title</div>
 				<div class="centered">RegExp</div>
+				<div class="centered">Username</div>
 				<div>Case Sensitive</div>
 				<div>Color</div>
+				<div>Sound</div>
 			</div>
 
 			<UiScrollable>
@@ -41,13 +43,23 @@
 
 						<!-- Checkbox: RegExp -->
 						<div name="is-regexp" class="centered">
-							<FormCheckbox :checked="!!h.regexp" @update:checked="onRegExpStateChange(h, $event)" />
+							<FormCheckbox
+								:disabled="!!h.username"
+								:checked="!!h.regexp"
+								@update:checked="onRegExpStateChange(h, $event)"
+							/>
+						</div>
+
+						<!-- Checkbox: Username -->
+						<div name="is-username" class="centered">
+							<FormCheckbox :checked="!!h.username" @update:checked="onUsernameStateChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: Case Sensitive -->
 						<div name="case-sensitive" class="centered">
 							<FormCheckbox
 								:checked="!!h.caseSensitive"
+								:disabled="!!h.username"
 								@update:checked="onCaseSensitiveChange(h, $event)"
 							/>
 						</div>
@@ -136,6 +148,10 @@ function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
 	if (!input) return;
 
+	if (h.username) {
+		h.pattern = h.pattern?.toLowerCase();
+	}
+
 	const id = uuid();
 	highlights.updateId("new-highlight", id);
 	highlights.save();
@@ -149,6 +165,19 @@ function onFlashTitleChange(h: HighlightDef, checked: boolean): void {
 
 function onRegExpStateChange(h: HighlightDef, checked: boolean): void {
 	h.regexp = checked;
+	if (h.regexp) {
+		h.username = false;
+	}
+	highlights.save();
+}
+
+function onUsernameStateChange(h: HighlightDef, checked: boolean): void {
+	h.username = checked;
+	if (h.username && h.pattern) {
+		h.regexp = false;
+		h.caseSensitive = false;
+		h.pattern = h.pattern.toLocaleLowerCase();
+	}
 	highlights.save();
 }
 
@@ -265,7 +294,7 @@ main.seventv-settings-custom-highlights {
 		.item {
 			display: grid;
 			grid-auto-flow: row dense;
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr 1fr;
 			column-gap: 3rem;
 			padding: 1rem;
 
