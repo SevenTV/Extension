@@ -175,6 +175,7 @@ function onUsernameStateChange(h: HighlightDef, checked: boolean): void {
 	h.username = checked;
 	if (h.username && h.pattern) {
 		h.regexp = false;
+		h.caseSensitive = false;
 		h.pattern = h.pattern.toLocaleLowerCase();
 	}
 	highlights.save();
