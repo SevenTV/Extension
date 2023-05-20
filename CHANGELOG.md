@@ -1,7 +1,3 @@
-### Version 3.0.9
-
--   Added an option to highlight messages from specific user
-
 ### Version 3.0.8
 
 -   Enabled AVIF images on Firefox >= 113 by default
