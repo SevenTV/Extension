@@ -10,7 +10,7 @@ let worker: SharedWorker | null = null;
 
 type WorkerAddrMap = Record<string, string>;
 
-async function init(bc: BroadcastChannel, originURL: string): Promise<SharedWorker> {
+async function init(originURL: string): Promise<SharedWorker> {
 	let sw: SharedWorker;
 
 	// Check for existing url
@@ -67,15 +67,14 @@ async function init(bc: BroadcastChannel, originURL: string): Promise<SharedWork
 	return new Promise<SharedWorker>((resolve, reject) => {
 		if (!workerURL) return reject("No address to worker");
 
-		// Define message handlers
-		useGlobalHandlers(bc);
-
 		// Spawn or connect to worker
 		sw = worker = new SharedWorker(workerURL, {
 			name: "seventv-extension",
 		});
 		sw.port.start();
 
+		// Define message handlers
+		useGlobalHandlers(sw.port);
 		useHandlers(sw.port);
 
 		// Emit close on page exit
@@ -104,8 +103,8 @@ export function useWorker() {
 	};
 }
 
-function useGlobalHandlers(bc: BroadcastChannel) {
-	bc.onmessage = (ev) => {
+function useGlobalHandlers(chan: MessagePort) {
+	chan.addEventListener("message", (ev) => {
 		const { type, data } = ev.data;
 
 		switch (type) {
@@ -118,7 +117,7 @@ function useGlobalHandlers(bc: BroadcastChannel) {
 				break;
 			}
 		}
-	};
+	});
 }
 
 function useHandlers(mp: MessagePort) {

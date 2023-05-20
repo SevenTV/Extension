@@ -100,13 +100,12 @@ import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
-import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
-import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
+import Emote from "./Emote.vue";
+import MessageTokenLink from "./MessageTokenLink.vue";
+import MessageTokenMention from "./MessageTokenMention.vue";
 import RichEmbed from "./RichEmbed.vue";
 import UserMessageButtons from "./UserMessageButtons.vue";
-import Link from "./parts/Link.vue";
-import Mention from "./parts/Mention.vue";
-import ModIcons from "../mod/ModIcons.vue";
+import UserTag from "./UserTag.vue";
 import intlFormat from "date-fns/fp/intlFormat";
 
 const props = withDefaults(
@@ -220,9 +219,9 @@ if (props.msg.historical) {
 
 function getToken(token: AnyToken): AnyInstanceType {
 	if (IsMentionToken(token)) {
-		return Mention;
+		return MessageTokenMention;
 	} else if (IsLinkToken(token)) {
-		return Link;
+		return MessageTokenLink;
 	}
 }
 

@@ -13,7 +13,7 @@
 			<!-- Current Match -->
 			<div class="seventv-autocomplete-floater-list" direction="current">
 				<template v-for="tok of cur" :key="tok.token">
-					<Emote v-if="tok.item" :emote="tok.item" />
+					<EmoteVue v-if="tok.item" :emote="tok.item" />
 				</template>
 			</div>
 
@@ -36,8 +36,8 @@ import { HookedInstance } from "@/common/ReactHooks";
 import { useConfig } from "@/composable/useSettings";
 import CaretIcon from "@/assets/svg/icons/CaretIcon.vue";
 import { TabToken } from "./ChatInput.vue";
+import Emote from "@/app/chat/Emote.vue";
 import UiFloating from "@/ui/UiFloating.vue";
-import Emote from "../chat/components/message/Emote.vue";
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;

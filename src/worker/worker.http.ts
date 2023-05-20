@@ -37,9 +37,14 @@ export class WorkerHttp {
 	constructor(private driver: WorkerDriver) {
 		this.driver = driver;
 
-		driver.addEventListener("start_watching_channel", (ev) =>
+		driver.addEventListener("join_channel", (ev) =>
 			ev.port ? this.fetchChannelData(ev.detail, ev.port) : undefined,
 		);
+		driver.addEventListener("part_channel", (ev) => {
+			if (!ev.port) return;
+
+			this.driver.eventAPI.unsubscribeChannel(ev.detail.id, ev.port);
+		});
 		driver.addEventListener("identity_updated", async (ev) => {
 			const user = await this.API().seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id);
 			if (user && ev.port) {
@@ -47,13 +52,13 @@ export class WorkerHttp {
 			}
 		});
 		driver.addEventListener("set_channel_presence", (ev) => {
-			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.port.channel) return;
-			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1000) {
+			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.detail) return;
+			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1e4) {
 				return;
 			}
 
 			this.lastPresenceAt = Date.now();
-			this.writePresence(ev.port.platform, ev.port.user.id, ev.port.channel.id);
+			this.writePresence(ev.port.platform, ev.port.user.id, ev.detail.id);
 		});
 		driver.addEventListener("imageformat_updated", async (ev) => {
 			if (!ev.port) return;
@@ -148,8 +153,9 @@ export class WorkerHttp {
 					object_id: set.id,
 				},
 				port,
+				channel.id,
 			);
-			if (set.owner) this.driver.eventAPI.subscribe("user.*", { object_id: set.owner.id }, port);
+			if (set.owner) this.driver.eventAPI.subscribe("user.*", { object_id: set.owner.id }, port, channel.id);
 		}
 
 		// begin subscriptions to personal events in the channel
@@ -159,14 +165,14 @@ export class WorkerHttp {
 			id: channel.id,
 		};
 
-		this.driver.eventAPI.subscribe("entitlement.*", cond, port);
-		this.driver.eventAPI.subscribe("cosmetic.*", cond, port);
-		this.driver.eventAPI.subscribe("emote_set.*", cond, port);
+		this.driver.eventAPI.subscribe("entitlement.*", cond, port, channel.id);
+		this.driver.eventAPI.subscribe("cosmetic.*", cond, port, channel.id);
+		this.driver.eventAPI.subscribe("emote_set.*", cond, port, channel.id);
 
 		// Send an initial presence so that the current user immediately has their cosmetics
 		// (sent with "self" property, so that the presence and entitlements are not published)
-		if (port.platform && port.user && port.channel) {
-			this.writePresence(port.platform, port.user.id, port.channel.id, true);
+		if (port.platform && port.user) {
+			this.writePresence(port.platform, port.user.id, channel.id, true);
 		}
 
 		// Send the legacy static cosmetics to the port
