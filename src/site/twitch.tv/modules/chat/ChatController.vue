@@ -9,7 +9,7 @@
 			@mouseenter="properties.hovering = true"
 			@mouseleave="properties.hovering = false"
 		>
-			<div v-if="list" id="seventv-message-container" class="seventv-message-container">
+			<div id="seventv-message-container" class="seventv-message-container">
 				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
 			</div>
 
@@ -115,27 +115,31 @@ watchEffect(() => {
 
 const messageHandler = ref<Twitch.MessageHandlerAPI | null>(null);
 
-watch(list, (inst, old) => {
-	if (!inst || !inst.component) return;
+watch(
+	list,
+	(inst, old) => {
+		if (!inst || !inst.component) return;
 
-	if (old.component && inst !== old) {
-		unsetPropertyHook(old.component, "props");
-		return;
-	}
+		if (old && old.component && inst !== old) {
+			unsetPropertyHook(old.component, "props");
+			return;
+		}
 
-	definePropertyHook(inst.component, "props", {
-		value(v) {
-			messageHandler.value = v.messageHandlerAPI;
+		definePropertyHook(inst.component, "props", {
+			value(v) {
+				messageHandler.value = v.messageHandlerAPI;
 
-			// Find message to grab some data
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
-			if (!msgItem?.badgeSets?.count) return;
+				// Find message to grab some data
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
+				if (!msgItem?.badgeSets?.count) return;
 
-			properties.twitchBadgeSets = msgItem.badgeSets;
-		},
-	});
-});
+				properties.twitchBadgeSets = msgItem.badgeSets;
+			},
+		});
+	},
+	{ immediate: true },
+);
 
 // Retrieve and convert Twitch Emotes
 //
@@ -155,40 +159,44 @@ watch(twitchEmoteSetsDbc, async (sets) => {
 });
 
 // Keep track of user chat config
-watch(room, (inst, old) => {
-	if (!inst || !inst.component) return;
+watch(
+	room,
+	(inst, old) => {
+		if (!inst || !inst.component) return;
 
-	if (old.component && inst !== old) {
-		unsetPropertyHook(old.component, "props");
-	}
+		if (old && old.component && inst !== old) {
+			unsetPropertyHook(old.component, "props");
+		}
 
-	definePropertyHook(room.value.component, "props", {
-		value(v) {
-			properties.primaryColorHex = v.primaryColorHex;
-			primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
-			document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
+		definePropertyHook(room.value.component, "props", {
+			value(v) {
+				properties.primaryColorHex = v.primaryColorHex;
+				primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
+				document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
 
-			properties.useHighContrastColors = v.useHighContrastColors;
-			properties.showTimestamps = v.showTimestamps;
-			properties.showModerationIcons = v.showModerationIcons;
+				properties.useHighContrastColors = v.useHighContrastColors;
+				properties.showTimestamps = v.showTimestamps;
+				properties.showModerationIcons = v.showModerationIcons;
 
-			properties.pauseReason.clear();
-			properties.pauseReason.add("SCROLL");
-			switch (v.chatPauseSetting) {
-				case "MOUSEOVER_ALTKEY":
-					properties.pauseReason.add("ALTKEY");
-					properties.pauseReason.add("MOUSEOVER");
-					break;
-				case "MOUSEOVER":
-					properties.pauseReason.add("MOUSEOVER");
-					break;
-				case "ALTKEY":
-					properties.pauseReason.add("ALTKEY");
-					break;
-			}
-		},
-	});
-});
+				properties.pauseReason.clear();
+				properties.pauseReason.add("SCROLL");
+				switch (v.chatPauseSetting) {
+					case "MOUSEOVER_ALTKEY":
+						properties.pauseReason.add("ALTKEY");
+						properties.pauseReason.add("MOUSEOVER");
+						break;
+					case "MOUSEOVER":
+						properties.pauseReason.add("MOUSEOVER");
+						break;
+					case "ALTKEY":
+						properties.pauseReason.add("ALTKEY");
+						break;
+				}
+			},
+		});
+	},
+	{ immediate: true },
+);
 
 // Keep track of chat state
 definePropertyHook(controller.value.component, "props", {
