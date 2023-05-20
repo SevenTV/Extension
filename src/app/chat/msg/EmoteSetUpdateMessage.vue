@@ -77,8 +77,8 @@ import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import Emote from "../message/Emote.vue";
-import UserTag from "../user/UserTag.vue";
+import Emote from "../Emote.vue";
+import UserTag from "../UserTag.vue";
 
 const props = defineProps<{
 	appUser: SevenTV.User;
@@ -106,26 +106,28 @@ const user =
 .seventv-emote-set-update-message-container {
 	display: inline-block;
 	font-size: 1.25rem;
-	padding: 0.25em 0.5rem;
+	padding: 0.5em 0.5rem;
 	width: 100%;
 	background-color: rgba(41, 181, 246, 5%);
-	border-right: 0.1rem solid var(--seventv-primary);
-	border-left: 0.1rem solid var(--seventv-primary);
-	outline: 0.1rem solid var(--seventv-primary);
+	border-right: 0.5rem solid var(--seventv-primary);
+	border-left: 0.5rem solid var(--seventv-primary);
 
 	.seventv-logo {
 		vertical-align: middle;
-		font-size: 2.5rem;
+		font-size: 3rem;
 		color: var(--seventv-primary);
 		margin-right: 0.25em;
 	}
 
 	.seventv-author {
 		font-weight: 700;
+		font-size: 1.5rem;
 		margin-right: 0.25em;
 	}
 
 	.seventv-change-detail {
+		font-size: 1.5rem;
+
 		.referenced-emote {
 			display: inline-grid;
 			gap: 0.5em;

@@ -90,7 +90,7 @@ const containerRef = ref<HTMLElement | undefined>();
 const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.props.channelID ?? "";
 
-const channelCtx = useChannelContext(ctx.channelID);
+const channelCtx = useChannelContext(ctx.channelID, true);
 const settingsContext = useSettingsMenu();
 const emotes = useChatEmotes(channelCtx);
 

@@ -55,14 +55,14 @@ import { useTimeoutFn } from "@vueuse/shared";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useFloatScreen } from "@/composable/useFloatContext";
 import { useConfig } from "@/composable/useSettings";
-import UserTag from "@/site/twitch.tv/modules/chat/components/user/UserTag.vue";
+import { useTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
 import CopyIcon from "@/assets/svg/icons/CopyIcon.vue";
 import PinIcon from "@/assets/svg/icons/PinIcon.vue";
 import ReplyIcon from "@/assets/svg/icons/ReplyIcon.vue";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
+import UserTag from "@/app/chat/UserTag.vue";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
 import UiCopiedMessageToast from "@/ui/UiCopiedMessageToast.vue";
-import { useTray } from "../tray/ChatTray";
 import { shift } from "@floating-ui/dom";
 
 const props = defineProps<{

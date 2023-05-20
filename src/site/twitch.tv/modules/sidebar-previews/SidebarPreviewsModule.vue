@@ -1,12 +1,12 @@
 <template>
 	<template v-for="inst in sidebarCard.instances" :key="inst.identifier">
-		<SidebarCard :instance="inst" />
+		<SidebarCard v-if="showPreviews" :instance="inst" />
 	</template>
 </template>
 
 <script setup lang="ts">
 import { declareModule } from "@/composable/useModule";
-import { declareConfig } from "@/composable/useSettings";
+import { declareConfig, useConfig } from "@/composable/useSettings";
 import { useComponentHook } from "@/common/ReactHooks";
 import SidebarCard from "./SidebarCard.vue";
 
@@ -14,6 +14,8 @@ const { markAsReady } = declareModule("sidebar-previews", {
 	name: "Sidebar Previews",
 	depends_on: ["settings"],
 });
+
+const showPreviews = useConfig<boolean>("ui.sidebar_previews");
 
 const sidebarCard = useComponentHook<Twitch.SidebarCardComponent>({
 	parentSelector: ".side-nav-section",

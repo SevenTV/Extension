@@ -39,12 +39,12 @@ import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useApollo } from "@/composable/useApollo";
-import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMessage.vue";
 import { twitchChatReplyQuery } from "@/assets/gql/tw.chat-replies.gql";
 import type { TwTypeMessage } from "@/assets/gql/tw.gql";
 import TwChatReply from "@/assets/svg/twitch/TwChatReply.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import TwReply from "@/assets/svg/twitch/TwReply.vue";
+import UserMessage from "@/app/chat/UserMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{

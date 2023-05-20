@@ -11,7 +11,6 @@ export class EventAPI {
 	private transport: EventAPITransport | null = null;
 	private heartbeatInterval: number | null = null;
 	private backoff = 100;
-	private ctx: EventContext;
 
 	sessionID = "";
 	subscriptions: Record<string, SubscriptionRecord[]> = {};
@@ -25,10 +24,12 @@ export class EventAPI {
 		return "TWITCH";
 	}
 
-	constructor(driver: WorkerDriver) {
-		this.ctx = {
-			db: driver.db,
-			driver,
+	constructor(private driver: WorkerDriver) {}
+
+	private getContext(): EventContext {
+		return {
+			db: this.driver.db,
+			driver: this.driver,
 			eventAPI: this,
 		};
 	}
@@ -101,7 +102,7 @@ export class EventAPI {
 	}
 
 	private onDispatch(msg: EventAPIMessage<"DISPATCH">): void {
-		handleDispatchedEvent(this.ctx, msg.data.type, msg.data.body);
+		handleDispatchedEvent(this.getContext(), msg.data.type, msg.data.body);
 
 		log.debugWithObjects(["<EventAPI>", "Dispatch received"], [msg.data]);
 	}
@@ -142,7 +143,7 @@ export class EventAPI {
 
 						for (const sub of rec) {
 							for (const port of sub.ports.values()) {
-								this.subscribe(t, sub.condition, port);
+								for (const channelID of sub.channels) this.subscribe(t, sub.condition, port, channelID);
 							}
 						}
 					}
@@ -168,11 +169,11 @@ export class EventAPI {
 		log.debug("<EventAPI>", "Attempting to resume...", `sessionID=${sessionID}`);
 	}
 
-	subscribe(type: string, condition: Record<string, string>, port: WorkerPort) {
+	subscribe(type: string, condition: Record<string, string>, port: WorkerPort, channelID: string) {
 		const sub = this.findSubscription(type, condition);
 		if (sub) {
-			sub.count++;
 			sub.ports.set(port.id, port);
+			sub.channels.add(channelID);
 			return;
 		}
 
@@ -182,8 +183,8 @@ export class EventAPI {
 
 		this.subscriptions[type].push({
 			condition,
-			count: 1,
 			ports: new Map([[port.id, port]]),
+			channels: new Set([channelID]),
 		});
 
 		this.sendMessage({
@@ -199,9 +200,8 @@ export class EventAPI {
 		const sub = this.findSubscription(type, condition);
 		if (!sub) return;
 
-		sub.count--;
 		sub.ports.delete(port.id);
-		if (sub.count <= 0) {
+		if (sub.ports.size <= 0) {
 			this.subscriptions[type] = this.subscriptions[type].filter((c) => c !== sub);
 
 			this.sendMessage({
@@ -214,6 +214,17 @@ export class EventAPI {
 		}
 	}
 
+	unsubscribeChannel(id: string, port: WorkerPort): void {
+		for (const [type, records] of Object.entries(this.subscriptions)) {
+			for (const rec of records.filter((rec) => rec.channels.has(id))) {
+				rec.channels.delete(id);
+				if (rec.channels.size) continue;
+
+				this.unsubscribe(type, rec.condition, port);
+			}
+		}
+	}
+
 	findSubscription(type: string, condition: Record<string, string>): SubscriptionRecord | null {
 		const sub = this.subscriptions[type];
 		if (!sub) return null;
@@ -221,16 +232,20 @@ export class EventAPI {
 		return sub.find((c) => Object.entries(condition).every(([key, value]) => c.condition[key] === value)) ?? null;
 	}
 
-	findSubscriptionByID(id: number): SubscriptionRecord | null {
+	findSubscriptionByID(id: number[]): SubscriptionRecord[] {
+		const result = [] as SubscriptionRecord[];
+
 		for (const type in this.subscriptions) {
 			const sub = this.subscriptions[type];
 			if (!sub) continue;
 
-			const found = sub.find((c) => c.id === id);
-			if (found) return found;
+			const found = sub.find((c) => typeof c.id === "number" && id.includes(c.id));
+			if (!found) continue;
+
+			result.push(found);
 		}
 
-		return null;
+		return result;
 	}
 
 	sendMessage<O extends keyof typeof EventAPIOpCode>(msg: EventAPIMessage<O>): void {
@@ -283,8 +298,8 @@ export class EventAPI {
 export interface SubscriptionRecord {
 	id?: number;
 	condition: Record<string, string>;
-	count: number;
 	ports: Map<symbol, WorkerPort>;
+	channels: Set<string>;
 	confirmed?: boolean;
 }
 

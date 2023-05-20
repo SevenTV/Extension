@@ -61,7 +61,14 @@ export default defineConfig(() => {
 					assetFileNames: `v${fullVersion}/seventv.[name].${fullVersion}.[hash][extname]`,
 					chunkFileNames: `v${fullVersion}/seventv.[name].${fullVersion}.[hash].js`,
 
-					sanitizeFileName: (name: string) => name.toLowerCase(),
+					sanitizeFileName: (name: string) => {
+						return (
+							name
+								.toLowerCase()
+								.match(/^([^?#]+).*/)
+								?.at(1) ?? name
+						);
+					},
 				},
 			},
 		},

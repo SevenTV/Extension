@@ -20,7 +20,7 @@ import { AnyToken } from "@/common/chat/ChatMessage";
 import { IsEmoteToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
-import Emote from "@/site/twitch.tv/modules/chat/components/message/Emote.vue";
+import Emote from "@/app/chat/Emote.vue";
 
 type MessageTokenOrText = AnyToken | string;
 

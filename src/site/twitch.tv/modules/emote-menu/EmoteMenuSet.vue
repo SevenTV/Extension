@@ -46,11 +46,11 @@ import { useConfig } from "@/composable/useSettings";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
+import Emote from "@/app/chat/Emote.vue";
 import {
 	ElementLifecycle,
 	ElementLifecycleDirective as vElementLifecycle,
 } from "@/directive/ElementLifecycleDirective";
-import Emote from "../chat/components/message/Emote.vue";
 
 const props = defineProps<{
 	es: SevenTV.EmoteSet;
