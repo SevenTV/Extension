@@ -9,7 +9,7 @@ export class WorkerPort {
 
 	platform: Platform | null = null;
 	providerExtensions = new Set<SevenTV.Provider>();
-	channel: CurrentChannel | null = null;
+	channels = new Map<string, CurrentChannel>();
 	identity: TwitchIdentity | YouTubeIdentity | null = null;
 	user: SevenTV.User | null = null;
 	imageFormat: SevenTV.ImageFormat | null = null;
@@ -23,6 +23,10 @@ export class WorkerPort {
 		port.start();
 
 		this.postMessage("INIT", {});
+	}
+
+	get channelIds(): string[] {
+		return Array.from(this.channels.keys());
 	}
 
 	private onMessage(ev: MessageEvent) {
@@ -40,12 +44,19 @@ export class WorkerPort {
 
 					this.driver.emit("identity_updated", this.identity, this);
 				}
-				if (channel) {
-					this.channel = channel;
 
-					this.driver.log.debugWithObjects(["Channel updated"], [this.channel]);
-					this.driver.emit("start_watching_channel", this.channel, this);
+				if (channel && channel.active && !this.channels.has(channel.id)) {
+					this.channels.set(channel.id, channel);
+
+					this.driver.log.debugWithObjects(["Channel added"], [channel]);
+					this.driver.emit("join_channel", channel, this);
+				} else if (channel && !channel.active && this.channels.has(channel.id)) {
+					this.channels.delete(channel.id);
+
+					this.driver.log.debugWithObjects(["Channel removed"], [channel]);
+					this.driver.emit("part_channel", channel, this);
 				}
+
 				if (user) {
 					this.user = user;
 
@@ -59,7 +70,9 @@ export class WorkerPort {
 				break;
 			}
 			case "CHANNEL_ACTIVE_CHATTER": {
-				this.driver.emit("set_channel_presence", {}, this);
+				const { channel } = data as TypedWorkerMessage<"CHANNEL_ACTIVE_CHATTER">;
+
+				this.driver.emit("set_channel_presence", channel, this);
 				break;
 			}
 			case "SYNC_TWITCH_SET": {
@@ -89,8 +102,8 @@ export class WorkerPort {
 				break;
 			}
 			case "CLOSE":
-				if (this.channel) {
-					this.driver.emit("stop_watching_channel", this.channel, this);
+				for (const channel of this.channels.values()) {
+					this.driver.emit("part_channel", channel, this);
 				}
 
 				this.driver.ports.delete(this.id);

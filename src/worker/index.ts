@@ -1,7 +1,7 @@
 import type { LogType } from "@/common/Logger";
 import type { Dexie7 } from "@/db/idb";
 import { WorkerDriver } from "./worker.driver";
-import type { EventAPI } from "./worker.events";
+import type { EventAPI, SubscriptionRecord } from "./worker.events";
 
 export interface WorkerMessage<T extends WorkerMessageType> {
 	type: WorkerMessageType;
@@ -30,7 +30,7 @@ export type WorkerMessageType = keyof typeof workerMessageType;
 
 export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	CHANNEL_ACTIVE_CHATTER: {
-		channel_id: string;
+		channel: CurrentChannel;
 	};
 	CHANNEL_FETCHED: {
 		channel: CurrentChannel;
@@ -90,6 +90,7 @@ export interface EventContext {
 	driver: WorkerDriver;
 	eventAPI: EventAPI;
 	db: Dexie7;
+	channelID?: string;
 }
 
 export enum EventAPIOpCode {
@@ -114,6 +115,7 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 		type: string;
 		matches: number[];
 		body: ChangeMap<SevenTV.ObjectKind>;
+		rec: SubscriptionRecord;
 	};
 	HELLO: {
 		session_id: string;

@@ -22,7 +22,7 @@ const { id: channelID, username: channelUsername } = toRefs(
 	inject(KICK_CHANNEL_KEY, { id: "", username: "", currentMessage: "" }),
 );
 
-const ctx = useChannelContext(channelID.value);
+const ctx = useChannelContext(channelID.value, true);
 
 // The list
 const chatList = ref<HTMLDivElement | null>(null);
@@ -34,6 +34,7 @@ watchEffect(async () => {
 		id: channelID.value,
 		username: channelUsername.value,
 		displayName: channelUsername.value,
+		active: true,
 	});
 	if (ok) {
 		chatList.value = null;

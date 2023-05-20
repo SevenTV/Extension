@@ -58,7 +58,7 @@ const props = defineProps<{
 
 // Set up context
 // No ID initialization to avoid conflict with live channel
-const ctx = useChannelContext();
+const ctx = useChannelContext(undefined, true);
 const emotes = useChatEmotes(ctx);
 const properties = useChatProperties(ctx);
 
@@ -77,6 +77,7 @@ definePropertyHook(props.controller.component, "props", {
 				id: owner.id,
 				username: owner.login,
 				displayName: owner.login,
+				active: true,
 			});
 
 			channelBadges = owner.broadcastBadges;

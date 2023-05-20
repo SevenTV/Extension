@@ -5,10 +5,8 @@ import { Dexie7, db } from "@/db/idb";
 import { EventAPI } from "./worker.events";
 import { WorkerHttp } from "./worker.http";
 import { WorkerPort } from "./worker.port";
-import { TypedWorkerMessage, WorkerMessageType } from ".";
 
 export class WorkerDriver extends EventTarget {
-	bc: BroadcastChannel;
 	http: WorkerHttp;
 	eventAPI: EventAPI;
 	db: Dexie7;
@@ -22,20 +20,18 @@ export class WorkerDriver extends EventTarget {
 	constructor(public w: SharedWorkerGlobalScope) {
 		super();
 
-		this.bc = new BroadcastChannel("SEVENTV#NETWORK");
 		this.db = db;
 		this.log = log;
 		this.log.setContextName("Worker");
 		this.log.pipe = (type, text, extraCSS, objects) => {
-			this.bc.postMessage({
-				type: "LOG",
-				data: {
+			for (const port of this.ports.values()) {
+				port.postMessage("LOG", {
 					type,
 					text,
 					css: extraCSS,
-					objects,
-				},
-			});
+					objects: objects ?? [],
+				});
+			}
 		};
 
 		this.http = new WorkerHttp(this);
@@ -82,8 +78,8 @@ export class WorkerDriver extends EventTarget {
 				// Do DB cleanup for unused data
 				setTimeout(() => {
 					const exemptions = Array.from(this.ports.values())
-						.filter((p) => p.channel)
-						.map((p) => p.channel!.id);
+						.filter((p) => p.channels.size)
+						.flatMap((p) => p.channelIds);
 
 					db.expireDocuments(exemptions);
 				}, getRandomInt(2500, 15000));
@@ -128,21 +124,14 @@ export class WorkerDriver extends EventTarget {
 	emit<T extends WorkerEventName>(type: T, data: WorkerTypedEvent<T>, port?: WorkerPort): void {
 		this.dispatchEvent(new WorkerEvent(type, data, port));
 	}
-
-	public broadcastMessage<T extends WorkerMessageType>(type: T, data: TypedWorkerMessage<T>): void {
-		this.bc.postMessage({
-			type: type,
-			data: data,
-		});
-	}
 }
 
 type WorkerEventName =
 	| "open"
 	| "close"
 	| "idb_ready"
-	| "start_watching_channel"
-	| "stop_watching_channel"
+	| "join_channel"
+	| "part_channel"
 	| "set_channel_presence"
 	| "identity_updated"
 	| "user_updated"
@@ -152,9 +141,9 @@ type WorkerTypedEvent<EVN extends WorkerEventName> = {
 	open: void;
 	close: void;
 	idb_ready: void;
-	start_watching_channel: CurrentChannel;
-	stop_watching_channel: CurrentChannel;
-	set_channel_presence: object;
+	join_channel: CurrentChannel;
+	part_channel: CurrentChannel;
+	set_channel_presence: CurrentChannel;
 	channel_data_fetched: CurrentChannel;
 	identity_updated: TwitchIdentity | YouTubeIdentity;
 	user_updated: SevenTV.User;

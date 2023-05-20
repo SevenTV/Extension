@@ -11,7 +11,6 @@ export class EventAPI {
 	private transport: EventAPITransport | null = null;
 	private heartbeatInterval: number | null = null;
 	private backoff = 100;
-	private ctx: EventContext;
 
 	sessionID = "";
 	subscriptions: Record<string, SubscriptionRecord[]> = {};
@@ -25,11 +24,14 @@ export class EventAPI {
 		return "TWITCH";
 	}
 
-	constructor(driver: WorkerDriver) {
-		this.ctx = {
-			db: driver.db,
-			driver,
+	constructor(private driver: WorkerDriver) {}
+
+	private getContext(channelID: string): EventContext {
+		return {
+			db: this.driver.db,
+			driver: this.driver,
 			eventAPI: this,
+			channelID,
 		};
 	}
 
@@ -101,7 +103,9 @@ export class EventAPI {
 	}
 
 	private onDispatch(msg: EventAPIMessage<"DISPATCH">): void {
-		handleDispatchedEvent(this.ctx, msg.data.type, msg.data.body);
+		for (const channelID of msg.data.rec.channels) {
+			handleDispatchedEvent(this.getContext(channelID), msg.data.type, msg.data.body);
+		}
 
 		log.debugWithObjects(["<EventAPI>", "Dispatch received"], [msg.data]);
 	}
@@ -142,7 +146,7 @@ export class EventAPI {
 
 						for (const sub of rec) {
 							for (const port of sub.ports.values()) {
-								this.subscribe(t, sub.condition, port);
+								for (const channelID of sub.channels) this.subscribe(t, sub.condition, port, channelID);
 							}
 						}
 					}
@@ -168,11 +172,12 @@ export class EventAPI {
 		log.debug("<EventAPI>", "Attempting to resume...", `sessionID=${sessionID}`);
 	}
 
-	subscribe(type: string, condition: Record<string, string>, port: WorkerPort) {
+	subscribe(type: string, condition: Record<string, string>, port: WorkerPort, channelID: string) {
 		const sub = this.findSubscription(type, condition);
 		if (sub) {
 			sub.count++;
 			sub.ports.set(port.id, port);
+			sub.channels.add(channelID);
 			return;
 		}
 
@@ -184,6 +189,7 @@ export class EventAPI {
 			condition,
 			count: 1,
 			ports: new Map([[port.id, port]]),
+			channels: new Set([channelID]),
 		});
 
 		this.sendMessage({
@@ -285,6 +291,7 @@ export interface SubscriptionRecord {
 	condition: Record<string, string>;
 	count: number;
 	ports: Map<symbol, WorkerPort>;
+	channels: Set<string>;
 	confirmed?: boolean;
 }
 
