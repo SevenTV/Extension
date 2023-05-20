@@ -53,7 +53,7 @@ export class WorkerHttp {
 		});
 		driver.addEventListener("set_channel_presence", (ev) => {
 			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.detail) return;
-			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1000) {
+			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1e4) {
 				return;
 			}
 
