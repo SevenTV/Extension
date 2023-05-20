@@ -420,7 +420,7 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 			};
 		}
 
-		const result = new Array<string>(g.length);
+		const result = new Array<[string, string]>(g.length);
 
 		for (let i = 0; i < g.length; i++) {
 			const d = g[i];
@@ -450,10 +450,10 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 
 			const pos = d.at && d.at.length === 2 ? `${d.at[0] * 100}% ${d.at[1] * 100}%` : "";
 
-			result[i] = `${funcPrefix}${cssFunction(d.function)}(${args.join(", ")})` + (pos && " " + pos);
+			result[i] = [`${funcPrefix}${cssFunction(d.function)}(${args.join(", ")})`, pos];
 		}
 
-		return result.join(", ");
+		return result;
 	})();
 
 	const filter = (() => {
@@ -471,12 +471,14 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 			? `${paint.data.canvas_size[0] * 100}% ${paint.data.canvas_size[1] * 100}%`
 			: "cover";
 
-	const repeat = paint.data.canvas_repeat || "cover";
+	const repeat = paint.data.canvas_repeat || "unset";
 
 	// this inserts the css variables into the custom paint stylesheet
 	sheet.insertRule(
 		`:root {
-${prefix}-bg: ${gradients};
+${prefix}-color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "transparent"};
+${prefix}-bg: ${gradients.map((v) => v[0]).join(", ")};
+${prefix}-bg-pos: ${gradients.map((v) => v[1]).join(", ")};
 ${prefix}-filter: ${filter};
 ${prefix}-size: ${size};
 ${prefix}-repeat: ${repeat};
