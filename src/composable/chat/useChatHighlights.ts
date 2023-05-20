@@ -149,7 +149,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!h) return false;
 
 		let ok = !!(h.username && h.pattern === msg.author?.username);
-		
+
 		if (!h.username) {
 			if (h.regexp) {
 				let regexp = h.cachedRegExp;
@@ -159,12 +159,12 @@ export function useChatHighlights(ctx: ChannelContext) {
 						Object.defineProperty(h, "cachedRegExp", { value: regexp });
 					} catch (err) {
 						log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
-	
+
 						msg.setHighlight("#878787", "Error " + (err as Error).message);
 						return false;
 					}
 				}
-	
+
 				ok = regexp.test(msg.body);
 			} else if (h.pattern) {
 				ok = h.caseSensitive
