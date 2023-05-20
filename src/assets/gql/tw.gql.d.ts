@@ -17,10 +17,44 @@ export interface TwTypeUser {
 	displayBadges: TwTypeBadge[];
 	chatColor: string;
 	profileImageURL: string;
-	stream: unknown;
+	bannerImageURL?: string;
 	channel: TwTypeChannel;
 	self: TwTypeUserSelfConnection;
 	blockedUsers: TwTypeUser[];
+	createdAt: string;
+	moderationSettings: {
+		canAccessViewerCardModLogs: boolean;
+	};
+	isModerator: boolean;
+	relationship?: {
+		followedAt: string;
+		cumulativeTenure: null | TwCumulativeTenure;
+		subscriptionBenefit: null | TwSubscriptionBenefit;
+	};
+	stream?: TwTypeStream;
+}
+
+export interface TwCumulativeTenure {
+	months: number;
+	daysRemaining: number;
+}
+
+export interface TwSubscriptionBenefit {
+	id: string;
+	tier: string;
+	purchasedWithPrime: boolean;
+	gift: {
+		isGift: boolean;
+	};
+}
+
+export interface TwTypeStream {
+	id: string;
+	viewersCount: number;
+	game?: {
+		id: string;
+		displayName: string;
+	};
 }
 
 export interface TwTypeBadge {
@@ -49,6 +83,41 @@ export interface TwTypeMessage {
 		totalCount: number;
 		nodes: TwTypeMessage[];
 	};
+}
+
+export interface TwTypeModComment {
+	id: string;
+	author: TwTypeUser;
+	channel: TwTypeUser;
+	text: string;
+	target: TwTypeUser;
+	timestamp: string;
+}
+
+export interface TwTypeModEntry {
+	id: string;
+	action: "TIMEOUT_USER" | "UNTIMEOUT_USER" | "BAN_USER" | "UNBAN_USER";
+	details: TwTypeModActionDetails;
+	timestamp: string;
+	channel: Pick<TwTypeUser, "id" | "login">;
+	target: Pick<TwTypeUser, "id" | "login">;
+	user: Pick<TwTypeUser, "id" | "login">;
+}
+
+export interface TwTypeModActionDetails {
+	bannedAt: string;
+	durationSeconds: number;
+	expiresAt: string;
+	reason: string | null;
+}
+
+export interface TwTypeChatBanStatus {
+	bannedUser: TwTypeUser;
+	createdAt: string;
+	expiresAt: string;
+	isPermanent: boolean;
+	moderator: TwTypeUser;
+	reason: string;
 }
 
 export interface TwTypeChannel {

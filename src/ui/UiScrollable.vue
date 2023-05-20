@@ -293,6 +293,7 @@ onUnmounted(() => {
 			position: relative;
 			width: 0.4rem;
 			background-color: var(--theme-background-scrollbar-thumb);
+			min-height: 0.5rem;
 
 			$clip-angle: 0.15em;
 

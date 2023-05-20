@@ -2,9 +2,25 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   No unreleased changes yet.
+
+### Version 3.0.8.1000
+
+-   Enabled AVIF images on Firefox >= 113 by default
+-   Added sub duration & account creation date in the User Card
+-   Added a button to open an emote's full page from the emote card
+-   Fixed an issue where clicking the upper drag region in the User Card opened the user's channel
+-   Fixed user card content overflowing due to long messages
+-   Fixed chat scroller being visible in the viewer list
+-   Tentatively fixed an issue which caused the sidebar to crash occasionally
+
+### Version 3.0.7.1000
+
+-   Added a new User Card
+-   Added early experimental functionality for a new site: [kick.com](https://kick.com/)
 -   Added a tooltip to show the full message when hovering over replies in chat
 -   Added a "Site Layout" menu where certain features of the Twitch website can be hidden
--   Added Emojis for the emoji groups
+-   Added icons for emoji sets in the Emote Menu
 -   Added an option to choose chat timestamp format
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com

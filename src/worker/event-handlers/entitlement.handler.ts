@@ -17,7 +17,7 @@ export async function onEntitlementCreate(ctx: EventContext, cm: ChangeMap<Seven
 		ctx.db.entitlements
 			.put({
 				...obj,
-				scope: `${platform}:${port.channel?.id ?? "X"}`,
+				scope: port.channelIds.map((channelID) => `${platform}:${channelID ?? "X"}`).join(","),
 				user_id: cid,
 			})
 			.catch(() => ctx.db.entitlements.update(obj.id, obj));

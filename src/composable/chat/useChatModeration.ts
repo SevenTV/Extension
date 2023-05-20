@@ -1,5 +1,6 @@
 import { twitchBanUserQuery, twitchUnbanUserQuery } from "@/assets/gql/tw.chat-bans.gql";
 import { twitchPinMessageQuery } from "@/assets/gql/tw.chat-pin.gql";
+import { ModOrUnmodUser, twitchModUserMut, twitchUnmodUserMut } from "@/assets/gql/tw.mod-user.gql";
 import { useChatMessages } from "./useChatMessages";
 import { ChannelContext } from "../channel/useChannelContext";
 import { useApollo } from "../useApollo";
@@ -17,7 +18,7 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	 */
 	function banUserFromChat(expiresIn: string | null, reason?: string) {
 		const apollo = useApollo();
-		if (!apollo) return null;
+		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate<twitchBanUserQuery.Result, twitchBanUserQuery.Variables>({
 			mutation: twitchBanUserQuery,
@@ -40,7 +41,7 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	 */
 	function unbanUserFromChat() {
 		const apollo = useApollo();
-		if (!apollo) return null;
+		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate({
 			mutation: twitchUnbanUserQuery,
@@ -55,7 +56,7 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 
 	function pinChatMessage(msgID: string, duration: number) {
 		const apollo = useApollo();
-		if (!apollo) return null;
+		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate<twitchPinMessageQuery.Result, twitchPinMessageQuery.Variables>({
 			mutation: twitchPinMessageQuery,
@@ -70,6 +71,21 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 		});
 	}
 
+	function setUserModerator(victimID: string, mod: boolean) {
+		const apollo = useApollo();
+		if (!apollo) return Promise.reject("Missing Apollo");
+
+		return apollo.mutate<ModOrUnmodUser.Response, ModOrUnmodUser.Variables>({
+			mutation: !mod ? twitchModUserMut : twitchUnmodUserMut,
+			variables: {
+				input: {
+					channelID: ctx.id,
+					targetID: victimID,
+				},
+			},
+		});
+	}
+
 	function deleteChatMessage(msgID: string) {
 		messages.sendMessage(`/delete ${msgID}`);
 	}
@@ -79,5 +95,6 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 		unbanUserFromChat,
 		pinChatMessage,
 		deleteChatMessage,
+		setUserModerator,
 	};
 }
