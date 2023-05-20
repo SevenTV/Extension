@@ -2,12 +2,17 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   No unreleased changes yet.
+
+### Version 3.0.8.1000
+
 -   Enabled AVIF images on Firefox >= 113 by default
 -   Added sub duration & account creation date in the User Card
 -   Added a button to open an emote's full page from the emote card
 -   Fixed an issue where clicking the upper drag region in the User Card opened the user's channel
 -   Fixed user card content overflowing due to long messages
 -   Fixed chat scroller being visible in the viewer list
+-   Tentatively fixed an issue which caused the sidebar to crash occasionally
 
 ### Version 3.0.7.1000
 
