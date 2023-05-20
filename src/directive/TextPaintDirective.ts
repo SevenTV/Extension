@@ -30,6 +30,7 @@ function updateElementStyles(el: HTMLElement, paintID: string | null): void {
 
 	const varPrefix = `--seventv-paint-${paintID}`;
 	const bg = `${varPrefix}-bg`;
+	const bgPos = `${varPrefix}-bg-pos`;
 	const filter = `${varPrefix}-filter`;
 	const color = `${varPrefix}-color`;
 	const size = `${varPrefix}-size`;
@@ -37,9 +38,10 @@ function updateElementStyles(el: HTMLElement, paintID: string | null): void {
 
 	el.style.filter = `var(${filter})`;
 	el.style.color = `var(${color})`;
-	el.style.background = `var(${bg})`;
+	el.style.backgroundImage = `var(${bg})`;
 	el.style.backgroundSize = `var(${size})`;
 	el.style.backgroundRepeat = `var(${repeat})`;
+	el.style.backgroundPosition = `var(${bgPos})`;
 
 	el.classList.add("seventv-painted-content");
 	el.setAttribute(ATTR_SEVENTV_TEXT, "true");
