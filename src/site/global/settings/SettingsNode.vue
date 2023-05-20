@@ -72,8 +72,8 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		"content content";
 	row-gap: 1rem;
 	padding: 0.25rem 0;
-
 	transition: background-color 90ms ease-out;
+
 	&:hover {
 		background-color: hsla(0deg, 0%, 0%, 10%);
 	}
@@ -135,7 +135,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		grid-area: control;
 	}
 
-	@media (max-width: 60rem) {
+	@media (width <= 60rem) {
 		.subtitle,
 		.seventv-settings-node-control,
 		.content {
@@ -145,6 +145,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		&:focus-within {
 			grid-template-rows: 1fr 1fr 1fr;
 			grid-template-rows: 1fr;
+
 			.subtitle,
 			.seventv-settings-node-control,
 			.content {

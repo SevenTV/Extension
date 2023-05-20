@@ -3,7 +3,7 @@
 		<div v-for="msg of displayedMessages" :key="msg.sym" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
 				<component
-					:is="isModSliderEnabled && properties.isModerator && msg.author ? ModSlider : 'span'"
+					:is="isModSliderEnabled && ctx.actor.roles.has('MODERATOR') && msg.author ? ModSlider : 'span'"
 					v-bind="{ msg }"
 				>
 					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
@@ -39,9 +39,9 @@ import { useChatScroller } from "@/composable/chat/useChatScroller";
 import { useConfig } from "@/composable/useSettings";
 import { MessagePartType, MessageType, ModerationType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
-import UserMessage from "./components/message/UserMessage.vue";
 import ModSlider from "./components/mod/ModSlider.vue";
-import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
+import UserMessage from "@/app/chat/UserMessage.vue";
+import BasicSystemMessage from "@/app/chat/msg/BasicSystemMessage.vue";
 
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
@@ -76,10 +76,10 @@ const list = toRef(props, "list");
 // Unrender messages out of view
 const chatListEl = ref<HTMLElement>();
 
-const types = import.meta.glob<object>("./components/types/*.vue", { eager: true, import: "default" });
+const types = import.meta.glob<object>("@/app/chat/msg/*.vue", { eager: true, import: "default" });
 const typeMap = {} as Record<number, ComponentFactory>;
 
-const componentRegexp = /\.\/components\/types\/(\d+)\.(\w+)\.vue$/;
+const componentRegexp = /src\/app\/chat\/msg\/(\d+)\.(\w+)\.vue$/;
 for (const [path, component] of Object.entries(types)) {
 	const [, type] = path.match(componentRegexp) ?? [];
 	if (!type) continue;
@@ -173,7 +173,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 		// check blocked state and ignore if blocked
 		if (msg.author && properties.blockedUsers.has(msg.author.id)) {
-			if (!properties.isModerator) {
+			if (!ctx.actor.roles.has("MODERATOR")) {
 				log.debug("Ignored message from blocked user", msg.author.id);
 				return;
 			}
@@ -293,7 +293,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		chatHighlights.checkMatch(highlightID, msg);
 	}
 
-	if (properties.isModerator) {
+	if (ctx.actor.roles.has("MODERATOR")) {
 		msg.pinnable = true;
 		msg.deletable = true;
 	}
@@ -363,7 +363,7 @@ function onModerationMessage(msgData: Twitch.ModerationMessage) {
 		}
 
 		// basic timeout/ban message in the chat
-		if (showModerationMessages.value && !properties.isModerator) {
+		if (showModerationMessages.value && !ctx.actor.roles.has("MODERATOR")) {
 			const m = new ChatMessage().setComponent(BasicSystemMessage, {
 				text:
 					msgData.userLogin +

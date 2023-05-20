@@ -82,7 +82,6 @@ function findThreshold(value: number, thresholds?: [number, number, string][]) {
 	}
 
 	> input {
-		-webkit-appearance: none;
 		appearance: none;
 		background: transparent;
 
@@ -90,6 +89,7 @@ function findThreshold(value: number, thresholds?: [number, number, string][]) {
 			&::-webkit-slider-thumb {
 				transform: scale(1.15);
 			}
+
 			&::-moz-range-thumb {
 				transform: scale(1.15);
 			}
@@ -114,6 +114,7 @@ function findThreshold(value: number, thresholds?: [number, number, string][]) {
 	> input::-webkit-slider-thumb {
 		@include thumb;
 	}
+
 	> input::-moz-range-thumb {
 		@include thumb;
 	}
@@ -122,6 +123,7 @@ function findThreshold(value: number, thresholds?: [number, number, string][]) {
 		appearance: none;
 		cursor: pointer;
 	}
+
 	> input::-moz-range-track {
 		appearance: none;
 		cursor: pointer;

@@ -276,7 +276,6 @@ main.seventv-settings-custom-highlights {
 	grid-template-areas:
 		"tabs"
 		"list";
-
 	overflow-x: auto;
 
 	.tabs {
@@ -285,6 +284,7 @@ main.seventv-settings-custom-highlights {
 		grid-template-rows: 1fr;
 		grid-area: tabs;
 	}
+
 	.list {
 		display: grid;
 		grid-area: list;
@@ -299,6 +299,7 @@ main.seventv-settings-custom-highlights {
 
 			> div {
 				align-self: center;
+
 				&.centered {
 					justify-self: center;
 				}
@@ -311,6 +312,16 @@ main.seventv-settings-custom-highlights {
 			&.heading {
 				background-color: var(--seventv-background-shade-3);
 				border-bottom: 0.25rem solid var(--seventv-primary);
+			}
+
+			[name="color"] > input {
+				&::-webkit-color-swatch-wrapper {
+					padding: 0;
+				}
+
+				&::-webkit-color-swatch {
+					border: none;
+				}
 			}
 
 			&:not(.create-new) > .use-virtual-input {
@@ -329,6 +340,7 @@ main.seventv-settings-custom-highlights {
 
 				&:focus-within {
 					padding: 0;
+
 					span {
 						display: none;
 					}
@@ -338,15 +350,6 @@ main.seventv-settings-custom-highlights {
 						width: 100%;
 						height: initial;
 					}
-				}
-			}
-
-			[name="color"] > input {
-				&::-webkit-color-swatch-wrapper {
-					padding: 0;
-				}
-				&::-webkit-color-swatch {
-					border: none;
 				}
 			}
 
@@ -385,6 +388,7 @@ main.seventv-settings-custom-highlights {
 					input {
 						display: none;
 					}
+
 					label {
 						cursor: pointer;
 					}
@@ -399,9 +403,11 @@ main.seventv-settings-custom-highlights {
 						p {
 							color: var(--seventv-muted);
 						}
+
 						&:hover {
 							border-color: var(--seventv-primary);
 						}
+
 						&[active="true"] {
 							color: var(--seventv-primary);
 						}
@@ -411,6 +417,7 @@ main.seventv-settings-custom-highlights {
 				svg {
 					cursor: pointer;
 					font-size: 2rem;
+
 					&:hover {
 						color: var(--seventv-primary);
 					}

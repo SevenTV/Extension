@@ -104,6 +104,16 @@ import { HighlightDef } from "@/composable/chat/useChatHighlights";
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
 
+export type TimestampFormatKey = "infer" | "12" | "24";
+
+const timestampKeyValues: Record<TimestampFormatKey, string> = {
+	infer: "Infer",
+	"12": "12-hour",
+	"24": "24-hour",
+};
+
+const timestampFormatOptions = Object.entries(timestampKeyValues).map(([k, v]) => [v, k]);
+
 export const config = [
 	declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
 		path: ["General", ""],
@@ -333,8 +343,21 @@ export const config = [
 		hint: "If checked, timestamps in chat will also show seconds",
 		defaultValue: false,
 	}),
+	declareConfig<TimestampFormatKey>("chat.timestamp_format", "DROPDOWN", {
+		path: ["Chat", "Style"],
+		label: "Timestamp Format",
+		defaultValue: "infer",
+		hint: "Infer will get the format from the current locale.",
+		options: timestampFormatOptions,
+	}),
+	declareConfig("chat.user_card", "TOGGLE", {
+		path: ["Chat", "Tools"],
+		label: "Improve the User Card",
+		hint: "Replace the default user card with a faster, more useful version",
+		defaultValue: true,
+	}),
 	declareConfig("chat.copy_icon_toggle", "TOGGLE", {
-		path: ["Chat", "Message Tools"],
+		path: ["Chat", "Tools"],
 		label: "Copy Icon",
 		hint: "Show a 'Copy' icon when hovering over a chat message to copy the message",
 		defaultValue: true,

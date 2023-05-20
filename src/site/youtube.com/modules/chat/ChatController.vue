@@ -18,7 +18,7 @@ const props = defineProps<{
 	chatList: YouTube.LiveChatItemListRenderer;
 }>();
 
-const ctx = useChannelContext(props.channelId);
+const ctx = useChannelContext(props.channelId, true);
 const emotes = useChatEmotes(ctx);
 
 const seenEmojis = {} as Record<string, SevenTV.ActiveEmote>;
@@ -28,6 +28,7 @@ watchEffect(() => {
 		id: props.channelId,
 		displayName: "",
 		username: "",
+		active: true,
 	});
 
 	defineFunctionHook(

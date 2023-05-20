@@ -53,7 +53,7 @@
 							<component :is="activeTab.icon" />
 							<span>{{ activeTab.name }}</span>
 						</p>
-						<component :is="activeTab.com" />
+						<component :is="(activeTab.com as AnyInstanceType)" />
 					</template>
 				</div>
 			</UiScrollable>
@@ -147,6 +147,7 @@ main.seventv-mod-logs-container {
 	outline: 0.01rem solid var(--seventv-border-transparent-1);
 	border-radius: 0.25rem;
 }
+
 .seventv-mod-logs-header {
 	cursor: move;
 	display: grid;
@@ -155,7 +156,6 @@ main.seventv-mod-logs-container {
 	align-items: center;
 	background: var(--seventv-background-transparent-2);
 	border-bottom: 0.01rem solid var(--seventv-border-transparent-1);
-
 	padding: 0.5rem 0.75rem;
 
 	> svg {
@@ -177,38 +177,6 @@ main.seventv-mod-logs-container {
 .seventv-mod-logs-content {
 	display: grid;
 	grid-template-columns: 4em auto;
-}
-.seventv-mod-logs-sidebar {
-	border-right: 0.1rem solid var(--seventv-border-transparent-1);
-	display: grid;
-	place-items: center;
-	padding: 1em 0;
-	row-gap: 1em;
-
-	.seventv-mod-logs-sidebar-button {
-		display: grid;
-		align-items: center;
-		justify-content: center;
-		width: 4rem;
-		height: 4rem;
-		background: hsla(0deg, 0%, 30%, 0.06%);
-		border-radius: 0.25rem;
-
-		> svg {
-			font-size: 2em;
-		}
-
-		&:hover,
-		&[selected="true"] {
-			cursor: pointer;
-			background: hsla(0deg, 0%, 30%, 0.25%);
-		}
-
-		&[unavailable="true"] {
-			opacity: 0.5;
-			pointer-events: none;
-		}
-	}
 }
 
 .seventv-mod-logs-body {
@@ -275,13 +243,46 @@ main.seventv-mod-logs-container {
 				border-radius: 0.15rem;
 
 				&:hover {
-					outline-color: currentColor;
+					outline-color: currentcolor;
 				}
 
 				&.decide-close:hover ~ label {
 					visibility: visible;
 				}
 			}
+		}
+	}
+}
+
+.seventv-mod-logs-sidebar {
+	border-right: 0.1rem solid var(--seventv-border-transparent-1);
+	display: grid;
+	place-items: center;
+	padding: 1em 0;
+	row-gap: 1em;
+
+	.seventv-mod-logs-sidebar-button {
+		display: grid;
+		align-items: center;
+		justify-content: center;
+		width: 4rem;
+		height: 4rem;
+		background: hsla(0deg, 0%, 30%, 0.06%);
+		border-radius: 0.25rem;
+
+		> svg {
+			font-size: 2em;
+		}
+
+		&:hover,
+		&[selected="true"] {
+			cursor: pointer;
+			background: hsla(0deg, 0%, 30%, 0.25%);
+		}
+
+		&[unavailable="true"] {
+			opacity: 0.5;
+			pointer-events: none;
 		}
 	}
 }

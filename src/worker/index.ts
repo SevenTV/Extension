@@ -30,7 +30,7 @@ export type WorkerMessageType = keyof typeof workerMessageType;
 
 export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	CHANNEL_ACTIVE_CHATTER: {
-		channel_id: string;
+		channel: CurrentChannel;
 	};
 	CHANNEL_FETCHED: {
 		channel: CurrentChannel;
@@ -90,6 +90,7 @@ export interface EventContext {
 	driver: WorkerDriver;
 	eventAPI: EventAPI;
 	db: Dexie7;
+	channelID?: string;
 }
 
 export enum EventAPIOpCode {

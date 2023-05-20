@@ -1,3 +1,23 @@
+### Version 3.0.8
+
+-   Enabled AVIF images on Firefox >= 113 by default
+-   Added sub duration & account creation date in the User Card
+-   Added a button to open an emote's full page from the emote card
+-   Fixed an issue where clicking the upper drag region in the User Card opened the user's channel
+-   Fixed user card content overflowing due to long messages
+-   Fixed chat scroller being visible in the viewer list
+-   Tentatively fixed an issue which caused the sidebar to crash occasionally
+
+### Version 3.0.7
+
+-   Added a new User Card
+-   Added a tooltip to show the full message when hovering over replies in chat
+-   Added a "Site Layout" menu where certain features of the Twitch website can be hidden
+-   Added icons for emoji sets in the Emote Menu
+-   Added an option to choose chat timestamp format
+-   Fixed tooltips of nametag paints appearing even if they are disabled
+-   Reinstated functionality on youtube.com
+
 ### Version 3.0.6
 
 -   Links in chat messages now respect known TLDs instead of matching any url-like pattern

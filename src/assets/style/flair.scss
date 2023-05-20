@@ -28,6 +28,7 @@
 	&::before {
 		background-color: $color;
 	}
+
 	&::after {
 		background-color: $color;
 	}
@@ -37,6 +38,7 @@
 	0% {
 		transform: scale(0);
 	}
+
 	80%,
 	100% {
 		opacity: 0;
@@ -48,9 +50,11 @@
 	0% {
 		transform: scale(1);
 	}
+
 	50% {
 		transform: scale(1.35);
 	}
+
 	100% {
 		transform: scale(1);
 	}

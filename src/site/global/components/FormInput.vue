@@ -55,7 +55,6 @@ onMounted(() => {
 input {
 	all: unset;
 	width: v-bind(width);
-
 	transition: border-color 140ms ease-in-out;
 	background-color: transparent;
 	border-bottom: 0.1rem solid var(--seventv-input-border);
