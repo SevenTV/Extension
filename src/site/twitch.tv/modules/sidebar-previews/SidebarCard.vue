@@ -70,7 +70,7 @@ function patchTooltip(tooltip: ReactExtended.ReactRuntimeElement, vnode: ReactEx
 		props: {
 			className: "seventv-sidebar-tooltip-preview",
 			style: {
-				backgroundImage: getThumbnail(tooltip.props.channelDisplayName.toLowerCase()),
+				backgroundImage: getThumbnail(tooltip.props.channelDisplayName?.toLowerCase() ?? "???"),
 			},
 		},
 	});
