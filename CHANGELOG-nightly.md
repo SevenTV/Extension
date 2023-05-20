@@ -8,6 +8,7 @@
 -   Fixed an issue where clicking the upper drag region in the User Card opened the user's channel
 -   Fixed user card content overflowing due to long messages
 -   Fixed chat scroller being visible in the viewer list
+-   Tentatively fixed an issue which caused the sidebar to crash occasionally
 
 ### Version 3.0.7.1000
 

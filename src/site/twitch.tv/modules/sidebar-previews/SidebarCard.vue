@@ -35,7 +35,7 @@ watch(
 
 			if (tooltip && typeof tooltip.type == "function") {
 				defineFunctionHook(tooltip.type.prototype, "render", function (old, ...args: unknown[]) {
-					const vnode = old?.apply(this, args);
+					const vnode = old?.apply(this, args) ?? null;
 
 					return patchTooltip(this, vnode);
 				});
