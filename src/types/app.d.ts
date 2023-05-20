@@ -199,28 +199,74 @@ declare namespace SevenTV {
 
 	interface CosmeticPaint {
 		name: string;
-		function: string;
 		color: number | null;
-		stops: CosmeticPaintStop[];
-		repeat: boolean;
-		angle: number;
+		canvas_size: [number, number];
+		canvas_repeat: CosmeticPaintCanvasRepeat;
+		gradients: CosmeticPaintGradient[];
+		shadows?: CosmeticPaintShadow[];
+		flairs?: CosmeticPaintFlair[];
+		text?: CosmeticPaintText;
+		/** @deprecated replaced by `gradients` */
+		function?: string;
+		/** @deprecated replaced by `gradients` */
+		stops?: CosmeticPaintGradientStop[];
+		/** @deprecated replaced by `gradients` */
+		repeat?: boolean;
+		/** @deprecated replaced by `gradients` */
+		angle?: number;
+		/** @deprecated replaced by `gradients` */
 		shape?: string;
+		/** @deprecated replaced by `gradients` */
 		image_url?: string;
-		shadows: CosmeticPaintShadow[];
 	}
 	type AnyCosmetic = CosmeticBadge | CosmeticPaint;
 
-	interface CosmeticPaintStop {
+	type CosmeticPaintCanvasRepeat = "no-repeat" | "repeat-x" | "repeat-y" | "revert" | "round" | "space";
+
+	interface CosmeticPaintGradient {
+		function: string;
+		stops: CosmeticPaintGradientStop[];
+		image_url?: string;
+		shape?: string;
+		angle?: number;
+		repeat: boolean;
+		at?: [number, number];
+	}
+
+	interface CosmeticPaintGradientStop {
 		at: number;
 		color: number;
-		_alpha?: number;
 	}
+
 	interface CosmeticPaintShadow {
 		x_offset: number;
 		y_offset: number;
 		radius: number;
 		color: number;
 	}
+
+	interface CosmeticPaintText {
+		weight: number;
+		shadows: CosmeticPaintShadow;
+		transform: "uppercase" | "lowercase";
+		stroke: CosmeticPaintStroke;
+	}
+
+	interface CosmeticPaintStroke {
+		color: number;
+		width: number;
+	}
+
+	interface CosmeticPaintFlair {
+		kind: CosmeticPaintFlairKind;
+		x_offset: number;
+		y_offset: number;
+		width: number;
+		height: number;
+		data: string;
+	}
+
+	type CosmeticPaintFlairKind = "IMAGE" | "VECTOR" | "TEXT";
 
 	interface CosmeticAvatar {
 		id: ObjectID;
@@ -256,7 +302,7 @@ declare namespace SevenTV {
 		name: string;
 		function: string;
 		color: number | null;
-		stops: CosmeticPaintStop[];
+		stops: CosmeticPaintGradientStop[];
 		repeat: boolean;
 		angle: number;
 		shape?: string;

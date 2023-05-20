@@ -1,6 +1,6 @@
 import { Ref, reactive, ref, toRef } from "vue";
 import { until, useTimeout } from "@vueuse/core";
-import { DecimalToStringRGBA } from "@/common/Color";
+import { DecimalToStringRGBA, RGBAToDecimal } from "@/common/Color";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { useLiveQuery } from "./useLiveQuery";
@@ -352,6 +352,46 @@ function getPaintStylesheet(): CSSStyleSheet | null {
 	return (paintSheet = s.sheet ?? null);
 }
 
+const foo: SevenTV.CosmeticPaint = {
+	name: "test",
+	color: null,
+	canvas_size: [0.5, 0.5],
+	canvas_repeat: "no-repeat",
+	gradients: [
+		{
+			function: "LINEAR_GRADIENT",
+			at: [0, 0.5],
+			stops: [
+				{
+					color: 4847841,
+					at: 0,
+				},
+				{
+					color: -555114,
+					at: 1,
+				},
+			],
+			repeat: false,
+		},
+		{
+			function: "LINEAR_GRADIENT",
+			angle: 45,
+			at: [0.25, 0.5],
+			stops: [
+				{
+					color: RGBAToDecimal(255, 0, 0, 86),
+					at: 0,
+				},
+				{
+					color: RGBAToDecimal(0, 255, 0, 86),
+					at: 1,
+				},
+			],
+			repeat: false,
+		},
+	],
+};
+
 // This defines CSS variables in our global paint stylesheet for the given paint
 function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 	if (definedPaintRules.has(paint.id)) return;
@@ -363,31 +403,57 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 
 	const prefix = `--seventv-paint-${paint.id}`;
 
-	const cssFunction = paint.data.function.toLowerCase().replace("_", "-");
-	const bgImage = (() => {
-		const args = [] as string[];
-		switch (paint.data.function) {
-			case "LINEAR_GRADIENT": // paint is linear gradient
-				args.push(`${paint.data.angle}deg`);
-				break;
-			case "RADIAL_GRADIENT": // paint is radial gradient
-				args.push(paint.data.shape ?? "circle");
-				break;
-			case "URL": // paint is an image
-				args.push(paint.data.image_url ?? "");
-				break;
-		}
-		let funcPrefix = "";
-		if (paint.data.function !== "URL") {
-			funcPrefix = paint.data.repeat ? "repeating-" : "";
+	const cssFunction = (f: string) => f.toLowerCase().replace("_", "-");
+	const gradients = (() => {
+		const g = (paint.data.gradients ?? []) as SevenTV.CosmeticPaintGradient[];
+
+		if (!paint.data.gradients?.length && paint.data.function) {
+			// add base gradient if using v2 format
+			g.length = 1;
+			g[0] = {
+				function: paint.data.function,
+				shape: paint.data.shape,
+				image_url: paint.data.image_url,
+				stops: paint.data.stops ?? [],
+				repeat: paint.data.repeat ?? false,
+				angle: paint.data.angle,
+			};
 		}
 
-		for (const stop of paint.data.stops) {
-			const color = DecimalToStringRGBA(stop.color);
-			args.push(`${color} ${stop.at * 100}%`);
+		const result = new Array<string>(g.length);
+
+		for (let i = 0; i < g.length; i++) {
+			const d = g[i];
+			if (!d) continue;
+
+			const args = [] as string[];
+			switch (d.function) {
+				case "LINEAR_GRADIENT": // paint is linear gradient
+					args.push(`${d.angle ?? 0}deg`);
+					break;
+				case "RADIAL_GRADIENT": // paint is radial gradient
+					args.push(d.shape ?? "circle");
+					break;
+				case "URL": // paint is an image
+					args.push(d.image_url ?? "");
+					break;
+			}
+			let funcPrefix = "";
+			if (d.function !== "URL") {
+				funcPrefix = d.repeat ? "repeating-" : "";
+			}
+
+			for (const stop of d.stops) {
+				const color = DecimalToStringRGBA(stop.color);
+				args.push(`${color} ${stop.at * 100}%`);
+			}
+
+			const pos = d.at && d.at.length === 2 ? `${d.at[0] * 100}% ${d.at[1] * 100}%` : "";
+
+			result[i] = `${funcPrefix}${cssFunction(d.function)}(${args.join(", ")})` + (pos && " " + pos);
 		}
 
-		return `${funcPrefix}${cssFunction}(${args.join(", ")})`;
+		return result.join(", ");
 	})();
 
 	const filter = (() => {
@@ -400,8 +466,30 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 			.join(" ");
 	})();
 
+	const size =
+		paint.data.canvas_size && paint.data.canvas_size.every((n) => n > 0)
+			? `${paint.data.canvas_size[0] * 100}% ${paint.data.canvas_size[1] * 100}%`
+			: "cover";
+
+	const repeat = paint.data.canvas_repeat || "cover";
+
 	// this inserts the css variables into the custom paint stylesheet
-	sheet.insertRule(` :root { ${prefix}-bg: ${bgImage}; ${prefix}-filter: ${filter}; } `, sheet.cssRules.length);
+	sheet.insertRule(
+		`:root {
+${prefix}-bg: ${gradients};
+${prefix}-filter: ${filter};
+${prefix}-size: ${size};
+${prefix}-repeat: ${repeat};
+}`,
+		sheet.cssRules.length,
+	);
 
 	definedPaintRules.add(paint.id);
 }
+
+insertPaintStyle({
+	id: "test",
+	kind: "PAINT",
+	provider: "7TV",
+	data: foo,
+} as SevenTV.Cosmetic<"PAINT">);
