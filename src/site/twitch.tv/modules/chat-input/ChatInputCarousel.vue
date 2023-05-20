@@ -13,7 +13,7 @@
 			<!-- Current Match -->
 			<div class="seventv-autocomplete-floater-list" direction="current">
 				<template v-for="tok of cur" :key="tok.token">
-					<EmoteVue v-if="tok.item" :emote="tok.item" />
+					<Emote v-if="tok.item" :emote="tok.item" />
 				</template>
 			</div>
 
