@@ -35,7 +35,7 @@ watch(
 
 			if (tooltip && typeof tooltip.type == "function") {
 				defineFunctionHook(tooltip.type.prototype, "render", function (old, ...args: unknown[]) {
-					const vnode = old?.apply(this, args);
+					const vnode = old?.apply(this, args) ?? null;
 
 					return patchTooltip(this, vnode);
 				});
@@ -70,7 +70,7 @@ function patchTooltip(tooltip: ReactExtended.ReactRuntimeElement, vnode: ReactEx
 		props: {
 			className: "seventv-sidebar-tooltip-preview",
 			style: {
-				backgroundImage: getThumbnail(tooltip.props.channelDisplayName.toLowerCase()),
+				backgroundImage: getThumbnail(tooltip.props.channelDisplayName?.toLowerCase() ?? "???"),
 			},
 		},
 	});

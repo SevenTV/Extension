@@ -90,7 +90,7 @@ const containerRef = ref<HTMLElement | undefined>();
 const ctx = useEmoteMenuContext();
 ctx.channelID = props.instance.component.props.channelID ?? "";
 
-const channelCtx = useChannelContext(ctx.channelID);
+const channelCtx = useChannelContext(ctx.channelID, true);
 const settingsContext = useSettingsMenu();
 const emotes = useChatEmotes(channelCtx);
 
@@ -111,10 +111,10 @@ const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
 
 const chatModule = getModuleRef("chat");
 const placement = useConfig<"regular" | "below" | "hidden">("ui.emote_menu.button_placement");
-const inputModule = getModuleRef("chat-input-controller");
+const inputModule = getModuleRef<"TWITCH", "chat-input-controller">("chat-input-controller");
 
 onMounted(() => {
-	if (!inputModule.value.instance) return;
+	if (!inputModule.value?.instance) return;
 
 	inputModule.value.instance.addButton(
 		"emote-menu",
@@ -178,7 +178,7 @@ function handleEmoteUsage(s: string): string {
 watch(
 	chatModule,
 	(mod) => {
-		if (!mod.instance) return;
+		if (!mod || !mod.instance) return;
 
 		mod.instance.messageSendMiddleware.set("emote-menu-usage", handleEmoteUsage);
 	},

@@ -74,7 +74,10 @@ export const useStore = defineStore("main", {
 			return this.agent.getBrowser();
 		},
 		avifSupported(): boolean {
-			return this.browser.name === "Chrome" && parseInt(this.browser.version as string, 10) >= 100;
+			return (
+				(this.browser.name === "Chrome" && parseInt(this.browser.version as string, 10) >= 100) ||
+				(this.browser.name === "Firefox" && parseInt(this.browser.version as string, 10) >= 113)
+			);
 		},
 	},
 });

@@ -6,7 +6,14 @@
 			</div>
 			<div class="seventv-emote-card-display">
 				<div>
-					<h3 class="seventv-emote-card-title">{{ emote.name }}</h3>
+					<h3 class="seventv-emote-card-title">
+						<span>
+							{{ emote.name }}
+						</span>
+						<span v-if="emoteLink" class="seventv-emote-card-title-link">
+							<a :href="emoteLink" target="_blank"><OpenLinkIcon /></a>
+						</span>
+					</h3>
 					<p class="seventv-emote-card-subtitle">{{ subtitle }}</p>
 					<a v-if="owner.id" class="seventv-emote-card-user" :href="owner.url" target="_blank">
 						<img :src="owner.avatarURL" />
@@ -39,6 +46,7 @@ import { convertTwitchEmote } from "@/common/Transform";
 import { useApollo } from "@/composable/useApollo";
 import { userQuery } from "@/assets/gql/seventv.user.gql";
 import { emoteCardQuery } from "@/assets/gql/tw.emote-card.gql";
+import OpenLinkIcon from "@/assets/svg/icons/OpenLinkIcon.vue";
 import { useQuery } from "@vue/apollo-composable";
 
 const props = defineProps<{
@@ -52,6 +60,7 @@ const owner = reactive(emptyUser());
 const actor = reactive(emptyUser());
 const subtitle = ref("");
 const timestamp = ref("");
+const emoteLink = ref<string | null>(null);
 
 function emptyUser() {
 	return {
@@ -122,7 +131,9 @@ watchEffect(async () => {
 		);
 
 		timestamp.value = new Date(props.emote.timestamp ?? 0).toLocaleDateString();
-	}
+		emoteLink.value = `//7tv.app/emotes/${props.emote.id}`;
+	} else if (props.emote.provider === "BTTV") emoteLink.value = `//betterttv.com/emotes/${props.emote.id}`;
+	else if (props.emote.provider === "FFZ") emoteLink.value = `//frankerfacez.com/emoticon/${props.emote.id}`;
 });
 
 watch(
@@ -168,6 +179,16 @@ main.seventv-emote-card-container {
 				font-size: 2rem;
 				font-weight: 600;
 				color: var(--seventv-text-primary);
+			}
+		}
+
+		.seventv-emote-card-title {
+			display: flex;
+			align-items: baseline;
+			gap: 0.7rem;
+
+			.seventv-emote-card-title-link {
+				font-size: 1.25rem;
 			}
 		}
 

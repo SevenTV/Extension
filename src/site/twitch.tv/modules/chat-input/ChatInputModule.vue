@@ -18,7 +18,7 @@ import { declareConfig, useConfig } from "@/composable/useSettings";
 import ChatInput from "./ChatInput.vue";
 import ChatSpam from "./ChatSpam.vue";
 
-const { markAsReady } = declareModule("chat-input", {
+const { markAsReady } = declareModule<"TWITCH">("chat-input", {
 	name: "Chat Input",
 	depends_on: [],
 });

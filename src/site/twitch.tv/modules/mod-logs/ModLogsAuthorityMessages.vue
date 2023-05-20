@@ -10,7 +10,7 @@
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useModLogsStore } from "./ModLogsStore";
-import UserMessage from "../chat/components/message/UserMessage.vue";
+import UserMessage from "@/app/chat/UserMessage.vue";
 
 const localStore = useModLogsStore();
 const ctx = useChannelContext();

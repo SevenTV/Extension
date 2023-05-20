@@ -6,6 +6,7 @@ interface ChatTools {
 		onShowViewerCard: Twitch.ViewerCardComponent["onShowViewerCard"];
 	};
 	YOUTUBE: Record<string, never>;
+	KICK: Record<string, never>;
 	UNKNOWN: Record<string, never>;
 }
 
@@ -19,6 +20,7 @@ export function useChatTools(ctx: ChannelContext) {
 				onShowViewerCard: () => void 0,
 			},
 			YOUTUBE: {},
+			KICK: {},
 			UNKNOWN: {},
 		});
 

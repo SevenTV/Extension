@@ -44,9 +44,9 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
-const mod = getModule("chat-input");
+const mod = getModule<"TWITCH", "chat-input">("chat-input");
 const store = useStore();
-const ctx = useChannelContext(props.instance.component.componentRef.props.channelID);
+const ctx = useChannelContext(props.instance.component.componentRef.props.channelID, true);
 const messages = useChatMessages(ctx);
 const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
