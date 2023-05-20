@@ -172,7 +172,6 @@ export class EventAPI {
 	subscribe(type: string, condition: Record<string, string>, port: WorkerPort, channelID: string) {
 		const sub = this.findSubscription(type, condition);
 		if (sub) {
-			sub.count++;
 			sub.ports.set(port.id, port);
 			sub.channels.add(channelID);
 			return;
@@ -184,7 +183,6 @@ export class EventAPI {
 
 		this.subscriptions[type].push({
 			condition,
-			count: 1,
 			ports: new Map([[port.id, port]]),
 			channels: new Set([channelID]),
 		});
@@ -202,9 +200,8 @@ export class EventAPI {
 		const sub = this.findSubscription(type, condition);
 		if (!sub) return;
 
-		sub.count--;
 		sub.ports.delete(port.id);
-		if (sub.count <= 0) {
+		if (sub.ports.size <= 0) {
 			this.subscriptions[type] = this.subscriptions[type].filter((c) => c !== sub);
 
 			this.sendMessage({
@@ -214,6 +211,17 @@ export class EventAPI {
 					condition,
 				},
 			});
+		}
+	}
+
+	unsubscribeChannel(id: string, port: WorkerPort): void {
+		for (const [type, records] of Object.entries(this.subscriptions)) {
+			for (const rec of records.filter((rec) => rec.channels.has(id))) {
+				rec.channels.delete(id);
+				if (rec.channels.size) continue;
+
+				this.unsubscribe(type, rec.condition, port);
+			}
 		}
 	}
 
@@ -290,7 +298,6 @@ export class EventAPI {
 export interface SubscriptionRecord {
 	id?: number;
 	condition: Record<string, string>;
-	count: number;
 	ports: Map<symbol, WorkerPort>;
 	channels: Set<string>;
 	confirmed?: boolean;

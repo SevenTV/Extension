@@ -40,8 +40,10 @@ export class WorkerHttp {
 		driver.addEventListener("join_channel", (ev) =>
 			ev.port ? this.fetchChannelData(ev.detail, ev.port) : undefined,
 		);
-		driver.addEventListener("part_channel", () => {
-			return;
+		driver.addEventListener("part_channel", (ev) => {
+			if (!ev.port) return;
+
+			this.driver.eventAPI.unsubscribeChannel(ev.detail.id, ev.port);
 		});
 		driver.addEventListener("identity_updated", async (ev) => {
 			const user = await this.API().seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id);
