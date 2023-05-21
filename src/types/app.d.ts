@@ -246,10 +246,10 @@ declare namespace SevenTV {
 	}
 
 	interface CosmeticPaintText {
-		weight: number;
-		shadows: CosmeticPaintShadow;
-		transform: "uppercase" | "lowercase";
-		stroke: CosmeticPaintStroke;
+		weight?: number;
+		shadows?: CosmeticPaintShadow[];
+		transform?: "uppercase" | "lowercase";
+		stroke?: CosmeticPaintStroke;
 	}
 
 	interface CosmeticPaintStroke {
