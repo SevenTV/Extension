@@ -504,7 +504,6 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 
 	const repeat = paint.data.canvas_repeat || "unset";
 
-	// this inserts the css variables into the custom paint stylesheet
 	sheet.insertRule(
 		`.seventv-paint[data-seventv-paint-id="${paint.id}"] {
 color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "transparent"};

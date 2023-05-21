@@ -17,6 +17,15 @@
 							<UserTag :user="data.targetUser" :hide-badges="true" :clickable="false" />
 						</a>
 					</div>
+
+					<span
+						v-if="data.paint"
+						class="seventv-user-card-paint seventv-painted-content seventv-paint"
+						:data-seventv-paint-id="data.paint.id"
+					>
+						{{ data.paint.data.name }}
+					</span>
+
 					<div class="seventv-user-card-badges">
 						<Badge
 							v-for="badge of data.targetUser.badges"
@@ -29,7 +38,7 @@
 				</div>
 
 				<div class="seventv-user-card-interactive">
-					<div class="seventv-user-card-greystates">
+					<div class="seventv-user-card-metrics">
 						<p v-if="data.targetUser.createdAt">
 							<CakeIcon />
 							{{ t("user_card.account_created_date", { date: data.targetUser.createdAt }) }}
@@ -163,6 +172,7 @@ const data = reactive({
 	activeTab: "messages" as UserCardTabName,
 	canActorAccessLogs: false,
 	ban: null as TwTypeChatBanStatus | null,
+	paint: null as SevenTV.Cosmetic<"PAINT"> | null,
 	targetUser: {
 		id: props.target.id,
 		username: props.target.username,
@@ -417,6 +427,7 @@ watchEffect(async () => {
 				data.targetUser.displayName = resp.data.targetUser.displayName;
 				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
 				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
+				data.targetUser.color = resp.data.targetUser.chatColor;
 				data.targetUser.relationship.followedAt = formatDateToString(
 					resp.data.targetUser.relationship?.followedAt,
 				);
@@ -465,14 +476,20 @@ watchEffect(async () => {
 			}
 		})
 		.catch((err) => log.error("failed to query user card", err));
+
+	for (const paint of cosmetics.paints.values()) {
+		data.paint = paint;
+		break;
+	}
 });
 
 watch(
-	() => data.targetUser.bannerURL,
-	(url) => {
-		if (!url || !cardRef.value) return;
+	() => [data.targetUser.bannerURL, data.targetUser.color],
+	([url, color]) => {
+		if (!cardRef.value) return;
 
 		cardRef.value.style.setProperty("--seventv-user-card-banner-url", `url(${url})`);
+		cardRef.value.style.setProperty("--seventv-user-card-color", color);
 	},
 );
 
@@ -523,13 +540,13 @@ main.seventv-user-card-container {
 	grid-template-columns: 1fr;
 	grid-template-rows: repeat(3, auto);
 	grid-template-areas:
-		"greystates"
+		"metrics"
 		"actions"
 		"mod";
 	align-content: space-between;
 
-	.seventv-user-card-greystates {
-		grid-area: greystates;
+	.seventv-user-card-metrics {
+		grid-area: metrics;
 		display: grid;
 		row-gap: 0.5rem;
 		z-index: 1;
@@ -592,11 +609,12 @@ main.seventv-user-card-container {
 		cursor: move;
 		display: grid;
 		grid-template-columns: max-content 1fr;
-		grid-template-rows: auto 1fr;
+		grid-template-rows: auto auto 1fr;
 		grid-auto-flow: row;
 		row-gap: 0.25rem;
 		grid-template-areas:
 			"avatar usertag"
+			"avatar paint"
 			"avatar badges";
 		grid-area: identity;
 		background: var(--seventv-user-card-banner-url);
@@ -630,7 +648,9 @@ main.seventv-user-card-container {
 			z-index: 1;
 			display: block;
 			padding-top: 1rem;
+			width: fit-content;
 			max-width: 21rem;
+			margin-bottom: -0.25rem;
 
 			p {
 				overflow: hidden;
@@ -643,6 +663,18 @@ main.seventv-user-card-container {
 
 		.seventv-user-card-usertag {
 			all: unset;
+		}
+
+		.seventv-user-card-paint {
+			width: fit-content;
+			cursor: pointer;
+			border-radius: 0.25rem;
+			padding: 0 0.25rem;
+			font-size: 1.05rem;
+			color: white;
+			-webkit-text-stroke: 0.5px black;
+			font-weight: 900;
+			background-color: var(--seventv-user-card-color);
 		}
 
 		.seventv-user-card-badges {

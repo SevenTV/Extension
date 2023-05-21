@@ -29,6 +29,7 @@ export const twitchUserCardQuery = gql`
 				...badge
 				description
 			}
+			chatColor
 			profileImageURL(width: 70)
 			createdAt
 			relationship(targetUserID: $channelID) {
