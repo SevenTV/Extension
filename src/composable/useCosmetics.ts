@@ -278,7 +278,7 @@ db.ready().then(async () => {
 			data.userEmoteSets[userID].set(setID, set);
 		}
 
-		log.info("<Cosmetics>", "Assigned Emote Set to user", `id=${setID}`, `userID=${userID}`);
+		log.debug("<Cosmetics>", "Assigned Emote Set to user", `id=${setID}`, `userID=${userID}`);
 	}
 
 	// Handle user entitlements
@@ -390,6 +390,39 @@ const foo: SevenTV.CosmeticPaint = {
 			repeat: false,
 		},
 	],
+	text: {
+		weight: 7,
+		stroke: {
+			color: RGBAToDecimal(60, 10, 10, 255),
+			width: 0.25,
+		},
+		shadows: [
+			{
+				color: RGBAToDecimal(255, 0, 0, 255),
+				radius: 8,
+				x_offset: 0,
+				y_offset: 0,
+			},
+			{
+				color: RGBAToDecimal(0, 255, 0, 255),
+				radius: 8,
+				x_offset: 4,
+				y_offset: -4,
+			},
+			{
+				color: RGBAToDecimal(0, 0, 255, 255),
+				radius: 8,
+				x_offset: 4,
+				y_offset: 4,
+			},
+			{
+				color: RGBAToDecimal(170, 60, 255, 255),
+				radius: 8,
+				x_offset: -4,
+				y_offset: 2,
+			},
+		],
+	},
 };
 
 // This defines CSS variables in our global paint stylesheet for the given paint
@@ -400,8 +433,6 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 		log.error("<Cosmetics>", "Could not find paint stylesheet");
 		return;
 	}
-
-	const prefix = `--seventv-paint-${paint.id}`;
 
 	const cssFunction = (f: string) => f.toLowerCase().replace("_", "-");
 	const gradients = (() => {
@@ -475,13 +506,27 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 
 	// this inserts the css variables into the custom paint stylesheet
 	sheet.insertRule(
-		`:root {
-${prefix}-color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "transparent"};
-${prefix}-bg: ${gradients.map((v) => v[0]).join(", ")};
-${prefix}-bg-pos: ${gradients.map((v) => v[1]).join(", ")};
-${prefix}-filter: ${filter};
-${prefix}-size: ${size};
-${prefix}-repeat: ${repeat};
+		`.seventv-paint[data-seventv-paint-id="${paint.id}"] {
+color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "transparent"};
+background-image: ${gradients.map((v) => v[0]).join(", ")};
+background-position: ${gradients.map((v) => v[1]).join(", ")};
+background-size: ${size};
+background-repeat: ${repeat};
+filter: ${filter};
+${
+	paint.data.text &&
+	`
+font-weight: ${paint.data.text.weight ? paint.data.text.weight * 100 : "inherit"};
+-webkit-text-stroke-width: ${paint.data.text.stroke ? `${paint.data.text.stroke.width}px` : "inherit"};
+-webkit-text-stroke-color: ${paint.data.text.stroke ? DecimalToStringRGBA(paint.data.text.stroke.color) : "inherit"};
+text-shadow: ${
+		paint.data.text.shadows
+			?.map((v) => `${v.x_offset}px ${v.y_offset}px ${v.radius}px ${DecimalToStringRGBA(v.color)}`)
+			.join(", ") ?? "unset"
+	};
+text-transform: ${paint.data.text.transform ?? "unset"};
+`
+}
 }`,
 		sheet.cssRules.length,
 	);
