@@ -68,7 +68,7 @@ db.ready().then(async () => {
 				data.cosmetics[cos.id] = reactive(cos);
 
 				if (cos.kind === "PAINT") {
-					insertPaintStyle(cos as SevenTV.Cosmetic<"PAINT">);
+					updatePaintStyle(cos as SevenTV.Cosmetic<"PAINT">);
 				}
 			}
 		},
@@ -129,7 +129,7 @@ db.ready().then(async () => {
 					paint.user_ids.length = 0;
 				}
 
-				insertPaintStyle(paint);
+				updatePaintStyle(paint);
 			}
 		},
 		{ once: true },
@@ -335,7 +335,6 @@ export function useCosmetics(userID: string) {
 	});
 }
 
-const definedPaintRules = new Set<string>();
 let paintSheet: CSSStyleSheet | null = null;
 function getPaintStylesheet(): CSSStyleSheet | null {
 	if (paintSheet) return paintSheet;
@@ -426,67 +425,27 @@ const foo: SevenTV.CosmeticPaint = {
 };
 
 // This defines CSS variables in our global paint stylesheet for the given paint
-function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
-	if (definedPaintRules.has(paint.id)) return;
+export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = false): void {
 	const sheet = getPaintStylesheet();
 	if (!sheet) {
 		log.error("<Cosmetics>", "Could not find paint stylesheet");
 		return;
 	}
 
-	const cssFunction = (f: string) => f.toLowerCase().replace("_", "-");
-	const gradients = (() => {
-		const g = (paint.data.gradients ?? []) as SevenTV.CosmeticPaintGradient[];
+	if (!paint.data.gradients?.length && paint.data.function) {
+		// add base gradient if using v2 format
+		if (!paint.data.gradients) paint.data.gradients = new Array(1);
+		paint.data.gradients[0] = {
+			function: paint.data.function,
+			shape: paint.data.shape,
+			image_url: paint.data.image_url,
+			stops: paint.data.stops ?? [],
+			repeat: paint.data.repeat ?? false,
+			angle: paint.data.angle,
+		};
+	}
 
-		if (!paint.data.gradients?.length && paint.data.function) {
-			// add base gradient if using v2 format
-			g.length = 1;
-			g[0] = {
-				function: paint.data.function,
-				shape: paint.data.shape,
-				image_url: paint.data.image_url,
-				stops: paint.data.stops ?? [],
-				repeat: paint.data.repeat ?? false,
-				angle: paint.data.angle,
-			};
-		}
-
-		const result = new Array<[string, string]>(g.length);
-
-		for (let i = 0; i < g.length; i++) {
-			const d = g[i];
-			if (!d) continue;
-
-			const args = [] as string[];
-			switch (d.function) {
-				case "LINEAR_GRADIENT": // paint is linear gradient
-					args.push(`${d.angle ?? 0}deg`);
-					break;
-				case "RADIAL_GRADIENT": // paint is radial gradient
-					args.push(d.shape ?? "circle");
-					break;
-				case "URL": // paint is an image
-					args.push(d.image_url ?? "");
-					break;
-			}
-			let funcPrefix = "";
-			if (d.function !== "URL") {
-				funcPrefix = d.repeat ? "repeating-" : "";
-			}
-
-			for (const stop of d.stops) {
-				const color = DecimalToStringRGBA(stop.color);
-				args.push(`${color} ${stop.at * 100}%`);
-			}
-
-			const pos = d.at && d.at.length === 2 ? `${d.at[0] * 100}% ${d.at[1] * 100}%` : "";
-
-			result[i] = [`${funcPrefix}${cssFunction(d.function)}(${args.join(", ")})`, pos];
-		}
-
-		return result;
-	})();
-
+	const gradients = paint.data.gradients.map((g) => createGradientFromPaint(g));
 	const filter = (() => {
 		if (!paint.data.shadows) {
 			return "";
@@ -504,8 +463,8 @@ function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
 
 	const repeat = paint.data.canvas_repeat || "unset";
 
-	sheet.insertRule(
-		`.seventv-paint[data-seventv-paint-id="${paint.id}"] {
+	const selector = `.seventv-paint[data-seventv-paint-id="${paint.id}"]`;
+	const text = `${selector} {
 color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "transparent"};
 background-image: ${gradients.map((v) => v[0]).join(", ")};
 background-position: ${gradients.map((v) => v[1]).join(", ")};
@@ -526,14 +485,58 @@ text-shadow: ${
 text-transform: ${paint.data.text.transform ?? "unset"};
 `
 }
-}`,
-		sheet.cssRules.length,
-	);
+}
+`;
 
-	definedPaintRules.add(paint.id);
+	let rule: CSSStyleRule | null = null;
+	for (const r of Array.from(sheet.cssRules)) {
+		if (!(r instanceof CSSStyleRule)) continue;
+		if (r.selectorText !== selector) continue;
+
+		rule = r;
+		break;
+	}
+	if (remove) return;
+
+	if (!rule) {
+		sheet.insertRule(text, sheet.cssRules.length);
+	} else {
+		rule.cssText = text;
+	}
 }
 
-insertPaintStyle({
+export function createGradientFromPaint(gradient: SevenTV.CosmeticPaintGradient): [string, string] {
+	const result = ["", ""] as [string, string];
+
+	const args = [] as string[];
+	switch (gradient.function) {
+		case "LINEAR_GRADIENT": // paint is linear gradient
+			args.push(`${gradient.angle ?? 0}deg`);
+			break;
+		case "RADIAL_GRADIENT": // paint is radial gradient
+			args.push(gradient.shape ?? "circle");
+			break;
+		case "URL": // paint is an image
+			args.push(gradient.image_url ?? "");
+			break;
+	}
+	let funcPrefix = "";
+	if (gradient.function !== "URL") {
+		funcPrefix = gradient.repeat ? "repeating-" : "";
+	}
+
+	for (const stop of gradient.stops) {
+		const color = DecimalToStringRGBA(stop.color);
+		args.push(`${color} ${stop.at * 100}%`);
+	}
+
+	result[0] = `${funcPrefix}${gradient.function.toLowerCase().replace("_", "-")}(${args.join(", ")})`;
+	result[1] = gradient.at && gradient.at.length === 2 ? `${gradient.at[0] * 100}% ${gradient.at[1] * 100}%` : "";
+
+	return result;
+}
+
+updatePaintStyle({
 	id: "test",
 	kind: "PAINT",
 	provider: "7TV",

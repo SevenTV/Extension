@@ -200,14 +200,14 @@ declare namespace SevenTV {
 	interface CosmeticPaint {
 		name: string;
 		color: number | null;
-		canvas_size: [number, number];
+		canvas_size: [number, number] | null;
 		canvas_repeat: CosmeticPaintCanvasRepeat;
 		gradients: CosmeticPaintGradient[];
 		shadows?: CosmeticPaintShadow[];
 		flairs?: CosmeticPaintFlair[];
 		text?: CosmeticPaintText;
 		/** @deprecated replaced by `gradients` */
-		function?: string;
+		function?: CosmeticPaintGradientFunction;
 		/** @deprecated replaced by `gradients` */
 		stops?: CosmeticPaintGradientStop[];
 		/** @deprecated replaced by `gradients` */
@@ -221,10 +221,10 @@ declare namespace SevenTV {
 	}
 	type AnyCosmetic = CosmeticBadge | CosmeticPaint;
 
-	type CosmeticPaintCanvasRepeat = "no-repeat" | "repeat-x" | "repeat-y" | "revert" | "round" | "space";
+	type CosmeticPaintCanvasRepeat = "" | "no-repeat" | "repeat-x" | "repeat-y" | "revert" | "round" | "space";
 
 	interface CosmeticPaintGradient {
-		function: string;
+		function: CosmeticPaintGradientFunction;
 		stops: CosmeticPaintGradientStop[];
 		image_url?: string;
 		shape?: string;
@@ -232,6 +232,8 @@ declare namespace SevenTV {
 		repeat: boolean;
 		at?: [number, number];
 	}
+
+	type CosmeticPaintGradientFunction = "LINEAR_GRADIENT" | "RADIAL_GRADIENT" | "CONIC_GRADIENT" | "URL";
 
 	interface CosmeticPaintGradientStop {
 		at: number;

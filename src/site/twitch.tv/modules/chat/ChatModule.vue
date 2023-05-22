@@ -102,7 +102,7 @@ defineExpose({
 <script lang="ts">
 import { HighlightDef } from "@/composable/chat/useChatHighlights";
 import { declareConfig, useConfig } from "@/composable/useSettings";
-import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
+import SettingsConfigHighlights from "@/app/settings/SettingsConfigHighlights.vue";
 
 export type TimestampFormatKey = "infer" | "12" | "24";
 

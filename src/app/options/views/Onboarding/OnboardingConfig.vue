@@ -248,9 +248,9 @@ import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTimeoutFn } from "@vueuse/shared";
 import { useConfig, useSettings } from "@/composable/useSettings";
-import SettingsNode from "@/site/global/settings/SettingsNode.vue";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import { OnboardingStepRoute, useOnboarding } from "./Onboarding";
+import SettingsNode from "@/app/settings/SettingsNode.vue";
 import UiButton from "@/ui/UiButton.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
