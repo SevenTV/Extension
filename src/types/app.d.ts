@@ -200,8 +200,6 @@ declare namespace SevenTV {
 	interface CosmeticPaint {
 		name: string;
 		color: number | null;
-		canvas_size: [number, number] | null;
-		canvas_repeat: CosmeticPaintCanvasRepeat;
 		gradients: CosmeticPaintGradient[];
 		shadows?: CosmeticPaintShadow[];
 		flairs?: CosmeticPaintFlair[];
@@ -225,12 +223,14 @@ declare namespace SevenTV {
 
 	interface CosmeticPaintGradient {
 		function: CosmeticPaintGradientFunction;
+		canvas_repeat: CosmeticPaintCanvasRepeat;
+		size: [number, number] | null;
+		at?: [number, number];
 		stops: CosmeticPaintGradientStop[];
 		image_url?: string;
 		shape?: string;
 		angle?: number;
 		repeat: boolean;
-		at?: [number, number];
 	}
 
 	type CosmeticPaintGradientFunction = "LINEAR_GRADIENT" | "RADIAL_GRADIENT" | "CONIC_GRADIENT" | "URL";

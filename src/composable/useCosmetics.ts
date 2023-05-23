@@ -354,12 +354,12 @@ function getPaintStylesheet(): CSSStyleSheet | null {
 const foo: SevenTV.CosmeticPaint = {
 	name: "test",
 	color: null,
-	canvas_size: [0.5, 0.5],
-	canvas_repeat: "no-repeat",
 	gradients: [
 		{
 			function: "LINEAR_GRADIENT",
 			at: [0, 0.5],
+			size: [0.5, 0.5],
+			canvas_repeat: "no-repeat",
 			stops: [
 				{
 					color: 4847841,
@@ -376,6 +376,8 @@ const foo: SevenTV.CosmeticPaint = {
 			function: "LINEAR_GRADIENT",
 			angle: 45,
 			at: [0.25, 0.5],
+			size: [0.5, 0.5],
+			canvas_repeat: "no-repeat",
 			stops: [
 				{
 					color: RGBAToDecimal(255, 0, 0, 86),
@@ -437,6 +439,8 @@ export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = fals
 		if (!paint.data.gradients) paint.data.gradients = new Array(1);
 		paint.data.gradients[0] = {
 			function: paint.data.function,
+			canvas_repeat: "",
+			size: [1, 1],
 			shape: paint.data.shape,
 			image_url: paint.data.image_url,
 			stops: paint.data.stops ?? [],
@@ -456,57 +460,51 @@ export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = fals
 			.join(" ");
 	})();
 
-	const size =
-		paint.data.canvas_size && paint.data.canvas_size.every((n) => n > 0)
-			? `${paint.data.canvas_size[0] * 100}% ${paint.data.canvas_size[1] * 100}%`
-			: "cover";
-
-	const repeat = paint.data.canvas_repeat || "unset";
-
 	const selector = `.seventv-paint[data-seventv-paint-id="${paint.id}"]`;
 	const text = `${selector} {
 color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "transparent"};
 background-image: ${gradients.map((v) => v[0]).join(", ")};
 background-position: ${gradients.map((v) => v[1]).join(", ")};
-background-size: ${size};
-background-repeat: ${repeat};
-filter: ${filter};
+background-size: ${gradients.map((v) => v[2]).join(", ")};
+background-repeat: ${gradients.map((v) => v[3]).join(", ")};
+filter: ${filter || "inherit"};
 ${
-	paint.data.text &&
-	`
+	paint.data.text
+		? `
 font-weight: ${paint.data.text.weight ? paint.data.text.weight * 100 : "inherit"};
 -webkit-text-stroke-width: ${paint.data.text.stroke ? `${paint.data.text.stroke.width}px` : "inherit"};
 -webkit-text-stroke-color: ${paint.data.text.stroke ? DecimalToStringRGBA(paint.data.text.stroke.color) : "inherit"};
 text-shadow: ${
-		paint.data.text.shadows
-			?.map((v) => `${v.x_offset}px ${v.y_offset}px ${v.radius}px ${DecimalToStringRGBA(v.color)}`)
-			.join(", ") ?? "unset"
-	};
+				paint.data.text.shadows
+					?.map((v) => `${v.x_offset}px ${v.y_offset}px ${v.radius}px ${DecimalToStringRGBA(v.color)}`)
+					.join(", ") ?? "unset"
+		  };
 text-transform: ${paint.data.text.transform ?? "unset"};
 `
+		: ""
 }
 }
 `;
 
-	let rule: CSSStyleRule | null = null;
+	let i = 0;
 	for (const r of Array.from(sheet.cssRules)) {
+		i++;
+
 		if (!(r instanceof CSSStyleRule)) continue;
 		if (r.selectorText !== selector) continue;
 
-		rule = r;
+		sheet.deleteRule(i - 1);
 		break;
 	}
 	if (remove) return;
 
-	if (!rule) {
-		sheet.insertRule(text, sheet.cssRules.length);
-	} else {
-		rule.cssText = text;
-	}
+	sheet.insertRule(text, sheet.cssRules.length);
 }
 
-export function createGradientFromPaint(gradient: SevenTV.CosmeticPaintGradient): [string, string] {
-	const result = ["", ""] as [string, string];
+export function createGradientFromPaint(
+	gradient: SevenTV.CosmeticPaintGradient,
+): [style: string, pos: string, size: string, repeat: string] {
+	const result = ["", "", "", ""] as [string, string, string, string];
 
 	const args = [] as string[];
 	switch (gradient.function) {
@@ -523,15 +521,18 @@ export function createGradientFromPaint(gradient: SevenTV.CosmeticPaintGradient)
 	let funcPrefix = "";
 	if (gradient.function !== "URL") {
 		funcPrefix = gradient.repeat ? "repeating-" : "";
-	}
 
-	for (const stop of gradient.stops) {
-		const color = DecimalToStringRGBA(stop.color);
-		args.push(`${color} ${stop.at * 100}%`);
+		for (const stop of gradient.stops) {
+			const color = DecimalToStringRGBA(stop.color);
+			args.push(`${color} ${stop.at * 100}%`);
+		}
 	}
 
 	result[0] = `${funcPrefix}${gradient.function.toLowerCase().replace("_", "-")}(${args.join(", ")})`;
 	result[1] = gradient.at && gradient.at.length === 2 ? `${gradient.at[0] * 100}% ${gradient.at[1] * 100}%` : "";
+	result[2] =
+		gradient.size && gradient.size.length === 2 ? `${gradient.size[0] * 100}% ${gradient.size[1] * 100}%` : "";
+	result[3] = gradient.canvas_repeat ?? "unset";
 
 	return result;
 }

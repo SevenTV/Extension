@@ -8,8 +8,10 @@
 			<component
 				:is="props.componentType"
 				v-for="it of items"
+				:id="it.index"
 				:key="it.index"
 				@delete="items.splice(items.indexOf(it), 1)"
+				@update="[(it.data = $event), onUpdate()]"
 			/>
 		</div>
 	</div>
@@ -22,12 +24,17 @@ import PlusIcon from "@/assets/svg/icons/PlusIcon.vue";
 
 export interface PaintToolListItem {
 	index: number;
+	data: unknown;
 }
 
 const props = defineProps<{
 	componentType: AnyInstanceType;
 	gridArea: string;
 	color: string;
+}>();
+
+const emit = defineEmits<{
+	(e: "update", data: unknown[]): void;
 }>();
 
 const items = ref<PaintToolListItem[]>([]);
@@ -39,6 +46,7 @@ const colorAlpha = ref("");
 function add(): void {
 	items.value.push({
 		index: items.value.length,
+		data: {},
 	});
 }
 
@@ -47,6 +55,13 @@ watchEffect(() => {
 	listArea.value = props.gridArea;
 	colorAlpha.value = props.color + SetHexAlpha(0.075);
 });
+
+function onUpdate(): void {
+	emit(
+		"update",
+		items.value.map((it) => it.data),
+	);
+}
 </script>
 
 <style scoped lang="scss">

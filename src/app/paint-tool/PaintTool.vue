@@ -12,7 +12,12 @@
 
 		<div class="seventv-paint-tool-content">
 			<div class="canvas"></div>
-			<PaintToolList color="#f542c2" :component-type="PaintToolGradient" grid-area="gradients" />
+			<PaintToolList
+				color="#f542c2"
+				:component-type="PaintToolGradient"
+				grid-area="gradients"
+				@update="data.gradients = $event as SevenTV.CosmeticPaintGradient[]"
+			/>
 			<PaintToolList color="#f5e6ce" :component-type="PaintToolGradient" grid-area="shadows" />
 			<div class="shadow-add"></div>
 			<div class="shadows"></div>
@@ -35,8 +40,6 @@ const id = ref(uuid());
 const data = reactive<SevenTV.CosmeticPaint>({
 	name: "Untitled Paint",
 	color: null,
-	canvas_size: null,
-	canvas_repeat: "",
 	gradients: [],
 	shadows: [],
 });
@@ -75,7 +78,7 @@ main.seventv-paint-tool {
 	width: 100%;
 	height: 6rem;
 	display: grid;
-	grid-template-columns: 1.25fr 0.75fr;
+	grid-template-columns: 1fr 1.25fr;
 	grid-template-rows: 1fr;
 	align-items: center;
 	padding: 0 0 0 1rem;

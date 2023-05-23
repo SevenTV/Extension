@@ -1,40 +1,55 @@
 <template>
-	<div class="seventv-paint-tool-gradient">
+	<div class="seventv-paint-tool-gradient" @wheel.stop>
 		<div class="seventv-paint-tool-gradient-stop-metadata">
-			<select v-model="data.function" v-tooltip="'Generator'" for="function">
+			<select v-model="data.function" for="function">
 				<option value="LINEAR_GRADIENT">Linear Gradient</option>
 				<option value="RADIAL_GRADIENT">Radial Gradient</option>
 				<option value="CONIC_GRADIENT">Conic Gradient</option>
 				<option value="URL">Image URL</option>
 			</select>
 
-			<input
-				v-if="data.function === 'LINEAR_GRADIENT'"
-				v-model="data.angle"
-				v-tooltip="'Angle'"
-				for="arg1"
-				type="number"
-			/>
-			<input
-				v-else-if="data.function === 'RADIAL_GRADIENT'"
-				v-model="data.shape"
-				v-tooltip="'Shape'"
-				type="text"
-			/>
+			<select v-model="data.canvas_repeat" v-tooltip="'Canvas Repeat Mode'" for="repeat-mode">
+				<option value="no-repeat">No Repeat</option>
+				<option value="repeat">Repeat All</option>
+				<option value="repeat-x">Repeat Horizontally</option>
+				<option value="repeat-y">Repeat Vertically</option>
+				<option value="round">Round</option>
+				<option value="space">Space</option>
+			</select>
+
+			<input v-if="data.function === 'LINEAR_GRADIENT'" v-model="data.angle" for="arg1" type="number" />
+			<input v-else-if="data.function === 'RADIAL_GRADIENT'" v-model="data.shape" type="text" />
 			<input v-else-if="data.function === 'URL'" v-model="data.image_url" v-tooltip="'Image URL'" type="text" />
 
-			<div for="pos">
-				<input v-if="data.at" v-model="data.at[0]" v-tooltip="'X Position'" type="number" />
-				<input v-if="data.at" v-model="data.at[1]" v-tooltip="'Y Position'" type="number" />
+			<div for="control">
+				<p>Gradient #{{ id }}</p>
+
+				<CloseIcon @click="emit('delete')" />
+			</div>
+
+			<div v-if="data.at" for="pos">
+				<label>Position</label>
+				<input v-model="data.at[0]" v-tooltip="'X Position'" type="number" step="0.01" />
+				<input v-model="data.at[1]" v-tooltip="'Y Position'" type="number" step="0.01" />
+			</div>
+
+			<div v-if="data.size" for="scale">
+				<label>Scale</label>
+				<input v-model="data.size[0]" type="number" step="0.01" min="0" />
+				<input v-model="data.size[1]" type="number" step="0.01" min="0" />
+			</div>
+
+			<div for="stop-repeat">
+				<label>Repeat Stops</label>
+				<input v-model="data.repeat" type="checkbox" />
 			</div>
 		</div>
 
-		<div class="seventv-paint-tool-gradient-stop-list">
-			<div v-for="(stop, i) of stops" :key="stop.id" class="seventv-paint-tool-gradient-stop" @wheel.stop>
-				<input v-model="stop.at" v-tooltip="'Position'" type="number" for="at" step="0.01" />
+		<div v-if="data.function !== 'URL'" class="seventv-paint-tool-gradient-stop-list">
+			<div v-for="(stop, i) of stops" :key="stop.id" class="seventv-paint-tool-gradient-stop">
+				<input v-model="stop.at" type="number" for="at" step="0.01" />
 				<input
 					v-model="stop.alpha"
-					v-tooltip="'Alpha'"
 					type="number"
 					for="alpha"
 					step="0.025"
@@ -43,7 +58,6 @@
 					@input="onAlphaChange($event as InputEvent, stop)"
 				/>
 				<input
-					v-tooltip="'Color'"
 					type="color"
 					for="color"
 					:value="DecimalToHex(stop.color, false)"
@@ -73,6 +87,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, toRaw, watch } from "vue";
+import { onMounted } from "vue";
 import { DecimalToHex, DecimalToStringRGBA, HexToDecimal } from "@/common/Color";
 import { createGradientFromPaint } from "@/composable/useCosmetics";
 import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";
@@ -85,18 +100,25 @@ interface StopData extends SevenTV.CosmeticPaintGradientStop {
 	alpha: number;
 }
 
+defineProps<{
+	id: number;
+}>();
+
 const emit = defineEmits<{
 	(e: "update", data: SevenTV.CosmeticPaintGradient): void;
+	(e: "delete"): void;
 }>();
 
 const data = reactive<SevenTV.CosmeticPaintGradient>({
 	function: "LINEAR_GRADIENT",
+	canvas_repeat: "no-repeat",
+	size: [1, 1],
+	at: [0, 0],
 	repeat: false,
 	stops: [],
 	angle: 90,
 	image_url: "",
 	shape: "circle",
-	at: [0, 0],
 });
 
 const stops = ref<StopData[]>([]);
@@ -142,6 +164,8 @@ watch(stops.value, (v) => {
 		color: s.color,
 	}));
 });
+
+onMounted(() => emit("update", data));
 </script>
 
 <style scoped lang="scss">
@@ -175,10 +199,11 @@ $stop-height: 9rem;
 	display: grid;
 	gap: 1rem;
 	grid-template-columns: 1fr 1fr 1fr;
-	grid-template-rows: 1fr 1fr;
+	grid-template-rows: 1fr 1fr 1fr;
 	grid-template-areas:
-		"function arg1 ."
-		"pos . .";
+		"function arg1 control"
+		"pos scale repeat-mode"
+		"stop-repeat . .";
 
 	input,
 	select {
@@ -199,17 +224,67 @@ $stop-height: 9rem;
 		border-radius: 0.25rem;
 	}
 
+	select[for="repeat-mode"] {
+		grid-area: repeat-mode;
+		width: 100%;
+		border-radius: 0.25rem;
+	}
+
 	input[for="arg1"] {
 		grid-area: arg1;
 	}
 
+	label {
+		justify-self: end;
+		font-weight: bold;
+	}
+
 	div[for="pos"] {
 		grid-area: pos;
+	}
+
+	div[for="scale"] {
+		grid-area: scale;
+	}
+
+	div[for="pos"],
+	div[for="scale"] {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(3, 1fr);
+		align-items: center;
 		justify-self: start;
 		column-gap: 0.5rem;
 		border-radius: 0.25rem;
+	}
+
+	div[for="control"] {
+		grid-area: control;
+		width: fit-content;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		justify-content: space-between;
+		justify-self: end;
+		justify-items: end;
+		padding: 0 1rem;
+		margin: 0 1rem;
+		align-items: center;
+		background-color: hsla(0deg, 0%, 0%, 25%);
+		border-radius: 0.25rem;
+
+		svg {
+			cursor: pointer;
+			color: var(--seventv-warning);
+		}
+	}
+
+	div[for="stop-repeat"] {
+		grid-area: stop-repeat;
+		display: grid;
+		grid-template-columns: 1fr 2rem;
+		align-items: center;
+		justify-self: start;
+		margin-left: 1rem;
+		column-gap: 0.5rem;
 	}
 }
 
