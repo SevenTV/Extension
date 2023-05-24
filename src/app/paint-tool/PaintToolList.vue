@@ -95,6 +95,13 @@ button.paint-tool-list-mod {
 }
 
 div.paint-tool-list {
+	> div {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin: 0.5rem;
+	}
+
 	p {
 		width: 100%;
 		text-align: center;

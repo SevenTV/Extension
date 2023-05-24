@@ -1,6 +1,6 @@
 import { Ref, reactive, ref, toRef } from "vue";
 import { until, useTimeout } from "@vueuse/core";
-import { DecimalToStringRGBA, RGBAToDecimal } from "@/common/Color";
+import { DecimalToStringRGBA } from "@/common/Color";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { useLiveQuery } from "./useLiveQuery";
@@ -351,81 +351,6 @@ function getPaintStylesheet(): CSSStyleSheet | null {
 	return (paintSheet = s.sheet ?? null);
 }
 
-const foo: SevenTV.CosmeticPaint = {
-	name: "test",
-	color: null,
-	gradients: [
-		{
-			function: "LINEAR_GRADIENT",
-			at: [0, 0.5],
-			size: [0.5, 0.5],
-			canvas_repeat: "no-repeat",
-			stops: [
-				{
-					color: 4847841,
-					at: 0,
-				},
-				{
-					color: -555114,
-					at: 1,
-				},
-			],
-			repeat: false,
-		},
-		{
-			function: "LINEAR_GRADIENT",
-			angle: 45,
-			at: [0.25, 0.5],
-			size: [0.5, 0.5],
-			canvas_repeat: "no-repeat",
-			stops: [
-				{
-					color: RGBAToDecimal(255, 0, 0, 86),
-					at: 0,
-				},
-				{
-					color: RGBAToDecimal(0, 255, 0, 86),
-					at: 1,
-				},
-			],
-			repeat: false,
-		},
-	],
-	text: {
-		weight: 7,
-		stroke: {
-			color: RGBAToDecimal(60, 10, 10, 255),
-			width: 0.25,
-		},
-		shadows: [
-			{
-				color: RGBAToDecimal(255, 0, 0, 255),
-				radius: 8,
-				x_offset: 0,
-				y_offset: 0,
-			},
-			{
-				color: RGBAToDecimal(0, 255, 0, 255),
-				radius: 8,
-				x_offset: 4,
-				y_offset: -4,
-			},
-			{
-				color: RGBAToDecimal(0, 0, 255, 255),
-				radius: 8,
-				x_offset: 4,
-				y_offset: 4,
-			},
-			{
-				color: RGBAToDecimal(170, 60, 255, 255),
-				radius: 8,
-				x_offset: -4,
-				y_offset: 2,
-			},
-		],
-	},
-};
-
 // This defines CSS variables in our global paint stylesheet for the given paint
 export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = false): void {
 	const sheet = getPaintStylesheet();
@@ -455,9 +380,7 @@ export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = fals
 			return "";
 		}
 
-		return paint.data.shadows
-			.map((v) => `drop-shadow(${v.x_offset}px ${v.y_offset}px ${v.radius}px ${DecimalToStringRGBA(v.color)})`)
-			.join(" ");
+		return paint.data.shadows.map((v) => createFilterDropshadow(v)).join(" ");
 	})();
 
 	const selector = `.seventv-paint[data-seventv-paint-id="${paint.id}"]`;
@@ -537,9 +460,8 @@ export function createGradientFromPaint(
 	return result;
 }
 
-updatePaintStyle({
-	id: "test",
-	kind: "PAINT",
-	provider: "7TV",
-	data: foo,
-} as SevenTV.Cosmetic<"PAINT">);
+export function createFilterDropshadow(shadow: SevenTV.CosmeticPaintShadow): string {
+	return `drop-shadow(${shadow.x_offset}px ${shadow.y_offset}px ${shadow.radius}px ${DecimalToStringRGBA(
+		shadow.color,
+	)})`;
+}

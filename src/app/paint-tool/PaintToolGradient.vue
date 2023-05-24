@@ -1,7 +1,7 @@
 <template>
 	<div class="seventv-paint-tool-gradient" @wheel.stop>
 		<div class="seventv-paint-tool-gradient-stop-metadata">
-			<select v-model="data.function" for="function">
+			<select v-model="data.function" v-tooltip="'Generator'" for="function">
 				<option value="LINEAR_GRADIENT">Linear Gradient</option>
 				<option value="RADIAL_GRADIENT">Radial Gradient</option>
 				<option value="CONIC_GRADIENT">Conic Gradient</option>
@@ -17,8 +17,19 @@
 				<option value="space">Space</option>
 			</select>
 
-			<input v-if="data.function === 'LINEAR_GRADIENT'" v-model="data.angle" for="arg1" type="number" />
-			<input v-else-if="data.function === 'RADIAL_GRADIENT'" v-model="data.shape" type="text" />
+			<input
+				v-if="data.function === 'LINEAR_GRADIENT'"
+				v-model="data.angle"
+				v-tooltip="'Angle'"
+				for="arg1"
+				type="number"
+			/>
+			<input
+				v-else-if="data.function === 'RADIAL_GRADIENT'"
+				v-model="data.shape"
+				v-tooltip="'Shape'"
+				type="text"
+			/>
 			<input v-else-if="data.function === 'URL'" v-model="data.image_url" v-tooltip="'Image URL'" type="text" />
 
 			<div for="control">
@@ -35,8 +46,8 @@
 
 			<div v-if="data.size" for="scale">
 				<label>Scale</label>
-				<input v-model="data.size[0]" type="number" step="0.01" min="0" />
-				<input v-model="data.size[1]" type="number" step="0.01" min="0" />
+				<input v-model="data.size[0]" v-tooltip="'Width'" type="number" step="0.01" min="0" />
+				<input v-model="data.size[1]" v-tooltip="'Height'" type="number" step="0.01" min="0" />
 			</div>
 
 			<div for="stop-repeat">
@@ -47,9 +58,10 @@
 
 		<div v-if="data.function !== 'URL'" class="seventv-paint-tool-gradient-stop-list">
 			<div v-for="(stop, i) of stops" :key="stop.id" class="seventv-paint-tool-gradient-stop">
-				<input v-model="stop.at" type="number" for="at" step="0.01" />
+				<input v-model="stop.at" v-tooltip="'Position'" type="number" for="at" step="0.01" />
 				<input
 					v-model="stop.alpha"
+					v-tooltip="'Alpha'"
 					type="number"
 					for="alpha"
 					step="0.025"
@@ -58,6 +70,7 @@
 					@input="onAlphaChange($event as InputEvent, stop)"
 				/>
 				<input
+					v-tooltip="'Color'"
 					type="color"
 					for="color"
 					:value="DecimalToHex(stop.color, false)"
@@ -70,6 +83,7 @@
 				</div>
 
 				<div
+					v-if="stop.alpha < 1"
 					class="seventv-paint-tool-gradient-color-preview"
 					:style="{ backgroundColor: DecimalToStringRGBA(stop.color) }"
 				/>
@@ -86,8 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, toRaw, watch } from "vue";
-import { onMounted } from "vue";
+import { onMounted, reactive, ref, toRaw, watch } from "vue";
 import { DecimalToHex, DecimalToStringRGBA, HexToDecimal } from "@/common/Color";
 import { createGradientFromPaint } from "@/composable/useCosmetics";
 import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";
@@ -175,7 +188,6 @@ $stop-width: 16rem;
 $stop-height: 9rem;
 
 .seventv-paint-tool-gradient {
-	padding: 0.5rem;
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 1rem;
@@ -310,7 +322,7 @@ $stop-height: 9rem;
 	grid-template-areas:
 		"pos color color"
 		"alpha color color"
-		"close . .";
+		"close . color-preview";
 
 	input {
 		background: none;
@@ -355,9 +367,9 @@ $stop-height: 9rem;
 }
 
 .seventv-paint-tool-gradient-color-preview {
+	grid-area: color-preview;
 	width: 100%;
-	border-top-right-radius: 0.25rem;
-	border-bottom-right-radius: 0.25rem;
+	border-radius: 0.25rem;
 }
 
 .seventv-paint-tool-gradient-stop-add {
