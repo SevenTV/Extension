@@ -383,7 +383,7 @@ function openNativeCard(ev: MouseEvent): void {
 }
 
 function getProfileURL(): string {
-	return window.location.origin + "/" + props.target.username;
+	return "https://www.twitch.tv/" + props.target.username;
 }
 
 function formatDateToString(date?: string): string {

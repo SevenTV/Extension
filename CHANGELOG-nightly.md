@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   No unreleased changes yet.
+-   Fixed link to twitch user profile if we located in stream manager dashbaord
 
 ### Version 3.0.8.1000
 
