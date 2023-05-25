@@ -1,10 +1,11 @@
-import { markRaw, reactive } from "vue";
+import { defineAsyncComponent, markRaw, reactive } from "vue";
 import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import SettingsViewCompatVue from "./SettingsViewCompat.vue";
 import SettingsViewConfigVue from "./SettingsViewConfig.vue";
 import SettingsViewHomeVue from "./SettingsViewHome.vue";
 import SettingsViewProfileVue from "./SettingsViewProfile.vue";
-import PaintTool from "@/app/paint-tool/PaintTool.vue";
+
+const PaintTool = defineAsyncComponent(() => import("@/app/paint-tool/PaintTool.vue"));
 
 class SettingsMenuContext {
 	open = false;

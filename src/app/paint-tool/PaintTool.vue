@@ -48,7 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, reactive, ref, watch } from "vue";
+import { onUnmounted, reactive, ref } from "vue";
+import { watchThrottled } from "@vueuse/core";
 import { updatePaintStyle } from "@/composable/useCosmetics";
 import PaintToolGradient from "./PaintToolGradient.vue";
 import PaintToolList from "./PaintToolList.vue";
@@ -72,7 +73,9 @@ function wrapPaint(): SevenTV.Cosmetic<"PAINT"> {
 	};
 }
 
-watch(data, () => updatePaintStyle(wrapPaint()));
+watchThrottled(data, () => updatePaintStyle(wrapPaint()), {
+	throttle: 50,
+});
 
 onUnmounted(() => updatePaintStyle(wrapPaint(), true));
 </script>

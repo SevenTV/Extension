@@ -19,7 +19,7 @@
 
 			<input
 				v-if="data.function === 'LINEAR_GRADIENT'"
-				v-model="data.angle"
+				v-model.number="data.angle"
 				v-tooltip="'Angle'"
 				for="arg1"
 				type="number"
@@ -40,14 +40,14 @@
 
 			<div v-if="data.at" for="pos">
 				<label>Position</label>
-				<input v-model="data.at[0]" v-tooltip="'X Position'" type="number" step="0.01" />
-				<input v-model="data.at[1]" v-tooltip="'Y Position'" type="number" step="0.01" />
+				<input v-model.number="data.at[0]" v-tooltip="'X Position'" type="number" step="0.01" />
+				<input v-model.number="data.at[1]" v-tooltip="'Y Position'" type="number" step="0.01" />
 			</div>
 
 			<div v-if="data.size" for="scale">
 				<label>Scale</label>
-				<input v-model="data.size[0]" v-tooltip="'Width'" type="number" step="0.01" min="0" />
-				<input v-model="data.size[1]" v-tooltip="'Height'" type="number" step="0.01" min="0" />
+				<input v-model.number="data.size[0]" v-tooltip="'Width'" type="number" step="0.01" min="0" />
+				<input v-model.number="data.size[1]" v-tooltip="'Height'" type="number" step="0.01" min="0" />
 			</div>
 
 			<div for="stop-repeat">
@@ -57,42 +57,7 @@
 		</div>
 
 		<div v-if="data.function !== 'URL'" class="seventv-paint-tool-gradient-stop-list">
-			<div v-for="(stop, i) of stops" :key="stop.id" class="seventv-paint-tool-gradient-stop">
-				<input v-model="stop.at" v-tooltip="'Position'" type="number" for="at" step="0.01" />
-				<input
-					v-model="stop.alpha"
-					v-tooltip="'Alpha'"
-					type="number"
-					for="alpha"
-					step="0.025"
-					min="0"
-					max="1"
-					@input="onAlphaChange($event as InputEvent, stop)"
-				/>
-				<input
-					v-tooltip="'Color'"
-					type="color"
-					for="color"
-					:value="DecimalToHex(stop.color, false)"
-					@input="onColorChange($event as InputEvent, stop)"
-				/>
-				<div for="move">
-					<ChevronIcon v-if="stops[i - 1]" direction="left" />
-					<ChevronIcon v-if="stops[i + 1]" direction="right" />
-					<CloseIcon for="close" @click="stops.splice(stops.indexOf(stop), 1)" />
-				</div>
-
-				<div
-					v-if="stop.alpha < 1"
-					class="seventv-paint-tool-gradient-color-preview"
-					:style="{ backgroundColor: DecimalToStringRGBA(stop.color) }"
-				/>
-			</div>
-
-			<!-- Add Stop -->
-			<button class="seventv-paint-tool-gradient-stop-add" @click="addStop">
-				<PlusIcon />
-			</button>
+			<PaintToolGradientStop v-model.lazy="data.stops" />
 		</div>
 
 		<div class="seventv-paint-tool-gradient-outline" :style="{ backgroundImage: bg }" />
@@ -100,18 +65,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, toRaw, watch } from "vue";
-import { DecimalToHex, DecimalToStringRGBA, HexToDecimal } from "@/common/Color";
+import { onMounted, reactive, ref } from "vue";
+import { watchThrottled } from "@vueuse/core";
 import { createGradientFromPaint } from "@/composable/useCosmetics";
-import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
-import PlusIcon from "@/assets/svg/icons/PlusIcon.vue";
-import { v4 as uuid } from "uuid";
-
-interface StopData extends SevenTV.CosmeticPaintGradientStop {
-	id: string;
-	alpha: number;
-}
+import PaintToolGradientStop from "./PaintToolGradientStop.vue";
 
 defineProps<{
 	id: number;
@@ -134,49 +92,18 @@ const data = reactive<SevenTV.CosmeticPaintGradient>({
 	shape: "circle",
 });
 
-const stops = ref<StopData[]>([]);
 const bg = ref("");
 const pos = ref("");
-const alpha = ref(1);
 
-function addStop(): void {
-	const s: StopData = stops.value.length
-		? structuredClone(toRaw(stops.value[stops.value.length - 1]))
-		: {
-				id: uuid(),
-				at: 0,
-				color: 0,
-				alpha: 1,
-		  };
+watchThrottled(
+	data,
+	(v) => {
+		[bg.value, pos.value] = createGradientFromPaint(v);
 
-	stops.value.push(s);
-}
-
-function onColorChange(ev: InputEvent, stop: SevenTV.CosmeticPaintGradientStop): void {
-	if (!(ev.target instanceof HTMLInputElement)) return;
-
-	stop.color = HexToDecimal(ev.target.value, alpha.value);
-}
-
-function onAlphaChange(ev: InputEvent, stop: SevenTV.CosmeticPaintGradientStop): void {
-	if (!(ev.target instanceof HTMLInputElement)) return;
-
-	const alpha = ev.target.valueAsNumber * 255;
-	stop.color = (stop.color & 0xffffff00) | (alpha & 0xff);
-}
-
-watch(data, (v) => {
-	[bg.value, pos.value] = createGradientFromPaint(v);
-
-	emit("update", v);
-});
-
-watch(stops.value, (v) => {
-	data.stops = v.map((s) => ({
-		at: s.at,
-		color: s.color,
-	}));
-});
+		emit("update", v);
+	},
+	{ throttle: 50 },
+);
 
 onMounted(() => emit("update", data));
 </script>
@@ -307,85 +234,9 @@ $stop-height: 9rem;
 	gap: 1rem;
 }
 
-.seventv-paint-tool-gradient-stop {
-	// https://grid.layoutit.com/?id=g6zmIKv
-	background: hsla(0deg, 0%, 0%, 25%);
-	border-top-left-radius: 0.25rem;
-	border-bottom-left-radius: 0.25rem;
-	display: grid;
-	gap: 0.5rem;
-	padding: 0.5rem;
-	grid-template-columns: 1.5fr 1fr 1fr;
-	grid-template-rows: 1fr 1fr 1fr;
-	width: $stop-width;
-	height: $stop-height;
-	grid-template-areas:
-		"pos color color"
-		"alpha color color"
-		"close . color-preview";
-
-	input {
-		background: none;
-		border: none;
-		outline: none;
-		color: currentcolor;
-		padding-left: 0.25rem;
-		font-size: 1.5rem;
-		width: 100%;
-	}
-
-	input[type="number"] {
-		border-bottom: 0.1rem solid currentcolor;
-	}
-
-	input[for="at"] {
-		grid-area: pos;
-	}
-
-	input[for="color"] {
-		grid-area: color;
-		height: 100%;
-	}
-
-	input[for="alpha"] {
-		grid-area: alpha;
-	}
-
-	div[for="move"] {
-		grid-area: close;
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		font-size: 1.5rem;
-		align-items: center;
-		color: var(--seventv-warning);
-
-		svg:hover {
-			cursor: pointer;
-			filter: brightness(1.5);
-		}
-	}
-}
-
 .seventv-paint-tool-gradient-color-preview {
 	grid-area: color-preview;
 	width: 100%;
 	border-radius: 0.25rem;
-}
-
-.seventv-paint-tool-gradient-stop-add {
-	width: $stop-width;
-	height: $stop-height;
-	background: hsla(0deg, 0%, 0%, 25%);
-	border-radius: 0.25rem;
-	display: grid;
-	place-items: center;
-	font-size: 3rem;
-	color: currentcolor;
-	transition: filter 0.2s ease-in-out;
-
-	&:hover {
-		cursor: pointer;
-		outline: 0.1rem solid currentcolor;
-	}
 }
 </style>
