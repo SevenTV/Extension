@@ -22,7 +22,7 @@ import PaintToolPaintCard from "./PaintToolPaintCard.vue";
 
 type PaintToolView = "maker" | "preview";
 
-const cosmetics = getCosmetics();
+const { cosmetics } = getCosmetics();
 
 const view = ref<PaintToolView>("preview");
 const selectedPaint = ref<string | null>(null);
@@ -42,7 +42,6 @@ function onMakerSave(paint: SevenTV.Cosmetic<"PAINT">): void {
 	cosmetics[paint.id] = paint;
 
 	updatePaintStyle(paint);
-	reload();
 }
 
 function onNewProject() {

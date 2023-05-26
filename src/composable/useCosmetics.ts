@@ -335,8 +335,8 @@ export function useCosmetics(userID: string) {
 	});
 }
 
-export function getCosmetics(): Record<string, SevenTV.Cosmetic> {
-	return data.cosmetics;
+export function getCosmetics() {
+	return data;
 }
 
 let paintSheet: CSSStyleSheet | null = null;

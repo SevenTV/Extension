@@ -27,7 +27,10 @@
 		</div>
 
 		<div class="seventv-paint-tool-content">
-			<div class="canvas"></div>
+			<div class="paint">
+				<UiButton @click="tryOn">TRY ON</UiButton>
+			</div>
+
 			<PaintToolList
 				color="#f542c2"
 				:component-type="PaintToolGradient"
@@ -52,11 +55,14 @@
 <script setup lang="ts">
 import { onUnmounted, reactive, ref } from "vue";
 import { watchThrottled } from "@vueuse/core";
-import { getCosmetics, updatePaintStyle } from "@/composable/useCosmetics";
+import { storeToRefs } from "pinia";
+import { useStore } from "@/store/main";
+import { getCosmetics, updatePaintStyle, useCosmetics } from "@/composable/useCosmetics";
 import ArrowIcon from "@/assets/svg/icons/ArrowIcon.vue";
 import PaintToolGradient from "./PaintToolGradient.vue";
 import PaintToolList from "./PaintToolList.vue";
 import PaintToolShadow from "./PaintToolShadow.vue";
+import UiButton from "@/ui/UiButton.vue";
 import { v4 as uuid } from "uuid";
 
 const props = defineProps<{
@@ -68,7 +74,9 @@ const emit = defineEmits<{
 	(e: "save", data: SevenTV.Cosmetic<"PAINT">): void;
 }>();
 
-const knownPaint = getCosmetics()[props.id ?? ""] as SevenTV.Cosmetic<"PAINT"> | undefined;
+const { cosmetics } = getCosmetics();
+const { identity } = storeToRefs(useStore());
+const knownPaint = cosmetics[props.id ?? ""] as SevenTV.Cosmetic<"PAINT"> | undefined;
 
 const id = ref(knownPaint ? knownPaint.id : uuid());
 const data = reactive<SevenTV.CosmeticPaint>(
@@ -87,6 +95,14 @@ function wrapPaint(): SevenTV.Cosmetic<"PAINT"> {
 		provider: "7TV",
 		data,
 	};
+}
+
+function tryOn(): void {
+	if (!identity.value) return;
+
+	const m = useCosmetics(identity.value.id).paints;
+	m.clear();
+	m.set(id.value, wrapPaint());
 }
 
 watchThrottled(data, () => updatePaintStyle(wrapPaint()), {
@@ -189,18 +205,18 @@ main.seventv-paint-tool {
 .seventv-paint-tool-content {
 	grid-area: content;
 	display: grid;
-	margin: 1rem 0;
 	grid-template-columns: 0.25fr 1.5fr 1fr;
 	grid-template-rows: repeat(5, min-content);
 	grid-template-areas:
-		"canvas canvas canvas"
+		"paint paint paint"
 		"gradients-mod gradients gradients"
 		"shadows-mod shadows shadows"
 		"text-mod text text"
 		"flair-add flairs flairs";
 
-	.canvas {
-		grid-area: canvas;
+	.paint {
+		grid-area: paint;
+		margin: 1rem;
 	}
 
 	.shadows-mod {
