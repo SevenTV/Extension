@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { toRaw } from "vue";
+import { onMounted } from "vue";
 import { watchThrottled } from "@vueuse/core";
 import { DecimalToHex, DecimalToStringRGBA, HexToDecimal } from "@/common/Color";
 import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";
@@ -65,7 +66,7 @@ export interface PaintToolStopData extends SevenTV.CosmeticPaintGradientStop {
 	alpha: number;
 }
 
-defineProps<{
+const props = defineProps<{
 	modelValue: SevenTV.CosmeticPaintGradientStop[];
 }>();
 
@@ -114,6 +115,17 @@ watchThrottled(
 		throttle: 50,
 	},
 );
+
+onMounted(() => {
+	for (const stop of props.modelValue ?? []) {
+		stops.value.push({
+			id: uuid(),
+			at: stop.at,
+			color: stop.color,
+			alpha: stop.color & 0xff,
+		});
+	}
+});
 </script>
 
 <style scoped lang="scss">

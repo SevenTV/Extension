@@ -10,6 +10,7 @@
 				v-for="it of items"
 				:id="it.index"
 				:key="it.index"
+				:data="it.data"
 				@delete="items.splice(items.indexOf(it), 1)"
 				@update="[(it.data = $event), onUpdate()]"
 			/>
@@ -31,13 +32,19 @@ const props = defineProps<{
 	componentType: AnyInstanceType;
 	gridArea: string;
 	color: string;
+	data?: unknown[];
 }>();
 
 const emit = defineEmits<{
 	(e: "update", data: unknown[]): void;
 }>();
 
-const items = ref<PaintToolListItem[]>([]);
+const items = ref<PaintToolListItem[]>(
+	props.data?.map((data, index) => ({
+		index,
+		data,
+	})) ?? [],
+);
 
 const modArea = ref("");
 const listArea = ref("");
@@ -46,7 +53,7 @@ const colorAlpha = ref("");
 function add(): void {
 	items.value.push({
 		index: items.value.length,
-		data: {},
+		data: null,
 	});
 }
 

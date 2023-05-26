@@ -289,7 +289,7 @@ db.ready().then(async () => {
 		setEntitlement(ev.detail, "-");
 	});
 
-	// Assign stored entitlementsdb.entitlements
+	// Assign stored entitlements
 	db.entitlements.toArray().then((ents) => {
 		for (const ent of ents) {
 			let assigned = false;
@@ -333,6 +333,10 @@ export function useCosmetics(userID: string) {
 		emotes: toRef(data.userEmoteMap, userID),
 		emoteSets: toRef(data.userEmoteSets, userID),
 	});
+}
+
+export function getCosmetics(): Record<string, SevenTV.Cosmetic> {
+	return data.cosmetics;
 }
 
 let paintSheet: CSSStyleSheet | null = null;
@@ -409,19 +413,23 @@ text-transform: ${paint.data.text.transform ?? "unset"};
 }
 `;
 
-	let i = 0;
-	for (const r of Array.from(sheet.cssRules)) {
-		i++;
-
+	let currenIndex = -1;
+	for (let i = 0; i < sheet.cssRules.length; i++) {
+		const r = sheet.cssRules[i];
 		if (!(r instanceof CSSStyleRule)) continue;
 		if (r.selectorText !== selector) continue;
 
-		sheet.deleteRule(i - 1);
+		currenIndex = i;
 		break;
 	}
 	if (remove) return;
 
-	sheet.insertRule(text, sheet.cssRules.length);
+	if (currenIndex >= 0) {
+		sheet.deleteRule(currenIndex);
+		sheet.insertRule(text, currenIndex);
+	} else {
+		sheet.insertRule(text, sheet.cssRules.length);
+	}
 }
 
 export function createGradientFromPaint(

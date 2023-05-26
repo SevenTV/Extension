@@ -71,8 +71,9 @@ import { createGradientFromPaint } from "@/composable/useCosmetics";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import PaintToolGradientStop from "./PaintToolGradientStop.vue";
 
-defineProps<{
+const props = defineProps<{
 	id: number;
+	data?: SevenTV.CosmeticPaintGradient;
 }>();
 
 const emit = defineEmits<{
@@ -80,17 +81,19 @@ const emit = defineEmits<{
 	(e: "delete"): void;
 }>();
 
-const data = reactive<SevenTV.CosmeticPaintGradient>({
-	function: "LINEAR_GRADIENT",
-	canvas_repeat: "no-repeat",
-	size: [1, 1],
-	at: [0, 0],
-	repeat: false,
-	stops: [],
-	angle: 90,
-	image_url: "",
-	shape: "circle",
-});
+const data = reactive<SevenTV.CosmeticPaintGradient>(
+	props.data ?? {
+		function: "LINEAR_GRADIENT",
+		canvas_repeat: "no-repeat",
+		size: [1, 1],
+		at: [0, 0],
+		repeat: false,
+		stops: [],
+		angle: 90,
+		image_url: "",
+		shape: "circle",
+	},
+);
 
 const bg = ref("");
 const pos = ref("");
@@ -105,7 +108,21 @@ watchThrottled(
 	{ throttle: 50 },
 );
 
-onMounted(() => emit("update", data));
+onMounted(() => {
+	if (!Array.isArray(data.at)) {
+		data.at = [0, 0];
+	}
+
+	if (!Array.isArray(data.size)) {
+		data.size = [1, 1];
+	}
+
+	if (!Array.isArray(data.stops)) {
+		data.stops = [];
+	}
+
+	emit("update", data);
+});
 </script>
 
 <style scoped lang="scss">
