@@ -76,6 +76,12 @@ const acknowledgements = reactive(new Set<string>([]));
 
 const questions = ref<Question[]>([
 	{
+		id: "video",
+		kind: "config",
+		configEffect: ["general.hd-video.enabled"],
+		title: t("onboarding.config_question.video"),
+	},
+	{
 		id: "active-chatter",
 		kind: "either",
 		title: t("onboarding.config_question.chatter"),
