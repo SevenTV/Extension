@@ -91,6 +91,7 @@ export class EventAPI {
 
 		this.sessionID = msg.data.session_id;
 		this.heartbeatInterval = msg.data.heartbeat_interval;
+		this.backoff = 100;
 
 		this.shouldResume = false;
 

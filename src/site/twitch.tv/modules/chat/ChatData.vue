@@ -22,15 +22,10 @@ const channelSets = useLiveQuery(
 	() =>
 		db.channels
 			.where("id")
-			.equals(ctx.id ?? "")
+			.equals(ctx.id)
 			.first()
 			.then((c) => c?.set_ids ?? []),
-	() => {
-		// reset the third-party emote providers
-		emotes.providers["7TV"] = {};
-		emotes.providers["FFZ"] = {};
-		emotes.providers["BTTV"] = {};
-	},
+	undefined,
 	{
 		reactives: [channelID],
 	},
@@ -46,6 +41,11 @@ useLiveQuery(
 			.equals("GLOBAL")
 			.sortBy("priority"),
 	(sets) => {
+		// reset the third-party emote providers
+		emotes.providers["7TV"] = {};
+		emotes.providers["FFZ"] = {};
+		emotes.providers["BTTV"] = {};
+
 		if (!sets) return;
 
 		for (const set of sets) {

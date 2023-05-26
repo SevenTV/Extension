@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   No unreleased changes yet.
+-   Fixed an issue which sometimes caused channel emote sets to disappear
 
 ### Version 3.0.8.1000
 
