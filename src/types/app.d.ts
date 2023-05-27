@@ -159,6 +159,7 @@ declare namespace SevenTV {
 
 	interface UserStyle {
 		color: number;
+		paint_id?: ObjectID;
 		paint?: CosmeticPaint;
 	}
 

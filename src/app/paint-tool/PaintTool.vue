@@ -20,7 +20,7 @@
 			placement="bottom"
 			:middleware="[offset(4)]"
 		>
-			<input v-model="share.value" placeholder="Import Code" @keydown.enter="onImport" />
+			<input v-model="share.value" placeholder="Import Code" :autofocus="true" @keydown.enter="onImport" />
 		</UiFloating>
 
 		<UiFloating v-if="share.error" :anchor="shareButton" placement="left" :middleware="[offset(8)]">
@@ -86,6 +86,8 @@ async function onImport() {
 	const isPrompt = share.prompt;
 	const txt = isPrompt ? share.value : await navigator.clipboard.readText().catch(() => "");
 	share.value = "";
+	share.prompt = false;
+
 	if (!txt) {
 		share.prompt = true;
 	}

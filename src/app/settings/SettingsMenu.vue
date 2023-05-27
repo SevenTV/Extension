@@ -46,6 +46,13 @@
 								/>
 							</template>
 							<CategoryDropdown
+								v-if="actor.user && actor.user.style?.paint_id"
+								:style="{ color: 'var(--seventv-subscriber-color)' }"
+								category="Paint Tool"
+								:sub-categories="[]"
+								@open-category="() => ctx.switchView('paint')"
+							/>
+							<CategoryDropdown
 								category="Compatibility"
 								:sub-categories="[]"
 								@open-category="() => ctx.switchView('compat')"

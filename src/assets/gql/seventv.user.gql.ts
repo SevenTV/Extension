@@ -9,6 +9,7 @@ export const actorQuery = gql`
 			avatar_url
 			style {
 				color
+				paint_id
 			}
 			connections {
 				id
