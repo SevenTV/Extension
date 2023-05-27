@@ -54,6 +54,7 @@
 				color="#f5e6ce"
 				:component-type="PaintToolShadow"
 				grid-area="shadows"
+				:data="data.shadows"
 				@update="(d) => data.shadows = (d as SevenTV.CosmeticPaintShadow[])"
 			/>
 			<div class="text-mod"></div>
@@ -159,6 +160,7 @@ main.seventv-paint-tool {
 .seventv-paint-tool-title {
 	grid-area: title;
 	position: sticky;
+	z-index: 1;
 	top: 0;
 	width: 100%;
 	height: 6rem;
