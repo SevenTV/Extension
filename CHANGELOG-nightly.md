@@ -4,6 +4,7 @@
 
 -   Added new feature: Paint Tool ([subscribers only](https://7tv.app/store))
 -   Fixed an issue which sometimes caused channel emote sets to disappear
+-   Fixed an issue which caused stylesheets to be duplicated when running in hosted mode
 
 ### Version 3.0.8.1000
 
