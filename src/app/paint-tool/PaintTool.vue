@@ -7,10 +7,17 @@
 			</div>
 			<sub>Select Project</sub>
 		</div>
-		<div class="paint-tool-projects">
-			<PaintToolPaintCard v-for="paint of paints" :key="paint.id" :paint="paint" @click="selectPaint(paint)" />
-			<div class="paint-tool-new-project-button" @click="newProject">New Project</div>
-		</div>
+		<UiScrollable>
+			<div class="paint-tool-projects">
+				<PaintToolPaintCard
+					v-for="paint of paints"
+					:key="paint.id"
+					:paint="paint"
+					@click="selectPaint(paint)"
+				/>
+				<div class="paint-tool-new-project-button" @click="newProject">New Project</div>
+			</div>
+		</UiScrollable>
 	</main>
 
 	<template v-if="shareButton">
@@ -41,6 +48,7 @@ import PaintToolMaker from "./PaintToolMaker.vue";
 import PaintToolPaintCard from "./PaintToolPaintCard.vue";
 import UiButton from "@/ui/UiButton.vue";
 import UiFloating from "@/ui/UiFloating.vue";
+import UiScrollable from "@/ui/UiScrollable.vue";
 import { offset } from "@floating-ui/dom";
 
 type PaintToolView = "maker" | "preview";

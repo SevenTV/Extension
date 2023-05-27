@@ -26,42 +26,44 @@
 			</div>
 		</div>
 
-		<div class="seventv-paint-tool-content">
-			<div for="paint">
-				<UiButton @click="tryOn">TRY ON</UiButton>
-				<UiButton @click="onShare">SHARE</UiButton>
-				<UiButton @click="onDelete">DELETE</UiButton>
+		<UiScrollable>
+			<div class="seventv-paint-tool-content">
+				<div for="paint">
+					<UiButton @click="tryOn">TRY ON</UiButton>
+					<UiButton @click="onShare">SHARE</UiButton>
+					<UiButton @click="onDelete">DELETE</UiButton>
 
-				<div for="color">
-					<CloseIcon v-tooltip="'Unset Override Color'" @click="data.color = null" />
-					<input
-						v-tooltip="'Override Color'"
-						type="color"
-						:value="data.color ? DecimalToHex(data.color) : null"
-						@input="data.color = HexToDecimal(($event.target as HTMLInputElement).value)"
-					/>
+					<div for="color">
+						<CloseIcon v-tooltip="'Unset Override Color'" @click="data.color = null" />
+						<input
+							v-tooltip="'Override Color'"
+							type="color"
+							:value="data.color ? DecimalToHex(data.color) : null"
+							@input="data.color = HexToDecimal(($event.target as HTMLInputElement).value)"
+						/>
+					</div>
 				</div>
-			</div>
 
-			<PaintToolList
-				color="#f542c2"
-				:component-type="PaintToolGradient"
-				grid-area="gradients"
-				:data="data.gradients"
-				@update="(d) => data.gradients = (d as SevenTV.CosmeticPaintGradient[])"
-			/>
-			<PaintToolList
-				color="#f5e6ce"
-				:component-type="PaintToolShadow"
-				grid-area="shadows"
-				:data="data.shadows"
-				@update="(d) => data.shadows = (d as SevenTV.CosmeticPaintShadow[])"
-			/>
-			<div class="text-mod"></div>
-			<div class="text"></div>
-			<div class="flair-add"></div>
-			<div class="flairs"></div>
-		</div>
+				<PaintToolList
+					color="#f542c2"
+					:component-type="PaintToolGradient"
+					grid-area="gradients"
+					:data="data.gradients"
+					@update="(d) => data.gradients = (d as SevenTV.CosmeticPaintGradient[])"
+				/>
+				<PaintToolList
+					color="#f5e6ce"
+					:component-type="PaintToolShadow"
+					grid-area="shadows"
+					:data="data.shadows"
+					@update="(d) => data.shadows = (d as SevenTV.CosmeticPaintShadow[])"
+				/>
+				<div class="text-mod"></div>
+				<div class="text"></div>
+				<div class="flair-add"></div>
+				<div class="flairs"></div>
+			</div>
+		</UiScrollable>
 	</main>
 </template>
 
@@ -79,6 +81,7 @@ import PaintToolGradient from "./PaintToolGradient.vue";
 import PaintToolList from "./PaintToolList.vue";
 import PaintToolShadow from "./PaintToolShadow.vue";
 import UiButton from "@/ui/UiButton.vue";
+import UiScrollable from "@/ui/UiScrollable.vue";
 import { v4 as uuid } from "uuid";
 
 const props = defineProps<{
@@ -153,7 +156,6 @@ main.seventv-paint-tool {
 	grid-template-areas:
 		"title"
 		"content";
-	overflow: auto;
 	height: 100%;
 }
 
