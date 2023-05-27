@@ -27,8 +27,20 @@
 		</div>
 
 		<div class="seventv-paint-tool-content">
-			<div class="paint">
+			<div for="paint">
 				<UiButton @click="tryOn">TRY ON</UiButton>
+				<UiButton @click="onShare">SHARE</UiButton>
+				<UiButton @click="onDelete">DELETE</UiButton>
+
+				<div for="color">
+					<CloseIcon v-tooltip="'Unset Override Color'" @click="data.color = null" />
+					<input
+						v-tooltip="'Override Color'"
+						type="color"
+						:value="data.color ? DecimalToHex(data.color) : null"
+						@input="data.color = HexToDecimal(($event.target as HTMLInputElement).value)"
+					/>
+				</div>
 			</div>
 
 			<PaintToolList
@@ -57,8 +69,11 @@ import { onUnmounted, reactive, ref } from "vue";
 import { watchThrottled } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
+import { DecimalToHex, HexToDecimal } from "@/common/Color";
+import { db } from "@/db/idb";
 import { getCosmetics, updatePaintStyle, useCosmetics } from "@/composable/useCosmetics";
 import ArrowIcon from "@/assets/svg/icons/ArrowIcon.vue";
+import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import PaintToolGradient from "./PaintToolGradient.vue";
 import PaintToolList from "./PaintToolList.vue";
 import PaintToolShadow from "./PaintToolShadow.vue";
@@ -82,7 +97,7 @@ const id = ref(knownPaint ? knownPaint.id : uuid());
 const data = reactive<SevenTV.CosmeticPaint>(
 	knownPaint?.data ?? {
 		name: "Untitled Paint",
-		color: null,
+		color: 2139062271,
 		gradients: [],
 		shadows: [],
 	},
@@ -103,6 +118,21 @@ function tryOn(): void {
 	const m = useCosmetics(identity.value.id).paints;
 	m.clear();
 	m.set(id.value, wrapPaint());
+}
+
+function onDelete(): void {
+	if (!identity.value) return;
+
+	const m = useCosmetics(identity.value.id).paints;
+	m.delete(id.value);
+	db.cosmetics.delete(id.value).then(() => emit("exit"));
+}
+
+function onShare(): void {
+	if (!identity.value) return;
+
+	const code = JSON.stringify(wrapPaint());
+	navigator.clipboard.writeText(code);
 }
 
 watchThrottled(data, () => updatePaintStyle(wrapPaint()), {
@@ -214,9 +244,27 @@ main.seventv-paint-tool {
 		"text-mod text text"
 		"flair-add flairs flairs";
 
-	.paint {
+	div[for="paint"] {
 		grid-area: paint;
+		display: grid;
+		grid-template-columns: repeat(3, auto);
+		justify-content: start;
+		gap: 1rem;
 		margin: 1rem;
+
+		div[for="color"] {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			align-items: center;
+			column-gap: 0.25rem;
+
+			> input {
+				outline: none;
+				border: none;
+				background: none;
+				width: 100%;
+			}
+		}
 	}
 
 	.shadows-mod {

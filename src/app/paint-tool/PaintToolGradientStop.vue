@@ -51,9 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { toRaw } from "vue";
-import { onMounted } from "vue";
+import { onMounted, ref, toRaw } from "vue";
 import { watchThrottled } from "@vueuse/core";
 import { DecimalToHex, DecimalToStringRGBA, HexToDecimal } from "@/common/Color";
 import ChevronIcon from "@/assets/svg/icons/ChevronIcon.vue";

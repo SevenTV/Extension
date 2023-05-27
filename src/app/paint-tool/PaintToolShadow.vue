@@ -34,9 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { reactive } from "vue";
-import { watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import { DecimalToHex, HexToDecimal } from "@/common/Color";
 import { createFilterDropshadow } from "@/composable/useCosmetics";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";

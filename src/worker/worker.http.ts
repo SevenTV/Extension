@@ -190,10 +190,12 @@ export class WorkerHttp {
 			const badges = [...(seventv ? converted[0] : []), ...(ffz ? convertFfzBadges(ffz) : [])];
 			const paints = converted[1] ?? [];
 
-			port.postMessage("STATIC_COSMETICS_FETCHED", {
-				badges,
-				paints,
-			});
+			setTimeout(() => {
+				port.postMessage("STATIC_COSMETICS_FETCHED", {
+					badges,
+					paints,
+				});
+			}, 5000);
 
 			log.info(`<Static Cosmetics> ${badges.length} badges, ${paints.length} paints`);
 		});
