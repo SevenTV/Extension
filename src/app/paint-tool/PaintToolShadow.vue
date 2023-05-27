@@ -39,8 +39,9 @@ import { DecimalToHex, HexToDecimal } from "@/common/Color";
 import { createFilterDropshadow } from "@/composable/useCosmetics";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 
-defineProps<{
+const props = defineProps<{
 	id: number;
+	data?: SevenTV.CosmeticPaintShadow;
 }>();
 
 const emit = defineEmits<{
@@ -48,12 +49,14 @@ const emit = defineEmits<{
 	(e: "delete"): void;
 }>();
 
-const data = reactive<SevenTV.CosmeticPaintShadow>({
-	x_offset: 0,
-	y_offset: 0,
-	radius: 1,
-	color: 255,
-});
+const data = reactive<SevenTV.CosmeticPaintShadow>(
+	props.data ?? {
+		x_offset: 0,
+		y_offset: 0,
+		radius: 1,
+		color: 255,
+	},
+);
 
 const alpha = ref(1);
 const preview = ref<string>("");

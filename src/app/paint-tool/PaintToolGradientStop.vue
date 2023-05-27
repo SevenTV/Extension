@@ -120,7 +120,7 @@ onMounted(() => {
 			id: uuid(),
 			at: stop.at,
 			color: stop.color,
-			alpha: stop.color & 0xff,
+			alpha: (stop.color & 0xff) / 255,
 		});
 	}
 });
