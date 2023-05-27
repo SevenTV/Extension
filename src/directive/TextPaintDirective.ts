@@ -1,6 +1,6 @@
 import type { Directive, DirectiveBinding } from "vue";
 
-const ATTR_SEVENTV_PAINT_ID = "data-seventv-cosmetic-paint-id";
+const ATTR_SEVENTV_PAINT_ID = "data-seventv-paint-id";
 const ATTR_SEVENTV_TEXT = "data-seventv-painted-text";
 
 export const TextPaintDirective = {
@@ -28,16 +28,7 @@ function updateElementStyles(el: HTMLElement, paintID: string | null): void {
 	}
 	if (!paintID) return;
 
-	const varPrefix = `--seventv-paint-${paintID}`;
-	const bg = `${varPrefix}-bg`;
-	const filter = `${varPrefix}-filter`;
-	const color = `${varPrefix}-color`;
-
-	el.style.backgroundImage = `var(${bg})`;
-	el.style.filter = `var(${filter})`;
-	el.style.color = `var(${color})`;
-
-	el.classList.add("seventv-painted-content");
+	el.classList.add("seventv-painted-content", "seventv-paint");
 	el.setAttribute(ATTR_SEVENTV_TEXT, "true");
 	el.setAttribute(ATTR_SEVENTV_PAINT_ID, paintID);
 }

@@ -8,9 +8,9 @@
 
 <script setup lang="ts">
 import { declareModule } from "@/composable/useModule";
-import { useSettingsMenu } from "@/site/global/settings/Settings";
+import { useSettingsMenu } from "@/app/settings/Settings";
 import SettingsMenuButton from "./SettingsMenuButton.vue";
-import SettingsMenu from "../../../global/settings/SettingsMenu.vue";
+import SettingsMenu from "../../../../app/settings/SettingsMenu.vue";
 import { declareConfig } from "@/composable/useSettings";
 
 const { markAsReady } = declareModule("settings", {

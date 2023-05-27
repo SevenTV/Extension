@@ -26,12 +26,12 @@
 
 <script setup lang="ts">
 import { useTimeoutFn } from "@vueuse/shared";
-import FormCheckbox from "@/site/global/settings/control/FormCheckbox.vue";
-import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
-import FormInput from "@/site/global/settings/control/FormInput.vue";
-import FormSelect from "@/site/global/settings/control/FormSelect.vue";
-import FormSlider from "@/site/global/settings/control/FormSlider.vue";
-import FormToggle from "@/site/global/settings/control/FormToggle.vue";
+import FormCheckbox from "@/app/settings/control/FormCheckbox.vue";
+import FormDropdown from "@/app/settings/control/FormDropdown.vue";
+import FormInput from "@/app/settings/control/FormInput.vue";
+import FormSelect from "@/app/settings/control/FormSelect.vue";
+import FormSlider from "@/app/settings/control/FormSlider.vue";
+import FormToggle from "@/app/settings/control/FormToggle.vue";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;

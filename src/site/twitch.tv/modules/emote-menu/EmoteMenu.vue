@@ -66,13 +66,13 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
-import { useSettingsMenu } from "@/site/global/settings/Settings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import EmoteMenuButton from "./EmoteMenuButton.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
+import { useSettingsMenu } from "@/app/settings/Settings";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
 

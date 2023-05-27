@@ -46,6 +46,13 @@
 								/>
 							</template>
 							<CategoryDropdown
+								v-if="actor.user && actor.user.style?.paint_id"
+								:style="{ color: 'var(--seventv-subscriber-color)' }"
+								category="Paint Tool"
+								:sub-categories="[]"
+								@open-category="() => ctx.switchView('paint')"
+							/>
+							<CategoryDropdown
 								category="Compatibility"
 								:sub-categories="[]"
 								@open-category="() => ctx.switchView('compat')"
@@ -86,18 +93,18 @@
 
 <script setup lang="ts">
 import { inject, nextTick, ref, watch } from "vue";
-import { useBreakpoints } from "@vueuse/core";
+import { useBreakpoints, useMagicKeys } from "@vueuse/core";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
-import CategoryDropdown from "@/site/global/settings/CategoryDropdown.vue";
 import LogoutIcon from "@/assets/svg/icons/LogoutIcon.vue";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import { useSettingsMenu } from "./Settings";
 import SettingsUpdateButton from "./SettingsUpdateButton.vue";
+import CategoryDropdown from "@/app/settings/CategoryDropdown.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { shift } from "@floating-ui/core";
@@ -190,6 +197,15 @@ function isOrdered(c: string): c is keyof typeof categoryOrder {
 function openAuthWindow(): void {
 	actor.openAuthorizeWindow(platform);
 }
+
+const keys = useMagicKeys();
+const paintToolShortcut = keys["Alt+Shift+P"];
+
+watch(paintToolShortcut, (press) => {
+	if (!press) return;
+
+	ctx.switchView("paint");
+});
 
 watch(
 	[settings.nodes, filter],
