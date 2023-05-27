@@ -58,7 +58,7 @@
 		"date-fns": "^2.30.0",
 		"dexie": "^3.2.3",
 		"dompurify": "^3.0.3",
-		"eslint": "^8.40.0",
+		"eslint": "^8.41.0",
 		"eslint-plugin-prettier": "^4.2.1",
 		"eslint-plugin-vue": "^9.13.0",
 		"graphql": "^16.6.0",
