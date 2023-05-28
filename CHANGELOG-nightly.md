@@ -3,7 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Added new feature: Paint Tool ([subscribers only](https://7tv.app/store))
--   Added a button to link a kick.com channel with 7TV
+-   Added a button to link a [kick.com](https://kick.com/) channel with 7TV
 -   Fixed an issue which caused mod icons to be invisible
 -   Fixed an issue which sometimes caused channel emote sets to disappear
 -   Fixed an issue which caused stylesheets to be duplicated when running in hosted mode

@@ -1,6 +1,15 @@
 <template>
 	<!-- Display button on the current user's channel page -->
-	<Teleport v-if="!connectDone && identity && slug === identity.username" :to="channelContainer">
+	<Teleport
+		v-if="
+			connectState !== 'done' &&
+			identity &&
+			slug === identity.username &&
+			identityFetched &&
+			(!appUser || !appUser.connections?.some((c) => c.platform === 'KICK'))
+		"
+		:to="channelContainer"
+	>
 		<div
 			v-tooltip="'Connect ' + slug + ' on kick with 7TV!'"
 			class="seventv-kick-connect"
@@ -12,7 +21,7 @@
 	</Teleport>
 
 	<!-- Display button at navbar, top right -->
-	<Teleport v-if="!connectDone" :to="navContainer">
+	<Teleport v-if="connectState !== 'done'" :to="navContainer">
 		<div
 			v-tooltip="t('site.kick.connect_button_site')"
 			v-tooltip:position="'bottom'"
@@ -27,24 +36,34 @@
 	<template v-if="popupAnchor">
 		<UiFloating :anchor="popupAnchor" :middleware="[shift({ padding: 8 })]">
 			<div ref="popupRef" class="seventv-connect-popup">
-				<h3 v-t="'site.kick.connect_button_site'" />
-				<p v-if="identity">
-					{{
-						t("site.kick." + (connectDone ? "connect_popup_done" : "connect_popup_confidence"), {
-							ACTOR: identity.username,
-						})
-					}}
-				</p>
+				<template v-if="!appUser">
+					<h3 v-t="'site.kick.connect_button_site'" />
+					<p v-if="identity">
+						{{
+							t("site.kick.connect_popup_" + connectState, {
+								ACTOR: identity.username,
+							})
+						}}
+					</p>
 
-				<div class="seventv-connect-popup-buttons">
-					<template v-if="!connectDone">
-						<UiButton @click="connect">Continue</UiButton>
-						<UiButton @click="closePopup">Cancel</UiButton>
-					</template>
-					<template v-else>
-						<UiButton @click="openApp">Explore</UiButton>
-					</template>
-				</div>
+					<div v-if="connectState !== 'connecting'" class="seventv-connect-popup-buttons">
+						<template v-if="connectState !== 'done'">
+							<UiButton @click="connect">Continue</UiButton>
+							<UiButton @click="closePopup">Cancel</UiButton>
+						</template>
+						<template v-else>
+							<UiButton @click="openApp">Explore</UiButton>
+						</template>
+					</div>
+				</template>
+				<template v-else>
+					<h3>7TV - Sign In</h3>
+					<p v-if="connectState === 'connecting'">{{ t("site.kick.connect_popup_connecting") }}</p>
+					<p v-else>Use this button to get signed into 7tv.app with your Kick account</p>
+					<div v-if="connectState !== 'connecting'" class="seventv-connect-popup-buttons">
+						<UiButton @click="connect">Sign In</UiButton>
+					</div>
+				</template>
 			</div>
 		</UiFloating>
 	</template>
@@ -54,6 +73,7 @@
 import { onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { onClickOutside, until, useTimeout } from "@vueuse/core";
+import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
 import { useCookies } from "@/composable/useCookies";
@@ -73,6 +93,7 @@ defineEmits<{
 const { t } = useI18n();
 const store = useStore();
 const identity = store.identity as KickIdentity | null;
+const { appUser, identityFetched } = storeToRefs(store);
 const cookies = useCookies();
 
 const channelContainer = document.createElement("seventv-container");
@@ -83,20 +104,20 @@ navContainer.id = "seventv-kick-connect-nav";
 
 const popupAnchor = ref<HTMLElement | null>(null);
 const popupRef = ref<HTMLElement | null>(null);
+const connectState = ref<"idle" | "connecting" | "done">("idle");
 const connectError = ref<Error | null>(null);
-const connectDone = ref(false);
 
 async function connect() {
 	if (!identity) return;
 
 	connectError.value = null;
-	connectDone.value = false;
+	connectState.value = "connecting";
 
 	const w = window.open("about:blank", "_blank", "width=1,height=1");
 	if (!w) throw new Error("Failed to open window");
 
 	w.blur();
-	w.document.body.innerText = "Standby...";
+	w.document.body.innerText = "Please wait for up to 10 seconds...";
 
 	const query = new URLSearchParams({
 		platform: "KICK",
@@ -120,7 +141,7 @@ async function connect() {
 		if (!ok) return;
 
 		// wait a few seconds for the bio to update
-		await until(useTimeout(2500)).toBeTruthy();
+		await until(useTimeout(1e4 + 500)).toBeTruthy();
 
 		// Request the API to verify the code in bio
 		query.set("verify", "1");
@@ -142,12 +163,11 @@ async function connect() {
 	})()
 		.catch((err) => {
 			connectError.value = err;
+			w.close();
 		})
 		.then(() => {
-			connectDone.value = true;
+			connectState.value = "done";
 		});
-
-	w.close();
 }
 
 const tokenWrapRegexp = /\[7TV:[0-9a-fA-F]+\]/g;
@@ -194,7 +214,7 @@ function openApp(): void {
 
 function closePopup(): void {
 	popupAnchor.value = null;
-	if (connectDone.value) {
+	if (connectState.value === "done") {
 		openApp();
 	}
 }

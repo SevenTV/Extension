@@ -146,5 +146,6 @@ site:
     kick:
         connect_button_channel: Connect {CHANNEL}
         connect_button_site: Connect 7TV...
-        connect_popup_confidence: Are you sure you'd like to link your current kick.com account ({ACTOR}) with 7TV?
+        connect_popup_idle: Are you sure you'd like to link your current kick.com account ({ACTOR}) with 7TV?
+        connect_popup_connecting: Please wait for up to 10 seconds...
         connect_popup_done: Your channel has been successfully connected to 7TV! Use the 7tv.app website to start adding emotes

@@ -11,7 +11,7 @@
 	</template>
 
 	<Teleport :to="badgeContainer">
-		<span class="seventv-badge-list">
+		<span v-if="cosmetics.badges.size" class="seventv-badge-list">
 			<Badge
 				v-for="[id, badge] of cosmetics.badges"
 				:key="id"
