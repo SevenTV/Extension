@@ -131,7 +131,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .seventv-emote-token {
-	display: inline-grid;
+	display: inline-grid !important;
 	vertical-align: middle;
 	margin: var(--seventv-emote-margin);
 	margin-left: 0 !important;
