@@ -23,7 +23,7 @@ function patchMessageElement(el: HTMLDivElement): void {
 	const identity = el.querySelector<HTMLSpanElement>(".chat-message-identity");
 	if (!identity) return; // missing identity
 
-	const entryUser = identity.querySelector(".chat-entry-username");
+	const entryUser = identity.querySelector<HTMLSpanElement>(".chat-entry-username");
 	if (!entryUser) return; // missing username
 
 	const userID = entryUser.getAttribute("data-chat-entry-user-id");
@@ -38,6 +38,8 @@ function patchMessageElement(el: HTMLDivElement): void {
 		authorID: userID,
 		authorName: username,
 		texts: Array.from(texts),
+		usernameEl: entryUser,
+		el,
 	};
 
 	messageMap.set(entryID, bind);

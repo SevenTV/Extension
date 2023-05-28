@@ -5,8 +5,10 @@
 <script setup lang="ts">
 import { inject, ref, toRef, watch, watchEffect } from "vue";
 import { useEventListener } from "@vueuse/core";
+import { useStore } from "@/store/main";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useCosmetics } from "@/composable/useCosmetics";
 import { KICK_CHANNEL_KEY } from "@/site/kick.com";
 
 export interface TabToken {
@@ -18,8 +20,10 @@ export interface TabToken {
 const info = inject(KICK_CHANNEL_KEY);
 if (!info) throw new Error("Could not retrieve channel info");
 
+const { identity } = useStore();
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
+const cosmetics = useCosmetics(identity?.id ?? "");
 
 const currentMessage = toRef(info, "currentMessage");
 
@@ -44,7 +48,9 @@ function handleTab(n: Text, sel: Selection): void {
 	const searchWord = text.substring(tokenStart + 1, start);
 	if (!searchWord) return;
 
-	const emote = emotes.find((ae) => ae.name.toLowerCase().startsWith(searchWord.toLowerCase()));
+	const emote = [...Object.values(emotes.active), ...Object.values(cosmetics.emotes)].find((ae) =>
+		ae.name.toLowerCase().startsWith(searchWord.toLowerCase()),
+	);
 	if (!emote) return;
 
 	const textNode = document.createTextNode(`${emote.name} `);

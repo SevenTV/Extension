@@ -5,7 +5,9 @@ import { IBrowser, UAParser, UAParserInstance } from "ua-parser-js";
 export interface State {
 	platform: Platform;
 	theme: Theme;
-	identity: (TwitchIdentity | YouTubeIdentity) | null;
+	identity: (TwitchIdentity | YouTubeIdentity | KickIdentity) | null;
+	identityFetched: boolean;
+	appUser: SevenTV.User | null;
 	location: Twitch.Location | null;
 	workers: {
 		net: Worker | null;
@@ -21,6 +23,8 @@ export const useStore = defineStore("main", {
 			platform: "UNKNOWN",
 			theme: "DARK",
 			identity: null,
+			identityFetched: false,
+			appUser: null,
 			location: null,
 			agent: new UAParser(),
 		} as State),
@@ -32,7 +36,18 @@ export const useStore = defineStore("main", {
 			this.platform = platform;
 			this.identity = identity;
 
-			const { sendMessage } = useWorker();
+			const { sendMessage, target } = useWorker();
+
+			target.addEventListener(
+				"identity_fetched",
+				(ev) => {
+					this.identityFetched = true;
+					if (!ev.detail.user) return;
+
+					this.appUser = ev.detail.user;
+				},
+				{ once: true },
+			);
 
 			sendMessage("STATE", {
 				identity: identity,

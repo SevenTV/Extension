@@ -16,7 +16,7 @@ export const TextPaintDirective = {
 	},
 } as Directive<HTMLElement, string | null>;
 
-function updateElementStyles(el: HTMLElement, paintID: string | null): void {
+export function updateElementStyles(el: HTMLElement, paintID: string | null): void {
 	if (!paintID || (el.hasAttribute(ATTR_SEVENTV_PAINT_ID) && el.getAttribute(ATTR_SEVENTV_PAINT_ID) !== paintID)) {
 		el.style.backgroundImage = "";
 		el.style.filter = "";

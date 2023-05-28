@@ -11,8 +11,8 @@ export interface ChatRoomData {
 }
 
 export interface KickChannelInfo {
-	id: string;
-	username: string;
+	active: boolean;
+	slug: string;
 	currentMessage: string;
 }
 

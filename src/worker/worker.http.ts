@@ -46,10 +46,16 @@ export class WorkerHttp {
 			this.driver.eventAPI.unsubscribeChannel(ev.detail.id, ev.port);
 		});
 		driver.addEventListener("identity_updated", async (ev) => {
-			const user = await this.API().seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id);
+			const user = await this.API()
+				.seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id)
+				.catch(() => void 0);
 			if (user && ev.port) {
 				ev.port.user = user;
 			}
+
+			ev.port?.postMessage("IDENTITY_FETCHED", {
+				user: user ?? null,
+			});
 		});
 		driver.addEventListener("set_channel_presence", (ev) => {
 			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.detail) return;

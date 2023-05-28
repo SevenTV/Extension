@@ -1,6 +1,6 @@
 <template>
 	<!-- Display button on the current user's channel page -->
-	<Teleport :to="channelContainer">
+	<Teleport v-if="!connectDone && identity && slug === identity.username" :to="channelContainer">
 		<div
 			v-tooltip="'Connect ' + slug + ' on kick with 7TV!'"
 			class="seventv-kick-connect"
@@ -12,14 +12,14 @@
 	</Teleport>
 
 	<!-- Display button at navbar, top right -->
-	<Teleport :to="navContainer">
+	<Teleport v-if="!connectDone" :to="navContainer">
 		<div
 			v-tooltip="t('site.kick.connect_button_site')"
 			v-tooltip:position="'bottom'"
 			class="seventv-kick-connect-nav"
 			@click="popupAnchor = navContainer"
 		>
-			<Logo7TV class="seventv-kick-connect-bouncy" />
+			<Logo7TV />
 		</div>
 	</Teleport>
 
@@ -194,7 +194,9 @@ function openApp(): void {
 
 function closePopup(): void {
 	popupAnchor.value = null;
-	if (connectDone.value) openApp();
+	if (connectDone.value) {
+		openApp();
+	}
 }
 
 watchEffect(() => {

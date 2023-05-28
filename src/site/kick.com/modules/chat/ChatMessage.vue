@@ -9,10 +9,22 @@
 			</template>
 		</Teleport>
 	</template>
+
+	<Teleport :to="badgeContainer">
+		<span class="seventv-badge-list">
+			<Badge
+				v-for="[id, badge] of cosmetics.badges"
+				:key="id"
+				:badge="badge"
+				type="app"
+				:alt="badge.data.tooltip"
+			/>
+		</span>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { tokenize } from "@/common/Tokenize";
@@ -20,7 +32,10 @@ import { AnyToken } from "@/common/chat/ChatMessage";
 import { IsEmoteToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useCosmetics } from "@/composable/useCosmetics";
+import Badge from "@/app/chat/Badge.vue";
 import Emote from "@/app/chat/Emote.vue";
+import { updateElementStyles } from "@/directive/TextPaintDirective";
 
 type MessageTokenOrText = AnyToken | string;
 
@@ -29,6 +44,8 @@ export interface ChatMessageBinding {
 	authorID: string;
 	authorName: string;
 	texts: HTMLSpanElement[];
+	usernameEl: HTMLSpanElement;
+	el: HTMLDivElement;
 }
 
 const props = defineProps<{
@@ -37,12 +54,22 @@ const props = defineProps<{
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
+const cosmetics = useCosmetics(props.bind.authorID);
+
+const badgeContainer = document.createElement("seventv-container");
 
 const containers = ref<HTMLElement[]>([]);
 const tokens = ref<MessageTokenOrText[]>([]);
 
 // Process kick's text entries into a containerized token
 function process(): void {
+	props.bind.usernameEl.insertAdjacentElement("beforebegin", badgeContainer);
+
+	if (cosmetics.paints.size) {
+		updateElementStyles(props.bind.usernameEl, Array.from(cosmetics.paints.values())[0].id);
+	}
+
+	containers.value.length = 0;
 	for (const el of props.bind.texts) {
 		const text = el.textContent ?? "";
 
@@ -50,6 +77,7 @@ function process(): void {
 			body: text,
 			chatterMap: {},
 			emoteMap: emotes.active,
+			localEmoteMap: { ...cosmetics.emotes },
 		});
 
 		const result = [] as MessageTokenOrText[];
@@ -86,6 +114,8 @@ function process(): void {
 	}
 }
 
+watch(cosmetics, process);
+
 onMounted(process);
 
 onUnmounted(() => {
@@ -106,5 +136,11 @@ onUnmounted(() => {
 	margin: var(--seventv-emote-margin);
 	margin-left: 0 !important;
 	margin-right: 0 !important;
+}
+
+.seventv-badge-list {
+	display: inline-grid;
+	vertical-align: middle;
+	margin-right: 0.25rem;
 }
 </style>

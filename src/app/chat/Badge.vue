@@ -49,8 +49,6 @@ if (isApp(props.badge)) {
 <style scoped lang="scss">
 .seventv-chat-badge {
 	display: inline-block;
-	height: 1.8rem;
-	width: 1.8rem;
 	vertical-align: baseline;
 }
 </style>
