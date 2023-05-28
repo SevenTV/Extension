@@ -10,7 +10,7 @@
 import { inject, ref, toRefs, watchEffect } from "vue";
 import { ObserverPromise } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import ChatData from "@/site/youtube.com/modules/chat/ChatData.vue";
+import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatObserver from "./ChatObserver.vue";
 import { KICK_CHANNEL_KEY } from "../..";

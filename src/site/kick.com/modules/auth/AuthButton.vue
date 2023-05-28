@@ -28,11 +28,22 @@
 		<UiFloating :anchor="popupAnchor" :middleware="[shift({ padding: 8 })]">
 			<div ref="popupRef" class="seventv-connect-popup">
 				<h3 v-t="'site.kick.connect_button_site'" />
-				<p v-if="identity">{{ t("site.kick.connect_popup_confidence", { ACTOR: identity.username }) }}</p>
+				<p v-if="identity">
+					{{
+						t("site.kick." + (connectDone ? "connect_popup_done" : "connect_popup_confidence"), {
+							ACTOR: identity.username,
+						})
+					}}
+				</p>
 
 				<div class="seventv-connect-popup-buttons">
-					<UiButton @click="connect">Continue</UiButton>
-					<UiButton @click="popupAnchor = null">Cancel</UiButton>
+					<template v-if="!connectDone">
+						<UiButton @click="connect">Continue</UiButton>
+						<UiButton @click="closePopup">Cancel</UiButton>
+					</template>
+					<template v-else>
+						<UiButton @click="openApp">Explore</UiButton>
+					</template>
 				</div>
 			</div>
 		</UiFloating>
@@ -42,7 +53,7 @@
 <script setup lang="ts">
 import { onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
-import { onClickOutside } from "@vueuse/core";
+import { onClickOutside, until, useTimeout } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
 import { useCookies } from "@/composable/useCookies";
@@ -73,14 +84,19 @@ navContainer.id = "seventv-kick-connect-nav";
 const popupAnchor = ref<HTMLElement | null>(null);
 const popupRef = ref<HTMLElement | null>(null);
 const connectError = ref<Error | null>(null);
+const connectDone = ref(false);
 
 async function connect() {
 	if (!identity) return;
+
+	connectError.value = null;
+	connectDone.value = false;
 
 	const w = window.open("about:blank", "_blank", "width=1,height=1");
 	if (!w) throw new Error("Failed to open window");
 
 	w.blur();
+	w.document.body.innerText = "Standby...";
 
 	const query = new URLSearchParams({
 		platform: "KICK",
@@ -103,9 +119,14 @@ async function connect() {
 			.then(() => true);
 		if (!ok) return;
 
+		// wait a few seconds for the bio to update
+		await until(useTimeout(2500)).toBeTruthy();
+
 		// Request the API to verify the code in bio
 		query.set("verify", "1");
-		resp = await fetch(import.meta.env.VITE_APP_API + `/auth/manual?${query.toString()}`).catch((err) => {
+		resp = await fetch(import.meta.env.VITE_APP_API + `/auth/manual?${query.toString()}`, {
+			credentials: "include",
+		}).catch((err) => {
 			Promise.reject(err);
 		});
 		if (!resp || !resp.ok) return;
@@ -116,9 +137,15 @@ async function connect() {
 		setBioCode("").catch((err) => {
 			log.error("failed to clear bio", err);
 		});
-	})().catch((err) => {
-		connectError.value = err;
-	});
+
+		Promise.resolve();
+	})()
+		.catch((err) => {
+			connectError.value = err;
+		})
+		.then(() => {
+			connectDone.value = true;
+		});
 
 	w.close();
 }
@@ -161,6 +188,15 @@ async function setBioCode(code: string) {
 	});
 }
 
+function openApp(): void {
+	window.open(import.meta.env.VITE_APP_SITE + "/emotes", "_blank");
+}
+
+function closePopup(): void {
+	popupAnchor.value = null;
+	if (connectDone.value) openApp();
+}
+
 watchEffect(() => {
 	const navBlock = document.querySelector(".main-navbar");
 	if (navBlock) {
@@ -175,9 +211,7 @@ watchEffect(() => {
 	}
 });
 
-onClickOutside(popupRef, () => {
-	popupAnchor.value = null;
-});
+onClickOutside(popupRef, closePopup);
 
 onUnmounted(() => {
 	channelContainer.remove();

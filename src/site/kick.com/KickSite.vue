@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, provide, toRaw } from "vue";
+import { defineAsyncComponent, provide } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { getModule } from "@/composable/useModule";
@@ -27,10 +27,24 @@ document.body.setAttribute("seventv-kick", "true");
 
 const app = useApp();
 const user = usePinia<{
-	user: KickIdentity;
+	user: {
+		id: number;
+		username: string;
+		bio: string;
+		email: string;
+		streamer_channel: {
+			slug: string;
+		};
+	};
 }>(app, "user");
+
 if (user) {
-	store.setIdentity("KICK", toRaw(user.$state.user));
+	store.setIdentity("KICK", {
+		id: user.$state.user.id.toString(),
+		username: user.$state.user.username,
+		bio: user.$state.user.bio,
+		email: user.$state.user.email,
+	});
 }
 
 provide(SITE_CURRENT_PLATFORM, "KICK");
