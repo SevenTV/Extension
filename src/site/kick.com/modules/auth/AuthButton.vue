@@ -194,7 +194,7 @@ async function setBioCode(code: string) {
 		referrer: "https://kick.com/dashboard/settings/profile",
 		referrerPolicy: "strict-origin-when-cross-origin",
 		body: JSON.stringify({
-			id: identity.id,
+			id: identity.numID,
 			email: identity.email,
 			bio: newBio,
 		}),

@@ -41,6 +41,7 @@ const user = usePinia<{
 if (user) {
 	store.setIdentity("KICK", {
 		id: user.$state.user.id.toString(),
+		numID: user.$state.user.id,
 		username: user.$state.user.streamer_channel.slug,
 		bio: user.$state.user.bio,
 		email: user.$state.user.email,

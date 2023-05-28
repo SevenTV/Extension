@@ -388,6 +388,7 @@ declare interface YouTubeIdentity {
 
 declare interface KickIdentity {
 	id: string;
+	numID: number;
 	username: string;
 	email: string;
 	bio: string;
