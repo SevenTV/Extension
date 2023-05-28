@@ -5,11 +5,13 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, provide } from "vue";
+import { defineAsyncComponent, provide, toRaw } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { getModule } from "@/composable/useModule";
 import { useUserAgent } from "@/composable/useUserAgent";
+import { useApp } from "./composable/useApp";
+import { usePinia } from "./composable/usePinia";
 import { KickModuleID } from "@/types/kick.module";
 
 const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
@@ -22,6 +24,14 @@ store.setPreferredImageFormat(ua.preferredFormat);
 store.setPlatform("KICK", []);
 
 document.body.setAttribute("seventv-kick", "true");
+
+const app = useApp();
+const user = usePinia<{
+	user: KickIdentity;
+}>(app, "user");
+if (user) {
+	store.setIdentity("KICK", toRaw(user.$state.user));
+}
 
 provide(SITE_CURRENT_PLATFORM, "KICK");
 const modules: Record<string, { default: ComponentFactory; config: SevenTV.SettingNode[] }> = import.meta.glob(

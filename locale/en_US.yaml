@@ -141,3 +141,9 @@ onboarding:
     button_done: Done
     button_join: Join
     button_review: Review
+
+site:
+    kick:
+        connect_button_channel: Connect {CHANNEL}
+        connect_button_site: Connect 7TV...
+        connect_popup_confidence: Are you sure you'd like to link your current kick.com account ({ACTOR}) with 7TV?

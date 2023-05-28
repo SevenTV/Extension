@@ -7,10 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, watchEffect } from "vue";
-import { ref } from "vue";
-import { watch } from "vue";
-import { toRefs } from "vue";
+import { inject, ref, toRefs, watchEffect } from "vue";
 import { ObserverPromise } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import ChatData from "@/site/youtube.com/modules/chat/ChatData.vue";
@@ -27,6 +24,8 @@ const ctx = useChannelContext(channelID.value, true);
 // The list
 const chatList = ref<HTMLDivElement | null>(null);
 const shallowList = ref<HTMLDivElement | null>(null);
+
+let observer: ObserverPromise<HTMLDivElement> | null = null;
 
 watchEffect(async () => {
 	// Update channel context
@@ -46,30 +45,31 @@ watchEffect(async () => {
 	const chatroomTop = document.getElementById("chatroom-top");
 	if (!chatroomTop || !chatroomTop.nextElementSibling) return;
 
-	// The adjacent element is expected to be the chat's message list
 	chatList.value = chatroomTop.nextElementSibling as HTMLDivElement;
-});
 
-// Watch for message list updates
-watch(
-	chatList,
-	async (el) => {
-		if (!el) return;
-
-		// Obtain the shallow message list
-		// This will be used to set up an efficient-ish mutation observer
-		shallowList.value = await new ObserverPromise<HTMLDivElement>(
+	// Create observer
+	if (observer) observer.disconnect();
+	if (!chatroomTop.nextElementSibling.firstElementChild) {
+		observer = new ObserverPromise<HTMLDivElement>(
 			(records, emit) => {
 				for (const rec of records) {
-					rec.addedNodes.forEach((n) => (n instanceof HTMLDivElement ? emit(n) : null));
+					if (!rec.target || !(rec.target instanceof HTMLDivElement)) continue;
+					if (!rec.target.firstElementChild) continue;
+
+					emit(rec.target.firstElementChild as HTMLDivElement);
 				}
 			},
-			el,
-			{ childList: true },
+			chatroomTop.nextElementSibling,
+			{
+				childList: true,
+				subtree: true,
+			},
 		);
-	},
-	{
-		immediate: true,
-	},
-);
+
+		const el = await observer;
+		shallowList.value = el;
+	} else {
+		shallowList.value = chatroomTop.nextElementSibling.firstElementChild as HTMLDivElement;
+	}
+});
 </script>

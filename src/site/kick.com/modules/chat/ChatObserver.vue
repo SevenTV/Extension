@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from "vue";
+import { reactive, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 
@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const messageMap = reactive(new Map<string, ChatMessageBinding>());
 
-function validateMessageElement(el: HTMLDivElement): void {
+function patchMessageElement(el: HTMLDivElement): void {
 	if (!el.hasAttribute("data-chat-entry")) return; // not a message
 
 	const entryID = el.getAttribute("data-chat-entry")!;
@@ -43,11 +43,20 @@ function validateMessageElement(el: HTMLDivElement): void {
 	messageMap.set(entryID, bind);
 }
 
+function patchCurrentElements(): void {
+	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
+	for (const el of Array.from(entries)) {
+		patchMessageElement(el as HTMLDivElement);
+	}
+}
+
+watchEffect(patchCurrentElements);
+
 useMutationObserver(
 	props.listElement,
 	(records) => {
 		for (const rec of records) {
-			rec.addedNodes.forEach((n) => (n instanceof HTMLDivElement ? validateMessageElement(n) : null));
+			rec.addedNodes.forEach((n) => (n instanceof HTMLDivElement ? patchMessageElement(n) : null));
 			rec.removedNodes.forEach((n) =>
 				n instanceof HTMLDivElement ? messageMap.delete(n.getAttribute("data-chat-entry")!) : null,
 			);
@@ -55,11 +64,4 @@ useMutationObserver(
 	},
 	{ childList: true },
 );
-
-onMounted(() => {
-	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
-	for (const el of Array.from(entries)) {
-		validateMessageElement(el as HTMLDivElement);
-	}
-});
 </script>

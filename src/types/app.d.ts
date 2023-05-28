@@ -389,6 +389,8 @@ declare interface YouTubeIdentity {
 declare interface KickIdentity {
 	id: string;
 	username: string;
+	email: string;
+	bio: string;
 }
 
 declare type Platform = "TWITCH" | "YOUTUBE" | "KICK" | "UNKNOWN";
