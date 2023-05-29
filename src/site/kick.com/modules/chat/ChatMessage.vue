@@ -126,6 +126,8 @@ onUnmounted(() => {
 	for (const el of props.bind.texts) {
 		el.style.display = "initial"; // restore the original tokens
 	}
+
+	badgeContainer.remove();
 });
 </script>
 
