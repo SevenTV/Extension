@@ -167,7 +167,7 @@ export class WorkerHttp {
 		// begin subscriptions to personal events in the channel
 		const cond = {
 			ctx: "channel",
-			platform: "TWITCH",
+			platform: port.platform ?? "TWITCH",
 			id: channel.id,
 		};
 
