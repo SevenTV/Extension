@@ -7,12 +7,14 @@
 </template>
 
 <script setup lang="ts">
-import { provide, reactive, ref, watch } from "vue";
+import { onMounted, provide, reactive, ref, watch } from "vue";
+import { useEventListener } from "@vueuse/core";
 import { defineFunctionHook } from "@/common/Reflection";
 import { declareModule } from "@/composable/useModule";
 import { ChatRoom, KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
 import { useApp } from "@/site/kick.com/composable/useApp";
 import { usePinia } from "@/site/kick.com/composable/usePinia";
+import { useRouter } from "@/site/kick.com/composable/useRouter";
 import ChatController from "./ChatController.vue";
 
 const { markAsReady } = declareModule<"KICK">("chat", {
@@ -22,10 +24,7 @@ const { markAsReady } = declareModule<"KICK">("chat", {
 
 // Acquire vue app
 const app = useApp();
-const chatroomStore = usePinia<ChatRoom>(app, "chatroomv2");
-type chatroomWithActions = typeof chatroomStore & {
-	sendCurrentMessage: () => void;
-};
+const router = useRouter(app);
 
 const controller = ref<InstanceType<typeof ChatController> | null>(null);
 
@@ -37,7 +36,17 @@ const chan = reactive<KickChannelInfo>({
 
 provide(KICK_CHANNEL_KEY, chan);
 
-if (chatroomStore) {
+let ok = false;
+function handle(): void {
+	if (ok) return;
+
+	const chatroomStore = usePinia<ChatRoom>(app, "chatroomv2");
+	type chatroomWithActions = typeof chatroomStore & {
+		sendCurrentMessage: () => void;
+	};
+	if (!chatroomStore) return;
+
+	ok = true;
 	chatroomStore.$subscribe(async (_, s: ChatRoom) => {
 		if (!s.chatroom || typeof s.chatroom.id !== "number") return;
 
@@ -70,6 +79,13 @@ if (chatroomStore) {
 		return f?.apply(this, []);
 	});
 }
+
+onMounted(() => {
+	handle();
+});
+
+watch(() => router.currentRoute, handle, { immediate: true });
+useEventListener(document, "click", handle);
 
 markAsReady();
 </script>
