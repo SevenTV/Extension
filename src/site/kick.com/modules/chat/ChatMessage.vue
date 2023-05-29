@@ -27,6 +27,7 @@
 import { onMounted, watch } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
+import { useEventListener } from "@vueuse/core";
 import { tokenize } from "@/common/Tokenize";
 import { AnyToken } from "@/common/chat/ChatMessage";
 import { IsEmoteToken } from "@/common/type-predicates/MessageTokens";
@@ -52,6 +53,10 @@ const props = defineProps<{
 	bind: ChatMessageBinding;
 }>();
 
+const emit = defineEmits<{
+	(e: "open-card", bind: ChatMessageBinding): void;
+}>();
+
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(props.bind.authorID);
@@ -60,6 +65,13 @@ const badgeContainer = document.createElement("seventv-container");
 
 const containers = ref<HTMLElement[]>([]);
 const tokens = ref<MessageTokenOrText[]>([]);
+
+// Listen for click events
+useEventListener(props.bind.usernameEl, "click", () => {
+	setTimeout(() => {
+		emit("open-card", props.bind);
+	}, 50);
+});
 
 // Process kick's text entries into a containerized token
 function process(): void {
