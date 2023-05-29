@@ -38,7 +38,7 @@ const user = usePinia<{
 	};
 }>(app, "user");
 
-if (user) {
+if (user && user.$state.user) {
 	store.setIdentity("KICK", {
 		id: user.$state.user.id.toString(),
 		numID: user.$state.user.id,
