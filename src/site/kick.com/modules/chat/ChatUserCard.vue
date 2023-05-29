@@ -51,3 +51,9 @@ onUnmounted(() => {
 	badgeContainer.remove();
 });
 </script>
+
+<style scoped lang="scss">
+:deep(.seventv-chat-badge > img) {
+	height: 1.25rem;
+}
+</style>
