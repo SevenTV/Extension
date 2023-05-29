@@ -13,7 +13,7 @@ import { ref, watch } from "vue";
 import { useConfig } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import Logo from "@/assets/svg/logos/Logo.vue";
-import { useEmoteMenuContext } from "./EmoteMenuContext";
+import { useEmoteMenuContext } from "@/app/emote-menu/EmoteMenuContext";
 
 defineProps<{
 	onClick?: () => void;

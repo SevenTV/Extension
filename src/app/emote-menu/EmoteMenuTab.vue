@@ -2,8 +2,8 @@
 	<div class="emote-area-container">
 		<UiScrollable class="scroll-area">
 			<!-- Native Menu Toggle -->
-			<div v-if="provider === 'TWITCH'" class="native-menu-toggle" @click="emit('toggle-native-menu')">
-				<Logo provider="TWITCH" />
+			<div v-if="provider === 'PLATFORM'" class="native-menu-toggle" @click="emit('toggle-native-menu')">
+				<Logo provider="PLATFORM" />
 				<span v-t="'emote_menu.native'" />
 			</div>
 
@@ -115,6 +115,8 @@ const emojiCategories = [
 // Note the logic for favorites is also bad, though doesn't affect as many users
 
 function updateFavorites() {
+	if (!favorites.value) return [];
+
 	return Array.from(favorites.value.values())
 		.map((eid) => emotes.find((ae) => ae.id === eid))
 		.filter((ae) => !!ae) as SevenTV.ActiveEmote[];
@@ -202,7 +204,7 @@ const filterSets = debounceFn(() => {
 		ary.push(...Array.from(cosmetics.emoteSets.values()).filter((e) => e.provider === props.provider));
 	}
 
-	if (props.provider === "TWITCH") {
+	if (props.provider === "PLATFORM") {
 		const res = ary.reduce((accu, cur) => {
 			const p = accu[cur.name];
 			if (p) {

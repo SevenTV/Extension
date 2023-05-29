@@ -1,6 +1,4 @@
-<template>
-	<Teleport :to="container"> </Teleport>
-</template>
+<template />
 
 <script setup lang="ts">
 import { inject, ref, toRef, watch, watchEffect } from "vue";
@@ -26,8 +24,6 @@ const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(identity?.id ?? "");
 
 const currentMessage = toRef(info, "currentMessage");
-
-const container = ref<HTMLElement | null>(null);
 const inputEl = ref<HTMLDivElement | null>(null);
 
 function renderInputTokens(): void {
@@ -82,15 +78,6 @@ useEventListener(inputEl, "keydown", (ev: KeyboardEvent) => {
 });
 
 watchEffect(() => {
-	const footer = document.getElementById("chatroom-footer");
-	if (!footer) return;
-
-	const el = document.createElement("seventv-container");
-	el.id = "seventv-autocomplete-container";
-
-	footer.insertAdjacentElement("afterbegin", el);
-
-	container.value = el;
 	inputEl.value = (document.getElementById("message-input") as HTMLDivElement) ?? null;
 });
 </script>

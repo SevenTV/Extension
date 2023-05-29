@@ -23,7 +23,7 @@
 				:set-id="es.id"
 				:emote-id="ae.id"
 				:zero-width="(ae.flags || 0 & 256) !== 0"
-				:favorite="favorites.has(ae.id) && es.id !== 'FAVORITE'"
+				:favorite="favorites?.has(ae.id) && es.id !== 'FAVORITE'"
 				tabindex="0"
 				@click="onInsertEmote(ae)"
 				@keydown.enter.prevent="onInsertEmote(ae)"
@@ -168,13 +168,13 @@ function setupObserver() {
 		entries.forEach(async (entry) => {
 			const eid = entry.target.getAttribute("emote-id") as string;
 
-			// if the element is intersecting, wait 350ms before loading it
+			// if the element is intersecting, wait a bit before loading it
 			if (entry.isIntersecting && !loaded[eid]) {
 				const previouslyLoaded = loaded[eid] === -1;
 				loaded[eid] = 0;
 
 				if (shouldDebounceLoading && !previouslyLoaded && debounceCards.value) {
-					await until(useTimeout(350)).toBeTruthy();
+					await until(useTimeout(100)).toBeTruthy();
 				}
 			}
 
@@ -184,7 +184,7 @@ function setupObserver() {
 				return;
 			}
 
-			// if the element has been intersecting for 350ms, load it
+			// if the element has been intersecting for enough time, load it
 			if (entry.isIntersecting && loaded[eid] === 0) {
 				loaded[eid] = 1;
 				return;
@@ -221,10 +221,13 @@ function onObserve(lifecycle: ElementLifecycle, el: HTMLElement) {
 }
 
 function isCollapsed(): boolean {
+	if (!collapsedSets.value) return false;
+
 	return collapsedSets.value.has(props.es.id);
 }
 
 function toggleCollapsed(): void {
+	if (!collapsedSets.value) return;
 	if (isCollapsed()) {
 		collapsedSets.value.delete(props.es.id);
 		collapsed.value = false;

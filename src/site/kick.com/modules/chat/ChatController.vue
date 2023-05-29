@@ -4,17 +4,30 @@
 		<ChatAutocomplete />
 	</template>
 	<ChatData />
+
+	<Teleport :to="emoteMenuButtonContainer">
+		<button ref="emoteMenuButton" class="seventv-emote-menu-button" @click="emoteMenu.open = !emoteMenu.open">
+			<Logo7TV provider="7TV" class="icon" />
+		</button>
+	</Teleport>
+
+	<template v-if="emoteMenu.open && emoteMenuAnchor">
+		<EmoteMenu :anchor-el="emoteMenuAnchor" />
+	</template>
 </template>
 
 <script setup lang="ts">
-import { ref, toRaw, watchEffect } from "vue";
+import { onUnmounted, ref, toRaw, watchEffect } from "vue";
 import { ObserverPromise } from "@/common/Async";
 import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useWorker } from "@/composable/useWorker";
-import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
+import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatObserver from "./ChatObserver.vue";
+import ChatData from "@/app/chat/ChatData.vue";
+import EmoteMenu from "@/app/emote-menu/EmoteMenu.vue";
+import { useEmoteMenuContext } from "@/app/emote-menu/EmoteMenuContext";
 
 const props = defineProps<{
 	slug: string;
@@ -46,9 +59,22 @@ const { sendMessage: sendWorkerMessage } = useWorker();
 const chatList = ref<HTMLDivElement | null>(null);
 const shallowList = ref<HTMLDivElement | null>(null);
 
+const emoteMenu = useEmoteMenuContext();
+const emoteMenuAnchor = document.getElementById("chatroom-footer");
+
+const emoteMenuButtonContainer = document.createElement("seventv-container");
+
 let observer: ObserverPromise<HTMLDivElement> | null = null;
 
 watchEffect(async () => {
+	const parent = document.getElementById("chatroom");
+	if (!parent) return;
+
+	const inputRow = parent.querySelector(".chat-message-row");
+	if (!inputRow) return;
+
+	inputRow.lastElementChild?.insertAdjacentElement("beforebegin", emoteMenuButtonContainer);
+
 	// Update channel context
 	const ok = ctx.setCurrentChannel({
 		id: id.toString(),
@@ -93,4 +119,30 @@ watchEffect(async () => {
 		shallowList.value = chatroomTop.nextElementSibling.firstElementChild as HTMLDivElement;
 	}
 });
+
+onUnmounted(() => {
+	emoteMenuButtonContainer.remove();
+});
 </script>
+
+<style scoped lang="scss">
+.seventv-emote-menu-button {
+	display: grid;
+	align-items: center;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	transition: background 0.2s ease-in-out;
+	height: 2.25rem;
+	border-radius: 0.25rem;
+	padding: 0 0.5rem;
+
+	&:hover {
+		background: rgba(255, 255, 255, 10%);
+	}
+
+	.icon {
+		font-size: 1.25rem;
+	}
+}
+</style>

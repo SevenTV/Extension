@@ -67,10 +67,8 @@ const containers = ref<HTMLElement[]>([]);
 const tokens = ref<MessageTokenOrText[]>([]);
 
 // Listen for click events
-useEventListener(props.bind.usernameEl, "click", () => {
-	setTimeout(() => {
-		emit("open-card", props.bind);
-	}, 50);
+useEventListener(props.bind.usernameEl.parentElement, "click", () => {
+	emit("open-card", props.bind);
 });
 
 // Process kick's text entries into a containerized token

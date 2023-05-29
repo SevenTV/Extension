@@ -319,7 +319,7 @@ declare namespace SevenTV {
 
 	type ObjectID = string;
 
-	type Provider = "7TV" | "TWITCH" | "BTTV" | "FFZ" | "EMOJI";
+	type Provider = "7TV" | "PLATFORM" | "BTTV" | "FFZ" | "EMOJI";
 
 	enum ObjectKind {
 		USER = 1,

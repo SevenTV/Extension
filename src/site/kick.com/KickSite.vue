@@ -21,7 +21,7 @@ const ua = useUserAgent();
 
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
-store.setPlatform("KICK", []);
+store.setPlatform("KICK", ["7TV"], []);
 
 document.body.setAttribute("seventv-kick", "true");
 

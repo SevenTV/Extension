@@ -242,7 +242,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 						id: e.emoteID ?? "",
 						name: e.alt,
 						flags: 0,
-						provider: "TWITCH",
+						provider: "PLATFORM",
 						isTwitchCheer: {
 							amount: e.cheerAmount!,
 							color: e.cheerColor!,

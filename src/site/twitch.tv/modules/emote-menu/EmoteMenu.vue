@@ -1,51 +1,5 @@
 <template>
-	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
-		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
-			<div class="seventv-emote-menu">
-				<!-- Emote Menu Header -->
-				<div class="seventv-emote-menu-header">
-					<div class="seventv-emote-menu-header-providers">
-						<template v-for="(b, key) in visibleProviders">
-							<div
-								v-if="b"
-								:key="key"
-								class="seventv-emote-menu-provider-icon"
-								:selected="key === activeProvider"
-								@click="activeProvider = key"
-							>
-								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
-								<StarIcon v-else />
-								<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
-							</div>
-						</template>
-					</div>
-					<div v-if="!isSearchInputEnabled" class="emote-search">
-						<input ref="searchInputRef" v-model="ctx.filter" class="emote-search-input" />
-						<div class="search-icon">
-							<SearchIcon />
-						</div>
-					</div>
-				</div>
-
-				<!-- Emote menu body -->
-				<div
-					v-for="(_, key) in visibleProviders"
-					v-show="key === activeProvider"
-					:key="key"
-					class="seventv-emote-menu-body"
-				>
-					<EmoteMenuTab
-						:provider="key"
-						:selected="key === activeProvider"
-						@emote-clicked="onEmoteClick"
-						@provider-visible="onProviderVisibilityChange(key, $event)"
-						@toggle-settings="settingsContext.toggle()"
-						@toggle-native-menu="toggle(true)"
-					/>
-				</div>
-			</div>
-		</div>
-	</UiFloating>
+	<EmoteMenu v-if="anchorEl" :anchor-el="anchorEl" :instance="props.instance" @emote-click="onEmoteClick($event)" />
 
 	<!-- Replace the emote menu button -->
 	<Teleport v-if="buttonEl && placement === 'regular'" :to="buttonEl">
@@ -66,15 +20,11 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
-import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
-import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import EmoteMenuButton from "./EmoteMenuButton.vue";
-import { useEmoteMenuContext } from "./EmoteMenuContext";
-import EmoteMenuTab from "./EmoteMenuTab.vue";
+import EmoteMenu from "@/app/emote-menu/EmoteMenu.vue";
+import { useEmoteMenuContext } from "@/app/emote-menu/EmoteMenuContext";
 import { useSettingsMenu } from "@/app/settings/Settings";
-import UiFloating from "@/ui/UiFloating.vue";
-import { shift } from "@floating-ui/dom";
 
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
@@ -105,7 +55,7 @@ const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
 	"7TV": true,
 	FFZ: true,
 	BTTV: true,
-	TWITCH: true,
+	PLATFORM: true,
 	EMOJI: true,
 });
 
@@ -184,15 +134,6 @@ watch(
 	},
 	{ immediate: true },
 );
-
-// Handle change in the visibility of a provider while using search
-// and if the current active provider has no content, switch to the next available
-function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean) {
-	visibleProviders[provider] = visible;
-	if (!visible && provider === activeProvider.value) {
-		activeProvider.value = (Object.entries(visibleProviders).find(([, v]) => v)?.[0] ?? "7TV") as SevenTV.Provider;
-	}
-}
 
 function onEmoteClick(emote: SevenTV.ActiveEmote) {
 	const inputRef = props.instance.component.autocompleteInputRef;

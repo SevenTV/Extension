@@ -50,11 +50,11 @@ import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import { MessageType } from "@/site/twitch.tv";
-import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import ChatPubSub from "./ChatPubSub.vue";
 import ChatTray from "./components/tray/ChatTray.vue";
+import ChatData from "@/app/chat/ChatData.vue";
 import BasicSystemMessage from "@/app/chat/msg/BasicSystemMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 

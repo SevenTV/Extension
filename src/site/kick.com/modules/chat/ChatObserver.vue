@@ -88,14 +88,14 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 	});
 }
 
-function patchCurrentElements(): void {
+function patch(): void {
 	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
 	for (const el of Array.from(entries)) {
 		patchMessageElement(el as HTMLDivElement);
 	}
 }
 
-watchEffect(patchCurrentElements);
+watchEffect(patch);
 
 useMutationObserver(
 	props.listElement,
@@ -110,3 +110,25 @@ useMutationObserver(
 	{ childList: true },
 );
 </script>
+
+<style scoped lang="scss">
+.seventv-emote-menu-button {
+	display: grid;
+	align-items: center;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	transition: background 0.2s ease-in-out;
+	height: 2.25rem;
+	border-radius: 0.25rem;
+	padding: 0 0.5rem;
+
+	&:hover {
+		background: rgba(255, 255, 255, 10%);
+	}
+
+	.icon {
+		font-size: 1.25rem;
+	}
+}
+</style>

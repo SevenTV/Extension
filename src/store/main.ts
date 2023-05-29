@@ -4,15 +4,16 @@ import { IBrowser, UAParser, UAParserInstance } from "ua-parser-js";
 
 export interface State {
 	platform: Platform;
+	providers: Set<SevenTV.Provider>;
 	theme: Theme;
 	identity: (TwitchIdentity | YouTubeIdentity | KickIdentity) | null;
 	identityFetched: boolean;
 	appUser: SevenTV.User | null;
 	location: Twitch.Location | null;
+	agent: UAParserInstance;
 	workers: {
 		net: Worker | null;
 	};
-	agent: UAParserInstance;
 }
 
 type Theme = "LIGHT" | "DARK";
@@ -21,12 +22,16 @@ export const useStore = defineStore("main", {
 	state: () =>
 		({
 			platform: "UNKNOWN",
+			providers: new Set(),
 			theme: "DARK",
 			identity: null,
 			identityFetched: false,
 			appUser: null,
 			location: null,
 			agent: new UAParser(),
+			workers: {
+				net: null,
+			},
 		} as State),
 
 	actions: {
@@ -62,13 +67,15 @@ export const useStore = defineStore("main", {
 			});
 		},
 
-		setPlatform(platform: Platform, extensions: SevenTV.Provider[]) {
+		setPlatform(platform: Platform, providers: SevenTV.Provider[], extensions: SevenTV.Provider[]) {
 			this.platform = platform;
+			this.providers = new Set(providers);
 
 			const { sendMessage } = useWorker();
 
 			sendMessage("STATE", {
 				platform: platform,
+				providers,
 				provider_extensions: extensions,
 			});
 		},

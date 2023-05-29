@@ -74,7 +74,7 @@ function emptyUser() {
 
 watchEffect(async () => {
 	// for twitch emotes we
-	if (props.emote.provider === "TWITCH") {
+	if (props.emote.provider === "PLATFORM") {
 		const apollo = useApollo();
 		if (!apollo) return;
 

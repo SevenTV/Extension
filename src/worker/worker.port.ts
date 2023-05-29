@@ -1,5 +1,5 @@
 import { log } from "@/common/Logger";
-import { convertTwitchEmoteSet } from "@/common/Transform";
+import { convertPlatformEmoteSet } from "@/common/Transform";
 import { WorkerDriver } from "./worker.driver";
 import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from ".";
 
@@ -8,6 +8,7 @@ export class WorkerPort {
 	seq = 0;
 
 	platform: Platform | null = null;
+	providers = new Set<SevenTV.Provider>();
 	providerExtensions = new Set<SevenTV.Provider>();
 	channels = new Map<string, CurrentChannel>();
 	identity: TwitchIdentity | YouTubeIdentity | null = null;
@@ -34,10 +35,11 @@ export class WorkerPort {
 
 		switch (type) {
 			case "STATE": {
-				const { platform, provider_extensions, identity, channel, user, imageFormat } =
+				const { platform, providers, provider_extensions, identity, channel, user, imageFormat } =
 					data as TypedWorkerMessage<"STATE">;
 
 				if (platform) this.platform = platform;
+				if (providers) this.providers = new Set(providers);
 				if (provider_extensions) this.providerExtensions = new Set(provider_extensions);
 				if (identity) {
 					this.identity = identity;
@@ -79,7 +81,7 @@ export class WorkerPort {
 				const { input } = data as TypedWorkerMessage<"SYNC_TWITCH_SET">;
 				if (!input) break;
 
-				const set = convertTwitchEmoteSet(input);
+				const set = convertPlatformEmoteSet(input);
 				this.postMessage("SYNC_TWITCH_SET", { out: set });
 				break;
 			}

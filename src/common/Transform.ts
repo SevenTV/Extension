@@ -4,17 +4,17 @@ import { ChatMessage, ChatUser } from "./chat/ChatMessage";
 
 const BTTV_ZeroWidth = ["SoSnowy", "IceCold", "SantaHat", "TopHat", "ReinDeer", "CandyCane", "cvMask", "cvHazmat"];
 
-export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.EmoteSet {
+export function convertPlatformEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.EmoteSet {
 	const isGlobalSet = !data.owner;
 
 	return {
-		id: "TWITCH#" + data.id,
+		id: "PLATFORM#" + data.id,
 		name: data.owner?.displayName ?? "Global Emotes",
 		immutable: true,
 		privileged: true,
 		tags: [],
 		flags: 0,
-		provider: "TWITCH",
+		provider: "PLATFORM",
 		scope: isGlobalSet ? "GLOBAL" : "CHANNEL",
 		owner: data.owner?.displayName
 			? {
@@ -30,7 +30,7 @@ export function convertTwitchEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Emot
 				id: e.id,
 				name: e.token,
 				flags: 0,
-				provider: "TWITCH",
+				provider: "PLATFORM",
 				data: d,
 			};
 		}),
@@ -80,7 +80,7 @@ export function convertTwitchEmote(
 		},
 	};
 
-	emote.host.srcset = imageHostToSrcset(emote.host, "TWITCH");
+	emote.host.srcset = imageHostToSrcset(emote.host, "PLATFORM");
 	return emote;
 }
 
@@ -325,7 +325,7 @@ export function convertTwitchBadge(data: TwTypeBadge): SevenTV.Cosmetic<"BADGE">
 	return {
 		id: data.setID + ":" + data.version,
 		kind: "BADGE",
-		provider: "TWITCH",
+		provider: "PLATFORM",
 		data: {
 			name: data.title,
 			host: {
