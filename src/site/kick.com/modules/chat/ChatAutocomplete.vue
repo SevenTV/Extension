@@ -32,6 +32,13 @@ function renderInputTokens(): void {
 	inputEl;
 }
 
+function insertAtEnd(value: string): void {
+	if (!inputEl.value || typeof inputEl.value.textContent !== "string") return;
+
+	inputEl.value.textContent += inputEl.value.textContent.charAt(value.length - 1) === " " ? value : ` ${value}`;
+	if (info) info.currentMessage = inputEl.value.textContent;
+}
+
 function handleTab(n: Text, sel: Selection): void {
 	const { anchorOffset, focusOffset } = sel;
 
@@ -79,5 +86,9 @@ useEventListener(inputEl, "keydown", (ev: KeyboardEvent) => {
 
 watchEffect(() => {
 	inputEl.value = (document.getElementById("message-input") as HTMLDivElement) ?? null;
+});
+
+defineExpose({
+	insertAtEnd,
 });
 </script>

@@ -1,7 +1,7 @@
 <template>
 	<template v-if="shallowList">
 		<ChatObserver :list-element="shallowList" />
-		<ChatAutocomplete />
+		<ChatAutocomplete ref="autocomplete" />
 	</template>
 	<ChatData />
 
@@ -12,7 +12,7 @@
 	</Teleport>
 
 	<template v-if="emoteMenu.open && emoteMenuAnchor">
-		<EmoteMenu :anchor-el="emoteMenuAnchor" />
+		<EmoteMenu :anchor-el="emoteMenuAnchor" @emote-click="insertToInput($event.name)" />
 	</template>
 </template>
 
@@ -59,10 +59,18 @@ const { sendMessage: sendWorkerMessage } = useWorker();
 const chatList = ref<HTMLDivElement | null>(null);
 const shallowList = ref<HTMLDivElement | null>(null);
 
+const autocomplete = ref<InstanceType<typeof ChatAutocomplete> | null>(null);
+
 const emoteMenu = useEmoteMenuContext();
 const emoteMenuAnchor = document.getElementById("chatroom-footer");
 
 const emoteMenuButtonContainer = document.createElement("seventv-container");
+
+function insertToInput(value: string): void {
+	if (!autocomplete.value) return;
+
+	autocomplete.value.insertAtEnd(value);
+}
 
 let observer: ObserverPromise<HTMLDivElement> | null = null;
 
