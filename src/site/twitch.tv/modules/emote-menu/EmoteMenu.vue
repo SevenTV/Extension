@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from "vue";
 import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
@@ -48,16 +48,6 @@ const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
-
-const activeProvider = ref<EmoteMenuTabName | null>("7TV");
-const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
-	FAVORITE: true,
-	"7TV": true,
-	FFZ: true,
-	BTTV: true,
-	PLATFORM: true,
-	EMOJI: true,
-});
 
 const chatModule = getModuleRef("chat");
 const placement = useConfig<"regular" | "below" | "hidden">("ui.emote_menu.button_placement");
