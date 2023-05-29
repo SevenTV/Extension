@@ -1,5 +1,5 @@
 <template>
-	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
+	<UiFloating :anchor="anchorEl" placement="top" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
 		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
 			<div class="seventv-emote-menu">
 				<!-- Emote Menu Header -->
@@ -83,6 +83,8 @@ const props = defineProps<{
 	buttonEl?: HTMLButtonElement;
 }>();
 
+let chatObserver: MutationObserver | undefined;
+
 const anchorEl = ref<HTMLElement | undefined>();
 const inputEl = ref<HTMLElement | undefined>();
 const containerRef = ref<HTMLElement | undefined>();
@@ -124,6 +126,24 @@ onMounted(() => {
 		},
 		1,
 	);
+
+	if (!anchorEl.value) return;
+
+	chatObserver = new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			mutation.addedNodes.forEach((node) => {
+				if (node instanceof Element) {
+					const textArea = node.querySelector(".seventv-chat-input-textarea");
+
+					if (textArea) {
+						inputEl.value = textArea as HTMLElement;
+					}
+				}
+			});
+		}
+	});
+
+	chatObserver.observe(anchorEl.value, { childList: true });
 });
 
 // Shortcut (ctrl+e)
@@ -245,20 +265,20 @@ onClickOutside(containerRef, (e) => {
 	ctx.open = false;
 });
 
-// Capture anchor / input elements
+// Initialize anchor and input elements
 watchEffect(() => {
-	if (!anchorEl.value && props.instance.domNodes.root) {
-		const n = props.instance.domNodes.root.querySelector(".seventv-chat-input-textarea");
-		if (!n) return;
+	if (!inputEl.value && !anchorEl.value && props.instance.domNodes.root) {
+		const textArea = props.instance.domNodes.root.querySelector(".seventv-chat-input-textarea");
+		if (!textArea) return;
 
-		const anchor = n.querySelector("[data-test-selector='chat-input']") ?? n;
-
-		anchorEl.value = (anchor ?? n) as HTMLElement;
-		inputEl.value = n as HTMLElement;
+		anchorEl.value = props.instance.domNodes.root as HTMLElement;
+		inputEl.value = textArea as HTMLElement;
 	}
 });
 
 onUnmounted(() => {
+	if (chatObserver) chatObserver.disconnect();
+
 	unsetPropertyHook(props.instance.component.autocompleteInputRef, "state");
 	unsetPropertyHook(props.instance.component, "onBitsIconClick");
 });
