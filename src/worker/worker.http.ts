@@ -103,11 +103,11 @@ export class WorkerHttp {
 		);
 
 		// setup fetching promises
-		const user = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
+		const userPromise = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
 
 		const promises = (
 			[
-				["7TV", user.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
+				["7TV", userPromise.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
 				["FFZ", frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
 				["BTTV", betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
 			] as [SevenTV.Provider, Promise<SevenTV.EmoteSet>][]
@@ -143,7 +143,7 @@ export class WorkerHttp {
 			await onResult(set);
 		}
 
-		channel.user = (await user)?.user ?? undefined;
+		channel.user = (await userPromise)?.user ?? undefined;
 		if (port) {
 			// Post channel fetch notification back to port
 			port.postMessage("CHANNEL_FETCHED", {
@@ -163,7 +163,11 @@ export class WorkerHttp {
 				port,
 				channel.id,
 			);
-			if (set.owner) this.driver.eventAPI.subscribe("user.*", { object_id: set.owner.id }, port, channel.id);
+		}
+
+		const user = await userPromise;
+		if (user) {
+			this.driver.eventAPI.subscribe("user.*", { object_id: user.id }, port, channel.id);
 		}
 
 		// begin subscriptions to personal events in the channel
