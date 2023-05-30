@@ -29,6 +29,7 @@ module.exports = {
 		"vue/valid-template-root": "off",
 		"vue/multi-word-component-names": "off",
 		"vue/require-default-prop": "off",
+		"vue/no-dupe-keys": "off",
 		"@typescript-eslint/no-non-null-assertion": "off",
 	},
 	globals: {

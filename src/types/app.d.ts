@@ -319,7 +319,7 @@ declare namespace SevenTV {
 
 	type ObjectID = string;
 
-	type Provider = "7TV" | "TWITCH" | "BTTV" | "FFZ" | "EMOJI";
+	type Provider = "7TV" | "PLATFORM" | "BTTV" | "FFZ" | "EMOJI";
 
 	enum ObjectKind {
 		USER = 1,
@@ -388,7 +388,10 @@ declare interface YouTubeIdentity {
 
 declare interface KickIdentity {
 	id: string;
+	numID: number;
 	username: string;
+	email: string;
+	bio: string;
 }
 
 declare type Platform = "TWITCH" | "YOUTUBE" | "KICK" | "UNKNOWN";

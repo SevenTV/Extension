@@ -1,12 +1,12 @@
-<template>
-	<Teleport :to="container"> </Teleport>
-</template>
+<template />
 
 <script setup lang="ts">
 import { inject, ref, toRef, watch, watchEffect } from "vue";
 import { useEventListener } from "@vueuse/core";
+import { useStore } from "@/store/main";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useCosmetics } from "@/composable/useCosmetics";
 import { KICK_CHANNEL_KEY } from "@/site/kick.com";
 
 export interface TabToken {
@@ -18,18 +18,25 @@ export interface TabToken {
 const info = inject(KICK_CHANNEL_KEY);
 if (!info) throw new Error("Could not retrieve channel info");
 
+const { identity } = useStore();
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
+const cosmetics = useCosmetics(identity?.id ?? "");
 
 const currentMessage = toRef(info, "currentMessage");
-
-const container = ref<HTMLElement | null>(null);
 const inputEl = ref<HTMLDivElement | null>(null);
 
 function renderInputTokens(): void {
 	if (!inputEl.value) return;
 
 	inputEl;
+}
+
+function insertAtEnd(value: string): void {
+	if (!inputEl.value || typeof inputEl.value.textContent !== "string") return;
+
+	inputEl.value.textContent += inputEl.value.textContent.charAt(value.length - 1) === " " ? value : ` ${value}`;
+	if (info) info.currentMessage = inputEl.value.textContent;
 }
 
 function handleTab(n: Text, sel: Selection): void {
@@ -44,7 +51,9 @@ function handleTab(n: Text, sel: Selection): void {
 	const searchWord = text.substring(tokenStart + 1, start);
 	if (!searchWord) return;
 
-	const emote = emotes.find((ae) => ae.name.toLowerCase().startsWith(searchWord.toLowerCase()));
+	const emote = [...Object.values(emotes.active), ...Object.values(cosmetics.emotes)].find((ae) =>
+		ae.name.toLowerCase().startsWith(searchWord.toLowerCase()),
+	);
 	if (!emote) return;
 
 	const textNode = document.createTextNode(`${emote.name} `);
@@ -76,15 +85,10 @@ useEventListener(inputEl, "keydown", (ev: KeyboardEvent) => {
 });
 
 watchEffect(() => {
-	const footer = document.getElementById("chatroom-footer");
-	if (!footer) return;
-
-	const el = document.createElement("seventv-container");
-	el.id = "seventv-autocomplete-container";
-
-	footer.insertAdjacentElement("afterbegin", el);
-
-	container.value = el;
 	inputEl.value = (document.getElementById("message-input") as HTMLDivElement) ?? null;
+});
+
+defineExpose({
+	insertAtEnd,
 });
 </script>

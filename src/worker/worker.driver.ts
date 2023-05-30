@@ -38,9 +38,6 @@ export class WorkerDriver extends EventTarget {
 		this.eventAPI = new EventAPI(this);
 
 		db.ready().then(async () => {
-			// Connect to EventAPI
-			this.eventAPI.connect("WebSocket");
-
 			// Fetch global emotes & cosmetics
 			const sets = [] as SevenTV.EmoteSet[];
 			let emoteCount = 0;

@@ -1,39 +1,70 @@
 <template>
 	<template v-if="shallowList">
 		<ChatObserver :list-element="shallowList" />
-		<ChatAutocomplete />
+		<ChatAutocomplete ref="autocomplete" />
 	</template>
+
 	<ChatData />
+	<ChatEmoteMenu @pick-emote="insertToInput($event.name)" />
 </template>
 
 <script setup lang="ts">
-import { inject, watchEffect } from "vue";
-import { ref } from "vue";
-import { watch } from "vue";
-import { toRefs } from "vue";
+import { ref, toRaw, watchEffect } from "vue";
 import { ObserverPromise } from "@/common/Async";
+import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import ChatData from "@/site/youtube.com/modules/chat/ChatData.vue";
+import { useWorker } from "@/composable/useWorker";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
+import ChatEmoteMenu from "./ChatEmoteMenu.vue";
 import ChatObserver from "./ChatObserver.vue";
-import { KICK_CHANNEL_KEY } from "../..";
+import ChatData from "@/app/chat/ChatData.vue";
 
-const { id: channelID, username: channelUsername } = toRefs(
-	inject(KICK_CHANNEL_KEY, { id: "", username: "", currentMessage: "" }),
-);
+const props = defineProps<{
+	slug: string;
+}>();
 
-const ctx = useChannelContext(channelID.value, true);
+defineExpose({
+	onMessageSend,
+});
+
+function onMessageSend() {
+	sendWorkerMessage("CHANNEL_ACTIVE_CHATTER", {
+		channel: toRaw(ctx),
+	});
+}
+
+// need to fetch the channel because we can only get the chatroom ID from this which isn't equal to the user ID
+const resp = await fetch(`https://kick.com/api/v2/channels/${props.slug}`).catch((err) => {
+	log.error("failed to fetch channel data", err);
+});
+if (!resp) throw new Error("failed to fetch channel data");
+
+const { user_id: id } = await resp.json();
+if (!id) throw new Error("failed to get channel ID");
+
+const ctx = useChannelContext(id.toString(), true);
+const { sendMessage: sendWorkerMessage } = useWorker();
 
 // The list
 const chatList = ref<HTMLDivElement | null>(null);
 const shallowList = ref<HTMLDivElement | null>(null);
 
+const autocomplete = ref<InstanceType<typeof ChatAutocomplete> | null>(null);
+
+function insertToInput(value: string): void {
+	if (!autocomplete.value) return;
+
+	autocomplete.value.insertAtEnd(value);
+}
+
+let observer: ObserverPromise<HTMLDivElement> | null = null;
+
 watchEffect(async () => {
 	// Update channel context
 	const ok = ctx.setCurrentChannel({
-		id: channelID.value,
-		username: channelUsername.value,
-		displayName: channelUsername.value,
+		id: id.toString(),
+		username: props.slug,
+		displayName: props.slug,
 		active: true,
 	});
 	if (ok) {
@@ -46,30 +77,31 @@ watchEffect(async () => {
 	const chatroomTop = document.getElementById("chatroom-top");
 	if (!chatroomTop || !chatroomTop.nextElementSibling) return;
 
-	// The adjacent element is expected to be the chat's message list
 	chatList.value = chatroomTop.nextElementSibling as HTMLDivElement;
-});
 
-// Watch for message list updates
-watch(
-	chatList,
-	async (el) => {
-		if (!el) return;
-
-		// Obtain the shallow message list
-		// This will be used to set up an efficient-ish mutation observer
-		shallowList.value = await new ObserverPromise<HTMLDivElement>(
+	// Create observer
+	if (observer) observer.disconnect();
+	if (!chatroomTop.nextElementSibling.firstElementChild) {
+		observer = new ObserverPromise<HTMLDivElement>(
 			(records, emit) => {
 				for (const rec of records) {
-					rec.addedNodes.forEach((n) => (n instanceof HTMLDivElement ? emit(n) : null));
+					if (!rec.target || !(rec.target instanceof HTMLDivElement)) continue;
+					if (!rec.target.firstElementChild) continue;
+
+					emit(rec.target.firstElementChild as HTMLDivElement);
 				}
 			},
-			el,
-			{ childList: true },
+			chatroomTop.nextElementSibling,
+			{
+				childList: true,
+				subtree: true,
+			},
 		);
-	},
-	{
-		immediate: true,
-	},
-);
+
+		const el = await observer;
+		shallowList.value = el;
+	} else {
+		shallowList.value = chatroomTop.nextElementSibling.firstElementChild as HTMLDivElement;
+	}
+});
 </script>

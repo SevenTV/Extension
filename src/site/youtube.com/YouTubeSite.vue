@@ -18,7 +18,7 @@ const ua = useUserAgent();
 
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
-store.setPlatform("YOUTUBE", []);
+store.setPlatform("YOUTUBE", ["7TV", "FFZ", "BTTV"], []);
 
 // Import modules
 const modules = import.meta.glob("./modules/**/*Module.vue", { eager: true, import: "default" });

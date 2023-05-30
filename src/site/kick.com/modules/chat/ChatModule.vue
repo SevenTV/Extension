@@ -1,17 +1,20 @@
 <template>
-	<template v-if="chan.id && chan.username">
-		<ChatController />
+	<template v-if="chan.active">
+		<Suspense>
+			<ChatController ref="controller" :slug="chan.slug" />
+		</Suspense>
 	</template>
 </template>
 
 <script setup lang="ts">
-import { App } from "vue";
-import { provide } from "vue";
-import { reactive } from "vue";
-import { watch } from "vue";
-import type { Pinia, _StoreWithState } from "pinia";
+import { onMounted, provide, reactive, ref, watch } from "vue";
+import { useEventListener } from "@vueuse/core";
+import { defineFunctionHook } from "@/common/Reflection";
 import { declareModule } from "@/composable/useModule";
 import { ChatRoom, KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
+import { useApp } from "@/site/kick.com/composable/useApp";
+import { usePinia } from "@/site/kick.com/composable/usePinia";
+import { useRouter } from "@/site/kick.com/composable/useRouter";
 import ChatController from "./ChatController.vue";
 
 const { markAsReady } = declareModule<"KICK">("chat", {
@@ -20,45 +23,69 @@ const { markAsReady } = declareModule<"KICK">("chat", {
 });
 
 // Acquire vue app
-const app = (document.querySelector("#app") as unknown as Record<string, never>)?.__vue_app__ as App<Element>;
-if (!app) throw new Error("Could not acquire vue app");
+const app = useApp();
+const router = useRouter(app);
 
-// Acquire pinia instance
-const pinia = app.config.globalProperties.$pinia;
-const stores = (pinia as Pinia & { _s: Map<string, _StoreWithState<"ANY-KICK-STORE", ChatRoom, unknown, unknown>> })[
-	"_s"
-];
+const controller = ref<InstanceType<typeof ChatController> | null>(null);
 
 const chan = reactive<KickChannelInfo>({
-	id: "",
-	username: "",
+	active: false,
+	slug: "",
 	currentMessage: "",
 });
 
 provide(KICK_CHANNEL_KEY, chan);
 
-for (const [key, store] of stores.entries()) {
-	if (key !== "chatroomv2") continue;
+let ok = false;
+function handle(): void {
+	if (ok) return;
 
-	store.$subscribe((_, s) => {
+	const chatroomStore = usePinia<ChatRoom>(app, "chatroomv2");
+	type chatroomWithActions = typeof chatroomStore & {
+		sendCurrentMessage: () => void;
+	};
+	if (!chatroomStore) return;
+
+	ok = true;
+	chatroomStore.$subscribe(async (_, s: ChatRoom) => {
 		if (!s.chatroom || typeof s.chatroom.id !== "number") return;
 
-		chan.id = s.chatroom.id.toString();
-		chan.username = s.currentChannelSlug;
+		if (chan.slug !== s.currentChannelSlug) {
+			chan.active = false;
+			await new Promise((r) => setTimeout(r, 250));
+			chan.active = true;
+		}
+
+		chan.slug = s.currentChannelSlug;
 		chan.currentMessage = s.currentMessage;
+	});
+
+	watch(
+		() => chan.currentMessage,
+		(v) => {
+			chatroomStore?.$patch({
+				currentMessage: v,
+			});
+		},
+	);
+
+	defineFunctionHook(chatroomStore as chatroomWithActions, "sendCurrentMessage", function (this, ...args) {
+		const f = args[0];
+
+		if (controller.value) {
+			controller.value.onMessageSend();
+		}
+
+		return f?.apply(this, []);
 	});
 }
 
-watch(
-	() => chan.currentMessage,
-	(v) => {
-		const store = stores.get("chatroomv2");
+onMounted(() => {
+	handle();
+});
 
-		store?.$patch({
-			currentMessage: v,
-		});
-	},
-);
+watch(() => router.currentRoute, handle, { immediate: true });
+useEventListener(document, "click", handle);
 
 markAsReady();
 </script>

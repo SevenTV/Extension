@@ -1,5 +1,5 @@
 import { Component, markRaw, nextTick, reactive } from "vue";
-import { computePosition, shift } from "@floating-ui/dom";
+import { Placement, computePosition, shift } from "@floating-ui/dom";
 
 export const tooltip = reactive({
 	x: 0,
@@ -16,7 +16,7 @@ export const tooltip = reactive({
  * @param props if content is a component, these are the props to pass to it
  * @returns
  */
-export function useTooltip(content?: string | Component, props?: Record<string, unknown>) {
+export function useTooltip(content?: string | Component, props?: Record<string, unknown>, opt?: TooltipOptions) {
 	// this shows the tooltip
 	function show(el: HTMLElement | undefined): void {
 		if (!el) return;
@@ -30,7 +30,7 @@ export function useTooltip(content?: string | Component, props?: Record<string, 
 		// on the next tick we will update the position of the tooltip container
 		nextTick(() => {
 			computePosition(el, tooltip.container as HTMLElement, {
-				placement: "top",
+				placement: opt?.placement ?? "top",
 				middleware: [shift({ padding: 8, crossAxis: true, mainAxis: true })],
 			}).then(({ x: xVal, y: yVal }) => {
 				tooltip.x = xVal;
@@ -46,4 +46,8 @@ export function useTooltip(content?: string | Component, props?: Record<string, 
 	}
 
 	return { show, hide };
+}
+
+interface TooltipOptions {
+	placement?: Placement;
 }

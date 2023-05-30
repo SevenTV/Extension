@@ -27,7 +27,7 @@ const ffz = useFrankerFaceZ();
 const useTransparency = useConfig("ui.transparent_backgrounds");
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
-store.setPlatform("TWITCH", ffz.active ? ["FFZ"] : []);
+store.setPlatform("TWITCH", ["7TV", "FFZ", "BTTV"], ffz.active ? ["FFZ"] : []);
 
 const currentPath = ref("");
 
