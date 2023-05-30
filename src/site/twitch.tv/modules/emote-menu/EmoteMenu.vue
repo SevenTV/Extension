@@ -7,6 +7,7 @@
 			scale="1rem"
 			:instance="props.instance"
 			@emote-click="onEmoteClick($event)"
+			@toggle-native-menu="toggle(true)"
 			@close="onClose"
 		/>
 	</div>
@@ -89,7 +90,6 @@ function toggle(native?: boolean) {
 	const t = props.instance.component;
 	if (native) {
 		t.onEmotePickerButtonClick();
-		ctx.open = false;
 		return;
 	}
 
@@ -97,9 +97,9 @@ function toggle(native?: boolean) {
 		t.props.closeEmotePicker();
 	} else {
 		t.props.clearMenus();
-		t.closeBitsCard();
-		t.closePaidPinnedChatCardForEmotePicker();
-		t.closeCheerCard();
+		if (typeof t.closeBitsCard === "function") t.closeBitsCard();
+		if (typeof t.closePaidPinnedChatCardForEmotePicker === "function") t.closePaidPinnedChatCardForEmotePicker();
+		if (typeof t.closeCheerCard === "function") t.closeCheerCard();
 	}
 
 	ctx.open = !ctx.open;

@@ -13,6 +13,7 @@
     -   Emote Menu
     -   7TV Paints & Badges
 -   Fixed an issue which caused mod icons to be invisible
+-   Fixed an issue where the emote menu button was broken due to a recent Twitch change
 -   Fixed an issue which sometimes caused channel emote sets to disappear
 -   Fixed an issue which caused stylesheets to be duplicated when running in hosted mode
 
