@@ -97,9 +97,9 @@ function toggle(native?: boolean) {
 		t.props.closeEmotePicker();
 	} else {
 		t.props.clearMenus();
-		t.closeBitsCard();
-		t.closePaidPinnedChatCardForEmotePicker();
-		t.closeCheerCard();
+		if (typeof t.closeBitsCard === "function") t.closeBitsCard();
+		if (typeof t.closePaidPinnedChatCardForEmotePicker === "function") t.closePaidPinnedChatCardForEmotePicker();
+		if (typeof t.closeCheerCard === "function") t.closeCheerCard();
 	}
 
 	ctx.open = !ctx.open;
