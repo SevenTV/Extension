@@ -7,6 +7,7 @@
 			scale="1rem"
 			:instance="props.instance"
 			@emote-click="onEmoteClick($event)"
+			@toggle-native-menu="toggle(true)"
 			@close="onClose"
 		/>
 	</div>
@@ -89,7 +90,6 @@ function toggle(native?: boolean) {
 	const t = props.instance.component;
 	if (native) {
 		t.onEmotePickerButtonClick();
-		ctx.open = false;
 		return;
 	}
 

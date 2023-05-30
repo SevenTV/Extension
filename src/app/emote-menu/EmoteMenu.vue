@@ -43,7 +43,7 @@
 					@emote-clicked="emit('emote-click', $event)"
 					@provider-visible="onProviderVisibilityChange(key, $event)"
 					@toggle-settings="settingsContext.toggle()"
-					@toggle-native-menu="toggle()"
+					@toggle-native-menu="[toggle(), emit('toggle-native-menu')]"
 				/>
 			</div>
 		</div>
@@ -76,6 +76,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: "emote-click", emote: SevenTV.ActiveEmote): void;
+	(e: "toggle-native-menu"): void;
 	(e: "close", ev: MouseEvent): void;
 }>();
 
