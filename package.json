@@ -3,8 +3,8 @@
 	"displayName": "7TV",
 	"description": "Improve your viewing experience on Twitch & YouTube with new features, emotes, vanity and performance.",
 	"private": true,
-	"version": "3.0.8",
-	"dev_version": "3.31",
+	"version": "3.0.9",
+	"dev_version": "1.0",
 	"scripts": {
 		"start": "NODE_ENV=dev yarn build:dev && NODE_ENV=dev vite --mode dev",
 		"build:section:app": "vite build --config vite.config.ts",

@@ -2,6 +2,10 @@
 
 **The changes listed here are not assigned to an official release**.
 
+- No unreleased changes yet.
+
+### Version 3.0.9.1000
+
 -   Added new feature: Paint Tool ([subscribers only](https://7tv.app/store))
 -   Added support for more features on [kick.com](https://kick.com/)
     -   Authentication / Channel Linking
