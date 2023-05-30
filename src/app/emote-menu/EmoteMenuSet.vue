@@ -6,7 +6,7 @@
 				<Logo v-else class="logo" :provider="es.provider" />
 			</div>
 
-			<span>{{ getLocaleName() }}</span>
+			<span class="seventv-set-name">{{ getLocaleName() }}</span>
 			<div class="seventv-set-chevron" @click="toggleCollapsed">
 				<DropdownIcon />
 			</div>
@@ -254,18 +254,19 @@ defineExpose({
 
 <style scoped lang="scss">
 .seventv-emote-set {
-	display: inline-flex;
+	display: flex;
 	flex-wrap: wrap;
-	margin: 0.5rem;
+	margin: 0.5em;
 }
 
 .seventv-set-header {
 	display: grid;
 
 	// icon, name, then at the end the chevron
-	grid-template-columns: auto 1fr 1.5rem;
-	height: 3rem;
-	padding: 0.5rem 1.25rem;
+	grid-template-columns: auto 1fr 1.5em;
+	column-gap: 0.5em;
+	height: 3em;
+	padding: 0.5em 1.25em;
 	position: sticky;
 	top: -1px;
 	background: var(--seventv-background-transparent-2);
@@ -288,6 +289,26 @@ defineExpose({
 			background-color: hsla(0deg, 0%, 30%, 32%);
 		}
 	}
+
+	.seventv-set-name {
+		display: block;
+		font-size: 1.5em;
+		font-weight: 500;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.seventv-set-header-icon {
+		max-width: 2em;
+		max-height: 2em;
+		border-radius: 0.5em;
+		overflow: clip;
+
+		svg {
+			font-size: 2em;
+		}
+	}
 }
 
 .seventv-emote-set-container {
@@ -304,21 +325,12 @@ defineExpose({
 	}
 }
 
-.seventv-set-header-icon {
-	font-size: 2rem;
-	max-width: 2rem;
-	max-height: 2rem;
-	border-radius: 0.5rem;
-	margin-right: 1rem;
-	overflow: clip;
-}
-
 .seventv-emote-container {
 	display: grid;
 	background: hsla(0deg, 0%, 50%, 6%);
 	border-radius: 0.25rem;
-	height: 4rem;
-	margin: 0.25rem;
+	height: 4em;
+	margin: 0.25em;
 	cursor: pointer;
 
 	&:hover {
@@ -363,35 +375,19 @@ defineExpose({
 	}
 
 	&[ratio="1"] {
-		width: 4rem;
+		width: 4em;
 	}
 
 	&[ratio="2"] {
-		width: 6.25rem;
+		width: calc(4em * 1.5);
 	}
 
 	&[ratio="3"] {
-		width: 8.5rem;
+		width: calc(4em * 2.125);
 	}
 
 	&[ratio="4"] {
-		width: 13rem;
+		width: calc(4em * 3.25);
 	}
-}
-
-.ratio-1 {
-	width: 4rem;
-}
-
-.ratio-2 {
-	width: 6.25rem;
-}
-
-.ratio-3 {
-	width: 8.5rem;
-}
-
-.ratio-4 {
-	width: 13rem;
 }
 </style>

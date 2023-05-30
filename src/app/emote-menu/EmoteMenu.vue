@@ -1,56 +1,58 @@
 <template>
-	<UiFloating :anchor="anchorEl" placement="top-end" :middleware="[shift({ mainAxis: true, crossAxis: true })]">
-		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu-container">
-			<div class="seventv-emote-menu">
+	<UiFloating
+		:anchor="anchorEl"
+		placement="top-end"
+		:middleware="[shift({ padding: 4, mainAxis: true, crossAxis: true }), offset({ mainAxis: 4, crossAxis: -4 })]"
+	>
+		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu">
+			<div class="seventv-emote-menu-header">
 				<!-- Emote Menu Header -->
-				<div class="seventv-emote-menu-header">
-					<div class="seventv-emote-menu-header-providers">
-						<template v-for="(b, key) in visibleProviders">
-							<div
-								v-if="b"
-								:key="key"
-								class="seventv-emote-menu-provider-icon"
-								:selected="key === activeProvider"
-								@click="activeProvider = key"
-							>
-								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
-								<StarIcon v-else />
-								<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
-							</div>
-						</template>
-					</div>
-					<div v-if="!isSearchInputEnabled" class="emote-search">
-						<input ref="searchInputRef" v-model="ctx.filter" class="emote-search-input" />
-						<div class="search-icon">
-							<SearchIcon />
+				<div class="seventv-emote-menu-providers">
+					<template v-for="(b, key) in visibleProviders">
+						<div
+							v-if="b"
+							:key="key"
+							class="seventv-emote-menu-provider-icon"
+							:selected="key === activeProvider"
+							@click="activeProvider = key"
+						>
+							<Logo v-if="key !== 'FAVORITE'" :provider="key" />
+							<StarIcon v-else />
+							<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
 						</div>
+					</template>
+				</div>
+				<div v-if="!isSearchInputEnabled" class="seventv-emote-menu-search">
+					<input ref="searchInputRef" v-model="ctx.filter" class="seventv-emote-menu-search-input" />
+					<div class="search-icon">
+						<SearchIcon />
 					</div>
 				</div>
+			</div>
 
-				<!-- Emote menu body -->
-				<div
-					v-for="(_, key) in visibleProviders"
-					v-show="key === activeProvider"
-					:key="key"
-					class="seventv-emote-menu-body"
-				>
-					<EmoteMenuTab
-						:provider="key"
-						:selected="key === activeProvider"
-						@emote-clicked="emit('emote-click', $event)"
-						@provider-visible="onProviderVisibilityChange(key, $event)"
-						@toggle-settings="settingsContext.toggle()"
-						@toggle-native-menu="toggle()"
-					/>
-				</div>
+			<!-- Emote menu body -->
+			<div
+				v-for="(_, key) in visibleProviders"
+				v-show="key === activeProvider"
+				:key="key"
+				class="seventv-emote-menu-body"
+			>
+				<EmoteMenuTab
+					:provider="key"
+					:selected="key === activeProvider"
+					@emote-clicked="emit('emote-click', $event)"
+					@provider-visible="onProviderVisibilityChange(key, $event)"
+					@toggle-settings="settingsContext.toggle()"
+					@toggle-native-menu="toggle()"
+				/>
 			</div>
 		</div>
 	</UiFloating>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
-import { onKeyStroke, useKeyModifier } from "@vueuse/core";
+import { onMounted, reactive, ref, watchEffect } from "vue";
+import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { getModuleRef } from "@/composable/useModule";
@@ -62,16 +64,19 @@ import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
 import UiFloating from "@/ui/UiFloating.vue";
-import { shift } from "@floating-ui/dom";
+import { offset, shift } from "@floating-ui/dom";
 
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
-defineProps<{
+const props = defineProps<{
 	anchorEl: HTMLElement;
+	width?: string;
+	scale?: string;
 }>();
 
 const emit = defineEmits<{
 	(e: "emote-click", emote: SevenTV.ActiveEmote): void;
+	(e: "close", ev: MouseEvent): void;
 }>();
 
 const containerRef = ref<HTMLElement | undefined>();
@@ -113,6 +118,13 @@ onMounted(() => {
 	);*/
 });
 
+watchEffect(() => {
+	if (!containerRef.value) return;
+
+	containerRef.value.style.setProperty("--width", props.width ?? "unset");
+	containerRef.value.style.setProperty("--seventv-emote-menu-scale", props.scale ?? "3rem");
+});
+
 // Shortcut (ctrl+e)
 const isCtrl = useKeyModifier("Control", { initial: false });
 onKeyStroke("e", (ev) => {
@@ -135,142 +147,245 @@ function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean
 		activeProvider.value = (Object.entries(visibleProviders).find(([, v]) => v)?.[0] ?? "7TV") as SevenTV.Provider;
 	}
 }
+
+onClickOutside(containerRef, (ev) => {
+	emit("close", ev);
+});
 </script>
 
 <style scoped lang="scss">
-.seventv-emote-menu-button {
+.seventv-emote-menu {
 	display: grid;
-	place-items: center;
-	width: 100%;
-	height: 100%;
-	font-size: 2rem;
-	transition: color 150ms ease-in-out;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr;
+	grid-template-areas:
+		"header"
+		"body";
+	outline: 0.1em solid var(--seventv-border-transparent-1);
+	background-color: var(--seventv-background-transparent-1);
+	border-radius: 0.25em;
+	width: var(--width);
+	font-size: var(--seventv-emote-menu-scale);
 
-	&.menu-open {
-		color: var(--seventv-primary);
+	@at-root .seventv-transparent & {
+		backdrop-filter: blur(1em);
 	}
 }
 
-.seventv-emote-menu-container {
-	max-width: 100%;
+.seventv-emote-menu-header {
+	grid-area: header;
+	border-bottom: 0.1em solid var(--seventv-border-transparent-1);
+	border-radius: 0.6em 0.6em 0 0;
+	background: hsla(0deg, 0%, 50%, 6%);
+}
+
+.seventv-emote-menu-providers {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	column-gap: 0.5em;
+	align-items: center;
+	margin: 1em;
+
+	.seventv-emote-menu-provider-icon {
+		cursor: pointer;
+		display: grid;
+		place-items: center;
+		grid-template-columns: 1fr;
+		width: 60%;
+		padding: 0.5em 0;
+		background: hsla(0deg, 0%, 50%, 6%);
+		color: var(--seventv-text-color-secondary);
+		border-radius: 0.25em;
+
+		&:hover {
+			background: #80808029;
+		}
+
+		> svg {
+			width: 2em;
+			height: 2em;
+		}
+
+		> span {
+			font-family: Roboto, monospace;
+			font-weight: 600;
+		}
+
+		transition: width 90ms ease-in-out, background 150ms ease-in-out;
+
+		&[selected="true"] {
+			background: var(--seventv-highlight-neutral-1);
+			color: var(--seventv-text-color-normal);
+			width: 100%;
+			grid-template-columns: 3em 1fr;
+		}
+	}
+}
+
+.seventv-emote-menu-search {
+	padding: 0 0.75em 0.75em;
+	width: 100%;
+	position: relative;
+
+	.search-icon {
+		position: absolute;
+		display: flex;
+		align-items: center;
+		top: 0;
+		left: 1em;
+		height: 3em;
+		width: 3em;
+		user-select: none;
+		pointer-events: none;
+		padding: 0.85em;
+		color: var(--seventv-border-transparent-1);
+	}
+
+	.seventv-emote-menu-search-input {
+		background-color: var(--seventv-background-shade-1);
+		border-radius: 0.4em;
+		height: 3em;
+		width: 100%;
+		border: 1px solid var(--seventv-border-transparent-1);
+		padding-left: 3em;
+		color: currentcolor;
+		outline: none;
+		transition: outline 140ms;
+
+		&:focus {
+			outline: 1px solid var(--seventv-primary);
+		}
+	}
+}
+
+.seventv-emote-menu-body {
+	grid-area: body;
+	display: grid;
+	overflow: hidden;
+	height: 40vh;
+
+	&[selected="false"] {
+		display: none;
+	}
+}
+
+.seventv-emote-menu0 {
+	position: relative;
+	max-height: calc(100vh - 15em);
+	display: flex;
+	flex-direction: column;
+	width: 21em;
+	overflow: clip;
+	border-radius: 0.25em;
+	background-color: var(--seventv-background-transparent-1);
 	z-index: 10;
 
-	.seventv-emote-menu {
-		position: relative;
-		max-height: calc(100vh - 15rem);
-		display: flex;
-		flex-direction: column;
-		width: 32rem;
-		overflow: clip;
-		border-radius: 0.25rem;
-		background-color: var(--seventv-background-transparent-1);
+	@at-root .seventv-transparent & {
+		backdrop-filter: blur(1em);
+	}
 
-		@at-root .seventv-transparent & {
-			backdrop-filter: blur(1rem);
-		}
+	outline: 0.1em solid var(--seventv-border-transparent-1);
 
-		outline: 0.1rem solid var(--seventv-border-transparent-1);
+	.seventv-emote-menu-header {
+		border-bottom: 0.1em solid var(--seventv-border-transparent-1);
+		border-radius: 0.6em 0.6em 0 0;
+		background: hsla(0deg, 0%, 50%, 6%);
 
-		.seventv-emote-menu-header {
-			border-bottom: 0.1rem solid var(--seventv-border-transparent-1);
-			border-radius: 0.6rem 0.6rem 0 0;
-			background: hsla(0deg, 0%, 50%, 6%);
-
-			.seventv-emote-menu-header-providers {
-				display: flex;
-				height: 4.5rem;
-				justify-content: space-evenly;
-				column-gap: 0.5rem;
-				padding: 0.75rem;
-
-				.seventv-emote-menu-provider-icon {
-					padding: 0.5rem;
-					cursor: pointer;
-					display: flex;
-					user-select: none;
-					justify-content: center;
-					column-gap: 0.5em;
-					background: hsla(0deg, 0%, 50%, 6%);
-					color: var(--seventv-text-color-secondary);
-					border-radius: 0.2rem;
-					flex-grow: 1;
-					width: 2rem;
-
-					&:hover {
-						background: #80808029;
-					}
-
-					transition: width 90ms ease-in-out, background 150ms ease-in-out;
-
-					&[selected="true"] {
-						background: var(--seventv-highlight-neutral-1);
-						color: var(--seventv-text-color-normal);
-						width: 6em;
-					}
-
-					> svg {
-						width: 2rem;
-						height: 2rem;
-					}
-
-					> span {
-						font-family: Roboto, monospace;
-						font-weight: 600;
-					}
-				}
-			}
-
-			.emote-search {
-				padding: 0 0.75rem 0.75rem;
-				width: 100%;
-				position: relative;
-
-				.search-icon {
-					position: absolute;
-					display: flex;
-					align-items: center;
-					top: 0;
-					left: 1rem;
-					height: 3rem;
-					width: 3rem;
-					user-select: none;
-					pointer-events: none;
-					padding: 0.85rem;
-					color: var(--seventv-border-transparent-1);
-
-					> svg {
-						height: 100%;
-						width: 100%;
-					}
-				}
-
-				.emote-search-input {
-					background-color: var(--seventv-background-shade-1);
-					border-radius: 0.4rem;
-					height: 3rem;
-					width: 100%;
-					border: 1px solid var(--seventv-border-transparent-1);
-					padding-left: 3rem;
-					color: currentcolor;
-					outline: none;
-					transition: outline 140ms;
-
-					&:focus {
-						outline: 1px solid var(--seventv-primary);
-					}
-				}
-			}
-		}
-
-		.seventv-emote-menu-body {
+		.seventv-emote-menu-header-providers {
 			display: flex;
-			height: 40rem;
-			overflow: hidden;
-			flex-shrink: 1;
+			height: 4.5em;
+			justify-content: space-evenly;
+			column-gap: 0.5em;
+			padding: 0.75em;
 
-			&[selected="false"] {
-				display: none;
+			.seventv-emote-menu-provider-icon {
+				padding: 0.5em;
+				cursor: pointer;
+				display: flex;
+				user-select: none;
+				justify-content: center;
+				column-gap: 0.5em;
+				background: hsla(0deg, 0%, 50%, 6%);
+				color: var(--seventv-text-color-secondary);
+				border-radius: 0.2em;
+				flex-grow: 1;
+				width: 2em;
+
+				&:hover {
+					background: #80808029;
+				}
+
+				transition: width 90ms ease-in-out, background 150ms ease-in-out;
+
+				&[selected="true"] {
+					background: var(--seventv-highlight-neutral-1);
+					color: var(--seventv-text-color-normal);
+					width: 6em;
+				}
+
+				> svg {
+					width: 2em;
+					height: 2em;
+				}
+
+				> span {
+					font-family: Roboto, monospace;
+					font-weight: 600;
+				}
 			}
+		}
+
+		.seventv-emote-menu-search {
+			padding: 0 0.75em 0.75em;
+			width: 100%;
+			position: relative;
+
+			.search-icon {
+				position: absolute;
+				display: flex;
+				align-items: center;
+				top: 0;
+				left: 1em;
+				height: 3em;
+				width: 3em;
+				user-select: none;
+				pointer-events: none;
+				padding: 0.85em;
+				color: var(--seventv-border-transparent-1);
+
+				> svg {
+					height: 100%;
+					width: 100%;
+				}
+			}
+
+			.seventv-emote-menu-search-input {
+				background-color: var(--seventv-background-shade-1);
+				border-radius: 0.4em;
+				height: 3em;
+				width: 100%;
+				border: 1px solid var(--seventv-border-transparent-1);
+				padding-left: 3em;
+				color: currentcolor;
+				outline: none;
+				transition: outline 140ms;
+
+				&:focus {
+					outline: 1px solid var(--seventv-primary);
+				}
+			}
+		}
+	}
+
+	.seventv-emote-menu-body {
+		display: flex;
+		height: 40em;
+		overflow: hidden;
+		flex-shrink: 1;
+
+		&[selected="false"] {
+			display: none;
 		}
 	}
 }

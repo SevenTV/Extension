@@ -1,36 +1,34 @@
 <template>
-	<div class="emote-area-container">
-		<UiScrollable class="scroll-area">
+	<div class="seventv-emote-menu-tab-container">
+		<UiScrollable>
 			<!-- Native Menu Toggle -->
-			<div v-if="provider === 'PLATFORM'" class="native-menu-toggle" @click="emit('toggle-native-menu')">
+			<div v-if="provider === 'PLATFORM'" class="seventv-native-menu-toggle" @click="emit('toggle-native-menu')">
 				<Logo provider="PLATFORM" />
 				<span v-t="'emote_menu.native'" />
 			</div>
 
-			<div class="emote-area">
-				<div v-for="es of sortedSets" :key="es.id">
-					<EmoteMenuSet
-						:ref="'es-' + es.id"
-						:es="es"
-						@emote-clicked="(ae) => emit('emote-clicked', ae)"
-						@emotes-updated="(emotes) => updateVisibility(es, !!emotes.length)"
-					/>
-				</div>
+			<div v-for="es of sortedSets" :key="es.id">
+				<EmoteMenuSet
+					:ref="'es-' + es.id"
+					:es="es"
+					@emote-clicked="(ae) => emit('emote-clicked', ae)"
+					@emotes-updated="(emotes) => updateVisibility(es, !!emotes.length)"
+				/>
 			</div>
 		</UiScrollable>
-		<div class="sidebar">
-			<div class="sidebar-icons">
+		<div class="seventv-emote-menu-tab-sidebar">
+			<div class="seventv-emote-menu-sidebar-icons">
 				<template v-for="es in sortedSets" :key="es.id">
 					<div
 						v-if="es.emotes.length"
-						class="set-sidebar-icon-container"
+						class="seventv-emote-menu-set-sidebar-icon-container"
 						:selected="selectedSet == es.id"
 						@click="select(es.id, $refs['es-' + es.id] as InstanceType<typeof EmoteMenuSet>[])"
 					>
-						<div class="set-sidebar-icon">
+						<div class="seventv-emote-menu-set-sidebar-icon">
 							<div
 								v-if="es.provider === 'EMOJI' && emojiCategories.indexOf(es.name) > -1"
-								class="emoji-group"
+								class="seventv-emote-menu-emoji-group"
 							>
 								<SingleEmoji :id="emojiGroupIcons[emojiCategories.indexOf(es.name)]" :alt="es.name" />
 							</div>
@@ -40,8 +38,8 @@
 					</div>
 				</template>
 			</div>
-			<div class="settings-button-container">
-				<div class="settings-button" @click="emit('toggle-settings')">
+			<div class="seventv-emote-menu-settings-button-container">
+				<div class="seventv-emote-menu-settings-button" @click="emit('toggle-settings')">
 					<GearsIcon :provider="'7TV'" />
 					<div v-if="!updater.isUpToDate" class="seventv-emote-menu-settings-button-update-flair" />
 				</div>
@@ -231,22 +229,19 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 <style scoped lang="scss">
 @import "@/assets/style/flair";
 
-.emote-area-container {
-	flex-shrink: 1;
-	display: flex;
+.seventv-emote-menu-tab-container {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	grid-template-rows: 1fr;
+	overflow: hidden;
 }
 
-.scroll-area {
-	width: 28rem;
-	flex-shrink: 0;
-}
-
-.native-menu-toggle {
+.seventv-native-menu-toggle {
 	display: inline-block;
 	text-align: center;
-	grid-template-columns: 3rem 1fr;
+	grid-template-columns: 3em 1fr;
 	width: 100%;
-	padding: 0.25rem 1rem;
+	padding: 0.25em 1em;
 	cursor: pointer;
 	transition: background 0.2s ease-in-out;
 
@@ -254,8 +249,8 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	span {
 		display: inline-block;
 		vertical-align: middle;
-		font-size: 1.25rem;
-		margin: 0.5rem;
+		font-size: 1.25em;
+		margin: 0.5em;
 	}
 
 	&:hover {
@@ -263,7 +258,8 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	}
 }
 
-.sidebar {
+.seventv-emote-menu-tab-sidebar {
+	overflow: hidden;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -271,7 +267,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	background: hsla(0deg, 0%, 50%, 6%);
 	border-left: 1px solid var(--seventv-border-transparent-1);
 
-	.sidebar-icons {
+	.seventv-emote-menu-sidebar-icons {
 		overflow-y: scroll;
 		scrollbar-width: none;
 
@@ -281,21 +277,21 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 		}
 	}
 
-	.settings-button-container {
+	.seventv-emote-menu-settings-button-container {
 		justify-content: center;
 		width: 100%;
 		margin-top: auto;
 		float: bottom;
-		height: 4rem;
+		height: 4em;
 		flex-shrink: 0;
 		padding: auto;
 		border-top: 1px solid var(--seventv-border-transparent-1);
 
-		.settings-button {
+		.seventv-emote-menu-settings-button {
 			display: flex;
-			margin: 0.5rem;
-			padding: 0.5rem;
-			border-radius: 0.25rem;
+			margin: 0.5em;
+			padding: 0.5em;
+			border-radius: 0.25em;
 			justify-content: center;
 			cursor: pointer;
 
@@ -304,16 +300,16 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 			}
 
 			> svg {
-				height: 2rem;
-				width: 2rem;
+				height: 2em;
+				width: 2em;
 			}
 
 			> .seventv-emote-menu-settings-button-update-flair {
 				position: absolute;
-				height: 1rem;
-				width: 1rem;
-				transform: translateY(-0.25rem);
-				right: 0.65rem;
+				height: 1em;
+				width: 1em;
+				transform: translateY(-0.25em);
+				right: 0.65em;
 
 				@include flair-pulsating(#3eed58);
 			}
@@ -321,19 +317,19 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	}
 }
 
-.set-sidebar-icon-container {
+.seventv-emote-menu-set-sidebar-icon-container {
 	width: 100%;
-	padding: 0.5rem 0;
+	padding: 0.5em 0;
 
 	&[selected="true"] {
 		background: hsla(0deg, 0%, 50%, 32%);
 	}
 }
 
-.set-sidebar-icon {
-	width: 2.8rem;
-	height: 2.8rem;
-	border-radius: 0.5rem;
+.seventv-emote-menu-set-sidebar-icon {
+	width: 2.8em;
+	height: 2.8em;
+	border-radius: 0.5em;
 	overflow: clip;
 	margin: auto;
 	cursor: pointer;
@@ -344,7 +340,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	height: 100%;
 }
 
-.emoji-group {
+.seventv-emote-menu-emoji-group {
 	width: 100%;
 	height: 100%;
 }
