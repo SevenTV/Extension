@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
-- No unreleased changes yet.
+- Tweaked some styling issues in the Emote Menu
 
 ### Version 3.0.9.1000
 

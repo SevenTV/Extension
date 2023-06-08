@@ -18,7 +18,10 @@
 						>
 							<Logo v-if="key !== 'FAVORITE'" :provider="key" />
 							<StarIcon v-else />
-							<span v-show="key === activeProvider && key !== 'FAVORITE'">{{ key }}</span>
+							<span v-show="key === activeProvider">
+								<template v-if="key === 'PLATFORM'">{{ platform }}</template>
+								<template v-else>{{ key }}</template>
+							</span>
 						</div>
 					</template>
 				</div>
@@ -87,7 +90,7 @@ const ctx = useEmoteMenuContext();
 ctx.channelID = channelCtx.id;
 
 const settingsContext = useSettingsMenu();
-const { providers } = useStore();
+const { providers, platform } = useStore();
 
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
@@ -175,87 +178,87 @@ onClickOutside(containerRef, (ev) => {
 
 .seventv-emote-menu-header {
 	grid-area: header;
+	display: grid;
+	grid-template-rows: 1fr 0.75fr;
 	border-bottom: 0.1em solid var(--seventv-border-transparent-1);
-	border-radius: 0.6em 0.6em 0 0;
+	border-radius: 0.25em 0.25em 0 0;
 	background: hsla(0deg, 0%, 50%, 6%);
-}
 
-.seventv-emote-menu-providers {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-evenly;
-	column-gap: 0.5em;
-	align-items: center;
-	margin: 1em;
-
-	.seventv-emote-menu-provider-icon {
-		cursor: pointer;
-		display: grid;
-		place-items: center;
-		grid-template-columns: 1fr;
-		width: 60%;
-		padding: 0.5em 0;
-		background: hsla(0deg, 0%, 50%, 6%);
-		color: var(--seventv-text-color-secondary);
-		border-radius: 0.25em;
-
-		&:hover {
-			background: #80808029;
-		}
-
-		> svg {
-			width: 2em;
-			height: 2em;
-		}
-
-		> span {
-			font-family: Roboto, monospace;
-			font-weight: 600;
-		}
-
-		transition: width 90ms ease-in-out, background 150ms ease-in-out;
-
-		&[selected="true"] {
-			background: var(--seventv-highlight-neutral-1);
-			color: var(--seventv-text-color-normal);
-			width: 100%;
-			grid-template-columns: 3em 1fr;
-		}
-	}
-}
-
-.seventv-emote-menu-search {
-	padding: 0 0.75em 0.75em;
-	width: 100%;
-	position: relative;
-
-	.search-icon {
-		position: absolute;
+	.seventv-emote-menu-providers {
 		display: flex;
+		flex-direction: row;
+		justify-content: space-evenly;
+		column-gap: 0.5em;
 		align-items: center;
-		top: 0;
-		left: 1em;
-		height: 3em;
-		width: 3em;
-		user-select: none;
-		pointer-events: none;
-		padding: 0.85em;
-		color: var(--seventv-border-transparent-1);
+		margin: 1em 0.75em;
+
+		.seventv-emote-menu-provider-icon {
+			cursor: pointer;
+			display: grid;
+			place-items: center;
+			grid-template-columns: 1fr;
+			width: 40%;
+			padding: 0.5em 0.25em;
+			background: hsla(0deg, 0%, 50%, 6%);
+			color: var(--seventv-text-color-secondary);
+			border-radius: 0.25em;
+
+			&:hover {
+				background: #80808029;
+			}
+
+			> svg {
+				width: 2em;
+				height: 2em;
+			}
+
+			> span {
+				font-family: Roboto, monospace;
+				font-weight: 600;
+				font-size: 1.5em;
+			}
+
+			transition: width 120ms ease-in-out, background 150ms ease-in-out;
+
+			&[selected="true"] {
+				background: var(--seventv-highlight-neutral-1);
+				color: var(--seventv-text-color-normal);
+				width: 100%;
+				grid-template-columns: 3em 1fr;
+			}
+		}
 	}
 
-	.seventv-emote-menu-search-input {
-		background-color: var(--seventv-background-shade-1);
-		border-radius: 0.4em;
-		height: 3em;
-		width: 100%;
-		border: 1px solid var(--seventv-border-transparent-1);
-		padding-left: 3em;
-		color: currentcolor;
-		outline: none;
-		transition: outline 140ms;
+	.seventv-emote-menu-search {
+		height: 100%;
+		position: relative;
 
-		&:focus {
-			outline: 1px solid var(--seventv-primary);
+		.search-icon {
+			position: absolute;
+			display: grid;
+			place-items: center;
+			top: 0;
+			left: 0.5em;
+			height: 100%;
+			user-select: none;
+			pointer-events: none;
+			padding: 0.85em;
+			color: var(--seventv-border-transparent-1);
+		}
+
+		.seventv-emote-menu-search-input {
+			background-color: var(--seventv-background-shade-1);
+			width: 100%;
+			height: 100%;
+			border: none;
+			padding-left: 3em;
+			color: currentcolor;
+			outline: none;
+			transition: outline 140ms;
+
+			&:focus {
+				outline: 1px solid var(--seventv-primary);
+			}
 		}
 	}
 }
@@ -268,126 +271,6 @@ onClickOutside(containerRef, (ev) => {
 
 	&[selected="false"] {
 		display: none;
-	}
-}
-
-.seventv-emote-menu0 {
-	position: relative;
-	max-height: calc(100vh - 15em);
-	display: flex;
-	flex-direction: column;
-	width: 21em;
-	overflow: clip;
-	border-radius: 0.25em;
-	background-color: var(--seventv-background-transparent-1);
-	z-index: 10;
-
-	@at-root .seventv-transparent & {
-		backdrop-filter: blur(1em);
-	}
-
-	outline: 0.1em solid var(--seventv-border-transparent-1);
-
-	.seventv-emote-menu-header {
-		border-bottom: 0.1em solid var(--seventv-border-transparent-1);
-		border-radius: 0.6em 0.6em 0 0;
-		background: hsla(0deg, 0%, 50%, 6%);
-
-		.seventv-emote-menu-header-providers {
-			display: flex;
-			height: 4.5em;
-			justify-content: space-evenly;
-			column-gap: 0.5em;
-			padding: 0.75em;
-
-			.seventv-emote-menu-provider-icon {
-				padding: 0.5em;
-				cursor: pointer;
-				display: flex;
-				user-select: none;
-				justify-content: center;
-				column-gap: 0.5em;
-				background: hsla(0deg, 0%, 50%, 6%);
-				color: var(--seventv-text-color-secondary);
-				border-radius: 0.2em;
-				flex-grow: 1;
-				width: 2em;
-
-				&:hover {
-					background: #80808029;
-				}
-
-				transition: width 90ms ease-in-out, background 150ms ease-in-out;
-
-				&[selected="true"] {
-					background: var(--seventv-highlight-neutral-1);
-					color: var(--seventv-text-color-normal);
-					width: 6em;
-				}
-
-				> svg {
-					width: 2em;
-					height: 2em;
-				}
-
-				> span {
-					font-family: Roboto, monospace;
-					font-weight: 600;
-				}
-			}
-		}
-
-		.seventv-emote-menu-search {
-			padding: 0 0.75em 0.75em;
-			width: 100%;
-			position: relative;
-
-			.search-icon {
-				position: absolute;
-				display: flex;
-				align-items: center;
-				top: 0;
-				left: 1em;
-				height: 3em;
-				width: 3em;
-				user-select: none;
-				pointer-events: none;
-				padding: 0.85em;
-				color: var(--seventv-border-transparent-1);
-
-				> svg {
-					height: 100%;
-					width: 100%;
-				}
-			}
-
-			.seventv-emote-menu-search-input {
-				background-color: var(--seventv-background-shade-1);
-				border-radius: 0.4em;
-				height: 3em;
-				width: 100%;
-				border: 1px solid var(--seventv-border-transparent-1);
-				padding-left: 3em;
-				color: currentcolor;
-				outline: none;
-				transition: outline 140ms;
-
-				&:focus {
-					outline: 1px solid var(--seventv-primary);
-				}
-			}
-		}
-	}
-
-	.seventv-emote-menu-body {
-		display: flex;
-		height: 40em;
-		overflow: hidden;
-		flex-shrink: 1;
-
-		&[selected="false"] {
-			display: none;
-		}
 	}
 }
 </style>
