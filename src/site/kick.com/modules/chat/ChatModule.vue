@@ -85,7 +85,7 @@ onMounted(() => {
 });
 
 watch(() => router.currentRoute, handle, { immediate: true });
-useEventListener(document, "click", handle);
+useEventListener(document, "click", () => setTimeout(handle, 250));
 
 markAsReady();
 </script>
