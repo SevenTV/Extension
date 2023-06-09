@@ -54,7 +54,7 @@ function handleTab(n: Text, sel: Selection): void {
 	const emote = [...Object.values(emotes.active), ...Object.values(cosmetics.emotes)].find((ae) =>
 		ae.name.toLowerCase().startsWith(searchWord.toLowerCase()),
 	);
-	if (!emote) return;
+	if (!emote || emote.provider === "EMOJI") return;
 
 	const textNode = document.createTextNode(`${emote.name} `);
 

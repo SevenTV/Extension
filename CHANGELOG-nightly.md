@@ -6,8 +6,11 @@
 - Tweaked some styling issues in the Emote Menu
 - Kick:
   - Fixed an issue where historical messages did not consistently render
-  - Fixed some issues where the connection flow failed
   - Fixed an issue which caused text to become misplaced when mixed with Kick native emotes
+  - Fixed some issues where the connection flow failed
+  - Long text sequences should no longer overflow outside of the chat box
+  - Adjusted emoji scale to be in line with other platforms
+  - Clicking an emoji in the Emote Menu should now correctly input the unicode instead of the name
 
 ### Version 3.0.9.1000
 
