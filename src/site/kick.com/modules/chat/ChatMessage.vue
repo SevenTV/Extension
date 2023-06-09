@@ -148,6 +148,11 @@ onUnmounted(() => {
 	margin: var(--seventv-emote-margin);
 	margin-left: 0 !important;
 	margin-right: 0 !important;
+
+	> :deep(svg) {
+		max-width: 1.5em !important;
+		max-height: 1.5em !important;
+	}
 }
 
 .seventv-text-token {
