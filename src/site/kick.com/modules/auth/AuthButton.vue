@@ -38,13 +38,14 @@
 			<div ref="popupRef" class="seventv-connect-popup">
 				<template v-if="!appUser">
 					<h3 v-t="'site.kick.connect_button_site'" />
-					<p v-if="identity">
+					<p v-if="identity && !connectError">
 						{{
 							t("site.kick.connect_popup_" + connectState, {
 								ACTOR: identity.username,
 							})
 						}}
 					</p>
+					<p v-else>{{ connectError }}</p>
 
 					<div v-if="connectState !== 'connecting'" class="seventv-connect-popup-buttons">
 						<template v-if="connectState !== 'done'">
@@ -124,19 +125,22 @@ async function connect() {
 		id: identity.username,
 	});
 
+	const setError = (err: Error): void => {
+		connectError.value = err;
+		w.close();
+	};
+
 	await (async () => {
 		// Get verification code
 		let resp = await fetch(import.meta.env.VITE_APP_API + `/auth/manual?${query.toString()}`).catch((err) => {
 			connectError.value = err;
 		});
-		if (!resp || !resp.ok) return Promise.reject("failed to get verification code");
+		if (!resp || !resp.ok) return setError(Error("failed to get verification code"));
 
 		// Update user's kick bio with the code
 		const code = await resp.text();
 		const ok = await setBioCode(code)
-			.catch((err) => {
-				Promise.reject(err);
-			})
+			.catch(setError)
 			.then(() => true);
 		if (!ok) return;
 
@@ -147,10 +151,10 @@ async function connect() {
 		query.set("verify", "1");
 		resp = await fetch(import.meta.env.VITE_APP_API + `/auth/manual?${query.toString()}`, {
 			credentials: "include",
-		}).catch((err) => {
-			Promise.reject(err);
-		});
-		if (!resp || !resp.ok) return;
+		}).catch(setError);
+		if (!resp || !resp.ok) {
+			return setError(new Error("failed to verify code"));
+		}
 
 		const tok = resp.headers.get("X-Access-Token");
 		if (w) w.location.href = import.meta.env.VITE_APP_SITE + "/auth/callback?token=" + tok;
@@ -159,15 +163,8 @@ async function connect() {
 			log.error("failed to clear bio", err);
 		});
 
-		Promise.resolve();
-	})()
-		.catch((err) => {
-			connectError.value = err;
-			w.close();
-		})
-		.then(() => {
-			connectState.value = "done";
-		});
+		connectState.value = "done";
+	})();
 }
 
 const tokenWrapRegexp = /\[7TV:[0-9a-fA-F]+\]/g;
@@ -188,6 +185,8 @@ async function setBioCode(code: string) {
 
 	fetch("https://kick.com/update_profile", {
 		headers: {
+			accept: "application/json, text/plain, */*",
+			"accept-language": "en-US",
 			"content-type": "application/json",
 			"x-xsrf-token": auth,
 		},
@@ -200,7 +199,6 @@ async function setBioCode(code: string) {
 		}),
 		method: "POST",
 		mode: "cors",
-		credentials: "include",
 	}).then((resp) => {
 		if (!resp.ok) return;
 
