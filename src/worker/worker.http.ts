@@ -105,13 +105,11 @@ export class WorkerHttp {
 		// setup fetching promises
 		const userPromise = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
 
-		const promises = (
-			[
-				["7TV", userPromise.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
-				["FFZ", frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
-				["BTTV", betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
-			] as [SevenTV.Provider, Promise<SevenTV.EmoteSet>][]
-		).filter(([p]) => port.providers.has(p));
+		const promises = [
+			["7TV", () => userPromise.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
+			["FFZ", () => frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
+			["BTTV", () => betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
+		] as [SevenTV.Provider, () => Promise<SevenTV.EmoteSet>][];
 
 		const onResult = async (set: SevenTV.EmoteSet) => {
 			if (!set) return;
@@ -131,7 +129,9 @@ export class WorkerHttp {
 		// iterate results and store sets to DB
 		const sets = [] as SevenTV.EmoteSet[];
 		for (const [provider, setP] of promises) {
-			const set = await setP.catch((err) =>
+			if (!port.providers.has(provider)) continue;
+
+			const set = await setP().catch((err) =>
 				this.driver.log.error(
 					`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`,
 					err,
