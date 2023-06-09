@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 - Tweaked some styling issues in the Emote Menu
+- Fixed an issue where historical messages did not consistently render on kick.com
 
 ### Version 3.0.9.1000
 

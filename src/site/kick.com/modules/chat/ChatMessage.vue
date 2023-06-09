@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { onMounted, watch, watchEffect } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
@@ -125,6 +125,7 @@ function process(): void {
 }
 
 watch(cosmetics, process);
+watchEffect(process);
 
 onMounted(process);
 
