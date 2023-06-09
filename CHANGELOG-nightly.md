@@ -2,9 +2,12 @@
 
 **The changes listed here are not assigned to an official release**.
 
+
 - Tweaked some styling issues in the Emote Menu
-- Fixed an issue where historical messages did not consistently render on kick.com
-- Fixed some issues where the connection flow with kick.com failed
+- Kick:
+  - Fixed an issue where historical messages did not consistently render
+  - Fixed some issues where the connection flow failed
+  - Fixed an issue which caused text to become misplaced when mixed with Kick native emotes
 
 ### Version 3.0.9.1000
 

@@ -1,7 +1,7 @@
 <template>
 	<template v-for="(box, index) of containers" :key="index">
 		<Teleport :to="box">
-			<template v-for="(token, i) of tokens" :key="i">
+			<template v-for="(token, i) of tokens.get(box)" :key="i">
 				<span v-if="typeof token === 'string'"> {{ token }}</span>
 				<span v-else-if="IsEmoteToken(token)">
 					<Emote class="seventv-emote-token" :emote="token.content.emote" format="WEBP" />
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, watchEffect } from "vue";
+import { onMounted, reactive, watch, watchEffect } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
@@ -64,7 +64,7 @@ const cosmetics = useCosmetics(props.bind.authorID);
 const badgeContainer = document.createElement("seventv-container");
 
 const containers = ref<HTMLElement[]>([]);
-const tokens = ref<MessageTokenOrText[]>([]);
+const tokens = reactive<WeakMap<HTMLElement, MessageTokenOrText[]>>(new WeakMap());
 
 // Listen for click events
 useEventListener(props.bind.usernameEl.parentElement, "click", () => {
@@ -112,8 +112,6 @@ function process(): void {
 			result.push(after);
 		}
 
-		tokens.value = result;
-
 		const tokenEl = document.createElement("seventv-container");
 		tokenEl.classList.add("seventv-text-token");
 
@@ -121,6 +119,7 @@ function process(): void {
 		el.style.display = "none"; // to allow for graceful recovery, we only hide the original token
 
 		containers.value.push(tokenEl);
+		tokens.set(tokenEl, result);
 	}
 }
 
