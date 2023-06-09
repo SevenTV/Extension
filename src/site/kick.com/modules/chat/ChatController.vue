@@ -5,7 +5,7 @@
 	</template>
 
 	<ChatData />
-	<ChatEmoteMenu @pick-emote="insertToInput($event.name)" />
+	<ChatEmoteMenu @pick-emote="(ae) => insertToInput(ae.provider === 'EMOJI' ? ae.unicode ?? ae.name : ae.name)" />
 </template>
 
 <script setup lang="ts">
