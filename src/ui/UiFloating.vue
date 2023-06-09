@@ -83,6 +83,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .floating-container {
 	position: absolute;
-	z-index: 100;
+	z-index: 1000;
 }
 </style>

@@ -2,11 +2,11 @@
 
 **The changes listed here are not assigned to an official release**.
 
-
 - Tweaked some styling issues in the Emote Menu
 - Kick:
   - Fixed an issue where historical messages did not consistently render
   - Fixed an issue which caused text to become misplaced when mixed with Kick native emotes
+  - Fixed an issue with the Emote Menu & Tooltips not appearing while in theater mode
   - Fixed some issues where the connection flow failed
   - Long text sequences should no longer overflow outside of the chat box
   - Adjusted emoji scale to be in line with other platforms
