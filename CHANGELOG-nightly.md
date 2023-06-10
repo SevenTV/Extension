@@ -2,6 +2,10 @@
 
 **The changes listed here are not assigned to an official release**.
 
+- No unreleased changes yet.
+
+### Version 3.0.10.1000
+
 - Tweaked some styling issues in the Emote Menu
 - Kick:
   - Fixed an issue where historical messages did not consistently render
