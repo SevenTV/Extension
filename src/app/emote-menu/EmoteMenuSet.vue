@@ -1,5 +1,5 @@
 <template>
-	<div v-if="emotes.length" ref="containerEl" class="seventv-emote-set-container" :collapsed="collapsed">
+	<div ref="containerEl" class="seventv-emote-set-container" :collapsed="collapsed" :ephemeral="ephemeral">
 		<div class="seventv-set-header">
 			<div class="seventv-set-header-icon">
 				<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
@@ -8,7 +8,8 @@
 
 			<span class="seventv-set-name">{{ getLocaleName() }}</span>
 			<div class="seventv-set-chevron" @click="toggleCollapsed">
-				<DropdownIcon />
+				<DropdownIcon v-if="!ephemeral" />
+				<CloseIcon v-else />
 			</div>
 		</div>
 
@@ -33,6 +34,8 @@
 				</template>
 			</div>
 		</div>
+
+		<slot />
 	</div>
 </template>
 
@@ -43,6 +46,7 @@ import { onKeyDown, until, useMagicKeys, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
+import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
@@ -54,6 +58,7 @@ import {
 
 const props = defineProps<{
 	es: SevenTV.EmoteSet;
+	ephemeral?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -256,7 +261,7 @@ defineExpose({
 .seventv-emote-set {
 	display: flex;
 	flex-wrap: wrap;
-	margin: 0.5em;
+	margin: 0 0.5em;
 }
 
 .seventv-set-header {
@@ -321,6 +326,10 @@ defineExpose({
 
 		.seventv-set-header > .seventv-set-chevron > svg {
 			transform: rotate(90deg);
+		}
+
+		&[ephemeral="true"] {
+			display: none;
 		}
 	}
 }

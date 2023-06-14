@@ -6,6 +6,7 @@ import SettingsViewHomeVue from "./SettingsViewHome.vue";
 import SettingsViewProfileVue from "./SettingsViewProfile.vue";
 
 const PaintTool = defineAsyncComponent(() => import("@/app/paint-tool/PaintTool.vue"));
+const Store = defineAsyncComponent(() => import("@/app/store/Store.vue"));
 
 class SettingsMenuContext {
 	open = false;
@@ -54,6 +55,7 @@ const views = {
 	config: SettingsViewConfigVue,
 	profile: SettingsViewProfileVue,
 	compat: SettingsViewCompatVue,
+	store: Store,
 	paint: PaintTool,
 };
 

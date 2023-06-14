@@ -200,11 +200,18 @@ function openAuthWindow(): void {
 
 const keys = useMagicKeys();
 const paintToolShortcut = keys["Alt+Shift+P"];
+const storeShortcut = keys["Alt+Shift+S"];
 
 watch(paintToolShortcut, (press) => {
 	if (!press) return;
 
 	ctx.switchView("paint");
+});
+
+watch(storeShortcut, (press) => {
+	if (!press) return;
+
+	ctx.switchView("store");
 });
 
 watch(
