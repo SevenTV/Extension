@@ -3,8 +3,8 @@
 		<Teleport :to="box">
 			<template v-for="(token, i) of tokens.get(box)" :key="i">
 				<span v-if="typeof token === 'string'" class="seventv-text-token"> {{ token }}</span>
-				<span v-else-if="IsEmoteToken(token)">
-					<Emote class="seventv-emote-token" :emote="token.content.emote" format="WEBP" />
+				<span v-else-if="IsEmoteToken(token)" class="seventv-emote-token">
+					<Emote :emote="token.content.emote" />
 				</span>
 			</template>
 		</Teleport>
@@ -143,14 +143,19 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .seventv-emote-token {
-	display: inline-grid !important;
+	margin-left: 0.125rem;
+	margin-right: 0.125rem;
+	display: inline-block;
+	max-height: 1.5rem;
 	vertical-align: middle;
-	margin: var(--seventv-emote-margin);
-	margin-left: 0 !important;
-	margin-right: 0 !important;
 
 	> :deep(svg) {
 		max-width: 1.5em !important;
+		max-height: 1.5em !important;
+	}
+
+	:deep(img) {
+		display: inline-grid !important;
 		max-height: 1.5em !important;
 	}
 }
