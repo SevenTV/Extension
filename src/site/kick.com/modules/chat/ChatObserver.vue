@@ -97,11 +97,23 @@ function patch(): void {
 
 const expectPause = ref(false);
 const bounds = ref(props.listElement.getBoundingClientRect());
+let unpauseListenerAttached = false;
 
 function onMessageRendered() {
+	if (props.listElement.nextElementSibling) {
+		unpauseListenerAttached = true;
+		props.listElement.addEventListener("click", () => onUnpauseClick);
+	}
 	if (expectPause.value) return;
 
 	props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+}
+
+function onUnpauseClick(): void {
+	if (!unpauseListenerAttached) return;
+	unpauseListenerAttached = false;
+	props.listElement.removeEventListener("click", onUnpauseClick);
+	expectPause.value = false;
 }
 
 onMounted(() => {
