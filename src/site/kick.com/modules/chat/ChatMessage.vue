@@ -3,8 +3,8 @@
 		<Teleport :to="box">
 			<template v-for="(token, i) of tokens.get(box)" :key="i">
 				<span v-if="typeof token === 'string'" class="seventv-text-token"> {{ token }}</span>
-				<span v-else-if="IsEmoteToken(token)" class="seventv-emote-token">
-					<Emote :emote="token.content.emote" />
+				<span v-else-if="IsEmoteToken(token)">
+					<Emote class="seventv-emote-token" :emote="token.content.emote" format="WEBP" />
 				</span>
 			</template>
 		</Teleport>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, watch, watchEffect } from "vue";
+import { nextTick, onMounted, reactive, watch, watchEffect } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
@@ -55,6 +55,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: "open-card", bind: ChatMessageBinding): void;
+	(e: "render"): void;
 }>();
 
 const ctx = useChannelContext();
@@ -121,6 +122,8 @@ function process(): void {
 		containers.value.push(tokenEl);
 		tokens.set(tokenEl, result);
 	}
+
+	nextTick(() => emit("render"));
 }
 
 watch(cosmetics, process);
@@ -143,19 +146,14 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .seventv-emote-token {
-	margin-left: 0.125rem;
-	margin-right: 0.125rem;
-	display: inline-block;
-	max-height: 1.5rem;
+	display: inline-grid !important;
 	vertical-align: middle;
+	margin: var(--seventv-emote-margin);
+	margin-left: 0 !important;
+	margin-right: 0 !important;
 
 	> :deep(svg) {
 		max-width: 1.5em !important;
-		max-height: 1.5em !important;
-	}
-
-	:deep(img) {
-		display: inline-grid !important;
 		max-height: 1.5em !important;
 	}
 }
