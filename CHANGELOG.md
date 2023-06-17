@@ -1,3 +1,7 @@
+### Version 3.0.11
+
+-   Fixed an issue which caused chat to randomly pause on Kick
+
 ### Version 3.0.10
 
 -   Tweaked some styling issues in the Emote Menu
