@@ -158,7 +158,7 @@ onUnmounted(() => {
 	}
 
 	:deep(img) {
-		max-height: 1.75em !important;
+		max-height: 1.75rem !important;
 	}
 }
 
