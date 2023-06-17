@@ -1,7 +1,7 @@
 <template>
 	<!-- Patch messages -->
 	<template v-for="[key, bind] of messageMap" :key="key">
-		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" @vnode-updated="onMessageRendered" />
+		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" @vue:updated="onMessageRendered" />
 	</template>
 
 	<!-- Modify user card -->
@@ -93,11 +93,11 @@ let pausedTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function onMessageRendered() {
 	nextTick(() => {
-		if (props.listElement.nextElementSibling) {
+		if (typeof pausedTimeout !== "number" && props.listElement.nextElementSibling) {
 			pausedTimeout = setTimeout(() => {
 				paused = true;
-			}, 250);
-		} else {
+			}, 500);
+		} else if (paused) {
 			paused = false;
 			if (pausedTimeout) clearTimeout(pausedTimeout);
 		}
