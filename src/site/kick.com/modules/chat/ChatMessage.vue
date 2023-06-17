@@ -156,6 +156,10 @@ onUnmounted(() => {
 		max-width: 1.5em !important;
 		max-height: 1.5em !important;
 	}
+
+	:deep(img) {
+		max-height: 1.75rem !important;
+	}
 }
 
 .seventv-text-token {
