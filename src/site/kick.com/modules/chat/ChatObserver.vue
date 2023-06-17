@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, ref, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
@@ -100,9 +100,9 @@ const bounds = ref(props.listElement.getBoundingClientRect());
 let unpauseListenerAttached = false;
 
 function onMessageRendered() {
-	if (props.listElement.nextElementSibling) {
+	if (props.listElement.nextElementSibling && !unpauseListenerAttached) {
 		unpauseListenerAttached = true;
-		props.listElement.addEventListener("click", () => onUnpauseClick);
+		props.listElement.addEventListener("click", onUnpauseClick);
 	}
 	if (expectPause.value) return;
 
@@ -110,10 +110,9 @@ function onMessageRendered() {
 }
 
 function onUnpauseClick(): void {
-	if (!unpauseListenerAttached) return;
-	unpauseListenerAttached = false;
 	props.listElement.removeEventListener("click", onUnpauseClick);
 	expectPause.value = false;
+	unpauseListenerAttached = false;
 }
 
 onMounted(() => {
@@ -131,6 +130,10 @@ onMounted(() => {
 
 		expectPause.value = true;
 	});
+});
+
+onUnmounted(() => {
+	props.listElement.removeEventListener("click", onUnpauseClick);
 });
 
 watchEffect(() => {
