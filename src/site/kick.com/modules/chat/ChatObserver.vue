@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, ref, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
@@ -88,25 +88,6 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 	});
 }
 
-let paused = false;
-let pausedTimeout: ReturnType<typeof setTimeout> | null = null;
-
-function onMessageRendered() {
-	if (props.listElement.nextElementSibling) {
-		pausedTimeout = setTimeout(() => {
-			paused = true;
-		}, 1e3);
-	} else {
-		paused = false;
-		if (pausedTimeout) clearTimeout(pausedTimeout);
-	}
-	if (paused) return;
-
-	setTimeout(() => {
-		props.listElement.scrollTo({ top: props.listElement.scrollHeight });
-	}, 50);
-}
-
 function patch(): void {
 	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
 	for (const el of Array.from(entries)) {
@@ -114,7 +95,52 @@ function patch(): void {
 	}
 }
 
-watchEffect(patch);
+const expectPause = ref(false);
+const bounds = ref(props.listElement.getBoundingClientRect());
+let unpauseListenerAttached = false;
+
+function onMessageRendered() {
+	if (props.listElement.nextElementSibling && !unpauseListenerAttached) {
+		unpauseListenerAttached = true;
+		props.listElement.addEventListener("click", onUnpauseClick);
+	}
+	if (expectPause.value) return;
+
+	props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+}
+
+function onUnpauseClick(): void {
+	props.listElement.removeEventListener("click", onUnpauseClick);
+	expectPause.value = false;
+	unpauseListenerAttached = false;
+}
+
+onMounted(() => {
+	const el = props.listElement;
+	if (!el) return;
+
+	el.addEventListener("wheel", () => {
+		const top = Math.floor(el.scrollTop);
+		const h = Math.floor(el.scrollHeight - bounds.value.height);
+
+		if (top >= h - 1) {
+			expectPause.value = false;
+			return;
+		}
+
+		expectPause.value = true;
+	});
+});
+
+onUnmounted(() => {
+	props.listElement.removeEventListener("click", onUnpauseClick);
+});
+
+watchEffect(() => {
+	patch();
+
+	bounds.value = props.listElement.getBoundingClientRect();
+});
 
 useMutationObserver(
 	props.listElement,
