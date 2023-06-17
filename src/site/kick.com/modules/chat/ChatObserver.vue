@@ -154,6 +154,16 @@ useMutationObserver(
 	},
 	{ childList: true },
 );
+
+useMutationObserver(
+	props.listElement.parentElement!,
+	() => {
+		if (props.listElement.nextElementSibling) return;
+
+		expectPause.value = false;
+	},
+	{ childList: true },
+);
 </script>
 
 <style scoped lang="scss">
