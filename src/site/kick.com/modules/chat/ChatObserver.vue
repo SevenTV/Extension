@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, ref, watchEffect } from "vue";
-import { useMutationObserver } from "@vueuse/core";
+import { nextTick, onMounted, reactive, ref, watchEffect } from "vue";
+import { refAutoReset, useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
@@ -88,31 +88,34 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 	});
 }
 
-let paused = false;
-let pausedTimeout: ReturnType<typeof setTimeout> | null = null;
-
-function onMessageRendered() {
-	if (props.listElement.nextElementSibling) {
-		pausedTimeout = setTimeout(() => {
-			paused = true;
-		}, 1e3);
-	} else {
-		paused = false;
-		if (pausedTimeout) clearTimeout(pausedTimeout);
-	}
-	if (paused) return;
-
-	setTimeout(() => {
-		props.listElement.scrollTo({ top: props.listElement.scrollHeight });
-	}, 50);
-}
-
 function patch(): void {
 	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
 	for (const el of Array.from(entries)) {
 		patchMessageElement(el as HTMLDivElement);
 	}
 }
+
+const expectPause = refAutoReset(false, 50);
+
+function onMessageRendered() {
+	if (!expectPause.value) return;
+
+	props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+}
+
+onMounted(() => {
+	const el = props.listElement;
+	if (!el) return;
+
+	el.addEventListener("wheel", () => {
+		if (el.scrollTop < el.scrollHeight) {
+			expectPause.value = false;
+			return;
+		}
+
+		expectPause.value = true;
+	});
+});
 
 watchEffect(patch);
 
