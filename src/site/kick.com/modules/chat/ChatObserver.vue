@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref, watchEffect } from "vue";
-import { refAutoReset, useMutationObserver } from "@vueuse/core";
+import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
@@ -95,7 +95,8 @@ function patch(): void {
 	}
 }
 
-const expectPause = refAutoReset(false, 50);
+const expectPause = ref(false);
+const bounds = ref(props.listElement.getBoundingClientRect());
 
 function onMessageRendered() {
 	if (expectPause.value) return;
@@ -108,7 +109,10 @@ onMounted(() => {
 	if (!el) return;
 
 	el.addEventListener("wheel", () => {
-		if (el.scrollTop < el.scrollHeight) {
+		const top = Math.floor(el.scrollTop);
+		const h = Math.floor(el.scrollHeight - bounds.value.height);
+
+		if (top >= h - 1) {
 			expectPause.value = false;
 			return;
 		}
@@ -117,7 +121,11 @@ onMounted(() => {
 	});
 });
 
-watchEffect(patch);
+watchEffect(() => {
+	patch();
+
+	bounds.value = props.listElement.getBoundingClientRect();
+});
 
 useMutationObserver(
 	props.listElement,
