@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { onMounted, provide, reactive, ref, watch } from "vue";
-import { useEventListener } from "@vueuse/core";
+import { noop, useEventListener } from "@vueuse/core";
 import { defineFunctionHook } from "@/common/Reflection";
 import { declareModule } from "@/composable/useModule";
 import { ChatRoom, KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
@@ -37,6 +37,7 @@ const chan = reactive<KickChannelInfo>({
 provide(KICK_CHANNEL_KEY, chan);
 
 let ok = false;
+const stoppers: (typeof noop)[] = [];
 function handle(): void {
 	if (ok) return;
 
@@ -47,26 +48,33 @@ function handle(): void {
 	if (!chatroomStore) return;
 
 	ok = true;
-	chatroomStore.$subscribe(async (_, s: ChatRoom) => {
-		if (!s.chatroom || typeof s.chatroom.id !== "number") return;
 
-		if (chan.slug !== s.currentChannelSlug) {
-			chan.active = false;
-			await new Promise((r) => setTimeout(r, 250));
-			chan.active = true;
-		}
+	while (stoppers.length) stoppers.pop()?.();
+	stoppers.push(
+		chatroomStore.$subscribe(async (_, s: ChatRoom) => {
+			if (!s.chatroom || typeof s.chatroom.id !== "number") return;
 
-		chan.slug = s.currentChannelSlug;
-		chan.currentMessage = s.currentMessage;
-	});
+			if (chan.slug !== s.currentChannelSlug) {
+				chan.active = false;
+				await new Promise((r) => setTimeout(r, 250));
+				chan.active = true;
+				ok = false;
+			}
 
-	watch(
-		() => chan.currentMessage,
-		(v) => {
-			chatroomStore?.$patch({
-				currentMessage: v,
-			});
-		},
+			chan.slug = s.currentChannelSlug;
+			chan.currentMessage = s.currentMessage;
+		}),
+	);
+
+	stoppers.push(
+		watch(
+			() => chan.currentMessage,
+			(v) => {
+				chatroomStore?.$patch({
+					currentMessage: v,
+				});
+			},
+		),
 	);
 
 	defineFunctionHook(chatroomStore as chatroomWithActions, "sendCurrentMessage", function (this, ...args) {
