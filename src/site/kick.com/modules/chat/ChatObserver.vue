@@ -1,7 +1,7 @@
 <template>
 	<!-- Patch messages -->
 	<template v-for="[key, bind] of messageMap" :key="key">
-		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" @render="onMessageRendered" />
+		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" @vnode-updated="onMessageRendered" />
 	</template>
 
 	<!-- Modify user card -->
@@ -88,11 +88,23 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 	});
 }
 
-function onMessageRendered() {
-	// skip if paused (scuffed)
-	if (props.listElement.nextElementSibling) return;
+let paused = false;
+let pausedTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+function onMessageRendered() {
+	nextTick(() => {
+		if (props.listElement.nextElementSibling) {
+			pausedTimeout = setTimeout(() => {
+				paused = true;
+			}, 250);
+		} else {
+			paused = false;
+			if (pausedTimeout) clearTimeout(pausedTimeout);
+		}
+		if (paused) return;
+
+		props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+	});
 }
 
 function patch(): void {
