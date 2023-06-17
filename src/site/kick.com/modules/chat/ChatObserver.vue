@@ -98,7 +98,7 @@ function patch(): void {
 const expectPause = refAutoReset(false, 50);
 
 function onMessageRendered() {
-	if (!expectPause.value) return;
+	if (expectPause.value) return;
 
 	props.listElement.scrollTo({ top: props.listElement.scrollHeight });
 }
