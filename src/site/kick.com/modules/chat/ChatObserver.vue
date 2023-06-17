@@ -102,9 +102,9 @@ function onMessageRendered() {
 	}
 	if (paused) return;
 
-	nextTick(() => {
+	setTimeout(() => {
 		props.listElement.scrollTo({ top: props.listElement.scrollHeight });
-	});
+	}, 50);
 }
 
 function patch(): void {
