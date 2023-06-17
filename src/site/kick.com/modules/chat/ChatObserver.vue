@@ -92,17 +92,17 @@ let paused = false;
 let pausedTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function onMessageRendered() {
-	nextTick(() => {
-		if (typeof pausedTimeout !== "number" && props.listElement.nextElementSibling) {
-			pausedTimeout = setTimeout(() => {
-				paused = true;
-			}, 500);
-		} else if (paused) {
-			paused = false;
-			if (pausedTimeout) clearTimeout(pausedTimeout);
-		}
-		if (paused) return;
+	if (props.listElement.nextElementSibling) {
+		pausedTimeout = setTimeout(() => {
+			paused = true;
+		}, 1e3);
+	} else {
+		paused = false;
+		if (pausedTimeout) clearTimeout(pausedTimeout);
+	}
+	if (paused) return;
 
+	nextTick(() => {
 		props.listElement.scrollTo({ top: props.listElement.scrollHeight });
 	});
 }
