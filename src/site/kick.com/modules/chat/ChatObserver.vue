@@ -106,7 +106,9 @@ function onMessageRendered() {
 	}
 	if (expectPause.value) return;
 
-	props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+	nextTick(() => {
+		props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+	});
 }
 
 function onUnpauseClick(): void {
