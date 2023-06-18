@@ -281,9 +281,9 @@ defineExpose({
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 2rem;
-		height: 2rem;
-		border-radius: 0.25rem;
+		width: 2em;
+		height: 2em;
+		border-radius: 0.25em;
 
 		> svg {
 			transition: transform 0.25s ease;

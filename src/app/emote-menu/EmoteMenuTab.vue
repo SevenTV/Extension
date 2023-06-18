@@ -8,13 +8,12 @@
 			</div>
 
 			<!-- Personal Set Promotion -->
-			<template v-if="provider === '7TV' && !sortedSets.some((es) => es.scope === 'PERSONAL')">
+			<template v-if="provider === '7TV' && !actor.sub">
 				<EmoteMenuSet :es="promotionPersonalSet" :ephemeral="true">
 					<div class="seventv-promotion-personal-emotes">
 						<div>
 							<p v-t="'emote_menu.personal_emotes_promo_1'" />
 							<span>
-								<!-- capitalize -->
 								{{
 									t("emote_menu.personal_emotes_promo_2", {
 										PLATFORM: store.platform.charAt(0) + store.platform.slice(1).toLowerCase(),
@@ -77,6 +76,7 @@ import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useActor } from "@/composable/useActor";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
@@ -112,6 +112,7 @@ const selectedSet = ref("");
 const sets = emotes.byProvider(props.provider as SevenTV.Provider) ?? reactive({});
 const store = useStore();
 const cosmetics = useCosmetics(store.identity?.id ?? "");
+const actor = useActor();
 const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");

@@ -1,11 +1,13 @@
 import { InjectionKey, inject, provide, reactive, toRaw, watch } from "vue";
 import { userByConnectionQuery, userQuery } from "@/assets/gql/seventv.user.gql";
+import { SubscriptionResponse, useEgVault } from "@/app/store/egvault";
 import { useLazyQuery } from "@vue/apollo-composable";
 
 const ACTOR_KEY: InjectionKey<ActorContext> = Symbol("ActorContext");
 
 class ActorContext {
 	user: SevenTV.User | null = null;
+	sub: SubscriptionResponse | null = null;
 
 	platform: Platform | null = null;
 	platformUserID: string | null = null;
@@ -48,6 +50,8 @@ class ActorContext {
 }
 
 export function useActor(): ActorContext {
+	const eg = useEgVault();
+
 	let ctx = inject(ACTOR_KEY, null)!;
 	if (!ctx) {
 		ctx = reactive(new ActorContext()) as ActorContext;
@@ -72,6 +76,21 @@ export function useActor(): ActorContext {
 				});
 			},
 			{ immediate: true },
+		);
+
+		watch(
+			() => ctx.user?.id,
+			(userID) => {
+				if (!userID) return;
+
+				eg.fetchSub(userID)
+					.then((sub) => {
+						if (!sub || !sub.active) return;
+
+						ctx.sub = sub;
+					})
+					.catch(() => void 0);
+			},
 		);
 	}
 

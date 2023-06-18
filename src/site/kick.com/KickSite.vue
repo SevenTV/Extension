@@ -18,8 +18,8 @@ import { KickModuleID } from "@/types/kick.module";
 const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
 
 const store = useStore();
-const ua = useUserAgent();
 const actor = useActor();
+const ua = useUserAgent();
 
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
