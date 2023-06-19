@@ -86,7 +86,7 @@ function handleInputChange(): void {
 			.sort((a, b) => a.name.length - b.name.length)
 			.slice(0, 25)
 			.map((e) => ({
-				token: e.name,
+				token: e.unicode || e.name,
 				priority: e.name.length,
 				item: e,
 			}));
