@@ -5,6 +5,7 @@ export const APP_BROADCAST_CHANNEL = "seventv-app-broadcast-channel";
 export const LOCAL_STORAGE_KEYS = {
 	WORKER_ADDR: "seventv_worker_addr",
 	SEEN_SETTINGS: "seventv_seen_settings",
+	APP_TOKEN: "seventv_app_token",
 };
 
 export const REACT_TYPEOF_TOKEN = "$$typeof";
