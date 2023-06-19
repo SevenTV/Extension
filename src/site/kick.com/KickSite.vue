@@ -37,6 +37,12 @@ const user = usePinia<{
 		streamer_channel: {
 			slug: string;
 		};
+		discord?: string;
+		facebook?: string;
+		twitter?: string;
+		youtube?: string;
+		tiktok?: string;
+		instagram?: string;
 	};
 }>(app, "user");
 
@@ -50,6 +56,12 @@ if (user) {
 			username: data.streamer_channel.slug,
 			bio: data.bio,
 			email: data.email,
+			discord: data.discord,
+			facebook: data.facebook,
+			instagram: data.instagram,
+			tiktok: data.tiktok,
+			twitter: data.twitter,
+			youtube: data.youtube,
 		});
 
 		actor.setPlatformUserID("KICK", data.id.toString());
