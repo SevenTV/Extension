@@ -164,8 +164,15 @@ useEventListener(
 
 		switch (ev.key) {
 			case "Tab":
+			case "Enter":
 				ev.preventDefault();
 				handleTab(n, sel);
+
+				if (!colon.active) break;
+
+				ev.stopPropagation();
+				insertAtEnd(colon.matches[colon.select].token);
+				colon.active = false;
 				break;
 			case "ArrowUp":
 			case "ArrowDown": {
@@ -190,14 +197,6 @@ useEventListener(
 
 				break;
 			}
-			case "Enter":
-				if (!colon.active) break;
-
-				ev.preventDefault();
-				ev.stopPropagation();
-				insertAtEnd(colon.matches[colon.select].token);
-				colon.active = false;
-				break;
 		}
 	},
 	{
