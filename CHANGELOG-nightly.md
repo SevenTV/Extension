@@ -2,6 +2,8 @@
 
 **The changes listed here are not assigned to an official release**.
 
+- Added colon-completion (partial emote matches with ":") on Kick
+- Added history navigation (up/down arrow) on Kick
 - Fixed an issue that caused long messages to pause the chat on Kick
 
 ### Version 3.0.10.1000
