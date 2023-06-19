@@ -64,6 +64,11 @@ const colon = reactive({
 	select: 0,
 });
 
+const history = reactive({
+	index: 0,
+	messages: [] as string[],
+});
+
 function handleInputChange(): void {
 	if (!inputEl.value || typeof inputEl.value.textContent !== "string") return;
 
@@ -150,6 +155,17 @@ function handleTab(n: Text, sel: Selection): void {
 	sel.collapse(textNode, emote.name.length + 1);
 }
 
+// add message to history using unshift
+function handleMessageSend(text: string) {
+	if (!text) return;
+
+	if (history.messages[0] !== text) {
+		history.messages.unshift(text);
+	}
+
+	history.index = 0;
+}
+
 watch(currentMessage, handleInputChange);
 
 useEventListener(
@@ -160,13 +176,14 @@ useEventListener(
 		if (!sel) return;
 
 		const n = sel.focusNode as Text | null;
-		if (!n || n.nodeName !== "#text") return;
 
 		switch (ev.key) {
 			case "Tab":
 			case "Enter":
-				ev.preventDefault();
-				handleTab(n, sel);
+				if (ev.key === "Tab" && n && n.nodeName === "#text") {
+					ev.preventDefault();
+					handleTab(n, sel);
+				}
 
 				if (!colon.active) break;
 
@@ -176,27 +193,43 @@ useEventListener(
 				break;
 			case "ArrowUp":
 			case "ArrowDown": {
-				if (!colon.active) break;
 				const direction = ev.key === "ArrowUp" ? "up" : "down";
 
-				ev.preventDefault();
+				if (colon.active) {
+					ev.preventDefault();
 
-				if (direction === "up") {
-					colon.select = Math.max(0, colon.select - 1);
-				} else {
-					colon.select = Math.min(colon.matches.length - 1, colon.select + 1);
-				}
+					if (direction === "up") {
+						colon.select = Math.max(0, colon.select - 1);
+					} else {
+						colon.select = Math.min(colon.matches.length - 1, colon.select + 1);
+					}
 
-				const selectedItem = colonList.value?.children.item(colon.select);
-				if (selectedItem) {
-					selectedItem.scrollIntoView({
-						block: "nearest",
-						inline: "nearest",
-					});
+					const selectedItem = colonList.value?.children.item(colon.select);
+					if (selectedItem) {
+						selectedItem.scrollIntoView({
+							block: "nearest",
+							inline: "nearest",
+						});
+					}
+				} else if (inputEl.value) {
+					ev.preventDefault();
+
+					if (direction === "up") {
+						history.index = inputEl.value.textContent?.length
+							? Math.min(history.messages.length - 1, history.index + 1)
+							: 0;
+					} else {
+						history.index = Math.max(0, history.index - 1);
+					}
+
+					inputEl.value.textContent = history.messages[history.index];
 				}
 
 				break;
 			}
+			default:
+				history.index = 0;
+				break;
 		}
 	},
 	{
@@ -211,6 +244,7 @@ watchEffect(() => {
 
 defineExpose({
 	insertAtEnd,
+	handleMessageSend,
 });
 </script>
 

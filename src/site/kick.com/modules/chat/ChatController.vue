@@ -27,10 +27,12 @@ defineExpose({
 	onMessageSend,
 });
 
-function onMessageSend() {
+function onMessageSend(text: string) {
 	sendWorkerMessage("CHANNEL_ACTIVE_CHATTER", {
 		channel: toRaw(ctx),
 	});
+
+	autocomplete.value?.handleMessageSend(text);
 }
 
 // need to fetch the channel because we can only get the chatroom ID from this which isn't equal to the user ID

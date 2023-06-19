@@ -81,7 +81,7 @@ function handle(): void {
 		const f = args[0];
 
 		if (controller.value) {
-			controller.value.onMessageSend();
+			controller.value.onMessageSend(this.$state.currentMessage);
 		}
 
 		return f?.apply(this, []);
