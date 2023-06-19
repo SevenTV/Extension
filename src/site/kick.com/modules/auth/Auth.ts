@@ -17,7 +17,7 @@ export async function setBioCode(identity: KickIdentity, code: string, cookies: 
 	const cleanBio = identity.bio?.replace(tokenWrapRegexp, "").trim() ?? "";
 	const newBio = code ? (identity.bio ? `${cleanBio} ${tokenWrap}` : tokenWrap) : cleanBio;
 
-	fetch("https://kick.com/update_profile", {
+	return fetch("https://kick.com/update_profile", {
 		headers: {
 			accept: "application/json, text/plain, */*",
 			"accept-language": "en-US",
