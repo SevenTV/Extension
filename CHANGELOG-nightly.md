@@ -4,6 +4,7 @@
 
 - Added colon-completion (partial emote matches with ":") on Kick
 - Added history navigation (up/down arrow) on Kick
+- Updated the auth mechanism on Kick to avoid using third-party cookies
 - Fixed an issue that caused long messages to pause the chat on Kick
 
 ### Version 3.0.10.1000
