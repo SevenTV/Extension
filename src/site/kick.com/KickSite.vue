@@ -42,6 +42,8 @@ const user = usePinia<{
 
 if (user) {
 	const updateIdentity = (data: typeof user.$state.user) => {
+		if (!data || !data.id) return;
+
 		store.setIdentity("KICK", {
 			id: data.id.toString(),
 			numID: data.id,
