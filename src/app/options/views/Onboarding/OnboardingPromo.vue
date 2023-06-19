@@ -46,7 +46,7 @@
 			<div class="card-explain">{{ t("onboarding.promo_animated_avatars") }}</div>
 		</div>
 		<div class="interact">
-			<StoreSubscribeButton class="interact-subscribe" @click="onSubscribeClick" />
+			<StoreSubscribeButton class="interact-subscribe" />
 			<UiButton class="ui-button-hollow interact-skip" @click="onSkipClick">
 				<span v-t="'onboarding.promo_reject'" />
 			</UiButton>
@@ -61,10 +61,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-
-function onSubscribeClick(): void {
-	window.open("https://7tv.app/store", "_blank");
-}
 
 function onSkipClick(): void {
 	emit("completed");

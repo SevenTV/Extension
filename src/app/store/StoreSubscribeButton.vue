@@ -1,5 +1,5 @@
 <template>
-	<UiButton class="seventv-button-subscribe">
+	<UiButton class="seventv-button-subscribe" @click="openStorePage">
 		<Logo7TV />
 		<span v-t="'onboarding.promo_subscribe'" />
 	</UiButton>
@@ -8,6 +8,10 @@
 <script setup lang="ts">
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import UiButton from "@/ui/UiButton.vue";
+
+function openStorePage() {
+	window.open(import.meta.env.VITE_APP_SITE + "/store", "_blank");
+}
 </script>
 
 <style scoped lang="scss">
