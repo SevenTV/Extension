@@ -21,7 +21,7 @@
 	</Teleport>
 
 	<!-- Display button at navbar, top right -->
-	<Teleport v-if="connectState !== 'done'" :to="navContainer">
+	<Teleport v-if="identity && connectState !== 'done'" :to="navContainer">
 		<div
 			v-tooltip="t('site.kick.connect_button_site')"
 			v-tooltip:position="'bottom'"
@@ -33,7 +33,7 @@
 	</Teleport>
 
 	<!-- Connect Info Popup -->
-	<template v-if="popupAnchor">
+	<template v-if="popupAnchor && identity">
 		<UiFloating :anchor="popupAnchor" :middleware="[shift({ padding: 8 })]">
 			<div ref="popupRef" class="seventv-connect-popup">
 				<template v-if="!appUser">
@@ -60,7 +60,9 @@
 				<template v-else>
 					<h3>7TV - Sign In</h3>
 					<p v-if="connectState === 'connecting'">{{ t("site.kick.connect_popup_connecting") }}</p>
-					<p v-else v-t="'site.kick.connect_button_site_tooltip'" />
+					<p v-else>
+						{{ t("site.kick.connect_button_site_tooltip", { ACTOR: identity?.username }) }}
+					</p>
 					<div v-if="connectState !== 'connecting'" class="seventv-connect-popup-buttons">
 						<UiButton @click="connect">Sign In</UiButton>
 					</div>
