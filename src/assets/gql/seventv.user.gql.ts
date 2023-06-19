@@ -35,6 +35,21 @@ export const userQuery = gql`
 	}
 `;
 
+export const userByConnectionQuery = gql`
+	query GetUserByConnection($platform: ConnectionPlatform!, $id: String!) {
+		user: userByConnection(platform: $platform, id: $id) {
+			id
+			username
+			display_name
+			avatar_url
+			style {
+				color
+				paint_id
+			}
+		}
+	}
+`;
+
 export namespace userQuery {
 	export interface Result {
 		user: SevenTV.User;

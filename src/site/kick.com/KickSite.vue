@@ -8,6 +8,7 @@
 import { defineAsyncComponent, provide } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
+import { useActor } from "@/composable/useActor";
 import { getModule } from "@/composable/useModule";
 import { useUserAgent } from "@/composable/useUserAgent";
 import { useApp } from "./composable/useApp";
@@ -18,6 +19,7 @@ const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWra
 
 const store = useStore();
 const ua = useUserAgent();
+const actor = useActor();
 
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
@@ -38,14 +40,23 @@ const user = usePinia<{
 	};
 }>(app, "user");
 
-if (user && user.$state.user) {
-	store.setIdentity("KICK", {
-		id: user.$state.user.id.toString(),
-		numID: user.$state.user.id,
-		username: user.$state.user.streamer_channel.slug,
-		bio: user.$state.user.bio,
-		email: user.$state.user.email,
+if (user) {
+	const updateIdentity = (data: typeof user.$state.user) => {
+		store.setIdentity("KICK", {
+			id: data.id.toString(),
+			numID: data.id,
+			username: data.streamer_channel.slug,
+			bio: data.bio,
+			email: data.email,
+		});
+
+		actor.setPlatformUserID("KICK", data.id.toString());
+	};
+
+	user.$subscribe(() => {
+		updateIdentity(user.$state.user);
 	});
+	updateIdentity(user.$state.user);
 }
 
 provide(SITE_CURRENT_PLATFORM, "KICK");

@@ -108,7 +108,7 @@ const connectState = ref<"idle" | "connecting" | "done">("idle");
 const connectError = ref<Error | null>(null);
 
 async function connect() {
-	if (!identity) return;
+	if (!identity.value) return;
 
 	connectError.value = null;
 	connectState.value = "connecting";
