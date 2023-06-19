@@ -46,9 +46,7 @@
 			<div class="card-explain">{{ t("onboarding.promo_animated_avatars") }}</div>
 		</div>
 		<div class="interact">
-			<UiButton class="interact-subscribe" @click="onSubscribeClick">
-				<span v-t="'onboarding.promo_subscribe'" />
-			</UiButton>
+			<StoreSubscribeButton class="interact-subscribe" />
 			<UiButton class="ui-button-hollow interact-skip" @click="onSkipClick">
 				<span v-t="'onboarding.promo_reject'" />
 			</UiButton>
@@ -64,10 +62,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-function onSubscribeClick(): void {
-	window.open("https://7tv.app/store", "_blank");
-}
-
 function onSkipClick(): void {
 	emit("completed");
 }
@@ -78,6 +72,7 @@ import { useI18n } from "vue-i18n";
 import BgBadge3 from "@/assets/svg/seventv/BgBadge3.vue";
 import VectorBadge from "@/assets/svg/seventv/VectorBadge.vue";
 import { OnboardingStepRoute } from "./Onboarding";
+import StoreSubscribeButton from "@/app/store/StoreSubscribeButton.vue";
 import UiButton from "@/ui/UiButton.vue";
 
 export const step: OnboardingStepRoute = {
@@ -248,35 +243,6 @@ main {
 		height: 3vw;
 		font-size: 1.5vw;
 		box-shadow: none;
-	}
-
-	.interact-subscribe {
-		padding: 0 2vw;
-		height: 3vw;
-		font-size: 1.5vw;
-		box-shadow: none;
-		background-image: linear-gradient(90deg, rgb(250, 170, 0) 0, rgb(255, 200, 50) 10%, rgb(250, 170, 0) 50%);
-		animation-duration: 2s;
-		animation-fill-mode: forwards;
-		animation-iteration-count: infinite;
-		animation-name: bg;
-		animation-timing-function: linear;
-		background-size: 200% 0.1rem;
-		color: rgb(0, 0, 0);
-
-		&:hover {
-			filter: brightness(120%);
-		}
-
-		@keyframes bg {
-			0% {
-				background-position: 0 0;
-			}
-
-			100% {
-				background-position: 200% 100%;
-			}
-		}
 	}
 }
 

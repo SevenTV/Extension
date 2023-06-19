@@ -7,14 +7,35 @@
 				<span v-t="'emote_menu.native'" />
 			</div>
 
-			<div v-for="es of sortedSets" :key="es.id">
+			<!-- Personal Set Promotion -->
+			<template v-if="provider === '7TV' && !actor.sub">
+				<EmoteMenuSet :es="promotionPersonalSet" :ephemeral="true">
+					<div class="seventv-promotion-personal-emotes">
+						<div>
+							<p v-t="'emote_menu.personal_emotes_promo_1'" />
+							<span>
+								{{
+									t("emote_menu.personal_emotes_promo_2", {
+										PLATFORM: store.platform.charAt(0) + store.platform.slice(1).toLowerCase(),
+									})
+								}}
+							</span>
+						</div>
+
+						<StoreSubscribeButton />
+					</div>
+				</EmoteMenuSet>
+			</template>
+
+			<template v-for="es of sortedSets" :key="es.id">
 				<EmoteMenuSet
+					v-if="es.emotes.length"
 					:ref="'es-' + es.id"
 					:es="es"
 					@emote-clicked="(ae) => emit('emote-clicked', ae)"
 					@emotes-updated="(emotes) => updateVisibility(es, !!emotes.length)"
 				/>
-			</div>
+			</template>
 		</UiScrollable>
 		<div class="seventv-emote-menu-tab-sidebar">
 			<div class="seventv-emote-menu-sidebar-icons">
@@ -55,6 +76,7 @@ import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useActor } from "@/composable/useActor";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
@@ -65,6 +87,7 @@ import type { EmoteMenuTabName } from "./EmoteMenu.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuSet from "./EmoteMenuSet.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
+import StoreSubscribeButton from "../store/StoreSubscribeButton.vue";
 
 const props = defineProps<{
 	provider: EmoteMenuTabName;
@@ -89,6 +112,7 @@ const selectedSet = ref("");
 const sets = emotes.byProvider(props.provider as SevenTV.Provider) ?? reactive({});
 const store = useStore();
 const cosmetics = useCosmetics(store.identity?.id ?? "");
+const actor = useActor();
 const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
@@ -108,6 +132,12 @@ const emojiCategories = [
 	"Symbols",
 	"Flags",
 ];
+
+const promotionPersonalSet: SevenTV.EmoteSet = {
+	id: "personal-ad",
+	name: "Personal Emotes",
+	emotes: [],
+};
 
 // "Most Used" is commented out pending refactor
 // Note the logic for favorites is also bad, though doesn't affect as many users
@@ -220,7 +250,6 @@ const filterSets = debounceFn(() => {
 	ary.sort(sortFn);
 	sortedSets.value = ary;
 }, 50);
-
 // Watch for changes to the emote sets and perform sorting operations
 watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	immediate: true,
@@ -343,5 +372,26 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 .seventv-emote-menu-emoji-group {
 	width: 100%;
 	height: 100%;
+}
+
+.seventv-promotion-personal-emotes {
+	display: grid;
+	row-gap: 0.25rem;
+	justify-items: center;
+	text-align: center;
+	margin: 0.5em 1em;
+
+	p {
+		font-size: 1.088em;
+		font-weight: bold;
+	}
+
+	span {
+		font-size: 0.9em;
+	}
+
+	button {
+		font-size: 1.5em;
+	}
 }
 </style>

@@ -36,7 +36,11 @@ emote_menu:
     native: Open Native Menu
     favorite_set: Favorite Emotes
     most_used_set: Most Used Emotes
+    personal_emotes_promo_1: You don't have Personal Emotes yet
+    personal_emotes_promo_2: Use custom emotes anywhere on {PLATFORM} with a 7TV Subscription
     sets:
+        Channel Emotes: Channel Emotes
+        Personal Emotes: Personal Emotes
         Global Emotes: Global Emotes
         Smileys & Emotion: Smileys & Emotion
         People & Body: People & Body

@@ -22,9 +22,9 @@ import type { TwModuleID } from "@/types/tw.module";
 const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
 
 const store = useStore();
+const actor = useActor();
 const ua = useUserAgent();
 const ffz = useFrankerFaceZ();
-const actor = useActor();
 
 const useTransparency = useConfig("ui.transparent_backgrounds");
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
