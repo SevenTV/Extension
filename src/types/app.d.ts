@@ -392,6 +392,12 @@ declare interface KickIdentity {
 	username: string;
 	email: string;
 	bio: string;
+	discord?: string;
+	facebook?: string;
+	twitter?: string;
+	youtube?: string;
+	tiktok?: string;
+	instagram?: string;
 }
 
 declare type Platform = "TWITCH" | "YOUTUBE" | "KICK" | "UNKNOWN";

@@ -21,7 +21,7 @@
 	</Teleport>
 
 	<!-- Display button at navbar, top right -->
-	<Teleport v-if="connectState !== 'done'" :to="navContainer">
+	<Teleport v-if="identity && connectState !== 'done'" :to="navContainer">
 		<div
 			v-tooltip="t('site.kick.connect_button_site')"
 			v-tooltip:position="'bottom'"
@@ -33,7 +33,7 @@
 	</Teleport>
 
 	<!-- Connect Info Popup -->
-	<template v-if="popupAnchor">
+	<template v-if="popupAnchor && identity">
 		<UiFloating :anchor="popupAnchor" :middleware="[shift({ padding: 8 })]">
 			<div ref="popupRef" class="seventv-connect-popup">
 				<template v-if="!appUser">
@@ -60,7 +60,9 @@
 				<template v-else>
 					<h3>7TV - Sign In</h3>
 					<p v-if="connectState === 'connecting'">{{ t("site.kick.connect_popup_connecting") }}</p>
-					<p v-else>Use this button to get signed into 7tv.app with your Kick account</p>
+					<p v-else>
+						{{ t("site.kick.connect_button_site_tooltip", { ACTOR: identity?.username }) }}
+					</p>
 					<div v-if="connectState !== 'connecting'" class="seventv-connect-popup-buttons">
 						<UiButton @click="connect">Sign In</UiButton>
 					</div>
@@ -76,9 +78,9 @@ import { useI18n } from "vue-i18n";
 import { onClickOutside, until, useTimeout } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
-import { log } from "@/common/Logger";
 import { useCookies } from "@/composable/useCookies";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
+import { setBioCode } from "./Auth";
 import UiButton from "@/ui/UiButton.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { shift } from "@floating-ui/dom";
@@ -93,8 +95,7 @@ defineEmits<{
 
 const { t } = useI18n();
 const store = useStore();
-const identity = store.identity as KickIdentity | null;
-const { appUser, identityFetched } = storeToRefs(store);
+const { appUser, identityFetched, identity } = storeToRefs(store);
 const cookies = useCookies();
 
 const channelContainer = document.createElement("seventv-container");
@@ -109,20 +110,20 @@ const connectState = ref<"idle" | "connecting" | "done">("idle");
 const connectError = ref<Error | null>(null);
 
 async function connect() {
-	if (!identity) return;
+	if (!identity.value) return;
 
 	connectError.value = null;
 	connectState.value = "connecting";
 
-	const w = window.open("about:blank", "_blank", "width=1,height=1");
+	const w = window.open("about:blank", "_blank", "width=400,height=200");
 	if (!w) throw new Error("Failed to open window");
 
 	w.blur();
-	w.document.body.innerText = "Please wait for up to 10 seconds...";
+	w.document.body.innerText = "Please wait...";
 
-	const query = new URLSearchParams({
+	let query = new URLSearchParams({
 		platform: "KICK",
-		id: identity.username,
+		id: (identity.value as KickIdentity).username,
 	});
 
 	const setError = (err: Error): void => {
@@ -132,78 +133,32 @@ async function connect() {
 
 	await (async () => {
 		// Get verification code
-		let resp = await fetch(import.meta.env.VITE_APP_API + `/auth/manual?${query.toString()}`).catch((err) => {
+		const resp = await fetch(import.meta.env.VITE_APP_API + `/auth/manual?${query.toString()}`).catch((err) => {
 			connectError.value = err;
 		});
 		if (!resp || !resp.ok) return setError(Error("failed to get verification code"));
 
 		// Update user's kick bio with the code
 		const code = await resp.text();
-		const ok = await setBioCode(code)
+		const ok = await setBioCode(identity.value as KickIdentity, code, cookies)
 			.catch(setError)
 			.then(() => true);
 		if (!ok) return;
 
 		// wait a few seconds for the bio to update
-		await until(useTimeout(1e4 + 500)).toBeTruthy();
+		await until(useTimeout(1e3 + 500)).toBeTruthy();
 
-		// Request the API to verify the code in bio
-		query.set("verify", "1");
-		resp = await fetch(import.meta.env.VITE_APP_API + `/auth/manual?${query.toString()}`, {
-			credentials: "include",
-		}).catch(setError);
-		if (!resp || !resp.ok) {
-			return setError(new Error("failed to verify code"));
-		}
-
-		const tok = resp.headers.get("X-Access-Token");
-		if (w) w.location.href = import.meta.env.VITE_APP_SITE + "/auth/callback?token=" + tok;
-
-		setBioCode("").catch((err) => {
-			log.error("failed to clear bio", err);
+		query = new URLSearchParams({
+			platform: "KICK",
+			user_id: (identity.value as KickIdentity).username,
+			manual: "1",
+			callback: encodeURIComponent(window.location.origin + window.location.pathname),
 		});
+
+		if (w) w.location.href = import.meta.env.VITE_APP_SITE + "/auth/callback?" + query.toString();
 
 		connectState.value = "done";
 	})();
-}
-
-const tokenWrapRegexp = /\[7TV:[0-9a-fA-F]+\]/g;
-async function setBioCode(code: string) {
-	if (!identity) return;
-
-	const tokenWrap = `[7TV:${code}]`;
-
-	const auth = cookies.get("XSRF-TOKEN");
-	if (!auth) return;
-
-	const headers = new Headers();
-	headers.set("x-xsrf-token", auth ?? "");
-	headers.set("Content-Type", "application/json");
-
-	const cleanBio = identity.bio?.replace(tokenWrapRegexp, "").trim() ?? "";
-	const newBio = code ? (identity.bio ? `${cleanBio} ${tokenWrap}` : tokenWrap) : cleanBio;
-
-	fetch("https://kick.com/update_profile", {
-		headers: {
-			accept: "application/json, text/plain, */*",
-			"accept-language": "en-US",
-			"content-type": "application/json",
-			"x-xsrf-token": auth,
-		},
-		referrer: "https://kick.com/dashboard/settings/profile",
-		referrerPolicy: "strict-origin-when-cross-origin",
-		body: JSON.stringify({
-			id: identity.numID,
-			email: identity.email,
-			bio: newBio,
-		}),
-		method: "POST",
-		mode: "cors",
-	}).then((resp) => {
-		if (!resp.ok) return;
-
-		identity.bio = newBio;
-	});
 }
 
 function openApp(): void {
