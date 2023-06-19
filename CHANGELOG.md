@@ -1,3 +1,9 @@
+### Version 3.0.12
+
+- Added colon-completion (partial emote matches with ":") on Kick
+- Added history navigation (up/down arrow) on Kick
+- Updated the auth mechanism on Kick to avoid using third-party cookies
+
 ### Version 3.0.11
 
 -   Fixed an issue which caused chat to randomly pause on Kick
