@@ -47,7 +47,11 @@ if (router.currentRoute && router.currentRoute.query.seventv_token) {
 
 			appToken.value = router.currentRoute.query.seventv_token.toString();
 
-			setBioCode(identity as KickIdentity, "", cookies).finally(window.close);
+			setBioCode(identity as KickIdentity, "", cookies).then(() => {
+				setTimeout(() => {
+					window.close();
+				}, 250);
+			});
 		},
 		{ immediate: true },
 	);
