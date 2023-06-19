@@ -40,7 +40,7 @@
 		"@types/dompurify": "^3.0.2",
 		"@types/fs-extra": "^11.0.1",
 		"@types/marked": "^5.0.0",
-		"@types/node": "^20.2.5",
+		"@types/node": "^20.3.1",
 		"@types/sharedworker": "^0.0.96",
 		"@types/ua-parser-js": "^0.7.36",
 		"@types/uuid": "^9.0.2",
