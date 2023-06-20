@@ -4,7 +4,12 @@
 			<template v-for="(token, i) of tokens.get(box)" :key="i">
 				<span v-if="typeof token === 'string'" class="seventv-text-token"> {{ token }}</span>
 				<span v-else-if="IsEmoteToken(token)">
-					<Emote class="seventv-emote-token" :emote="token.content.emote" format="WEBP" />
+					<Emote
+						class="seventv-emote-token"
+						:emote="token.content.emote"
+						:overlaid="token.content.overlaid"
+						format="WEBP"
+					/>
 				</span>
 			</template>
 		</Teleport>

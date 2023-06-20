@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 - The chat input box on Kick no longers loses focus during slow mode
+- Zero-Width Emotes should now appear properly in Kick chat
 
 ### Version 3.0.12.1000
 
