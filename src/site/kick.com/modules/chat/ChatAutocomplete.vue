@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { inject, reactive, ref, toRef, watch, watchEffect } from "vue";
-import { useEventListener } from "@vueuse/core";
+import { useEventListener, useMutationObserver } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
@@ -241,6 +241,26 @@ watchEffect(() => {
 	inputEl.value = (document.getElementById("message-input") as HTMLDivElement) ?? null;
 	footerEl.value = (document.getElementById("chatroom-footer") as HTMLDivElement) ?? null;
 });
+
+useMutationObserver(
+	inputEl.value,
+	(records) => {
+		for (const rec of records) {
+			if (!(rec.target instanceof HTMLElement)) continue;
+			if (rec.type !== "attributes" || rec.attributeName !== "contenteditable") continue;
+
+			const isEditable = rec.target.getAttribute("contenteditable") === "true";
+			if (!isEditable) {
+				rec.target.setAttribute("contenteditable", "true");
+				rec.target.focus();
+			}
+		}
+	},
+	{
+		attributeFilter: ["contenteditable"],
+		attributes: true,
+	},
+);
 
 defineExpose({
 	insertAtEnd,

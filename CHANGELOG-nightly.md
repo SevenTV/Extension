@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
-- No unreleased changes yet.
+- The chat input box on Kick no longers loses focus during slow mode
 
 ### Version 3.0.12.1000
 
