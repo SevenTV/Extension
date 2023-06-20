@@ -326,26 +326,17 @@ export namespace twitchUserCardModLogsQuery {
 }
 
 export const twitchUserCardMessagesQuery = gql`
-	query UserCardMessagesBySender($senderID: ID!, $channelLogin: String!, $cursor: Cursor) {
-		channel: user(login: $channelLogin) {
-			id
-			logs: modLogs {
-				bySender: messagesBySender(
-					senderID: $senderID
-					first: 50
-					order: DESC
-					includeMessageCount: false
-					includeTargetedActions: true
-					includeAutoModCaughtMessages: true
-					after: $cursor
-				) {
+	#import "twilight/features/message/fragments/message-sender/sender-fragment.gql"
+	#import "twilight/features/moderation/moderation-actions/hooks/use-get-mod-actions/mod-action-tokens-fragment.gql"
+	query ViewerCardModLogsMessagesBySender($channelID: ID!, $senderID: ID!, $cursor: Cursor) {
+		logs: viewerCardModLogs(channelID: $channelID, targetID: $senderID) {
+			messages(first: 50, after: $cursor) {
+				... on ViewerCardModLogsMessagesError {
+					code
+				}
+				... on ViewerCardModLogsMessagesConnection {
 					edges {
-						cursor
-						node {
-							...modLogsMessageFields
-							...autoModCaughtMessage
-							...targetedModAction
-						}
+						...viewerCardModLogsMessagesEdgeFragment
 					}
 					pageInfo {
 						hasNextPage
@@ -354,64 +345,118 @@ export const twitchUserCardMessagesQuery = gql`
 			}
 		}
 	}
-
-	fragment modLogsMessageFields on ModLogsMessage {
-		id
-		sentAt
-		sender {
-			...sender
+	fragment viewerCardModLogsMessagesEdgeFragment on ViewerCardModLogsMessagesEdge {
+		__typename
+		node {
+			...viewerCardModLogsCaughtMessageFragment
+			...viewerCardModLogsChatMessageFragment
+			...viewerCardModLogsModActionsMessageFragment
 		}
+		cursor
+	}
+	fragment viewerCardModLogsChatMessageFragment on ViewerCardModLogsChatMessage {
+		id
+		sender {
+			id
+			login
+			chatColor
+			displayName
+			displayBadges(channelID: $channelID) {
+				id
+				setID
+				version
+				__typename
+			}
+			__typename
+		}
+		sentAt
 		content {
 			text
+			fragments {
+				text
+				content {
+					... on Emote {
+						emoteID: id
+						setID
+						token
+					}
+					#mention
+					... on User {
+						id
+					}
+					__typename
+				}
+			}
+			__typename
 		}
 	}
-
-	fragment autoModCaughtMessage on AutoModCaughtMessage {
+	fragment viewerCardModLogsCaughtMessageFragment on ViewerCardModLogsCaughtMessage {
 		id
+		status
 		category
-		modLogsMessage {
-			id
-			sentAt
-			content {
-				text
-			}
-			sender {
-				...sender
-			}
-		}
+		sentAt
 		resolvedAt
+		content {
+			text
+			fragments {
+				text
+				content {
+					... on Emote {
+						emoteID: id
+						setID
+						token
+					}
+					... on User {
+						id
+					}
+					__typename
+				}
+			}
+			__typename
+		}
+		sender {
+			id
+			login
+			chatColor
+			displayName
+			displayBadges(channelID: $channelID) {
+				id
+				setID
+				version
+			}
+			__typename
+		}
 		resolver {
 			...sender
 		}
-		status
+		__typename
 	}
 
-	fragment targetedModAction on ModLogsTargetedModActionsEntry {
-		id
-		action
+	fragment viewerCardModLogsModActionsMessageFragment on ViewerCardModLogsModActionsMessage {
 		timestamp
-		channel {
-			id
-			login
-		}
-		target {
-			id
-			login
-		}
-		user {
-			id
-			login
-		}
-		details {
-			...targetedModActionDetails
+		content {
+			fallbackString
+			...modActionTokens
 		}
 	}
 
-	fragment targetedModActionDetails on TargetedModActionDetails {
-		bannedAt
-		durationSeconds
-		expiresAt
-		reason
+	fragment modActionTokens on ModActionsLocalizedText {
+		localizedStringFragments {
+			...modActionText
+		}
+	}
+
+	fragment modActionText on ModActionsLocalizedTextFragment {
+		token {
+			... on ModActionsLocalizedTextToken {
+				text
+			}
+			... on User {
+				displayName
+				login
+				id
+			}
+		}
 	}
 
 	fragment sender on User {
@@ -430,22 +475,20 @@ export const twitchUserCardMessagesQuery = gql`
 export namespace twitchUserCardMessagesQuery {
 	export interface Variables {
 		senderID: string;
-		channelLogin: string;
+		channelID: string;
 		cursor?: string;
 	}
 
 	export interface Response {
-		channel: {
+		logs: {
 			id: string;
-			logs: {
-				bySender: {
-					edges: {
-						cursor: string;
-						node: TwTypeMessage;
-					}[];
-					pageInfo: {
-						hasNextPage: boolean;
-					};
+			messages: {
+				edges: {
+					cursor: string;
+					node: TwTypeMessage;
+				}[];
+				pageInfo: {
+					hasNextPage: boolean;
 				};
 			};
 		};

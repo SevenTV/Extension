@@ -224,17 +224,17 @@ async function fetchMessageLogs(after?: ChatMessage): Promise<ChatMessage[]> {
 		.query<twitchUserCardMessagesQuery.Response, twitchUserCardMessagesQuery.Variables>({
 			query: twitchUserCardMessagesQuery,
 			variables: {
-				channelLogin: ctx.username,
+				channelID: ctx.id,
 				senderID: data.targetUser.id,
 				cursor,
 			},
 		})
 		.catch((err) => Promise.reject(err));
-	if (!msgResp || msgResp.errors?.length || !Array.isArray(msgResp.data.channel.logs.bySender.edges)) return [];
+	if (!msgResp || msgResp.errors?.length || !Array.isArray(msgResp.data.logs.messages.edges)) return [];
 
 	const result = [] as ChatMessage[];
 
-	for (const edge of msgResp.data.channel.logs.bySender.edges) {
+	for (const edge of msgResp.data.logs.messages.edges) {
 		if (!edge.node) continue;
 
 		const msg = convertTwitchMessage(edge.node);
