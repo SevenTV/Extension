@@ -261,15 +261,15 @@ async function fetchModeratorData(): Promise<void> {
 		.catch((err) => Promise.reject(err));
 	if (!resp || resp.errors?.length || !resp.data.channelUser) return;
 
-	data.count.messages = resp.data.channelUser.modLogs.messages.messageCount;
-	data.count.bans = resp.data.channelUser.modLogs.bans.actionCount;
-	data.count.timeouts = resp.data.channelUser.modLogs.timeouts.actionCount;
+	data.count.messages = resp.data.viewerCardModLogs.messages.count;
+	data.count.bans = resp.data.viewerCardModLogs.bans.count;
+	data.count.timeouts = resp.data.viewerCardModLogs.timeouts.count;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
 
 	data.ban = resp.data.banStatus;
 
-	const timeouts = resp.data.channelUser.modLogs.timeouts.edges;
-	const bans = resp.data.channelUser.modLogs.bans.edges;
+	const timeouts = resp.data.viewerCardModLogs.timeouts.edges;
+	const bans = resp.data.viewerCardModLogs.bans.edges;
 
 	// Add timeouts and bans to the timeline
 	for (const [tabName, a] of [
@@ -279,20 +279,10 @@ async function fetchModeratorData(): Promise<void> {
 		const result = [] as ChatMessage[];
 
 		for (const e of a) {
-			const key = {
-				TIMEOUT_USER: e.node.details.reason ? "messages.mod_timeout_user_reason" : "messages.mod_timeout_user",
-				UNTIMEOUT_USER: "messages.mod_undo_timeout_user",
-				BAN_USER: e.node.details.reason ? "messages.mod_ban_user_reason" : "messages.mod_ban_user",
-				UNBAN_USER: "messages.mod_undo_ban_user",
-			}[e.node.action];
-
 			const m = new ChatMessage(e.node.id).setComponent(BasicSystemMessage, {
-				text: t(key, {
-					actor: e.node.user?.login,
-					victim: e.node.target?.login,
-					duration: e.node.details?.durationSeconds + " seconds",
-					reason: e.node.details?.reason,
-				}),
+				text: e.node.localizedLabel.localizedStringFragments
+					.map((f) => ("text" in f.token ? f.token.text : f.token.login))
+					.join(""),
 			});
 			m.setTimestamp(Date.parse(e.node.timestamp));
 
