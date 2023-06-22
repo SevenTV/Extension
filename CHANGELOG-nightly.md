@@ -4,6 +4,7 @@
 
 - Added an option to hide the new mature content dialogs on Twitch
 - Fixed an issue which prevented moderator data from loading in User Cards
+- Fixed an issue where nametags with blending paints did not correctly use the base color and appeared invisible instead
 - Kick:
   - The chat input box on Kick no longers loses focus during slow mode
   - Zero-Width Emotes should now appear properly in Kick chat

@@ -389,7 +389,7 @@ export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = fals
 
 	const selector = `.seventv-paint[data-seventv-paint-id="${paint.id}"]`;
 	const text = `${selector} {
-color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "transparent"};
+color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "inherit"};
 background-image: ${gradients.map((v) => v[0]).join(", ")};
 background-position: ${gradients.map((v) => v[1]).join(", ")};
 background-size: ${gradients.map((v) => v[2]).join(", ")};
