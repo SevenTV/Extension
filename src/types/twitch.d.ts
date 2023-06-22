@@ -770,4 +770,22 @@ declare module Twitch {
 		__typename?: string;
 		srcSet?: string;
 	}
+
+	export type VideoPlayerComponent = ReactExtended.WritableComponent<{
+		containerRef: HTMLDivElement;
+		mediaPlayerInstance: MediaPlayerInstance;
+	}>;
+
+	export interface MediaPlayerInstance {
+		play: () => void;
+		pause: () => void;
+	}
+
+	export type VideoPlayerContentRestriction = ReactExtended.WritableComponent<{
+		restriction: string | null;
+		restrictions: Record<string, boolean>;
+		liftRestriction: (e: string) => void;
+		addRestriction: (e: string) => void;
+		children: any;
+	}>;
 }
