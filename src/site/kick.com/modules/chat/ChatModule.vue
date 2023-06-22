@@ -16,6 +16,7 @@ import { useApp } from "@/site/kick.com/composable/useApp";
 import { usePinia } from "@/site/kick.com/composable/usePinia";
 import { useRouter } from "@/site/kick.com/composable/useRouter";
 import ChatController from "./ChatController.vue";
+import { declareConfig } from "@/composable/useSettings";
 
 const { markAsReady } = declareModule<"KICK">("chat", {
 	name: "Chat",
@@ -96,4 +97,14 @@ watch(() => router.currentRoute, handle, { immediate: true });
 useEventListener(document, "click", () => setTimeout(handle, 250));
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("chat.test", "TOGGLE", {
+		label: "Test",
+		path: ["Chat", ""],
+		defaultValue: false,
+	}),
+];
 </script>
