@@ -244,8 +244,8 @@ export const config = [
 	declareConfig<boolean>("chat.alternating_background", "TOGGLE", {
 		path: ["Chat", "Style"],
 		ffz_key: "chat.lines.alternate",
-		label: "Alternating Background",
-		hint: "Display chat lines with alternating background colors",
+		label: "settings.chat_alternating_background.label",
+		hint: "settings.chat_alternating_background.hint",
 		defaultValue: false,
 	}),
 	declareConfig<number>("chat.padding", "DROPDOWN", {

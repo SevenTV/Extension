@@ -1,6 +1,9 @@
 <template>
 	<template v-for="[key, mod] of Object.entries(modules)" :key="key">
-		<ModuleWrapper :mod="mod.default" @mounted="onModuleUpdate(key as unknown as KickModuleID, $event)" />
+		<ModuleWrapper
+			:mod="mod.default"
+			@mounted="onModuleUpdate(key as unknown as KickModuleID, mod.config ?? [], $event)"
+		/>
 	</template>
 </template>
 
@@ -10,6 +13,7 @@ import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { getModule } from "@/composable/useModule";
+import { useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import { useApp } from "./composable/useApp";
 import { usePinia } from "./composable/usePinia";
@@ -88,10 +92,12 @@ for (const key in modules) {
 	delete modules[key];
 }
 
-function onModuleUpdate(mod: KickModuleID, inst: InstanceType<ComponentFactory>) {
+const settings = useSettings();
+function onModuleUpdate(mod: KickModuleID, config: SevenTV.SettingNode[], inst: InstanceType<ComponentFactory>) {
 	const modInst = getModule(mod);
 	if (!modInst) return;
 
+	settings.register(config);
 	modInst.instance = inst;
 }
 </script>

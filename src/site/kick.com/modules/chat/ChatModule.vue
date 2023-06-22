@@ -16,6 +16,7 @@ import { useApp } from "@/site/kick.com/composable/useApp";
 import { usePinia } from "@/site/kick.com/composable/usePinia";
 import { useRouter } from "@/site/kick.com/composable/useRouter";
 import ChatController from "./ChatController.vue";
+import { declareConfig } from "@/composable/useSettings";
 
 const { markAsReady } = declareModule<"KICK">("chat", {
 	name: "Chat",
@@ -96,4 +97,23 @@ watch(() => router.currentRoute, handle, { immediate: true });
 useEventListener(document, "click", () => setTimeout(handle, 250));
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig("chat.alternating_background", "TOGGLE", {
+		label: "settings.chat_alternating_background.label",
+		hint: "settings.chat_alternating_background.hint",
+		path: ["Chat", ""],
+		defaultValue: false,
+		effect(v) {
+			document.documentElement.classList.toggle("seventv-alternating-chat-lines", v);
+		},
+	}),
+	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
+		path: ["", ""],
+		label: "",
+		defaultValue: new Set(),
+	}),
+];
 </script>

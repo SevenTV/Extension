@@ -7,59 +7,61 @@
 	>
 		<div v-if="ctx.open" class="seventv-settings-menu-container">
 			<div class="seventv-settings-menu">
-				<div class="seventv-settings-header">
-					<div ref="dragHandle" class="header-left">
+				<div ref="dragHandle" class="seventv-settings-header">
+					<div>
 						<div class="seventv-settings-header-icon">
 							<Logo7TV />
 						</div>
 					</div>
+					<div />
 					<button
-						class="seventv-settings-header-icon seventv-header-button close-icon"
+						class="seventv-settings-header-icon seventv-header-button"
 						@click.prevent="ctx.open = false"
 					>
 						<TwClose />
 					</button>
 				</div>
-				<div class="body">
+				<div class="seventv-settings-content">
 					<!-- Sidebar -->
 					<div class="seventv-settings-sidebar">
-						<div class="seventv-settings-search">
-							<input v-model="filter" class="seventv-settings-search-input" />
-							<div class="seventv-settings-search-icon">
-								<SearchIcon />
-							</div>
+						<div class="seventv-settings-sidebar-search">
+							<input v-model="filter" placeholder="Search..." class="seventv-settings-search-input" />
 						</div>
+
 						<UiScrollable>
-							<SettingsUpdateButton v-if="!updater.isUpToDate" />
-							<CategoryDropdown
-								category="Home"
-								:sub-categories="[]"
-								@open-category="() => ctx.switchView('home')"
-							/>
-							<template v-for="[n, subCategories] of Object.entries(ctx.mappedNodes)" :key="n.key">
+							<div class="seventv-settings-sidebar-categories">
+								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
-									:category="n"
-									:sub-categories="Object.keys(subCategories)"
-									:show-sub-categories="isExpanded"
-									@open-category="navigateToCategory(n)"
-									@open-subcategory="(s) => navigateToCategory(n, s)"
+									category="Home"
+									:sub-categories="[]"
+									@open-category="() => ctx.switchView('home')"
 								/>
-							</template>
-							<CategoryDropdown
-								v-if="actor.user && actor.user.style?.paint_id"
-								:style="{ color: 'var(--seventv-subscriber-color)' }"
-								category="Paint Tool"
-								:sub-categories="[]"
-								@open-category="() => ctx.switchView('paint')"
-							/>
-							<CategoryDropdown
-								category="Compatibility"
-								:sub-categories="[]"
-								@open-category="() => ctx.switchView('compat')"
-							/>
+								<template v-for="[n, subCategories] of Object.entries(ctx.mappedNodes)" :key="n.key">
+									<CategoryDropdown
+										:category="n"
+										:sub-categories="Object.keys(subCategories)"
+										:show-sub-categories="isExpanded"
+										@open-category="navigateToCategory(n)"
+										@open-subcategory="(s) => navigateToCategory(n, s)"
+									/>
+								</template>
+								<CategoryDropdown
+									v-if="actor.user && actor.user.style?.paint_id"
+									:style="{ color: 'var(--seventv-subscriber-color)' }"
+									category="Paint Tool"
+									:sub-categories="[]"
+									@open-category="() => ctx.switchView('paint')"
+								/>
+								<CategoryDropdown
+									category="Compatibility"
+									:sub-categories="[]"
+									@open-category="() => ctx.switchView('compat')"
+								/>
+							</div>
 						</UiScrollable>
+
 						<div
-							class="seventv-settings-sidebar-profile"
+							class="seventv-settings-sidebar-actor"
 							@click="[openAuthWindow(), ctx.switchView('profile')]"
 						>
 							<div class="seventv-settings-sidebar-profile-left">
@@ -81,8 +83,8 @@
 							</div>
 						</div>
 					</div>
-					<!-- Setting area -->
-					<div class="seventv-settings-settings-area">
+
+					<div class="seventv-settings-view">
 						<component :is="ctx.view" />
 					</div>
 				</div>
@@ -99,7 +101,6 @@ import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import LogoutIcon from "@/assets/svg/icons/LogoutIcon.vue";
-import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import { useSettingsMenu } from "./Settings";
@@ -229,36 +230,39 @@ watch(
 
 <style scoped lang="scss">
 @media (width <= 1120px) {
+	// Large Screen
 	:deep(.seventv-settings-expanded) {
 		display: none !important;
-	}
-
-	.seventv-settings-sidebar {
-		max-width: 5rem;
-		display: flex;
-		flex-direction: column;
-
-		.seventv-settings-search:focus-within {
-			width: 18rem;
-			margin-right: -18rem;
-		}
 	}
 }
 
 @media (width <= 960px) {
+	// Small Screen
 	:deep(.seventv-settings-compact) {
 		display: none !important;
 	}
 
-	.seventv-settings-settings-area {
-		width: 27rem !important;
+	.seventv-settings-content {
+		grid-template-columns: 4em 1fr !important;
+		width: 75vw !important;
+	}
+
+	.seventv-settings-sidebar {
+		grid-template-rows: 1fr auto !important;
+	}
+
+	.seventv-settings-sidebar-search {
+		display: none !important;
 	}
 }
 
 .seventv-settings-menu {
-	display: flex;
-	flex-direction: column;
-	max-height: calc(100vh - 10rem);
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 4em 1.75fr;
+	grid-template-areas:
+		"header"
+		"content";
 	pointer-events: all;
 	background: var(--seventv-background-shade-1);
 	border-radius: 0.25rem;
@@ -266,38 +270,21 @@ watch(
 }
 
 .seventv-settings-header {
-	display: flex;
-	width: 100%;
-	align-items: center;
-	justify-content: center;
-	background: var(--seventv-background-transparent-3);
-	flex-shrink: 0;
-
-	> .header-left {
-		display: flex;
-		cursor: move;
-		align-items: center;
-		flex-shrink: 0;
-		flex-grow: 1;
-		column-gap: 1rem;
-		padding-left: 0.5rem;
-	}
-
-	> .draggable {
-		cursor: move;
-		height: 4rem;
-		flex-grow: 1;
-	}
+	display: grid;
+	grid-template-columns: 3.5em 1fr 3.5em;
+	grid-template-rows: 1fr;
+	place-items: center;
+	cursor: move;
+	margin: 0 0.5em;
 
 	.seventv-settings-header-icon {
-		display: flex;
-		height: 100%;
+		display: grid;
+		align-items: center;
+		justify-content: center;
 		border-radius: 0.25rem;
-		margin: 0.5rem;
 
 		> svg {
-			height: 3rem;
-			width: 3rem;
+			font-size: 3rem;
 		}
 	}
 
@@ -309,60 +296,34 @@ watch(
 			background: hsla(0deg, 0%, 30%, 32%);
 		}
 	}
-
-	.close-icon {
-		float: right;
-	}
 }
 
-.body {
-	display: flex;
-	height: 60rem;
-	overflow: hidden;
-	flex-shrink: 1;
+.seventv-settings-view {
+	grid-area: view;
 }
 
 .seventv-settings-sidebar {
-	width: 20rem;
-	display: flex;
-	flex-direction: column;
-	flex-shrink: 0;
-	flex-grow: 1;
-	box-sizing: content-box;
+	grid-area: sidebar;
+	display: grid;
+	grid-template-rows: 4em 1fr 6em;
+	grid-template-areas:
+		"search"
+		"categories"
+		"actor";
 	background: var(--seventv-background-transparent-2);
 
-	.seventv-settings-search {
-		padding: 0.5rem 0.5rem 0;
-		width: 100%;
-		position: relative;
+	.seventv-settings-sidebar-search {
+		grid-area: search;
+		padding: 0.5em;
 		transition: width 0.2s ease;
-		z-index: 999;
-
-		.seventv-settings-search-icon {
-			position: absolute;
-			display: flex;
-			align-items: center;
-			top: 0;
-			left: 0;
-			height: 5rem;
-			width: 5rem;
-			user-select: none;
-			pointer-events: none;
-			padding: 1.75rem;
-
-			> svg {
-				height: 100%;
-				width: 100%;
-			}
-		}
 
 		.seventv-settings-search-input {
 			background-color: var(--seventv-background-shade-1);
-			border-radius: 0.25rem;
+			border-radius: 0.25em;
 			height: 4rem;
 			width: 100%;
 			border: none;
-			padding-left: 3rem;
+			padding-left: 1rem;
 			color: currentcolor;
 			outline: none;
 			transition: outline 140ms;
@@ -373,13 +334,19 @@ watch(
 		}
 	}
 
-	.seventv-settings-sidebar-profile {
-		display: flex;
-		height: 5rem;
-		flex-shrink: 0;
+	.seventv-settings-sidebar-categories {
+		grid-area: categories;
+		overflow: auto;
+	}
+
+	.seventv-settings-sidebar-actor {
+		grid-area: actor;
+		grid-template-columns: 0.6fr 1.8fr auto;
+		grid-template-rows: 1fr;
+		grid-template-areas: ". . .";
+		display: grid;
 		margin-top: auto;
 		align-items: center;
-		float: bottom;
 		padding: 1rem;
 
 		&:hover {
@@ -402,28 +369,44 @@ watch(
 			}
 
 			.seventv-settings-sidebar-profile-text {
-				margin-left: 1rem;
-				font-size: 1.5rem;
+				margin-left: 1em;
+				font-size: 1em;
 				font-weight: 700;
+
+				// ellipsis overflow
+				max-width: 8em;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
 
 		.seventv-settings-sidebar-profile-logout {
-			padding: 0.5rem 0;
+			padding: 0.5em 0;
 			display: flex;
 			margin-left: auto;
 			cursor: pointer;
 
 			> svg {
-				height: 2rem;
+				height: 1.5em;
 				width: 100%;
 			}
 		}
 	}
 }
 
-.seventv-settings-settings-area {
-	width: 80rem;
-	max-height: 60rem;
+.seventv-settings-content {
+	grid-area: content;
+	display: grid;
+	grid-template-columns: 16em 1fr;
+	grid-template-rows: 1fr;
+	grid-template-areas: "sidebar view";
+	width: 50vw;
+	overflow-y: clip;
+
+	.seventv-settings-sidebar,
+	.seventv-settings-view {
+		height: calc(60vh);
+	}
 }
 </style>

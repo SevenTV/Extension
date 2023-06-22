@@ -6,6 +6,7 @@
 - Fixed an issue which prevented moderator data from loading in User Cards
 - Fixed an issue where nametags with blending paints did not correctly use the base color and appeared invisible instead
 - Kick:
+  - Added a settings menu
   - The chat input box on Kick no longers loses focus during slow mode
   - Zero-Width Emotes should now appear properly in Kick chat
 

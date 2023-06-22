@@ -19,10 +19,16 @@
 				</div>
 			</div>
 		</div>
-		<div class="seventv-settings-home-sidebar seventv-settings-compact">
+		<div ref="sidebarEl" class="seventv-settings-home-sidebar seventv-settings-compact">
 			<a
+				v-if="sidebarEl"
 				class="twitter-timeline"
-				data-height="660"
+				noscrollbar="1"
+				noborders="1"
+				transparent="1"
+				data-chrome="noheader nofooter noborders noscrollbar transparent"
+				:data-tweet-limit="10"
+				:data-height="sidebarEl.offsetHeight"
 				:data-theme="theme.toLowerCase()"
 				href="https://twitter.com/Official_7TV?ref_src=twsrc%5Etfw"
 			/>
@@ -30,6 +36,7 @@
 	</div>
 </template>
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import Changelog from "@/site/global/Changelog.vue";
@@ -44,18 +51,31 @@ const appServer = import.meta.env.VITE_APP_API ?? "Offline";
 const version = import.meta.env.VITE_APP_VERSION;
 const isRemote = seventv.remote || false;
 
-const twitterScript = document.createElement("script");
-twitterScript.async = true;
-twitterScript.setAttribute("src", "https://platform.twitter.com/widgets.js");
-twitterScript.setAttribute("charset", "utf-8");
+const sidebarEl = ref<HTMLElement | null>(null);
 
-document.head.appendChild(twitterScript);
+onMounted(() => {
+	// Insert twitter widget
+	const twitterScript = document.createElement("script");
+	twitterScript.async = true;
+	twitterScript.setAttribute("src", "https://platform.twitter.com/widgets.js");
+	twitterScript.setAttribute("charset", "utf-8");
+
+	document.head.appendChild(twitterScript);
+});
 </script>
 <style scoped lang="scss">
 .seventv-settings-home {
 	display: grid;
-	height: 100%;
-	grid-template-columns: 1fr 30rem;
+	height: inherit;
+	grid-template-columns: 1.25fr 21em;
+
+	@media (width <= 1600px) {
+		grid-template-columns: 1.25fr 0;
+
+		.seventv-settings-home-sidebar {
+			display: none !important;
+		}
+	}
 
 	.seventv-settings-home-body {
 		display: grid;
@@ -94,8 +114,7 @@ document.head.appendChild(twitterScript);
 
 	.seventv-settings-home-sidebar {
 		z-index: 1;
-		width: 25em;
-		margin: -5rem -0.5rem;
+		overflow: clip;
 	}
 }
 </style>
