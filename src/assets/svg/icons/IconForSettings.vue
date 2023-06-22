@@ -10,6 +10,7 @@ import GearsIcon from "./GearsIcon.vue";
 import HomeIcon from "./HomeIcon.vue";
 import IconFillDrip from "./IconFillDrip.vue";
 import PaintIcon from "./PaintIcon.vue";
+import PlayerIcon from "./PlayerIcon.vue";
 import PuzzlePieceIcon from "./PuzzlePieceIcon.vue";
 import SiteLayoutIcon from "./SiteLayoutIcon.vue";
 import TvIcon from "./TvIcon.vue";
@@ -30,6 +31,7 @@ const c = {
 	Highlights: BellsIcon,
 	General: GearsIcon,
 	Channel: TvIcon,
+	Player: PlayerIcon,
 	Compatibility: PuzzlePieceIcon,
 	"Paint Tool": IconFillDrip,
 	"Site Layout": SiteLayoutIcon,
