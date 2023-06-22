@@ -154,3 +154,8 @@ site:
         connect_popup_idle: Are you sure you'd like to link your current kick.com account ({ACTOR}) with 7TV?
         connect_popup_connecting: Please wait...
         connect_popup_done: Your channel has been successfully connected to 7TV! Use the 7tv.app website to start adding emotes
+
+settings:
+    chat_alternating_background:
+        label: Alternating Background
+        hint: Display chat lines with alternating background colors

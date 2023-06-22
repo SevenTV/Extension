@@ -101,10 +101,19 @@ markAsReady();
 
 <script lang="ts">
 export const config = [
-	declareConfig("chat.test", "TOGGLE", {
-		label: "Test",
+	declareConfig("chat.alternating_background", "TOGGLE", {
+		label: "settings.chat_alternating_background.label",
+		hint: "settings.chat_alternating_background.hint",
 		path: ["Chat", ""],
 		defaultValue: false,
+		effect(v) {
+			document.documentElement.classList.toggle("seventv-alternating-chat-lines", v);
+		},
+	}),
+	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
+		path: ["", ""],
+		label: "",
+		defaultValue: new Set(),
 	}),
 ];
 </script>

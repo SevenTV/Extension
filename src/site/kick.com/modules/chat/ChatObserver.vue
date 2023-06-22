@@ -142,6 +142,8 @@ watchEffect(() => {
 	patch();
 
 	bounds.value = props.listElement.getBoundingClientRect();
+
+	props.listElement.classList.toggle("seventv-chat-observer", true);
 });
 
 useMutationObserver(
@@ -166,6 +168,10 @@ useMutationObserver(
 	},
 	{ childList: true },
 );
+
+onUnmounted(() => {
+	props.listElement.classList.toggle("seventv-chat-observer", false);
+});
 </script>
 
 <style scoped lang="scss">
@@ -186,6 +192,16 @@ useMutationObserver(
 
 	.icon {
 		font-size: 1.25rem;
+	}
+}
+</style>
+
+<style lang="scss">
+:root.seventv-alternating-chat-lines {
+	.seventv-chat-observer {
+		> div:nth-child(even) {
+			background-color: hsla(0deg, 0%, 50%, 6%);
+		}
 	}
 }
 </style>
