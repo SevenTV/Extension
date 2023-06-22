@@ -17,7 +17,7 @@ const props = defineProps<{
 	inst: HookedInstance<Twitch.VideoPlayerComponent>;
 }>();
 
-const shouldHideContentWarning = useConfig("player.skip_content_restriction");
+const shouldHideContentWarning = useConfig<boolean>("player.skip_content_restriction");
 const contentWarning = ref<ReactComponentHook<Twitch.VideoPlayerContentRestriction> | null>(null);
 
 props.inst.component.props.containerRef.classList.add("seventv-player");
@@ -54,10 +54,9 @@ definePropertyHook(props.inst.component, "props", {
 
 watchEffect(() => {
 	const e = props.inst.component.props.containerRef as HTMLDivElement;
-
 	if (!e) return;
 
-	e.classList.add("seventv-player");
+	e.classList.toggle("seventv-player-hide-content-warning", shouldHideContentWarning.value);
 });
 
 onUnmounted(() => {
@@ -69,7 +68,7 @@ onUnmounted(() => {
 
 <style lang="scss">
 :root {
-	.seventv-player {
+	.seventv-player.seventv-player-hide-content-warning {
 		.disclosure-tool {
 			display: none !important;
 		}
