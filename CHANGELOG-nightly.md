@@ -2,6 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
+- Added an option to hide the new mature content dialogs on Twitch
 - Fixed an issue which prevented moderator data from loading in User Cards
 - Kick:
   - The chat input box on Kick no longers loses focus during slow mode
