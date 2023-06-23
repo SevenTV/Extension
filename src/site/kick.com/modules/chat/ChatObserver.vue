@@ -1,6 +1,6 @@
 <template>
 	<!-- Patch messages -->
-	<template v-for="[key, bind] of messageMap" :key="key">
+	<template v-for="bind of messages" :key="bind.id">
 		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" @vue:updated="onMessageRendered" />
 	</template>
 
@@ -14,6 +14,7 @@
 import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
+import { useConfig } from "@/composable/useSettings";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
 
@@ -26,8 +27,13 @@ const props = defineProps<{
 	listElement: HTMLDivElement;
 }>();
 
-const messageMap = reactive(new Map<string, ChatMessageBinding>());
+const messages = ref<ChatMessageBinding[]>([]);
+const messageBuffer = ref<ChatMessageBinding[]>([]);
+const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
+const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
+
+const refreshRate = useConfig<number>("chat.message_refresh_rate", 100);
 
 function patchMessageElement(el: HTMLDivElement): void {
 	if (!el.hasAttribute("data-chat-entry")) return; // not a message
@@ -56,7 +62,10 @@ function patchMessageElement(el: HTMLDivElement): void {
 		el,
 	};
 
-	messageMap.set(entryID, bind);
+	el.classList.add("seventv-chat-message-buffered");
+
+	messageBuffer.value.push(bind);
+	messageMap.set(el, bind);
 }
 
 async function onOpenUserCard(bind: ChatMessageBinding) {
@@ -71,7 +80,6 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 					rec.addedNodes.forEach((n) => {
 						if (!(n instanceof HTMLDivElement)) return;
 						if (!n.classList.contains("user-profile")) return;
-
 						emit(n);
 					});
 				}
@@ -150,14 +158,57 @@ useMutationObserver(
 	props.listElement,
 	(records) => {
 		for (const rec of records) {
-			rec.addedNodes.forEach((n) => (n instanceof HTMLDivElement ? patchMessageElement(n) : null));
-			rec.removedNodes.forEach((n) =>
-				n instanceof HTMLDivElement ? messageMap.delete(n.getAttribute("data-chat-entry")!) : null,
-			);
+			rec.addedNodes.forEach((n) => {
+				if (!(n instanceof HTMLDivElement)) return;
+
+				patchMessageElement(n);
+			});
+
+			rec.removedNodes.forEach((n) => {
+				if (!(n instanceof HTMLDivElement)) return;
+
+				const b = messageMap.get(n);
+				if (!b) return;
+
+				messageDeleteBuffer.value.push(b);
+				messageMap.delete(n);
+			});
+
+			flush();
 		}
 	},
 	{ childList: true },
 );
+
+let flushTimeout: number | null = null;
+function flush(): void {
+	if (flushTimeout) return;
+
+	flushTimeout = window.setTimeout(() => {
+		if (messageBuffer.value.length) {
+			const unbuf = messageBuffer.value.splice(0, messageBuffer.value.length);
+
+			for (const bind of unbuf) {
+				bind.el.classList.remove("seventv-chat-message-buffered");
+			}
+			messages.value.push(...unbuf);
+		}
+
+		if (messageDeleteBuffer.value.length >= 25) {
+			flushTimeout = window.setTimeout(() => {
+				for (const bind of messageDeleteBuffer.value) {
+					messages.value.splice(messages.value.indexOf(bind), 1);
+				}
+
+				messageDeleteBuffer.value.length = 0;
+
+				flushTimeout = null;
+			}, refreshRate.value / 1.5);
+		} else {
+			flushTimeout = null;
+		}
+	}, refreshRate.value);
+}
 
 useMutationObserver(
 	props.listElement.parentElement!,
@@ -203,5 +254,9 @@ onUnmounted(() => {
 			background-color: hsla(0deg, 0%, 50%, 6%);
 		}
 	}
+}
+
+.seventv-chat-message-buffered {
+	display: none !important;
 }
 </style>
