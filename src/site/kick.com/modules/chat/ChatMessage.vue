@@ -56,6 +56,7 @@ export interface ChatMessageBinding {
 
 const props = defineProps<{
 	bind: ChatMessageBinding;
+	parity?: "odd" | "even";
 }>();
 
 const emit = defineEmits<{
@@ -79,6 +80,7 @@ useEventListener(props.bind.usernameEl.parentElement, "click", () => {
 
 // Process kick's text entries into a containerized token
 function process(): void {
+	if (props.parity) props.bind.el.setAttribute("parity", props.parity);
 	props.bind.usernameEl.insertAdjacentElement("beforebegin", badgeContainer);
 
 	if (cosmetics.paints.size) {
