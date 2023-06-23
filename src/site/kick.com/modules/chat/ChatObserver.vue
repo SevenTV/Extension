@@ -1,7 +1,7 @@
 <template>
 	<!-- Patch messages -->
-	<template v-for="bind of messages" :key="bind.id">
-		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" @vue:updated="onMessageRendered" />
+	<template v-for="(bind, i) of messages" :key="bind.id">
+		<ChatMessageVue :parity="i % 2 === 0 ? 'even' : 'odd'" :bind="bind" @open-card="onOpenUserCard" />
 	</template>
 
 	<!-- Modify user card -->
@@ -252,7 +252,7 @@ onUnmounted(() => {
 <style lang="scss">
 :root.seventv-alternating-chat-lines {
 	.seventv-chat-observer {
-		> div:nth-child(even) {
+		> div[parity="even"] {
 			background-color: hsla(0deg, 0%, 50%, 6%);
 		}
 	}
