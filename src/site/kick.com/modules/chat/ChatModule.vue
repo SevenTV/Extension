@@ -128,7 +128,7 @@ export const config = [
 				[1000, 1000, "PowerPoint Presentation"],
 			],
 		},
-		defaultValue: 150,
+		defaultValue: 100,
 	}),
 	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
 		path: ["", ""],

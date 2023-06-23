@@ -33,7 +33,7 @@ const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
 const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
 
-const refreshRate = useConfig<number>("chat.message_refresh_rate", 100);
+const refreshRate = useConfig<number>("chat.message_batch_duration", 100);
 
 function patchMessageElement(el: HTMLDivElement): void {
 	if (!el.hasAttribute("data-chat-entry")) return; // not a message
