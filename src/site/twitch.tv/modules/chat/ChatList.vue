@@ -6,8 +6,13 @@
 					:is="isModSliderEnabled && ctx.actor.roles.has('MODERATOR') && msg.author ? ModSlider : 'span'"
 					v-bind="{ msg }"
 				>
-					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
-						<UserMessage :msg="msg" :emotes="emotes.active" :chatters="messages.chattersByUsername" />
+					<component :is="msg.instance" v-slot="slotProps" v-bind="msg.componentProps" :msg="msg">
+						<UserMessage
+							v-bind="slotProps"
+							:msg="msg"
+							:emotes="emotes.active"
+							:chatters="messages.chattersByUsername"
+						/>
 					</component>
 				</component>
 			</template>
@@ -110,6 +115,7 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.CHANNEL_POINTS_REWARD:
 		case MessageType.ANNOUNCEMENT_MESSAGE:
 		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
+		case MessageType.PAID_MESSAGE:
 		case MessageType.CONNECTED:
 			onChatMessage(msg, msgData);
 			break;
@@ -127,7 +133,7 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 	}
 
 	// Send message to our registered message handlers
-	messages.handlers.forEach((h) => h(msgData));
+	// messages.handlers.forEach((h) => h(msgData));
 	return true;
 };
 
