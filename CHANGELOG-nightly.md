@@ -4,6 +4,7 @@
 
 - Added an option to hide the new mature content dialogs on Twitch
 - Added formatting support for Hype Chat
+- Added options to hide Hype Chats and the Hype Chat button
 - Fixed an issue which prevented moderator data from loading in User Cards
 - Fixed an issue where nametags with blending paints did not correctly use the base color and appeared invisible instead
 - Kick:
