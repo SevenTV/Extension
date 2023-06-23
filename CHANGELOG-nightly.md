@@ -2,6 +2,10 @@
 
 **The changes listed here are not assigned to an official release**.
 
+- No unreleased changes yet.
+
+### Version 3.0.13.1000
+
 - Added an option to hide the new mature content dialogs on Twitch
 - Added formatting support for Hype Chat
 - Added options to hide Hype Chats and the Hype Chat button
