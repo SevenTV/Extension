@@ -7,6 +7,8 @@
 - Fixed an issue where nametags with blending paints did not correctly use the base color and appeared invisible instead
 - Kick:
   - Added a settings menu
+  - Added an option to set a delay betweet rendering new messages (Message Batching)
+  - Added an option to set alternating backgrounds between chat messages
   - The chat input box on Kick no longers loses focus during slow mode
   - Zero-Width Emotes should now appear properly in Kick chat
 

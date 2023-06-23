@@ -110,6 +110,26 @@ export const config = [
 			document.documentElement.classList.toggle("seventv-alternating-chat-lines", v);
 		},
 	}),
+
+	declareConfig("chat.message_batch_duration", "SLIDER", {
+		path: ["Chat", "Performance"],
+		label: "Message Batching",
+		hint: "The time to wait between rendering new messages",
+		options: {
+			min: 25,
+			max: 1000,
+			step: 25,
+			unit: "ms",
+			named_thresolds: [
+				[0, 50, "Instant"],
+				[50, 250, "Fast"],
+				[250, 500, "Balanced"],
+				[500, 999, "Slow"],
+				[1000, 1000, "PowerPoint Presentation"],
+			],
+		},
+		defaultValue: 100,
+	}),
 	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
 		path: ["", ""],
 		label: "",
