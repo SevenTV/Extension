@@ -207,6 +207,8 @@ function flush(): void {
 		} else {
 			flushTimeout = null;
 		}
+
+		onMessageRendered();
 	}, refreshRate.value);
 }
 
