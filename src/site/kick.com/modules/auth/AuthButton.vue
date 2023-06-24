@@ -75,9 +75,10 @@
 <script setup lang="ts">
 import { onUnmounted, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
-import { onClickOutside, until, useTimeout } from "@vueuse/core";
+import { onClickOutside, until, useLocalStorage, useTimeout } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
+import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import { useCookies } from "@/composable/useCookies";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import { setBioCode } from "./Auth";
@@ -108,6 +109,7 @@ const popupAnchor = ref<HTMLElement | null>(null);
 const popupRef = ref<HTMLElement | null>(null);
 const connectState = ref<"idle" | "connecting" | "done">("idle");
 const connectError = ref<Error | null>(null);
+const appToken = useLocalStorage(LOCAL_STORAGE_KEYS.APP_TOKEN, "");
 
 async function connect() {
 	if (!identity.value) return;
@@ -115,15 +117,16 @@ async function connect() {
 	connectError.value = null;
 	connectState.value = "connecting";
 
-	const w = window.open("about:blank", "_blank", "width=400,height=200");
+	const w = window.open("about:blank", "_blank", "width=500,height=400");
 	if (!w) throw new Error("Failed to open window");
 
 	w.blur();
 	w.document.body.innerText = "Please wait...";
 
+	const idy = identity.value as KickIdentity;
 	let query = new URLSearchParams({
 		platform: "KICK",
-		id: (identity.value as KickIdentity).username,
+		id: idy.username,
 	});
 
 	const setError = (err: Error): void => {
@@ -140,7 +143,7 @@ async function connect() {
 
 		// Update user's kick bio with the code
 		const code = await resp.text();
-		const ok = await setBioCode(identity.value as KickIdentity, code, cookies)
+		const ok = await setBioCode(idy, code, cookies)
 			.catch(setError)
 			.then(() => true);
 		if (!ok) return;
@@ -152,12 +155,22 @@ async function connect() {
 			platform: "KICK",
 			user_id: (identity.value as KickIdentity).username,
 			manual: "1",
+			skip_prompt: appUser.value ? "1" : "",
 			callback: encodeURIComponent(window.location.origin + window.location.pathname),
 		});
 
 		if (w) w.location.href = import.meta.env.VITE_APP_SITE + "/auth/callback?" + query.toString();
 
-		connectState.value = "done";
+		appToken.value = "";
+		const i = setInterval(() => {
+			if (!w) return clearInterval(i);
+			if (!w.closed) return;
+
+			if (appToken.value) connectState.value = "done";
+			else connectState.value = "idle";
+
+			clearInterval(i);
+		}, 100);
 	})();
 }
 
@@ -167,9 +180,6 @@ function openApp(): void {
 
 function closePopup(): void {
 	popupAnchor.value = null;
-	if (connectState.value === "done") {
-		openApp();
-	}
 }
 
 watchEffect(() => {
