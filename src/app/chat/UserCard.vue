@@ -23,7 +23,7 @@
 						class="seventv-user-card-paint seventv-painted-content seventv-paint"
 						:data-seventv-paint-id="data.paint.id"
 					>
-						{{ data.paint.data.name }}
+						<p>{{ data.paint.data.name }}</p>
 					</span>
 
 					<div class="seventv-user-card-badges">
@@ -261,9 +261,9 @@ async function fetchModeratorData(): Promise<void> {
 		.catch((err) => Promise.reject(err));
 	if (!resp || resp.errors?.length || !resp.data.channelUser) return;
 
-	data.count.messages = resp.data.viewerCardModLogs.messages.count;
-	data.count.bans = resp.data.viewerCardModLogs.bans.count;
-	data.count.timeouts = resp.data.viewerCardModLogs.timeouts.count;
+	data.count.messages = resp.data.viewerCardModLogs.messages.count ?? 0;
+	data.count.bans = resp.data.viewerCardModLogs.bans.count ?? 0;
+	data.count.timeouts = resp.data.viewerCardModLogs.timeouts.count ?? 0;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
 
 	data.ban = resp.data.banStatus;
@@ -660,11 +660,14 @@ main.seventv-user-card-container {
 			cursor: pointer;
 			border-radius: 0.25rem;
 			padding: 0 0.25rem;
-			font-size: 1.05rem;
-			color: white;
-			-webkit-text-stroke: 0.5px black;
 			font-weight: 900;
 			background-color: var(--seventv-user-card-color);
+
+			p {
+				color: white;
+				mix-blend-mode: difference;
+				font-size: 1.05rem;
+			}
 		}
 
 		.seventv-user-card-badges {

@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
-- No unreleased changes yet.
+- Fixed a user card crash
 
 ### Version 3.0.13.1000
 
