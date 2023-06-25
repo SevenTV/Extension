@@ -36,7 +36,14 @@
 	<template v-if="popupAnchor && identity">
 		<UiFloating :anchor="popupAnchor" :middleware="[shift({ padding: 8 })]">
 			<div ref="popupRef" class="seventv-connect-popup">
-				<template v-if="!appUser">
+				<template v-if="browser.name === 'Firefox'">
+					<h3>Oops...</h3>
+					<p>
+						Sorry, {{ browser.name }} is not supported for sign-in currently. Please try a different
+						browser.
+					</p>
+				</template>
+				<template v-else-if="!appUser">
 					<h3 v-t="'site.kick.connect_button_site'" />
 					<p v-if="identity && !connectError">
 						{{
@@ -80,6 +87,7 @@ import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import { useCookies } from "@/composable/useCookies";
+import { useUserAgent } from "@/composable/useUserAgent";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import { setBioCode } from "./Auth";
 import UiButton from "@/ui/UiButton.vue";
@@ -98,6 +106,7 @@ const { t } = useI18n();
 const store = useStore();
 const { appUser, identityFetched, identity } = storeToRefs(store);
 const cookies = useCookies();
+const { browser } = useUserAgent();
 
 const channelContainer = document.createElement("seventv-container");
 channelContainer.id = "seventv-kick-connect";
@@ -155,7 +164,6 @@ async function connect() {
 			platform: "KICK",
 			user_id: (identity.value as KickIdentity).username,
 			manual: "1",
-			skip_prompt: appUser.value ? "1" : "",
 			callback: encodeURIComponent(window.location.origin + window.location.pathname),
 		});
 
