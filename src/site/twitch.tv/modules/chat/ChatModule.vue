@@ -205,7 +205,7 @@ export const config = [
 				[1000, 1000, "PowerPoint Presentation"],
 			],
 		},
-		defaultValue: 150,
+		defaultValue: 250,
 	}),
 	declareConfig<number>("chat.smooth_scroll_duration", "SLIDER", {
 		path: ["Chat", "Performance"],
