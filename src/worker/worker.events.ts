@@ -80,6 +80,12 @@ export class EventAPI {
 			case "ACK":
 				this.onAck(msg as EventAPIMessage<"ACK">);
 				break;
+			case "ENDOFSTREAM": {
+				const eos = msg as EventAPIMessage<"ENDOFSTREAM">;
+
+				log.warn("<EventAPI>", "End of stream", `| ${eos.data.code} ${eos.data.message}`);
+				break;
+			}
 
 			default:
 				break;
@@ -93,7 +99,7 @@ export class EventAPI {
 	private onHello(msg: EventAPIMessage<"HELLO">): void {
 		if (this.shouldResume) {
 			this.resume(this.sessionID);
-		} else {
+		} else if (this.sessionID) {
 			this.syncSubscriptions();
 		}
 
@@ -143,7 +149,7 @@ export class EventAPI {
 						`dispatchesReplayed=${dispatches_replayed} subscriptionsRestored=${subscriptions_restored}`,
 					);
 				} else {
-					log.error("<EventAPI>", "Resume failed, manually reconfiguring...");
+					log.debug("<EventAPI>", "Resume failed, manually reconfiguring...");
 
 					this.shouldResume = false;
 					this.syncSubscriptions();
@@ -187,14 +193,6 @@ export class EventAPI {
 			channels: new Set([channelID]),
 		});
 
-		this.sendMessage({
-			op: "SUBSCRIBE",
-			data: {
-				type,
-				condition,
-			},
-		});
-
 		if (this.socket === null) {
 			this.connect(this.transport);
 		}
@@ -203,6 +201,14 @@ export class EventAPI {
 			clearTimeout(this.disconnectTimer);
 			this.disconnectTimer = null;
 		}
+
+		this.sendMessage({
+			op: "SUBSCRIBE",
+			data: {
+				type,
+				condition,
+			},
+		});
 	}
 
 	unsubscribe(type: string, condition: Record<string, string>, port: WorkerPort) {
