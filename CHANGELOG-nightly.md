@@ -4,6 +4,7 @@
 
 - Fixed a user card crash
 - Fixed an issue with the EventAPI connection closing on the first initialization
+- Increased the default value for Message Batching from 150 to 250
 
 ### Version 3.0.13.1000
 
