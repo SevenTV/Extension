@@ -138,7 +138,10 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 		code: number;
 		message: string;
 	};
-	ENDOFSTREAM: void;
+	ENDOFSTREAM: {
+		code: number;
+		message: string;
+	};
 	IDENTIFY: void;
 	RESUME: {
 		session_id: string;

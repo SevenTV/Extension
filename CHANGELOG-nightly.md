@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 - Fixed a user card crash
+- Fixed an issue with the EventAPI connection closing on the first initialization
 
 ### Version 3.0.13.1000
 
