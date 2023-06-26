@@ -1,5 +1,11 @@
 <template>
-	<div ref="containerEl" class="seventv-emote-set-container" :collapsed="collapsed" :ephemeral="ephemeral">
+	<div
+		v-if="ephemeral || emotes.length"
+		ref="containerEl"
+		class="seventv-emote-set-container"
+		:collapsed="collapsed"
+		:ephemeral="ephemeral"
+	>
 		<div class="seventv-set-header">
 			<div class="seventv-set-header-icon">
 				<img v-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />

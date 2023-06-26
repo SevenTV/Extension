@@ -113,7 +113,7 @@ const sets = emotes.byProvider(props.provider as SevenTV.Provider) ?? reactive({
 const store = useStore();
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const actor = useActor();
-const visibleSets = reactive<Set<SevenTV.EmoteSet>>(new Set());
+const visibleSets = reactive<Set<string>>(new Set());
 const sortedSets = ref([] as SevenTV.EmoteSet[]);
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 // const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
@@ -139,9 +139,6 @@ const promotionPersonalSet: SevenTV.EmoteSet = {
 	emotes: [],
 };
 
-// "Most Used" is commented out pending refactor
-// Note the logic for favorites is also bad, though doesn't affect as many users
-
 function updateFavorites() {
 	if (!favorites.value) return [];
 
@@ -149,16 +146,6 @@ function updateFavorites() {
 		.map((eid) => emotes.find((ae) => ae.id === eid))
 		.filter((ae) => !!ae) as SevenTV.ActiveEmote[];
 }
-
-// function updateUsage() {
-// 	if (!shouldShowUsage.value) return [];
-//
-// 	return Array.from(usage.value.entries())
-// 		.sort((a, b) => b[1] - a[1])
-// 		.map((e) => emotes.find((ae) => ae.id === e[0]))
-// 		.filter((ae) => !!ae)
-// 		.slice(0, 50) as SevenTV.ActiveEmote[];
-// }
 
 if (props.provider === "FAVORITE") {
 	// create favorite set
@@ -168,19 +155,9 @@ if (props.provider === "FAVORITE") {
 		emotes: updateFavorites(),
 	} as SevenTV.EmoteSet));
 
-	// const usageSet = (sets["USAGE"] = reactive({
-	// 	id: "USAGE",
-	// 	name: t("emote_menu.most_used_set"),
-	// 	emotes: updateUsage(),
-	// } as SevenTV.EmoteSet));
-
 	watch(favorites, () => {
 		favSet.emotes = updateFavorites();
 	});
-
-	// watch([usage, shouldShowUsage], () => {
-	// 	usageSet.emotes = updateUsage();
-	// });
 }
 
 // Select an Emote Set to jump-scroll to
@@ -218,9 +195,9 @@ function sortFn(a: SevenTV.EmoteSet, b: SevenTV.EmoteSet) {
 
 function updateVisibility(es: SevenTV.EmoteSet, state: boolean): void {
 	if (state) {
-		visibleSets.add(es);
+		visibleSets.add(es.id);
 	} else {
-		visibleSets.delete(es);
+		visibleSets.delete(es.id);
 	}
 
 	emit("provider-visible", !!visibleSets.size);

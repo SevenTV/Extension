@@ -10,7 +10,7 @@
 				<div class="seventv-emote-menu-providers">
 					<template v-for="(b, key) in visibleProviders">
 						<div
-							v-if="b"
+							v-if="b || key === activeProvider"
 							:key="key"
 							class="seventv-emote-menu-provider-icon"
 							:selected="key === activeProvider"
@@ -26,7 +26,12 @@
 					</template>
 				</div>
 				<div v-if="!isSearchInputEnabled" class="seventv-emote-menu-search">
-					<input ref="searchInputRef" v-model="ctx.filter" class="seventv-emote-menu-search-input" />
+					<input
+						ref="searchInputRef"
+						v-model="ctx.filter"
+						class="seventv-emote-menu-search-input"
+						autofocus
+					/>
 					<div class="search-icon">
 						<SearchIcon />
 					</div>
@@ -54,11 +59,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watchEffect } from "vue";
-import { onClickOutside, onKeyStroke, useKeyModifier } from "@vueuse/core";
+import { reactive, ref, watchEffect } from "vue";
+import { onClickOutside, onKeyStroke, useEventListener, useKeyModifier } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { getModuleRef } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import SearchIcon from "@/assets/svg/icons/SearchIcon.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
@@ -105,28 +109,15 @@ const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
 	PLATFORM: true,
 	EMOJI: true,
 });
-
-const inputModule = getModuleRef<"TWITCH", "chat-input-controller">("chat-input-controller");
-
-onMounted(() => {
-	if (!inputModule.value?.instance) return;
-
-	/*
-	inputModule.value.instance.addButton(
-		"emote-menu",
-		EmoteMenuButton,
-		{
-			onClick: () => (ctx.open = !ctx.open),
-		},
-		1,
-	);*/
-});
-
 watchEffect(() => {
 	if (!containerRef.value) return;
 
 	containerRef.value.style.setProperty("--width", props.width ?? "unset");
 	containerRef.value.style.setProperty("--seventv-emote-menu-scale", props.scale ?? "3rem");
+
+	if (searchInputRef.value) {
+		searchInputRef.value.focus();
+	}
 });
 
 // Shortcut (ctrl+e)
@@ -134,8 +125,21 @@ const isCtrl = useKeyModifier("Control", { initial: false });
 onKeyStroke("e", (ev) => {
 	if (!isCtrl.value) return;
 
-	toggle();
+	ctx.open = !ctx.open;
 	ev.preventDefault();
+});
+
+// Up/Down Arrow iterates providers
+useEventListener("keydown", (ev) => {
+	if (!["ArrowUp", "ArrowDown"].includes(ev.key)) return;
+
+	const cur = Object.keys(visibleProviders).indexOf(activeProvider.value ?? "7TV");
+	const next = ev.key === "ArrowUp" ? cur + 1 : cur - 1;
+	const nextProvider = Object.keys(visibleProviders)[next];
+
+	if (nextProvider) {
+		activeProvider.value = nextProvider as EmoteMenuTabName;
+	}
 });
 
 // Toggle the menu's visibility
@@ -148,7 +152,9 @@ function toggle() {
 function onProviderVisibilityChange(provider: EmoteMenuTabName, visible: boolean) {
 	visibleProviders[provider] = visible;
 	if (!visible && provider === activeProvider.value) {
-		activeProvider.value = (Object.entries(visibleProviders).find(([, v]) => v)?.[0] ?? "7TV") as SevenTV.Provider;
+		activeProvider.value = (Object.entries(visibleProviders)
+			.slice(1)
+			.find(([, v]) => v)?.[0] ?? "7TV") as SevenTV.Provider;
 	}
 }
 
@@ -254,10 +260,10 @@ onClickOutside(containerRef, (ev) => {
 			padding-left: 3em;
 			color: currentcolor;
 			outline: none;
-			transition: outline 140ms;
+			transition: background-color 140ms;
 
 			&:focus {
-				outline: 1px solid var(--seventv-primary);
+				background-color: var(--seventv-background-shade-2);
 			}
 		}
 	}
