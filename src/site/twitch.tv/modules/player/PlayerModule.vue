@@ -49,7 +49,7 @@ const player = useComponentHook<Twitch.VideoPlayerComponent>(
 // hook for the media player instance advanced controls
 const playerAdvancedOptionsComponent = useComponentHook<Twitch.MediaPlayerAdvancedControls>({
 	parentSelector: ".persistent-player",
-	predicate: (el) => el.props && el.setStatsOverlay,
+	predicate: (n) => n.props && n.setStatsOverlay && n.setShowControls,
 });
 
 // hook to render video stats in the channel page view
