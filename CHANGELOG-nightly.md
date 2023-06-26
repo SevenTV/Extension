@@ -9,6 +9,7 @@
 - Fixed a user card crash
 - Fixed an issue with the EventAPI connection closing on the first initialization
 - Fixed an issue that prevented new chatters from appearing in autocompletion
+- Fixed an issue which squished tooltips when hovering an emote on the far right side of chat
 - Increased the default value for Message Batching from 150 to 250
 
 ### Version 3.0.13.1000
