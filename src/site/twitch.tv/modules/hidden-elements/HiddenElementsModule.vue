@@ -131,6 +131,12 @@ export const config = [
 		hint: "If checked, the controls shown at the bottom of a stream on hover will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("player.hide_player_extensions", "TOGGLE", {
+		path: ["Player", ""],
+		label: "Hide Player Extensions",
+		hint: "If checked, the player extensions will be hidden",
+		defaultValue: false,
+	}),
 ];
 </script>
 
@@ -239,5 +245,17 @@ export const config = [
 	div[class$="chat-input__textarea"] {
 		display: none !important;
 	}
+}
+
+.seventv-hide-player-ext {
+	/* stylelint-disable */
+	.video-player .extension-taskbar,
+	.video-player .extension-container,
+	.video-player .extensions-dock__layout,
+	.video-player .extensions-notifications,
+	.video-player .extensions-video-overlay-size-container {
+		display: none !important;
+	}
+	/* stylelint-enable */
 }
 </style>
