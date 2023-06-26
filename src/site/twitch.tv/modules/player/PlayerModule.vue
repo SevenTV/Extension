@@ -1,24 +1,31 @@
 <template>
 	<template v-for="inst of player.instances" :key="inst.identifier">
-		<PlayerController
+		<PlayerController :inst="inst" :media-player="mediaPlayer" />
+	</template>
+
+	<template v-for="(inst, i) of streamInfo.instances" :key="inst.identifier">
+		<PlayerStreamInfo
 			:inst="inst"
-			:video-stats-teleport-location="videoStatsTeleportLocation"
-			:advanced-controls="playerAdvancedOptionsComponent.instances"
+			:advanced-controls="playerAdvancedOptionsComponent.instances[i]"
+			:media-player="mediaPlayer"
 		/>
 	</template>
 </template>
 
 <script setup lang="ts">
-import { HookedInstance, useComponentHook } from "@/common/ReactHooks";
+import { useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
 import PlayerController from "./PlayerController.vue";
 import { ref } from "vue";
+import PlayerStreamInfo from "./PlayerStreamInfo.vue";
 
 declareModule<"TWITCH">("player", {
 	name: "Player",
 	depends_on: [],
 });
+
+const mediaPlayer = ref<Twitch.MediaPlayerInstance>();
 
 const player = useComponentHook<Twitch.VideoPlayerComponent>(
 	{
@@ -27,13 +34,13 @@ const player = useComponentHook<Twitch.VideoPlayerComponent>(
 	{
 		hooks: {
 			render(inst, cur) {
+				mediaPlayer.value = inst.component.props.mediaPlayerInstance;
+
 				return cur;
 			},
 		},
 	},
 );
-
-const videoStatsTeleportLocation = ref<HTMLElement | null | undefined>();
 
 // hook for the media player instance advanced controls
 const playerAdvancedOptionsComponent = useComponentHook<Twitch.MediaPlayerAdvancedControls>({
@@ -41,39 +48,13 @@ const playerAdvancedOptionsComponent = useComponentHook<Twitch.MediaPlayerAdvanc
 });
 
 // hook to render video stats in the channel page view
-useComponentHook(
+const streamInfo = useComponentHook<Twitch.StreamInfo>(
 	{
 		parentSelector: "#live-channel-stream-information",
 		predicate: (el) => el.props && el.props.liveSince,
 	},
 	{
 		trackRoot: true,
-		hooks: {
-			update(inst) {
-				const rootNode = inst.domNodes.root;
-				if (!rootNode) return;
-				const teleLoc = rootNode.querySelector<HTMLElement>("[data-a-target*='channel-viewers-count']")
-					?.parentElement?.parentElement?.parentElement;
-				videoStatsTeleportLocation.value = teleLoc;
-			},
-		},
-	},
-);
-
-// hook to render video stats in the mod view
-useComponentHook(
-	{
-		parentSelector: ".modview-player-widget__viewcount",
-		predicate: (el) => el.props && el.props.data && el.props.data.user,
-	},
-	{
-		hooks: {
-			update(inst) {
-				const teleLoc = (inst as HookedInstance<Twitch.ModViewViewerCount>).component.DOMNode.parentElement
-					?.parentElement;
-				videoStatsTeleportLocation.value = teleLoc;
-			},
-		},
 	},
 );
 </script>

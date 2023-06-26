@@ -1,5 +1,5 @@
 <template>
-	<div ref="tooltip" class="seventv-tooltip" tooltip-type="video-stats">
+	<div class="seventv-tooltip" tooltip-type="video-stats">
 		<div class="details">
 			<p>Video: {{ props.width }}x{{ props.height }}</p>
 			<p>Framerate: {{ props.framerate }}</p>

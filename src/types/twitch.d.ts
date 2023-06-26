@@ -813,6 +813,17 @@ declare module Twitch {
 		setStatsOverlay: (e) => void;
 	};
 
+	export type StreamInfo = ReactExtended.WritableComponent<{
+		channelID: string;
+		channelLogin: string;
+		displayName: string;
+		guestStarGuests: unknown;
+		guestStarSessionID: unknown;
+		isLive: boolean;
+		isShowingWatchPartyInMain: boolean;
+		liveSince?: Date;
+	}>;
+
 	export type ModViewViewerCount = ReactExtended.WritableComponent<{}> & {
 		DOMNode: HTMLElement;
 	};
