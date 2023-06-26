@@ -2,6 +2,10 @@
 
 **The changes listed here are not assigned to an official release**.
 
+- Added a shortcut (Ctrl+E) to open the Emote Menu
+- Added shortcuts (Up/Down Arrows) to switch between providers in the Emote Menu
+- The input box in the Emote Menu is now focused automatically upon opening
+- Search in the Emote Menu will now automatically open the nearest tab where matches are found
 - Fixed a user card crash
 - Fixed an issue with the EventAPI connection closing on the first initialization
 - Fixed an issue that prevented new chatters from appearing in autocompletion

@@ -23,7 +23,6 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from "vue";
-import { onKeyStroke, useKeyModifier } from "@vueuse/core";
 import { log } from "@/common/Logger";
 import { HookedInstance } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
@@ -74,15 +73,6 @@ onMounted(() => {
 		},
 		1,
 	);
-});
-
-// Shortcut (ctrl+e)
-const isCtrl = useKeyModifier("Control", { initial: false });
-onKeyStroke("e", (ev) => {
-	if (!isCtrl.value) return;
-
-	toggle();
-	ev.preventDefault();
 });
 
 // Toggle the menu's visibility
