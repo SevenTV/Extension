@@ -23,8 +23,6 @@ const actionOnClick = useConfig<number>("player.action_onclick");
 const contentWarning = ref<ReactComponentHook<Twitch.VideoPlayerContentRestriction> | null>(null);
 const playerOverlay = ref<HTMLElement | null>(null);
 
-props.inst.component.props.containerRef.classList.add("seventv-player");
-
 const hookContentWarning = debounceFn((): void => {
 	if (contentWarning.value) {
 		unhookComponent(contentWarning.value as ReactComponentHook<Twitch.VideoPlayerContentRestriction>);
@@ -50,11 +48,15 @@ watch(
 );
 
 watchEffect(() => {
-	if (!props.inst.component) return;
+	if (!props.inst.component?.props) return;
 
-	const e = props.inst.component.props.containerRef as HTMLDivElement;
-	if (e) {
-		e.classList.toggle("seventv-player-hide-content-warning", shouldHideContentWarning.value);
+	if (props.inst.component.props.containerRef instanceof HTMLDivElement) {
+		const e = props.inst.component.props.containerRef;
+		if (e) {
+			e.classList.toggle("seventv-player-hide-content-warning", shouldHideContentWarning.value);
+		}
+
+		props.inst.component.props.containerRef.classList.add("seventv-player");
 	}
 
 	if (props.mediaPlayer) {
