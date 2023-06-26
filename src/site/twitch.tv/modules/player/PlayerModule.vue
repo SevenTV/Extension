@@ -32,6 +32,7 @@ const shouldShowVideoStats = useConfig<boolean>("player.video_stats");
 
 const player = useComponentHook<Twitch.VideoPlayerComponent>(
 	{
+		parentSelector: ".persistent-player",
 		predicate: (n) => n.props && n.props.containerRef && n.props.mediaPlayerInstance,
 	},
 	{
@@ -47,6 +48,7 @@ const player = useComponentHook<Twitch.VideoPlayerComponent>(
 
 // hook for the media player instance advanced controls
 const playerAdvancedOptionsComponent = useComponentHook<Twitch.MediaPlayerAdvancedControls>({
+	parentSelector: ".persistent-player",
 	predicate: (el) => el.props && el.setStatsOverlay,
 });
 
