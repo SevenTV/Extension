@@ -125,7 +125,7 @@ const isCtrl = useKeyModifier("Control", { initial: false });
 onKeyStroke("e", (ev) => {
 	if (!isCtrl.value) return;
 
-	ctx.open = !ctx.open;
+	toggle();
 	ev.preventDefault();
 });
 
