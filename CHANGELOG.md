@@ -1,22 +1,22 @@
 ### Version 3.0.13
 
-- Added an option to hide the new mature content dialogs on Twitch
-- Added formatting support for Hype Chat
-- Added options to hide Hype Chats and the Hype Chat button
-- Fixed an issue which prevented moderator data from loading in User Cards
-- Fixed an issue where nametags with blending paints did not correctly use the base color and appeared invisible instead
-- Kick:
-  - Added a settings menu
-  - Added an option to set a delay betweet rendering new messages (Message Batching)
-  - Added an option to set alternating backgrounds between chat messages
-  - The chat input box on Kick no longers loses focus during slow mode
-  - Zero-Width Emotes should now appear properly in Kick chat
+-   Added an option to hide the new mature content dialogs on Twitch
+-   Added formatting support for Hype Chat
+-   Added options to hide Hype Chats and the Hype Chat button
+-   Fixed an issue which prevented moderator data from loading in User Cards
+-   Fixed an issue where nametags with blending paints did not correctly use the base color and appeared invisible instead
+-   Kick:
+    -   Added a settings menu
+    -   Added an option to set a delay betweet rendering new messages (Message Batching)
+    -   Added an option to set alternating backgrounds between chat messages
+    -   The chat input box on Kick no longers loses focus during slow mode
+    -   Zero-Width Emotes should now appear properly in Kick chat
 
 ### Version 3.0.12
 
-- Added colon-completion (partial emote matches with ":") on Kick
-- Added history navigation (up/down arrow) on Kick
-- Updated the auth mechanism on Kick to avoid using third-party cookies
+-   Added colon-completion (partial emote matches with ":") on Kick
+-   Added history navigation (up/down arrow) on Kick
+-   Updated the auth mechanism on Kick to avoid using third-party cookies
 
 ### Version 3.0.11
 

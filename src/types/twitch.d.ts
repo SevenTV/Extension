@@ -777,8 +777,28 @@ declare module Twitch {
 	}>;
 
 	export interface MediaPlayerInstance {
+		core: {
+			state: PlayerState;
+			mediaSinkManager: {
+				video: HTMLVideoElement;
+			};
+		};
+		getBufferDuration: () => number;
+		getLiveLatency: () => number;
+		getDroppedFrames: () => number;
+		getVideoBitRate: () => number;
+		getVideoFrameRate: () => number;
+		getPlaybackRate: () => number;
+		getVideoWidth: () => number;
+		getVideoHeight: () => number;
+		getVolume: () => number;
+		isMuted: () => boolean;
+		isPaused: () => boolean;
 		play: () => void;
 		pause: () => void;
+		setMuted: (e) => void;
+		setVolume: (e) => void;
+		setPlaybackRate: (e) => void;
 	}
 
 	export type VideoPlayerContentRestriction = ReactExtended.WritableComponent<{
@@ -788,4 +808,53 @@ declare module Twitch {
 		addRestriction: (e: string) => void;
 		children: any;
 	}>;
+
+	export type MediaPlayerAdvancedControls = ReactExtended.WritableComponent<{}> & {
+		setStatsOverlay: (e) => void;
+	};
+
+	export type ModViewViewerCount = ReactExtended.WritableComponent<{}> & {
+		DOMNode: HTMLElement;
+	};
+
+	export interface PlayerState {
+		autoQualityMode: boolean;
+		averageBitrate: number;
+		bandwidthEstimate: number;
+		bufferedPosition: number;
+		duration: number;
+		liveLatency: number;
+		liveLowLatency: boolean;
+		liveLowLatencyEnabled: boolean;
+		looping: boolean;
+		muted: boolean;
+		path: string;
+		playbackRate: number;
+		position: number;
+		protocol: string;
+		qualities: VideoQuality[];
+		quality: VideoQuality;
+		sessionId: string;
+		startOffset: number;
+		state: string;
+		statistics: {
+			bitrate: number;
+			decodedFrames: number;
+			droppedFrames: number;
+			framerate: number;
+			renderedFrames: number;
+		};
+		volume: number;
+	}
+
+	export interface VideoQuality {
+		bitrate: number;
+		codecs: string;
+		framerate: number;
+		group: string;
+		height: number;
+		isDefault: boolean;
+		name: string;
+		width: number;
+	}
 }
