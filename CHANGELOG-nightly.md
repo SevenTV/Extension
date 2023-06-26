@@ -4,16 +4,16 @@
 
 -   Added a shortcut (Ctrl+E) to open the Emote Menu
 -   Added shortcuts (Up/Down Arrows) to switch between providers in the Emote Menu
--   The input box in the Emote Menu is now focused automatically upon opening
 -   Search in the Emote Menu will now automatically open the nearest tab where matches are found
+-   The input box in the Emote Menu is now focused automatically upon opening
+-   Added an option to show stream stats such as latency, resolution, bitrate, etc.
+-   Added an option to set click actions on the video player (pause/unpause and mute/unmute)
+-   Added an option to hide player extensions
 -   Fixed a user card crash
 -   Fixed an issue with the EventAPI connection closing on the first initialization
 -   Fixed an issue that prevented new chatters from appearing in autocompletion
 -   Fixed an issue which squished tooltips when hovering an emote on the far right side of chat
 -   Increased the default value for Message Batching from 150 to 250
--   Added an option to hide player extensions
--   Added an option to show stream stats such as latency, resolution, bitrate, etc. next to viewer count section
--   Added click actions to video player (pause/unpause and mute/unmute)
 
 ### Version 3.0.13.1000
 
