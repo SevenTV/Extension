@@ -133,7 +133,8 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 	}
 
 	// Send message to our registered message handlers
-	// messages.handlers.forEach((h) => h(msgData));
+	messages.handlers.forEach((h) => h(msgData));
+
 	return true;
 };
 
