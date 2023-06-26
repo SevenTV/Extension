@@ -5,6 +5,7 @@
 
 	<template v-for="(inst, i) of streamInfo.instances" :key="inst.identifier">
 		<PlayerStreamInfo
+			v-if="shouldShowVideoStats"
 			:inst="inst"
 			:advanced-controls="playerAdvancedOptionsComponent.instances[i]"
 			:media-player="mediaPlayer"
@@ -15,7 +16,7 @@
 <script setup lang="ts">
 import { useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
-import { declareConfig } from "@/composable/useSettings";
+import { declareConfig, useConfig } from "@/composable/useSettings";
 import PlayerController from "./PlayerController.vue";
 import { ref } from "vue";
 import PlayerStreamInfo from "./PlayerStreamInfo.vue";
@@ -26,6 +27,8 @@ declareModule<"TWITCH">("player", {
 });
 
 const mediaPlayer = ref<Twitch.MediaPlayerInstance>();
+
+const shouldShowVideoStats = useConfig<boolean>("player.video_stats");
 
 const player = useComponentHook<Twitch.VideoPlayerComponent>(
 	{

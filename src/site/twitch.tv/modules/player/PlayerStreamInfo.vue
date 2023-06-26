@@ -1,30 +1,27 @@
 <template>
-	<template v-if="shouldShowVideoStats">
-		<Teleport :to="container">
-			<div
-				id="seventv-video-stats"
-				ref="videoStatsRef"
-				@click="openStatsOverlay"
-				@mouseenter="videoStatsTooltip.show(videoStatsRef)"
-				@mouseleave="videoStatsTooltip.hide()"
-			>
-				<figure v-if="videoStats.playbackRate >= 1">
-					<ForwardIcon />
-				</figure>
-				<figure v-else>
-					<GaugeIcon />
-				</figure>
-				<span>{{ latency }}s</span>
-			</div>
-		</Teleport>
-	</template>
+	<Teleport :to="container">
+		<div
+			ref="videoStatsRef"
+			class="seventv-video-stats"
+			@click="openStatsOverlay"
+			@mouseenter="videoStatsTooltip.show(videoStatsRef)"
+			@mouseleave="videoStatsTooltip.hide()"
+		>
+			<figure v-if="videoStats.playbackRate > 1">
+				<ForwardIcon />
+			</figure>
+			<figure v-else>
+				<GaugeIcon />
+			</figure>
+			<span>{{ latency }}s</span>
+		</div>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
 import { onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import { HookedInstance } from "@/common/ReactHooks";
 import { definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
-import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
 import ForwardIcon from "@/assets/svg/icons/ForwardIcon.vue";
 import GaugeIcon from "@/assets/svg/icons/GaugeIcon.vue";
@@ -35,8 +32,6 @@ const props = defineProps<{
 	advancedControls: HookedInstance<Twitch.MediaPlayerAdvancedControls>;
 	mediaPlayer?: Twitch.MediaPlayerInstance;
 }>();
-
-const shouldShowVideoStats = useConfig<boolean>("player.video_stats");
 
 const latency = ref<string>("-.--");
 const videoStats = reactive({
@@ -111,7 +106,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-#seventv-video-stats {
+.seventv-video-stats {
 	margin-right: 0.5rem;
 	display: grid;
 	grid-template-columns: auto 1fr;
@@ -126,7 +121,7 @@ onUnmounted(() => {
 	}
 }
 
-#seventv-video-stats > figure {
+.seventv-video-stats > figure {
 	display: grid;
 	place-items: center;
 }
