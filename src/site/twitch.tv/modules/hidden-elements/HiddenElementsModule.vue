@@ -176,7 +176,7 @@ export const config = [
 
 .seventv-hide-bits-buttons {
 	button[data-a-target="bits-button"],
-	.top-nav__menu > div:last-child div:has(button[data-a-target="top-nav-get-bits-button"]) {
+	.top-nav__menu > div:last-child > div:nth-child(5) {
 		display: none !important;
 	}
 }
@@ -265,7 +265,7 @@ export const config = [
 }
 
 .seventv-hide-turbo-button {
-	.top-nav__menu > div:last-child div:has(div[data-a-target="tw-core-button-label-text"]) {
+	.top-nav__menu > div:last-child > div:nth-child(6) {
 		display: none !important;
 	}
 }
