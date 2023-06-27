@@ -149,7 +149,6 @@ function handleTab(n: Text, sel: Selection, back = false): void {
 
 	const searchWord = text.substring(tokenStart + 1, start);
 	if (tab.matches.length === 0) {
-		// Populate the matchedTokens array with matching tokens
 		tab.matches = [...Object.values(emotes.active), ...Object.values(cosmetics.emotes)].filter(
 			(ae) => ae.name.toLowerCase().startsWith(searchWord.toLowerCase()) && ae.provider !== "EMOJI",
 		);
@@ -157,10 +156,10 @@ function handleTab(n: Text, sel: Selection, back = false): void {
 	}
 
 	tab.index = (back ? tab.index - 1 : tab.index + 1) % tab.matches.length;
+	if (tab.index < 0) tab.index = tab.matches.length - 1;
+
 	const selectedToken = tab.matches[tab.index];
-
 	const spaceAtEnd = end === n.length;
-
 	const textNode = document.createTextNode(`${selectedToken.name}${spaceAtEnd ? "" : " "}`);
 
 	const range = document.createRange();
