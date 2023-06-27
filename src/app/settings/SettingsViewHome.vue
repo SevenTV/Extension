@@ -39,11 +39,14 @@
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
+import { useUserAgent } from "@/composable/useUserAgent";
 import Changelog from "@/site/global/Changelog.vue";
 import CloudIcon from "@/assets/svg/icons/CloudIcon.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const { theme } = storeToRefs(useStore());
+
+const { browser } = useUserAgent();
 
 const appName = import.meta.env.VITE_APP_NAME;
 const appContainer = import.meta.env.VITE_APP_CONTAINER ?? "Extension";
@@ -54,6 +57,9 @@ const isRemote = seventv.remote || false;
 const sidebarEl = ref<HTMLElement | null>(null);
 
 onMounted(() => {
+	// Skip loading the twitter widget on Firefox
+	if (browser.name === "Firefox") return;
+
 	// Insert twitter widget
 	const twitterScript = document.createElement("script");
 	twitterScript.async = true;
