@@ -105,6 +105,12 @@ export const config = [
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_turbo_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Turbo Button",
+		hint: "If checked, the 'Get Ad-Free' button on the top bar will be hidden",
+		defaultValue: false,
+	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Sidebar"],
@@ -141,6 +147,7 @@ export const config = [
 </script>
 
 <style lang="scss">
+/* stylelint-disable selector-class-pattern */
 .seventv-hide-leaderboard {
 	div[data-test-selector="channel-leaderboard-container"] {
 		display: none !important;
@@ -169,7 +176,7 @@ export const config = [
 
 .seventv-hide-bits-buttons {
 	button[data-a-target="bits-button"],
-	button[data-a-target="top-nav-get-bits-button"] {
+	.top-nav__menu > div:last-child div:has(button[data-a-target="top-nav-get-bits-button"]) {
 		display: none !important;
 	}
 }
@@ -248,7 +255,6 @@ export const config = [
 }
 
 .seventv-hide-player-ext {
-	/* stylelint-disable */
 	.video-player .extension-taskbar,
 	.video-player .extension-container,
 	.video-player .extensions-dock__layout,
@@ -256,6 +262,11 @@ export const config = [
 	.video-player .extensions-video-overlay-size-container {
 		display: none !important;
 	}
-	/* stylelint-enable */
+}
+
+.seventv-hide-turbo-button {
+	.top-nav__menu > div:last-child div:has(div[data-a-target="tw-core-button-label-text"]) {
+		display: none !important;
+	}
 }
 </style>

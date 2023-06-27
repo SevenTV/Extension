@@ -15,6 +15,8 @@
 -   Fixed an issue which squished tooltips when hovering an emote on the far right side of chat
 -   Fixed an issue which hid historical messages on Kick
 -   Increased the default value for Message Batching from 150 to 250
+-   Added an option to hide turbo button (when logged in)
+-   Fixed css selector for hiding bits button in top nav menu
 
 ### Version 3.0.13.1000
 
