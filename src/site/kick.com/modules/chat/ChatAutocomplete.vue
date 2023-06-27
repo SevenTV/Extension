@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { inject, reactive, ref, toRef, watch, watchEffect } from "vue";
-import { useEventListener, useMutationObserver } from "@vueuse/core";
+import { useEventListener, useMagicKeys, useMutationObserver } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
@@ -127,7 +127,13 @@ function insertAtEnd(value: string): void {
 	colon.active = false;
 }
 
-function handleTab(n: Text, sel: Selection): void {
+const tab = reactive({
+	matches: [] as SevenTV.ActiveEmote[],
+	index: -1,
+	cursorLocation: -1,
+});
+
+function handleTab(n: Text, sel: Selection, back = false): void {
 	const { anchorOffset, focusOffset } = sel;
 
 	const start = Math.min(anchorOffset, focusOffset);
@@ -135,16 +141,27 @@ function handleTab(n: Text, sel: Selection): void {
 
 	const text = n.textContent ?? "";
 	const tokenStart = text.substring(0, focusOffset).lastIndexOf(" ", focusOffset);
+	if (sel.anchorOffset != tab.cursorLocation) {
+		tab.matches = [];
+		tab.index = -1;
+		tab.cursorLocation = sel.anchorOffset;
+	}
 
 	const searchWord = text.substring(tokenStart + 1, start);
-	if (!searchWord) return;
+	if (tab.matches.length === 0) {
+		// Populate the matchedTokens array with matching tokens
+		tab.matches = [...Object.values(emotes.active), ...Object.values(cosmetics.emotes)].filter(
+			(ae) => ae.name.toLowerCase().startsWith(searchWord.toLowerCase()) && ae.provider !== "EMOJI",
+		);
+		if (tab.matches.length === 0 || tab.matches[0].provider === "EMOJI") return;
+	}
 
-	const emote = [...Object.values(emotes.active), ...Object.values(cosmetics.emotes)].find((ae) =>
-		ae.name.toLowerCase().startsWith(searchWord.toLowerCase()),
-	);
-	if (!emote || emote.provider === "EMOJI") return;
+	tab.index = (back ? tab.index - 1 : tab.index + 1) % tab.matches.length;
+	const selectedToken = tab.matches[tab.index];
 
-	const textNode = document.createTextNode(`${emote.name} `);
+	const spaceAtEnd = end === n.length;
+
+	const textNode = document.createTextNode(`${selectedToken.name}${spaceAtEnd ? "" : " "}`);
 
 	const range = document.createRange();
 	range.setStart(n, start - searchWord.length);
@@ -152,7 +169,9 @@ function handleTab(n: Text, sel: Selection): void {
 	range.deleteContents();
 	range.insertNode(textNode);
 
-	sel.collapse(textNode, emote.name.length + 1);
+	sel.collapse(textNode, selectedToken.name.length + (spaceAtEnd ? 0 : 1));
+
+	tab.cursorLocation = sel.focusOffset;
 }
 
 // add message to history using unshift
@@ -168,6 +187,7 @@ function handleMessageSend(text: string) {
 
 watch(currentMessage, handleInputChange);
 
+const { shift: isShiftPressed } = useMagicKeys();
 useEventListener(
 	inputEl,
 	"keydown",
@@ -182,7 +202,7 @@ useEventListener(
 			case "Enter":
 				if (ev.key === "Tab" && n && n.nodeName === "#text") {
 					ev.preventDefault();
-					handleTab(n, sel);
+					handleTab(n, sel, isShiftPressed.value);
 				}
 
 				if (!colon.active) break;
