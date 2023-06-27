@@ -1,3 +1,20 @@
+### 3.0.14.1000
+
+-   Added a shortcut (Ctrl+E) to open the Emote Menu
+-   Added shortcuts (Up/Down Arrows) to switch between providers in the Emote Menu
+-   Search in the Emote Menu will now automatically open the nearest tab where matches are found
+-   The input box in the Emote Menu is now focused automatically upon opening
+-   Added an option to show stream stats such as latency, resolution, bitrate, etc.
+-   Added an option to set click actions on the video player (pause/unpause and mute/unmute)
+-   Added an option to hide player extensions
+-   Added iterable tab-completion on Kick
+-   Fixed a user card crash
+-   Fixed an issue with the EventAPI connection closing on the first initialization
+-   Fixed an issue that prevented new chatters from appearing in autocompletion
+-   Fixed an issue which squished tooltips when hovering an emote on the far right side of chat
+-   Fixed an issue which hid historical messages on Kick
+-   Increased the default value for Message Batching from 150 to 250
+
 ### Version 3.0.13
 
 -   Added an option to hide the new mature content dialogs on Twitch

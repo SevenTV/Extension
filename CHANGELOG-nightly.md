@@ -2,6 +2,10 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   No unreleased changes yet.
+
+### 3.0.14.1000
+
 -   Added a shortcut (Ctrl+E) to open the Emote Menu
 -   Added shortcuts (Up/Down Arrows) to switch between providers in the Emote Menu
 -   Search in the Emote Menu will now automatically open the nearest tab where matches are found
