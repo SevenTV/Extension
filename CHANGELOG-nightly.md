@@ -9,6 +9,7 @@
 -   Added an option to show stream stats such as latency, resolution, bitrate, etc.
 -   Added an option to set click actions on the video player (pause/unpause and mute/unmute)
 -   Added an option to hide player extensions
+-   Added iterable tab-completion on Kick
 -   Fixed a user card crash
 -   Fixed an issue with the EventAPI connection closing on the first initialization
 -   Fixed an issue that prevented new chatters from appearing in autocompletion
