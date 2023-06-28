@@ -35,7 +35,7 @@ const userCard = ref<ActiveUserCard[]>([]);
 
 const refreshRate = useConfig<number>("chat.message_batch_duration", 100);
 
-function patchMessageElement(el: HTMLDivElement): void {
+function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 	if (!el.hasAttribute("data-chat-entry")) return; // not a message
 
 	const entryID = el.getAttribute("data-chat-entry")!;
@@ -62,7 +62,7 @@ function patchMessageElement(el: HTMLDivElement): void {
 		el,
 	};
 
-	el.classList.add("seventv-chat-message-buffered");
+	if (!noBuffer) el.classList.add("seventv-chat-message-buffered");
 
 	messageBuffer.value.push(bind);
 	messageMap.set(el, bind);
@@ -99,7 +99,7 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 function patch(): void {
 	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
 	for (const el of Array.from(entries)) {
-		patchMessageElement(el as HTMLDivElement);
+		patchMessageElement(el as HTMLDivElement, true);
 	}
 }
 
