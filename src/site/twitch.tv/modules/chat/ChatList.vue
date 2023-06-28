@@ -502,6 +502,7 @@ watch(
 				pattern: rxs,
 				regexp: true,
 				cachedRegExp: rx,
+				test: (msg) => !!(identity && msg.author && msg.author.username !== identity.username),
 				label: "Mentions You",
 				color: "#e13232",
 				soundPath: sound ? "#ping" : undefined,
@@ -512,7 +513,14 @@ watch(
 			});
 
 			chatHighlights.define("~reply", {
-				test: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
+				test: (msg) =>
+					!!(
+						msg.parent &&
+						msg.parent.author &&
+						msg.author &&
+						msg.author.username !== msg.parent.author.username &&
+						rx.test(msg.parent.author.username)
+					),
 				label: "Replying to You",
 				color: "#e13232",
 				soundPath: sound ? "#ping" : undefined,
