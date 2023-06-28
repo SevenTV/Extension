@@ -76,6 +76,20 @@ markAsReady();
 
 <script lang="ts">
 export const config = [
+	declareConfig("ui.emote_menu.default_tab", "DROPDOWN", {
+		path: ["Appearance", "Interface"],
+		label: "Emote Menu: Default Emote Tab",
+		hint: "Select default tab when opening emote menu",
+		options: [
+			["Favorite", "FAVORITE"],
+			["7TV", "7TV"],
+			["FFZ", "FFZ"],
+			["BTTV", "BTTV"],
+			["Platform", "PLATFORM"],
+			["Emoji", "EMOJI"],
+		],
+		defaultValue: "7TV",
+	}),
 	declareConfig("ui.emote_menu_search", "TOGGLE", {
 		path: ["Appearance", "Interface"],
 		label: "Emote Menu: Live Input Search",

@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   No unreleased changes yet.
+-   Added an option to select default Emote Menu tab
 
 ### 3.0.14.1000
 
