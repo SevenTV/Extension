@@ -499,10 +499,8 @@ watch(
 
 		if (enabled) {
 			chatHighlights.define("~mention", {
-				pattern: rxs,
-				regexp: true,
-				cachedRegExp: rx,
-				test: (msg) => !!(identity && msg.author && msg.author.username !== identity.username),
+				test: (msg) =>
+					!!(identity && msg.author && msg.author.username !== identity.username && rx.test(msg.body)),
 				label: "Mentions You",
 				color: "#e13232",
 				soundPath: sound ? "#ping" : undefined,

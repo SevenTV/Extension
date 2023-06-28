@@ -148,7 +148,6 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!h) return false;
 
 		let ok = false;
-		let justTest = false;
 
 		if (h.regexp) {
 			let regexp = h.cachedRegExp;
@@ -169,13 +168,8 @@ export function useChatHighlights(ctx: ChannelContext) {
 			ok = h.caseSensitive
 				? msg.body.includes(h.pattern)
 				: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
-		} else {
-			justTest = true;
-		}
-
-		if (typeof h.test === "function") {
-			const t = h.test(msg);
-			ok = justTest ? t : ok && t;
+		} else if (typeof h.test === "function") {
+			ok = h.test(msg);
 		}
 
 		if (ok) {
