@@ -99,7 +99,7 @@ const { providers, platform } = useStore();
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
-const defaultTab = useConfig<EmoteMenuTabName>("ui.emote_menu.default_tab");
+const defaultTab = useConfig<EmoteMenuTabName>("ui.emote_menu.default_tab", "7TV");
 
 const activeProvider = ref<EmoteMenuTabName | null>(defaultTab.value);
 const visibleProviders = reactive<Record<EmoteMenuTabName, boolean>>({
