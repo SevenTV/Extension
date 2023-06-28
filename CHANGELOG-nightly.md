@@ -2,6 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   Added an option to select default Emote Menu tab
 -   Added a shortcut (Ctrl+E) to open the Emote Menu
 -   Added shortcuts (Up/Down Arrows) to switch between providers in the Emote Menu
 -   Search in the Emote Menu will now automatically open the nearest tab where matches are found
