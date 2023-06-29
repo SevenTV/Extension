@@ -72,24 +72,20 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 }
 
 export async function exportSettings(platform: Platform) {
-	return db.ready().then(() =>
-		useLiveQuery(
-			() => db.settings.toArray(),
-			(s) => {
-				console.log("EXPORT SETTINGS");
-				console.log(s);
-				console.log(serializeSettings(s));
-				const out = JSON.stringify({
-					timestamp: new Date().getTime(),
-					settings: serializeSettings(s),
-				});
-				const blob = new Blob([out], {
-					type: "text/plain",
-				});
-				saveAs(blob, `7tv_settings_${platform}-${new Date().toLocaleDateString()}.json`);
-			},
-		),
-	);
+	return db.ready().then(async () => {
+		const s = await db.settings.toArray()
+		console.log("EXPORT SETTINGS");
+		console.log(s);
+		console.log(serializeSettings(s));
+		const out = JSON.stringify({
+			timestamp: new Date().getTime(),
+			settings: serializeSettings(s),
+		});
+		const blob = new Blob([out], {
+			type: "text/plain",
+		});
+		saveAs(blob, `7tv_settings_${platform}-${new Date().toLocaleDateString()}.json`);
+	})
 }
 
 function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {

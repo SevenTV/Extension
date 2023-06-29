@@ -26,12 +26,10 @@ const error = ref<boolean>(false);
 async function exportSettings() {
 	error.value = false;
 
-	try {
-		e(platform);
-	} catch (err) {
-		console.error(err);
+	e(platform).catch(err => {
 		error.value = true;
-	}
+		console.error(err);
+	});
 }
 
 async function importSettings() {
