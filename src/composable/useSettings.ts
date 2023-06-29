@@ -89,21 +89,21 @@ export async function exportSettings(platform: Platform) {
 }
 
 function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
-	const parsed: any[] = [];
+	const serialized: any[] = [];
 
 	settings.forEach((setting: any) => {
 		if (typeof setting.value === "object") {
-			parsed.push({
+			serialized.push({
 				...setting,
 				constructorName: setting.value.constructor.name,
 				value: Array.from(setting.value),
 			});
 		} else {
-			parsed.push(setting);
+			serialized.push(setting);
 		}
 	});
 
-	return parsed;
+	return serialized;
 }
 
 export function useConfig<T extends SevenTV.SettingType>(key: string, defaultValue?: T) {
