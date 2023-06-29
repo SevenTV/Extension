@@ -3,11 +3,24 @@ import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { useFrankerFaceZ } from "./useFrankerFaceZ";
 import { useLiveQuery } from "./useLiveQuery";
+import { saveAs } from "file-saver";
+
+// import { useStore } from "@/store/main";
 
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
 
 const ffz = useFrankerFaceZ();
+
+// const { platform } = useStore();
+/*
+Uncaught (in promise) Error: [🍍]: "getActivePinia()" was called but there was no active Pinia. Did you forget to install pinia?
+	const pinia = createPinia()
+	app.use(pinia)
+This will fail in production.
+    at useStore (pinia.mjs:1699:19)
+    at useSettings.ts:14:15
+*/
 
 function toConfigRef<T extends SevenTV.SettingType>(key: string, defaultValue?: T): Ref<T> {
 	return customRef<T>((track, trigger) => {
@@ -56,6 +69,45 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 			timestamp,
 		} as SevenTV.SettingNode;
 	}
+}
+
+export async function exportSettings(platform: Platform) {
+	return db.ready().then(() =>
+		useLiveQuery(
+			() => db.settings.toArray(),
+			(s) => {
+				console.log("EXPORT SETTINGS");
+				console.log(s);
+				console.log(serializeSettings(s));
+				const out = JSON.stringify({
+					timestamp: new Date().getTime(),
+					settings: serializeSettings(s),
+				});
+				const blob = new Blob([out], {
+					type: "text/plain",
+				});
+				saveAs(blob, `7tv_settings_${platform}-${new Date().toLocaleDateString()}.json`);
+			},
+		),
+	);
+}
+
+function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
+	const parsed: any[] = [];
+
+	settings.forEach((setting: any) => {
+		if (typeof setting.value === "object") {
+			parsed.push({
+				...setting,
+				constructorName: setting.value.constructor.name,
+				value: Array.from(setting.value),
+			});
+		} else {
+			parsed.push(setting);
+		}
+	});
+
+	return parsed;
 }
 
 export function useConfig<T extends SevenTV.SettingType>(key: string, defaultValue?: T) {
