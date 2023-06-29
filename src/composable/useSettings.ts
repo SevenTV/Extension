@@ -73,7 +73,7 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 
 export async function exportSettings(platform: Platform) {
 	return db.ready().then(async () => {
-		const s = await db.settings.toArray()
+		const s = await db.settings.toArray();
 		console.log("EXPORT SETTINGS");
 		console.log(s);
 		console.log(serializeSettings(s));
@@ -85,7 +85,7 @@ export async function exportSettings(platform: Platform) {
 			type: "text/plain",
 		});
 		saveAs(blob, `7tv_settings_${platform}-${new Date().toLocaleDateString()}.json`);
-	})
+	});
 }
 
 function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {

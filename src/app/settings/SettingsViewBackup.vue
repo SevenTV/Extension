@@ -26,7 +26,7 @@ const error = ref<boolean>(false);
 async function exportSettings() {
 	error.value = false;
 
-	e(platform).catch(err => {
+	e(platform).catch((err) => {
 		error.value = true;
 		console.error(err);
 	});
