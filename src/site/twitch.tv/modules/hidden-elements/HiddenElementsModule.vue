@@ -188,7 +188,7 @@ export const config = [
 
 .seventv-hide-bits-buttons {
 	button[data-a-target="bits-button"] {
-	// button[data-a-target="top-nav-get-bits-button"] {
+		// button[data-a-target="top-nav-get-bits-button"] {
 		display: none !important;
 	}
 }

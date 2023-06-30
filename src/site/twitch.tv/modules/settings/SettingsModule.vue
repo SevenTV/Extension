@@ -3,7 +3,7 @@
 		<SettingsMenu v-if="ctx.open" />
 	</Transition>
 
-	<SettingsMenuButton @toggle="ctx.open = !ctx.open" :inst="topnav.instances[0] ?? undefined" />
+	<SettingsMenuButton :inst="topnav.instances[0] ?? undefined" @toggle="ctx.open = !ctx.open" />
 </template>
 
 <script setup lang="ts">
@@ -22,13 +22,15 @@ const { markAsReady } = declareModule("settings", {
 const ctx = useSettingsMenu();
 
 // hook for the top nav bar
-const topnav = useComponentHook<Twitch.TopNavBarComponent>({
-	predicate: (n) => n.props && n.props.isWhispersLoaded && n.props.languageCode,
-	maxDepth: 100
-},
-{
-	trackRoot: true
-});
+const topnav = useComponentHook<Twitch.TopNavBarComponent>(
+	{
+		predicate: (n) => n.props && n.props.isWhispersLoaded && n.props.languageCode,
+		maxDepth: 100,
+	},
+	{
+		trackRoot: true,
+	},
+);
 
 markAsReady();
 </script>

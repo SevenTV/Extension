@@ -12,18 +12,18 @@
 
 <script setup lang="ts">
 import { ref, toRaw, watch, watchEffect } from "vue";
+import { HookedInstance } from "@/common/ReactHooks";
+import { defineFunctionHook } from "@/common/Reflection";
+import { useConfig } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
-import { HookedInstance } from "@/common/ReactHooks";
-import { useConfig } from "@/composable/useSettings";
-import { defineFunctionHook } from "@/common/Reflection";
 
 const emit = defineEmits<{
 	(event: "toggle"): void;
 }>();
 
 const props = defineProps<{
-	inst: HookedInstance<Twitch.TopNavBarComponent>|undefined;
+	inst: HookedInstance<Twitch.TopNavBarComponent> | undefined;
 }>();
 
 const hideBitsButton = useConfig<boolean>("layout.hide_bits_buttons");
@@ -32,35 +32,59 @@ const hidePrimeCrown = useConfig<boolean>("layout.hide_prime_offers");
 const hideTurboButton = useConfig<boolean>("layout.hide_turbo_button");
 const hideWhispersButton = useConfig<boolean>("layout.hide_whispers_button");
 
-watch(hideBitsButton, (v) => {
-	createFunctionHook(v, "renderBitsButton");
-	rerenderTopNav();
-}, {immediate: true});
+watch(
+	hideBitsButton,
+	(v) => {
+		if (!props.inst?.component) return;
+		createFunctionHook(props.inst.component, "renderBitsButton", v);
+		rerenderTopNav();
+	},
+	{ immediate: true },
+);
 
-watch(hideSiteNotificationsButton, (v) => {
-	createFunctionHook(v, "renderOnsiteNotifications");
-	rerenderTopNav();
-}, {immediate: true});
+watch(
+	hideSiteNotificationsButton,
+	(v) => {
+		if (!props.inst?.component) return;
+		createFunctionHook(props.inst.component, "renderOnsiteNotifications", v);
+		rerenderTopNav();
+	},
+	{ immediate: true },
+);
 
-watch(hideTurboButton, (v) => {
-	createFunctionHook(v, "renderTurboButton");
-	rerenderTopNav();
-}, {immediate: true});
+watch(
+	hideTurboButton,
+	(v) => {
+		if (!props.inst?.component) return;
+		createFunctionHook(props.inst.component, "renderTurboButton", v);
+		rerenderTopNav();
+	},
+	{ immediate: true },
+);
 
-watch(hidePrimeCrown, (v) => {
-	createFunctionHook(v, "renderTwitchPrimeCrown");
-	rerenderTopNav();
-}, {immediate: true});
+watch(
+	hidePrimeCrown,
+	(v) => {
+		if (!props.inst?.component) return;
+		createFunctionHook(props.inst.component, "renderTwitchPrimeCrown", v);
+		rerenderTopNav();
+	},
+	{ immediate: true },
+);
 
-watch(hideWhispersButton, (v) => {
-	createFunctionHook(v, "renderWhispers");
-	rerenderTopNav();
-}, {immediate: true});
+watch(
+	hideWhispersButton,
+	(v) => {
+		if (!props.inst?.component) return;
+		createFunctionHook(props.inst.component, "renderWhispers", v);
+		rerenderTopNav();
+	},
+	{ immediate: true },
+);
 
-function createFunctionHook(state: boolean, funcName: any) {
-	if (!props.inst?.component) return;
-	defineFunctionHook(props.inst.component, funcName, function (old, ...args: unknown[]) {
-		return (state) ? null : old?.apply(this, args);
+function createFunctionHook<C extends object>(prop: C, funcName: keyof C, state: boolean) {
+	defineFunctionHook(prop, funcName, function (old, ...args: unknown[]) {
+		return state ? null : old?.apply(this, args);
 	});
 }
 
@@ -86,7 +110,6 @@ function insert7tvButton() {
 	} else {
 		navmenu.insertBefore(containerEl.value, navmenu.lastChild);
 	}
-
 }
 
 watchEffect(() => {
