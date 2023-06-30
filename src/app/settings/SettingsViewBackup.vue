@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useStore } from "@/store/main";
-import { deserializeSettings, exportSettings as e } from "@/composable/useSettings";
+import { SerializedSettings, deserializeSettings, exportSettings as e } from "@/composable/useSettings";
 import UiButton from "@/ui/UiButton.vue";
 
 const { platform } = useStore();
@@ -41,19 +41,19 @@ async function importSettings() {
 	console.log(fileList);
 	const raw = await read(fileList[0]);
 
-	let parsed: any = {};
+	let serialized: SerializedSettings;
 	try {
-		parsed = JSON.parse(raw);
+		serialized = JSON.parse(raw);
 	} catch (err) {
 		console.error(err);
 		error.value = true;
 		return;
 	}
-	console.log(parsed);
+	console.log(serialized);
 
 	let deserializedSettings: SevenTV.Setting<SevenTV.SettingType>[] = [];
 	try {
-		deserializedSettings = deserializeSettings(parsed);
+		deserializedSettings = deserializeSettings(serialized);
 	} catch (err) {
 		console.error(err);
 		error.value = true;

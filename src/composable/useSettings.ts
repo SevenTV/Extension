@@ -22,6 +22,15 @@ This will fail in production.
     at useSettings.ts:14:15
 */
 
+export interface SerializedSettings {
+	timestamp: number;
+	settings: SerializedSetting[];
+}
+
+export interface SerializedSetting extends SevenTV.Setting<SevenTV.SettingType> {
+	constructorName?: string;
+}
+
 function toConfigRef<T extends SevenTV.SettingType>(key: string, defaultValue?: T): Ref<T> {
 	return customRef<T>((track, trigger) => {
 		return {
@@ -80,7 +89,7 @@ export async function exportSettings(platform: Platform) {
 		const out = JSON.stringify({
 			timestamp: new Date().getTime(),
 			settings: serializeSettings(s.filter((v) => v.key !== "app.version")),
-		});
+		} as SerializedSettings);
 		const blob = new Blob([out], {
 			type: "text/plain",
 		});
@@ -89,15 +98,15 @@ export async function exportSettings(platform: Platform) {
 }
 
 export function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
-	const serialized: any[] = [];
+	const serialized: SerializedSetting[] = [];
 
-	settings.forEach((setting: any) => {
+	settings.forEach((setting: SevenTV.Setting<SevenTV.SettingType>) => {
 		if (typeof setting.value === "object") {
 			serialized.push({
 				...setting,
 				constructorName: setting.value.constructor.name,
-				value: Array.from(setting.value),
-			});
+				value: Array.from(setting.value as Iterable<object>),
+			} as SerializedSetting);
 		} else {
 			serialized.push(setting);
 		}
@@ -106,7 +115,7 @@ export function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>
 	return serialized;
 }
 
-export function deserializeSettings(serialized: any) {
+export function deserializeSettings(serialized: SerializedSettings) {
 	if (!(serialized.settings instanceof Array)) throw new Error("invalid settings file: invalid format");
 
 	const deserializedSettings: SevenTV.Setting<SevenTV.SettingType>[] = [];
@@ -126,15 +135,15 @@ export function deserializeSettings(serialized: any) {
 			});
 		} else {
 			if (!constructorName) throw new Error("invalid settings file: missing constructorName for object type");
-			let deserializedValue: any;
+			let deserializedValue: object;
 
 			switch (constructorName) {
 				case "Map": {
-					deserializedValue = new Map(value);
+					deserializedValue = new Map(value as Iterable<[string, SevenTV.SettingType]>);
 					break;
 				}
 				case "Set": {
-					deserializedValue = new Set(value);
+					deserializedValue = new Set(value as Iterable<SevenTV.SettingType>);
 					break;
 				}
 				default:
