@@ -79,7 +79,7 @@ export async function exportSettings(platform: Platform) {
 		console.log(serializeSettings(s));
 		const out = JSON.stringify({
 			timestamp: new Date().getTime(),
-			settings: serializeSettings(s),
+			settings: serializeSettings(s.filter((v) => v.key !== "app.version")),
 		});
 		const blob = new Blob([out], {
 			type: "text/plain",
