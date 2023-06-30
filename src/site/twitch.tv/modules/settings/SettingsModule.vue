@@ -3,9 +3,7 @@
 		<SettingsMenu v-if="ctx.open" />
 	</Transition>
 
-	<template v-for="inst of topnav.instances" :key="inst.identifier">
-		<SettingsMenuButton :inst="inst" @toggle="ctx.open = !ctx.open" />
-	</template>
+	<SettingsMenuButton :inst="topnav.instances[0] ?? undefined" @toggle="ctx.open = !ctx.open" />
 </template>
 
 <script setup lang="ts">
