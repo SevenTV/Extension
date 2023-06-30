@@ -88,7 +88,7 @@ export async function exportSettings(platform: Platform) {
 	});
 }
 
-function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
+export function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
 	const serialized: any[] = [];
 
 	settings.forEach((setting: any) => {
@@ -104,6 +104,52 @@ function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
 	});
 
 	return serialized;
+}
+
+export function deserializeSettings(serialized: any) {
+	if (!(serialized.settings instanceof Array)) throw new Error("invalid settings file: invalid format");
+
+	const deserializedSettings: SevenTV.Setting<SevenTV.SettingType>[] = [];
+
+	for (const { key, type, constructorName, value, timestamp } of serialized.settings) {
+		if (key == undefined || type == undefined || value == undefined || timestamp == undefined)
+			throw new Error("invalid settings file: missing keys");
+		console.log(constructorName);
+
+		if (typeof value !== type) throw new Error("invalid settings file: incorrect value for type");
+
+		if (type !== "object") {
+			deserializedSettings.push({
+				key,
+				type,
+				value,
+			});
+		} else {
+			if (!constructorName) throw new Error("invalid settings file: missing constructorName for object type");
+			let deserializedValue: any;
+
+			switch (constructorName) {
+				case "Map": {
+					deserializedValue = new Map(value);
+					break;
+				}
+				case "Set": {
+					deserializedValue = new Set(value);
+					break;
+				}
+				default:
+					throw new Error("invalid settings file: cannot deserialize constructor type");
+			}
+
+			deserializedSettings.push({
+				key,
+				type,
+				value: deserializedValue,
+			});
+		}
+	}
+
+	return deserializedSettings;
 }
 
 export function useConfig<T extends SevenTV.SettingType>(key: string, defaultValue?: T) {

@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useStore } from "@/store/main";
-import { exportSettings as e } from "@/composable/useSettings";
+import { deserializeSettings, exportSettings as e } from "@/composable/useSettings";
 import UiButton from "@/ui/UiButton.vue";
 
 const { platform } = useStore();
@@ -51,50 +51,15 @@ async function importSettings() {
 	}
 	console.log(parsed);
 
-	if (!(parsed.settings instanceof Array)) {
+	let deserializedSettings: SevenTV.Setting<SevenTV.SettingType>[] = [];
+	try {
+		deserializedSettings = deserializeSettings(parsed);
+	} catch (err) {
+		console.error(err);
 		error.value = true;
 		return;
 	}
 
-	const deserializedSettings: SevenTV.Setting<SevenTV.SettingType>[] = [];
-
-	for (const { key, type, constructorName, value, timestamp } of parsed.settings) {
-		if (key == undefined || type == undefined || value == undefined || timestamp == undefined)
-			throw new Error("invalid settings file: missing keys");
-		console.log(constructorName);
-
-		if (typeof value !== type) throw new Error("invalid settings file: incorrect value for type");
-
-		if (type !== "object") {
-			deserializedSettings.push({
-				key,
-				type,
-				value,
-			});
-		} else {
-			if (!constructorName) throw new Error("invalid settings file: missing constructorName for object type");
-			let deserializedValue: any;
-
-			switch (constructorName) {
-				case "Map": {
-					deserializedValue = new Map(value);
-					break;
-				}
-				case "Set": {
-					deserializedValue = new Set(value);
-					break;
-				}
-				default:
-					throw new Error("invalid settings file: cannot deserialize constructor type");
-			}
-
-			deserializedSettings.push({
-				key,
-				type,
-				value: deserializedValue,
-			});
-		}
-	}
 	console.log(deserializedSettings);
 }
 
