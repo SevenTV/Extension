@@ -83,16 +83,17 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 export async function exportSettings(platform: Platform) {
 	return db.ready().then(async () => {
 		const s = await db.settings.toArray();
-		console.log("EXPORT SETTINGS");
-		console.log(s);
-		console.log(serializeSettings(s));
+		const serializedSettings: SerializedSetting[] = serializeSettings(s.filter((v) => v.key !== "app.version"));
+		log.debugWithObjects(["<Settings>", "Serialized settings"], [serializedSettings]);
+
 		const out = JSON.stringify({
 			timestamp: new Date().getTime(),
-			settings: serializeSettings(s.filter((v) => v.key !== "app.version")),
+			settings: serializedSettings,
 		} as SerializedSettings);
 		const blob = new Blob([out], {
 			type: "text/plain",
 		});
+		log.info("<Settings>", "Exporting settings");
 		saveAs(blob, `7tv_settings_${platform}-${new Date().toLocaleDateString()}.json`);
 	});
 }
@@ -123,7 +124,6 @@ export function deserializeSettings(serialized: SerializedSettings) {
 	for (const { key, type, constructorName, value, timestamp } of serialized.settings) {
 		if (key == undefined || type == undefined || value == undefined || timestamp == undefined)
 			throw new Error("invalid settings file: missing keys");
-		console.log(constructorName);
 
 		if (typeof value !== type) throw new Error("invalid settings file: incorrect value for type");
 
