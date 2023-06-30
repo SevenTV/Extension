@@ -23,7 +23,7 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps<{
-	inst: HookedInstance<Twitch.TopNavBarComponent> | undefined;
+	inst: HookedInstance<Twitch.TopNavBarComponent>;
 }>();
 
 const hideBitsButton = useConfig<boolean>("layout.hide_bits_buttons");
