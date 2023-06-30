@@ -111,6 +111,18 @@ export const config = [
 		hint: "If checked, the 'Get Ad-Free' button on the top bar will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_site_notifications_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Site Notifications Button",
+		hint: "If checked, the 'Site Notifications' button on the top bar will be hidden",
+		defaultValue: false,
+	}),
+	declareConfig("layout.hide_whispers_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Whispers Button",
+		hint: "If checked, the 'Whispers' button on the top bar will be hidden",
+		defaultValue: false,
+	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Sidebar"],
@@ -175,8 +187,8 @@ export const config = [
 }
 
 .seventv-hide-bits-buttons {
-	button[data-a-target="bits-button"],
-	.top-nav__menu > div:last-child > div:nth-child(5) {
+	button[data-a-target="bits-button"] {
+	// button[data-a-target="top-nav-get-bits-button"] {
 		display: none !important;
 	}
 }
@@ -260,12 +272,6 @@ export const config = [
 	.video-player .extensions-dock__layout,
 	.video-player .extensions-notifications,
 	.video-player .extensions-video-overlay-size-container {
-		display: none !important;
-	}
-}
-
-.seventv-hide-turbo-button {
-	.top-nav__menu > div:last-child > div:nth-child(6) {
 		display: none !important;
 	}
 }

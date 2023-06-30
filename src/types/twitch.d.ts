@@ -868,4 +868,16 @@ declare module Twitch {
 		name: string;
 		width: number;
 	}
+
+	export type TopNavBarComponent = ReactExtended.WritableComponent<{
+		isInspecting: boolean;
+		isWhispersLoaded: boolean;
+		languageCode: string;
+	}> & {
+		renderBitsButton: () => void;
+		renderOnsiteNotifications: () => void;
+		renderTurboButton: () => void;
+		renderTwitchPrimeCrown: () => void;
+		renderWhispers: () => void;
+	};
 }

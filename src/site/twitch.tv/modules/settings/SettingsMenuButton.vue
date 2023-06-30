@@ -11,19 +11,89 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, toRaw, watch, watchEffect } from "vue";
 import useUpdater from "@/composable/useUpdater";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
+import { HookedInstance } from "@/common/ReactHooks";
+import { useConfig } from "@/composable/useSettings";
+import { defineFunctionHook } from "@/common/Reflection";
 
 const emit = defineEmits<{
 	(event: "toggle"): void;
 }>();
 
-const updater = useUpdater();
+const props = defineProps<{
+	inst: HookedInstance<Twitch.TopNavBarComponent>|undefined;
+}>();
+
+const hideBitsButton = useConfig<boolean>("layout.hide_bits_buttons");
+const hideSiteNotificationsButton = useConfig<boolean>("layout.hide_site_notifications_button");
+const hidePrimeCrown = useConfig<boolean>("layout.hide_prime_offers");
+const hideTurboButton = useConfig<boolean>("layout.hide_turbo_button");
+const hideWhispersButton = useConfig<boolean>("layout.hide_whispers_button");
+
+watch(hideBitsButton, (v) => {
+	createFunctionHook(v, "renderBitsButton");
+	rerenderTopNav();
+}, {immediate: true});
+
+watch(hideSiteNotificationsButton, (v) => {
+	createFunctionHook(v, "renderOnsiteNotifications");
+	rerenderTopNav();
+}, {immediate: true});
+
+watch(hideTurboButton, (v) => {
+	createFunctionHook(v, "renderTurboButton");
+	rerenderTopNav();
+}, {immediate: true});
+
+watch(hidePrimeCrown, (v) => {
+	createFunctionHook(v, "renderTwitchPrimeCrown");
+	rerenderTopNav();
+}, {immediate: true});
+
+watch(hideWhispersButton, (v) => {
+	createFunctionHook(v, "renderWhispers");
+	rerenderTopNav();
+}, {immediate: true});
+
+function createFunctionHook(state: boolean, funcName: any) {
+	if (!props.inst?.component) return;
+	defineFunctionHook(props.inst.component, funcName, function (old, ...args: unknown[]) {
+		return (state) ? null : old?.apply(this, args);
+	});
+}
+
+function rerenderTopNav() {
+	if (!props.inst?.component) return;
+	toRaw(props.inst.component).forceUpdate();
+}
 
 const el = document.createElement("div");
 el.id = "seventv-settings-button";
 const containerEl = ref<HTMLElement>(el);
+
+function insert7tvButton() {
+	const rootNode = props.inst?.domNodes.root;
+	if (!rootNode) return;
+
+	// Place 7tv button next to the user profile
+	const navmenu = rootNode.querySelector<HTMLElement>(".top-nav__menu")?.lastChild;
+	if (!navmenu) return;
+	if (navmenu?.contains(containerEl.value)) {
+		navmenu.parentElement?.querySelector<HTMLElement>("#seventv-settings-button")?.remove();
+		navmenu.insertBefore(containerEl.value, navmenu.lastChild);
+	} else {
+		navmenu.insertBefore(containerEl.value, navmenu.lastChild);
+	}
+
+}
+
+watchEffect(() => {
+	insert7tvButton();
+});
+
+const updater = useUpdater();
 
 // Topnav on the main twitch page
 let menuButtons = document.querySelector(".top-nav__menu")?.lastChild;
@@ -39,9 +109,9 @@ if (!menuButtons) {
 	menuButtons = document.querySelector(".stream-chat-header")?.lastChild;
 	tooltip = "left";
 }
-if (menuButtons) {
-	menuButtons.insertBefore(containerEl.value, menuButtons.lastChild);
-}
+// if (menuButtons) {
+// 	menuButtons.insertBefore(containerEl.value, menuButtons.lastChild);
+// }
 </script>
 <style scoped lang="scss">
 @import "@/assets/style/tw-tooltip";

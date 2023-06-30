@@ -5,7 +5,7 @@ const hideLeaderboard = useConfig<boolean>("layout.hide_channel_leaderboard");
 const hideButtonsBelowChatbox = useConfig<boolean>("layout.hide_buttons_below_chatbox");
 const hideStreamChatBar = useConfig<boolean>("layout.hide_stream_chat_bar");
 const hideReactButtons = useConfig<boolean>("layout.hide_react_buttons");
-const hideBitsButtons = useConfig<boolean>("layout.hide_bits_buttons");
+const hideBitsButtons = useConfig<boolean>("layout.hide_bits_buttons"); // we keep this here for the bits button in chat input
 const hideHypeChatButton = useConfig<boolean>("layout.hide_hype_chat_button");
 const hideTopBarOfStream = useConfig<boolean>("layout.hide_top_bar_of_stream");
 const hidePlayerControls = useConfig<boolean>("layout.hide_player_controls");
@@ -13,8 +13,8 @@ const hidePinnedHypeChats = useConfig<boolean>("layout.hide_pinned_hype_chats");
 const hideCommunityHighlights = useConfig<boolean>("layout.hide_community_highlights");
 const hideRecommendedChannels = useConfig<boolean>("layout.hide_recommended_channels");
 const hideViewersAlsoWatch = useConfig<boolean>("layout.hide_viewers_also_watch");
-const hidePrimeOffers = useConfig<boolean>("layout.hide_prime_offers");
-const hideTurboButton = useConfig<boolean>("layout.hide_turbo_button");
+// const hidePrimeOffers = useConfig<boolean>("layout.hide_prime_offers");
+// const hideTurboButton = useConfig<boolean>("layout.hide_turbo_button");
 const hideUnfollowButton = useConfig<boolean>("layout.hide_unfollow_button");
 const hideLiveNotificationButton = useConfig<boolean>("layout.hide_live_notification_button");
 const hideSubscribeButton = useConfig<boolean>("layout.hide_subscribe_button");
@@ -34,9 +34,9 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-community-highlights", isHidden: hideCommunityHighlights },
 	{ class: "seventv-hide-recommended-channels", isHidden: hideRecommendedChannels },
 	{ class: "seventv-hide-viewers-also-watch", isHidden: hideViewersAlsoWatch },
-	{ class: "seventv-hide-prime-offers", isHidden: hidePrimeOffers },
+	// { class: "seventv-hide-prime-offers", isHidden: hidePrimeOffers },
 	{ class: "seventv-hide-unfollow-button", isHidden: hideUnfollowButton },
-	{ class: "seventv-hide-turbo-button", isHidden: hideTurboButton },
+	// { class: "seventv-hide-turbo-button", isHidden: hideTurboButton },
 	{ class: "seventv-hide-live-notification-button", isHidden: hideLiveNotificationButton },
 	{ class: "seventv-hide-subscribe-button", isHidden: hideSubscribeButton },
 	{ class: "seventv-hide-chat-input-box", isHidden: hideChatInputBox },
