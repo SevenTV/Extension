@@ -25,7 +25,7 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps<{
-	inst: HookedInstance<Twitch.TopNavBarComponent> | undefined;
+	inst?: HookedInstance<Twitch.TopNavBarComponent>;
 }>();
 
 const hideBitsButton = useConfig<boolean>("layout.hide_bits_buttons");
@@ -35,25 +35,26 @@ const hideTurboButton = useConfig<boolean>("layout.hide_turbo_button");
 const hideWhispersButton = useConfig<boolean>("layout.hide_whispers_button");
 
 const menuElements = reactive({
-	"renderBitsButton": hideBitsButton,
-	"renderOnsiteNotificatons": hideSiteNotificationsButton,
-	"renderTwitchPrimeCrown": hidePrimeCrown,
-	"renderTurboButton": hideTurboButton,
-	"renderWhispers": hideWhispersButton,
-})
-
-watch(menuElements, (renderElements) => {
-	if (!props.inst?.component) return;
-	for (let renderFunc in renderElements) {
-		defineFunctionHook(props.inst.component, renderFunc, function (old, ...args: unknown[]) {
-			return renderElements[renderFunc] ? null : old?.apply(this, args);
-		});
-	}
-	rerenderTopNav();
+	renderBitsButton: hideBitsButton,
+	renderOnsiteNotificatons: hideSiteNotificationsButton,
+	renderTwitchPrimeCrown: hidePrimeCrown,
+	renderTurboButton: hideTurboButton,
+	renderWhispers: hideWhispersButton,
 });
 
-function rerenderTopNav() {
+// force update top nav when user changes settings
+watch(menuElements, (renderElements) => {
+	rerenderTopNav(renderElements);
+});
+
+// TODO: define proper types here
+function rerenderTopNav(els) {
 	if (!props.inst?.component) return;
+	for (const renderFunc in els) {
+		defineFunctionHook(props.inst.component, renderFunc, function (old, ...args: unknown[]) {
+			return els[renderFunc] ? null : old?.apply(this, args);
+		});
+	}
 	toRaw(props.inst.component).forceUpdate();
 }
 
@@ -94,6 +95,16 @@ function insert7tvButton() {
 	}
 }
 
+// we need to render the current state from the user settings
+// this should only run once after mount
+watch(
+	() => props.inst,
+	() => {
+		rerenderTopNav(menuElements);
+	},
+);
+
+// this re-inserts the button when we force update the top nav component
 watchEffect(() => {
 	insert7tvButton();
 });
