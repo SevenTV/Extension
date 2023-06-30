@@ -61,6 +61,7 @@ async function importSettings() {
 	}
 
 	console.log(deserializedSettings);
+	// TODO: overwrite settings store
 }
 
 async function open(): Promise<FileList | null> {
