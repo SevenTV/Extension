@@ -20,6 +20,14 @@
 						<span>{{ owner.displayName }}</span>
 					</a>
 
+					<div v-if="artist.id" class="seventv-emote-card-data seventv-emote-card-artist">
+						<p>Made by</p>
+						<a v-if="artist.id" class="seventv-emote-card-user" :href="artist.url" target="_blank">
+							<img :src="artist.avatarURL" />
+							<span>{{ artist.displayName }}</span>
+						</a>
+					</div>
+
 					<div v-if="actor.id" class="seventv-emote-card-data seventv-emote-card-actor">
 						<p>Added by</p>
 						<p class="seventv-emote-card-user">
@@ -58,6 +66,7 @@ const host = ref<SevenTV.ImageHost | null>(props.emote.data?.host ?? null);
 const srcset = ref("");
 const owner = reactive(emptyUser());
 const actor = reactive(emptyUser());
+const artist = reactive(emptyUser());
 const subtitle = ref("");
 const timestamp = ref("");
 const emoteLink = ref<string | null>(null);
@@ -103,6 +112,14 @@ watchEffect(async () => {
 			owner.displayName = emote.owner.displayName;
 			owner.avatarURL = emote.owner.profileImageURL;
 			owner.url = `https://twitch.tv/${emote.owner?.login}`;
+		}
+
+		if (emote.artist) {
+			artist.id = emote.artist.id;
+			artist.username = emote.artist.login;
+			artist.displayName = emote.artist.displayName;
+			artist.avatarURL = emote.artist.profileImageURL;
+			artist.url = `https://twitch.tv/${emote.artist?.login}`;
 		}
 
 		subtitle.value = emote.subscriptionTier?.split("_").join(" ") ?? emote.type;
@@ -226,7 +243,8 @@ main.seventv-emote-card-container {
 			}
 		}
 
-		.seventv-emote-card-actor {
+		.seventv-emote-card-actor,
+		.seventv-emote-card-artist {
 			img {
 				width: 1.5rem;
 				height: 1.5rem;
