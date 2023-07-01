@@ -5,6 +5,7 @@
 -   Fixed an issue where mentioning yourself would highlight the message
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Added an option to select default Emote Menu tab
+-   Added artist attribution to emote card
 
 ### 3.0.14.1000
 
