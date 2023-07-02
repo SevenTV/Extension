@@ -52,10 +52,14 @@
 						<p v-if="data.targetUser.relationship.subscription.isSubscribed">
 							<StarIcon />
 							{{
-								`${t("user_card.subscription_tier", {
-									tier: data.targetUser.relationship.subscription.tier[0],
-								})} -
-							${t("user_card.subscription_length", { length: data.targetUser.relationship.subscription.months })}`
+								data.targetUser.relationship.subscription.months
+									? `${t("user_card.subscription_tier", {
+											tier: data.targetUser.relationship.subscription.tier[0],
+									  })} -
+									  ${t("user_card.subscription_length", {
+											length: data.targetUser.relationship.subscription.months,
+										})}`
+									: `${t("user_card.hidden_subscription_status")}`
 							}}
 						</p>
 
