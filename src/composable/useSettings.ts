@@ -135,7 +135,7 @@ export function deserializeSettings(serialized: SerializedSettings) {
 		if (key == undefined || type == undefined || value == undefined || timestamp == undefined)
 			throw new Error("invalid settings file: missing keys");
 
-		if (typeof value !== type) throw new Error("invalid settings file: incorrect value for type");
+		if (typeof value !== type) throw new Error(`invalid settings file: ${value} is not of type '${type}'`);
 
 		if (type !== "object") {
 			deserializedSettings.push({
@@ -144,9 +144,9 @@ export function deserializeSettings(serialized: SerializedSettings) {
 				value,
 			});
 		} else {
-			if (!constructorName) throw new Error("invalid settings file: missing constructorName for object type");
+			if (!constructorName) throw new Error("invalid settings file: missing 'constructorName' for object type");
 			if (!Object.keys(deserializationFunctions).includes(constructorName))
-				throw new Error("invalid settings file: cannot deserialize constructor type");
+				throw new Error(`invalid settings file: cannot deserialize constructor type '${constructorName}'`);
 
 			const deserializedValue: object = deserializationFunctions[constructorName](value);
 
