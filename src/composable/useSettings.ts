@@ -12,6 +12,16 @@ const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
 
 const ffz = useFrankerFaceZ();
 
+const deserializationFunctions: {
+	[key: string]: (value: SevenTV.SettingType) => object;
+} = {
+	Map: (value) => {
+		return new Map(value as Iterable<[string, SevenTV.SettingType]>);
+	},
+	Set: (value) => {
+		return new Set(value as Iterable<SevenTV.SettingType>);
+	},
+};
 // const { platform } = useStore();
 /*
 Uncaught (in promise) Error: [🍍]: "getActivePinia()" was called but there was no active Pinia. Did you forget to install pinia?
@@ -102,14 +112,14 @@ export function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>
 	const serialized: SerializedSetting[] = [];
 
 	settings.forEach((setting: SevenTV.Setting<SevenTV.SettingType>) => {
-		if (typeof setting.value === "object") {
+		if (typeof setting.value !== "object") {
+			serialized.push(setting);
+		} else if (Object.keys(deserializationFunctions).includes(setting.value.constructor.name)) {
 			serialized.push({
 				...setting,
 				constructorName: setting.value.constructor.name,
 				value: Array.from(setting.value as Iterable<object>),
 			} as SerializedSetting);
-		} else {
-			serialized.push(setting);
 		}
 	});
 
@@ -135,20 +145,10 @@ export function deserializeSettings(serialized: SerializedSettings) {
 			});
 		} else {
 			if (!constructorName) throw new Error("invalid settings file: missing constructorName for object type");
-			let deserializedValue: object;
+			if (!Object.keys(deserializationFunctions).includes(constructorName))
+				throw new Error("invalid settings file: cannot deserialize constructor type");
 
-			switch (constructorName) {
-				case "Map": {
-					deserializedValue = new Map(value as Iterable<[string, SevenTV.SettingType]>);
-					break;
-				}
-				case "Set": {
-					deserializedValue = new Set(value as Iterable<SevenTV.SettingType>);
-					break;
-				}
-				default:
-					throw new Error("invalid settings file: cannot deserialize constructor type");
-			}
+			const deserializedValue: object = deserializationFunctions[constructorName](value);
 
 			deserializedSettings.push({
 				key,
