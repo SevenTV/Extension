@@ -16,8 +16,8 @@
 -   Fixed an issue which hid historical messages on Kick
 -   Increased the default value for Message Batching from 150 to 250
 -   Added component hook for top nav bar to toggle bits, prime, whispers, notifcations, and turbo buttons
-    -   update 7tv settings button to use hook
-    -   removed relevant css selectors for the same
+    -   Updated 7TV settings button to use hook
+    -   Removed relevant css selectors in hidden elements module for the same
 
 ### Version 3.0.13.1000
 

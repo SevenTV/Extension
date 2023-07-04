@@ -3,7 +3,11 @@
 		<SettingsMenu v-if="ctx.open" />
 	</Transition>
 
-	<SettingsMenuButton :inst="topnav.instances[0] ?? undefined" @toggle="ctx.open = !ctx.open" />
+	<SettingsMenuButton
+		ref="settingsMenuButton"
+		:inst="topnav.instances[0] ?? undefined"
+		@toggle="ctx.open = !ctx.open"
+	/>
 </template>
 
 <script setup lang="ts">
@@ -13,6 +17,7 @@ import SettingsMenuButton from "./SettingsMenuButton.vue";
 import SettingsMenu from "../../../../app/settings/SettingsMenu.vue";
 import { declareConfig } from "@/composable/useSettings";
 import { useComponentHook } from "@/common/ReactHooks";
+import { ref } from "vue";
 
 const { markAsReady } = declareModule("settings", {
 	name: "Settings",
@@ -20,6 +25,8 @@ const { markAsReady } = declareModule("settings", {
 });
 
 const ctx = useSettingsMenu();
+
+const settingsMenuButton = ref<InstanceType<typeof SettingsMenuButton> | null>(null);
 
 // hook for the top nav bar
 const topnav = useComponentHook<Twitch.TopNavBarComponent>(
@@ -29,6 +36,13 @@ const topnav = useComponentHook<Twitch.TopNavBarComponent>(
 	},
 	{
 		trackRoot: true,
+		hooks: {
+			update(inst) {
+				if (settingsMenuButton.value) {
+					settingsMenuButton.value.render7TVButton();
+				}
+			},
+		},
 	},
 );
 

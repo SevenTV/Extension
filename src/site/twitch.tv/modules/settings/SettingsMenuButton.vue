@@ -28,6 +28,10 @@ const props = defineProps<{
 	inst?: HookedInstance<Twitch.TopNavBarComponent>;
 }>();
 
+defineExpose({
+	render7TVButton,
+});
+
 const hideBitsButton = useConfig<boolean>("layout.hide_bits_buttons");
 const hideSiteNotificationsButton = useConfig<boolean>("layout.hide_site_notifications_button");
 const hidePrimeCrown = useConfig<boolean>("layout.hide_prime_offers");
@@ -36,25 +40,17 @@ const hideWhispersButton = useConfig<boolean>("layout.hide_whispers_button");
 
 const menuElements = reactive({
 	renderBitsButton: hideBitsButton,
-	renderOnsiteNotificatons: hideSiteNotificationsButton,
+	renderOnsiteNotifications: hideSiteNotificationsButton,
 	renderTwitchPrimeCrown: hidePrimeCrown,
 	renderTurboButton: hideTurboButton,
 	renderWhispers: hideWhispersButton,
 });
 
 // force update top nav when user changes settings
-watch(menuElements, (renderElements) => {
-	rerenderTopNav(renderElements);
-});
+watch(menuElements, () => rerenderTopNav());
 
-// TODO: define proper types here
-function rerenderTopNav(els) {
+function rerenderTopNav() {
 	if (!props.inst?.component) return;
-	for (const renderFunc in els) {
-		defineFunctionHook(props.inst.component, renderFunc, function (old, ...args: unknown[]) {
-			return els[renderFunc] ? null : old?.apply(this, args);
-		});
-	}
 	toRaw(props.inst.component).forceUpdate();
 }
 
@@ -63,50 +59,50 @@ el.id = "seventv-settings-button";
 const containerEl = ref<HTMLElement>(el);
 
 let tooltip = "under";
-function insert7tvButton() {
+function render7TVButton() {
 	const rootNode = props.inst?.domNodes.root;
-	let navmenu;
-	if (rootNode) {
-		// Place 7tv button next to the user profile
-		navmenu = rootNode.querySelector(".top-nav__menu")?.lastChild;
-	} else {
-		// Legacy
-		// Topnav on the main twitch page
-		navmenu = document.querySelector(".top-nav__menu")?.lastChild;
-
-		if (!navmenu) {
-			// Sidenav in modview
-			navmenu = document.querySelector(".modview-dock__followed-channels")?.nextSibling;
-			tooltip = "right";
-		}
-		if (!navmenu) {
-			// Header if popout
-			navmenu = document.querySelector(".stream-chat-header")?.lastChild;
-			tooltip = "left";
-		}
-	}
+	if (!rootNode) return;
+	// Place 7tv button next to the user profile
+	const navmenu = rootNode.querySelector(".top-nav__menu")?.lastChild;
 	if (!navmenu) return;
-	if (navmenu.contains(containerEl.value)) {
-		// we have to re-insert the 7tv button since re-rendering will change order
-		navmenu.parentElement?.querySelector<HTMLElement>("#seventv-settings-button")?.remove();
-		navmenu.insertBefore(containerEl.value, navmenu.lastChild);
-	} else {
-		navmenu.insertBefore(containerEl.value, navmenu.lastChild);
+	navmenu.insertBefore(containerEl.value, navmenu.lastChild);
+}
+
+function renderLegacy7TVButton() {
+	// Legacy Code for Mod View and Pop-out Chat
+	let menuButtons = document.querySelector(".top-nav__menu")?.lastChild;
+	// Sidenav in modview (for some reason this is no longer stylized properly)
+	if (!menuButtons) {
+		menuButtons = document.querySelector(".modview-dock__followed-channels")?.firstChild;
+		tooltip = "right";
+	}
+	if (!menuButtons) {
+		// Header if popout
+		menuButtons = document.querySelector(".stream-chat-header")?.lastChild;
+		tooltip = "left";
+	}
+	if (menuButtons) {
+		menuButtons.insertBefore(containerEl.value, menuButtons.lastChild);
 	}
 }
 
 // we need to render the current state from the user settings
-// this should only run once after mount
 watch(
-	() => props.inst,
+	() => props.inst?.domNodes,
 	() => {
-		rerenderTopNav(menuElements);
+		Object.keys(menuElements).forEach((renderFunc) => {
+			if (!props.inst?.component) return;
+			// TODO: define proper types here
+			defineFunctionHook(props.inst.component, renderFunc, function (old, ...args: unknown[]) {
+				return menuElements[renderFunc] ? null : old?.apply(this, args);
+			});
+		});
+		rerenderTopNav();
 	},
 );
 
-// this re-inserts the button when we force update the top nav component
 watchEffect(() => {
-	insert7tvButton();
+	renderLegacy7TVButton();
 });
 </script>
 <style scoped lang="scss">

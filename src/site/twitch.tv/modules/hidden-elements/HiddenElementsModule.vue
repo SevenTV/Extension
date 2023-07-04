@@ -159,7 +159,6 @@ export const config = [
 </script>
 
 <style lang="scss">
-/* stylelint-disable selector-class-pattern */
 .seventv-hide-leaderboard {
 	div[data-test-selector="channel-leaderboard-container"] {
 		display: none !important;
@@ -267,12 +266,17 @@ export const config = [
 }
 
 .seventv-hide-player-ext {
-	.video-player .extension-taskbar,
-	.video-player .extension-container,
-	.video-player .extensions-dock__layout,
-	.video-player .extensions-notifications,
-	.video-player .extensions-video-overlay-size-container {
-		display: none !important;
+	.video-player {
+		.extension-taskbar,
+		.extension-container,
+		.extensions-notifications,
+		.extensions-video-overlay-size-container {
+			display: none !important;
+		}
 	}
+}
+/* stylelint-disable-next-line selector-class-pattern */
+.seventv-hide-player-ext .video-player .extensions-dock__layout {
+	display: none !important;
 }
 </style>
