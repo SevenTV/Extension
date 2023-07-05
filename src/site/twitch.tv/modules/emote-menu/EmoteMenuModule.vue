@@ -123,11 +123,13 @@ export const config = [
 		path: ["", ""],
 		label: "",
 		defaultValue: new Map(),
+		serialize: false,
 	}),
 	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
 		path: ["", ""],
 		label: "",
 		defaultValue: new Set(),
+		serialize: false,
 	}),
 ];
 </script>
