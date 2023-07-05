@@ -93,16 +93,19 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 
 export function getUnserializableSettings() {
 	const out = [];
-	for(const key of Object.keys(nodes)) {
+	for (const key of Object.keys(nodes)) {
 		const node = nodes[key];
 
 		if (node.serialize === false) {
-			out.push(node)
+			out.push(node);
 			continue;
 		}
 
-		if (typeof node.defaultValue === "object" && !Object.keys(deserializationFunctions).includes(node.defaultValue.constructor.name)) {
-			out.push(node)
+		if (
+			typeof node.defaultValue === "object" &&
+			!Object.keys(deserializationFunctions).includes(node.defaultValue.constructor.name)
+		) {
+			out.push(node);
 			continue;
 		}
 	}
