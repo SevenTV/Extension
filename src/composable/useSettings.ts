@@ -78,7 +78,7 @@ db.ready().then(() =>
 );
 
 export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
-	for (const { key, value, timestamp } of s) {
+	for (const { key, value, timestamp, serialize } of s) {
 		const cur = nodes[key];
 		if (cur && cur.timestamp && timestamp && cur.timestamp >= timestamp) continue;
 
@@ -86,14 +86,35 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 		nodes[key] = {
 			...(nodes[key] ?? {}),
 			timestamp,
+			serialize: serialize ?? true,
 		} as SevenTV.SettingNode;
 	}
+}
+
+export function getUnserializableSettings() {
+	const out = [];
+	for(const key of Object.keys(nodes)) {
+		const node = nodes[key];
+
+		if (node.serialize === false) {
+			out.push(node)
+			continue;
+		}
+
+		if (typeof node.defaultValue === "object" && !Object.keys(deserializationFunctions).includes(node.defaultValue.constructor.name)) {
+			out.push(node)
+			continue;
+		}
+	}
+	return out;
 }
 
 export async function exportSettings(platform: Platform) {
 	return db.ready().then(async () => {
 		const s = await db.settings.toArray();
-		const serializedSettings: SerializedSetting[] = serializeSettings(s.filter((v) => v.key !== "app.version"));
+		const serializedSettings: SerializedSetting[] = serializeSettings(
+			s.filter((v) => v.key !== "app.version").filter((v) => v.serialize !== false),
+		);
 		log.debugWithObjects(["<Settings>", "Serialized settings"], [serializedSettings]);
 
 		const out = JSON.stringify({
@@ -112,6 +133,8 @@ export function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>
 	const serialized: SerializedSetting[] = [];
 
 	settings.forEach((setting: SevenTV.Setting<SevenTV.SettingType>) => {
+		if (nodes[setting.key].serialize === false) return;
+
 		if (typeof setting.value !== "object") {
 			serialized.push(setting);
 		} else if (Object.keys(deserializationFunctions).includes(setting.value.constructor.name)) {

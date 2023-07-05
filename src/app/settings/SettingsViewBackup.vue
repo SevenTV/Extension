@@ -5,6 +5,11 @@
 			<p>Export your current settings or import from a settings file</p>
 		</h3>
 
+		<p v-if="unserializableSettings.length > 0">Settings unable to export/import:</p>
+		<p v-for="label of unserializableSettings" :key="label">
+			label
+		</p>
+
 		<div v-if="error">
 			<p class="export-error">There was an error exporting/importing your settings!</p>
 		</div>
@@ -17,12 +22,13 @@
 import { ref } from "vue";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
-import { SerializedSettings, deserializeSettings, exportSettings as e } from "@/composable/useSettings";
+import { SerializedSettings, deserializeSettings, exportSettings as e, getUnserializableSettings } from "@/composable/useSettings";
 import UiButton from "@/ui/UiButton.vue";
 
 const { platform } = useStore();
 
 const error = ref<boolean>(false);
+const unserializableSettings = getUnserializableSettings().map((s) => s.label).filter((s) => s !== "");
 
 async function exportSettings() {
 	error.value = false;
