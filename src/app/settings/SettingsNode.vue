@@ -10,6 +10,7 @@
 		<div class="label">
 			<div class="title" :class="{ unseen }">
 				{{ te(node.label) ? t(node.label) : node.label }}
+				<div v-if="!ignoreDefaults.includes(node.key) && currentSetting != node.defaultValue" class="reset-default" @click="resetSetting">x</div>
 			</div>
 			<div v-if="node.hint" class="subtitle">
 				{{ te(node.hint) ? t(node.hint) : node.hint }}
@@ -33,6 +34,7 @@ import FormInput from "@/app/settings/control/FormInput.vue";
 import FormSelect from "@/app/settings/control/FormSelect.vue";
 import FormSlider from "@/app/settings/control/FormSlider.vue";
 import FormToggle from "@/app/settings/control/FormToggle.vue";
+import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
@@ -48,6 +50,13 @@ const { t, te } = useI18n();
 function onHover(): void {
 	if (!props.unseen) return;
 	useTimeoutFn(() => emit("seen"), 500);
+}
+
+const currentSetting = useConfig<SevenTV.SettingType>(props.node.key);
+const ignoreDefaults = "highlights.custom";
+
+function resetSetting() {
+	currentSetting.value = props.node.defaultValue;
 }
 
 const standard = {
@@ -154,6 +163,19 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 			.content {
 				display: grid;
 			}
+		}
+	}
+
+	.reset-default {
+		display: inline-block;
+		margin-left: 0.5rem;
+		width: 0.75rem;
+		height: 0.75rem;
+		color: var(--seventv-primary);
+		cursor: pointer;
+
+		&:hover {
+			color: var(--seventv-accent);
 		}
 	}
 }
