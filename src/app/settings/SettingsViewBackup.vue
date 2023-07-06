@@ -1,18 +1,22 @@
 <template>
 	<main class="seventv-settings-backup">
-		<h3>
-			Backup
-			<p>Export your current settings or import from a settings file</p>
-		</h3>
+		<h3>Backup</h3>
+		<p>Export your current settings or import from a settings file</p>
 
-		<p v-if="unserializableSettings.length > 0">Settings unable to export/import:</p>
-		<p v-for="label of unserializableSettings" :key="label">label</p>
-
-		<div v-if="error">
-			<p class="export-error">There was an error exporting/importing your settings!</p>
+		<div class="seventv-settings-backup-buttons">
+			<UiButton class="seventv-settings-backup-button" @click="exportSettings">Export</UiButton>
+			<UiButton class="seventv-settings-backup-button" @click="importSettings">Import</UiButton>
 		</div>
-		<UiButton @click="exportSettings">Export</UiButton>
-		<UiButton @click="importSettings">Import</UiButton>
+		<div v-if="error">
+			<p class="seventv-settings-backup-error">There was an error exporting/importing your settings!</p>
+		</div>
+
+		<div class="seventv-settings-backup-warning-container">
+			<h5 v-if="unserializableSettings.length > 0" class="seventv-settings-backup-warning">
+				Settings unable to export/import:
+			</h5>
+			<p v-for="label of unserializableSettings" :key="label" class="seventv-settings-backup-info">{{ label }}</p>
+		</div>
 	</main>
 </template>
 
@@ -108,8 +112,37 @@ async function read(file: Blob): Promise<string> {
 
 <style scoped lang="scss">
 main.seventv-settings-backup {
-	.export-error {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	.seventv-settings-backup-error {
 		color: rgb(196, 43, 43);
+	}
+
+	.seventv-settings-backup-warning {
+		color: rgb(192, 192, 64);
+	}
+
+	.seventv-settings-backup-info {
+		color: rgb(190, 190, 190);
+	}
+
+	.seventv-settings-backup-buttons {
+		margin-top: 20px;
+
+		.seventv-settings-backup-button {
+			margin-left: 10px;
+			margin-right: 10px;
+			padding: 3px 20px;
+		}
+	}
+
+	.seventv-settings-backup-warning-container {
+		border: rgb(192, 192, 64) solid 1px;
+		border-radius: 3px;
+		padding: 10px;
+		margin-top: 20px;
 	}
 }
 </style>
