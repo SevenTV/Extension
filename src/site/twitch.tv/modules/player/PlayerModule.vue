@@ -72,19 +72,6 @@ export const config = [
 		path: ["Player", ""],
 		defaultValue: false,
 	}),
-	declareConfig("player.unserializable_setting1", "TOGGLE", {
-		label: "(test) Force Unserializable Setting",
-		hint: "(test) Force Unserializable Setting",
-		path: ["Player", ""],
-		defaultValue: false,
-		serialize: false,
-	}),
-	declareConfig("player.unserializable_setting2", "TOGGLE", {
-		label: "(test) Constructor Unserializable Setting",
-		hint: "(test) Constructor Unserializable Setting",
-		path: ["Player", ""],
-		defaultValue: new URL("http://localhost"),
-	}),
 	declareConfig("player.video_stats", "TOGGLE", {
 		path: ["Player", ""],
 		label: "Video Stats",
