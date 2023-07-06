@@ -10,7 +10,13 @@
 		<div class="label">
 			<div class="title" :class="{ unseen }">
 				{{ te(node.label) ? t(node.label) : node.label }}
-				<div v-if="!ignoreDefaults.includes(node.key) && currentSetting != node.defaultValue" class="reset-default" @click="resetSetting">x</div>
+				<div
+					v-if="!ignoreDefaults.includes(node.key) && currentSetting != node.defaultValue"
+					class="reset-default"
+					@click="resetSetting"
+				>
+					x
+				</div>
 			</div>
 			<div v-if="node.hint" class="subtitle">
 				{{ te(node.hint) ? t(node.hint) : node.hint }}
@@ -28,13 +34,13 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { useTimeoutFn } from "@vueuse/shared";
+import { useConfig } from "@/composable/useSettings";
 import FormCheckbox from "@/app/settings/control/FormCheckbox.vue";
 import FormDropdown from "@/app/settings/control/FormDropdown.vue";
 import FormInput from "@/app/settings/control/FormInput.vue";
 import FormSelect from "@/app/settings/control/FormSelect.vue";
 import FormSlider from "@/app/settings/control/FormSlider.vue";
 import FormToggle from "@/app/settings/control/FormToggle.vue";
-import { useConfig } from "@/composable/useSettings";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
