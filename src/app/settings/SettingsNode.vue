@@ -10,13 +10,11 @@
 		<div class="label">
 			<div class="title" :class="{ unseen }">
 				{{ te(node.label) ? t(node.label) : node.label }}
-				<div
+				<CloseIcon
 					v-if="!ignoreDefaults.includes(node.key) && currentSetting != node.defaultValue"
 					class="reset-default"
 					@click="resetSetting"
-				>
-					x
-				</div>
+				/>
 			</div>
 			<div v-if="node.hint" class="subtitle">
 				{{ te(node.hint) ? t(node.hint) : node.hint }}
@@ -35,6 +33,7 @@
 import { useI18n } from "vue-i18n";
 import { useTimeoutFn } from "@vueuse/shared";
 import { useConfig } from "@/composable/useSettings";
+import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import FormCheckbox from "@/app/settings/control/FormCheckbox.vue";
 import FormDropdown from "@/app/settings/control/FormDropdown.vue";
 import FormInput from "@/app/settings/control/FormInput.vue";
@@ -175,9 +174,9 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 	.reset-default {
 		display: inline-block;
 		margin-left: 0.5rem;
-		width: 0.75rem;
-		height: 0.75rem;
 		color: var(--seventv-primary);
+		width: 1rem;
+		height: 1rem;
 		cursor: pointer;
 
 		&:hover {
