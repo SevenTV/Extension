@@ -11,8 +11,8 @@
 			<p class="seventv-settings-backup-error">There was an error exporting/importing your settings!</p>
 		</div>
 
-		<div class="seventv-settings-backup-warning-container">
-			<h5 v-if="unserializableSettings.length > 0" class="seventv-settings-backup-warning">
+		<div v-if="unserializableSettings.length > 0" class="seventv-settings-backup-warning-container">
+			<h5 class="seventv-settings-backup-warning">
 				Settings unable to export/import:
 			</h5>
 			<p v-for="label of unserializableSettings" :key="label" class="seventv-settings-backup-info">{{ label }}</p>
