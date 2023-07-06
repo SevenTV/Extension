@@ -2,6 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   Added a backup tab to settings page for importing & exporting settings
 -   Added an option to select default Emote Menu tab
 -   Added artist attribution to emote card
 -   Added ability to reset settings to their defaults
