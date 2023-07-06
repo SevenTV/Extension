@@ -25,6 +25,7 @@ import {
 	deserializeSettings,
 	exportSettings as e,
 	getUnserializableSettings,
+	importSettings as i,
 } from "@/composable/useSettings";
 import UiButton from "@/ui/UiButton.vue";
 
@@ -55,9 +56,8 @@ async function importSettings() {
 	let serialized: SerializedSettings;
 	try {
 		serialized = JSON.parse(raw);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	} catch (err: any) {
-		log.error("failed to parse settings file", err);
+	} catch (err) {
+		log.error("failed to parse settings file", (err as Error).message);
 		error.value = true;
 		return;
 	}
@@ -65,16 +65,20 @@ async function importSettings() {
 	let deserializedSettings: SevenTV.Setting<SevenTV.SettingType>[] = [];
 	try {
 		deserializedSettings = deserializeSettings(serialized);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	} catch (err: any) {
-		log.error("failed to deserialize settings file", err);
+	} catch (err) {
+		log.error("failed to deserialize settings file", (err as Error).message);
 		error.value = true;
 		return;
 	}
 
 	log.debugWithObjects(["<Settings>", "Deserialized settings file"], [deserializedSettings]);
-	log.info("<Settings>", "Loaded settings from file");
-	// TODO: overwrite settings store
+	try {
+		await i(deserializedSettings);
+		log.info("<Settings>", "Loaded settings from file");
+	} catch (err) {
+		log.error("failed to save settings from file", (err as Error).message);
+		error.value = true;
+	}
 }
 
 async function open(): Promise<FileList | null> {

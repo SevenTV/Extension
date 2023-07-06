@@ -132,6 +132,15 @@ export async function exportSettings(platform: Platform) {
 	});
 }
 
+export async function importSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
+	for (const { key, type, value } of settings) {
+		await db.settings.put({ key, type, value }, key).catch((err) => {
+			throw new Error(`failed to write setting, ${key}, to db:, ${err}`);
+		});
+	}
+	fillSettings(settings);
+}
+
 export function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
 	const serialized: SerializedSetting[] = [];
 
