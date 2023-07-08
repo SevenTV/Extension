@@ -76,6 +76,9 @@ jobs:
             - name: Run Linter
               run: yarn lint
 
+            - name: Run Tests
+              run: yarn test:run
+
             - name: Build App
               env:
                   BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}

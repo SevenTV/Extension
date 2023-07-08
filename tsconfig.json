@@ -11,7 +11,7 @@
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
 		"lib": ["ESNext", "DOM", "WebWorker"],
-		"types": ["vite/client", "chrome"],
+		"types": ["vite/client", "chrome", "vitest/globals"],
 		"skipLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
