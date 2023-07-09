@@ -6,6 +6,9 @@
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Added an option to select default Emote Menu tab
 -   Added artist attribution to emote card
+-   Added side nav module for Twitch
+    -   Removed relevant css selectors (recommended and similar channels) in hidden elements module
+-   Added an option to sidebar previews module to hide offline channels in side nav
 
 ### 3.0.14.1000
 

@@ -9,6 +9,7 @@ import { declareModule } from "@/composable/useModule";
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import { useComponentHook } from "@/common/ReactHooks";
 import SidebarCard from "./SidebarCard.vue";
+import { toRaw, watch } from "vue";
 
 const { markAsReady } = declareModule("sidebar-previews", {
 	name: "Sidebar Previews",
@@ -16,11 +17,24 @@ const { markAsReady } = declareModule("sidebar-previews", {
 });
 
 const showPreviews = useConfig<boolean>("ui.sidebar_previews");
+const hideOfflineChannels = useConfig<boolean>("layout.hide_sidebar_offline_channels");
 
-const sidebarCard = useComponentHook<Twitch.SidebarCardComponent>({
-	parentSelector: ".side-nav-section",
-	predicate: (n) => n.props && n.props.title && n.props.isWatchParty !== null && n.props.linkTo,
-});
+watch(hideOfflineChannels, () => sidebarCard.instances.forEach((inst) => toRaw(inst.component).forceUpdate()));
+
+const sidebarCard = useComponentHook<Twitch.SidebarCardComponent>(
+	{
+		parentSelector: ".side-nav-section",
+		predicate: (n) => n.props && n.props.title && n.props.isWatchParty !== null && n.props.linkTo,
+	},
+	{
+		hooks: {
+			render(inst, cur) {
+				if (inst.component.props.offline && hideOfflineChannels.value) return null;
+				return cur;
+			},
+		},
+	},
+);
 
 markAsReady();
 </script>
@@ -31,6 +45,12 @@ export const config = [
 		path: ["Appearance", "Interface"],
 		label: "Sidebar Stream Thumbnails",
 		hint: "Show stream thumbnails when hovering over streams on the sidebar.",
+		defaultValue: false,
+	}),
+	declareConfig("layout.hide_sidebar_offline_channels", "TOGGLE", {
+		path: ["Site Layout", "Sidebar"],
+		label: "Hide Offline Channels",
+		hint: "If checked, offline channels in side bar will be hidden",
 		defaultValue: false,
 	}),
 ];

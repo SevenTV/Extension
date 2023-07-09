@@ -204,6 +204,7 @@ export const config = [
 	}
 }
 
+/*
 .seventv-hide-recommended-channels {
 	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(3) {
 		display: none !important;
@@ -215,6 +216,7 @@ export const config = [
 		display: none !important;
 	}
 }
+*/
 
 .seventv-hide-prime-offers {
 	div[class$="top-nav__prime"] {

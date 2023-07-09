@@ -11,8 +11,8 @@ const hideTopBarOfStream = useConfig<boolean>("layout.hide_top_bar_of_stream");
 const hidePlayerControls = useConfig<boolean>("layout.hide_player_controls");
 const hidePinnedHypeChats = useConfig<boolean>("layout.hide_pinned_hype_chats");
 const hideCommunityHighlights = useConfig<boolean>("layout.hide_community_highlights");
-const hideRecommendedChannels = useConfig<boolean>("layout.hide_recommended_channels");
-const hideViewersAlsoWatch = useConfig<boolean>("layout.hide_viewers_also_watch");
+// const hideRecommendedChannels = useConfig<boolean>("layout.hide_recommended_channels");
+// const hideViewersAlsoWatch = useConfig<boolean>("layout.hide_viewers_also_watch");
 const hidePrimeOffers = useConfig<boolean>("layout.hide_prime_offers");
 const hideUnfollowButton = useConfig<boolean>("layout.hide_unfollow_button");
 const hideLiveNotificationButton = useConfig<boolean>("layout.hide_live_notification_button");
@@ -31,8 +31,8 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-player-controls", isHidden: hidePlayerControls },
 	{ class: "seventv-hide-pinned-hype-chats", isHidden: hidePinnedHypeChats },
 	{ class: "seventv-hide-community-highlights", isHidden: hideCommunityHighlights },
-	{ class: "seventv-hide-recommended-channels", isHidden: hideRecommendedChannels },
-	{ class: "seventv-hide-viewers-also-watch", isHidden: hideViewersAlsoWatch },
+	// { class: "seventv-hide-recommended-channels", isHidden: hideRecommendedChannels },
+	// { class: "seventv-hide-viewers-also-watch", isHidden: hideViewersAlsoWatch },
 	{ class: "seventv-hide-prime-offers", isHidden: hidePrimeOffers },
 	{ class: "seventv-hide-unfollow-button", isHidden: hideUnfollowButton },
 	{ class: "seventv-hide-live-notification-button", isHidden: hideLiveNotificationButton },

@@ -868,4 +868,30 @@ declare module Twitch {
 		name: string;
 		width: number;
 	}
+
+	export type FollowedSideNavList = ReactExtended.WritableComponent<{
+		OfflineChannelrenderer: (e) => void;
+		OnlineChannelrenderer: (e) => void;
+		initialDisplayAmount: number;
+		maxDisplayCount: number | undefined;
+		section: {
+			type: string;
+		};
+		sort: {
+			setSortType: (e) => void;
+			type: string;
+		};
+		title: string;
+	}>;
+
+	export type SideNavList = ReactExtended.WritableComponent<{
+		OfflineChannelrenderer: (e) => void;
+		OnlineChannelrenderer: (e) => void;
+		initialDisplayAmount: number;
+		maxDisplayCount: number | undefined;
+		section: {
+			type: string;
+		};
+		title: string;
+	}>;
 }
