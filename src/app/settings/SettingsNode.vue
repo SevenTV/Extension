@@ -11,7 +11,7 @@
 			<div class="title" :class="{ unseen }">
 				{{ te(node.label) ? t(node.label) : node.label }}
 				<CloseIcon
-					v-if="!ignoreDefaults.includes(node.key) && currentSetting != node.defaultValue"
+					v-if="!!standard[node.type] && currentSetting !== node.defaultValue"
 					class="reset-default"
 					@click="resetSetting"
 				/>
@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { useTimeoutFn } from "@vueuse/shared";
+import { db } from "@/db/idb";
 import { useConfig } from "@/composable/useSettings";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import FormCheckbox from "@/app/settings/control/FormCheckbox.vue";
@@ -58,10 +59,11 @@ function onHover(): void {
 }
 
 const currentSetting = useConfig<SevenTV.SettingType>(props.node.key);
-const ignoreDefaults = "highlights.custom";
 
+// set the currentSetting back to default to trigger UI change before removing from the settings db
 function resetSetting() {
 	currentSetting.value = props.node.defaultValue;
+	db.settings.delete(props.node.key);
 }
 
 const standard = {
@@ -180,7 +182,7 @@ const com = standard[props.node.type] ?? props.node.custom?.component;
 		cursor: pointer;
 
 		&:hover {
-			color: var(--seventv-accent);
+			color: var(--seventv-warning);
 		}
 	}
 }
