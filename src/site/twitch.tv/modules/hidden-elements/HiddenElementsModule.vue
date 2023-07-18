@@ -69,10 +69,10 @@ export const config = [
 		hint: "If checked, the 'React' buttons will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("layout.hide_bits_buttons", "TOGGLE", {
-		path: ["Site Layout", "Twitch Features"],
+	declareConfig("layout.hide_chat_bits_button", "TOGGLE", {
+		path: ["Site Layout", "Chat"],
 		label: "Hide Bits Buttons",
-		hint: "If checked, the 'Bits' related buttons will be hidden",
+		hint: "If checked, the 'Bits' button in the chatbox will be hidden",
 		defaultValue: false,
 	}),
 	declareConfig("layout.hide_hype_chat_button", "TOGGLE", {
@@ -121,6 +121,12 @@ export const config = [
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Whispers Button",
 		hint: "If checked, the 'Whispers' button on the top bar will be hidden",
+		defaultValue: false,
+	}),
+	declareConfig("layout.hide_topnav_bits_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Bits Button",
+		hint: "If checked, the 'Bits' button on the top bar will be hidden",
 		defaultValue: false,
 	}),
 	// Side bar elements
@@ -185,9 +191,8 @@ export const config = [
 	}
 }
 
-.seventv-hide-bits-buttons {
+.seventv-hide-chat-bits-button {
 	button[data-a-target="bits-button"] {
-		// button[data-a-target="top-nav-get-bits-button"] {
 		display: none !important;
 	}
 }

@@ -5,7 +5,7 @@ const hideLeaderboard = useConfig<boolean>("layout.hide_channel_leaderboard");
 const hideButtonsBelowChatbox = useConfig<boolean>("layout.hide_buttons_below_chatbox");
 const hideStreamChatBar = useConfig<boolean>("layout.hide_stream_chat_bar");
 const hideReactButtons = useConfig<boolean>("layout.hide_react_buttons");
-const hideBitsButtons = useConfig<boolean>("layout.hide_bits_buttons"); // we keep this here for the bits button in chat input
+const hideChatBitsButton = useConfig<boolean>("layout.hide_chat_bits_button");
 const hideHypeChatButton = useConfig<boolean>("layout.hide_hype_chat_button");
 const hideTopBarOfStream = useConfig<boolean>("layout.hide_top_bar_of_stream");
 const hidePlayerControls = useConfig<boolean>("layout.hide_player_controls");
@@ -26,7 +26,7 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-buttons-below-chatbox", isHidden: hideButtonsBelowChatbox },
 	{ class: "seventv-hide-stream-chat-bar", isHidden: hideStreamChatBar },
 	{ class: "seventv-hide-react-buttons", isHidden: hideReactButtons },
-	{ class: "seventv-hide-bits-buttons", isHidden: hideBitsButtons },
+	{ class: "seventv-hide-chat-bits-button", isHidden: hideChatBitsButton },
 	{ class: "seventv-hide-hype-chat-button", isHidden: hideHypeChatButton },
 	{ class: "seventv-hide-top-bar-of-stream", isHidden: hideTopBarOfStream },
 	{ class: "seventv-hide-player-controls", isHidden: hidePlayerControls },

@@ -32,7 +32,7 @@ defineExpose({
 	render7TVButton,
 });
 
-const hideBitsButton = useConfig<boolean>("layout.hide_bits_buttons");
+const hideBitsButton = useConfig<boolean>("layout.hide_topnav_bits_button");
 const hideSiteNotificationsButton = useConfig<boolean>("layout.hide_site_notifications_button");
 const hidePrimeCrown = useConfig<boolean>("layout.hide_prime_offers");
 const hideTurboButton = useConfig<boolean>("layout.hide_turbo_button");
