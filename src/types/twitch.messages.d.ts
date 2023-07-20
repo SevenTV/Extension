@@ -95,6 +95,18 @@ declare namespace Twitch {
 		streakMonths?: number;
 	}
 
+	export interface PaidMessage extends AnyMessage {
+		isSystemMessage: boolean;
+		amount: number;
+		currency: string;
+		level: string;
+		exponent: number;
+		canonicalAmount: number;
+		endsAt: string;
+		startsAt: string;
+		message: ChatMessage;
+	}
+
 	export namespace ChatMessage {
 		export interface Part {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any

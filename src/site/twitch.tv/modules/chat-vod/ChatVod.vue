@@ -23,9 +23,9 @@ import { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
-import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
-import UserMessage from "@/site/twitch.tv/modules/chat/components/message/UserMessage.vue";
 import type { TwTypeUser } from "@/assets/gql/tw.gql";
+import ChatData from "@/app/chat/ChatData.vue";
+import UserMessage from "@/app/chat/UserMessage.vue";
 import { MessagePartType } from "../..";
 import intervalToDuration from "date-fns/fp/intervalToDuration";
 
@@ -58,7 +58,7 @@ const props = defineProps<{
 
 // Set up context
 // No ID initialization to avoid conflict with live channel
-const ctx = useChannelContext();
+const ctx = useChannelContext(undefined, true);
 const emotes = useChatEmotes(ctx);
 const properties = useChatProperties(ctx);
 
@@ -77,6 +77,7 @@ definePropertyHook(props.controller.component, "props", {
 				id: owner.id,
 				username: owner.login,
 				displayName: owner.login,
+				active: true,
 			});
 
 			channelBadges = owner.broadcastBadges;
@@ -220,7 +221,7 @@ function createMessageComponentRef(data: CommentData) {
 					id: e.emoteID ?? "",
 					name: e.alt,
 					flags: 0,
-					provider: "TWITCH",
+					provider: "PLATFORM",
 					isTwitchCheer: {
 						amount: e.cheerAmount!,
 						color: e.cheerColor!,

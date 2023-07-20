@@ -9,6 +9,7 @@ export const actorQuery = gql`
 			avatar_url
 			style {
 				color
+				paint_id
 			}
 			connections {
 				id
@@ -22,6 +23,21 @@ export const actorQuery = gql`
 export const userQuery = gql`
 	query GetUser($id: ObjectID!) {
 		user: user(id: $id) {
+			id
+			username
+			display_name
+			avatar_url
+			style {
+				color
+				paint_id
+			}
+		}
+	}
+`;
+
+export const userByConnectionQuery = gql`
+	query GetUserByConnection($platform: ConnectionPlatform!, $id: String!) {
+		user: userByConnection(platform: $platform, id: $id) {
 			id
 			username
 			display_name

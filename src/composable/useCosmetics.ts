@@ -68,7 +68,7 @@ db.ready().then(async () => {
 				data.cosmetics[cos.id] = reactive(cos);
 
 				if (cos.kind === "PAINT") {
-					insertPaintStyle(cos as SevenTV.Cosmetic<"PAINT">);
+					updatePaintStyle(cos as SevenTV.Cosmetic<"PAINT">);
 				}
 			}
 		},
@@ -129,7 +129,7 @@ db.ready().then(async () => {
 					paint.user_ids.length = 0;
 				}
 
-				insertPaintStyle(paint);
+				updatePaintStyle(paint);
 			}
 		},
 		{ once: true },
@@ -278,7 +278,7 @@ db.ready().then(async () => {
 			data.userEmoteSets[userID].set(setID, set);
 		}
 
-		log.info("<Cosmetics>", "Assigned Emote Set to user", `id=${setID}`, `userID=${userID}`);
+		log.debug("<Cosmetics>", "Assigned Emote Set to user", `id=${setID}`, `userID=${userID}`);
 	}
 
 	// Handle user entitlements
@@ -289,7 +289,7 @@ db.ready().then(async () => {
 		setEntitlement(ev.detail, "-");
 	});
 
-	// Assign stored entitlementsdb.entitlements
+	// Assign stored entitlements
 	db.entitlements.toArray().then((ents) => {
 		for (const ent of ents) {
 			let assigned = false;
@@ -335,7 +335,10 @@ export function useCosmetics(userID: string) {
 	});
 }
 
-const definedPaintRules = new Set<string>();
+export function getCosmetics() {
+	return data;
+}
+
 let paintSheet: CSSStyleSheet | null = null;
 function getPaintStylesheet(): CSSStyleSheet | null {
 	if (paintSheet) return paintSheet;
@@ -353,55 +356,120 @@ function getPaintStylesheet(): CSSStyleSheet | null {
 }
 
 // This defines CSS variables in our global paint stylesheet for the given paint
-function insertPaintStyle(paint: SevenTV.Cosmetic<"PAINT">): void {
-	if (definedPaintRules.has(paint.id)) return;
+export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = false): void {
 	const sheet = getPaintStylesheet();
 	if (!sheet) {
 		log.error("<Cosmetics>", "Could not find paint stylesheet");
 		return;
 	}
 
-	const prefix = `--seventv-paint-${paint.id}`;
+	if (!paint.data.gradients?.length && paint.data.function) {
+		// add base gradient if using v2 format
+		if (!paint.data.gradients) paint.data.gradients = new Array(1);
+		paint.data.gradients[0] = {
+			function: paint.data.function,
+			canvas_repeat: "",
+			size: [1, 1],
+			shape: paint.data.shape,
+			image_url: paint.data.image_url,
+			stops: paint.data.stops ?? [],
+			repeat: paint.data.repeat ?? false,
+			angle: paint.data.angle,
+		};
+	}
 
-	const cssFunction = paint.data.function.toLowerCase().replace("_", "-");
-	const bgImage = (() => {
-		const args = [] as string[];
-		switch (paint.data.function) {
-			case "LINEAR_GRADIENT": // paint is linear gradient
-				args.push(`${paint.data.angle}deg`);
-				break;
-			case "RADIAL_GRADIENT": // paint is radial gradient
-				args.push(paint.data.shape ?? "circle");
-				break;
-			case "URL": // paint is an image
-				args.push(paint.data.image_url ?? "");
-				break;
-		}
-		let funcPrefix = "";
-		if (paint.data.function !== "URL") {
-			funcPrefix = paint.data.repeat ? "repeating-" : "";
-		}
-
-		for (const stop of paint.data.stops) {
-			const color = DecimalToStringRGBA(stop.color);
-			args.push(`${color} ${stop.at * 100}%`);
-		}
-
-		return `${funcPrefix}${cssFunction}(${args.join(", ")})`;
-	})();
-
+	const gradients = paint.data.gradients.map((g) => createGradientFromPaint(g));
 	const filter = (() => {
 		if (!paint.data.shadows) {
 			return "";
 		}
 
-		return paint.data.shadows
-			.map((v) => `drop-shadow(${v.x_offset}px ${v.y_offset}px ${v.radius}px ${DecimalToStringRGBA(v.color)})`)
-			.join(" ");
+		return paint.data.shadows.map((v) => createFilterDropshadow(v)).join(" ");
 	})();
 
-	// this inserts the css variables into the custom paint stylesheet
-	sheet.insertRule(` :root { ${prefix}-bg: ${bgImage}; ${prefix}-filter: ${filter}; } `, sheet.cssRules.length);
+	const selector = `.seventv-paint[data-seventv-paint-id="${paint.id}"]`;
+	const text = `${selector} {
+color: ${paint.data.color ? DecimalToStringRGBA(paint.data.color) : "inherit"};
+background-image: ${gradients.map((v) => v[0]).join(", ")};
+background-position: ${gradients.map((v) => v[1]).join(", ")};
+background-size: ${gradients.map((v) => v[2]).join(", ")};
+background-repeat: ${gradients.map((v) => v[3]).join(", ")};
+filter: ${filter || "inherit"};
+${
+	paint.data.text
+		? `
+font-weight: ${paint.data.text.weight ? paint.data.text.weight * 100 : "inherit"};
+-webkit-text-stroke-width: ${paint.data.text.stroke ? `${paint.data.text.stroke.width}px` : "inherit"};
+-webkit-text-stroke-color: ${paint.data.text.stroke ? DecimalToStringRGBA(paint.data.text.stroke.color) : "inherit"};
+text-shadow: ${
+				paint.data.text.shadows
+					?.map((v) => `${v.x_offset}px ${v.y_offset}px ${v.radius}px ${DecimalToStringRGBA(v.color)}`)
+					.join(", ") ?? "unset"
+		  };
+text-transform: ${paint.data.text.transform ?? "unset"};
+`
+		: ""
+}
+}
+`;
 
-	definedPaintRules.add(paint.id);
+	let currenIndex = -1;
+	for (let i = 0; i < sheet.cssRules.length; i++) {
+		const r = sheet.cssRules[i];
+		if (!(r instanceof CSSStyleRule)) continue;
+		if (r.selectorText !== selector) continue;
+
+		currenIndex = i;
+		break;
+	}
+	if (remove) return;
+
+	if (currenIndex >= 0) {
+		sheet.deleteRule(currenIndex);
+		sheet.insertRule(text, currenIndex);
+	} else {
+		sheet.insertRule(text, sheet.cssRules.length);
+	}
+}
+
+export function createGradientFromPaint(
+	gradient: SevenTV.CosmeticPaintGradient,
+): [style: string, pos: string, size: string, repeat: string] {
+	const result = ["", "", "", ""] as [string, string, string, string];
+
+	const args = [] as string[];
+	switch (gradient.function) {
+		case "LINEAR_GRADIENT": // paint is linear gradient
+			args.push(`${gradient.angle ?? 0}deg`);
+			break;
+		case "RADIAL_GRADIENT": // paint is radial gradient
+			args.push(gradient.shape ?? "circle");
+			break;
+		case "URL": // paint is an image
+			args.push(gradient.image_url ?? "");
+			break;
+	}
+	let funcPrefix = "";
+	if (gradient.function !== "URL") {
+		funcPrefix = gradient.repeat ? "repeating-" : "";
+
+		for (const stop of gradient.stops) {
+			const color = DecimalToStringRGBA(stop.color);
+			args.push(`${color} ${stop.at * 100}%`);
+		}
+	}
+
+	result[0] = `${funcPrefix}${gradient.function.toLowerCase().replace("_", "-")}(${args.join(", ")})`;
+	result[1] = gradient.at && gradient.at.length === 2 ? `${gradient.at[0] * 100}% ${gradient.at[1] * 100}%` : "";
+	result[2] =
+		gradient.size && gradient.size.length === 2 ? `${gradient.size[0] * 100}% ${gradient.size[1] * 100}%` : "";
+	result[3] = gradient.canvas_repeat ?? "unset";
+
+	return result;
+}
+
+export function createFilterDropshadow(shadow: SevenTV.CosmeticPaintShadow): string {
+	return `drop-shadow(${shadow.x_offset}px ${shadow.y_offset}px ${shadow.radius}px ${DecimalToStringRGBA(
+		shadow.color,
+	)})`;
 }

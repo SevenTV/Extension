@@ -10,7 +10,7 @@ let worker: SharedWorker | null = null;
 
 type WorkerAddrMap = Record<string, string>;
 
-async function init(bc: BroadcastChannel, originURL: string): Promise<SharedWorker> {
+async function init(originURL: string): Promise<SharedWorker> {
 	let sw: SharedWorker;
 
 	// Check for existing url
@@ -67,15 +67,14 @@ async function init(bc: BroadcastChannel, originURL: string): Promise<SharedWork
 	return new Promise<SharedWorker>((resolve, reject) => {
 		if (!workerURL) return reject("No address to worker");
 
-		// Define message handlers
-		useGlobalHandlers(bc);
-
 		// Spawn or connect to worker
 		sw = worker = new SharedWorker(workerURL, {
 			name: "seventv-extension",
 		});
 		sw.port.start();
 
+		// Define message handlers
+		useGlobalHandlers(sw.port);
 		useHandlers(sw.port);
 
 		// Emit close on page exit
@@ -104,8 +103,8 @@ export function useWorker() {
 	};
 }
 
-function useGlobalHandlers(bc: BroadcastChannel) {
-	bc.onmessage = (ev) => {
+function useGlobalHandlers(chan: MessagePort) {
+	chan.addEventListener("message", (ev) => {
 		const { type, data } = ev.data;
 
 		switch (type) {
@@ -118,7 +117,7 @@ function useGlobalHandlers(bc: BroadcastChannel) {
 				break;
 			}
 		}
-	};
+	});
 }
 
 function useHandlers(mp: MessagePort) {
@@ -133,6 +132,12 @@ function useHandlers(mp: MessagePort) {
 			case "CONFIG": {
 				events.emit("config", data as TypedWorkerMessage<"CONFIG">);
 
+				break;
+			}
+			case "IDENTITY_FETCHED": {
+				const { user } = data as TypedWorkerMessage<"IDENTITY_FETCHED">;
+
+				events.emit("identity_fetched", { user });
 				break;
 			}
 			case "CHANNEL_FETCHED": {
@@ -215,6 +220,7 @@ class WorkletTarget extends EventTarget {
 type WorkletEventName =
 	| "ready"
 	| "config"
+	| "identity_fetched"
 	| "channel_fetched"
 	| "cosmetic_created"
 	| "entitlement_created"
@@ -227,6 +233,7 @@ type WorkletEventName =
 type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	ready: object;
 	config: TypedWorkerMessage<"CONFIG">;
+	identity_fetched: TypedWorkerMessage<"IDENTITY_FETCHED">;
 	channel_fetched: CurrentChannel;
 	cosmetic_created: Pick<SevenTV.Cosmetic, "id" | "data" | "kind">;
 	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;

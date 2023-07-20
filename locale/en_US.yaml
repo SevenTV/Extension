@@ -36,7 +36,11 @@ emote_menu:
     native: Open Native Menu
     favorite_set: Favorite Emotes
     most_used_set: Most Used Emotes
+    personal_emotes_promo_1: You don't have Personal Emotes yet
+    personal_emotes_promo_2: Use custom emotes anywhere on {PLATFORM} with a 7TV Subscription
     sets:
+        Channel Emotes: Channel Emotes
+        Personal Emotes: Personal Emotes
         Global Emotes: Global Emotes
         Smileys & Emotion: Smileys & Emotion
         People & Body: People & Body
@@ -141,3 +145,17 @@ onboarding:
     button_done: Done
     button_join: Join
     button_review: Review
+
+site:
+    kick:
+        connect_button_channel: Connect {CHANNEL}
+        connect_button_site: Connect 7TV...
+        connect_button_site_tooltip: Use this button to get signed into 7tv.app with your Kick account ({ACTOR})
+        connect_popup_idle: Are you sure you'd like to link your current kick.com account ({ACTOR}) with 7TV?
+        connect_popup_connecting: Please wait...
+        connect_popup_done: Your channel has been successfully connected to 7TV! Use the 7tv.app website to start adding emotes
+
+settings:
+    chat_alternating_background:
+        label: Alternating Background
+        hint: Display chat lines with alternating background colors

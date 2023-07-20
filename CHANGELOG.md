@@ -1,3 +1,74 @@
+### 3.0.14.1000
+
+-   Added a shortcut (Ctrl+E) to open the Emote Menu
+-   Added shortcuts (Up/Down Arrows) to switch between providers in the Emote Menu
+-   Search in the Emote Menu will now automatically open the nearest tab where matches are found
+-   The input box in the Emote Menu is now focused automatically upon opening
+-   Added an option to show stream stats such as latency, resolution, bitrate, etc.
+-   Added an option to set click actions on the video player (pause/unpause and mute/unmute)
+-   Added an option to hide player extensions
+-   Added iterable tab-completion on Kick
+-   Fixed a user card crash
+-   Fixed an issue with the EventAPI connection closing on the first initialization
+-   Fixed an issue that prevented new chatters from appearing in autocompletion
+-   Fixed an issue which squished tooltips when hovering an emote on the far right side of chat
+-   Fixed an issue which hid historical messages on Kick
+-   Increased the default value for Message Batching from 150 to 250
+
+### Version 3.0.13
+
+-   Added an option to hide the new mature content dialogs on Twitch
+-   Added formatting support for Hype Chat
+-   Added options to hide Hype Chats and the Hype Chat button
+-   Fixed an issue which prevented moderator data from loading in User Cards
+-   Fixed an issue where nametags with blending paints did not correctly use the base color and appeared invisible instead
+-   Kick:
+    -   Added a settings menu
+    -   Added an option to set a delay betweet rendering new messages (Message Batching)
+    -   Added an option to set alternating backgrounds between chat messages
+    -   The chat input box on Kick no longers loses focus during slow mode
+    -   Zero-Width Emotes should now appear properly in Kick chat
+
+### Version 3.0.12
+
+-   Added colon-completion (partial emote matches with ":") on Kick
+-   Added history navigation (up/down arrow) on Kick
+-   Updated the auth mechanism on Kick to avoid using third-party cookies
+
+### Version 3.0.11
+
+-   Fixed an issue which caused chat to randomly pause on Kick
+
+### Version 3.0.10
+
+-   Tweaked some styling issues in the Emote Menu
+-   Kick:
+    -   Fixed an issue where historical messages did not consistently render
+    -   Fixed an issue which caused text to become misplaced when mixed with Kick native emotes
+    -   Fixed an issue with the Emote Menu & Tooltips not appearing while in theater mode
+    -   Fixed some issues where the connection flow failed
+    -   Long text sequences should no longer overflow outside of the chat box
+    -   Adjusted emoji scale to be in line with other platforms
+    -   Clicking an emoji in the Emote Menu should now correctly input the unicode instead of the name
+
+### Version 3.0.9
+
+-   Added support for [Kick](https://kick.com)
+-   Added new feature: Paint Tool ([subscribers only](https://7tv.app/store))
+-   Fixed an issue where the emote menu button was broken due to a recent Twitch change
+-   Fixed an issue which sometimes caused channel emote sets to disappear
+-   Fixed an issue which caused stylesheets to be duplicated when running in hosted mode
+
+### Version 3.0.8
+
+-   Enabled AVIF images on Firefox >= 113 by default
+-   Added sub duration & account creation date in the User Card
+-   Added a button to open an emote's full page from the emote card
+-   Fixed an issue where clicking the upper drag region in the User Card opened the user's channel
+-   Fixed user card content overflowing due to long messages
+-   Fixed chat scroller being visible in the viewer list
+-   Tentatively fixed an issue which caused the sidebar to crash occasionally
+
 ### Version 3.0.7
 
 -   Added a new User Card

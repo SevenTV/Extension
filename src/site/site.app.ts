@@ -74,3 +74,14 @@ app.use(createPinia())
 	.directive("tooltip", TooltipDirective)
 	.directive("cosmetic-paint", TextPaintDirective)
 	.mount("#seventv-root");
+
+// unlink built-in stylesheet while in hosted mode
+if (seventv.remote) {
+	const sheets = document.querySelectorAll<HTMLLinkElement>("#seventv-stylesheet");
+	for (let i = 0; i < sheets.length; i++) {
+		const sheet = sheets.item(i);
+		if (!sheet || !sheet.href?.startsWith("chrome-extension")) continue;
+
+		sheet.remove();
+	}
+}

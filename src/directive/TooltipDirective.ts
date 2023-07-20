@@ -1,5 +1,6 @@
 import type { Directive, DirectiveBinding } from "vue";
 import { useTooltip } from "@/composable/useTooltip";
+import type { Placement } from "@floating-ui/dom";
 
 export const TooltipDirective = {
 	mounted(el: HTMLElement, binding: DirectiveBinding) {
@@ -21,7 +22,9 @@ function handleTooltip(el: HTMLElement, binding: DirectiveBinding) {
 			el.setAttribute("data-tooltip-position", binding.value);
 			break;
 		default: {
-			const { show, hide } = useTooltip(tooltipText);
+			const { show, hide } = useTooltip(tooltipText, undefined, {
+				placement: (el.getAttribute("data-tooltip-position") as Placement) || undefined,
+			});
 
 			el.addEventListener("mouseenter", () => show(el));
 			el.addEventListener("mouseleave", hide);

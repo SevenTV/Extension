@@ -81,6 +81,7 @@ export enum MessageType {
 	MESSAGE_ID_UPDATE = 52,
 	PINNED_CHAT = 53,
 	VIEWER_MILESTONE = 54,
+	PAID_MESSAGE = 55,
 
 	// 7TV Message Types
 	SEVENTV_EMOTE_SET_UPDATE = 7000,

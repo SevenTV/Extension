@@ -137,7 +137,7 @@ export function defineFunctionHook<T extends object>(
 				if (symbol === currentSymbol) {
 					return Reflect.apply(callback, this, [old, ...args]);
 				} else {
-					return old?.apply(this, args);
+					return (old as any)?.apply(this, args);
 				}
 			};
 		},

@@ -56,6 +56,12 @@ export const config = [
 		hint: "If checked, community highlights at the top of chat will be hidden (such as hype trains, pinned messages, drops, etc.)",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_pinned_hype_chats", "TOGGLE", {
+		path: ["Site Layout", "Chat"],
+		label: "Hide Pinned Hype Chats",
+		hint: "If checked, the list of recent hype chats will be hidden",
+		defaultValue: false,
+	}),
 	// Main page elements (Twitch Features)
 	declareConfig("layout.hide_react_buttons", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
@@ -67,6 +73,12 @@ export const config = [
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Bits Buttons",
 		hint: "If checked, the 'Bits' related buttons will be hidden",
+		defaultValue: false,
+	}),
+	declareConfig("layout.hide_hype_chat_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Hype Chat Button",
+		hint: "If checked, the 'Hype Chat' related button will be hidden",
 		defaultValue: false,
 	}),
 	declareConfig("layout.hide_subscribe_button", "TOGGLE", {
@@ -119,6 +131,12 @@ export const config = [
 		hint: "If checked, the controls shown at the bottom of a stream on hover will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("player.hide_player_extensions", "TOGGLE", {
+		path: ["Player", ""],
+		label: "Hide Player Extensions",
+		hint: "If checked, the player extensions will be hidden",
+		defaultValue: false,
+	}),
 ];
 </script>
 
@@ -156,6 +174,12 @@ export const config = [
 	}
 }
 
+.seventv-hide-hype-chat-button {
+	button[aria-label="Hype Chat"] {
+		display: none !important;
+	}
+}
+
 .seventv-hide-top-bar-of-stream {
 	div[class$="top-bar"] {
 		display: none !important;
@@ -170,6 +194,12 @@ export const config = [
 
 .seventv-hide-community-highlights {
 	div[class^="community-highlight-stack"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-pinned-hype-chats {
+	div[class$="paid-pinned-chat-message-list"] {
 		display: none !important;
 	}
 }
@@ -215,5 +245,17 @@ export const config = [
 	div[class$="chat-input__textarea"] {
 		display: none !important;
 	}
+}
+
+.seventv-hide-player-ext {
+	/* stylelint-disable */
+	.video-player .extension-taskbar,
+	.video-player .extension-container,
+	.video-player .extensions-dock__layout,
+	.video-player .extensions-notifications,
+	.video-player .extensions-video-overlay-size-container {
+		display: none !important;
+	}
+	/* stylelint-enable */
 }
 </style>

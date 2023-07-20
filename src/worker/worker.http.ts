@@ -37,23 +37,34 @@ export class WorkerHttp {
 	constructor(private driver: WorkerDriver) {
 		this.driver = driver;
 
-		driver.addEventListener("start_watching_channel", (ev) =>
+		driver.addEventListener("join_channel", (ev) =>
 			ev.port ? this.fetchChannelData(ev.detail, ev.port) : undefined,
 		);
+		driver.addEventListener("part_channel", (ev) => {
+			if (!ev.port) return;
+
+			this.driver.eventAPI.unsubscribeChannel(ev.detail.id, ev.port);
+		});
 		driver.addEventListener("identity_updated", async (ev) => {
-			const user = await this.API().seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id);
+			const user = await this.API()
+				.seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id)
+				.catch(() => void 0);
 			if (user && ev.port) {
 				ev.port.user = user;
 			}
+
+			ev.port?.postMessage("IDENTITY_FETCHED", {
+				user: user ?? null,
+			});
 		});
 		driver.addEventListener("set_channel_presence", (ev) => {
-			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.port.channel) return;
-			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1000) {
+			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.detail) return;
+			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1e4) {
 				return;
 			}
 
 			this.lastPresenceAt = Date.now();
-			this.writePresence(ev.port.platform, ev.port.user.id, ev.port.channel.id);
+			this.writePresence(ev.port.platform, ev.port.user.id, ev.detail.id);
 		});
 		driver.addEventListener("imageformat_updated", async (ev) => {
 			if (!ev.port) return;
@@ -92,13 +103,13 @@ export class WorkerHttp {
 		);
 
 		// setup fetching promises
-		const user = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
+		const userPromise = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
 
 		const promises = [
-			["7TV", user.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
-			["FFZ", frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
-			["BTTV", betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
-		] as [string, Promise<SevenTV.EmoteSet>][];
+			["7TV", () => userPromise.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
+			["FFZ", () => frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
+			["BTTV", () => betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
+		] as [SevenTV.Provider, () => Promise<SevenTV.EmoteSet>][];
 
 		const onResult = async (set: SevenTV.EmoteSet) => {
 			if (!set) return;
@@ -118,7 +129,9 @@ export class WorkerHttp {
 		// iterate results and store sets to DB
 		const sets = [] as SevenTV.EmoteSet[];
 		for (const [provider, setP] of promises) {
-			const set = await setP.catch((err) =>
+			if (!port.providers.has(provider)) continue;
+
+			const set = await setP().catch((err) =>
 				this.driver.log.error(
 					`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`,
 					err,
@@ -130,7 +143,7 @@ export class WorkerHttp {
 			await onResult(set);
 		}
 
-		channel.user = (await user)?.user ?? undefined;
+		channel.user = (await userPromise)?.user ?? undefined;
 		if (port) {
 			// Post channel fetch notification back to port
 			port.postMessage("CHANNEL_FETCHED", {
@@ -148,25 +161,30 @@ export class WorkerHttp {
 					object_id: set.id,
 				},
 				port,
+				channel.id,
 			);
-			if (set.owner) this.driver.eventAPI.subscribe("user.*", { object_id: set.owner.id }, port);
+		}
+
+		const user = await userPromise;
+		if (user) {
+			this.driver.eventAPI.subscribe("user.*", { object_id: user.id }, port, channel.id);
 		}
 
 		// begin subscriptions to personal events in the channel
 		const cond = {
 			ctx: "channel",
-			platform: "TWITCH",
+			platform: port.platform ?? "TWITCH",
 			id: channel.id,
 		};
 
-		this.driver.eventAPI.subscribe("entitlement.*", cond, port);
-		this.driver.eventAPI.subscribe("cosmetic.*", cond, port);
-		this.driver.eventAPI.subscribe("emote_set.*", cond, port);
+		this.driver.eventAPI.subscribe("entitlement.*", cond, port, channel.id);
+		this.driver.eventAPI.subscribe("cosmetic.*", cond, port, channel.id);
+		this.driver.eventAPI.subscribe("emote_set.*", cond, port, channel.id);
 
 		// Send an initial presence so that the current user immediately has their cosmetics
 		// (sent with "self" property, so that the presence and entitlements are not published)
-		if (port.platform && port.user && port.channel) {
-			this.writePresence(port.platform, port.user.id, port.channel.id, true);
+		if (port.platform && port.user) {
+			this.writePresence(port.platform, port.user.id, channel.id, true);
 		}
 
 		// Send the legacy static cosmetics to the port
@@ -184,10 +202,12 @@ export class WorkerHttp {
 			const badges = [...(seventv ? converted[0] : []), ...(ffz ? convertFfzBadges(ffz) : [])];
 			const paints = converted[1] ?? [];
 
-			port.postMessage("STATIC_COSMETICS_FETCHED", {
-				badges,
-				paints,
-			});
+			setTimeout(() => {
+				port.postMessage("STATIC_COSMETICS_FETCHED", {
+					badges,
+					paints,
+				});
+			}, 5000);
 
 			log.info(`<Static Cosmetics> ${badges.length} badges, ${paints.length} paints`);
 		});

@@ -51,18 +51,18 @@ import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import { MessageType } from "@/site/twitch.tv";
-import ChatData from "@/site/twitch.tv/modules/chat/ChatData.vue";
 import ChatList from "@/site/twitch.tv/modules/chat/ChatList.vue";
 import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import ChatPubSub from "./ChatPubSub.vue";
 import ChatTray from "./components/tray/ChatTray.vue";
-import BasicSystemMessage from "./components/types/BasicSystemMessage.vue";
+import ChatData from "@/app/chat/ChatData.vue";
+import BasicSystemMessage from "@/app/chat/msg/BasicSystemMessage.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
 const props = defineProps<{
-	list: HookedInstance<Twitch.ChatListComponent>;
 	controller: HookedInstance<Twitch.ChatControllerComponent>;
 	room: HookedInstance<Twitch.ChatRoomComponent>;
+	list: HookedInstance<Twitch.ChatListComponent>;
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 	events?: HookedInstance<Twitch.ChatEventComponent>;
 }>();
@@ -84,7 +84,7 @@ const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
 
 const primaryColor = ref("");
 
-const ctx = useChannelContext(props.controller.component.props.channelID);
+const ctx = useChannelContext(props.controller.component.props.channelID, true);
 const worker = useWorker();
 const emotes = useChatEmotes(ctx);
 const messages = useChatMessages(ctx);
@@ -116,18 +116,32 @@ watchEffect(() => {
 });
 
 const messageHandler = ref<Twitch.MessageHandlerAPI | null>(null);
-definePropertyHook(props.list.component, "props", {
-	value(v) {
-		messageHandler.value = v.messageHandlerAPI;
 
-		// Find message to grab some data
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
-		if (!msgItem?.badgeSets?.count) return;
+watch(
+	list,
+	(inst, old) => {
+		if (!inst || !inst.component) return;
 
-		properties.twitchBadgeSets = msgItem.badgeSets;
+		if (old && old.component && inst !== old) {
+			unsetPropertyHook(old.component, "props");
+			return;
+		}
+
+		definePropertyHook(inst.component, "props", {
+			value(v) {
+				messageHandler.value = v.messageHandlerAPI;
+
+				// Find message to grab some data
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
+				if (!msgItem?.badgeSets?.count) return;
+
+				properties.twitchBadgeSets = msgItem.badgeSets;
+			},
+		});
 	},
-});
+	{ immediate: true },
+);
 
 // Retrieve and convert Twitch Emotes
 //
@@ -147,32 +161,44 @@ watch(twitchEmoteSetsDbc, async (sets) => {
 });
 
 // Keep track of user chat config
-definePropertyHook(room.value.component, "props", {
-	value(v) {
-		properties.primaryColorHex = v.primaryColorHex;
-		primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
-		document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
+watch(
+	room,
+	(inst, old) => {
+		if (!inst || !inst.component) return;
 
-		properties.useHighContrastColors = v.useHighContrastColors;
-		properties.showTimestamps = v.showTimestamps;
-		properties.showModerationIcons = v.showModerationIcons;
-
-		properties.pauseReason.clear();
-		properties.pauseReason.add("SCROLL");
-		switch (v.chatPauseSetting) {
-			case "MOUSEOVER_ALTKEY":
-				properties.pauseReason.add("ALTKEY");
-				properties.pauseReason.add("MOUSEOVER");
-				break;
-			case "MOUSEOVER":
-				properties.pauseReason.add("MOUSEOVER");
-				break;
-			case "ALTKEY":
-				properties.pauseReason.add("ALTKEY");
-				break;
+		if (old && old.component && inst !== old) {
+			unsetPropertyHook(old.component, "props");
 		}
+
+		definePropertyHook(room.value.component, "props", {
+			value(v) {
+				properties.primaryColorHex = v.primaryColorHex;
+				primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
+				document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
+
+				properties.useHighContrastColors = v.useHighContrastColors;
+				properties.showTimestamps = v.showTimestamps;
+				properties.showModerationIcons = v.showModerationIcons;
+
+				properties.pauseReason.clear();
+				properties.pauseReason.add("SCROLL");
+				switch (v.chatPauseSetting) {
+					case "MOUSEOVER_ALTKEY":
+						properties.pauseReason.add("ALTKEY");
+						properties.pauseReason.add("MOUSEOVER");
+						break;
+					case "MOUSEOVER":
+						properties.pauseReason.add("MOUSEOVER");
+						break;
+					case "ALTKEY":
+						properties.pauseReason.add("ALTKEY");
+						break;
+				}
+			},
+		});
 	},
-});
+	{ immediate: true },
+);
 
 // Keep track of chat state
 definePropertyHook(controller.value.component, "props", {
@@ -182,6 +208,7 @@ definePropertyHook(controller.value.component, "props", {
 				id: v.channelID,
 				username: v.channelLogin,
 				displayName: v.channelDisplayName,
+				active: true,
 			};
 		}
 
@@ -202,7 +229,7 @@ definePropertyHook(controller.value.component, "props", {
 		messages.sendMessage = v.chatConnectionAPI.sendMessage;
 		defineFunctionHook(v.chatConnectionAPI, "sendMessage", function (old, ...args) {
 			worker.sendMessage("CHANNEL_ACTIVE_CHATTER", {
-				channel_id: ctx.id,
+				channel: toRaw(ctx.base),
 			});
 
 			// Run message content patching middleware
@@ -370,10 +397,12 @@ onUnmounted(() => {
 	log.debug("<ChatController> Unmounted");
 
 	// Unset hooks
-	unsetPropertyHook(list.value.component.props, "messageHandlerAPI");
-	unsetPropertyHook(list.value.component, "props");
 	unsetPropertyHook(controller.value.component, "props");
-	unsetPropertyHook(room.value.component, "props");
+	if (list.value) {
+		unsetPropertyHook(list.value.component.props, "messageHandlerAPI");
+		unsetPropertyHook(list.value.component, "props");
+	}
+	if (room.value) unsetPropertyHook(room.value.component, "props");
 
 	document.body.style.removeProperty("--seventv-channel-accent");
 });

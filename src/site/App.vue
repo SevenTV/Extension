@@ -7,7 +7,7 @@
 	</template>
 
 	<!-- Render tooltip -->
-	<Teleport to="#root, body">
+	<Teleport to="#root, #app, body">
 		<Global v-if="!wg" />
 	</Teleport>
 </template>
@@ -26,10 +26,10 @@ import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
 import { useWorker } from "@/composable/useWorker";
 import Global from "./global/Global.vue";
-import KickSite from "./kick.com/KickSite.vue";
 
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
 const YouTubeSite = defineAsyncComponent(() => import("@/site/youtube.com/YouTubeSite.vue"));
+const KickSite = defineAsyncComponent(() => import("@/site/kick.com/KickSite.vue"));
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {
@@ -64,9 +64,8 @@ db.ready().then(async () => {
 });
 
 // Spawn SharedWorker
-const netChannel = new BroadcastChannel("SEVENTV#NETWORK");
 const { init, target } = useWorker();
-init(netChannel, inject(SITE_WORKER_URL, ""));
+init(inject(SITE_WORKER_URL, ""));
 
 target.addEventListener("ready", () => {
 	log.info("Worker ready");

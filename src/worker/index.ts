@@ -10,6 +10,7 @@ export interface WorkerMessage<T extends WorkerMessageType> {
 
 export enum workerMessageType {
 	CHANNEL_ACTIVE_CHATTER,
+	IDENTITY_FETCHED,
 	CHANNEL_FETCHED,
 	CONFIG,
 	CLOSE,
@@ -30,7 +31,10 @@ export type WorkerMessageType = keyof typeof workerMessageType;
 
 export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	CHANNEL_ACTIVE_CHATTER: {
-		channel_id: string;
+		channel: CurrentChannel;
+	};
+	IDENTITY_FETCHED: {
+		user: SevenTV.User | null;
 	};
 	CHANNEL_FETCHED: {
 		channel: CurrentChannel;
@@ -65,6 +69,7 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	};
 	STATE: Partial<{
 		platform: Platform;
+		providers: SevenTV.Provider[];
 		provider_extensions: SevenTV.Provider[];
 		identity: TwitchIdentity | YouTubeIdentity | null;
 		user: SevenTV.User | null;
@@ -90,6 +95,7 @@ export interface EventContext {
 	driver: WorkerDriver;
 	eventAPI: EventAPI;
 	db: Dexie7;
+	channelID?: string;
 }
 
 export enum EventAPIOpCode {
@@ -132,7 +138,10 @@ export type EventAPIMessageData<O extends keyof typeof EventAPIOpCode> = {
 		code: number;
 		message: string;
 	};
-	ENDOFSTREAM: void;
+	ENDOFSTREAM: {
+		code: number;
+		message: string;
+	};
 	IDENTIFY: void;
 	RESUME: {
 		session_id: string;

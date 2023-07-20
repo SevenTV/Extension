@@ -12,22 +12,24 @@ import { defineAsyncComponent, onMounted, provide, ref, watch } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
+import { useActor } from "@/composable/useActor";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useConfig, useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import type { TwModuleID } from "@/types/tw.module";
 
-const ModuleWrapper = defineAsyncComponent(() => import("../global/ModuleWrapper.vue"));
+const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
 
 const store = useStore();
+const actor = useActor();
 const ua = useUserAgent();
 const ffz = useFrankerFaceZ();
 
 const useTransparency = useConfig("ui.transparent_backgrounds");
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
-store.setPlatform("TWITCH", ffz.active ? ["FFZ"] : []);
+store.setPlatform("TWITCH", ["7TV", "FFZ", "BTTV"], ffz.active ? ["FFZ"] : []);
 
 const currentPath = ref("");
 
@@ -65,6 +67,7 @@ useComponentHook<Twitch.SessionUserComponent>(
 						username: inst.component.props.sessionUser.login,
 						displayName: inst.component.props.sessionUser.displayName,
 					});
+					actor.setPlatformUserID("TWITCH", inst.component.props.sessionUser.id);
 				}
 			},
 		},

@@ -1,5 +1,5 @@
 import { log } from "@/common/Logger";
-import { convertTwitchEmoteSet } from "@/common/Transform";
+import { convertPlatformEmoteSet } from "@/common/Transform";
 import { WorkerDriver } from "./worker.driver";
 import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from ".";
 
@@ -8,8 +8,9 @@ export class WorkerPort {
 	seq = 0;
 
 	platform: Platform | null = null;
+	providers = new Set<SevenTV.Provider>();
 	providerExtensions = new Set<SevenTV.Provider>();
-	channel: CurrentChannel | null = null;
+	channels = new Map<string, CurrentChannel>();
 	identity: TwitchIdentity | YouTubeIdentity | null = null;
 	user: SevenTV.User | null = null;
 	imageFormat: SevenTV.ImageFormat | null = null;
@@ -25,27 +26,39 @@ export class WorkerPort {
 		this.postMessage("INIT", {});
 	}
 
+	get channelIds(): string[] {
+		return Array.from(this.channels.keys());
+	}
+
 	private onMessage(ev: MessageEvent) {
 		const { type, data } = ev.data as WorkerMessage<WorkerMessageType>;
 
 		switch (type) {
 			case "STATE": {
-				const { platform, provider_extensions, identity, channel, user, imageFormat } =
+				const { platform, providers, provider_extensions, identity, channel, user, imageFormat } =
 					data as TypedWorkerMessage<"STATE">;
 
 				if (platform) this.platform = platform;
+				if (providers) this.providers = new Set(providers);
 				if (provider_extensions) this.providerExtensions = new Set(provider_extensions);
 				if (identity) {
 					this.identity = identity;
 
 					this.driver.emit("identity_updated", this.identity, this);
 				}
-				if (channel) {
-					this.channel = channel;
 
-					this.driver.log.debugWithObjects(["Channel updated"], [this.channel]);
-					this.driver.emit("start_watching_channel", this.channel, this);
+				if (channel && channel.active && !this.channels.has(channel.id)) {
+					this.channels.set(channel.id, channel);
+
+					this.driver.log.debugWithObjects(["Channel added"], [channel]);
+					this.driver.emit("join_channel", channel, this);
+				} else if (channel && !channel.active && this.channels.has(channel.id)) {
+					this.channels.delete(channel.id);
+
+					this.driver.log.debugWithObjects(["Channel removed"], [channel]);
+					this.driver.emit("part_channel", channel, this);
 				}
+
 				if (user) {
 					this.user = user;
 
@@ -59,14 +72,16 @@ export class WorkerPort {
 				break;
 			}
 			case "CHANNEL_ACTIVE_CHATTER": {
-				this.driver.emit("set_channel_presence", {}, this);
+				const { channel } = data as TypedWorkerMessage<"CHANNEL_ACTIVE_CHATTER">;
+
+				this.driver.emit("set_channel_presence", channel, this);
 				break;
 			}
 			case "SYNC_TWITCH_SET": {
 				const { input } = data as TypedWorkerMessage<"SYNC_TWITCH_SET">;
 				if (!input) break;
 
-				const set = convertTwitchEmoteSet(input);
+				const set = convertPlatformEmoteSet(input);
 				this.postMessage("SYNC_TWITCH_SET", { out: set });
 				break;
 			}
@@ -89,8 +104,8 @@ export class WorkerPort {
 				break;
 			}
 			case "CLOSE":
-				if (this.channel) {
-					this.driver.emit("stop_watching_channel", this.channel, this);
+				for (const channel of this.channels.values()) {
+					this.driver.emit("part_channel", channel, this);
 				}
 
 				this.driver.ports.delete(this.id);

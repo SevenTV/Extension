@@ -22,15 +22,5 @@ defineProps<{
 </script>
 
 <style scoped lang="scss">
-svg[direction="up"] {
-	transform: rotate(180deg);
-}
-
-svg[direction="left"] {
-	transform: rotate(90deg);
-}
-
-svg[direction="right"] {
-	transform: rotate(-90deg);
-}
+@import "@/assets/style/icon-direction";
 </style>
