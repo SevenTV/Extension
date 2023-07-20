@@ -60,6 +60,7 @@
 				</template>
 			</div>
 			<div class="seventv-emote-menu-settings-button-container">
+				<EmoteMenuSortWrapper v-if="isSearchInputEnabled" container-class="sort-button" />
 				<div class="seventv-emote-menu-settings-button" @click="emit('toggle-settings')">
 					<GearsIcon :provider="'7TV'" />
 					<div v-if="!updater.isUpToDate" class="seventv-emote-menu-settings-button-update-flair" />
@@ -86,6 +87,7 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 import type { EmoteMenuTabName } from "./EmoteMenu.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuSet from "./EmoteMenuSet.vue";
+import EmoteMenuSortWrapper from "./sorting/EmoteMenuSortWrapper.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import StoreSubscribeButton from "../store/StoreSubscribeButton.vue";
 
@@ -290,7 +292,7 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 		width: 100%;
 		margin-top: auto;
 		float: bottom;
-		height: 4em;
+		height: auto;
 		flex-shrink: 0;
 		padding: auto;
 		border-top: 1px solid var(--seventv-border-transparent-1);

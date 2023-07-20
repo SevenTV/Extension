@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { MaybeElementRef } from "@vueuse/core";
-import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
+import FormDropdown from "@/app/settings/control/FormDropdown.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import { emoteMenuSortOrderProperties, emoteMenuSortProperties } from "../EmoteMenuContext";
 import { shift } from "@floating-ui/dom";

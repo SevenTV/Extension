@@ -52,7 +52,7 @@ function toggleShowSortBy() {
 	display: grid;
 	align-items: center;
 	top: 0;
-	height: 3rem;
+	height: 100%;
 	width: 3rem;
 	padding: 0.85rem;
 

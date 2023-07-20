@@ -6,6 +6,7 @@
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Added an option to select default Emote Menu tab
 -   Added artist attribution to emote card
+-   Added sorting to the emote menu
 
 ### 3.0.14.1000
 
@@ -93,7 +94,6 @@
 -   Added an option to choose chat timestamp format
 -   Fixed tooltips of nametag paints appearing even if they are disabled
 -   Reinstated functionality on youtube.com
--   Added sorting to the emote menu
 
 ### Version 3.0.6.1000
 

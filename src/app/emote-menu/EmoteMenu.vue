@@ -35,6 +35,7 @@
 					<div class="search-icon">
 						<SearchIcon />
 					</div>
+					<EmoteMenuSortWrapper container-class="emote-search-icon sort-icon" />
 				</div>
 			</div>
 
@@ -69,6 +70,7 @@ import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuTab from "./EmoteMenuTab.vue";
+import EmoteMenuSortWrapper from "./sorting/EmoteMenuSortWrapper.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
 import UiFloating from "@/ui/UiFloating.vue";
 import { offset, shift } from "@floating-ui/dom";
