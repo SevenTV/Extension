@@ -12,7 +12,7 @@ import { declareModule } from "@/composable/useModule";
 import { declareConfig } from "@/composable/useSettings";
 import { useConfig } from "@/composable/useSettings";
 import EmoteMenu from "./EmoteMenu.vue";
-import { SortOrderKey, SortPropertyKey } from "./EmoteMenuContext";
+import { SortOrderKey, SortPropertyKey } from "@/app/emote-menu/EmoteMenuContext";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
