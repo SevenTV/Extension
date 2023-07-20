@@ -24,7 +24,7 @@ export function useChatEmotes(ctx: ChannelContext) {
 				"7TV": reactive({}),
 				FFZ: reactive({}),
 				BTTV: reactive({}),
-				TWITCH: reactive({}),
+				PLATFORM: reactive({}),
 				EMOJI: reactive(emojiSets),
 			},
 		});

@@ -1,9 +1,12 @@
-import { markRaw, reactive } from "vue";
+import { defineAsyncComponent, markRaw, reactive } from "vue";
 import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import SettingsViewCompatVue from "./SettingsViewCompat.vue";
 import SettingsViewConfigVue from "./SettingsViewConfig.vue";
 import SettingsViewHomeVue from "./SettingsViewHome.vue";
 import SettingsViewProfileVue from "./SettingsViewProfile.vue";
+
+const PaintTool = defineAsyncComponent(() => import("@/app/paint-tool/PaintTool.vue"));
+const Store = defineAsyncComponent(() => import("@/app/store/Store.vue"));
 
 class SettingsMenuContext {
 	open = false;
@@ -52,6 +55,8 @@ const views = {
 	config: SettingsViewConfigVue,
 	profile: SettingsViewProfileVue,
 	compat: SettingsViewCompatVue,
+	store: Store,
+	paint: PaintTool,
 };
 
 const inst = reactive(new SettingsMenuContext());

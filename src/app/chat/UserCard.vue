@@ -17,6 +17,15 @@
 							<UserTag :user="data.targetUser" :hide-badges="true" :clickable="false" />
 						</a>
 					</div>
+
+					<span
+						v-if="data.paint"
+						class="seventv-user-card-paint seventv-painted-content seventv-paint"
+						:data-seventv-paint-id="data.paint.id"
+					>
+						<p>{{ data.paint.data.name }}</p>
+					</span>
+
 					<div class="seventv-user-card-badges">
 						<Badge
 							v-for="badge of data.targetUser.badges"
@@ -29,7 +38,7 @@
 				</div>
 
 				<div class="seventv-user-card-interactive">
-					<div class="seventv-user-card-greystates">
+					<div class="seventv-user-card-metrics">
 						<p v-if="data.targetUser.createdAt">
 							<CakeIcon />
 							{{ t("user_card.account_created_date", { date: data.targetUser.createdAt }) }}
@@ -163,6 +172,7 @@ const data = reactive({
 	activeTab: "messages" as UserCardTabName,
 	canActorAccessLogs: false,
 	ban: null as TwTypeChatBanStatus | null,
+	paint: null as SevenTV.Cosmetic<"PAINT"> | null,
 	targetUser: {
 		id: props.target.id,
 		username: props.target.username,
@@ -214,17 +224,17 @@ async function fetchMessageLogs(after?: ChatMessage): Promise<ChatMessage[]> {
 		.query<twitchUserCardMessagesQuery.Response, twitchUserCardMessagesQuery.Variables>({
 			query: twitchUserCardMessagesQuery,
 			variables: {
-				channelLogin: ctx.username,
+				channelID: ctx.id,
 				senderID: data.targetUser.id,
 				cursor,
 			},
 		})
 		.catch((err) => Promise.reject(err));
-	if (!msgResp || msgResp.errors?.length || !Array.isArray(msgResp.data.channel.logs.bySender.edges)) return [];
+	if (!msgResp || msgResp.errors?.length || !Array.isArray(msgResp.data.logs.messages.edges)) return [];
 
 	const result = [] as ChatMessage[];
 
-	for (const edge of msgResp.data.channel.logs.bySender.edges) {
+	for (const edge of msgResp.data.logs.messages.edges) {
 		if (!edge.node) continue;
 
 		const msg = convertTwitchMessage(edge.node);
@@ -251,15 +261,15 @@ async function fetchModeratorData(): Promise<void> {
 		.catch((err) => Promise.reject(err));
 	if (!resp || resp.errors?.length || !resp.data.channelUser) return;
 
-	data.count.messages = resp.data.channelUser.modLogs.messages.messageCount;
-	data.count.bans = resp.data.channelUser.modLogs.bans.actionCount;
-	data.count.timeouts = resp.data.channelUser.modLogs.timeouts.actionCount;
+	data.count.messages = resp.data.viewerCardModLogs.messages.count ?? 0;
+	data.count.bans = resp.data.viewerCardModLogs.bans.count ?? 0;
+	data.count.timeouts = resp.data.viewerCardModLogs.timeouts.count ?? 0;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
 
 	data.ban = resp.data.banStatus;
 
-	const timeouts = resp.data.channelUser.modLogs.timeouts.edges;
-	const bans = resp.data.channelUser.modLogs.bans.edges;
+	const timeouts = resp.data.viewerCardModLogs.timeouts.edges;
+	const bans = resp.data.viewerCardModLogs.bans.edges;
 
 	// Add timeouts and bans to the timeline
 	for (const [tabName, a] of [
@@ -269,20 +279,10 @@ async function fetchModeratorData(): Promise<void> {
 		const result = [] as ChatMessage[];
 
 		for (const e of a) {
-			const key = {
-				TIMEOUT_USER: e.node.details.reason ? "messages.mod_timeout_user_reason" : "messages.mod_timeout_user",
-				UNTIMEOUT_USER: "messages.mod_undo_timeout_user",
-				BAN_USER: e.node.details.reason ? "messages.mod_ban_user_reason" : "messages.mod_ban_user",
-				UNBAN_USER: "messages.mod_undo_ban_user",
-			}[e.node.action];
-
 			const m = new ChatMessage(e.node.id).setComponent(BasicSystemMessage, {
-				text: t(key, {
-					actor: e.node.user?.login,
-					victim: e.node.target?.login,
-					duration: e.node.details?.durationSeconds + " seconds",
-					reason: e.node.details?.reason,
-				}),
+				text: e.node.localizedLabel.localizedStringFragments
+					.map((f) => ("text" in f.token ? f.token.text : f.token.login))
+					.join(""),
 			});
 			m.setTimestamp(Date.parse(e.node.timestamp));
 
@@ -417,6 +417,7 @@ watchEffect(async () => {
 				data.targetUser.displayName = resp.data.targetUser.displayName;
 				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
 				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
+				data.targetUser.color = resp.data.targetUser.chatColor;
 				data.targetUser.relationship.followedAt = formatDateToString(
 					resp.data.targetUser.relationship?.followedAt,
 				);
@@ -465,14 +466,20 @@ watchEffect(async () => {
 			}
 		})
 		.catch((err) => log.error("failed to query user card", err));
+
+	for (const paint of cosmetics.paints.values()) {
+		data.paint = paint;
+		break;
+	}
 });
 
 watch(
-	() => data.targetUser.bannerURL,
-	(url) => {
-		if (!url || !cardRef.value) return;
+	() => [data.targetUser.bannerURL, data.targetUser.color],
+	([url, color]) => {
+		if (!cardRef.value) return;
 
 		cardRef.value.style.setProperty("--seventv-user-card-banner-url", `url(${url})`);
+		cardRef.value.style.setProperty("--seventv-user-card-color", color);
 	},
 );
 
@@ -523,13 +530,13 @@ main.seventv-user-card-container {
 	grid-template-columns: 1fr;
 	grid-template-rows: repeat(3, auto);
 	grid-template-areas:
-		"greystates"
+		"metrics"
 		"actions"
 		"mod";
 	align-content: space-between;
 
-	.seventv-user-card-greystates {
-		grid-area: greystates;
+	.seventv-user-card-metrics {
+		grid-area: metrics;
 		display: grid;
 		row-gap: 0.5rem;
 		z-index: 1;
@@ -592,11 +599,12 @@ main.seventv-user-card-container {
 		cursor: move;
 		display: grid;
 		grid-template-columns: max-content 1fr;
-		grid-template-rows: auto 1fr;
+		grid-template-rows: auto auto 1fr;
 		grid-auto-flow: row;
 		row-gap: 0.25rem;
 		grid-template-areas:
 			"avatar usertag"
+			"avatar paint"
 			"avatar badges";
 		grid-area: identity;
 		background: var(--seventv-user-card-banner-url);
@@ -630,7 +638,9 @@ main.seventv-user-card-container {
 			z-index: 1;
 			display: block;
 			padding-top: 1rem;
+			width: fit-content;
 			max-width: 21rem;
+			margin-bottom: -0.25rem;
 
 			p {
 				overflow: hidden;
@@ -643,6 +653,21 @@ main.seventv-user-card-container {
 
 		.seventv-user-card-usertag {
 			all: unset;
+		}
+
+		.seventv-user-card-paint {
+			width: fit-content;
+			cursor: pointer;
+			border-radius: 0.25rem;
+			padding: 0 0.25rem;
+			font-weight: 900;
+			background-color: var(--seventv-user-card-color);
+
+			p {
+				color: white;
+				mix-blend-mode: difference;
+				font-size: 1.05rem;
+			}
 		}
 
 		.seventv-user-card-badges {

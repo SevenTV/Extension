@@ -12,6 +12,14 @@ export const DecimalToStringRGBA = (num: number): string => {
 export const RGBAToDecimal = (r: number, g: number, b: number, a: number): number =>
 	(r << 24) | (g << 16) | (b << 8) | a;
 
+export const DecimalToHex = (num: number, alpha?: boolean): string => {
+	const r = (num >>> 24) & 0xff;
+	const g = (num >>> 16) & 0xff;
+	const b = (num >>> 8) & 0xff;
+	const a = num & 0xff;
+
+	return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1) + (alpha ? SetHexAlpha(a / 255) : "");
+};
 export const SetHexAlpha = (alpha: number): string => {
 	if (alpha > 1 || alpha < 0 || isNaN(alpha)) {
 		throw Error("alpha must be between 0 and 1");
@@ -20,6 +28,15 @@ export const SetHexAlpha = (alpha: number): string => {
 	return Math.ceil(255 * alpha)
 		.toString(16)
 		.toUpperCase();
+};
+
+export const HexToDecimal = (hex: string, alpha = 1): number => {
+	const t = parseInt(hex?.slice(1) ?? "0", 16);
+	const r = (t >> 16) & 255;
+	const g = (t >> 8) & 255;
+	const b = t & 255;
+
+	return RGBAToDecimal(r, g, b, 255 * Math.min(alpha, 1));
 };
 
 const calculated = { 0: {}, 1: {} } as Record<0 | 1, Record<string, string>>;

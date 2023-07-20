@@ -107,12 +107,12 @@
 import { nextTick, reactive, ref, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { HighlightDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
+import FormCheckbox from "@/site/global/components/FormCheckbox.vue";
+import FormInput from "@/site/global/components/FormInput.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import CompactDiscIcon from "@/assets/svg/icons/CompactDiscIcon.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import FormCheckbox from "../components/FormCheckbox.vue";
-import FormInput from "../components/FormInput.vue";
 import { v4 as uuid } from "uuid";
 
 const ctx = useChannelContext(); // this will be an empty context, as config is not tied to channel

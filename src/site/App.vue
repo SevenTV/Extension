@@ -7,7 +7,7 @@
 	</template>
 
 	<!-- Render tooltip -->
-	<Teleport to="#root, body">
+	<Teleport to="#root, #app, body">
 		<Global v-if="!wg" />
 	</Teleport>
 </template>

@@ -136,28 +136,29 @@ if (props.emote.data?.owner?.style?.color) {
 
 <style scoped lang="scss">
 .seventv-tooltip {
+	width: max-content;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	max-width: 21em;
-	padding: 0.5em 1.15em;
+	max-width: 21rem;
+	padding: 0.5rem 1.15rem;
 }
 
 .seventv-tooltip-compact {
 	background-color: rgba(0, 0, 0, 0.65%);
 
 	@at-root .seventv-transparent & {
-		backdrop-filter: blur(0.25em);
+		backdrop-filter: blur(0.25rem);
 	}
 
-	border-radius: 0.33em;
+	border-radius: 0.33rem;
 	padding: 0.25em;
 }
 
 .emote-name {
 	font-size: 1.5rem;
 	font-weight: 300;
-	max-width: 21em;
+	max-width: 21rem;
 	word-break: break-all;
 	float: left;
 }

@@ -92,7 +92,7 @@ function onCategoryClick(): void {
 		column-gap: 0.5rem;
 		align-items: center;
 		font-weight: 600;
-		font-size: 1.6rem;
+		font-size: 1.25em;
 
 		&:hover,
 		&:focus-within {

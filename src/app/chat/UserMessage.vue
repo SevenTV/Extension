@@ -100,6 +100,7 @@ import { useChatTools } from "@/composable/chat/useChatTools";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
+import ModIcons from "@/site/twitch.tv/modules/chat/components/mod/ModIcons.vue";
 import Emote from "./Emote.vue";
 import MessageTokenLink from "./MessageTokenLink.vue";
 import MessageTokenMention from "./MessageTokenMention.vue";

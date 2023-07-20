@@ -32,8 +32,7 @@ on:
                 description: "Deploy Hosted Build"
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.branch }}
 
 env:
     ARTIFACT_NAME: 7tv-webextension

@@ -1,6 +1,7 @@
 <template />
 <script setup lang="ts">
 import { onUnmounted, ref, toRef } from "vue";
+import { useStore } from "@/store/main";
 import { ChatMessage } from "@/common/chat/ChatMessage";
 import { db } from "@/db/idb";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
@@ -16,21 +17,17 @@ const ctx = useChannelContext();
 const channelID = toRef(ctx, "id");
 const messages = useChatMessages(ctx);
 const emotes = useChatEmotes(ctx);
+const { providers } = useStore();
 
 // query the channel's emote set bindings
 const channelSets = useLiveQuery(
 	() =>
 		db.channels
 			.where("id")
-			.equals(ctx.id ?? "")
+			.equals(ctx.id)
 			.first()
 			.then((c) => c?.set_ids ?? []),
-	() => {
-		// reset the third-party emote providers
-		emotes.providers["7TV"] = {};
-		emotes.providers["FFZ"] = {};
-		emotes.providers["BTTV"] = {};
-	},
+	undefined,
 	{
 		reactives: [channelID],
 	},
@@ -46,9 +43,15 @@ useLiveQuery(
 			.equals("GLOBAL")
 			.sortBy("priority"),
 	(sets) => {
+		// reset the third-party emote providers
+		emotes.providers["7TV"] = {};
+		emotes.providers["FFZ"] = {};
+		emotes.providers["BTTV"] = {};
+
 		if (!sets) return;
 
 		for (const set of sets) {
+			if (!set.provider || !providers.has(set.provider)) continue;
 			const provider = (set.provider ?? "UNKNOWN") as SevenTV.Provider;
 
 			if (!emotes.providers[provider]) emotes.providers[provider] = {};
@@ -183,11 +186,11 @@ function onActiveSetUpdated(
 }
 
 function onTwitchEmoteSetData(ev: WorkletEvent<"twitch_emote_set_data">) {
-	if (!emotes.providers.TWITCH) {
-		emotes.providers.TWITCH = {};
+	if (!emotes.providers.PLATFORM) {
+		emotes.providers.PLATFORM = {};
 	}
 
-	emotes.providers.TWITCH[ev.detail.id] = ev.detail;
+	emotes.providers.PLATFORM[ev.detail.id] = ev.detail;
 }
 
 target.addEventListener("emote_set_updated", onEmoteSetUpdated);

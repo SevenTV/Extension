@@ -102,7 +102,7 @@ defineExpose({
 <script lang="ts">
 import { HighlightDef } from "@/composable/chat/useChatHighlights";
 import { declareConfig, useConfig } from "@/composable/useSettings";
-import SettingsConfigHighlights from "@/site/global/settings/SettingsConfigHighlights.vue";
+import SettingsConfigHighlights from "@/app/settings/SettingsConfigHighlights.vue";
 
 export type TimestampFormatKey = "infer" | "12" | "24";
 
@@ -205,7 +205,7 @@ export const config = [
 				[1000, 1000, "PowerPoint Presentation"],
 			],
 		},
-		defaultValue: 150,
+		defaultValue: 250,
 	}),
 	declareConfig<number>("chat.smooth_scroll_duration", "SLIDER", {
 		path: ["Chat", "Performance"],
@@ -244,8 +244,8 @@ export const config = [
 	declareConfig<boolean>("chat.alternating_background", "TOGGLE", {
 		path: ["Chat", "Style"],
 		ffz_key: "chat.lines.alternate",
-		label: "Alternating Background",
-		hint: "Display chat lines with alternating background colors",
+		label: "settings.chat_alternating_background.label",
+		hint: "settings.chat_alternating_background.hint",
 		defaultValue: false,
 	}),
 	declareConfig<number>("chat.padding", "DROPDOWN", {

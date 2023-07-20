@@ -134,6 +134,12 @@ function useHandlers(mp: MessagePort) {
 
 				break;
 			}
+			case "IDENTITY_FETCHED": {
+				const { user } = data as TypedWorkerMessage<"IDENTITY_FETCHED">;
+
+				events.emit("identity_fetched", { user });
+				break;
+			}
 			case "CHANNEL_FETCHED": {
 				const { channel } = data as TypedWorkerMessage<"CHANNEL_FETCHED">;
 
@@ -214,6 +220,7 @@ class WorkletTarget extends EventTarget {
 type WorkletEventName =
 	| "ready"
 	| "config"
+	| "identity_fetched"
 	| "channel_fetched"
 	| "cosmetic_created"
 	| "entitlement_created"
@@ -226,6 +233,7 @@ type WorkletEventName =
 type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	ready: object;
 	config: TypedWorkerMessage<"CONFIG">;
+	identity_fetched: TypedWorkerMessage<"IDENTITY_FETCHED">;
 	channel_fetched: CurrentChannel;
 	cosmetic_created: Pick<SevenTV.Cosmetic, "id" | "data" | "kind">;
 	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;

@@ -1,12 +1,5 @@
 import { twitchBadgeFragment, twitchModCommentFragment, twitchSubProductFragment } from "./tw.fragment.gql";
-import {
-	TwTypeBadge,
-	TwTypeChatBanStatus,
-	TwTypeMessage,
-	TwTypeModComment,
-	TwTypeModEntry,
-	TwTypeUser,
-} from "./tw.gql";
+import { TwTypeBadge, TwTypeChatBanStatus, TwTypeMessage, TwTypeModComment, TwTypeUser } from "./tw.gql";
 import gql from "graphql-tag";
 
 export const twitchUserCardQuery = gql`
@@ -29,6 +22,7 @@ export const twitchUserCardQuery = gql`
 				...badge
 				description
 			}
+			chatColor
 			profileImageURL(width: 70)
 			createdAt
 			relationship(targetUserID: $channelID) {
@@ -154,9 +148,6 @@ export const twitchUserCardModLogsQuery = gql`
 		channelUser: user(login: $channelLogin) {
 			id
 			login
-			modLogs {
-				...modLogs
-			}
 		}
 		currentUser {
 			login
@@ -178,13 +169,48 @@ export const twitchUserCardModLogsQuery = gql`
 			}
 			reason
 		}
-		viewerCardModLogs(targetID: $targetID, channelID: $channelID) {
+
+		viewerCardModLogs(channelID: $channelID, targetID: $targetID) {
+			messages: messages(first: 1000) {
+				... on ViewerCardModLogsMessagesError {
+					code
+				}
+				... on ViewerCardModLogsMessagesConnection {
+					pageInfo {
+						hasNextPage
+					}
+					count
+				}
+			}
+			bans: targetedActions(first: 99, type: BAN) {
+				...modLogsTargetedActionsResultFragment
+			}
+			timeouts: targetedActions(first: 99, type: TIMEOUT) {
+				...modLogsTargetedActionsResultFragment
+			}
+			unbans: targetedActions(first: 99, type: UNBAN) {
+				...modLogsTargetedActionsResultFragment
+			}
+			untimeouts: targetedActions(first: 99, type: UNTIMEOUT) {
+				...modLogsTargetedActionsResultFragment
+			}
 			comments(first: 100) {
 				... on ModLogsCommentConnection {
 					edges {
 						cursor
 						node {
-							...modComment
+							id
+							timestamp
+							text
+							channel {
+								id
+							}
+							author {
+								id
+								login
+								displayName
+								chatColor
+							}
 						}
 					}
 					pageInfo {
@@ -192,77 +218,61 @@ export const twitchUserCardModLogsQuery = gql`
 						hasPreviousPage
 					}
 				}
+				... on ModLogsCommentsError {
+					code
+				}
+				__typename
 			}
 		}
 	}
 
-	fragment modLogs on ModLogs {
-		messages: messagesBySender(
-			senderID: $targetID
-			first: 1
-			includeMessageCount: true
-			includeTargetedActions: true
-			includeAutoModCaughtMessages: true
-		) {
-			messageCount
+	fragment modLogsTargetedActionsResultFragment on ModLogsTargetedActionsResult {
+		__typename
+		... on ModLogsTargetedActionsError {
+			code
 		}
-		bans: targetedModActions(targetID: $targetID, actionType: BAN_USER) {
+		... on ModLogsTargetedActionsConnection {
+			count
+			pageInfo {
+				hasNextPage
+			}
 			edges {
 				cursor
 				node {
-					...targetedModAction
+					...modLogsTargetedActionFragment
 				}
-			}
-			actionCount
-			pageInfo {
-				hasNextPage
-				hasPreviousPage
-			}
-		}
-		timeouts: targetedModActions(targetID: $targetID, actionType: TIMEOUT_USER) {
-			edges {
-				cursor
-				node {
-					...targetedModAction
-				}
-			}
-			actionCount
-			pageInfo {
-				hasNextPage
-				hasPreviousPage
 			}
 		}
 	}
 
-	fragment targetedModAction on ModLogsTargetedModActionsEntry {
+	fragment modLogsTargetedActionFragment on ModLogsTargetedAction {
 		id
-		action
+		localizedLabel {
+			fallbackString
+			...modActionTokens
+		}
 		timestamp
-		channel {
-			id
-			login
-		}
-		target {
-			id
-			login
-		}
-		user {
-			id
-			login
-		}
-		details {
-			...targetedModActionDetails
+		type
+	}
+
+	fragment modActionTokens on ModActionsLocalizedText {
+		localizedStringFragments {
+			...modActionText
 		}
 	}
 
-	fragment targetedModActionDetails on TargetedModActionDetails {
-		bannedAt
-		durationSeconds
-		expiresAt
-		reason
+	fragment modActionText on ModActionsLocalizedTextFragment {
+		token {
+			... on ModActionsLocalizedTextToken {
+				text
+			}
+			... on User {
+				displayName
+				login
+				id
+			}
+		}
 	}
-
-	${twitchModCommentFragment}
 `;
 
 export namespace twitchUserCardModLogsQuery {
@@ -270,6 +280,30 @@ export namespace twitchUserCardModLogsQuery {
 		channelID: string;
 		channelLogin: string;
 		targetID: string;
+	}
+
+	interface ModActionsLocalizedText {
+		id: string;
+		localizedLabel: {
+			fallbackString: string;
+			localizedStringFragments: {
+				token: TwTypeUser | { text: string };
+			}[];
+		};
+		timestamp: string;
+		type: "BAN" | "TIMEOUT" | "UNBAN" | "UNTIMEOUT";
+	}
+
+	interface ActionsConnection {
+		edges: {
+			cursor: string;
+			node: ModActionsLocalizedText;
+		}[];
+		count: number;
+		pageInfo: {
+			hasNextPage: boolean;
+			hasPreviousPage: boolean;
+		};
 	}
 
 	export interface Response {
@@ -280,33 +314,6 @@ export namespace twitchUserCardModLogsQuery {
 		channelUser: {
 			id: string;
 			login: string;
-			modLogs: {
-				messages: {
-					messageCount: number;
-				};
-				bans: {
-					edges: {
-						cursor: string;
-						node: TwTypeModEntry;
-					}[];
-					actionCount: number;
-					pageInfo: {
-						hasNextPage: boolean;
-						hasPreviousPage: boolean;
-					};
-				};
-				timeouts: {
-					edges: {
-						cursor: string;
-						node: TwTypeModEntry;
-					}[];
-					actionCount: number;
-					pageInfo: {
-						hasNextPage: boolean;
-						hasPreviousPage: boolean;
-					};
-				};
-			};
 		};
 		currentUser: {
 			login: string;
@@ -320,31 +327,28 @@ export namespace twitchUserCardModLogsQuery {
 					node: TwTypeModComment;
 				}[];
 			};
+
+			messages: {
+				count: number;
+			};
+			bans: ActionsConnection;
+			timeouts: ActionsConnection;
 		};
 	}
 }
 
 export const twitchUserCardMessagesQuery = gql`
-	query UserCardMessagesBySender($senderID: ID!, $channelLogin: String!, $cursor: Cursor) {
-		channel: user(login: $channelLogin) {
-			id
-			logs: modLogs {
-				bySender: messagesBySender(
-					senderID: $senderID
-					first: 50
-					order: DESC
-					includeMessageCount: false
-					includeTargetedActions: true
-					includeAutoModCaughtMessages: true
-					after: $cursor
-				) {
+	#import "twilight/features/message/fragments/message-sender/sender-fragment.gql"
+	#import "twilight/features/moderation/moderation-actions/hooks/use-get-mod-actions/mod-action-tokens-fragment.gql"
+	query ViewerCardModLogsMessagesBySender($channelID: ID!, $senderID: ID!, $cursor: Cursor) {
+		logs: viewerCardModLogs(channelID: $channelID, targetID: $senderID) {
+			messages(first: 50, after: $cursor) {
+				... on ViewerCardModLogsMessagesError {
+					code
+				}
+				... on ViewerCardModLogsMessagesConnection {
 					edges {
-						cursor
-						node {
-							...modLogsMessageFields
-							...autoModCaughtMessage
-							...targetedModAction
-						}
+						...viewerCardModLogsMessagesEdgeFragment
 					}
 					pageInfo {
 						hasNextPage
@@ -353,64 +357,118 @@ export const twitchUserCardMessagesQuery = gql`
 			}
 		}
 	}
-
-	fragment modLogsMessageFields on ModLogsMessage {
-		id
-		sentAt
-		sender {
-			...sender
+	fragment viewerCardModLogsMessagesEdgeFragment on ViewerCardModLogsMessagesEdge {
+		__typename
+		node {
+			...viewerCardModLogsCaughtMessageFragment
+			...viewerCardModLogsChatMessageFragment
+			...viewerCardModLogsModActionsMessageFragment
 		}
+		cursor
+	}
+	fragment viewerCardModLogsChatMessageFragment on ViewerCardModLogsChatMessage {
+		id
+		sender {
+			id
+			login
+			chatColor
+			displayName
+			displayBadges(channelID: $channelID) {
+				id
+				setID
+				version
+				__typename
+			}
+			__typename
+		}
+		sentAt
 		content {
 			text
+			fragments {
+				text
+				content {
+					... on Emote {
+						emoteID: id
+						setID
+						token
+					}
+					#mention
+					... on User {
+						id
+					}
+					__typename
+				}
+			}
+			__typename
 		}
 	}
-
-	fragment autoModCaughtMessage on AutoModCaughtMessage {
+	fragment viewerCardModLogsCaughtMessageFragment on ViewerCardModLogsCaughtMessage {
 		id
+		status
 		category
-		modLogsMessage {
-			id
-			sentAt
-			content {
-				text
-			}
-			sender {
-				...sender
-			}
-		}
+		sentAt
 		resolvedAt
+		content {
+			text
+			fragments {
+				text
+				content {
+					... on Emote {
+						emoteID: id
+						setID
+						token
+					}
+					... on User {
+						id
+					}
+					__typename
+				}
+			}
+			__typename
+		}
+		sender {
+			id
+			login
+			chatColor
+			displayName
+			displayBadges(channelID: $channelID) {
+				id
+				setID
+				version
+			}
+			__typename
+		}
 		resolver {
 			...sender
 		}
-		status
+		__typename
 	}
 
-	fragment targetedModAction on ModLogsTargetedModActionsEntry {
-		id
-		action
+	fragment viewerCardModLogsModActionsMessageFragment on ViewerCardModLogsModActionsMessage {
 		timestamp
-		channel {
-			id
-			login
-		}
-		target {
-			id
-			login
-		}
-		user {
-			id
-			login
-		}
-		details {
-			...targetedModActionDetails
+		content {
+			fallbackString
+			...modActionTokens
 		}
 	}
 
-	fragment targetedModActionDetails on TargetedModActionDetails {
-		bannedAt
-		durationSeconds
-		expiresAt
-		reason
+	fragment modActionTokens on ModActionsLocalizedText {
+		localizedStringFragments {
+			...modActionText
+		}
+	}
+
+	fragment modActionText on ModActionsLocalizedTextFragment {
+		token {
+			... on ModActionsLocalizedTextToken {
+				text
+			}
+			... on User {
+				displayName
+				login
+				id
+			}
+		}
 	}
 
 	fragment sender on User {
@@ -429,22 +487,20 @@ export const twitchUserCardMessagesQuery = gql`
 export namespace twitchUserCardMessagesQuery {
 	export interface Variables {
 		senderID: string;
-		channelLogin: string;
+		channelID: string;
 		cursor?: string;
 	}
 
 	export interface Response {
-		channel: {
+		logs: {
 			id: string;
-			logs: {
-				bySender: {
-					edges: {
-						cursor: string;
-						node: TwTypeMessage;
-					}[];
-					pageInfo: {
-						hasNextPage: boolean;
-					};
+			messages: {
+				edges: {
+					cursor: string;
+					node: TwTypeMessage;
+				}[];
+				pageInfo: {
+					hasNextPage: boolean;
 				};
 			};
 		};

@@ -6,8 +6,13 @@
 					:is="isModSliderEnabled && ctx.actor.roles.has('MODERATOR') && msg.author ? ModSlider : 'span'"
 					v-bind="{ msg }"
 				>
-					<component :is="msg.instance" v-bind="msg.componentProps" :msg="msg">
-						<UserMessage :msg="msg" :emotes="emotes.active" :chatters="messages.chattersByUsername" />
+					<component :is="msg.instance" v-slot="slotProps" v-bind="msg.componentProps" :msg="msg">
+						<UserMessage
+							v-bind="slotProps"
+							:msg="msg"
+							:emotes="emotes.active"
+							:chatters="messages.chattersByUsername"
+						/>
 					</component>
 				</component>
 			</template>
@@ -110,6 +115,7 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.CHANNEL_POINTS_REWARD:
 		case MessageType.ANNOUNCEMENT_MESSAGE:
 		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
+		case MessageType.PAID_MESSAGE:
 		case MessageType.CONNECTED:
 			onChatMessage(msg, msgData);
 			break;
@@ -128,6 +134,7 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 
 	// Send message to our registered message handlers
 	messages.handlers.forEach((h) => h(msgData));
+
 	return true;
 };
 
@@ -242,7 +249,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 						id: e.emoteID ?? "",
 						name: e.alt,
 						flags: 0,
-						provider: "TWITCH",
+						provider: "PLATFORM",
 						isTwitchCheer: {
 							amount: e.cheerAmount!,
 							color: e.cheerColor!,
@@ -492,9 +499,8 @@ watch(
 
 		if (enabled) {
 			chatHighlights.define("~mention", {
-				pattern: rxs,
-				regexp: true,
-				cachedRegExp: rx,
+				test: (msg) =>
+					!!(identity && msg.author && msg.author.username !== identity.username && rx.test(msg.body)),
 				label: "Mentions You",
 				color: "#e13232",
 				soundPath: sound ? "#ping" : undefined,
@@ -505,7 +511,14 @@ watch(
 			});
 
 			chatHighlights.define("~reply", {
-				test: (msg) => !!(msg.parent && msg.parent.author && rx.test(msg.parent.author.username)),
+				test: (msg) =>
+					!!(
+						msg.parent &&
+						msg.parent.author &&
+						msg.author &&
+						msg.author.username !== msg.parent.author.username &&
+						rx.test(msg.parent.author.username)
+					),
 				label: "Replying to You",
 				color: "#e13232",
 				soundPath: sound ? "#ping" : undefined,

@@ -8,7 +8,7 @@ import { WorkerPort } from "./worker.port";
 import { EventAPIMessage, EventAPIOpCode, EventContext, SubscriptionData } from ".";
 
 export class EventAPI {
-	private transport: EventAPITransport | null = null;
+	private transport: EventAPITransport = "WebSocket";
 	private heartbeatInterval: number | null = null;
 	private backoff = 100;
 
@@ -19,6 +19,9 @@ export class EventAPI {
 	private socket: WebSocket | null = null;
 	private eventSource: EventSource | null = null;
 	private shouldResume = false;
+	private shouldReconnect = true;
+	private disconnectTimer: number | null = null;
+	private disconnectReason = "";
 
 	get platform(): Platform {
 		return "TWITCH";
@@ -51,6 +54,9 @@ export class EventAPI {
 					data: d,
 				});
 			};
+			this.shouldReconnect = true;
+			this.disconnectTimer = null;
+			this.disconnectReason = "";
 		}
 
 		log.debug("<EventAPI>", "Connecting...", `url=${this.url}`);
@@ -74,6 +80,12 @@ export class EventAPI {
 			case "ACK":
 				this.onAck(msg as EventAPIMessage<"ACK">);
 				break;
+			case "ENDOFSTREAM": {
+				const eos = msg as EventAPIMessage<"ENDOFSTREAM">;
+
+				log.warn("<EventAPI>", "End of stream", `| ${eos.data.code} ${eos.data.message}`);
+				break;
+			}
 
 			default:
 				break;
@@ -87,10 +99,13 @@ export class EventAPI {
 	private onHello(msg: EventAPIMessage<"HELLO">): void {
 		if (this.shouldResume) {
 			this.resume(this.sessionID);
+		} else if (this.sessionID) {
+			this.syncSubscriptions();
 		}
 
 		this.sessionID = msg.data.session_id;
 		this.heartbeatInterval = msg.data.heartbeat_interval;
+		this.backoff = 100;
 
 		this.shouldResume = false;
 
@@ -134,19 +149,10 @@ export class EventAPI {
 						`dispatchesReplayed=${dispatches_replayed} subscriptionsRestored=${subscriptions_restored}`,
 					);
 				} else {
-					log.error("<EventAPI>", "Resume failed, manually reconfiguring...");
+					log.debug("<EventAPI>", "Resume failed, manually reconfiguring...");
 
 					this.shouldResume = false;
-
-					for (const [t, rec] of Object.entries(this.subscriptions)) {
-						delete this.subscriptions[t];
-
-						for (const sub of rec) {
-							for (const port of sub.ports.values()) {
-								for (const channelID of sub.channels) this.subscribe(t, sub.condition, port, channelID);
-							}
-						}
-					}
+					this.syncSubscriptions();
 				}
 			}
 		}
@@ -187,6 +193,15 @@ export class EventAPI {
 			channels: new Set([channelID]),
 		});
 
+		if (this.socket === null) {
+			this.connect(this.transport);
+		}
+
+		if (typeof this.disconnectTimer === "number" && this.disconnectReason === "inactive") {
+			clearTimeout(this.disconnectTimer);
+			this.disconnectTimer = null;
+		}
+
 		this.sendMessage({
 			op: "SUBSCRIBE",
 			data: {
@@ -203,6 +218,9 @@ export class EventAPI {
 		sub.ports.delete(port.id);
 		if (sub.ports.size <= 0) {
 			this.subscriptions[type] = this.subscriptions[type].filter((c) => c !== sub);
+			if (!this.subscriptions[type].length) {
+				delete this.subscriptions[type];
+			}
 
 			this.sendMessage({
 				op: "UNSUBSCRIBE",
@@ -211,6 +229,10 @@ export class EventAPI {
 					condition,
 				},
 			});
+		}
+
+		if (!Object.keys(this.subscriptions).length) {
+			this.disconnect(false, 5e3, "inactive");
 		}
 	}
 
@@ -248,6 +270,18 @@ export class EventAPI {
 		return result;
 	}
 
+	syncSubscriptions(): void {
+		for (const [t, rec] of Object.entries(this.subscriptions)) {
+			delete this.subscriptions[t];
+
+			for (const sub of rec) {
+				for (const port of sub.ports.values()) {
+					for (const channelID of sub.channels) this.subscribe(t, sub.condition, port, channelID);
+				}
+			}
+		}
+	}
+
 	sendMessage<O extends keyof typeof EventAPIOpCode>(msg: EventAPIMessage<O>): void {
 		// retry if we're no primary has been selected or the socket isn't ready
 		if (!(this.socket && this.socket.readyState === WebSocket.OPEN)) {
@@ -269,11 +303,18 @@ export class EventAPI {
 
 	private onClose(): void {
 		this.socket = null;
-		const n = this.reconnect();
 
-		this.shouldResume = true;
+		let n = 0;
+		if (this.shouldReconnect) {
+			n = this.reconnect();
+			this.shouldResume = true;
+		}
 
-		log.debug("<EventAPI>", "Disconnected", `url=${this.url}, reconnect=${n}`);
+		log.debug(
+			"<EventAPI>",
+			"Disconnected",
+			`url=${this.url}, reconnect=${n || "no"}, ${this.disconnectReason && `reason=${this.disconnectReason}`}`,
+		);
 	}
 
 	reconnect(): number {
@@ -287,11 +328,23 @@ export class EventAPI {
 		return jitter;
 	}
 
-	disconnect(): void {
-		if (!this.socket) return;
+	disconnect(shouldReconnect = true, timer = 0, reason = ""): void {
+		this.disconnectReason = reason;
 
-		this.socket.close(1000);
-		this.socket = null;
+		const f = () => {
+			if (!this.socket) return;
+
+			this.socket.close(1000);
+			this.socket = null;
+			this.shouldReconnect = shouldReconnect;
+			this.disconnectTimer = null;
+		};
+
+		if (timer) {
+			this.disconnectTimer = setTimeout(f, timer);
+		} else {
+			f();
+		}
 	}
 }
 

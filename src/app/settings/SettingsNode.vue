@@ -9,10 +9,10 @@
 	>
 		<div class="label">
 			<div class="title" :class="{ unseen }">
-				{{ node.label }}
+				{{ te(node.label) ? t(node.label) : node.label }}
 			</div>
 			<div v-if="node.hint" class="subtitle">
-				{{ node.hint }}
+				{{ te(node.hint) ? t(node.hint) : node.hint }}
 			</div>
 		</div>
 		<div v-if="node.custom && node.custom.gridMode === 'new-row'" class="content">
@@ -25,13 +25,14 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { useTimeoutFn } from "@vueuse/shared";
-import FormCheckbox from "@/site/global/settings/control/FormCheckbox.vue";
-import FormDropdown from "@/site/global/settings/control/FormDropdown.vue";
-import FormInput from "@/site/global/settings/control/FormInput.vue";
-import FormSelect from "@/site/global/settings/control/FormSelect.vue";
-import FormSlider from "@/site/global/settings/control/FormSlider.vue";
-import FormToggle from "@/site/global/settings/control/FormToggle.vue";
+import FormCheckbox from "@/app/settings/control/FormCheckbox.vue";
+import FormDropdown from "@/app/settings/control/FormDropdown.vue";
+import FormInput from "@/app/settings/control/FormInput.vue";
+import FormSelect from "@/app/settings/control/FormSelect.vue";
+import FormSlider from "@/app/settings/control/FormSlider.vue";
+import FormToggle from "@/app/settings/control/FormToggle.vue";
 
 const props = defineProps<{
 	node: SevenTV.SettingNode<SevenTV.SettingType>;
@@ -41,6 +42,8 @@ const props = defineProps<{
 const emit = defineEmits<{
 	(e: "seen"): void;
 }>();
+
+const { t, te } = useI18n();
 
 function onHover(): void {
 	if (!props.unseen) return;

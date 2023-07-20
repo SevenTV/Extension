@@ -46,10 +46,16 @@ export class WorkerHttp {
 			this.driver.eventAPI.unsubscribeChannel(ev.detail.id, ev.port);
 		});
 		driver.addEventListener("identity_updated", async (ev) => {
-			const user = await this.API().seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id);
+			const user = await this.API()
+				.seventv.loadUserData(ev.port?.platform ?? "TWITCH", ev.detail.id)
+				.catch(() => void 0);
 			if (user && ev.port) {
 				ev.port.user = user;
 			}
+
+			ev.port?.postMessage("IDENTITY_FETCHED", {
+				user: user ?? null,
+			});
 		});
 		driver.addEventListener("set_channel_presence", (ev) => {
 			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.detail) return;
@@ -97,13 +103,13 @@ export class WorkerHttp {
 		);
 
 		// setup fetching promises
-		const user = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
+		const userPromise = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
 
 		const promises = [
-			["7TV", user.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
-			["FFZ", frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
-			["BTTV", betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
-		] as [string, Promise<SevenTV.EmoteSet>][];
+			["7TV", () => userPromise.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
+			["FFZ", () => frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
+			["BTTV", () => betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
+		] as [SevenTV.Provider, () => Promise<SevenTV.EmoteSet>][];
 
 		const onResult = async (set: SevenTV.EmoteSet) => {
 			if (!set) return;
@@ -123,7 +129,9 @@ export class WorkerHttp {
 		// iterate results and store sets to DB
 		const sets = [] as SevenTV.EmoteSet[];
 		for (const [provider, setP] of promises) {
-			const set = await setP.catch((err) =>
+			if (!port.providers.has(provider)) continue;
+
+			const set = await setP().catch((err) =>
 				this.driver.log.error(
 					`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`,
 					err,
@@ -135,7 +143,7 @@ export class WorkerHttp {
 			await onResult(set);
 		}
 
-		channel.user = (await user)?.user ?? undefined;
+		channel.user = (await userPromise)?.user ?? undefined;
 		if (port) {
 			// Post channel fetch notification back to port
 			port.postMessage("CHANNEL_FETCHED", {
@@ -155,13 +163,17 @@ export class WorkerHttp {
 				port,
 				channel.id,
 			);
-			if (set.owner) this.driver.eventAPI.subscribe("user.*", { object_id: set.owner.id }, port, channel.id);
+		}
+
+		const user = await userPromise;
+		if (user) {
+			this.driver.eventAPI.subscribe("user.*", { object_id: user.id }, port, channel.id);
 		}
 
 		// begin subscriptions to personal events in the channel
 		const cond = {
 			ctx: "channel",
-			platform: "TWITCH",
+			platform: port.platform ?? "TWITCH",
 			id: channel.id,
 		};
 
@@ -190,10 +202,12 @@ export class WorkerHttp {
 			const badges = [...(seventv ? converted[0] : []), ...(ffz ? convertFfzBadges(ffz) : [])];
 			const paints = converted[1] ?? [];
 
-			port.postMessage("STATIC_COSMETICS_FETCHED", {
-				badges,
-				paints,
-			});
+			setTimeout(() => {
+				port.postMessage("STATIC_COSMETICS_FETCHED", {
+					badges,
+					paints,
+				});
+			}, 5000);
 
 			log.info(`<Static Cosmetics> ${badges.length} badges, ${paints.length} paints`);
 		});
