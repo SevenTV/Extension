@@ -117,9 +117,8 @@ async function read(file: Blob): Promise<string> {
 
 <style scoped lang="scss">
 main.seventv-settings-backup {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+	display: grid;
+	place-items: center;
 
 	.seventv-settings-backup-error {
 		color: rgb(196, 43, 43);
