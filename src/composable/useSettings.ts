@@ -5,8 +5,6 @@ import { useFrankerFaceZ } from "./useFrankerFaceZ";
 import { useLiveQuery } from "./useLiveQuery";
 import { saveAs } from "file-saver";
 
-// import { useStore } from "@/store/main";
-
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
 
@@ -22,15 +20,6 @@ const deserializationFunctions: {
 		return new Set(value as Iterable<SevenTV.SettingType>);
 	},
 };
-// const { platform } = useStore();
-/*
-Uncaught (in promise) Error: [🍍]: "getActivePinia()" was called but there was no active Pinia. Did you forget to install pinia?
-	const pinia = createPinia()
-	app.use(pinia)
-This will fail in production.
-    at useStore (pinia.mjs:1699:19)
-    at useSettings.ts:14:15
-*/
 
 export interface SerializedSettings {
 	timestamp: number;
