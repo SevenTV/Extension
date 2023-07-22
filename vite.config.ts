@@ -21,6 +21,7 @@ const ignoreHMR = [
 	"EmoteMenuModule.vue",
 	"SettingsModule.vue",
 	"SidebarPreviewsModule.vue",
+	"PlayerModule.vue",
 ];
 
 const alwaysHot = ["src/background/background.ts", "src/content/content.ts", "src/content/emoji.ts"];
