@@ -52,7 +52,9 @@ function doUpdateCheck(): void {
 	border-radius: 0.25rem;
 	background: var(--seventv-background-shade-1);
 	color: var(--seventv-accent);
-	transition: background 0.25s ease-in-out, color 0.25s ease-in-out;
+	transition:
+		background 0.25s ease-in-out,
+		color 0.25s ease-in-out;
 
 	&:hover {
 		background: var(--seventv-accent);

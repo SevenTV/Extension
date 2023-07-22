@@ -15,7 +15,10 @@ export const ActiveEmoteFlags = {
 };
 
 class BitFieldOps<T extends Record<string, number>> {
-	constructor(private e: T, public sum: number) {}
+	constructor(
+		private e: T,
+		public sum: number,
+	) {}
 
 	has(bit: keyof T): boolean {
 		return (this.sum & this.e[bit]) === this.e[bit];
