@@ -62,7 +62,7 @@ export const config = [
 		hint: "If checked, the list of recent hype chats will be hidden",
 		defaultValue: false,
 	}),
-	declareConfig("chat.hide_timestamp-vods", "TOGGLE", {
+	declareConfig("chat.hide_timestamps_vods", "TOGGLE", {
 		label: "Hide VOD Timestamps",
 		path: ["Chat", "VODs"],
 		hint: "If checked, timestamp for chat will be hidden",
@@ -210,7 +210,7 @@ export const config = [
 	}
 }
 
-.seventv-hide-timestamp-vods {
+.seventv-hide-timestamps-vods {
 	div[class$="vod-message__header"],
 	.seventv-chat-vod-message-timestamp {
 		display: none !important;
