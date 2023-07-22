@@ -6,11 +6,9 @@
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Added an option to select default Emote Menu tab
 -   Added artist attribution to emote card
-<<<<<<< HEAD
 -   Added ability to reset settings to their defaults
-=======
 -	Added an option to hide timestamps in vods
->>>>>>> 914c12f (This adds option to hide timestamps mention in #773)
+
 
 ### 3.0.14.1000
 
