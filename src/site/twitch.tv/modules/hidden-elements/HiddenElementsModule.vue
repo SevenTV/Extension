@@ -63,7 +63,7 @@ export const config = [
 		defaultValue: false,
 	}),
 	declareConfig("chat.hide_timestamp-vods", "TOGGLE", {
-		label: "Hide VOD Timestamp",
+		label: "Hide VOD Timestamps",
 		path: ["Chat", "VODs"],
 		hint: "If checked, timestamp for chat will be hidden",
 		defaultValue: false,
