@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { useTimeoutFn } from "@vueuse/shared";
+import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { useConfig } from "@/composable/useSettings";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
@@ -63,7 +64,9 @@ const currentSetting = useConfig<SevenTV.SettingType>(props.node.key);
 // set the currentSetting back to default to trigger UI change before removing from the settings db
 function resetSetting() {
 	currentSetting.value = props.node.defaultValue;
-	db.settings.delete(props.node.key);
+	db.settings
+		.delete(props.node.key)
+		.catch((err) => log.error("failed to remove setting", props.node.key, "from db:", err));
 }
 
 const standard = {
