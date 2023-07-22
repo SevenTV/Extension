@@ -210,15 +210,18 @@ const filterSets = debounceFn(() => {
 	}
 
 	if (props.provider === "PLATFORM") {
-		const res = ary.reduce((accu, cur) => {
-			const p = accu[cur.name];
-			if (p) {
-				p.emotes.push(...cur.emotes);
-			} else {
-				accu[cur.name] = { set: cur, emotes: [...cur.emotes] };
-			}
-			return accu;
-		}, {} as Record<string, { set: SevenTV.EmoteSet; emotes: SevenTV.ActiveEmote[] }>);
+		const res = ary.reduce(
+			(accu, cur) => {
+				const p = accu[cur.name];
+				if (p) {
+					p.emotes.push(...cur.emotes);
+				} else {
+					accu[cur.name] = { set: cur, emotes: [...cur.emotes] };
+				}
+				return accu;
+			},
+			{} as Record<string, { set: SevenTV.EmoteSet; emotes: SevenTV.ActiveEmote[] }>,
+		);
 
 		ary.splice(0, ary.length, ...Object.values(res).map((e) => ({ ...e.set, emotes: e.emotes })));
 	}

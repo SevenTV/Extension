@@ -4,7 +4,7 @@
 			v-for="con of chatController.instance?.chatController.instances ?? []"
 			:key="con.component.props.channelID"
 			:handle="com?.handle"
-			:initial-anchor="(buttonRef.current as HTMLDivElement)"
+			:initial-anchor="buttonRef.current as HTMLDivElement"
 			:initial-middleware="[shift({ padding: { bottom: 96, right: 8 }, crossAxis: true })]"
 		>
 			<ModLogs ref="com" :channel-id="con.component.props.channelID" @close="open = false" />

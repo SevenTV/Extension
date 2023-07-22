@@ -101,7 +101,7 @@ function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: 
 		({
 			0: token.toLowerCase().startsWith(prefix),
 			1: token.toLowerCase().includes(prefix),
-		}[testMode]);
+		})[testMode];
 
 	for (const [token, ae] of Object.entries(cosmetics.emotes)) {
 		if (usedTokens.has(token) || !test(token)) continue;

@@ -32,7 +32,7 @@ export const useStore = defineStore("main", {
 			workers: {
 				net: null,
 			},
-		} as State),
+		}) as State,
 
 	actions: {
 		setIdentity<T extends Platform>(platform: T, identity: PlatformIdentity<T> | null) {

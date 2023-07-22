@@ -15,7 +15,10 @@ export class WorkerPort {
 	user: SevenTV.User | null = null;
 	imageFormat: SevenTV.ImageFormat | null = null;
 
-	constructor(private driver: WorkerDriver, private port: MessagePort) {
+	constructor(
+		private driver: WorkerDriver,
+		private port: MessagePort,
+	) {
 		this.id = Symbol("seventv-worker-port");
 		this.seq = driver.portSeq++ + 1;
 		this.driver.log.debug(`Port opened: #${this.seq.toString()}`);

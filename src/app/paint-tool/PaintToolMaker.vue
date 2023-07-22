@@ -49,14 +49,14 @@
 					:component-type="PaintToolGradient"
 					grid-area="gradients"
 					:data="data.gradients"
-					@update="(d) => data.gradients = (d as SevenTV.CosmeticPaintGradient[])"
+					@update="(d) => (data.gradients = d as SevenTV.CosmeticPaintGradient[])"
 				/>
 				<PaintToolList
 					color="#f5e6ce"
 					:component-type="PaintToolShadow"
 					grid-area="shadows"
 					:data="data.shadows"
-					@update="(d) => data.shadows = (d as SevenTV.CosmeticPaintShadow[])"
+					@update="(d) => (data.shadows = d as SevenTV.CosmeticPaintShadow[])"
 				/>
 				<div class="text-mod"></div>
 				<div class="text"></div>

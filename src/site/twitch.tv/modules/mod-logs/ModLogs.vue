@@ -53,7 +53,7 @@
 							<component :is="activeTab.icon" />
 							<span>{{ activeTab.name }}</span>
 						</p>
-						<component :is="(activeTab.com as AnyInstanceType)" />
+						<component :is="activeTab.com as AnyInstanceType" />
 					</template>
 				</div>
 			</UiScrollable>

@@ -3,7 +3,7 @@
 		<div v-if="ctx.activeStep" class="active-content">
 			<Transition name="step-animation" mode="out-in">
 				<KeepAlive>
-					<component :is="(ctx.activeStep.component as AnyInstanceType)" @completed="toStep(1)" />
+					<component :is="ctx.activeStep.component as AnyInstanceType" @completed="toStep(1)" />
 				</KeepAlive>
 			</Transition>
 		</div>
@@ -189,7 +189,9 @@ main.onboarding {
 			clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 			background: var(--seventv-muted);
 			margin: 0 0.25vw;
-			transition: background 0.25s ease, transform 140ms ease;
+			transition:
+				background 0.25s ease,
+				transform 140ms ease;
 
 			&:hover {
 				cursor: pointer;
