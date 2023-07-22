@@ -4,8 +4,8 @@
 		<p>Export your current settings or import from a settings file</p>
 
 		<div class="seventv-settings-backup-buttons">
-			<UiButton class="seventv-settings-backup-button" @click="exportSettings">Export</UiButton>
-			<UiButton class="seventv-settings-backup-button" @click="importSettings">Import</UiButton>
+			<UiButton class="seventv-settings-backup-button" @click="exportSettingsFile">Export</UiButton>
+			<UiButton class="seventv-settings-backup-button" @click="importSettingsFile">Import</UiButton>
 		</div>
 		<div v-if="error">
 			<p class="seventv-settings-backup-error">There was an error exporting/importing your settings!</p>
@@ -25,9 +25,9 @@ import { log } from "@/common/Logger";
 import {
 	SerializedSettings,
 	deserializeSettings,
-	exportSettings as e,
+	exportSettings,
 	getUnserializableSettings,
-	importSettings as i,
+	importSettings,
 } from "@/composable/useSettings";
 import UiButton from "@/ui/UiButton.vue";
 
@@ -38,16 +38,16 @@ const unserializableSettings = getUnserializableSettings()
 	.map((s) => s.label)
 	.filter((s) => s !== "");
 
-async function exportSettings() {
+async function exportSettingsFile() {
 	error.value = false;
 
-	e(platform).catch((err) => {
+	exportSettings(platform).catch((err) => {
 		error.value = true;
 		log.error("failed to export settings", err);
 	});
 }
 
-async function importSettings() {
+async function importSettingsFile() {
 	error.value = false;
 
 	const fileList = await open();
@@ -75,7 +75,7 @@ async function importSettings() {
 
 	log.debugWithObjects(["<Settings>", "Deserialized settings file"], [deserializedSettings]);
 	try {
-		await i(deserializedSettings);
+		await importSettings(deserializedSettings);
 		log.info("<Settings>", "Loaded settings from file");
 	} catch (err) {
 		log.error("failed to save settings from file", (err as Error).message);
