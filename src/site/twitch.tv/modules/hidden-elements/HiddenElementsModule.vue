@@ -212,7 +212,7 @@ export const config = [
 
 .seventv-hide-timestamp-vods {
 	div[class$="vod-message__header"],
-	span[class$="seventv-chat-vod-message-timestamp"] {
+	.seventv-chat-vod-message-timestamp {
 		display: none !important;
 	}
 }
