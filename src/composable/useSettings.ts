@@ -3,7 +3,6 @@ import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { useFrankerFaceZ } from "./useFrankerFaceZ";
 import { useLiveQuery } from "./useLiveQuery";
-import { saveAs } from "file-saver";
 
 const raw = reactive({} as Record<string, SevenTV.SettingType>);
 const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
@@ -101,7 +100,7 @@ export function getUnserializableSettings() {
 	return out;
 }
 
-export async function exportSettings(platform: Platform) {
+export async function exportSettings() {
 	return db.ready().then(async () => {
 		const s = await db.settings.toArray();
 		const serializedSettings: SerializedSetting[] = serializeSettings(
@@ -117,7 +116,7 @@ export async function exportSettings(platform: Platform) {
 			type: "text/plain",
 		});
 		log.info("<Settings>", "Exporting settings");
-		saveAs(blob, `7tv_settings_${platform}-${new Date().toLocaleDateString()}.json`);
+		return URL.createObjectURL(blob);
 	});
 }
 

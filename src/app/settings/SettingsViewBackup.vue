@@ -41,10 +41,17 @@ const unserializableSettings = getUnserializableSettings()
 async function exportSettingsFile() {
 	error.value = false;
 
-	exportSettings(platform).catch((err) => {
+	try {
+		const url = await exportSettings();
+		const anchor = document.createElement("a");
+		anchor.href = url;
+		anchor.download = `7tv_settings_${platform}-${new Date().toLocaleDateString()}.json`;
+		anchor.click();
+		URL.revokeObjectURL(url);
+	} catch (err) {
 		error.value = true;
-		log.error("failed to export settings", err);
-	});
+		log.error("failed to export settings", (err as Error).message);
+	}
 }
 
 async function importSettingsFile() {
