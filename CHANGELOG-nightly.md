@@ -7,6 +7,7 @@
 -   Added an option to select default Emote Menu tab
 -   Added artist attribution to emote card
 -   Added ability to reset settings to their defaults
+-   Fixed an issue with tab auto-completion on Kick
 
 ### 3.0.14.1000
 
