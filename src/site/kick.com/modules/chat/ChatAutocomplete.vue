@@ -131,6 +131,7 @@ const tab = reactive({
 	matches: [] as SevenTV.ActiveEmote[],
 	index: -1,
 	cursorLocation: -1,
+	previousText: "",
 });
 
 function handleTab(n: Text, sel: Selection, back = false): void {
@@ -141,7 +142,8 @@ function handleTab(n: Text, sel: Selection, back = false): void {
 
 	const text = n.textContent ?? "";
 	const tokenStart = text.substring(0, focusOffset).lastIndexOf(" ", focusOffset);
-	if (sel.anchorOffset != tab.cursorLocation) {
+
+	if (sel.anchorOffset != tab.cursorLocation || text !== tab.previousText) {
 		tab.matches = [];
 		tab.index = -1;
 		tab.cursorLocation = sel.anchorOffset;
@@ -161,6 +163,7 @@ function handleTab(n: Text, sel: Selection, back = false): void {
 	const selectedToken = tab.matches[tab.index];
 	const spaceAtEnd = end === n.length;
 	const textNode = document.createTextNode(`${selectedToken.name}${spaceAtEnd ? "" : " "}`);
+	tab.previousText = textNode.textContent ?? "";
 
 	const range = document.createRange();
 	range.setStart(n, start - searchWord.length);
