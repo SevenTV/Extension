@@ -225,9 +225,7 @@ onClickOutside(containerRef, (ev) => {
 				font-size: 1.5em;
 			}
 
-			transition:
-				width 120ms ease-in-out,
-				background 150ms ease-in-out;
+			transition: width 120ms ease-in-out, background 150ms ease-in-out;
 
 			&[selected="true"] {
 				background: var(--seventv-highlight-neutral-1);
