@@ -2,13 +2,13 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   Fixed an issue where mentioning yourself would highlight the message
--   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Added an option to select default Emote Menu tab
 -   Added artist attribution to emote card
 -   Added ability to reset settings to their defaults
--	Added an option to hide timestamps in vods
-
+-   Fixed an issue where mentioning yourself would highlight the message
+-   Fixed an issue where replying to a thread starting from your own message would highlight the message
+-   Fixed an issue where emotes would take a long time to load if external emote providers gave slow response times
+-	  Added an option to hide timestamps in vods
 
 ### 3.0.14.1000
 
