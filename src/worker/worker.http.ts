@@ -112,7 +112,7 @@ export class WorkerHttp {
 		] as [SevenTV.Provider, () => Promise<SevenTV.EmoteSet>][];
 
 		const onResult = async (set: SevenTV.EmoteSet) => {
-			if (!set) return;
+			if (!set || !set.id) return;
 
 			// store set to DB
 			await db.withErrorFallback(db.emoteSets.put(set), () =>
@@ -127,20 +127,17 @@ export class WorkerHttp {
 		};
 
 		// iterate results and store sets to DB
-		const sets = [] as SevenTV.EmoteSet[];
-		for (const [provider, setP] of promises) {
+		for (const [provider, fetchSetData] of promises) {
 			if (!port.providers.has(provider)) continue;
 
-			const set = await setP().catch((err) =>
-				this.driver.log.error(
-					`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`,
-					err,
-				),
-			);
-			if (!set) continue;
-
-			sets.push(set);
-			await onResult(set);
+			fetchSetData()
+				.then(onResult)
+				.catch((err) =>
+					this.driver.log.error(
+						`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`,
+						err,
+					),
+				);
 		}
 
 		channel.user = (await userPromise)?.user ?? undefined;
@@ -149,20 +146,6 @@ export class WorkerHttp {
 			port.postMessage("CHANNEL_FETCHED", {
 				channel,
 			});
-		}
-
-		// begin subscriptions to channel emote sets
-		for (const set of sets) {
-			if (set.provider !== "7TV") continue; // we only care about 7TV sets, as others have no events
-
-			this.driver.eventAPI.subscribe(
-				"emote_set.*",
-				{
-					object_id: set.id,
-				},
-				port,
-				channel.id,
-			);
 		}
 
 		const user = await userPromise;
