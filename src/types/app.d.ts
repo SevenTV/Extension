@@ -72,6 +72,7 @@ declare namespace SevenTV {
 		type: typeof T;
 		value: T;
 		timestamp?: number;
+		serialize?: boolean;
 	}
 
 	interface SettingNode<T = SettingType, K = SettingNode.ComponentType> {
@@ -89,6 +90,7 @@ declare namespace SevenTV {
 
 		defaultValue: T;
 		value?: T;
+		serialize?: boolean;
 		disabledIf?: () => boolean;
 		predicate?: (p: T) => boolean;
 		effect?: (v: T) => void;
