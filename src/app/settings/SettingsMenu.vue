@@ -28,7 +28,7 @@
 							<input v-model="filter" placeholder="Search..." class="seventv-settings-search-input" />
 						</div>
 
-						<UiScrollable>
+						<UiScrollable @container-scroll="processSidebarScroll">
 							<div class="seventv-settings-sidebar-categories">
 								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
@@ -62,6 +62,16 @@
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('backup')"
 								/>
+								<div
+									class="seventv-settings-expansion-indicator"
+									:style="{ opacity: sidebarAtTop ? 1 : 0 }"
+								>
+									<div class="color-overlay">
+										<div class="shade-1"></div>
+										<div class="transparent-2"></div>
+									</div>
+									<DropdownIcon class="expansion-icon" />
+								</div>
 							</div>
 						</UiScrollable>
 
@@ -105,6 +115,7 @@ import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
+import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import LogoutIcon from "@/assets/svg/icons/LogoutIcon.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
@@ -205,6 +216,16 @@ function isOrdered(c: string): c is keyof typeof categoryOrder {
 
 function openAuthWindow(): void {
 	actor.openAuthorizeWindow(platform);
+}
+
+const sidebarAtTop = ref(true);
+
+function processSidebarScroll(event: Event) {
+	const target = event.target;
+
+	if (target instanceof Element) {
+		sidebarAtTop.value = target.scrollTop < 3;
+	}
 }
 
 const keys = useMagicKeys();
@@ -417,6 +438,48 @@ watch(
 	.seventv-settings-sidebar,
 	.seventv-settings-view {
 		height: calc(60vh);
+	}
+}
+
+.seventv-settings-expansion-indicator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	padding: 1rem;
+	pointer-events: none;
+	opacity: 1;
+	transition: opacity linear 200ms;
+
+	.color-overlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		mask-image: linear-gradient(to top, rgba(0, 0, 0, 100%), rgba(0, 0, 0, 0%));
+		/* stylelint-disable-next-line property-no-vendor-prefix */
+		-webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 100%), rgba(0, 0, 0, 0%));
+
+		> * {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
+
+		.shade-1 {
+			background: var(--seventv-background-shade-1);
+		}
+
+		.transparent-2 {
+			background: var(--seventv-background-transparent-2);
+		}
+	}
+
+	.expansion-icon {
+		margin-top: 3rem;
+		font-size: 1.75rem;
+		transform: rotate(180deg);
 	}
 }
 </style>
