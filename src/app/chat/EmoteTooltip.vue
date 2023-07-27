@@ -51,6 +51,7 @@
 				<div v-if="isChannel" class="label-channel">Channel Emote</div>
 				<div v-if="isPersonal" class="label-sub-feature">Personal Emote</div>
 				<div v-if="isZeroWidth" class="label-sub-feature">Zero-Width</div>
+				<div v-if="isMirrorEmote">Mirrored</div>
 			</div>
 
 			<!-- Emoji Data -->
@@ -120,6 +121,7 @@ const isSubscriber = props.emote.scope === "SUB";
 const isChannel = props.emote.scope === "CHANNEL";
 const isPersonal = props.emote.scope === "PERSONAL";
 const isZeroWidth = (props.emote.flags || 0 & 256) !== 0;
+const isMirrorEmote = props.emote.data?.mirrored && true;
 
 const emojiData = ref<Emoji | null>(null);
 if (props.emote.unicode) {

@@ -8,6 +8,7 @@
 -   Fixed an issue where mentioning yourself would highlight the message
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Fixed an issue where emotes would take a long time to load if external emote providers gave slow response times
+-   Added a feature to horizontal flip emotes with a suffix character modifier
 
 ### 3.0.14.1000
 

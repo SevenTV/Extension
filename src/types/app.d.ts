@@ -23,6 +23,7 @@ declare namespace SevenTV {
 		owner: User | null;
 		host: ImageHost;
 		versions?: EmoteVersion[];
+		mirrored?: boolean;
 	}
 
 	interface EmoteVersion {

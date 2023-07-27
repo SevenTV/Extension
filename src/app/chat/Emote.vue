@@ -5,7 +5,7 @@
 			class="seventv-chat-emote"
 			:srcset="unload ? '' : processSrcSet(emote)"
 			:alt="emote.name"
-			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
+			:class="{ blur: hideUnlisted && emote.data?.listed === false, mirror: isMirrorEmote(emote) === true }"
 			loading="lazy"
 			decoding="async"
 			@load="onImageLoad"
@@ -135,6 +135,12 @@ const { show, hide } = useTooltip(EmoteTooltip, {
 	width: baseWidth,
 	height: baseHeight,
 });
+
+const isMirrorEmote = (emote: SevenTV.ActiveEmote): boolean => {
+	const mirror: boolean = emote.name.slice(-2) === "_M";
+	if (emote.data) emote.data.mirrored = mirror;
+	return mirror;
+};
 </script>
 
 <style scoped lang="scss">
@@ -163,6 +169,10 @@ svg.seventv-emoji {
 img.blur {
 	filter: blur(16px);
 	overflow: clip;
+}
+
+img.mirror {
+	transform: scaleX(-1);
 }
 
 img.zero-width-emote {
