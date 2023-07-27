@@ -6,6 +6,7 @@
 import BellsIcon from "./BellsIcon.vue";
 import ChatIcon from "./ChatIcon.vue";
 import EmotesIcon from "./EmotesIcon.vue";
+import FileExportIcon from "./FileExportIcon.vue";
 import GearsIcon from "./GearsIcon.vue";
 import HomeIcon from "./HomeIcon.vue";
 import IconFillDrip from "./IconFillDrip.vue";
@@ -33,6 +34,7 @@ const c = {
 	Channel: TvIcon,
 	Player: PlayerIcon,
 	Compatibility: PuzzlePieceIcon,
+	Backup: FileExportIcon,
 	"Paint Tool": IconFillDrip,
 	"Site Layout": SiteLayoutIcon,
 

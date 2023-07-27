@@ -57,6 +57,11 @@
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('compat')"
 								/>
+								<CategoryDropdown
+									category="Backup"
+									:sub-categories="[]"
+									@open-category="() => ctx.switchView('backup')"
+								/>
 							</div>
 						</UiScrollable>
 
@@ -135,12 +140,15 @@ const categoryOrder = {
 	Highlights: 3,
 	Appearance: 4,
 	Compatibility: 5,
+	Backup: 6,
 };
 
 function navigateToCategory(name: string, scrollpoint?: string) {
 	switch (name) {
 		case "Compatibility":
 			return ctx.switchView("compat");
+		case "Backup":
+			return ctx.switchView("backup");
 	}
 
 	ctx.switchView("config");
