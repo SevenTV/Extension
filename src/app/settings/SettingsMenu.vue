@@ -28,7 +28,7 @@
 							<input v-model="filter" placeholder="Search..." class="seventv-settings-search-input" />
 						</div>
 
-						<UiScrollable @container-scroll="processSidebarScroll">
+						<UiScrollable ref="sidebarScroller" @container-scroll="processSidebarScroll">
 							<div class="seventv-settings-sidebar-categories">
 								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
@@ -70,7 +70,9 @@
 										<div class="shade-1"></div>
 										<div class="transparent-2"></div>
 									</div>
-									<DropdownIcon class="expansion-icon" />
+									<button class="expansion-button" @click="scrollSidebarToNextPage()">
+										<DropdownIcon class="expansion-icon" />
+									</button>
 								</div>
 							</div>
 						</UiScrollable>
@@ -218,14 +220,26 @@ function openAuthWindow(): void {
 	actor.openAuthorizeWindow(platform);
 }
 
+const sidebarScroller = ref<InstanceType<typeof UiScrollable>>();
 const sidebarAtTop = ref(true);
 
-function processSidebarScroll(event: Event) {
-	const target = event.target;
+function processSidebarScroll() {
+	const container = sidebarScroller.value?.container;
+	if (!container) return;
 
-	if (target instanceof Element) {
-		sidebarAtTop.value = target.scrollTop < 3;
-	}
+	sidebarAtTop.value = container.scrollTop < 3;
+}
+
+function scrollSidebarToNextPage() {
+	const container = sidebarScroller.value?.container;
+	if (!container) return;
+
+	const current = container.scrollTop;
+	const visible = container.clientHeight;
+	const height = container.scrollHeight;
+	const bottomExtreme = visible - height;
+
+	container.scrollTop = Math.max(0, Math.max(bottomExtreme, current + visible));
 }
 
 const keys = useMagicKeys();
@@ -476,8 +490,21 @@ watch(
 		}
 	}
 
-	.expansion-icon {
+	.expansion-button {
+		outline: none;
+		display: block;
+		border-radius: 0.4rem;
+		background: transparent;
+		pointer-events: all;
 		margin-top: 3rem;
+		padding: 0.6rem;
+
+		&:hover {
+			background: var(--seventv-highlight-neutral-1);
+		}
+	}
+
+	.expansion-icon {
 		font-size: 1.75rem;
 		transform: rotate(180deg);
 	}
