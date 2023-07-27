@@ -28,7 +28,7 @@
 							<input v-model="filter" placeholder="Search..." class="seventv-settings-search-input" />
 						</div>
 
-						<UiScrollable ref="sidebarScroller" @container-scroll="processSidebarScroll">
+						<UiScrollable ref="sidebarScroller" @container-scroll="updateSidebarExpansionIndicator">
 							<div class="seventv-settings-sidebar-categories">
 								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
@@ -62,7 +62,7 @@
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('backup')"
 								/>
-								<div class="seventv-settings-expansion-indicator" :hidden="!sidebarAtTop">
+								<div class="seventv-settings-expansion-indicator" :hidden="!shouldShowSidebarExpansion">
 									<div class="color-overlay">
 										<div class="shade-1"></div>
 										<div class="transparent-2"></div>
@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, ref, watch } from "vue";
+import { inject, nextTick, onMounted, ref, watch } from "vue";
 import { useBreakpoints, useMagicKeys } from "@vueuse/core";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
@@ -218,14 +218,16 @@ function openAuthWindow(): void {
 }
 
 const sidebarScroller = ref<InstanceType<typeof UiScrollable>>();
-const sidebarAtTop = ref(true);
+const shouldShowSidebarExpansion = ref(true);
 
-function processSidebarScroll() {
+function updateSidebarExpansionIndicator() {
 	const container = sidebarScroller.value?.container;
 	if (!container) return;
 
-	sidebarAtTop.value = container.scrollTop < 3;
+	shouldShowSidebarExpansion.value = container.scrollTop < 3 && container.scrollHeight > container.clientHeight;
 }
+
+onMounted(() => updateSidebarExpansionIndicator());
 
 function scrollSidebarToNextPage() {
 	const container = sidebarScroller.value?.container;
