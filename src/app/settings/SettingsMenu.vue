@@ -62,10 +62,7 @@
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('backup')"
 								/>
-								<div
-									class="seventv-settings-expansion-indicator"
-									:style="{ opacity: sidebarAtTop ? 1 : 0 }"
-								>
+								<div class="seventv-settings-expansion-indicator" :hidden="!sidebarAtTop">
 									<div class="color-overlay">
 										<div class="shade-1"></div>
 										<div class="transparent-2"></div>
@@ -495,12 +492,20 @@ watch(
 		display: block;
 		border-radius: 0.4rem;
 		background: transparent;
-		pointer-events: all;
+		pointer-events: auto;
 		margin-top: 3rem;
 		padding: 0.6rem;
 
 		&:hover {
 			background: var(--seventv-highlight-neutral-1);
+		}
+	}
+
+	&[hidden] {
+		opacity: 0;
+
+		.expansion-button {
+			pointer-events: none;
 		}
 	}
 
