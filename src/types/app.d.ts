@@ -287,34 +287,6 @@ declare namespace SevenTV {
 		ref_id: ObjectID;
 	}
 
-	interface OldCosmeticsResponse {
-		t: number;
-		badges: OldCosmeticBadge[];
-		paints: OldCosmeticPaint[];
-	}
-
-	interface OldCosmeticBadge {
-		id: ObjectID;
-		users: string[];
-		name: string;
-		tooltip: string;
-		urls: string[][];
-	}
-
-	interface OldCosmeticPaint {
-		id: ObjectID;
-		users: string[];
-		name: string;
-		function: string;
-		color: number | null;
-		stops: CosmeticPaintGradientStop[];
-		repeat: boolean;
-		angle: number;
-		shape?: string;
-		image_url?: string;
-		drop_shadows: CosmeticPaintShadow[];
-	}
-
 	type UserType = "" | "BOT" | "SYSTEM";
 
 	type ImageFormat = "AVIF" | "WEBP" | "PNG" | "GIF";
