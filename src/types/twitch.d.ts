@@ -774,6 +774,7 @@ declare module Twitch {
 	export type VideoPlayerComponent = ReactExtended.WritableComponent<{
 		containerRef: HTMLDivElement;
 		mediaPlayerInstance: MediaPlayerInstance;
+		children: any;
 	}>;
 
 	export interface MediaPlayerInstance {
