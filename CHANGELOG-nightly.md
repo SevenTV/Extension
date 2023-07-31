@@ -17,6 +17,7 @@
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Fixed a regression in previous nightly build causing channel emote sets to not receive EventAPI subscriptions
 -   Removed old deprecated fallback cosmetics fetching using the v2 API
+-   Added ability to set separate actions on clicking VOD and live video player
 
 ### 3.0.14.1000
 
