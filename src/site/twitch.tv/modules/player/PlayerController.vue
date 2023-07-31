@@ -19,7 +19,7 @@ const props = defineProps<{
 
 const shouldHideContentWarning = useConfig<boolean>("player.skip_content_restriction");
 const actionOnClick = useConfig<number>("player.action_onclick");
-
+const actionOnClickVOD = useConfig<number>("player.action_onclick_vod");
 const contentWarning = ref<ReactComponentHook<Twitch.VideoPlayerContentRestriction> | null>(null);
 const playerOverlay = ref<HTMLElement | null>(null);
 
@@ -68,12 +68,26 @@ watchEffect(() => {
 		);
 		if (!playerOverlay.value) return;
 
-		if (actionOnClick.value === 1) {
-			defineNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click", togglePause);
-		} else if (actionOnClick.value === 2) {
-			defineNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click", toggleMute);
-		} else {
-			unsetNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click");
+		const isLiveOrVOD =
+			props.inst.component.props.children.props.children.props.children.props.children.props.children.props
+				.children.props.children.props.children.props.children.props.children.props.content.type;
+
+		if (isLiveOrVOD === "vod") {
+			if (actionOnClickVOD.value === 1) {
+				defineNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click", togglePause);
+			} else if (actionOnClickVOD.value === 2) {
+				defineNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click", toggleMute);
+			} else {
+				unsetNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click");
+			}
+		} else if (isLiveOrVOD === "live") {
+			if (actionOnClick.value === 1) {
+				defineNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click", togglePause);
+			} else if (actionOnClick.value === 2) {
+				defineNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click", toggleMute);
+			} else {
+				unsetNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click");
+			}
 		}
 	}
 });
@@ -101,6 +115,7 @@ function defineClickHandler() {
 
 // watch for setting changes of the "action"
 watch(actionOnClick, defineClickHandler);
+watch(actionOnClickVOD, defineClickHandler);
 
 onUnmounted(() => {
 	if (contentWarning.value) {

@@ -89,5 +89,27 @@ export const config = [
 		],
 		defaultValue: 0,
 	}),
+	declareConfig("player.action_onclick", "DROPDOWN", {
+		path: ["Player", ""],
+		label: "Action on Click (Live Player)",
+		hint: "Choose an action to perform when clicking on the live video player. (This setting may not work in channels with extensions shown)",
+		options: [
+			["None", 0],
+			["Pause/Unpause", 1],
+			["Mute/Unmute", 2],
+		],
+		defaultValue: 0,
+	}),
+	declareConfig("player.action_onclick_vod", "DROPDOWN", {
+		path: ["Player", ""],
+		label: "Action on Click (VOD)",
+		hint: "Choose an action to perform when clicking on the VOD video player. (This setting may not work in channels with extensions shown)",
+		options: [
+			["None", 0],
+			["Pause/Unpause", 1],
+			["Mute/Unmute", 2],
+		],
+		defaultValue: 0,
+	}),
 ];
 </script>
