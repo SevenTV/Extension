@@ -264,9 +264,7 @@ export const step: OnboardingStepRoute = {
 // q animation
 .question-enter-active,
 .question-leave-active {
-	transition:
-		transform 270ms cubic-bezier(0.48, 1.29, 0, -1.57),
-		opacity 300ms;
+	transition: transform 270ms cubic-bezier(0.48, 1.29, 0, -1.57), opacity 300ms;
 }
 
 .question-enter-from,

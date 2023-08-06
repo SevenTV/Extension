@@ -66,7 +66,7 @@ export const useEgVault = defineStore("egvault", {
 			products: [],
 			currentProduct: null,
 			currentPlan: null,
-		}) as StoreState,
+		} as StoreState),
 	getters: {
 		subscribed: (state) => state.subscription?.active ?? false,
 		subEndDate: (state) => (state.subscription?.end_at ? new Date(state.subscription.end_at) : new Date(0)),

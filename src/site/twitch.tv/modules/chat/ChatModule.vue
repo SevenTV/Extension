@@ -254,10 +254,7 @@ export const config = [
 		hint: "Configure the color of alternating background (~6% opacity)",
 		disabledIf: () => !useConfig("chat.alternating_background").value,
 		effect(v) {
-			document.body.style.setProperty(
-				"--seventv-chat-alternate-background-color",
-				`${v}0f` 
-			);
+			document.body.style.setProperty("--seventv-chat-alternate-background-color", `${v}0f`);
 		},
 		defaultValue: "#808080",
 	}),

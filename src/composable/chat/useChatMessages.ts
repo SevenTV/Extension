@@ -166,53 +166,47 @@ export function useChatMessages(ctx: ChannelContext) {
 	function flush(force?: boolean): void {
 		if (flushTimeout) return;
 
-		flushTimeout = window.setTimeout(
-			() => {
-				if (scroller.paused) {
+		flushTimeout = window.setTimeout(() => {
+			if (scroller.paused) {
+				flushTimeout = undefined;
+				return;
+			}
+
+			if (scroller.init == true) scroller.init = false;
+
+			// push new messages
+			if (data.buffer.length > 0) {
+				const unbuf = data.buffer.splice(0, data.buffer.length);
+
+				// push to the render queue all unbuffered messages
+				data.displayed.push(...unbuf);
+			}
+
+			// scroll to the bottom on the next tick
+			nextTick(() => scroller.scrollToLive(scrollDuration.value));
+
+			// remove messages beyond the buffer
+			const overflowLimit = lineLimit.value * 1.25;
+			if (data.displayed.length > overflowLimit) {
+				flushTimeout = window.setTimeout(() => {
+					const removed = data.displayed.splice(0, data.displayed.length - lineLimit.value);
+					for (const msg of removed) {
+						if (!msg.author) continue;
+
+						// retrieve the user's message map
+						const umap = data.displayedByUser[msg.author.username];
+						if (!umap) continue;
+
+						// delete this specific message from the user's message map
+						delete umap[msg.id];
+					}
+
 					flushTimeout = undefined;
-					return;
-				}
-
-				if (scroller.init == true) scroller.init = false;
-
-				// push new messages
-				if (data.buffer.length > 0) {
-					const unbuf = data.buffer.splice(0, data.buffer.length);
-
-					// push to the render queue all unbuffered messages
-					data.displayed.push(...unbuf);
-				}
-
-				// scroll to the bottom on the next tick
-				nextTick(() => scroller.scrollToLive(scrollDuration.value));
-
-				// remove messages beyond the buffer
-				const overflowLimit = lineLimit.value * 1.25;
-				if (data.displayed.length > overflowLimit) {
-					flushTimeout = window.setTimeout(
-						() => {
-							const removed = data.displayed.splice(0, data.displayed.length - lineLimit.value);
-							for (const msg of removed) {
-								if (!msg.author) continue;
-
-								// retrieve the user's message map
-								const umap = data.displayedByUser[msg.author.username];
-								if (!umap) continue;
-
-								// delete this specific message from the user's message map
-								delete umap[msg.id];
-							}
-
-							flushTimeout = undefined;
-						},
-						(force ? 5 : batchTimeMs.value) / 1.5,
-					);
-				} else {
-					flushTimeout = undefined;
-				}
-			},
-			(force ? 5 : batchTimeMs.value) / 2,
-		);
+				}, (force ? 5 : batchTimeMs.value) / 1.5);
+			} else {
+				flushTimeout = undefined;
+			}
+		}, (force ? 5 : batchTimeMs.value) / 2);
 	}
 
 	/**

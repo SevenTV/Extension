@@ -129,11 +129,8 @@ const update = (e: PointerEvent): void => {
 		white-space: nowrap;
 		width: 100%;
 		text-align: center;
-		text-shadow:
-			0.1em 0 0.2rem var(--color-background-body),
-			0 0.1em 0.2rem var(--color-background-body),
-			-0.1em 0 0.2rem var(--color-background-body),
-			0 -0.1em 0.2rem var(--color-background-body);
+		text-shadow: 0.1em 0 0.2rem var(--color-background-body), 0 0.1em 0.2rem var(--color-background-body),
+			-0.1em 0 0.2rem var(--color-background-body), 0 -0.1em 0.2rem var(--color-background-body);
 		transition: opacity 0.2s ease;
 	}
 }

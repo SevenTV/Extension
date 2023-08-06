@@ -20,7 +20,7 @@ export function tokenize(opt: TokenizeOptions) {
 			kind: "VOID",
 			range: [start, end],
 			content: void 0,
-		}) as VoidToken;
+		} as VoidToken);
 
 	for (const part of textParts) {
 		const next = cursor + (part.length + 1);
