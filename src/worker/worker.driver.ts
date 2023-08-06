@@ -73,13 +73,16 @@ export class WorkerDriver extends EventTarget {
 				this.ports.set(p.id, p);
 
 				// Do DB cleanup for unused data
-				setTimeout(() => {
-					const exemptions = Array.from(this.ports.values())
-						.filter((p) => p.channels.size)
-						.flatMap((p) => p.channelIds);
+				setTimeout(
+					() => {
+						const exemptions = Array.from(this.ports.values())
+							.filter((p) => p.channels.size)
+							.flatMap((p) => p.channelIds);
 
-					db.expireDocuments(exemptions);
-				}, getRandomInt(2500, 15000));
+						db.expireDocuments(exemptions);
+					},
+					getRandomInt(2500, 15000),
+				);
 
 				// Fetch config anew
 				this.http
@@ -148,7 +151,11 @@ type WorkerTypedEvent<EVN extends WorkerEventName> = {
 }[EVN];
 
 export class WorkerEvent<T extends WorkerEventName> extends CustomEvent<WorkerTypedEvent<T>> {
-	constructor(type: T, data: WorkerTypedEvent<T>, public port?: WorkerPort) {
+	constructor(
+		type: T,
+		data: WorkerTypedEvent<T>,
+		public port?: WorkerPort,
+	) {
 		super(type, { detail: data });
 	}
 }

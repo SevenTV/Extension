@@ -31,7 +31,9 @@ defineProps<{
 <style scoped lang="scss">
 .seventv-chat-message-rich-embed {
 	border-radius: 0.25rem;
-	box-shadow: 0 0.25rem 0.5rem var(--seventv-embed-border), 0 0 0.5rem var(--seventv-embed-border);
+	box-shadow:
+		0 0.25rem 0.5rem var(--seventv-embed-border),
+		0 0 0.5rem var(--seventv-embed-border);
 	background-color: var(--seventv-embed-background);
 
 	&:hover {

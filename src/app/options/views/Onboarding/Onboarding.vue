@@ -189,7 +189,9 @@ main.onboarding {
 			clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 			background: var(--seventv-muted);
 			margin: 0 0.25vw;
-			transition: background 0.25s ease, transform 140ms ease;
+			transition:
+				background 0.25s ease,
+				transform 140ms ease;
 
 			&:hover {
 				cursor: pointer;
