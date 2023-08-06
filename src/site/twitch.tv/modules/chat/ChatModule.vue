@@ -250,7 +250,7 @@ export const config = [
 	}),
 	declareConfig<string>("chat.alternating_background_color", "COLOR", {
 		path: ["Chat", "Style"],
-		label: "Alternating Background Color CSS",
+		label: "Alternating Background Color",
 		hint: "Configure the color of alternating background (~6% opacity)",
 		disabledIf: () => !useConfig("chat.alternating_background").value,
 		effect(v) {
