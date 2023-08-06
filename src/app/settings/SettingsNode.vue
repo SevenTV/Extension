@@ -37,6 +37,7 @@ import { db } from "@/db/idb";
 import { useConfig } from "@/composable/useSettings";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import FormCheckbox from "@/app/settings/control/FormCheckbox.vue";
+import FormColor from "@/app/settings/control/FormColor.vue";
 import FormDropdown from "@/app/settings/control/FormDropdown.vue";
 import FormInput from "@/app/settings/control/FormInput.vue";
 import FormSelect from "@/app/settings/control/FormSelect.vue";
@@ -74,6 +75,7 @@ const standard = {
 	DROPDOWN: FormDropdown,
 	CHECKBOX: FormCheckbox,
 	INPUT: FormInput,
+	COLOR: FormColor,
 	TOGGLE: FormToggle,
 	SLIDER: FormSlider,
 	CUSTOM: undefined,
