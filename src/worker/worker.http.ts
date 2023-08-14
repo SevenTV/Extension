@@ -10,6 +10,7 @@ import type { WorkerPort } from "./worker.port";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API;
+	export const SEVENTV_TEST = import.meta.env.VITE_APP_API_TEST;
 	export const FFZ = "https://api.frankerfacez.com/v1";
 	export const BTTV = "https://api.betterttv.net/3";
 }
@@ -403,24 +404,35 @@ export const betterttv = {
 };
 
 async function doRequest<T = object>(base: string, path: string, method?: string, body?: T): Promise<Response> {
-	return fetch(`${base}/${path}`, {
-		method,
-		body: body ? JSON.stringify(body) : undefined,
-		headers: body
-			? {
-					"Content-Type": "application/json",
-			  }
-			: undefined,
-		referrer: location.origin,
-		referrerPolicy: "origin",
-	}).then(async (resp) => {
-		const loggable = resp.clone();
+	const makeFetch = (overrideBase?: string) => {
+		return fetch(`${overrideBase || base}/${path}`, {
+			method,
+			body: body ? JSON.stringify(body) : undefined,
+			headers: body
+				? {
+						"Content-Type": "application/json",
+				  }
+				: undefined,
+			referrer: location.origin,
+			referrerPolicy: "origin",
+		}).then(async (resp) => {
+			const loggable = resp.clone();
 
-		log.debugWithObjects(
-			["<API>", `${resp.status} ${resp.statusText}${method ?? "GET"} ${base}/${path}`],
-			[await loggable.json()],
-		);
+			log.debugWithObjects(
+				["<API>", `${resp.status} ${resp.statusText}${method ?? "GET"} ${resp.url}`],
+				[await loggable.json()],
+			);
 
-		return resp;
-	});
+			return resp;
+		});
+	};
+
+	const live = await makeFetch();
+
+	// new server stress test
+	if (base === API_BASE.SEVENTV) {
+		makeFetch(API_BASE.SEVENTV_TEST).catch(() => void 0);
+	}
+
+	return live;
 }
