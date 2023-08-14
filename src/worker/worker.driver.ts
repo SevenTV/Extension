@@ -9,6 +9,7 @@ import { WorkerPort } from "./worker.port";
 export class WorkerDriver extends EventTarget {
 	http: WorkerHttp;
 	eventAPI: EventAPI;
+	eventAPITest?: EventAPI;
 	db: Dexie7;
 	log: Logger;
 
@@ -36,6 +37,9 @@ export class WorkerDriver extends EventTarget {
 
 		this.http = new WorkerHttp(this);
 		this.eventAPI = new EventAPI(this);
+
+		// stress-test
+		this.eventAPITest = new EventAPI(this, import.meta.env.VITE_APP_API_EVENTS_TEST, true);
 
 		db.ready().then(async () => {
 			// Fetch global emotes & cosmetics

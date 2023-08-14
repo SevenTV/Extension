@@ -39,6 +39,7 @@ export class WorkerHttp {
 			if (!ev.port) return;
 
 			this.driver.eventAPI.unsubscribeChannel(ev.detail.id, ev.port);
+			this.driver.eventAPITest?.unsubscribeChannel(ev.detail.id, ev.port);
 		});
 		driver.addEventListener("identity_updated", async (ev) => {
 			const user = await this.API()
@@ -156,7 +157,9 @@ export class WorkerHttp {
 
 		const user = await userPromise;
 		if (user) {
-			this.driver.eventAPI.subscribe("user.*", { object_id: user.id }, port, channel.id);
+			[this.driver.eventAPI, this.driver.eventAPITest].forEach(
+				(inst) => inst?.subscribe("user.*", { object_id: user.id }, port, channel.id),
+			);
 		}
 
 		// begin subscriptions to personal events in the channel
@@ -166,9 +169,15 @@ export class WorkerHttp {
 			id: channel.id,
 		};
 
-		this.driver.eventAPI.subscribe("entitlement.*", cond, port, channel.id);
-		this.driver.eventAPI.subscribe("cosmetic.*", cond, port, channel.id);
-		this.driver.eventAPI.subscribe("emote_set.*", cond, port, channel.id);
+		[this.driver.eventAPI, this.driver.eventAPITest].forEach(
+			(inst) => inst?.subscribe("entitlement.*", cond, port, channel.id),
+		);
+		[this.driver.eventAPI, this.driver.eventAPITest].forEach(
+			(inst) => inst?.subscribe("cosmetic.*", cond, port, channel.id),
+		);
+		[this.driver.eventAPI, this.driver.eventAPITest].forEach(
+			(inst) => inst?.subscribe("emote_set.*", cond, port, channel.id),
+		);
 
 		// Send an initial presence so that the current user immediately has their cosmetics
 		// (sent with "self" property, so that the presence and entitlements are not published)

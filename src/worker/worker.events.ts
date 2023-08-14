@@ -27,7 +27,13 @@ export class EventAPI {
 		return "TWITCH";
 	}
 
-	constructor(private driver: WorkerDriver) {}
+	constructor(
+		private driver: WorkerDriver,
+		overrideURL = "",
+		private test = false,
+	) {
+		if (overrideURL) this.url = overrideURL;
+	}
 
 	private getContext(): EventContext {
 		return {
@@ -72,6 +78,7 @@ export class EventAPI {
 				this.onHello(msg as EventAPIMessage<"HELLO">);
 				break;
 			case "DISPATCH":
+				if (this.test) return;
 				this.onDispatch(msg as EventAPIMessage<"DISPATCH">);
 				break;
 			case "ERROR":
