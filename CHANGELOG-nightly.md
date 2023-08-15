@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   No unreleased changes yet.
+-   Fixed an issue with tab auto-completion on Kick
 
 ### 3.0.15.1000
 
