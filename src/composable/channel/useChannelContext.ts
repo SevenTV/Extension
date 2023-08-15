@@ -61,11 +61,18 @@ export class ChannelContext implements CurrentChannel {
 	}
 
 	leave(): void {
-		this.active = false;
+		// debounce leave
+		// this allows some time for other channel trackers to join
+		/// note: perhaps this could be designed better
+		setTimeout(() => {
+			if (this.count > 0) return;
 
-		sendMessage("STATE", {
-			channel: toRaw(this.base),
-		});
+			this.active = false;
+
+			sendMessage("STATE", {
+				channel: toRaw(this.base),
+			});
+		}, 1e3);
 	}
 
 	fetch(): void {
@@ -93,7 +100,7 @@ export function useChannelContext(channelID?: string, track = false): ChannelCon
 	let ctx = inject<ChannelContext | null>(CHANNEL_CTX, null);
 	if (!ctx) {
 		ctx = (channelID ? m.get(channelID) : null) ?? reactive<ChannelContext>(new ChannelContext());
-		if (channelID) ctx.setCurrentChannel({ id: channelID ?? "", username: "", displayName: "", active: false });
+		if (channelID) ctx.setCurrentChannel({ id: channelID ?? "", username: "", displayName: "", active: true });
 
 		const store = useStore();
 		ctx.platform = store.platform;
