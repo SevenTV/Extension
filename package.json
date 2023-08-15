@@ -3,7 +3,7 @@
 	"displayName": "7TV",
 	"description": "Improve your viewing experience on Twitch & YouTube with new features, emotes, vanity and performance.",
 	"private": true,
-	"version": "3.0.14",
+	"version": "3.0.15",
 	"dev_version": "1.0",
 	"scripts": {
 		"start": "NODE_ENV=dev yarn build:dev && NODE_ENV=dev vite --mode dev",
@@ -24,7 +24,10 @@
 		"format": "prettier -w .",
 		"lint:style": "stylelint **/*.{vue,scss,css} --ignore-path .gitignore",
 		"lint:js": "eslint --ext .js,.vue,.ts --ignore-path .gitignore .",
+		"lint:style:fix": "stylelint --fix **/*.{vue,scss,css} --ignore-path .gitignore",
+		"lint:js:fix": "eslint --fix --ext .js,.vue,.ts --ignore-path .gitignore .",
 		"lint": "yarn lint:js && yarn lint:style",
+		"lint:fix": "yarn lint:js:fix && yarn lint:style:fix",
 		"preview": "vite preview",
 		"script:compile-emoji": "tsc -p script/script.tsconfig.json --outDir dist/ && node dist/compile-emojis.js"
 	},

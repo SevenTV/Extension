@@ -28,7 +28,7 @@
 							<input v-model="filter" placeholder="Search..." class="seventv-settings-search-input" />
 						</div>
 
-						<UiScrollable>
+						<UiScrollable ref="sidebarScroller" @container-scroll="updateSidebarExpansionIndicator">
 							<div class="seventv-settings-sidebar-categories">
 								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
@@ -57,6 +57,20 @@
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('compat')"
 								/>
+								<CategoryDropdown
+									category="Backup"
+									:sub-categories="[]"
+									@open-category="() => ctx.switchView('backup')"
+								/>
+								<div class="seventv-settings-expansion-indicator" :hidden="!shouldShowSidebarExpansion">
+									<div class="color-overlay">
+										<div class="shade-1"></div>
+										<div class="transparent-2"></div>
+									</div>
+									<button class="expansion-button" @click="scrollSidebarToNextPage()">
+										<DropdownIcon class="expansion-icon" />
+									</button>
+								</div>
 							</div>
 						</UiScrollable>
 
@@ -94,12 +108,13 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, ref, watch } from "vue";
+import { inject, nextTick, onMounted, ref, watch } from "vue";
 import { useBreakpoints, useMagicKeys } from "@vueuse/core";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
+import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import LogoutIcon from "@/assets/svg/icons/LogoutIcon.vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
@@ -135,12 +150,15 @@ const categoryOrder = {
 	Highlights: 3,
 	Appearance: 4,
 	Compatibility: 5,
+	Backup: 6,
 };
 
 function navigateToCategory(name: string, scrollpoint?: string) {
 	switch (name) {
 		case "Compatibility":
 			return ctx.switchView("compat");
+		case "Backup":
+			return ctx.switchView("backup");
 	}
 
 	ctx.switchView("config");
@@ -197,6 +215,30 @@ function isOrdered(c: string): c is keyof typeof categoryOrder {
 
 function openAuthWindow(): void {
 	actor.openAuthorizeWindow(platform);
+}
+
+const sidebarScroller = ref<InstanceType<typeof UiScrollable>>();
+const shouldShowSidebarExpansion = ref(true);
+
+function updateSidebarExpansionIndicator() {
+	const container = sidebarScroller.value?.container;
+	if (!container) return;
+
+	shouldShowSidebarExpansion.value = container.scrollTop < 3 && container.scrollHeight > container.clientHeight;
+}
+
+onMounted(() => updateSidebarExpansionIndicator());
+
+function scrollSidebarToNextPage() {
+	const container = sidebarScroller.value?.container;
+	if (!container) return;
+
+	const current = container.scrollTop;
+	const visible = container.clientHeight;
+	const height = container.scrollHeight;
+	const bottomExtreme = visible - height;
+
+	container.scrollTop = Math.max(0, Math.max(bottomExtreme, current + visible));
 }
 
 const keys = useMagicKeys();
@@ -409,6 +451,69 @@ watch(
 	.seventv-settings-sidebar,
 	.seventv-settings-view {
 		height: calc(60vh);
+	}
+}
+
+.seventv-settings-expansion-indicator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	padding: 1rem;
+	pointer-events: none;
+	opacity: 1;
+	transition: opacity linear 200ms;
+
+	.color-overlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		mask-image: linear-gradient(to top, rgba(0, 0, 0, 100%), rgba(0, 0, 0, 0%));
+		/* stylelint-disable-next-line property-no-vendor-prefix */
+		-webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 100%), rgba(0, 0, 0, 0%));
+
+		> * {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
+
+		.shade-1 {
+			background: var(--seventv-background-shade-1);
+		}
+
+		.transparent-2 {
+			background: var(--seventv-background-transparent-2);
+		}
+	}
+
+	.expansion-button {
+		outline: none;
+		display: block;
+		border-radius: 0.4rem;
+		background: transparent;
+		pointer-events: auto;
+		margin-top: 3rem;
+		padding: 0.6rem;
+
+		&:hover {
+			background: var(--seventv-highlight-neutral-1);
+		}
+	}
+
+	&[hidden] {
+		opacity: 0;
+
+		.expansion-button {
+			pointer-events: none;
+		}
+	}
+
+	.expansion-icon {
+		font-size: 1.75rem;
+		transform: rotate(180deg);
 	}
 }
 </style>

@@ -2,12 +2,21 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   Fixed an issue with tab auto-completion on Kick
+
+### 3.0.15.1000
+
+**The changes listed here are not assigned to an official release**.
+
+-   Added a backup tab to the settings menu for importing & exporting settings
+-   Added an option to select the default Emote Menu tab
+-   Added artist attribution to the emote card
+-   Added ability to reset settings to their defaults
+-   Fixed an issue where emotes would take a long time to load if external emote providers gave slow response times
 -   Fixed an issue where mentioning yourself would highlight the message
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
--   Added an option to select default Emote Menu tab
--   Added artist attribution to emote card
--   Added ability to reset settings to their defaults
--   Fixed an issue with tab auto-completion on Kick
+-   Fixed a regression in previous nightly build causing channel emote sets to not receive EventAPI subscriptions
+-   Removed old deprecated fallback cosmetics fetching using the v2 API
 
 ### 3.0.14.1000
 

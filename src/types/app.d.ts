@@ -72,6 +72,7 @@ declare namespace SevenTV {
 		type: typeof T;
 		value: T;
 		timestamp?: number;
+		serialize?: boolean;
 	}
 
 	interface SettingNode<T = SettingType, K = SettingNode.ComponentType> {
@@ -89,6 +90,7 @@ declare namespace SevenTV {
 
 		defaultValue: T;
 		value?: T;
+		serialize?: boolean;
 		disabledIf?: () => boolean;
 		predicate?: (p: T) => boolean;
 		effect?: (v: T) => void;
@@ -283,34 +285,6 @@ declare namespace SevenTV {
 		user?: User;
 		user_id: ObjectID;
 		ref_id: ObjectID;
-	}
-
-	interface OldCosmeticsResponse {
-		t: number;
-		badges: OldCosmeticBadge[];
-		paints: OldCosmeticPaint[];
-	}
-
-	interface OldCosmeticBadge {
-		id: ObjectID;
-		users: string[];
-		name: string;
-		tooltip: string;
-		urls: string[][];
-	}
-
-	interface OldCosmeticPaint {
-		id: ObjectID;
-		users: string[];
-		name: string;
-		function: string;
-		color: number | null;
-		stops: CosmeticPaintGradientStop[];
-		repeat: boolean;
-		angle: number;
-		shape?: string;
-		image_url?: string;
-		drop_shadows: CosmeticPaintShadow[];
 	}
 
 	type UserType = "" | "BOT" | "SYSTEM";

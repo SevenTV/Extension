@@ -13,6 +13,7 @@ const ignoreHMR = [
 	"versions.idb.ts",
 	"useModule.ts",
 	"useWorker.ts",
+	"useSettings.ts",
 	"App.vue",
 	"TwitchSite.vue",
 	"ChatModule.vue",

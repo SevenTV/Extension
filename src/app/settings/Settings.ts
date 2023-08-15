@@ -1,5 +1,6 @@
 import { defineAsyncComponent, markRaw, reactive } from "vue";
 import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
+import SettingsViewBackupVue from "./SettingsViewBackup.vue";
 import SettingsViewCompatVue from "./SettingsViewCompat.vue";
 import SettingsViewConfigVue from "./SettingsViewConfig.vue";
 import SettingsViewHomeVue from "./SettingsViewHome.vue";
@@ -55,6 +56,7 @@ const views = {
 	config: SettingsViewConfigVue,
 	profile: SettingsViewProfileVue,
 	compat: SettingsViewCompatVue,
+	backup: SettingsViewBackupVue,
 	store: Store,
 	paint: PaintTool,
 };

@@ -9,6 +9,26 @@ const nodes = reactive({} as Record<string, SevenTV.SettingNode>);
 
 const ffz = useFrankerFaceZ();
 
+const deserializationFunctions: {
+	[key: string]: (value: SevenTV.SettingType) => object;
+} = {
+	Map: (value) => {
+		return new Map(value as Iterable<[string, SevenTV.SettingType]>);
+	},
+	Set: (value) => {
+		return new Set(value as Iterable<SevenTV.SettingType>);
+	},
+};
+
+export interface SerializedSettings {
+	timestamp: number;
+	settings: SerializedSetting[];
+}
+
+export interface SerializedSetting extends SevenTV.Setting<SevenTV.SettingType> {
+	constructorName?: string;
+}
+
 function toConfigRef<T extends SevenTV.SettingType>(key: string, defaultValue?: T): Ref<T> {
 	return customRef<T>((track, trigger) => {
 		return {
@@ -46,7 +66,7 @@ db.ready().then(() =>
 );
 
 export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
-	for (const { key, value, timestamp } of s) {
+	for (const { key, value, timestamp, serialize } of s) {
 		const cur = nodes[key];
 		if (cur && cur.timestamp && timestamp && cur.timestamp >= timestamp) continue;
 
@@ -54,8 +74,114 @@ export async function fillSettings(s: SevenTV.Setting<SevenTV.SettingType>[]) {
 		nodes[key] = {
 			...(nodes[key] ?? {}),
 			timestamp,
+			serialize: serialize ?? true,
 		} as SevenTV.SettingNode;
 	}
+}
+
+export function getUnserializableSettings() {
+	const out = [];
+	for (const key of Object.keys(nodes)) {
+		const node = nodes[key];
+
+		if (node.serialize === false) {
+			out.push(node);
+			continue;
+		}
+
+		if (
+			typeof node.defaultValue === "object" &&
+			!Object.keys(deserializationFunctions).includes(node.defaultValue.constructor.name)
+		) {
+			out.push(node);
+			continue;
+		}
+	}
+	return out;
+}
+
+export async function exportSettings() {
+	return db.ready().then(async () => {
+		const s = await db.settings.toArray();
+		const serializedSettings: SerializedSetting[] = serializeSettings(
+			s.filter((v) => v.key !== "app.version").filter((v) => v.serialize !== false),
+		);
+		log.debugWithObjects(["<Settings>", "Serialized settings"], [serializedSettings]);
+
+		const out = JSON.stringify({
+			timestamp: new Date().getTime(),
+			settings: serializedSettings,
+		} as SerializedSettings);
+		const blob = new Blob([out], {
+			type: "text/plain",
+		});
+		log.info("<Settings>", "Exporting settings");
+		return URL.createObjectURL(blob);
+	});
+}
+
+export async function importSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
+	for (const { key, type, value } of settings) {
+		await db.settings.put({ key, type, value }, key).catch((err) => {
+			throw new Error(`failed to write setting, ${key}, to db:, ${err}`);
+		});
+	}
+	fillSettings(settings);
+}
+
+export function serializeSettings(settings: SevenTV.Setting<SevenTV.SettingType>[]) {
+	const serialized: SerializedSetting[] = [];
+
+	settings.forEach((setting: SevenTV.Setting<SevenTV.SettingType>) => {
+		if (nodes[setting.key].serialize === false) return;
+
+		if (typeof setting.value !== "object") {
+			serialized.push(setting);
+		} else if (Object.keys(deserializationFunctions).includes(setting.value.constructor.name)) {
+			serialized.push({
+				...setting,
+				constructorName: setting.value.constructor.name,
+				value: Array.from(setting.value as Iterable<object>),
+			} as SerializedSetting);
+		}
+	});
+
+	return serialized;
+}
+
+export function deserializeSettings(serialized: SerializedSettings) {
+	if (!(serialized.settings instanceof Array)) throw new Error("invalid settings file: invalid format");
+
+	const deserializedSettings: SevenTV.Setting<SevenTV.SettingType>[] = [];
+
+	for (const { key, type, constructorName, value, timestamp } of serialized.settings) {
+		if (key == undefined || type == undefined || value == undefined || timestamp == undefined)
+			throw new Error("invalid settings file: missing keys");
+
+		if (typeof value !== type) throw new Error(`invalid settings file: ${value} is not of type '${type}'`);
+
+		if (type !== "object") {
+			deserializedSettings.push({
+				key,
+				type,
+				value,
+			});
+		} else {
+			if (!constructorName) throw new Error("invalid settings file: missing 'constructorName' for object type");
+			if (!Object.keys(deserializationFunctions).includes(constructorName))
+				throw new Error(`invalid settings file: cannot deserialize constructor type '${constructorName}'`);
+
+			const deserializedValue: object = deserializationFunctions[constructorName](value);
+
+			deserializedSettings.push({
+				key,
+				type,
+				value: deserializedValue,
+			});
+		}
+	}
+
+	return deserializedSettings;
 }
 
 export function useConfig<T extends SevenTV.SettingType>(key: string, defaultValue?: T) {
