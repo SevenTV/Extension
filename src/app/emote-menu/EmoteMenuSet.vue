@@ -389,20 +389,23 @@ defineExpose({
 		}
 	}
 
+	// The extra width is to compensate for the spacing
+	// between the emotes so they tile correctly.
+
 	&[ratio="1"] {
 		width: 4em;
 	}
 
 	&[ratio="2"] {
-		width: calc(4em * 1.5);
+		width: calc(4em * 1.5 + 0.25em);
 	}
 
 	&[ratio="3"] {
-		width: calc(4em * 2.125);
+		width: calc(4em * 2 + 0.5em);
 	}
 
 	&[ratio="4"] {
-		width: calc(4em * 3.25);
+		width: calc(4em * 3 + 1em);
 	}
 }
 </style>
