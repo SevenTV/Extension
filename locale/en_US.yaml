@@ -38,9 +38,9 @@ emote_menu:
     favorite_set: Favorite Emotes
     most_used_set: Most Used Emotes
     favorite_emotes_promo_1: You don't have any Favorite Emotes yet
-    favorite_emotes_promo_2: Tip hold ALT and click an emote to add it to your favorites
-    personal_emotes_promo_1: You don't have Personal Emotes yet
-    personal_emotes_promo_2: Use custom emotes anywhere on {PLATFORM} with a 7TV Subscription
+    favorite_emotes_promo_2: Hold {HOTKEY} and click an emote to add it to your favorites
+    personal_emotes_hint_1: You don't have Personal Emotes yet
+    personal_emotes_hint_2: Use custom emotes anywhere on {PLATFORM} with a 7TV Subscription
     sets:
         Channel Emotes: Channel Emotes
         Personal Emotes: Personal Emotes
