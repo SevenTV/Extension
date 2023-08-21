@@ -65,7 +65,7 @@
 		"eslint-plugin-prettier": "^5.0.0",
 		"eslint-plugin-vue": "^9.15.1",
 		"graphql": "^16.7.1",
-		"marked": "^5.1.1",
+		"marked": "^7.0.4",
 		"nanoid": "^4.0.2",
 		"npm-run-all": "^4.1.5",
 		"pinia": "^2.1.4",
