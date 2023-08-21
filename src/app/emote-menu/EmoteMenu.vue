@@ -5,7 +5,7 @@
 		:middleware="[shift({ padding: 4, mainAxis: true, crossAxis: true }), offset({ mainAxis: 4, crossAxis: -4 })]"
 	>
 		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu">
-			<div class="seventv-emote-menu-header">
+			<div class="seventv-emote-menu-header" :class="{ 'disabled-search-input': isSearchInputEnabled }">
 				<!-- Emote Menu Header -->
 				<div class="seventv-emote-menu-providers">
 					<template v-for="(b, key) in visibleProviders">
@@ -190,6 +190,10 @@ onClickOutside(containerRef, (ev) => {
 	border-bottom: 0.1em solid var(--seventv-border-transparent-1);
 	border-radius: 0.25em 0.25em 0 0;
 	background: hsla(0deg, 0%, 50%, 6%);
+
+	&.disabled-search-input {
+		grid-template-rows: 1fr 0fr;
+	}
 
 	.seventv-emote-menu-providers {
 		display: flex;
