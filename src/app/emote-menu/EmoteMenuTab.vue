@@ -30,8 +30,8 @@
 			<template v-if="provider === 'FAVORITE' && !hasFavoriteEmotes()">
 				<div class="seventv-promotion-personal-emotes">
 					<div>
-						<p v-t="'emote_menu.personal_emotes_hint_1'" />
-						<i18n-t keypath="emote_menu.personal_emotes_hint_2" tag="span">
+						<p v-t="'emote_menu.favorite_emotes_hint_1'" />
+						<i18n-t keypath="emote_menu.favorite_emotes_hint_2" tag="span">
 							<template #HOTKEY>
 								<strong>ALT</strong>
 							</template>
