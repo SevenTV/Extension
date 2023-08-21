@@ -19,6 +19,7 @@ user_card:
     subscription_tier: Tier {tier}
     subscription_length: Subscribed for {length} months
     previously_subscription_length: Previously subscribed for {length} months
+    hidden_subscription_status: Status hidden
     native: Open Native User Card
     no_messages: "{user} has not chatted here"
     no_timeouts: "{user} hasn't been timed out before"
@@ -36,6 +37,8 @@ emote_menu:
     native: Open Native Menu
     favorite_set: Favorite Emotes
     most_used_set: Most Used Emotes
+    favorite_emotes_hint_1: You don't have any Favorite Emotes yet
+    favorite_emotes_hint_2: Hold {HOTKEY} and click an emote to add it to your favorites
     personal_emotes_promo_1: You don't have Personal Emotes yet
     personal_emotes_promo_2: Use custom emotes anywhere on {PLATFORM} with a 7TV Subscription
     sets:

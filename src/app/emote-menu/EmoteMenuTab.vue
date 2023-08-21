@@ -27,6 +27,19 @@
 				</EmoteMenuSet>
 			</template>
 
+			<template v-if="provider === 'FAVORITE' && !hasFavoriteEmotes()">
+				<div class="seventv-promotion-personal-emotes">
+					<div>
+						<p v-t="'emote_menu.favorite_emotes_hint_1'" />
+						<i18n-t keypath="emote_menu.favorite_emotes_hint_2" tag="span">
+							<template #HOTKEY>
+								<strong>ALT</strong>
+							</template>
+						</i18n-t>
+					</div>
+				</div>
+			</template>
+
 			<template v-for="es of sortedSets" :key="es.id">
 				<EmoteMenuSet
 					v-if="es.emotes.length"
@@ -158,6 +171,10 @@ if (props.provider === "FAVORITE") {
 	watch(favorites, () => {
 		favSet.emotes = updateFavorites();
 	});
+}
+
+function hasFavoriteEmotes() {
+	return props.provider === "FAVORITE" && sets["FAVORITE"].emotes.length > 0;
 }
 
 // Select an Emote Set to jump-scroll to

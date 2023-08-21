@@ -2,7 +2,12 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   No unreleased changes yet.
+-   Added an option to select alternating background color for chat messages
+-   Added a tip to the favorite menu to help users favorite emotes if none are found
+-   Fixed an issue with tab auto-completion on Kick
+-   Fixed emote tile width in emote menu
+-   Fixed "hidden subscription status" message in the User Card
+-   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
 
 ### 3.0.15.1000
 

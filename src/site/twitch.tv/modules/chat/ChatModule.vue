@@ -248,6 +248,16 @@ export const config = [
 		hint: "settings.chat_alternating_background.hint",
 		defaultValue: false,
 	}),
+	declareConfig<string>("chat.alternating_background_color", "COLOR", {
+		path: ["Chat", "Style"],
+		label: "Alternating Background Color",
+		hint: "Configure the color of alternating background (~6% opacity)",
+		disabledIf: () => !useConfig("chat.alternating_background").value,
+		effect(v) {
+			document.body.style.setProperty("--seventv-chat-alternate-background-color", `${v}0f`);
+		},
+		defaultValue: "#808080",
+	}),
 	declareConfig<number>("chat.padding", "DROPDOWN", {
 		path: ["Chat", "Style"],
 		label: "Padding Style",

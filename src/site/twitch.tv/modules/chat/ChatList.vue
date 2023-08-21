@@ -551,7 +551,7 @@ defineExpose({
 
 .seventv-chat-list[alternating-background="true"] {
 	.seventv-message:nth-child(even) {
-		background-color: hsla(0deg, 0%, 50%, 6%);
+		background-color: var(--seventv-chat-alternate-background-color);
 	}
 }
 </style>
