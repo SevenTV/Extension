@@ -2,6 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   Added an option to select alternating background color for chat messages
 -   Fixed an issue with tab auto-completion on Kick
 -   Fixed emote tile width in emote menu
 

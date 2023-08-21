@@ -100,6 +100,7 @@ declare namespace SevenTV {
 			DROPDOWN: [string, T][];
 			CHECKBOX: never;
 			INPUT: string;
+			COLOR: string;
 			TOGGLE: {
 				left: string;
 				right: string;
@@ -124,7 +125,16 @@ declare namespace SevenTV {
 	type SettingType = boolean | number | string | object;
 
 	namespace SettingNode {
-		type ComponentType = "SELECT" | "DROPDOWN" | "CHECKBOX" | "INPUT" | "TOGGLE" | "SLIDER" | "CUSTOM" | "NONE";
+		type ComponentType =
+			| "SELECT"
+			| "DROPDOWN"
+			| "CHECKBOX"
+			| "INPUT"
+			| "COLOR"
+			| "TOGGLE"
+			| "SLIDER"
+			| "CUSTOM"
+			| "NONE";
 	}
 
 	interface ActiveEmote {
