@@ -19,6 +19,7 @@ user_card:
     subscription_tier: Tier {tier}
     subscription_length: Subscribed for {length} months
     previously_subscription_length: Previously subscribed for {length} months
+    hidden_subscription_status: Status hidden
     native: Open Native User Card
     no_messages: "{user} has not chatted here"
     no_timeouts: "{user} hasn't been timed out before"
