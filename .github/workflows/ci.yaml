@@ -193,7 +193,7 @@ jobs:
             - name: Create Nightly Release
               if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
               id: create_nightly_release
-              uses: ncipollo/release-action@v1.12.0
+              uses: ncipollo/release-action@v1.13.0
               with:
                   removeArtifacts: true
                   allowUpdates: true
@@ -213,7 +213,7 @@ jobs:
             - name: Create Release
               if: ${{ inputs.branch == 'stable' }}
               id: create_release
-              uses: ncipollo/release-action@v1.12.0
+              uses: ncipollo/release-action@v1.13.0
               with:
                   artifactErrorsFailBuild: true
                   artifacts: "ext/*"
@@ -357,7 +357,7 @@ jobs:
 
             - name: Update Release
               if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
-              uses: ncipollo/release-action@v1.12.0
+              uses: ncipollo/release-action@v1.13.0
               with:
                   allowUpdates: true
                   artifacts: "ext/7tv-webextension-ext-signed.xpi"
