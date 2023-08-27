@@ -8,8 +8,6 @@
 -   Fixed emote tile width in emote menu
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
--   Fixed extension menu displayed wrong in Chrome
--	Added option for enlargement of badges when hovering mouse over them.
 
 ### 3.0.15.1000
 

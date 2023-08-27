@@ -7,7 +7,6 @@
 			:style="{
 				backgroundColor,
 			}"
-			@load="onImageLoad"
 			@mouseenter="show(imgRef)"
 			@mouseleave="hide()"
 		/>
@@ -34,25 +33,9 @@ const srcset = {
 
 const imgRef = ref<HTMLElement>();
 
-const imgEl = ref<HTMLImageElement>();
-
-const src = ref("");
-
-const baseWidth = ref(0);
-const baseHeight = ref(0);
-
-const onImageLoad = (event: Event) => {
-	if (!(event.target instanceof HTMLImageElement)) return;
-
-	const img = event.target;
-
-	baseWidth.value = Math.round(img.naturalWidth / 1);
-	baseHeight.value = Math.round(img.naturalHeight / 1);
-
-	src.value = img.currentSrc;
-
-	imgEl.value = img;
-};
+const { show, hide } = useTooltip(BadgeTooltip, {
+	alt: props.alt,
+});
 
 function isApp(badge: typeof props.badge): badge is SevenTV.Cosmetic<"BADGE"> {
 	return (badge as SevenTV.Cosmetic<"BADGE">).kind === "BADGE" && props.type === "app";
@@ -61,14 +44,6 @@ function isApp(badge: typeof props.badge): badge is SevenTV.Cosmetic<"BADGE"> {
 if (isApp(props.badge)) {
 	backgroundColor.value = props.badge.data.backgroundColor ?? "";
 }
-
-const { show, hide } = useTooltip(BadgeTooltip, {
-	alt: props.alt,
-	initSrc: src,
-	src: srcset,
-	width: baseWidth,
-	height: baseHeight,
-});
 </script>
 
 <style scoped lang="scss">
