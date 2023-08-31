@@ -55,6 +55,7 @@ defineProps<{
 		.logo {
 			margin: 0.8rem;
 		}
+
 		svg {
 			width: 2em;
 			height: 2em;
@@ -88,6 +89,7 @@ defineProps<{
 		flex-wrap: wrap;
 		margin: 0.5em 0;
 		padding-top: 0.5em;
+
 		span {
 			margin: 0.2em;
 			cursor: pointer;
