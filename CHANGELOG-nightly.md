@@ -8,6 +8,8 @@
 -   Fixed emote tile width in emote menu
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
+-   Added support for custom commands
+-   Added custom commands /enable /disable /alias /song /nuke
 
 ### 3.0.15.1000
 
