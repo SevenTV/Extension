@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeUnmount, ref } from "vue";
 import { imageHostToSrcset } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
@@ -135,6 +135,8 @@ const { show, hide } = useTooltip(EmoteTooltip, {
 	width: baseWidth,
 	height: baseHeight,
 });
+
+onBeforeUnmount(hide);
 </script>
 
 <style scoped lang="scss">

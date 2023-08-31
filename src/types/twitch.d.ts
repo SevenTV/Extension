@@ -394,6 +394,44 @@ declare module Twitch {
 		setValue: (v: string) => void;
 	};
 
+	export interface ChatCommand {
+		name: string;
+		description: string;
+		helpText: string; // Gets called by /help
+		permissionLevel: 0 | 1 | 2 | 3; // Anyone, vip, mod, broadcaster (editor if allowEditorUsage is true)
+		handler?: ChatCommand.Handler;
+		commandArgs?: {
+			name: string;
+			isRequired: boolean;
+		}[];
+		hidden?: boolean; // Makes the command not appear in the preview, but will still be callable.
+		allowEditorUsage?: boolean;
+		group?: string;
+	}
+	export namespace ChatCommand {
+		export interface Handler {
+			(
+				args: string,
+				context: { channelLogin: string },
+			): void | {
+				deferred: Promise<{
+					notice: string; // Message send in chat on sucess
+					error?: Error; // If an error is provided the notice will show as a popup instead of in the chat
+					inputValue?: string; // Dosn't do anything?
+				}>;
+			};
+		}
+		export type Error = "unrecognized_cmd" | "missing_parameters" | "unauthorized" | "pin_failure" | string;
+	}
+
+	export type ChatCommandComponent = ReactExtended.WritableComponent<{}> & {
+		addCommand: (c: ChatCommand) => void;
+		removeCommand: (c: ChatCommand) => void;
+	};
+	export type ChatCommandGrouperComponent = ReactExtended.WritableComponent<{}> & {
+		determineGroup: (command: ChatCommand) => string;
+	};
+
 	export type ChatChannelPointsClaimComponent = ReactExtended.WritableComponent<{
 		hidden: boolean;
 	}> & {
