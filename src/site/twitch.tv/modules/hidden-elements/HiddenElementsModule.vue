@@ -107,7 +107,7 @@ export const config = [
 	}),
 	declareConfig("layout.hide_subtember_banner", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
-		label: "Hide Subtember banner",
+		label: "Hide SUBtember Banner",
 		hint: "If checked, the SUBtember banner under the stream will be hidden.",
 		defaultValue: false,
 	}),
