@@ -105,6 +105,12 @@ export const config = [
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_subtember_banner", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Subtember banner",
+		hint: "If checked, the SUBtember banner under the stream will be hidden.",
+		defaultValue: false,
+	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Sidebar"],
@@ -230,6 +236,12 @@ export const config = [
 
 .seventv-hide-live-notification-button {
 	button[data-a-target="notifications-toggle"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-subtember-banner {
+	div[class$="subtember-gradient"] {
 		display: none !important;
 	}
 }

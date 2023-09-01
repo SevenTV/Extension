@@ -16,6 +16,7 @@ const hideViewersAlsoWatch = useConfig<boolean>("layout.hide_viewers_also_watch"
 const hidePrimeOffers = useConfig<boolean>("layout.hide_prime_offers");
 const hideUnfollowButton = useConfig<boolean>("layout.hide_unfollow_button");
 const hideLiveNotificationButton = useConfig<boolean>("layout.hide_live_notification_button");
+const hideSubtemberBanner = useConfig<boolean>("layout.hide_subtember_banner");
 const hideSubscribeButton = useConfig<boolean>("layout.hide_subscribe_button");
 const hideChatInputBox = useConfig<boolean>("layout.hide_chat_input_box");
 const hidePlayerExtensions = useConfig<boolean>("player.hide_player_extensions");
@@ -36,6 +37,7 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-prime-offers", isHidden: hidePrimeOffers },
 	{ class: "seventv-hide-unfollow-button", isHidden: hideUnfollowButton },
 	{ class: "seventv-hide-live-notification-button", isHidden: hideLiveNotificationButton },
+	{ class: "seventv-hide-subtember-banner", isHidden: hideSubtemberBanner },
 	{ class: "seventv-hide-subscribe-button", isHidden: hideSubscribeButton },
 	{ class: "seventv-hide-chat-input-box", isHidden: hideChatInputBox },
 	{ class: "seventv-hide-player-ext", isHidden: hidePlayerExtensions },
