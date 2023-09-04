@@ -24,6 +24,8 @@ const actionOnClick = useConfig<number>("player.action_onclick");
 const contentWarning = ref<ReactComponentHook<Twitch.VideoPlayerContentRestriction> | null>(null);
 const playerOverlay = ref<HTMLElement | null>(null);
 
+let playerModeObserverSet = false;
+
 const hookContentWarning = debounceFn((): void => {
 	if (contentWarning.value) {
 		unhookComponent(contentWarning.value as ReactComponentHook<Twitch.VideoPlayerContentRestriction>);
@@ -51,25 +53,28 @@ watch(
 watchEffect(() => {
 	if (!props.inst.component?.props) return;
 
-	useMutationObserver(
-		props.inst.component.props.containerRef,
-		(records) => {
-			// check if video player size mode was changed
-			for (const record of records) {
-				if (
-					(record.target as HTMLDivElement).className.includes("video-player__container--theatre") !=
-					record.oldValue?.includes("video-player__container--theatre")
-				) {
-					toggleContentWarning();
+	if (!playerModeObserverSet) {
+		useMutationObserver(
+			props.inst.component.props.containerRef,
+			(records) => {
+				// check if video player size mode was changed
+				for (const record of records) {
+					if (
+						(record.target as HTMLDivElement).className.includes("video-player__container--theatre") !=
+						record.oldValue?.includes("video-player__container--theatre")
+					) {
+						toggleContentWarning();
+					}
 				}
-			}
-		},
-		{
-			attributes: true,
-			attributeFilter: ["class"],
-			attributeOldValue: true,
-		},
-	);
+			},
+			{
+				attributes: true,
+				attributeFilter: ["class"],
+				attributeOldValue: true,
+			},
+		);
+		playerModeObserverSet = true;
+	}
 
 	toggleContentWarning();
 
