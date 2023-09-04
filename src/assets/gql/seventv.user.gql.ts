@@ -46,6 +46,58 @@ export const userByConnectionQuery = gql`
 				color
 				paint_id
 			}
+			connections {
+				platform
+				emote_set_id
+			}
+			editors {
+				id
+			}
+		}
+	}
+`;
+
+export const changeEmoteInSeMutation = gql`
+	mutation ChangeEmoteInSet($id: ObjectID!, $action: ListItemAction!, $emote_id: ObjectID!, $name: String) {
+		emoteSet(id: $id) {
+			id
+			emotes(id: $emote_id, action: $action, name: $name) {
+				id
+				name
+			}
+		}
+	}
+`;
+
+export const searchQuery = gql`
+	query SearchEmotes($query: String!, $page: Int, $sort: Sort, $limit: Int, $filter: EmoteSearchFilter) {
+		emotes(query: $query, page: $page, sort: $sort, limit: $limit, filter: $filter) {
+			count
+			items {
+				id
+				name
+				state
+				trending
+				owner {
+					id
+					username
+					display_name
+					style {
+						color
+						paint_id
+					}
+				}
+				flags
+				host {
+					url
+					files {
+						name
+						format
+						width
+						height
+					}
+				}
+			}
 		}
 	}
 `;

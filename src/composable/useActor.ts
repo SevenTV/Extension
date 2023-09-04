@@ -41,9 +41,8 @@ class ActorContext {
 		fetch(import.meta.env.VITE_APP_API + "/auth/logout", {
 			method: "POST",
 			credentials: "include",
-		}).then((res) => {
-			if (!res.ok) return;
-
+		}).then(() => {
+			// So the user can re-authenticate if needed
 			this.user = null;
 		});
 	}

@@ -60,15 +60,18 @@ async function startRecording() {
 
 	const res = await doRequest(blobs);
 
-	if (res.status == "error") {
+	if (res.status == "error")
 		return {
 			notice: res.error!.error_message,
 			error: res.error?.error_code == 900 ? "unauthorized" : "invalid_parameters",
 		};
-	}
 
+	if (res.result)
+		return {
+			notice: `Song is:  ${res.result.artist} - ${res.result.title}`,
+		};
 	return {
-		notice: `Song is:  ${res.result!.artist} - ${res.result!.title}`,
+		notice: "Could not recognice song",
 	};
 }
 
@@ -115,6 +118,13 @@ settings.register([
 		label: "AudD api key",
 		hint: "Input an AudD api key to use the /song command",
 		defaultValue: "",
+		options: {
+			placeholder: "Key",
+			type: "password",
+		},
+		predicate(v) {
+			return v.length == 32 || v == "";
+		},
 		effect(v) {
 			if (v) props.add(command);
 			else props.remove(command);

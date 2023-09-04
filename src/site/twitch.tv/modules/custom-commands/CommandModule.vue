@@ -1,47 +1,56 @@
 <template>
 	<template v-for="i of ch.instances" :key="i">
-		<Nuke :add="i.component.addCommand" :remove="i.component.removeCommand" />
-		<Dashboard :add="i.component.addCommand" :remove="i.component.removeCommand" />
-		<Song :add="i.component.addCommand" :remove="i.component.removeCommand" />
+		<template v-for="cmd of commands" :key="cmd">
+			<component :is="cmd" v-bind="{ add: i.component.addCommand, remove: i.component.removeCommand }" />
+		</template>
 	</template>
 </template>
 <script setup lang="ts">
+import type { Component } from "vue";
+import { until } from "@vueuse/core";
 import { useComponentHook } from "@/common/ReactHooks";
-import { defineFunctionHook } from "@/common/Reflection";
 import { declareModule } from "@/composable/useModule";
-import Nuke from "./Commands/Nuke.vue";
 import Dashboard from "./Commands/Dashboard.vue";
+//import Nuke from "./Commands/Nuke.vue";
 import Song from "./Commands/Song.vue";
-import { shallowRef } from "vue";
-import { watchArray } from "@vueuse/core";
 
-const { markAsReady } = declareModule("command-manager", {
+const { dependenciesMet, markAsReady } = declareModule("command-manager", {
 	name: "Command Manager",
-	depends_on: ["chat"],
+	depends_on: ["chat", "chat-input"],
 });
+
+await until(dependenciesMet).toBe(true);
+
+const commands = [
+	Dashboard,
+	Song,
+	// Nuke
+] as Component[];
+
+useComponentHook<Twitch.ChatCommandGrouperComponent>(
+	{
+		parentSelector: ".chat-input__textarea",
+		predicate: (n) => n.determineGroup,
+		maxDepth: 50,
+	},
+	{
+		functionHooks: {
+			determineGroup(
+				this,
+				old: Twitch.ChatCommandGrouperComponent["determineGroup"],
+				command: Twitch.ChatCommand,
+			) {
+				return command.group ? command.group : old.call(this, command) ?? "Twitch";
+			},
+		},
+	},
+);
 
 const ch = useComponentHook<Twitch.ChatCommandComponent>({
+	parentSelector: ".chat-shell",
 	predicate: (n) => n.addCommand,
-	maxDepth: 300,
-});
-
-const grouper = useComponentHook<Twitch.ChatCommandGrouperComponent>({
-	predicate: (n) => n.determineGroup,
-	maxDepth: 300,
-});
-
-function hookGrouper(g: Twitch.ChatCommandGrouperComponent) {
-	defineFunctionHook(g, "determineGroup", function (this, old, command: Twitch.ChatCommand) {
-		return command.group ? command.group : old?.call(this, command);
-	});
-}
-
-watchArray(shallowRef(grouper.instances).value, (a) => a.forEach(({ component }) => hookGrouper(component)), {
-	immediate: true,
+	maxDepth: 50,
 });
 
 markAsReady();
-</script>
-<script lang="ts">
-export const config = [];
 </script>

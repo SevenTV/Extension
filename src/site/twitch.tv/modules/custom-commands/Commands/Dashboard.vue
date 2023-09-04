@@ -1,61 +1,18 @@
-<template></template>
+<template />
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
-import { Logger } from "@/common/Logger";
+import { computed, onUnmounted, ref, watch } from "vue";
+import { until } from "@vueuse/core";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useActor } from "@/composable/useActor";
 import { getModule } from "@/composable/useModule";
-import { useTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
+import { useModifierTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
+import { changeEmoteInSeMutation, userByConnectionQuery } from "@/assets/gql/seventv.user.gql";
+import { userQuery } from "@/assets/gql/seventv.user.gql";
 import EnableTray from "./EnableTray.vue";
+import { useMutation, useQuery } from "@vue/apollo-composable";
 
 const emoteNameRegex = new RegExp("^[-_A-Za-z():0-9]{2,100}$");
-
-const querys = {
-	changeEmoteInSet: `
-		mutation ChangeEmoteInSet($id: ObjectID!, $action: ListItemAction!, $emote_id: ObjectID!, $name: String) {
-			emoteSet(id: $id) {
-				id
-				emotes(id: $emote_id, action: $action, name: $name) {
-					id
-					name
-				}
-			}
-		}
-	`,
-	search: `
-		query SearchEmotes($query: String!, $page: Int, $sort: Sort, $limit: Int, $filter: EmoteSearchFilter) {
-			emotes(query: $query, page: $page, sort: $sort, limit: $limit, filter: $filter) {
-				count
-				items {
-					id
-					name
-					state
-					trending
-					owner {
-						id
-						username
-						display_name
-						style {
-							color
-							paint_id
-						}
-					}
-					flags
-					host {
-						url
-						files {
-							name
-							format
-							width
-							height
-						}
-					}
-				}
-			}
-		}
-	`,
-};
 
 const props = defineProps<{
 	add: (c: Twitch.ChatCommand) => void;
@@ -64,111 +21,48 @@ const props = defineProps<{
 
 const c = getModule<"TWITCH", "chat">("chat");
 if (!c?.instance) throw new Error("ChatController not found");
+
 const info = c.instance.chatController.instances[0].component.props;
-const ctx = useChannelContext(info.channelID, true);
+const ctx = useChannelContext(info.channelID);
 const emotes = useChatEmotes(ctx);
 
-let activeSetID: string;
-
 const actor = useActor();
-let isEditor = false;
 
-async function hasPermission() {
-	return info.channelID == info.userID || isEditor;
-}
+const mutateEmoteInSet = useMutation(changeEmoteInSeMutation, { errorPolicy: "all" });
+await until(ref(info.channelID)).toBeTruthy();
+const getUser = useQuery<userQuery.Result>(userByConnectionQuery, { platform: "TWITCH", id: info.channelID });
 
-async function setCurrentChannelId() {
-	await fetch("https://api.7tv.app/v3/users/twitch/" + info.channelID)
-		.then((response) => {
-			if (!response.ok) throw new Error();
-			return response.json();
-		})
-		.then((json) => {
-			activeSetID = json.emote_set.id;
-			if (!json.id || !json.user?.editors?.length) return;
-			isEditor = (json.user.editors as { id: string }[]).some((e) => e.id == actor.user?.id);
-		})
-		.catch((err) => {
-			throw new Error(err);
-		});
+let activeSetID = "";
+getUser.onResult((res) => {
+	if (res.data) {
+		activeSetID = res.data.user.connections!.find((c) => c.platform == "TWITCH")?.emote_set_id ?? "";
+	}
+});
 
-	return;
-}
+const hasPermission = computed(() => {
+	if (!actor.user) return false;
+	if (info.channelID == info.userID) return true;
+	if (!getUser.result.value) return false;
+	return getUser.result.value.user.editors!.some((e) => e.id == actor.user?.id);
+});
 
-async function handleRequest(query: string, variables: object, e?: string) {
-	const res = await sendRequest(query, variables, e);
+async function doMutation(variables: object) {
+	const result = await mutateEmoteInSet.mutate(variables);
 
-	if (res.ok) {
-		const json = await res.json();
-		if (json.errors && json.errors[0]) {
-			return {
-				notice: "Unable to do request: " + json.errors[0].extensions.message,
-				error: "unauthorized",
-			};
-		}
-		return { notice: "" };
+	if (result?.errors?.length) {
+		return {
+			notice: "Unable to do request: " + result.errors[0].extensions.message,
+			error: "unauthorized",
+		};
 	}
 
-	return {
-		notice: "Unable to do request. Error code: " + res.status,
-		error: "unauthorized",
-	};
-}
-
-async function sendRequest(query: string, variables: object, e?: string) {
-	actor.query;
-	return fetch(import.meta.env.VITE_APP_API_GQL, {
-		method: "POST",
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			operationName: e,
-			query: query,
-			variables: variables,
-		}),
-	});
-}
-
-async function queryEmotes(name: string) {
-	const res = await sendRequest(querys.search, {
-		filter: {
-			animated: false,
-			aspect_ratio: "",
-			case_sensitive: false,
-			category: "TOP",
-			exact_match: false,
-			ignore_tags: false,
-			zero_width: false,
-		},
-		query: name,
-		page: 1,
-		limit: 32,
-		sort: {
-			order: "DESCENDING",
-			value: "popularity",
-		},
-	});
-
-	if (!res.ok) return undefined;
-
-	const json = await res.json();
-
-	return json.data.emotes.items;
+	return { notice: "" };
 }
 
 async function handleEnable(args: string) {
 	const [name] = args.split(" ").filter((n) => n);
+	const refName = ref(name);
 
-	const emotes = (await queryEmotes(name)) as SevenTV.ActiveEmote[];
-
-	if (!emotes) {
-		return {
-			notice: "Could not find any emotes named: " + name,
-			error: "invalid_parameters",
-		};
-	}
 	let tray = {
 		open: () => {
 			return;
@@ -187,32 +81,34 @@ async function handleEnable(args: string) {
 				return;
 			}
 
-			handleRequest(
-				querys.changeEmoteInSet,
-				{
-					action: "ADD",
-					emote_id: id,
-					id: activeSetID,
-				},
-				"ChangeEmoteInSet",
-			).then((res) => {
+			doMutation({
+				action: "ADD",
+				emote_id: id,
+				id: activeSetID,
+			}).then((res) => {
 				tray.clear();
 				resolve(res);
 			});
 		};
 
-		tray = useTray(
+		tray = useModifierTray(
 			"CommandInfo",
 			() => ({
 				close: tray.clear,
-				emotes: emotes,
+				resolve: resolve,
+				search: refName,
 				onEmoteClick: onClick,
-				onClose: tray.clear,
 			}),
 			{
 				type: "command-info",
 				body: EnableTray,
-				sendButtonOverride: "Search",
+				disableCommands: true,
+				sendMessageHandler: {
+					type: "custom-message-handler",
+					handleMessage: (message: string) => {
+						refName.value = message;
+					},
+				},
 			},
 		);
 
@@ -228,7 +124,7 @@ async function handleEnable(args: string) {
 async function handleDisable(args: string) {
 	const [emoteName] = args.split(" ").filter((n) => n);
 
-	const emote = emotes.find((e) => e.name == emoteName);
+	const emote = emotes.active[emoteName];
 
 	if (emote?.provider != "7TV") {
 		return {
@@ -237,19 +133,17 @@ async function handleDisable(args: string) {
 		};
 	}
 
-	const variables = {
+	return doMutation({
 		action: "REMOVE",
 		emote_id: emote.id,
 		id: activeSetID,
-	};
-
-	return handleRequest(querys.changeEmoteInSet, variables);
+	});
 }
 
 async function handleAlias(args: string) {
 	const [currentName, newName] = args.split(" ").filter((n) => n);
 
-	const emote = emotes.find((e) => e.name == currentName);
+	const emote = emotes.active[currentName];
 
 	if (emote?.provider != "7TV") {
 		return {
@@ -267,14 +161,12 @@ async function handleAlias(args: string) {
 		}
 	}
 
-	const variables = {
+	return doMutation({
 		action: "UPDATE",
 		emote_id: emote.id,
 		id: activeSetID,
 		name: newName === "-" ? "" : newName,
-	};
-
-	return handleRequest(querys.changeEmoteInSet, variables);
+	});
 }
 
 const commandEnable: Twitch.ChatCommand = {
@@ -333,22 +225,23 @@ const commandAlias: Twitch.ChatCommand = {
 };
 
 watch(
-	ref(info.channelID),
-	() => {
-		setCurrentChannelId()
-			.then(() => {
-				return hasPermission();
-			})
-			.then((permission) => {
-				if (permission) {
-					props.add(commandEnable);
-					props.add(commandDisable);
-					props.add(commandAlias);
-				}
-			})
-			.catch(() => {
-				Logger.Get().info("Error with determining if you have permission, channel might not have 7tv enabled");
-			});
+	() => info.channelID,
+	() => getUser.refetch({ platform: "TWITCH", id: info.channelID }),
+	{ immediate: true },
+);
+
+watch(
+	() => hasPermission,
+	(p) => {
+		if (p) {
+			props.add(commandEnable);
+			props.add(commandDisable);
+			props.add(commandAlias);
+		} else {
+			props.remove(commandEnable);
+			props.remove(commandDisable);
+			props.remove(commandAlias);
+		}
 	},
 	{ immediate: true },
 );

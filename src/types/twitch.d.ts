@@ -459,7 +459,7 @@ declare module Twitch {
 		header?: ReactExtended.ReactRuntimeElement | Component;
 		body?: ReactExtended.ReactRuntimeElement | Component;
 		inputValueOverride?: string;
-		sendButtonOverride: string;
+		sendButtonOverride?: string;
 		disableCommands?: boolean;
 		disableBits?: boolean;
 		disablePaidPinnedChat?: boolean;
@@ -524,7 +524,8 @@ declare module Twitch {
 
 		export interface SendMessageHandler<T extends SendMessageHandler.Type> {
 			type: SendMessageHandler.Type[T];
-			additionalMetadata: Partial<ChatMessage>;
+			messageHandler?: (msg: string) => void;
+			additionalMetadata?: Partial<ChatMessage>;
 		}
 
 		export namespace SendMessageHandler {
@@ -540,6 +541,7 @@ declare module Twitch {
 				ShareEmoteReward: "share-emote-reward";
 				ShareResub: "share-resub";
 				ThankSubGifter: "thank-sub-gifter";
+				Custom: "custom-message-handler";
 			};
 		}
 	}

@@ -1,4 +1,4 @@
-<template></template>
+<template />
 <script setup lang="ts">
 import { onUnmounted } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
@@ -46,7 +46,8 @@ const executed = new Set<string>();
 const c = getModule<"TWITCH", "chat">("chat");
 if (!c?.instance) throw new Error("ChatController not found");
 const id = c.instance.chatController.instances[0].component.props.channelID;
-const ctx = useChannelContext(id, true);
+
+const ctx = useChannelContext(id);
 const messages = useChatMessages(ctx);
 
 const handler: Twitch.ChatCommand.Handler = (args: string) => {

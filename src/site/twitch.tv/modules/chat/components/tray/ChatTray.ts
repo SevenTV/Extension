@@ -89,17 +89,20 @@ export function useTray<T extends keyof Twitch.ChatTray.Type>(
 	type: T,
 	props?: () => TrayProps<T>,
 	tray?: Twitch.ChatTray<T>,
+	isModifier = false,
 ) {
 	const mod = getModuleRef<"TWITCH", "chat-input">("chat-input");
 
-	function clear(): void {
-		if (!mod.value || typeof mod.value.instance?.setTray !== "function") return;
+	const trayType = isModifier ? "setModifierTray" : "setTray";
 
-		mod.value.instance.setTray(null);
+	function clear(): void {
+		if (!mod.value || typeof mod.value.instance?.[trayType] !== "function") return;
+
+		mod.value.instance[trayType]!(null);
 	}
 
 	function open() {
-		if (!mod.value || typeof mod.value.instance?.setTray !== "function") return;
+		if (!mod.value || typeof mod.value.instance?.[trayType] !== "function") return;
 
 		const p = {
 			...props?.(),
@@ -110,7 +113,7 @@ export function useTray<T extends keyof Twitch.ChatTray.Type>(
 		const trayObject = tray ?? getDefaultTray(type, p);
 		if (!trayObject) return;
 
-		mod.value.instance.setTray({
+		mod.value.instance[trayType]!({
 			...trayObject,
 			header: trayObject.header ? toReactComponent(trayObject.header, p) : undefined,
 			body: trayObject.body ? toReactComponent(trayObject.body, p) : undefined,
@@ -121,4 +124,12 @@ export function useTray<T extends keyof Twitch.ChatTray.Type>(
 		open,
 		clear,
 	};
+}
+
+export function useModifierTray<T extends keyof Twitch.ChatTray.Type>(
+	type: T,
+	props?: () => TrayProps<T>,
+	tray?: Twitch.ChatTray<T>,
+) {
+	return useTray(type, props, tray, true);
 }

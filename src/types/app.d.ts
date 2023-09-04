@@ -99,7 +99,10 @@ declare namespace SevenTV {
 			SELECT: [string, T][];
 			DROPDOWN: [string, T][];
 			CHECKBOX: never;
-			INPUT: string;
+			INPUT: {
+				placeholder?: string;
+				type?: string;
+			};
 			COLOR: string;
 			TOGGLE: {
 				left: string;
@@ -167,6 +170,7 @@ declare namespace SevenTV {
 		style?: UserStyle;
 		connections?: UserConnection[];
 		emote_sets?: EmoteSet[];
+		editors?: User[];
 	}
 
 	interface UserStyle {
@@ -183,6 +187,7 @@ declare namespace SevenTV {
 		linked_at: number;
 		emote_capacity: number;
 		emote_set: EmoteSet | null;
+		emote_set_id: string;
 
 		provider?: Provider;
 		user?: User;

@@ -290,6 +290,12 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 					return options.replaceContents ? false : old?.apply(this, args) ?? true;
 				});
 
+				if (options.functionHooks) {
+					for (const [k, f] of Object.entries(options.functionHooks)) {
+						defineFunctionHook(proto, k as keyof C, f);
+					}
+				}
+
 				for (const instance of instances) {
 					instance.forceUpdate();
 				}
@@ -388,7 +394,16 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 ): ReactComponentHook<C> {
 	const hook = defineComponentHook<C>(criteria, options);
 
-	onUnmounted(() => unhookComponent(hook));
+	onUnmounted(() => {
+		if (options?.functionHooks) {
+			for (const k of Object.keys(options.functionHooks)) {
+				if (hook.cls) {
+					unsetPropertyHook(hook.cls.prototype, k as keyof C);
+				}
+			}
+		}
+		unhookComponent(hook);
+	});
 
 	return hook;
 }
@@ -409,6 +424,12 @@ interface HookOptions<C extends ReactExtended.WritableComponent> {
 		unmount?: (inst: HookedInstance<C>) => void;
 		shouldUpdate?: (inst: HookedInstance<C>) => boolean;
 		render?: (inst: HookedInstance<C>, current: React.ReactNode) => React.ReactNode;
+	};
+	functionHooks?: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		[F in keyof C]?: C[F] extends (...args: any[]) => any
+			? (this: C, old: C[F], ...args: Parameters<C[F]>) => ReturnType<C[F]>
+			: never;
 	};
 }
 
