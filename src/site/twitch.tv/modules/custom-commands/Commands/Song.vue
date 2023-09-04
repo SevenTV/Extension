@@ -71,7 +71,7 @@ async function startRecording() {
 			notice: `Song is:  ${res.result.artist} - ${res.result.title}`,
 		};
 	return {
-		notice: "Could not recognice song",
+		notice: "Could not recognize song",
 	};
 }
 
