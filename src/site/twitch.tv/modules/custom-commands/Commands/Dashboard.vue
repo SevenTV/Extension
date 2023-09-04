@@ -231,9 +231,9 @@ watch(
 );
 
 watch(
-	() => hasPermission,
-	(p) => {
-		if (p) {
+	[hasPermission, () => actor.user],
+	() => {
+		if (hasPermission.value) {
 			props.add(commandEnable);
 			props.add(commandDisable);
 			props.add(commandAlias);
