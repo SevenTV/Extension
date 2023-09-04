@@ -54,6 +54,7 @@ watchEffect(() => {
 	useMutationObserver(
 		props.inst.component.props.containerRef,
 		(records) => {
+			// check if video player size mode was changed
 			for (const record of records) {
 				if (
 					(record.target as HTMLDivElement).className.includes("video-player__container--theatre") !=
