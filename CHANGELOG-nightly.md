@@ -8,7 +8,7 @@
 -   Fixed emote tile width in emote menu
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
--   Fixed issue with content warning banner reappearing
+-   Fixed issue with content warning banner reappearing when "Skip Content Warnings" was enabled
 
 ### 3.0.15.1000
 
