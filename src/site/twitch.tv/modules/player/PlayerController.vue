@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { onUnmounted, ref, watch, watchEffect } from "vue";
+import { useMutationObserver } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { HookedInstance, ReactComponentHook, defineComponentHook, unhookComponent } from "@/common/ReactHooks";
 import { defineNamedEventHandler, unsetNamedEventHandler, unsetPropertyHook } from "@/common/Reflection";
@@ -50,14 +51,26 @@ watch(
 watchEffect(() => {
 	if (!props.inst.component?.props) return;
 
-	if (props.inst.component.props.containerRef instanceof HTMLDivElement) {
-		const e = props.inst.component.props.containerRef;
-		if (e) {
-			e.classList.toggle("seventv-player-hide-content-warning", shouldHideContentWarning.value);
-		}
+	useMutationObserver(
+		props.inst.component.props.containerRef,
+		(records) => {
+			for (const record of records) {
+				if (
+					(record.target as HTMLDivElement).className.includes("video-player__container--theatre") !=
+					record.oldValue?.includes("video-player__container--theatre")
+				) {
+					toggleContentWarning();
+				}
+			}
+		},
+		{
+			attributes: true,
+			attributeFilter: ["class"],
+			attributeOldValue: true,
+		},
+	);
 
-		props.inst.component.props.containerRef.classList.add("seventv-player");
-	}
+	toggleContentWarning();
 
 	if (props.mediaPlayer) {
 		const videoElement = props.mediaPlayer.core.mediaSinkManager.video;
@@ -77,6 +90,17 @@ watchEffect(() => {
 		}
 	}
 });
+
+function toggleContentWarning() {
+	if (props.inst.component.props.containerRef instanceof HTMLDivElement) {
+		const e = props.inst.component.props.containerRef;
+		if (e) {
+			e.classList.toggle("seventv-player-hide-content-warning", shouldHideContentWarning.value);
+		}
+
+		props.inst.component.props.containerRef.classList.add("seventv-player");
+	}
+}
 
 function togglePause() {
 	if (!props.mediaPlayer) return;
