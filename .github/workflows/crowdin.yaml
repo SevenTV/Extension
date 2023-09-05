@@ -13,7 +13,7 @@ jobs:
         if: ${{ github.event_name != 'schedule' }}
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - uses: dorny/paths-filter@v2
               id: changes
@@ -52,7 +52,7 @@ jobs:
                   yarn global add prettier ts-node @types/node typescript
 
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Change branch to the update branch
               id: commits
