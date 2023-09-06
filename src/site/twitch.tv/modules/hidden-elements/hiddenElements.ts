@@ -19,6 +19,7 @@ const hideLiveNotificationButton = useConfig<boolean>("layout.hide_live_notifica
 const hideSubscribeButton = useConfig<boolean>("layout.hide_subscribe_button");
 const hideChatInputBox = useConfig<boolean>("layout.hide_chat_input_box");
 const hidePlayerExtensions = useConfig<boolean>("player.hide_player_extensions");
+const hideRecentCommunityMoments = useConfig<boolean>("layout.hide_recent_community_moments");
 
 export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean> }> = [
 	{ class: "seventv-hide-leaderboard", isHidden: hideLeaderboard },
@@ -39,4 +40,5 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-subscribe-button", isHidden: hideSubscribeButton },
 	{ class: "seventv-hide-chat-input-box", isHidden: hideChatInputBox },
 	{ class: "seventv-hide-player-ext", isHidden: hidePlayerExtensions },
+	{ class: "seventv-hide-recent-community-moments", isHidden: hideRecentCommunityMoments },
 ];

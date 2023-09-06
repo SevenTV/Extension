@@ -105,6 +105,12 @@ export const config = [
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_recent_community_moments", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Recent Community Moments",
+		hint: "If checked, the 'Recent Community Moments' section will be hidden",
+		defaultValue: false,
+	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Sidebar"],
@@ -212,6 +218,12 @@ export const config = [
 
 .seventv-hide-viewers-also-watch {
 	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(4) {
+		display: none !important;
+	}
+}
+
+.seventv-hide-recent-community-moments {
+	div[class^="ScTransitionBase-sc-hx4quq-0 gaROJz tw-transition"] > div:first-child {
 		display: none !important;
 	}
 }
