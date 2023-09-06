@@ -223,7 +223,7 @@ export const config = [
 }
 
 .seventv-hide-recent-community-moments {
-	div[class^="ScTransitionBase-sc-hx4quq-0 gaROJz tw-transition"] > div:first-child {
+	div[class="ScTransitionBase-sc-hx4quq-0 gaROJz tw-transition"] div:first-child[class="Layout-sc-1xcs6mc-0 fzbnMo"] {
 		display: none !important;
 	}
 }
