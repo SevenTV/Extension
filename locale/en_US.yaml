@@ -128,6 +128,7 @@ onboarding:
     promo_animated_avatars: Animated Avatars
     promo_animated_avatars_tooltip: Add a custom animated profile picture of your choice and get noticed
     promo_subscribe: Subscribe
+    promo_visit_store: Visit Store
     promo_reject: Maybe later
 
     # Onboarding - End

@@ -7,9 +7,16 @@
 				<span v-t="'emote_menu.native'" />
 			</div>
 
+			<!-- Subtember 2023 Promotion -->
+			<template v-if="provider === '7TV' && promotions.subtember2023">
+				<EmoteMenuSet :es="promotions.subtember2023" :ephemeral="true">
+					<SubtemberPromotion />
+				</EmoteMenuSet>
+			</template>
+
 			<!-- Personal Set Promotion -->
-			<template v-if="provider === '7TV' && !actor.sub">
-				<EmoteMenuSet :es="promotionPersonalSet" :ephemeral="true">
+			<template v-if="provider === '7TV' && promotions.personal && !actor.sub">
+				<EmoteMenuSet :es="promotions.personal" :ephemeral="true">
 					<div class="seventv-promotion-personal-emotes">
 						<div>
 							<p v-t="'emote_menu.personal_emotes_promo_1'" />
@@ -22,7 +29,7 @@
 							</span>
 						</div>
 
-						<StoreSubscribeButton />
+						<StoreLinkButton />
 					</div>
 				</EmoteMenuSet>
 			</template>
@@ -99,8 +106,9 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 import type { EmoteMenuTabName } from "./EmoteMenu.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuSet from "./EmoteMenuSet.vue";
+import SubtemberPromotion from "./SubtemberPromotion.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
-import StoreSubscribeButton from "../store/StoreSubscribeButton.vue";
+import StoreLinkButton from "../store/StoreLinkButton.vue";
 
 const props = defineProps<{
 	provider: EmoteMenuTabName;
@@ -146,10 +154,17 @@ const emojiCategories = [
 	"Flags",
 ];
 
-const promotionPersonalSet: SevenTV.EmoteSet = {
-	id: "personal-ad",
-	name: "Personal Emotes",
-	emotes: [],
+const promotions: Record<string, SevenTV.EmoteSet> = {
+	// personal: {
+	// 	id: "personal-ad",
+	// 	name: "Personal Emotes",
+	// 	emotes: [],
+	// },
+	subtember2023: {
+		id: "subtember-2023-ad",
+		name: "Subtember 2023 Event",
+		emotes: [],
+	},
 };
 
 function updateFavorites() {

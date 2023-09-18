@@ -99,7 +99,7 @@ const srcset = ref("");
 
 // set a time buffer before loading the full size
 // (this is to prevent the tooltip from loading the full size image when the user is just moving the cursor around)
-if (props.emote && props.emote.data && props.emote.data.host.srcset) {
+if (props.emote && props.emote.data) {
 	useTimeoutFn(() => {
 		srcset.value = imageHostToSrcsetWithsize(
 			props.height,

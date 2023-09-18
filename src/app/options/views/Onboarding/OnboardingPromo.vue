@@ -46,7 +46,7 @@
 			<div class="card-explain">{{ t("onboarding.promo_animated_avatars") }}</div>
 		</div>
 		<div class="interact">
-			<StoreSubscribeButton class="interact-subscribe" />
+			<StoreLinkButton class="interact-subscribe" />
 			<UiButton class="ui-button-hollow interact-skip" @click="onSkipClick">
 				<span v-t="'onboarding.promo_reject'" />
 			</UiButton>
@@ -72,7 +72,7 @@ import { useI18n } from "vue-i18n";
 import BgBadge3 from "@/assets/svg/seventv/BgBadge3.vue";
 import VectorBadge from "@/assets/svg/seventv/VectorBadge.vue";
 import { OnboardingStepRoute } from "./Onboarding";
-import StoreSubscribeButton from "@/app/store/StoreSubscribeButton.vue";
+import StoreLinkButton from "@/app/store/StoreLinkButton.vue";
 import UiButton from "@/ui/UiButton.vue";
 
 export const step: OnboardingStepRoute = {
