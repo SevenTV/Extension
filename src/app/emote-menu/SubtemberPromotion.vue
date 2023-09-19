@@ -2,7 +2,7 @@
 	<div class="seventv-promotion-subtember">
 		<div>
 			<p class="header">Get exclusive cosmetics and emotes!</p>
-			<p class="description">Gift 3+ 7TV subs to unlock exclusive cosmetics for a limited time</p>
+			<p class="description">For a limited time, Gift 3+ 7TV subs to unlock exclusive cosmetics</p>
 		</div>
 
 		<div>
@@ -29,7 +29,7 @@
 			</div>
 		</div>
 
-		<p class="disclaimer">Offer expires October 3rd</p>
+		<p class="disclaimer">Offer ends October 3rd</p>
 
 		<StoreLinkButton type="generic" />
 	</div>
