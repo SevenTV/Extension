@@ -2,13 +2,10 @@
 	<div class="seventv-promotion-subtember">
 		<div>
 			<p class="header">Get exclusive cosmetics and emotes!</p>
-			<p class="description">
-				Gift atleast three 7TV subs to unlock exclusive cosmetics only aquirable during this event
-			</p>
+			<p class="description">Gift 3+ 7TV subs to unlock exclusive cosmetics for a limited time</p>
 		</div>
 
 		<div>
-			<p class="perks-header">You'll get...</p>
 			<div class="perks">
 				<div>
 					<p class="title">Unique fantasy-themed chat emotes</p>
@@ -17,7 +14,7 @@
 					</div>
 				</div>
 				<div>
-					<p class="title">An exclusive paint and badge</p>
+					<p class="title">Exclusive paint & badge</p>
 					<div class="contents contents-cosmetics">
 						<Badge type="app" :alt="BADGE_DATA.data.tooltip" :badge="BADGE_DATA" class="badge-demo" />
 						<p
@@ -32,7 +29,7 @@
 			</div>
 		</div>
 
-		<p class="disclaimer">Offer valid through September 30th</p>
+		<p class="disclaimer">Offer expires October 3rd</p>
 
 		<StoreLinkButton type="generic" />
 	</div>

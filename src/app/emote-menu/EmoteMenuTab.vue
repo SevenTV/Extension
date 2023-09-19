@@ -162,7 +162,7 @@ const promotions: Record<string, SevenTV.EmoteSet> = {
 	// },
 	subtember2023: {
 		id: "subtember-2023-ad",
-		name: "Subtember 2023 Event",
+		name: "September 2023 Sub Event",
 		emotes: [],
 	},
 };
