@@ -37,7 +37,7 @@
 	"devDependencies": {
 		"@apollo/client": "^3.8.1",
 		"@floating-ui/dom": "^1.5.1",
-		"@intlify/unplugin-vue-i18n": "^0.12.3",
+		"@intlify/unplugin-vue-i18n": "^1.4.0",
 		"@trivago/prettier-plugin-sort-imports": "^4.2.0",
 		"@types/chrome": "^0.0.243",
 		"@types/dompurify": "^3.0.2",
