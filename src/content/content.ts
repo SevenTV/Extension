@@ -1,20 +1,22 @@
 import { APP_BROADCAST_CHANNEL } from "@/common/Constant";
 import { insertEmojiVectors } from "./emoji";
+
 const shouldInject = () => {
-    //check if it is top-level window (not an iframe) OR a Twitch popout, allow injection
-    return window === window.top || window.location.href.startsWith("https://www.twitch.tv/popout/");
+	//check if it is top-level window (not an iframe) OR a Twitch popout, allow injection
+	return window === window.top || window.location.href.startsWith("https://www.twitch.tv/popout/");
 };
 
 (() => {
-    "use strict";
+	"use strict";
 
-    if (!shouldInject()) {
-        return;
-    }
+	if (!shouldInject()) {
+		return;
+	}
 	// Inject extension into site
 	const inject = () => {
 		// Script
 		const script = document.createElement("script");
+
 		script.src = import.meta.env.DEV ? import.meta.env.BASE_URL + "src/site/site.ts" : chrome.runtime.getURL("site.js");
 		script.id = "seventv-extension";
 		script.type = "module";
