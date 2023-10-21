@@ -8,7 +8,7 @@
 -   Fixed emote tile width in emote menu
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
--   Added iframe support with "all_frames":true
+-   Added iframe support for chat popouts
 
 ### 3.0.15.1000
 
