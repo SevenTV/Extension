@@ -24,7 +24,7 @@ jobs:
 
             - name: crowdin action
               if: steps.changes.outputs.crowdin == 'true'
-              uses: crowdin/github-action@v1.11.0
+              uses: crowdin/github-action@v1.14.0
               with:
                   upload_sources: true
                   upload_translations: false
@@ -69,7 +69,7 @@ jobs:
                   git checkout ${{ env.BASE_BRANCH }}
 
             - name: Download Crowdin Translations
-              uses: crowdin/github-action@v1.11.0
+              uses: crowdin/github-action@v1.14.0
               with:
                   upload_sources: false
                   upload_translations: false
