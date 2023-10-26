@@ -142,7 +142,7 @@ export const config = [
 
 <style lang="scss">
 .seventv-hide-leaderboard {
-	div[data-test-selector="channel-leaderboard-container"] {
+	section[data-test-selector="chat-room-component-layout"] > div:first-child > div:first-child {
 		display: none !important;
 	}
 }
