@@ -3,7 +3,11 @@ import { insertEmojiVectors } from "./emoji";
 
 const shouldInject = () => {
 	//check if it is top-level window (not an iframe) OR a Twitch popout, allow injection
-	return window === window.top || window.location.href.startsWith("https://www.twitch.tv/popout/") || window.location.href.startsWith("https://www.twitch.tv/embed/");
+	return (
+		window === window.top ||
+		window.location.href.startsWith("https://www.twitch.tv/popout/") ||
+		window.location.href.startsWith("https://www.twitch.tv/embed/")
+	);
 };
 
 (() => {
