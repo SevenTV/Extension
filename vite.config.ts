@@ -4,8 +4,8 @@ import vuei18n from "@intlify/unplugin-vue-i18n/vite";
 import vue from "@vitejs/plugin-vue";
 import fs from "fs-extra";
 import path from "path";
+import obfuscator from "rollup-plugin-obfuscator";
 import { defineConfig, loadEnv } from "vite";
-import obfuscator from 'rollup-plugin-obfuscator';
 
 const ignoreHMR = [
 	"index.ts",
@@ -117,9 +117,9 @@ export default defineConfig(() => {
 							selfDefending: true,
 							numbersToExpressions: true,
 							seed: Date.now(),
-						}
-					})
-				]
+						},
+					}),
+				],
 			},
 		},
 

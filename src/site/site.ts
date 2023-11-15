@@ -6,8 +6,7 @@ import { loadSite } from "./site.normal";
 	const host: string = import.meta.env.VITE_APP_HOST;
 	const versionBranch: string = import.meta.env.VITE_APP_VERSION_BRANCH;
 
-	const manifestURL = `${host}/manifest${versionBranch ? "." + versionBranch.toLowerCase() : ""
-		}.json`;
+	const manifestURL = `${host}/manifest${versionBranch ? "." + versionBranch.toLowerCase() : ""}.json`;
 
 	const manifest = await fetch(manifestURL)
 		.then((res) => res.json())
