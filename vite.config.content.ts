@@ -38,7 +38,7 @@ export default defineConfig(() => {
 				output: {
 					entryFileNames: "content.js",
 					extend: true,
-				},
+				}
 			},
 		},
 	};

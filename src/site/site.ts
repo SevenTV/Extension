@@ -1,10 +1,13 @@
 import { log } from "@/common/Logger";
 import { semanticVersionToNumber } from "@/common/Transform";
+import { loadSite } from "./site.normal";
 
 (async () => {
-	const manifestURL = `${import.meta.env.VITE_APP_HOST}/manifest${
-		import.meta.env.VITE_APP_VERSION_BRANCH ? "." + import.meta.env.VITE_APP_VERSION_BRANCH.toLowerCase() : ""
-	}.json`;
+	const host: string = import.meta.env.VITE_APP_HOST;
+	const versionBranch: string = import.meta.env.VITE_APP_VERSION_BRANCH;
+
+	const manifestURL = `${host}/manifest${versionBranch ? "." + versionBranch.toLowerCase() : ""
+		}.json`;
 
 	const manifest = await fetch(manifestURL)
 		.then((res) => res.json())
@@ -17,29 +20,29 @@ import { semanticVersionToNumber } from "@/common/Transform";
 		host_manifest: manifest ?? null,
 	};
 
-	if (manifest && hostedVersion > localVersion) {
-		seventv.remote = true;
+	if (!manifest || hostedVersion <= localVersion) {
+		log.info("<Site>", "Using Local Mode,", "v" + import.meta.env.VITE_APP_VERSION);
+		loadSite();
+	} else {
+		seventv.hosted = true;
 
-		const scr = document.createElement("script");
-		scr.id = "seventv-site-hosted";
-		scr.src = manifest.index_file;
-		scr.type = "module";
+		const v1 = document.createElement("script");
+		v1.id = "seventv-site-hosted";
+		v1.src = manifest.index_file;
+		v1.type = "module";
 
-		const style = document.createElement("link");
-		style.rel = "stylesheet";
-		style.type = "text/css";
-		style.href = manifest.stylesheet_file;
-		style.setAttribute("charset", "utf-8");
-		style.setAttribute("content", "text/html");
-		style.setAttribute("http-equiv", "content-type");
-		style.id = "seventv-stylesheet";
+		const v2 = document.createElement("link");
+		v2.rel = "stylesheet";
+		v2.type = "text/css";
+		v2.href = manifest.stylesheet_file;
+		v2.setAttribute("charset", "utf-8");
+		v2.setAttribute("content", "text/html");
+		v2.setAttribute("http-equiv", "content-type");
+		v2.id = "seventv-stylesheet";
 
-		document.head.appendChild(style);
-		document.head.appendChild(scr);
+		document.head.appendChild(v2);
+		document.head.appendChild(v1);
 
 		log.info("<Site>", "Using Hosted Mode,", "v" + manifest.version);
-	} else {
-		import("./site.app");
-		log.info("<Site>", "Using Local Mode,", "v" + import.meta.env.VITE_APP_VERSION);
 	}
 })();
