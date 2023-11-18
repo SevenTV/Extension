@@ -10,6 +10,10 @@ import PopupInner from './PopupInner.vue';
 
 <script setup lang="ts">
 import PopupInner from "./PopupInner.vue";
+
+// Set the dimensions of the popup
+document.body.style.height = "600px";
+document.body.style.width = "800px";
 </script>
 
 <style scoped lang="scss">
