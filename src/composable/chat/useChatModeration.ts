@@ -6,6 +6,8 @@ import { ChannelContext } from "../channel/useChannelContext";
 import { useApollo } from "../useApollo";
 
 export function useChatModeration(ctx: ChannelContext, victim: string) {
+	const apollo = useApollo();
+
 	/**
 	 * Ban the user from the chat room
 	 *
@@ -15,7 +17,6 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	 * @param reason the reason for the ban
 	 */
 	function banUserFromChat(expiresIn: string | null, reason?: string) {
-		const apollo = useApollo();
 		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate<twitchBanUserQuery.Result, twitchBanUserQuery.Variables>({
@@ -38,7 +39,6 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	 * @param victim the login of the user to unban
 	 */
 	function unbanUserFromChat() {
-		const apollo = useApollo();
 		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate({
@@ -53,7 +53,6 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	}
 
 	function pinChatMessage(msgID: string, duration: number) {
-		const apollo = useApollo();
 		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate<twitchPinMessageQuery.Result, twitchPinMessageQuery.Variables>({
@@ -70,7 +69,6 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	}
 
 	function setUserModerator(victimID: string, mod: boolean) {
-		const apollo = useApollo();
 		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate<ModOrUnmodUser.Response, ModOrUnmodUser.Variables>({
@@ -85,7 +83,6 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	}
 
 	function deleteChatMessage(msgID: string) {
-		const apollo = useApollo();
 		if (!apollo) return Promise.reject("Missing Apollo");
 
 		return apollo.mutate<twitchDeleteMessageQuery.Result, twitchDeleteMessageQuery.Variables>({
