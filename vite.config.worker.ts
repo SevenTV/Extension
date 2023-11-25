@@ -13,7 +13,7 @@ export default defineConfig(() => {
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: name,
 		VITE_APP_VERSION: version,
-		VITE_APP_VERSION_BRANCH: process.env.BRANCH,
+		VITE_APP_VERSION_BRANCH: process.env.BRANCH || "",
 	};
 
 	process.stdout.write("Building worker...\n");
