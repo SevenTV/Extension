@@ -4,8 +4,7 @@ extends:
 rules:
     color-function-notation: "legacy"
     declaration-block-no-redundant-longhand-properties:
-        - true
-        - ignoreShorthands: ["/grid/"]
+        - null
 ignoreFiles: ["locale/*.ts"]
 overrides:
     - files: ["**/*.scss"]

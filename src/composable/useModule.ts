@@ -11,19 +11,19 @@ const data = reactive({
 export type PlatformModuleID<P extends Platform> = P extends "KICK"
 	? KickModuleID
 	: P extends "TWITCH"
-	? TwModuleID
-	: P extends "YOUTUBE"
-	? YtModuleID
-	: string;
+	  ? TwModuleID
+	  : P extends "YOUTUBE"
+	    ? YtModuleID
+	    : string;
 
 export type PlatformModuleComponentMap<P extends Platform> = P extends "KICK"
 	? KickModuleComponentMap
 	: P extends "TWITCH"
-	? TwModuleComponentMap
-	: P extends "YOUTUBE"
-	? YtModuleComponentMap
-	: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-	  any;
+	  ? TwModuleComponentMap
+	  : P extends "YOUTUBE"
+	    ? YtModuleComponentMap
+	    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+	      any;
 
 export type AnyModuleID =
 	| PlatformModuleID<"UNKNOWN">

@@ -9,6 +9,7 @@
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
 -   Fixed an issue where leaderboard would not hide when "Hide leaderboard" was enabled
+-   Fixed an issue with deleting messages using mod icons
 
 ### 3.0.15.1000
 

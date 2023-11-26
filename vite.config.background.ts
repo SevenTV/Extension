@@ -12,7 +12,7 @@ export default defineConfig(() => {
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: appName,
 		VITE_APP_VERSION: getFullVersion(isNightly),
-		VITE_APP_VERSION_BRANCH: process.env.BRANCH,
+		VITE_APP_VERSION_BRANCH: process.env.BRANCH || "",
 	};
 
 	return {
