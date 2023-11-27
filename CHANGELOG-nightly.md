@@ -12,6 +12,7 @@
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
 -   Fixed an issue with deleting messages using mod icons
+-   Fixed an issue where the extension menu displayed incorrectly in Chromium-based browsers
 
 ### 3.0.15.1000
 
