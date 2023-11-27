@@ -48,13 +48,21 @@ export class WorkerDriver extends EventTarget {
 				this.http.API().frankerfacez.loadGlobalEmoteSet(),
 				this.http.API().betterttv.loadGlobalEmoteSet(),
 			])
-				.then((results) => {
+				.then(async (results) => {
 					results.forEach((r) => {
 						if (!(r.status === "fulfilled" && r.value)) return;
 
 						sets.push(r.value);
 						emoteCount += r.value.emotes.length;
 					});
+
+					// Delete stale global set(s)
+					db.emoteSets
+						.where("scope")
+						.equals("GLOBAL")
+						.and((es) => !sets.map((x) => x.id).includes(es.id))
+						.delete()
+						.catch((err) => log.error("failed to delete stale global emote set:", err));
 
 					log.info(
 						"<API>",
