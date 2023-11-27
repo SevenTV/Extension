@@ -8,10 +8,10 @@
 	},
 	"include": [
 		"vite.utils.ts",
-		"vite.config.ts",
-		"vite.config.worker.ts",
-		"vite.config.background.ts",
-		"vite.config.content.ts",
+		"vite.config.mts",
+		"vite.config.worker.mts",
+		"vite.config.background.mts",
+		"vite.config.content.mts",
 		"manifest.config.ts",
 		"package.json"
 	]
