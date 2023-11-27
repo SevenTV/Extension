@@ -48,7 +48,7 @@ export class WorkerDriver extends EventTarget {
 				this.http.API().frankerfacez.loadGlobalEmoteSet(),
 				this.http.API().betterttv.loadGlobalEmoteSet(),
 			])
-				.then(async (results) => {
+				.then((results) => {
 					results.forEach((r) => {
 						if (!(r.status === "fulfilled" && r.value)) return;
 
