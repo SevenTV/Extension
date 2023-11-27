@@ -4,6 +4,9 @@
 
 -   Added an option to select alternating background color for chat messages
 -   Added a tip to the favorite menu to help users favorite emotes if none are found
+-   Fixed an issue where personal emote sets remained in cache forever
+-   Fixed an issue which prevented users from using two different personal emote sets at once
+-   Fixed an issue where seasonal global emotes stayed in cache permanently
 -   Fixed an issue with tab auto-completion on Kick
 -   Fixed emote tile width in emote menu
 -   Fixed "hidden subscription status" message in the User Card
