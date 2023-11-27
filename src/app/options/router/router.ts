@@ -1,5 +1,4 @@
 import { RouteRecordRaw, createRouter, createWebHashHistory } from "vue-router";
-import Onboarding from "../views/Onboarding/Onboarding.vue";
 
 const routes = [
 	{
@@ -9,7 +8,7 @@ const routes = [
 			{
 				path: "onboarding/:step?",
 				name: "Onboarding",
-				component: Onboarding,
+				component: () => import("../views/Onboarding/Onboarding.vue"),
 			},
 		],
 	},
