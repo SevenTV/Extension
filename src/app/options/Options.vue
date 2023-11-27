@@ -86,8 +86,8 @@ body[data-seventv-app] {
 
 .seventv-options {
 	height: 100%;
+	width: 100%;
 	background: var(--seventv-background-shade-1);
-	width: max-content;
 
 	&.no-header {
 		background: none;
