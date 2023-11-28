@@ -2,6 +2,10 @@
 
 **The changes listed here are not assigned to an official release**.
 
+-   No unreleased changes yet
+
+### 3.0.16.1000
+
 -   Added an option to select alternating background color for chat messages
 -   Added a tip to the favorite menu to help users favorite emotes if none are found
 -   Fixed an issue where personal emote sets remained in cache forever
@@ -13,6 +17,7 @@
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
 -   Fixed an issue where leaderboard would not hide when "Hide leaderboard" was enabled
 -   Fixed an issue with deleting messages using mod icons
+-   Fixed an issue where the extension menu displayed incorrectly in Chromium-based browsers
 
 ### 3.0.15.1000
 
