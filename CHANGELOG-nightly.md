@@ -2,7 +2,7 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   No unreleased changes yet
+-   Added iframe support for chat embeds
 
 ### 3.0.16.1000
 
