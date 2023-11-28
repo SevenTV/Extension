@@ -3,6 +3,8 @@ import { TypedEventListenerOrEventListenerObject } from "@/common/EventTarget";
 import { Logger, log } from "@/common/Logger";
 import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from "@/worker";
 
+let workerURL: string | null;
+
 const workerLog = new Logger();
 workerLog.setContextName("Worker/Pipe");
 
@@ -26,8 +28,7 @@ async function init(originURL: string): Promise<SharedWorker> {
 		localStorage.removeItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
 	}
 
-	let workerURL: string | null =
-		typeof workerAddr === "object" && workerAddr !== null ? workerAddr[appVersion] : null;
+	workerURL = typeof workerAddr === "object" && workerAddr !== null ? workerAddr[appVersion] : null;
 
 	const ok =
 		workerURL &&
