@@ -122,7 +122,7 @@ useEventListener(
 
 	&[direction="current"] {
 		z-index: 1;
-		background-color: var(--seventv-background-transparent-2);
+		background-color: var(--seventv-highlight-neutral-1);
 		border-radius: 0;
 	}
 
