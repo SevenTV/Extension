@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Updated background of the current emote tab selection
 
 ### 3.0.16.1000
 
