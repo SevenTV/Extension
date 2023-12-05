@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Added an option to hide the channel point balance button under the chat input box
 
 ### 3.0.16.1000
 

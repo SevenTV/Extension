@@ -108,7 +108,7 @@ export const config = [
 	declareConfig("layout.hide_channel_point_balance_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Channel Point Balance Button",
-		hint: "If checked, the channel point balance buton under the chat input box will be hidden",
+		hint: "If checked, the channel point balance button under the chat input box will be hidden",
 		defaultValue: false,
 	}),
 	// Side bar elements
