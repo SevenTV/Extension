@@ -105,6 +105,12 @@ export const config = [
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_channel_point_balance_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Channel Point Balance Button",
+		hint: "If checked, the channel point balance buton under the chat input box will be hidden",
+		defaultValue: false,
+	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Sidebar"],
@@ -243,6 +249,12 @@ export const config = [
 
 .seventv-hide-chat-input-box {
 	div[class$="chat-input__textarea"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-channel-point-balance-button {
+	button[aria-label="Points Balance"] {
 		display: none !important;
 	}
 }
