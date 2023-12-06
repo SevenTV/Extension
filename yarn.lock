@@ -1067,14 +1067,14 @@
   resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.3.9.tgz#df740d26d338faf03e09ca662a8031acf66051db"
   integrity sha512-ZE0VTIR0LmYgeyhurPTpy4KzKsuDyQbMSdM49eKkMnT5X4VfFBLysMzjIZhLEFQYjjOVVfbvUDHckwjDFiO2eA==
 
-"@vueuse/core@^10.3.0":
-  version "10.6.1"
-  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-10.6.1.tgz#5b16d8238054c6983b6cb7cd77a78035f098dd89"
-  integrity sha512-Pc26IJbqgC9VG1u6VY/xrXXfxD33hnvxBnKrLlA2LJlyHII+BSrRoTPJgGYq7qZOu61itITFUnm6QbacwZ4H8Q==
+"@vueuse/core@^10.7.0":
+  version "10.7.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-10.7.0.tgz#34f2f02f179dc0dcffc2be70d6b1233e011404b9"
+  integrity sha512-4EUDESCHtwu44ZWK3Gc/hZUVhVo/ysvdtwocB5vcauSV4B7NiGY5972WnsojB3vRNdxvAt7kzJWE2h9h7C9d5w==
   dependencies:
     "@types/web-bluetooth" "^0.0.20"
-    "@vueuse/metadata" "10.6.1"
-    "@vueuse/shared" "10.6.1"
+    "@vueuse/metadata" "10.7.0"
+    "@vueuse/shared" "10.7.0"
     vue-demi ">=0.14.6"
 
 "@vueuse/head@^2.0.0":
@@ -1087,15 +1087,15 @@
     "@unhead/ssr" "^1.7.0"
     "@unhead/vue" "^1.7.0"
 
-"@vueuse/metadata@10.6.1":
-  version "10.6.1"
-  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-10.6.1.tgz#100faa0ced3c0ab4c014fb8e66e781e85e4eb88d"
-  integrity sha512-qhdwPI65Bgcj23e5lpGfQsxcy0bMjCAsUGoXkJ7DsoeDUdasbZ2DBa4dinFCOER3lF4gwUv+UD2AlA11zdzMFw==
+"@vueuse/metadata@10.7.0":
+  version "10.7.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-10.7.0.tgz#7b05e6cfd376aa9bb339a81e16a89c12f3e88c03"
+  integrity sha512-GlaH7tKP2iBCZ3bHNZ6b0cl9g0CJK8lttkBNUX156gWvNYhTKEtbweWLm9rxCPIiwzYcr/5xML6T8ZUEt+DkvA==
 
-"@vueuse/shared@10.6.1":
-  version "10.6.1"
-  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-10.6.1.tgz#1d9fc1e3f9083e45b59a693fc372bc50ad62a9e4"
-  integrity sha512-TECVDTIedFlL0NUfHWncf3zF9Gc4VfdxfQc8JFwoVZQmxpONhLxFrlm0eHQeidHj4rdTPL3KXJa0TZCk1wnc5Q==
+"@vueuse/shared@10.7.0":
+  version "10.7.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-10.7.0.tgz#21e425cc5ede421e0cda38ac59a0beee6da86b1b"
+  integrity sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==
   dependencies:
     vue-demi ">=0.14.6"
 
