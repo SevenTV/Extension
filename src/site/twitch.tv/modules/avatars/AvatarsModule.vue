@@ -98,7 +98,7 @@ async function findAvatarClass() {
 
 	const com = getVNodeFromDOM(ael);
 	if (!com || !com.return) return;
-	if ((com.return.type as { displayName?: string }).displayName !== "ScAvatar") return;
+	if ((com.return?.return?.type as { displayName?: string }).displayName !== "Avatar") return;
 
 	avatarClass.value = com.return.type as unknown as typeof avatarClass.value;
 }

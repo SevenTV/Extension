@@ -2,7 +2,11 @@
 
 **The changes listed here are not assigned to an official release**.
 
+<<<<<<< HEAD
 -   Added iframe support for chat embeds
+=======
+-   Reinstated animated avatars
+>>>>>>> a44aa6e446fa9979fa4479dd1e297cedff07926b
 
 ### 3.0.16.1000
 
