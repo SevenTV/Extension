@@ -95,12 +95,16 @@ loadEmojiList().then(() => convertEmojis());
 log.setContextName(`site/${domain}`);
 
 onMounted(() => {
-	// Define site controller for the platform
-	platformComponent.value = {
-		"twitch.tv": markRaw(TwitchSite),
-		"youtube.com": markRaw(YouTubeSite),
-		"kick.com": markRaw(KickSite),
+	const site = {
+		"twitch.tv": { com: markRaw(TwitchSite), blacklist: ["/annual-recap"] },
+		"youtube.com": { com: markRaw(YouTubeSite) },
+		"kick.com": { com: markRaw(KickSite) },
 	}[domain];
+	if (!site) return;
+	if (site.blacklist?.includes(window.location.pathname)) return;
+
+	// Define site controller for the platform
+	platformComponent.value = site.com;
 });
 
 // pre-init frankerfacez compat when on twitch
