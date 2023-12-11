@@ -254,7 +254,7 @@ export const config = [
 }
 
 .seventv-hide-channel-point-balance-button {
-	button[aria-label="Points Balance"] {
+	.community-points-summary {
 		display: none !important;
 	}
 }
