@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue which caused timestamps to count beyond 24 hours
 
 ### 3.0.16.1000
 
