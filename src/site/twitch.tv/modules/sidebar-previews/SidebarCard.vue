@@ -70,20 +70,12 @@ function patchTooltip(tooltip: ReactExtended.ReactRuntimeElement, vnode: ReactEx
 		props: {
 			className: "seventv-sidebar-tooltip-preview",
 			style: {
-				backgroundImage: getThumbnail(tooltip.props.channelDisplayName?.toLowerCase() ?? "???"),
+				backgroundImage: `url(${tooltip.props.streamPreviewImage})`,
 			},
 		},
 	});
 
 	return vnode;
-}
-
-function getThumbnail(channel: string) {
-	let url = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${channel}-190x107.jpg`;
-
-	url += `?${Math.floor(Date.now() / 300000)}`;
-
-	return `url("${url}")`;
 }
 
 onUnmounted(() => {
