@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue with non-English names not displaying sidebar preview image on hover
 
 ### 3.0.16.1000
 
