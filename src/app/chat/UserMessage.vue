@@ -231,9 +231,9 @@ const useTimestampFormat = () => {
 		case "infer":
 			return undefined;
 		case "12":
-			return true;
+			return "h12";
 		case "24":
-			return false;
+			return "h23";
 	}
 };
 
@@ -256,7 +256,7 @@ watchEffect(() => {
 				hour: "2-digit",
 				minute: "2-digit",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
-				hour12: useTimestampFormat(),
+				hourCycle: useTimestampFormat(),
 			},
 			props.msg.timestamp,
 		);
