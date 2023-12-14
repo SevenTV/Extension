@@ -256,7 +256,7 @@ watchEffect(() => {
 				hour: "2-digit",
 				minute: "2-digit",
 				second: displaySecondsInTimestamp.value ? "numeric" : undefined,
-				hourCycle: useTimestampFormat(),
+				...{ hourCycle: useTimestampFormat() },
 			},
 			props.msg.timestamp,
 		);
