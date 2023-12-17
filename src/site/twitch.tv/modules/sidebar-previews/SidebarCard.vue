@@ -11,6 +11,8 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.SidebarCardComponent>;
 }>();
 
+const SIDEBAR_PREVIEW_FALLBACK = "https://vod-secure.twitch.tv/_404/404_processing_320x180.png";
+
 const showPreviews = useConfig<boolean>("ui.sidebar_previews");
 
 const tooltipContent = ref<ReactExtended.ReactRuntimeElement>();
@@ -70,7 +72,7 @@ function patchTooltip(tooltip: ReactExtended.ReactRuntimeElement, vnode: ReactEx
 		props: {
 			className: "seventv-sidebar-tooltip-preview",
 			style: {
-				backgroundImage: getThumbnail(tooltip.props.streamPreviewImage),
+				backgroundImage: getThumbnail(tooltip.props.streamPreviewImage ?? SIDEBAR_PREVIEW_FALLBACK),
 			},
 		},
 	});
