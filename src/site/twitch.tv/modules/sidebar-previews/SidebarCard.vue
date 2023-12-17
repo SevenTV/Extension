@@ -70,12 +70,17 @@ function patchTooltip(tooltip: ReactExtended.ReactRuntimeElement, vnode: ReactEx
 		props: {
 			className: "seventv-sidebar-tooltip-preview",
 			style: {
-				backgroundImage: `url(${tooltip.props.streamPreviewImage})`,
+				backgroundImage: getThumbnail(tooltip.props.streamPreviewImage),
 			},
 		},
 	});
 
 	return vnode;
+}
+
+function getThumbnail(previewURL: string) {
+	const url = previewURL.concat(`?${Math.floor(Date.now() / 300000)}`);
+	return `url(${url})`;
 }
 
 onUnmounted(() => {
