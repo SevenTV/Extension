@@ -123,7 +123,7 @@ function doRerender() {
 			}
 
 			if (returnCom.stateNode) {
-				if ("forceUpdate" in returnCom.stateNode) {
+				if ("forceUpdate" in returnCom.stateNode && returnCom.stateNode.props?.name) {
 					componentsToForceUpdate.add(returnCom.stateNode);
 					break;
 				}
