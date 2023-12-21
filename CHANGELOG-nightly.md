@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue which caused scrolling to not work while scrolling through a category
 
 ### 3.0.16.1000
 
