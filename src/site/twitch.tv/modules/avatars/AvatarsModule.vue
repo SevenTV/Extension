@@ -4,7 +4,7 @@
 import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
-import { getVNodeFromDOM } from "@/common/ReactHooks";
+import { findComponentParents, getVNodeFromDOM } from "@/common/ReactHooks";
 import { defineFunctionHook, unsetPropertyHook } from "@/common/Reflection";
 import { db } from "@/db/idb";
 import { declareModule } from "@/composable/useModule";
@@ -123,7 +123,20 @@ function doRerender() {
 			}
 
 			if (returnCom.stateNode) {
-				if ("forceUpdate" in returnCom.stateNode) {
+				// to avoid simplebar from breaking, we need to update the parent
+				// holding the ref instead.
+				if ("simplebarRef" in returnCom.stateNode) {
+					const [parent] = findComponentParents(
+						returnCom,
+						(component) => component.setRootScrollableContentRef !== undefined,
+						undefined,
+						1,
+					);
+					if (parent) {
+						componentsToForceUpdate.add(parent);
+						break;
+					}
+				} else if ("forceUpdate" in returnCom.stateNode) {
 					componentsToForceUpdate.add(returnCom.stateNode);
 					break;
 				}
@@ -134,7 +147,7 @@ function doRerender() {
 	}
 
 	for (const com of componentsToForceUpdate) {
-		for (let i = 0; i < 2; i++) com.forceUpdate();
+		com.forceUpdate();
 	}
 
 	for (const [com, key] of oldKeys) {
@@ -197,7 +210,7 @@ function assignAvatar(av: SevenTV.Cosmetic<"AVATAR">) {
 watchDebounced(
 	avatars,
 	() => {
-		doRerender();
+		if (shouldRenderAvatars.value) doRerender();
 	},
 	{
 		debounce: 350,
