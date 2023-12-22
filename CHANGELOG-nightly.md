@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue where lowercase cheers were displayed as text
 
 ### 3.0.16.1000
 
