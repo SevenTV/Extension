@@ -245,7 +245,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					// skip over emotes patched in by FFZ and BTTV
 					if (e.emoteID?.startsWith("__FFZ__") || e.emoteID?.startsWith("__BTTV__")) continue;
 
-					msg.nativeEmotes[e.alt + (e.cheerAmount ?? "")] = {
+					const nativeEmote: SevenTV.ActiveEmote = {
 						id: e.emoteID ?? "",
 						name: e.alt,
 						flags: 0,
@@ -266,6 +266,14 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 									token: e.alt,
 							  } as Partial<Twitch.TwitchEmote>),
 					};
+					const emoteName = e.alt + (e.cheerAmount ?? "");
+
+					msg.nativeEmotes[emoteName] = nativeEmote;
+
+					// if it's a cheer we also want to support it's lowercase variant (e.g. Cheer1 & cheer1)
+					if (e.cheerAmount) {
+						msg.nativeEmotes[emoteName.toLowerCase()] = nativeEmote;
+					}
 					break;
 				}
 				// replace flagged segments
