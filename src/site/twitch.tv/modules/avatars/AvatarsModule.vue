@@ -147,7 +147,7 @@ function doRerender() {
 	}
 
 	for (const com of componentsToForceUpdate) {
-		com.forceUpdate();
+		for (let i = 0; i < 2; ++i) com.forceUpdate();
 	}
 
 	for (const [com, key] of oldKeys) {
