@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue where suspicious users were not highlighted and clips not being displayed in chat
 
 ### 3.0.16.1000
 
