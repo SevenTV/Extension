@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue where an emote with a long alias would cause the alias to go outside of the tooltip
 
 ### 3.0.16.1000
 
