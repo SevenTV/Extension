@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue where chat announcements did not use the channel accent color
 
 ### 3.0.16.1000
 
