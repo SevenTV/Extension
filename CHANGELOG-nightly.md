@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Added an option to hide the community challenge contributions in the chat
 
 ### 3.0.16.1000
 
