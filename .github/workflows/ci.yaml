@@ -45,7 +45,7 @@ env:
 jobs:
     ci:
         name: WebExtension Lint, Build, Test
-        runs-on: aws-runner
+        runs-on: ubuntu-latest
         env:
             installable: ${{ secrets.WEB_EXTENSION_CRX }}
         concurrency:
@@ -146,7 +146,7 @@ jobs:
 
     release:
         name: Create Release
-        runs-on: aws-runner
+        runs-on: ubuntu-latest
         needs: [ci]
         if: ${{ (inputs.branch) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
@@ -236,7 +236,7 @@ jobs:
 
     deploy:
         name: Deploy Hosted Build
-        runs-on: aws-runner
+        runs-on: ubuntu-latest
         needs: [ci, release]
         if: ${{ inputs.deploy || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
