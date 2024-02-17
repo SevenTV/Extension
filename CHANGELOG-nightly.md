@@ -6,6 +6,7 @@
 -   Added an option to hide the community challenge contributions in the chat
 -   Fixed extension not working on twitch for some users (React 18 support)
 -   Fixed an issue where chat messages (like announcements) did not use the channel accent color
+-   Fixed an issue where an emote with a long alias would cause the alias to go outside of the tooltip
 
 ### 3.0.16.1000
 
