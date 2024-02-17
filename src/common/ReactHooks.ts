@@ -15,7 +15,7 @@ export function getRootVNode(): ReactExtended.ReactVNode | undefined {
 	if (!element) return undefined;
 
 	const root = Reflect.get(element, "_reactRootContainer") || Reflect.get(element, "__reactContainer$");
-	return root;
+	return root?._internalRoot?.current ?? root;
 }
 
 /**
