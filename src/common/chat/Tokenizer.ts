@@ -10,7 +10,7 @@ import type {
 import { Regex } from "@/site/twitch.tv";
 import { parse as tldParse } from "tldts";
 
-const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
+const URL_PROTOCOL_REGEXP = /^https?:\/\/|\.$/i;
 
 const backwardModifierBlacklist = new Set(["w!", "h!", "v!"]);
 

@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue where links would include a period at the end
 -   Added an option to hide the channel point balance button under the chat input box
 -   Updated background of the current emote tab selection
 -   Fixed an issue where suspicious users were not highlighted and clips not being displayed in chat
