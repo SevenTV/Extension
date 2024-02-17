@@ -217,7 +217,7 @@ function createMessageComponentRef(data: CommentData) {
 				const e = tok.content as Twitch.ChatMessage.EmotePart["content"];
 				if (!e.alt) continue;
 
-				msg.nativeEmotes[e.alt + (e.cheerAmount ?? "")] = {
+				const nativeEmote: SevenTV.ActiveEmote = {
 					id: e.emoteID ?? "",
 					name: e.alt,
 					flags: 0,
@@ -238,7 +238,14 @@ function createMessageComponentRef(data: CommentData) {
 								token: e.alt,
 						  } as Partial<Twitch.TwitchEmote>),
 				};
+				const emoteName = e.alt + (e.cheerAmount ?? "");
 
+				msg.nativeEmotes[emoteName] = nativeEmote;
+
+				// if it's a cheer we also want to support it's lowercase variant (e.g. Cheer1 & cheer1)
+				if (e.cheerAmount) {
+					msg.nativeEmotes[emoteName.toLowerCase()] = nativeEmote;
+				}
 				msg.body += e.alt;
 				break;
 			}
