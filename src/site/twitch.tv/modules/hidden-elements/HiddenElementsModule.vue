@@ -68,6 +68,12 @@ export const config = [
 		hint: "If checked, the list of recent hype chats will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("chat.hide_timestamps_vods", "TOGGLE", {
+		label: "Hide VOD Timestamps",
+		path: ["Chat", "VODs"],
+		hint: "If checked, timestamp for chat will be hidden",
+		defaultValue: false,
+	}),
 	// Main page elements (Twitch Features)
 	declareConfig("layout.hide_react_buttons", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
@@ -111,6 +117,12 @@ export const config = [
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_channel_point_balance_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Channel Point Balance Button",
+		hint: "If checked, the channel point balance button under the chat input box will be hidden",
+		defaultValue: false,
+	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Sidebar"],
@@ -147,12 +159,6 @@ export const config = [
 </script>
 
 <style lang="scss">
-.seventv-hide-leaderboard {
-	div[data-test-selector="channel-leaderboard-container"] {
-		display: none !important;
-	}
-}
-
 .seventv-hide-buttons-below-chatbox {
 	div[data-test-selector="chat-input-buttons-container"] {
 		display: none !important;
@@ -169,6 +175,12 @@ export const config = [
 .seventv-hide-react-buttons {
 	div[class$="theatre-social-panel"] > div:first-child,
 	div[data-target="channel-header-right"] > div:first-child {
+		display: none !important;
+	}
+}
+
+.seventv-hide-leaderboard {
+	section[data-test-selector="chat-room-component-layout"] > div:first-child > div:first-child {
 		display: none !important;
 	}
 }
@@ -216,6 +228,13 @@ export const config = [
 	}
 }
 
+.seventv-hide-timestamps-vods {
+	div[class$="vod-message__header"],
+	.seventv-chat-vod-message-timestamp {
+		display: none !important;
+	}
+}
+
 .seventv-hide-recommended-channels {
 	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(3) {
 		display: none !important;
@@ -255,6 +274,12 @@ export const config = [
 
 .seventv-hide-chat-input-box {
 	div[class$="chat-input__textarea"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-channel-point-balance-button {
+	.community-points-summary {
 		display: none !important;
 	}
 }
