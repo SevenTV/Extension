@@ -4,6 +4,8 @@
 
 -   Reinstated animated avatars
 -   Fixed an issue where suspicious users were not highlighted and clips not being displayed in chat
+-   Added an option to hide the community challenge contributions in the chat
+-   Fixed extension not working on twitch for some users (React 18 support)
 
 ### 3.0.16.1000
 
