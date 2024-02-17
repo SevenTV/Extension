@@ -68,6 +68,12 @@ export const config = [
 		hint: "If checked, the list of recent hype chats will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("chat.hide_timestamps_vods", "TOGGLE", {
+		label: "Hide VOD Timestamps",
+		path: ["Chat", "VODs"],
+		hint: "If checked, timestamp for chat will be hidden",
+		defaultValue: false,
+	}),
 	// Main page elements (Twitch Features)
 	declareConfig("layout.hide_react_buttons", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
@@ -212,6 +218,13 @@ export const config = [
 
 .seventv-hide-pinned-hype-chats {
 	div[class$="paid-pinned-chat-message-list"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-timestamps-vods {
+	div[class$="vod-message__header"],
+	.seventv-chat-vod-message-timestamp {
 		display: none !important;
 	}
 }

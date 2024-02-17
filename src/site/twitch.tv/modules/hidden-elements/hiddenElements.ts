@@ -10,6 +10,7 @@ const hideHypeChatButton = useConfig<boolean>("layout.hide_hype_chat_button");
 const hideTopBarOfStream = useConfig<boolean>("layout.hide_top_bar_of_stream");
 const hidePlayerControls = useConfig<boolean>("layout.hide_player_controls");
 const hidePinnedHypeChats = useConfig<boolean>("layout.hide_pinned_hype_chats");
+const hideTimestampsVods = useConfig<boolean>("chat.hide_timestamps_vods");
 const hideCommunityHighlights = useConfig<boolean>("layout.hide_community_highlights");
 const hideCommunityChallengeContributions = useConfig<boolean>("layout.hide_community_challenge_contributions");
 const hideRecommendedChannels = useConfig<boolean>("layout.hide_recommended_channels");
@@ -31,6 +32,7 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-top-bar-of-stream", isHidden: hideTopBarOfStream },
 	{ class: "seventv-hide-player-controls", isHidden: hidePlayerControls },
 	{ class: "seventv-hide-pinned-hype-chats", isHidden: hidePinnedHypeChats },
+	{ class: "seventv-hide-timestamps-vods", isHidden: hideTimestampsVods },
 	{ class: "seventv-hide-community-highlights", isHidden: hideCommunityHighlights },
 	{ class: "seventv-hide-community-challenge-contributions", isHidden: hideCommunityChallengeContributions },
 	{ class: "seventv-hide-recommended-channels", isHidden: hideRecommendedChannels },
