@@ -1,36 +1,25 @@
 import { reactive, ref } from "vue";
 import { definePropertyHook } from "@/common/Reflection";
 
-declare const __Twitch__pubsubInstances: {
-	production: {
-		_client: PubSubClient;
-		_clientReady: boolean;
-		_clienType: string;
-		_env: string;
-		_hasDisconnected: boolean;
-		_iframeHost: string;
-		_numDisconnects: number;
-		_queuedRequests: unknown[];
-	};
-};
+declare const __twitch_pubsub_client: PubSubClient;
 
 const client = ref<PubSubClient | null>(null);
 const socket = ref<WebSocket | null>(null);
 
 definePropertyHook(
-	window as Window & { __Twitch__pubsubInstances?: typeof __Twitch__pubsubInstances },
-	"__Twitch__pubsubInstances",
+	window as Window & { __twitch_pubsub_client?: typeof __twitch_pubsub_client },
+	"__twitch_pubsub_client",
 	{
 		value(v) {
-			if (!v || !v.production || !v.production._client) return;
+			if (!v || !v.connection || !v.connection.socket) return;
 
-			client.value = v.production._client;
+			client.value = v;
 
-			definePropertyHook(client.value, "_primarySocket", {
+			definePropertyHook(client.value.connection, "socket", {
 				value(v) {
-					if (!v || !v._socket) return;
+					if (!v || !v.socket) return;
 
-					socket.value = v._socket;
+					socket.value = v.socket;
 				},
 			});
 		},
@@ -45,31 +34,25 @@ export function usePubSub() {
 }
 
 export interface PubSubClient {
-	_addr: string;
-	_connectCalled: boolean;
-	_connected: boolean;
-	_env: string;
-	_firstConnectTime: number;
-	_firstListenTime: number;
-	_listens: {
-		_events: Record<string, [(n: unknown) => void, PubSubClient]>;
-	};
-	_opts: {
+	env: string;
+	reconnecting: boolean;
+	connection: {
 		env: string;
-	};
-	_primarySocket: {
-		_addr: string;
-		_connecting: boolean;
-		_connectionAttempts: number;
-		_id: string;
-		_opts: {
-			addr: string;
+		_events: Record<string, [(n: unknown) => void, PubSubClient]>;
+		iframeHost: string | null;
+		currentTopics: Record<string, { auth: string | undefined; topic: string }>;
+		socket: {
+			env: string;
+			address: string;
+			closing: boolean;
+			connecting: boolean;
+			connectionAttempts: number;
+			pingInterval: number;
+			pongTimeout: number;
+			receivedPong: boolean;
+			sentPing: boolean;
+			socket: WebSocket;
 		};
-		_pingInterval: number;
-		_pongTimeout: number;
-		_receivedPong: number;
-		_sentPing: boolean;
-		_socket: WebSocket;
 	};
 }
 
