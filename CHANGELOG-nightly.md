@@ -33,8 +33,6 @@
 
 ### 3.0.15.1000
 
-**The changes listed here are not assigned to an official release**.
-
 -   Added a backup tab to the settings menu for importing & exporting settings
 -   Added an option to select the default Emote Menu tab
 -   Added artist attribution to the emote card
