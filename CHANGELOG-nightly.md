@@ -4,6 +4,8 @@
 
 -   Reinstated animated avatars
 -   Fixed an issue which caused timestamps to count beyond 24 hours
+-   Added an option to hide the community challenge contributions in the chat
+-   Fixed extension not working on twitch for some users (React 18 support)
 
 ### 3.0.16.1000
 
