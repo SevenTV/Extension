@@ -163,6 +163,11 @@ if (props.emote.data?.owner?.style?.color) {
 	float: left;
 }
 
+.alias-label {
+	word-break: break-all;
+	text-align: center;
+}
+
 .logo {
 	width: 2rem;
 	height: auto;
