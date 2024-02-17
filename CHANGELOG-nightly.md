@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed extension not working on twitch for some users (React 18 support)
 
 ### 3.0.16.1000
 
