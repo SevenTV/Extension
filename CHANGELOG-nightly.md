@@ -4,6 +4,7 @@
 
 -   Reinstated animated avatars
 -   Added an option to hide the community challenge contributions in the chat
+-   Fixed extension not working on twitch for some users (React 18 support)
 
 ### 3.0.16.1000
 
