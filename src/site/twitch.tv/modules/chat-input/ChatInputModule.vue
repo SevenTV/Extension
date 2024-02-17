@@ -57,7 +57,7 @@ for (const hc of hookChecks) {
 			parentSelector: ".chat-input",
 			maxDepth: 20,
 			predicate: (n) => {
-				return n.props.setModifierTray && n.key === hc.key;
+				return n.props?.setModifierTray && n.key === hc.key;
 			},
 		},
 		{
