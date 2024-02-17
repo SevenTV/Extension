@@ -153,12 +153,6 @@ export const config = [
 </script>
 
 <style lang="scss">
-.seventv-hide-leaderboard {
-	div[data-test-selector="channel-leaderboard-container"] {
-		display: none !important;
-	}
-}
-
 .seventv-hide-buttons-below-chatbox {
 	div[data-test-selector="chat-input-buttons-container"] {
 		display: none !important;
@@ -175,6 +169,12 @@ export const config = [
 .seventv-hide-react-buttons {
 	div[class$="theatre-social-panel"] > div:first-child,
 	div[data-target="channel-header-right"] > div:first-child {
+		display: none !important;
+	}
+}
+
+.seventv-hide-leaderboard {
+	section[data-test-selector="chat-room-component-layout"] > div:first-child > div:first-child {
 		display: none !important;
 	}
 }
