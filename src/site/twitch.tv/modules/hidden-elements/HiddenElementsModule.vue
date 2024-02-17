@@ -56,6 +56,12 @@ export const config = [
 		hint: "If checked, community highlights at the top of chat will be hidden (such as hype trains, pinned messages, drops, etc.)",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_community_challenge_contributions", "TOGGLE", {
+		path: ["Site Layout", "Chat"],
+		label: "Hide Community Challenge Contributions",
+		hint: "If checked, community challenge contribution notifications in the chat will be hidden",
+		defaultValue: false,
+	}),
 	declareConfig("layout.hide_pinned_hype_chats", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Pinned Hype Chats",
@@ -194,6 +200,12 @@ export const config = [
 
 .seventv-hide-community-highlights {
 	div[class^="community-highlight-stack"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-community-challenge-contributions {
+	div[msg-id*="community-challenge-contribution"] {
 		display: none !important;
 	}
 }
