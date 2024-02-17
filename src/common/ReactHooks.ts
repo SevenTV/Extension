@@ -105,7 +105,7 @@ export function findComponentChildren<T extends ReactExtended.AnyReactComponent>
  */
 export function getVNodeFromDOM(el: Node): ReactExtended.ReactVNode | undefined {
 	for (const k in el) {
-		if (k.startsWith("__reactInternalInstance$") || k.startsWith('__reactFiber$')) {
+		if (k.startsWith("__reactInternalInstance$") || k.startsWith("__reactFiber$")) {
 			return Reflect.get(el, k);
 		}
 	}
