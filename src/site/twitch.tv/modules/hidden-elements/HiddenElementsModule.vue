@@ -56,10 +56,22 @@ export const config = [
 		hint: "If checked, community highlights at the top of chat will be hidden (such as hype trains, pinned messages, drops, etc.)",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_community_challenge_contributions", "TOGGLE", {
+		path: ["Site Layout", "Chat"],
+		label: "Hide Community Challenge Contributions",
+		hint: "If checked, community challenge contribution notifications in the chat will be hidden",
+		defaultValue: false,
+	}),
 	declareConfig("layout.hide_pinned_hype_chats", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Pinned Hype Chats",
 		hint: "If checked, the list of recent hype chats will be hidden",
+		defaultValue: false,
+	}),
+	declareConfig("chat.hide_timestamps_vods", "TOGGLE", {
+		label: "Hide VOD Timestamps",
+		path: ["Chat", "VODs"],
+		hint: "If checked, timestamp for chat will be hidden",
 		defaultValue: false,
 	}),
 	// Main page elements (Twitch Features)
@@ -198,8 +210,21 @@ export const config = [
 	}
 }
 
+.seventv-hide-community-challenge-contributions {
+	div[msg-id*="community-challenge-contribution"] {
+		display: none !important;
+	}
+}
+
 .seventv-hide-pinned-hype-chats {
 	div[class$="paid-pinned-chat-message-list"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-timestamps-vods {
+	div[class$="vod-message__header"],
+	.seventv-chat-vod-message-timestamp {
 		display: none !important;
 	}
 }
