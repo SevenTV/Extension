@@ -56,6 +56,14 @@ export class WorkerDriver extends EventTarget {
 						emoteCount += r.value.emotes.length;
 					});
 
+					// Delete stale global set(s)
+					db.emoteSets
+						.where("scope")
+						.equals("GLOBAL")
+						.and((es) => !sets.map((x) => x.id).includes(es.id))
+						.delete()
+						.catch((err) => log.error("failed to delete stale global emote set:", err));
+
 					log.info(
 						"<API>",
 						`Global Emotes (${emoteCount}):`,

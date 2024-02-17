@@ -12,6 +12,7 @@ const hidePlayerControls = useConfig<boolean>("layout.hide_player_controls");
 const hidePinnedHypeChats = useConfig<boolean>("layout.hide_pinned_hype_chats");
 const hideTimestampsVods = useConfig<boolean>("chat.hide_timestamps_vods");
 const hideCommunityHighlights = useConfig<boolean>("layout.hide_community_highlights");
+const hideCommunityChallengeContributions = useConfig<boolean>("layout.hide_community_challenge_contributions");
 const hideRecommendedChannels = useConfig<boolean>("layout.hide_recommended_channels");
 const hideViewersAlsoWatch = useConfig<boolean>("layout.hide_viewers_also_watch");
 const hidePrimeOffers = useConfig<boolean>("layout.hide_prime_offers");
@@ -33,6 +34,7 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-pinned-hype-chats", isHidden: hidePinnedHypeChats },
 	{ class: "seventv-hide-timestamps-vods", isHidden: hideTimestampsVods },
 	{ class: "seventv-hide-community-highlights", isHidden: hideCommunityHighlights },
+	{ class: "seventv-hide-community-challenge-contributions", isHidden: hideCommunityChallengeContributions },
 	{ class: "seventv-hide-recommended-channels", isHidden: hideRecommendedChannels },
 	{ class: "seventv-hide-viewers-also-watch", isHidden: hideViewersAlsoWatch },
 	{ class: "seventv-hide-prime-offers", isHidden: hidePrimeOffers },

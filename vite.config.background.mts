@@ -4,18 +4,15 @@ import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV ?? "";
-	const isDev = process.env.NODE_ENV === "dev";
 	const isNightly = process.env.BRANCH === "nightly";
 	const outDir = process.env.OUT_DIR || "";
-	const fullVersion = getFullVersion(isNightly);
 
 	process.env = {
 		...process.env,
 		...loadEnv(mode, process.cwd()),
 		VITE_APP_NAME: appName,
-		VITE_APP_VERSION: fullVersion,
-		VITE_APP_VERSION_BRANCH: process.env.BRANCH,
-		VITE_APP_STYLESHEET_NAME: `seventv.style.${fullVersion}.css`,
+		VITE_APP_VERSION: getFullVersion(isNightly),
+		VITE_APP_VERSION_BRANCH: process.env.BRANCH || "",
 	};
 
 	return {
@@ -25,18 +22,17 @@ export default defineConfig(() => {
 				"@": path.resolve(__dirname, "src"),
 			},
 		},
-		base: isDev ? "http://localhost:4777/" : "./",
 		build: {
 			emptyOutDir: false,
 			outDir: "dist" + "/" + outDir,
 			lib: {
 				formats: ["iife"],
-				entry: r("src/content/content.ts"),
-				name: "seventv-content",
+				entry: r("src/background/background.ts"),
+				name: "seventv-background",
 			},
 			rollupOptions: {
 				output: {
-					entryFileNames: "content.js",
+					entryFileNames: "background.js",
 					extend: true,
 				},
 			},

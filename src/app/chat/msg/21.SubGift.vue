@@ -36,7 +36,7 @@ defineProps<{
 }
 
 .seventv-highlight {
-	border-left: 0.4rem solid var(--seventv-primary-color);
+	border-left: 0.4rem solid var(--seventv-channel-accent);
 	padding-left: 1.6rem !important;
 }
 

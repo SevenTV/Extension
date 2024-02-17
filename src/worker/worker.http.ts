@@ -3,19 +3,13 @@
 import { BitField, EmoteSetFlags } from "@/common/Flags";
 import { imageHostToSrcset } from "@/common/Image";
 import { log } from "@/common/Logger";
-import {
-	convertBttvEmoteSet,
-	convertFFZEmoteSet,
-	convertFfzBadges,
-	convertSeventvOldCosmetics,
-} from "@/common/Transform";
+import { convertBttvEmoteSet, convertFFZEmoteSet, convertFfzBadges } from "@/common/Transform";
 import { db } from "@/db/idb";
 import type { WorkerDriver } from "./worker.driver";
 import type { WorkerPort } from "./worker.port";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API;
-	export const SEVENTV_OLD = import.meta.env.VITE_APP_API_REST_OLD;
 	export const FFZ = "https://api.frankerfacez.com/v1";
 	export const BTTV = "https://api.betterttv.net/3";
 }
@@ -124,6 +118,17 @@ export class WorkerHttp {
 				.where("id")
 				.equals(channel.id)
 				.modify((x) => x.set_ids.push(set.id));
+
+			if (set.provider == "7TV") {
+				this.driver.eventAPI.subscribe(
+					"emote_set.*",
+					{
+						object_id: set.id,
+					},
+					port,
+					channel.id,
+				);
+			}
 		};
 
 		// iterate results and store sets to DB
@@ -170,29 +175,24 @@ export class WorkerHttp {
 			this.writePresence(port.platform, port.user.id, channel.id, true);
 		}
 
-		// Send the legacy static cosmetics to the port
+		// Fetch 3rd party static cosmetics if relevant
 		Promise.all([
-			await this.API()
-				.seventv.loadOldCosmetics("twitch_id", this.driver.cache)
-				.catch((err) => log.error("Failed to load old cosmetics", err)),
 			port.providerExtensions.has("FFZ") // load ffz badges if their extension is installed
 				? await this.API()
 						.frankerfacez.loadCosmetics()
 						.catch(() => void 0)
 				: void 0,
-		]).then(([seventv, ffz]) => {
-			const converted = seventv ? convertSeventvOldCosmetics(seventv) : [];
-			const badges = [...(seventv ? converted[0] : []), ...(ffz ? convertFfzBadges(ffz) : [])];
-			const paints = converted[1] ?? [];
+		]).then(([ffz]) => {
+			const badges = [...(ffz ? convertFfzBadges(ffz) : [])];
 
 			setTimeout(() => {
 				port.postMessage("STATIC_COSMETICS_FETCHED", {
 					badges,
-					paints,
+					paints: [],
 				});
 			}, 5000);
 
-			log.info(`<Static Cosmetics> ${badges.length} badges, ${paints.length} paints`);
+			log.info(`<3rd Party Cosmetics> ${badges.length} badges`);
 		});
 	}
 
@@ -291,32 +291,6 @@ export const seventv = {
 		if (!userConn.user) return Promise.reject(new Error("No user was returned!"));
 
 		return Promise.resolve(userConn.user);
-	},
-
-	async loadOldCosmetics(
-		identifier: "twitch_id" | "login" | "object_id",
-		cache?: Cache | null,
-	): Promise<SevenTV.OldCosmeticsResponse> {
-		if (cache) {
-			const cached = await cache.match(API_BASE.SEVENTV_OLD + `/cosmetics?user_identifier=${identifier}`);
-			if (cached) {
-				log.debug("<API/Old> Old Cosmetics cache hit");
-				return Promise.resolve<SevenTV.OldCosmeticsResponse>(await cached.json());
-			}
-		}
-
-		const resp = await doRequest(API_BASE.SEVENTV_OLD, `cosmetics?user_identifier=${identifier}`).catch((err) =>
-			Promise.reject(err),
-		);
-		if (!resp || resp.status !== 200) {
-			return Promise.reject(resp);
-		}
-
-		if (cache) {
-			cache.add(resp.url);
-		}
-
-		return Promise.resolve<SevenTV.OldCosmeticsResponse>(await resp.json());
 	},
 };
 

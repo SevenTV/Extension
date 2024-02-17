@@ -2,14 +2,44 @@
 
 **The changes listed here are not assigned to an official release**.
 
--   Added a backup tab to settings page for importing & exporting settings
--   Added an option to select default Emote Menu tab
--   Added artist attribution to emote card
+-   Reinstated animated avatars
+-   Fixed an issue which caused timestamps to count beyond 24 hours
+-   Fixed an issue which caused scrolling to not work while scrolling through a category
+-   Fixed an issue where lowercase cheers were displayed as text
+-   Added an option to hide the community challenge contributions in the chat
+-   Fixed extension not working on twitch for some users (React 18 support)
+-   Fixed an issue where chat messages (like announcements) did not use the channel accent color
+-   Fixed an issue where an emote with a long alias would cause the alias to go outside of the tooltip
+-	  Added an option to hide timestamps in vods
+
+### 3.0.16.1000
+
+-   Added an option to select alternating background color for chat messages
+-   Added a tip to the favorite menu to help users favorite emotes if none are found
+-   Fixed an issue where personal emote sets remained in cache forever
+-   Fixed an issue which prevented users from using two different personal emote sets at once
+-   Fixed an issue where seasonal global emotes stayed in cache permanently
+-   Fixed an issue with tab auto-completion on Kick
+-   Fixed emote tile width in emote menu
+-   Fixed "hidden subscription status" message in the User Card
+-   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
+-   Fixed an issue with deleting messages using mod icons
+-   Fixed an issue where the extension menu displayed incorrectly in Chromium-based browsers
+
+### 3.0.15.1000
+
+**The changes listed here are not assigned to an official release**.
+
+-   Added a backup tab to the settings menu for importing & exporting settings
+-   Added an option to select the default Emote Menu tab
+-   Added artist attribution to the emote card
 -   Added ability to reset settings to their defaults
+-   Fixed an issue where emotes would take a long time to load if external emote providers gave slow response times
 -   Fixed an issue where mentioning yourself would highlight the message
 -   Fixed an issue where replying to a thread starting from your own message would highlight the message
 -   Fixed an issue where emotes would take a long time to load if external emote providers gave slow response times
--	  Added an option to hide timestamps in vods
+-   Fixed a regression in previous nightly build causing channel emote sets to not receive EventAPI subscriptions
+-   Removed old deprecated fallback cosmetics fetching using the v2 API
 
 ### 3.0.14.1000
 

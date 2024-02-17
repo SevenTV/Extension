@@ -64,6 +64,6 @@ const className =
 
 /* stylelint-disable-next-line selector-class-pattern */
 .announcement-line--primary {
-	border-color: var(--seventv-primary-color, currentColor);
+	border-color: var(--seventv-channel-accent, currentColor);
 }
 </style>

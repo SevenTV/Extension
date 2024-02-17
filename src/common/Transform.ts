@@ -247,52 +247,6 @@ export function convertFFZEmote(data: FFZ.Emote): SevenTV.Emote {
 	};
 }
 
-export function convertSeventvOldCosmetics(
-	data: SevenTV.OldCosmeticsResponse,
-): [SevenTV.Cosmetic<"BADGE">[], SevenTV.Cosmetic<"PAINT">[]] {
-	const badges = [] as SevenTV.Cosmetic<"BADGE">[];
-	const paints = [] as SevenTV.Cosmetic<"PAINT">[];
-
-	for (const badge of data.badges) {
-		badges.push({
-			id: badge.id,
-			kind: "BADGE",
-			provider: "7TV",
-			user_ids: badge.users,
-			data: {
-				name: badge.name,
-				tooltip: badge.tooltip,
-				host: {
-					url: "//cdn.7tv.app/badge/" + badge.id,
-					files: [{ name: "1x" }, { name: "2x" }, { name: "3x" }],
-				},
-			},
-		} as SevenTV.Cosmetic<"BADGE">);
-	}
-
-	for (const paint of data.paints) {
-		paints.push({
-			id: paint.id,
-			kind: "PAINT",
-			provider: "7TV",
-			user_ids: paint.users,
-			data: {
-				name: paint.name,
-				angle: paint.angle,
-				color: paint.color,
-				function: paint.function.replace("-", "_").toUpperCase(),
-				image_url: paint.image_url ?? null,
-				repeat: paint.repeat ?? false,
-				shadows: paint.drop_shadows ?? [],
-				shape: paint.shape ?? null,
-				stops: paint.stops ?? [],
-			},
-		} as SevenTV.Cosmetic<"PAINT">);
-	}
-
-	return [badges, paints];
-}
-
 export function convertFfzBadges(data: FFZ.BadgesResponse): SevenTV.Cosmetic<"BADGE">[] {
 	const badges = [] as SevenTV.Cosmetic<"BADGE">[];
 

@@ -116,6 +116,8 @@ export class Dexie7 extends Dexie {
 			this.emoteSets
 				.where("id")
 				.anyOf(channels.map((c) => c.set_ids).reduce((a, b) => a.concat(b), []))
+				.or("timestamp")
+				.below(now - oneHour)
 				.delete();
 
 			// Clean up entitlements

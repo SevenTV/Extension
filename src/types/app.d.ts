@@ -5,7 +5,7 @@ declare interface SeventvGlobalScope {
 		stylesheet_file: string;
 		index_file: string;
 	};
-	remote?: boolean;
+	hosted?: boolean;
 }
 
 declare const seventv: SeventvGlobalScope;
@@ -100,6 +100,7 @@ declare namespace SevenTV {
 			DROPDOWN: [string, T][];
 			CHECKBOX: never;
 			INPUT: string;
+			COLOR: string;
 			TOGGLE: {
 				left: string;
 				right: string;
@@ -124,7 +125,16 @@ declare namespace SevenTV {
 	type SettingType = boolean | number | string | object;
 
 	namespace SettingNode {
-		type ComponentType = "SELECT" | "DROPDOWN" | "CHECKBOX" | "INPUT" | "TOGGLE" | "SLIDER" | "CUSTOM" | "NONE";
+		type ComponentType =
+			| "SELECT"
+			| "DROPDOWN"
+			| "CHECKBOX"
+			| "INPUT"
+			| "COLOR"
+			| "TOGGLE"
+			| "SLIDER"
+			| "CUSTOM"
+			| "NONE";
 	}
 
 	interface ActiveEmote {
@@ -285,34 +295,6 @@ declare namespace SevenTV {
 		user?: User;
 		user_id: ObjectID;
 		ref_id: ObjectID;
-	}
-
-	interface OldCosmeticsResponse {
-		t: number;
-		badges: OldCosmeticBadge[];
-		paints: OldCosmeticPaint[];
-	}
-
-	interface OldCosmeticBadge {
-		id: ObjectID;
-		users: string[];
-		name: string;
-		tooltip: string;
-		urls: string[][];
-	}
-
-	interface OldCosmeticPaint {
-		id: ObjectID;
-		users: string[];
-		name: string;
-		function: string;
-		color: number | null;
-		stops: CosmeticPaintGradientStop[];
-		repeat: boolean;
-		angle: number;
-		shape?: string;
-		image_url?: string;
-		drop_shadows: CosmeticPaintShadow[];
 	}
 
 	type UserType = "" | "BOT" | "SYSTEM";
