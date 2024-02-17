@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue which caused scrolling to not work while scrolling through a category
 -   Fixed an issue where lowercase cheers were displayed as text
 -   Added an option to hide the community challenge contributions in the chat
 -   Fixed extension not working on twitch for some users (React 18 support)
