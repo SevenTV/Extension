@@ -21,6 +21,7 @@ const hideLiveNotificationButton = useConfig<boolean>("layout.hide_live_notifica
 const hideSubscribeButton = useConfig<boolean>("layout.hide_subscribe_button");
 const hideChatInputBox = useConfig<boolean>("layout.hide_chat_input_box");
 const hidePlayerExtensions = useConfig<boolean>("player.hide_player_extensions");
+const hideChannelPointBalanceButton = useConfig<boolean>("layout.hide_channel_point_balance_button");
 
 export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean> }> = [
 	{ class: "seventv-hide-leaderboard", isHidden: hideLeaderboard },
@@ -43,4 +44,5 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-subscribe-button", isHidden: hideSubscribeButton },
 	{ class: "seventv-hide-chat-input-box", isHidden: hideChatInputBox },
 	{ class: "seventv-hide-player-ext", isHidden: hidePlayerExtensions },
+	{ class: "seventv-hide-channel-point-balance-button", isHidden: hideChannelPointBalanceButton },
 ];
