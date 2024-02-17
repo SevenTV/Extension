@@ -78,8 +78,8 @@ jobs:
 
             - name: Build App
               env:
-                  BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}
-                  EXTENSION_ID_MOZ: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_AMO || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_AMO) }}
+                  BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
+                  EXTENSION_ID_MOZ: ${{ (inputs.branch == 'stable' && env.EXTENSION_ID_AMO) || env.NIGHTLY_EXTENSION_ID_AMO }}
               run: |
                   OUT_DIR=mv3 yarn build:prod
                   OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID_MOZ }} MV2=true yarn build:prod
@@ -255,7 +255,7 @@ jobs:
 
             - name: Build (Hosted)
               env:
-                  BRANCH: ${{ (inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && 'nightly' || inputs.branch == 'stable' && '' }}
+                  BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
               run: |
                   yarn build-hosted:prod
 
@@ -310,7 +310,7 @@ jobs:
               continue-on-error: true
               env:
                   CREDENTIALS: ${{ secrets.CWS }}
-                  EXTENSION_ID: ${{ (inputs.branch == 'stable') && env.EXTENSION_ID_CWS || ((inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true') && env.NIGHTLY_EXTENSION_ID_CWS) }}
+                  EXTENSION_ID: ${{ (inputs.branch == 'stable' && env.EXTENSION_ID_CWS) || env.NIGHTLY_EXTENSION_ID_CWS }}
               run: |
                   echo "${{ env.CREDENTIALS }}" >> c
 
