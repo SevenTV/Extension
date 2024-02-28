@@ -193,6 +193,11 @@ export interface ChatMessageParent {
 		username: string;
 		displayName: string;
 	} | null;
+	thread: {
+		deleted?: boolean;
+		id: string;
+		login: string;
+	} | null;
 }
 
 export interface ChatMessageModeration {
