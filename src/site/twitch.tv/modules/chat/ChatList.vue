@@ -222,6 +222,14 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 				deleted: msgData.reply.parentDeleted,
 				body: msgData.reply.parentMessageBody,
 				author: parentMsgAuthor,
+				thread:
+					msgData.reply && msgData.reply.threadParentMsgId && msgData.reply.threadParentUserLogin
+						? {
+								deleted: msgData.reply.threadParentDeleted,
+								id: msgData.reply.threadParentMsgId,
+								login: msgData.reply.threadParentUserLogin,
+						  }
+						: null,
 			};
 
 			// Highlight as a reply to the actor

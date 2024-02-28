@@ -31,6 +31,9 @@ declare namespace Twitch {
 			parentUid: string;
 			parentUserLogin: string;
 			parentDisplayName: string;
+			threadParentDeleted?: boolean;
+			threadParentMsgId?: string;
+			threadParentUserLogin?: string;
 		};
 
 		height?: number;
