@@ -1,7 +1,10 @@
 <template>
 	<div v-if="user && user.displayName" ref="tagRef" class="seventv-chat-user" :style="{ color: user.color }">
 		<!--Badge List -->
-		<span v-if="!hideBadges && (twitchBadges.length || cosmetics.badges.size)" class="seventv-chat-user-badge-list">
+		<span
+			v-if="!hideBadges && ((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size)"
+			class="seventv-chat-user-badge-list"
+		>
 			<Badge
 				v-for="badge of twitchBadges"
 				:key="badge.id"
@@ -43,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, toRef, watch } from "vue";
+import { nextTick, ref, toRef, watch, watchEffect } from "vue";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -78,8 +81,8 @@ const cosmetics = useCosmetics(props.user.id);
 const shouldRenderPaint = useConfig("vanity.nametag_paints");
 const betterUserCardEnabled = useConfig("chat.user_card");
 const twitchBadges = ref<Twitch.ChatBadge[]>([]);
-
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
+
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
 const cardHandle = ref<HTMLDivElement>();
@@ -96,36 +99,27 @@ function handleClick(ev: MouseEvent) {
 	showUserCard.value = !showUserCard.value;
 }
 
-const stopWatchSets = watch(
-	twitchBadgeSets,
-	(badgeSets) => {
-		if (props.badges && badgeSets && badgeSets.count > 0) {
-			for (const [key, value] of Object.entries(props.badges)) {
-				const setID = key;
-				const badgeID = value;
+watchEffect(() => {
+	if (props.badges && twitchBadgeSets.value && !twitchBadges.value.length) {
+		for (const [key, value] of Object.entries(props.badges)) {
+			const setID = key;
+			const badgeID = value;
 
-				for (const setGroup of [badgeSets.channelsBySet, badgeSets.globalsBySet]) {
-					if (!setGroup) continue;
+			for (const setGroup of [twitchBadgeSets.value.channelsBySet, twitchBadgeSets.value.globalsBySet]) {
+				if (!setGroup) continue;
 
-					const set = setGroup.get(setID);
-					if (!set) continue;
+				const set = setGroup.get(setID);
+				if (!set) continue;
 
-					const badge = set.get(badgeID);
-					if (!badge) continue;
+				const badge = set.get(badgeID);
+				if (!badge) continue;
 
-					twitchBadges.value.push(badge);
-					break;
-				}
+				twitchBadges.value.push(badge);
+				break;
 			}
 		}
-		// If there are no badges to be rendered or the badges get assigned
-		// there's no need to keep watching.
-		if (!props.badges || (badgeSets && badgeSets.count > 0)) {
-			nextTick(() => stopWatchSets());
-		}
-	},
-	{ immediate: true },
-);
+	}
+});
 
 const t = Date.now();
 const stop = watch(
