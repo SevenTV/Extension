@@ -310,6 +310,7 @@ export function convertTwitchMessage(d: TwTypeMessage): ChatMessage {
 			  )
 			: {};
 	msg.timestamp = new Date(d.sentAt).getTime();
+	msg.moderation.deleted = !!d.deletedAt;
 
 	return msg;
 }

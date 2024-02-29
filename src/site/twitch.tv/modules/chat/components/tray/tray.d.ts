@@ -6,6 +6,11 @@ export type TrayProps<T extends keyof Twitch.ChatTray.Type> = {
 		deleted: boolean;
 		username?: string;
 		displayName?: string;
+		thread?: {
+			deleted: boolean;
+			id: string;
+			login: string;
+		};
 	};
 }[T] & {
 	close?: () => void;

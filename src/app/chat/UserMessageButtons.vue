@@ -84,6 +84,15 @@ const tray = useTray("Reply", () => ({
 				displayName: props.msg.author?.displayName,
 		  }
 		: {}),
+	...(props.msg.parent
+		? {
+				thread: {
+					deleted: props.msg.parent.thread?.deleted ?? props.msg.parent.deleted,
+					id: props.msg.parent.thread?.id ?? props.msg.parent.id,
+					login: props.msg.parent.thread?.login ?? props.msg.parent.author?.username ?? "",
+				},
+		  }
+		: {}),
 }));
 
 const showCopyIcon = useConfig<boolean>("chat.copy_icon_toggle");
