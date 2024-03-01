@@ -40,7 +40,9 @@ provide(KICK_CHANNEL_KEY, chan);
 let ok = false;
 const stoppers: (typeof noop)[] = [];
 function handle(): void {
-	if (ok) return;
+	const route = router.currentRoute;
+	if (route && route.name !== "channel") return;
+	if (ok && chan.active) return;
 
 	const chatroomStore = usePinia<ChatRoom>(app, "chatroomv2");
 	type chatroomWithActions = typeof chatroomStore & {
@@ -49,6 +51,9 @@ function handle(): void {
 	if (!chatroomStore) return;
 
 	ok = true;
+
+	chan.slug = chatroomStore.$state.currentChannelSlug;
+	chan.active = !!chan.slug;
 
 	while (stoppers.length) stoppers.pop()?.();
 	stoppers.push(
@@ -93,7 +98,16 @@ onMounted(() => {
 	handle();
 });
 
-watch(() => router.currentRoute, handle, { immediate: true });
+watch(
+	() => router.currentRoute,
+	(route) => {
+		if (route && route.name !== "channel") {
+			chan.active = false;
+		}
+		handle();
+	},
+	{ immediate: true },
+);
 useEventListener(document, "click", () => setTimeout(handle, 250));
 
 markAsReady();
