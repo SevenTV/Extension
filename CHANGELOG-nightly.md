@@ -18,6 +18,8 @@
 -   Fixed an issue which sometimes caused chat badges to not appear
 -   Fixed an issue that caused replies in threads to not appear
 -   Fixed an issue where replies in threads could not be selected
+-   Fixed an issue where switching the selected emote-set would not be detected
+-   Fixed an issue where the emote menu button did not appear on Kick
 
 ### 3.0.16.1000
 
