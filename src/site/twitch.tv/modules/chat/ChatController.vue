@@ -128,13 +128,6 @@ watch(
 		definePropertyHook(inst.component, "props", {
 			value(v) {
 				messageHandler.value = v.messageHandlerAPI;
-
-				// Find message to grab some data
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
-				if (!msgItem?.badgeSets?.count) return;
-
-				properties.twitchBadgeSets = msgItem.badgeSets;
 			},
 		});
 	},
@@ -170,6 +163,7 @@ watch(
 
 		definePropertyHook(room.value.component, "props", {
 			value(v) {
+				properties.twitchBadgeSets = v.badgeSets;
 				properties.primaryColorHex = v.primaryColorHex;
 				primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
 				document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
