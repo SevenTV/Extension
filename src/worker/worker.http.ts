@@ -153,9 +153,9 @@ export class WorkerHttp {
 			});
 		}
 
-		const user = await userPromise;
-		if (user) {
-			this.driver.eventAPI.subscribe("user.*", { object_id: user.id }, port, channel.id);
+		const stvUser = (await userPromise)?.user;
+		if (stvUser) {
+			this.driver.eventAPI.subscribe("user.*", { object_id: stvUser.id }, port, channel.id);
 		}
 
 		// begin subscriptions to personal events in the channel
