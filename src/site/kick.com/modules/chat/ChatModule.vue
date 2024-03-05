@@ -37,11 +37,13 @@ const chan = reactive<KickChannelInfo>({
 
 provide(KICK_CHANNEL_KEY, chan);
 
+const CHAT_ROUTES = ["channel", "channel.chatroom", "moderation-dashboard", "dashboard.stream"];
+
 let ok = false;
 const stoppers: (typeof noop)[] = [];
 function handle(): void {
 	const route = router.currentRoute;
-	if (route && route.name !== "channel") return;
+	if (route && typeof route.name === "string" && !CHAT_ROUTES.includes(route.name)) return;
 	if (ok && chan.active) return;
 
 	const chatroomStore = usePinia<ChatRoom>(app, "chatroomv2");
@@ -101,7 +103,7 @@ onMounted(() => {
 watch(
 	() => router.currentRoute,
 	(route) => {
-		if (route && route.name !== "channel") {
+		if (route && typeof route.name === "string" && !CHAT_ROUTES.includes(route.name)) {
 			chan.active = false;
 		}
 		handle();
