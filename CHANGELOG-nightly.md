@@ -3,6 +3,7 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Sort emotes alphabetically with tab auto-completion on Kick
 
 ### 3.0.16.1000
 
