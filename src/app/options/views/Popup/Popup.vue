@@ -2,9 +2,7 @@ import PopupInner from './PopupInner.vue';
 
 <template>
 	<main class="seventv-popup">
-		<div>
-			<PopupInner />
-		</div>
+		<PopupInner />
 	</main>
 </template>
 
@@ -16,10 +14,7 @@ import PopupInner from "./PopupInner.vue";
 main {
 	display: block;
 	background-color: var(--seventv-background-shade-1);
-
-	> div {
-		height: 600px;
-		width: 800px;
-	}
+	height: 600px;
+	width: 800px;
 }
 </style>
