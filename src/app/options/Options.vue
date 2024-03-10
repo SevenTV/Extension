@@ -62,6 +62,7 @@ body[data-seventv-app] {
 #app {
 	height: 100%;
 	width: 100%;
+	min-width: min-content;
 }
 
 .general-heading {
