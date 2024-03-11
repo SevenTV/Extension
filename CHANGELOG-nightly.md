@@ -20,6 +20,7 @@
 -   Fixed an issue where replies in threads could not be selected
 -   Fixed an issue where switching the selected emote-set would not be detected
 -   Fixed an issue where the emote menu button did not appear on Kick
+-   Fixed an issue which sometimes caused old messages to not appear
 
 ### 3.0.16.1000
 
