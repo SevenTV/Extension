@@ -22,6 +22,7 @@
 -   Fixed an issue where the emote menu button did not appear on Kick
 -   Fixed an issue which sometimes caused old messages to not appear
 -   Sort emotes alphabetically with tab auto-completion on Kick
+-   Removed option to hide the React button on Twitch
 
 ### 3.0.16.1000
 
