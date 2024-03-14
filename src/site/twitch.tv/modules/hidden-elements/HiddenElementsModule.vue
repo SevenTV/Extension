@@ -56,10 +56,22 @@ export const config = [
 		hint: "If checked, community highlights at the top of chat will be hidden (such as hype trains, pinned messages, drops, etc.)",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_community_challenge_contributions", "TOGGLE", {
+		path: ["Site Layout", "Chat"],
+		label: "Hide Community Challenge Contributions",
+		hint: "If checked, community challenge contribution notifications in the chat will be hidden",
+		defaultValue: false,
+	}),
 	declareConfig("layout.hide_pinned_hype_chats", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Pinned Hype Chats",
 		hint: "If checked, the list of recent hype chats will be hidden",
+		defaultValue: false,
+	}),
+	declareConfig("chat.hide_timestamps_vods", "TOGGLE", {
+		label: "Hide VOD Timestamps",
+		path: ["Chat", "VODs"],
+		hint: "If checked, timestamp for chat will be hidden",
 		defaultValue: false,
 	}),
 	// Main page elements (Twitch Features)
@@ -105,6 +117,12 @@ export const config = [
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_channel_point_balance_button", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Channel Point Balance Button",
+		hint: "If checked, the channel point balance button under the chat input box will be hidden",
+		defaultValue: false,
+	}),
 	// Side bar elements
 	declareConfig("layout.hide_recommended_channels", "TOGGLE", {
 		path: ["Site Layout", "Sidebar"],
@@ -141,12 +159,6 @@ export const config = [
 </script>
 
 <style lang="scss">
-.seventv-hide-leaderboard {
-	div[data-test-selector="channel-leaderboard-container"] {
-		display: none !important;
-	}
-}
-
 .seventv-hide-buttons-below-chatbox {
 	div[data-test-selector="chat-input-buttons-container"] {
 		display: none !important;
@@ -163,6 +175,12 @@ export const config = [
 .seventv-hide-react-buttons {
 	div[class$="theatre-social-panel"] > div:first-child,
 	div[data-target="channel-header-right"] > div:first-child {
+		display: none !important;
+	}
+}
+
+.seventv-hide-leaderboard {
+	section[data-test-selector="chat-room-component-layout"] > div:first-child > div:first-child {
 		display: none !important;
 	}
 }
@@ -198,8 +216,21 @@ export const config = [
 	}
 }
 
+.seventv-hide-community-challenge-contributions {
+	div[msg-id*="community-challenge-contribution"] {
+		display: none !important;
+	}
+}
+
 .seventv-hide-pinned-hype-chats {
 	div[class$="paid-pinned-chat-message-list"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-timestamps-vods {
+	div[class$="vod-message__header"],
+	.seventv-chat-vod-message-timestamp {
 		display: none !important;
 	}
 }
@@ -243,6 +274,12 @@ export const config = [
 
 .seventv-hide-chat-input-box {
 	div[class$="chat-input__textarea"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-channel-point-balance-button {
+	.community-points-summary {
 		display: none !important;
 	}
 }

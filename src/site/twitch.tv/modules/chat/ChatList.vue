@@ -115,7 +115,6 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.CHANNEL_POINTS_REWARD:
 		case MessageType.ANNOUNCEMENT_MESSAGE:
 		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
-		case MessageType.PAID_MESSAGE:
 		case MessageType.CONNECTED:
 			onChatMessage(msg, msgData);
 			break;
@@ -223,6 +222,14 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 				deleted: msgData.reply.parentDeleted,
 				body: msgData.reply.parentMessageBody,
 				author: parentMsgAuthor,
+				thread:
+					msgData.reply && msgData.reply.threadParentMsgId && msgData.reply.threadParentUserLogin
+						? {
+								deleted: msgData.reply.threadParentDeleted,
+								id: msgData.reply.threadParentMsgId,
+								login: msgData.reply.threadParentUserLogin,
+						  }
+						: null,
 			};
 
 			// Highlight as a reply to the actor
@@ -245,7 +252,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					// skip over emotes patched in by FFZ and BTTV
 					if (e.emoteID?.startsWith("__FFZ__") || e.emoteID?.startsWith("__BTTV__")) continue;
 
-					msg.nativeEmotes[e.alt + (e.cheerAmount ?? "")] = {
+					const nativeEmote: SevenTV.ActiveEmote = {
 						id: e.emoteID ?? "",
 						name: e.alt,
 						flags: 0,
@@ -266,6 +273,14 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 									token: e.alt,
 							  } as Partial<Twitch.TwitchEmote>),
 					};
+					const emoteName = e.alt + (e.cheerAmount ?? "");
+
+					msg.nativeEmotes[emoteName] = nativeEmote;
+
+					// if it's a cheer we also want to support it's lowercase variant (e.g. Cheer1 & cheer1)
+					if (e.cheerAmount) {
+						msg.nativeEmotes[emoteName.toLowerCase()] = nativeEmote;
+					}
 					break;
 				}
 				// replace flagged segments

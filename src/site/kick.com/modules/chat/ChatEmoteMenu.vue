@@ -42,7 +42,7 @@ watchEffect(() => {
 	const parent = document.getElementById("chatroom");
 	if (!parent) return;
 
-	const inputRow = parent.querySelector(".chat-message-row");
+	const inputRow = parent.querySelector(".chat-input-wrapper");
 	if (!inputRow) return;
 
 	inputRow.lastElementChild?.insertAdjacentElement("beforebegin", emoteMenuButtonContainer);

@@ -3,6 +3,24 @@
 **The changes listed here are not assigned to an official release**.
 
 -   Reinstated animated avatars
+-   Fixed an issue where links would include a period at the end
+-   Added an option to hide the channel point balance button under the chat input box
+-   Updated background of the current emote tab selection
+-   Fixed an issue where suspicious users were not highlighted and clips not being displayed in chat
+-   Fixed an issue which caused timestamps to count beyond 24 hours
+-   Fixed an issue which caused scrolling to not work while scrolling through a category
+-   Fixed an issue where lowercase cheers were displayed as text
+-   Added an option to hide the community challenge contributions in the chat
+-   Fixed extension not working on twitch for some users (React 18 support)
+-   Fixed an issue where chat messages (like announcements) did not use the channel accent color
+-   Fixed an issue where an emote with a long alias would cause the alias to go outside of the tooltip
+-   Added an option to hide timestamps in vods
+-   Fixed an issue which sometimes caused chat badges to not appear
+-   Fixed an issue that caused replies in threads to not appear
+-   Fixed an issue where replies in threads could not be selected
+-   Fixed an issue where switching the selected emote-set would not be detected
+-   Fixed an issue where the emote menu button did not appear on Kick
+-   Fixed an issue which sometimes caused old messages to not appear
 -   Sort emotes alphabetically with tab auto-completion on Kick
 
 ### 3.0.16.1000
@@ -16,12 +34,11 @@
 -   Fixed emote tile width in emote menu
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
+-   Fixed an issue where leaderboard would not hide when "Hide leaderboard" was enabled
 -   Fixed an issue with deleting messages using mod icons
 -   Fixed an issue where the extension menu displayed incorrectly in Chromium-based browsers
 
 ### 3.0.15.1000
-
-**The changes listed here are not assigned to an official release**.
 
 -   Added a backup tab to the settings menu for importing & exporting settings
 -   Added an option to select the default Emote Menu tab

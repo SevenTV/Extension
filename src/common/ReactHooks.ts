@@ -14,9 +14,8 @@ export function getRootVNode(): ReactExtended.ReactVNode | undefined {
 	const element = document.querySelector(REACT_ROOT_SELECTOR);
 	if (!element) return undefined;
 
-	const root = Reflect.get(element, "_reactRootContainer");
-
-	return root?._internalRoot?.current;
+	const root = Reflect.get(element, "_reactRootContainer") || Reflect.get(element, "__reactContainer$");
+	return root?._internalRoot?.current ?? root;
 }
 
 /**
@@ -106,7 +105,7 @@ export function findComponentChildren<T extends ReactExtended.AnyReactComponent>
  */
 export function getVNodeFromDOM(el: Node): ReactExtended.ReactVNode | undefined {
 	for (const k in el) {
-		if (k.startsWith("__reactInternalInstance$")) {
+		if (k.startsWith("__reactInternalInstance$") || k.startsWith("__reactFiber$")) {
 			return Reflect.get(el, k);
 		}
 	}

@@ -65,6 +65,13 @@ function getReplyTray(props: TrayProps<"Reply">): Twitch.ChatTray<"Reply"> {
 								parentDisplayName: props.displayName,
 						  }
 						: {}),
+					...(props.thread
+						? {
+								threadParentMsgId: props.thread.id,
+								threadParentDeleted: props.thread.deleted,
+								threadParentUserLogin: props.thread.login,
+						  }
+						: {}),
 				},
 			},
 		},
