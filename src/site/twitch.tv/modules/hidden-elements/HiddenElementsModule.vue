@@ -75,12 +75,6 @@ export const config = [
 		defaultValue: false,
 	}),
 	// Main page elements (Twitch Features)
-	declareConfig("layout.hide_react_buttons", "TOGGLE", {
-		path: ["Site Layout", "Twitch Features"],
-		label: "Hide React Buttons",
-		hint: "If checked, the 'React' buttons will be hidden",
-		defaultValue: false,
-	}),
 	declareConfig("layout.hide_bits_buttons", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Bits Buttons",
@@ -168,13 +162,6 @@ export const config = [
 .seventv-hide-stream-chat-bar {
 	button[data-a-target="right-column__toggle-collapse-btn"],
 	div[class$="stream-chat-header"] {
-		display: none !important;
-	}
-}
-
-.seventv-hide-react-buttons {
-	div[class$="theatre-social-panel"] > div:first-child,
-	div[data-target="channel-header-right"] > div:first-child {
 		display: none !important;
 	}
 }
