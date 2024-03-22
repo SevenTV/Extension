@@ -10,7 +10,7 @@
 				</span>
 				Gifted a
 				<span class="bold"> Tier {{ msgData.methods?.plan.charAt(0) }} </span>
-				sub to
+				Sub to
 				<span class="bold"> {{ msgData.recipientDisplayName }} </span>
 			</div>
 		</div>
