@@ -23,6 +23,7 @@
 -   Fixed an issue which sometimes caused old messages to not appear
 -   Sort emotes alphabetically with tab auto-completion on Kick
 -   Removed option to hide the React button on Twitch
+-   Added emote support for introduction & watch streak messages.
 
 ### 3.0.16.1000
 
