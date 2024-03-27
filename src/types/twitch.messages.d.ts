@@ -221,6 +221,28 @@ declare namespace Twitch {
 		message: ChatMessage;
 	}
 
+	export interface BitsBadgeTierMessage extends AnyMessage {
+		message: ChatMessage;
+		threshold: number;
+		user: ChatUser;
+	}
+
+	export interface CommunityIntroductionMessage extends AnyMessage {
+		message: string;
+		userID: string;
+		login: string;
+		displayName: string;
+	}
+
+	export interface MilestoneMessage extends AnyMessage {
+		category: string;
+		channel: string;
+		copoReward: number;
+		message: string;
+		milestoneID: string;
+		watchStreak: number;
+	}
+
 	export interface IDUpdateMessage extends AnyMessage {
 		nonce: string;
 		userLogin: string;
