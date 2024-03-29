@@ -74,6 +74,7 @@ const showSelfHighlights = useConfig<boolean>("highlights.basic.self");
 const shouldPlaySoundOnMention = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
 const showRestrictedLowTrustUser = useConfig<boolean>("highlights.basic.restricted_low_trust_user");
+const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored_low_trust_user");
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
@@ -199,14 +200,21 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	if (IsDisplayableMessage(msgData)) {
 		msg.body = (msgData.messageBody ?? msgData.message?.messageBody ?? "").replace("\n", " ");
+		msg.first = msgData.isFirstMsg;
 
 		if (typeof msgData.nonce === "string") msg.setNonce(msgData.nonce);
 
 		// assign highlight
 		if (msgData.isFirstMsg && showFirstTimeChatter.value) {
 			msg.setHighlight("#c832c8", "First Message");
-		} else if (msgData.isReturningChatter) {
-			msg.setHighlight("#3296e6", "Returning Chatter");
+		}
+
+		if (msg.author) {
+			const lowTrust = messages.lowTrustUsers[msg.author.id];
+
+			if (lowTrust && lowTrust.treatment.type === "ACTIVE_MONITORING" && showMonitoredLowTrustUser.value) {
+				msg.setHighlight("#ff7d00", "Monitored Suspicious User");
+			}
 		}
 
 		// assign parent message data
