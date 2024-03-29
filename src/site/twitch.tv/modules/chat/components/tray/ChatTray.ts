@@ -51,7 +51,7 @@ function getReplyTray(props: TrayProps<"Reply">): Twitch.ChatTray<"Reply"> {
 		sendButtonOverride: "reply",
 		disableBits: true,
 		disablePaidPinnedChat: true,
-		disableChat: props.deleted,
+		disableChat: props.deleted || props.thread?.deleted,
 		sendMessageHandler: {
 			type: "reply",
 			additionalMetadata: {
