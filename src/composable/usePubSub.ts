@@ -15,11 +15,11 @@ definePropertyHook(
 
 			client.value = v;
 
-			definePropertyHook(client.value.connection, "socket", {
+			definePropertyHook(client.value, "connection", {
 				value(v) {
-					if (!v || !v.socket) return;
+					if (!v || !v.socket || !v.socket.socket) return;
 
-					socket.value = v.socket;
+					socket.value = v.socket.socket;
 				},
 			});
 		},
@@ -75,12 +75,20 @@ export namespace PubSubMessageData {
 			id: string;
 			low_trust_id: string;
 			channel_id: string;
-			sender: Twitch.ChatUser;
-			evaluated_at: string;
+			sender?: {
+				login: string;
+				display_name: string;
+				chat_color: string;
+			};
 			updated_at: string;
-			ban_evasion_evaluation: string;
-			treatment: string;
-			updated_by: Twitch.ChatUser;
+			treatment: "ACTIVE_MONITORING" | "RESTRICTED" | "NONE";
+			evaluated_at: string;
+			ban_evasion_evaluation: "LIKELY" | "UNLIKELY" | "POSSIBLE";
+			updated_by: {
+				id: string;
+				login: string;
+				display_name: string;
+			};
 			shared_ban_channel_ids: string[];
 			types: string[];
 		};
@@ -90,6 +98,23 @@ export namespace PubSubMessageData {
 		};
 		message_id: string;
 		sent_at: string;
+	}
+
+	export interface LowTrustUserTreatmentUpdate {
+		low_trust_id: string;
+		channel_id: string;
+		updated_by: {
+			id: string;
+			login: string;
+			display_name: string;
+		};
+		updated_at: string;
+		target_user_id: string;
+		target_user: string;
+		treatment: "ACTIVE_MONITORING" | "RESTRICTED" | "NO_TREATMENT";
+		types: string[];
+		ban_evasion_evaluation: "LIKELY" | "UNLIKELY" | "POSSIBLE";
+		evaluated_at: string;
 	}
 
 	export interface ModAction {
@@ -129,5 +154,20 @@ export namespace PubSubMessageData {
 		thumbnail_url: string;
 		request_url: string;
 		message_id: string;
+	}
+
+	export interface ChatHighlight {
+		msg_id: string;
+		highlights: (
+			| {
+					type: "raider";
+					source_channel_id: string;
+					seconds_since_event: number;
+			  }
+			| {
+					type: "returning_chatter";
+					source_channel_id: string;
+			  }
+		)[];
 	}
 }

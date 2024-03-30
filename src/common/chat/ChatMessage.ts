@@ -20,6 +20,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public deliveryState: MessageDeliveryState = "IDLE";
 	public timestamp = 0;
 	public historical = false;
+	public first = false;
 	public moderation: ChatMessageModeration = {
 		deleted: false,
 		banned: false,
@@ -225,4 +226,20 @@ export interface RichEmbed {
 	};
 	thumbnail_url: string;
 	request_url: string;
+}
+
+export interface LowTrustUserProperties {
+	banEvasion: {
+		likelihood: "LIKELY" | "UNLIKELY" | "POSSIBLE";
+		evaluatedAt: string | null;
+	};
+	channelSharedBansUpdatedAt: string | null;
+	id: string;
+	sharedBanChannels: string[];
+	treatment: {
+		type: "ACTIVE_MONITORING" | "RESTRICTED" | "NONE";
+		updatedAt: string | null;
+		updatedBy: string | null;
+	};
+	types: string[];
 }

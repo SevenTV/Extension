@@ -24,6 +24,10 @@
 -   Sort emotes alphabetically with tab auto-completion on Kick
 -   Removed option to hide the React button on Twitch
 -   Added emote support for introduction & watch streak messages.
+-   Fixed an issue that caused suspicious user highlights to not persist
+-   Fixed an issue that caused returning users to not be highlighted
+-   Added an option to show raider highlights
+-   Added an option to show returning user highlights
 
 ### 3.0.16.1000
 
