@@ -28,6 +28,7 @@
 -   Fixed an issue that caused returning users to not be highlighted
 -   Added an option to show raider highlights
 -   Added an option to show returning user highlights
+-   Fixed an issue that caused international names to not always display logins.
 
 ### 3.0.16.1000
 
