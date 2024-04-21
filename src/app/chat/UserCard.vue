@@ -424,7 +424,7 @@ watchEffect(async () => {
 				data.targetUser.intl = resp.data.targetUser.login !== resp.data.targetUser.displayName.toLowerCase();
 				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
 				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
-				data.targetUser.color = resp.data.targetUser.chatColor;
+				data.targetUser.color = resp.data.targetUser.chatColor ?? props.target.color;
 				data.targetUser.relationship.followedAt = formatDateToString(
 					resp.data.targetUser.relationship?.followedAt,
 				);
