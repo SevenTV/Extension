@@ -177,6 +177,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 				id: authorData.userID,
 				username: authorData.userLogin ?? (authorData.userDisplayName ?? authorData.displayName)?.toLowerCase(),
 				displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
+				intl: authorData.isIntl,
 				color,
 			},
 		);

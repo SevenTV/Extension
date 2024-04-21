@@ -201,11 +201,14 @@ function createMessageComponentRef(data: CommentData) {
 	const msg = new ChatMessage(data.messageContext.comment.id);
 
 	if (data.messageContext.author) {
+		const isIntl = data.messageContext.author.name !== data.messageContext.author.displayName.toLowerCase();
+
 		msg.setAuthor({
 			id: data.messageContext.author.id,
 			username: data.messageContext.author.name ?? "",
 			displayName: data.messageContext.author.displayName ?? "",
 			color: msgData.message.userColor,
+			intl: isIntl,
 		});
 
 		msg.badges = msgData.userBadges;

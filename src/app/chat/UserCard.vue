@@ -181,11 +181,12 @@ const data = reactive({
 		id: props.target.id,
 		username: props.target.username,
 		displayName: props.target.displayName,
+		intl: props.target.intl,
+		color: props.target.color,
 		bannerURL: "",
 		avatarURL: "",
 		createdAt: "",
 		isModerator: false,
-		color: "",
 		badges: [] as SevenTV.Cosmetic<"BADGE">[],
 		relationship: {
 			followedAt: "",
@@ -309,6 +310,7 @@ function addModComment(e: TwTypeModComment): void {
 		username: e.author.login,
 		displayName: e.author.displayName,
 		color: e.author.chatColor,
+		intl: e.author.login !== e.author.displayName.toLowerCase(),
 	});
 	m.setTimestamp(Date.parse(e.timestamp));
 	m.body = e.text;
@@ -419,6 +421,7 @@ watchEffect(async () => {
 				data.targetUser.id = resp.data.targetUser.id;
 				data.targetUser.username = resp.data.targetUser.login;
 				data.targetUser.displayName = resp.data.targetUser.displayName;
+				data.targetUser.intl = resp.data.targetUser.login !== resp.data.targetUser.displayName.toLowerCase();
 				data.targetUser.avatarURL = resp.data.targetUser.profileImageURL;
 				data.targetUser.bannerURL = resp.data.targetUser.bannerImageURL ?? "";
 				data.targetUser.color = resp.data.targetUser.chatColor;
