@@ -62,6 +62,7 @@ const app = createApp({
 app.provide("app-id", appID);
 
 const extensionOrigin = scr?.getAttribute("extension_origin") ?? "";
+seventv.hosted ??= seventv.remote;
 app.provide(
 	SITE_WORKER_URL,
 	seventv.hosted ? seventv.host_manifest?.worker_file ?? null : null ?? scr?.getAttribute("worker_url"),
