@@ -5,6 +5,7 @@ declare interface SeventvGlobalScope {
 		stylesheet_file: string;
 		index_file: string;
 	};
+	remote?: boolean;
 	hosted?: boolean;
 }
 
