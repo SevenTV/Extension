@@ -14,8 +14,15 @@ export function getRootVNode(): ReactExtended.ReactVNode | undefined {
 	const element = document.querySelector(REACT_ROOT_SELECTOR);
 	if (!element) return undefined;
 
-	const root = Reflect.get(element, "_reactRootContainer") || Reflect.get(element, "__reactContainer$");
-	return root?._internalRoot?.current ?? root;
+	for (const k in element) {
+		if (k.startsWith("_reactRootContainer") || k.startsWith("__reactContainer$")) {
+			const root = Reflect.get(element, k);
+
+			return root?._internalRoot?.current ?? root;
+		}
+	}
+
+	return undefined;
 }
 
 /**
