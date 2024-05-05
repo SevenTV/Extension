@@ -8,7 +8,15 @@ export function tokenize(opt: TokenizeOptions) {
 	const tokens = [] as AnyToken[];
 
 	const textParts = opt.body.split(" ");
-	const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
+	const getEmote = (name: string) => {
+		if (opt.localEmoteMap?.[name] && Object.hasOwn(opt.localEmoteMap, name)) {
+			return opt.localEmoteMap[name];
+		}
+
+		if (opt.emoteMap[name] && Object.hasOwn(opt.emoteMap, name)) {
+			return opt.emoteMap[name];
+		}
+	};
 	const showModifiers = opt.showModifiers;
 
 	let cursor = -1;

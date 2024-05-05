@@ -22,7 +22,15 @@ export class Tokenizer {
 		const tokens = [] as AnyToken[];
 
 		const textParts = this.msg.body.split(" ");
-		const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
+		const getEmote = (name: string) => {
+			if (opt.localEmoteMap?.[name] && Object.hasOwn(opt.localEmoteMap, name)) {
+				return opt.localEmoteMap[name];
+			}
+
+			if (opt.emoteMap[name] && Object.hasOwn(opt.emoteMap, name)) {
+				return opt.emoteMap[name];
+			}
+		};
 		const showModifiers = opt.showModifiers;
 
 		let cursor = -1;
@@ -43,7 +51,8 @@ export class Tokenizer {
 			const maybeEmote = getEmote(part);
 			const nextEmote = getEmote(textParts[textParts.indexOf(part) + 1]);
 			const prevEmote = getEmote(textParts[textParts.indexOf(part) - 1]);
-			const maybeMention = !!opt.chatterMap[part.toLowerCase()];
+			const maybeMention =
+				opt.chatterMap[part.toLowerCase()] && Object.hasOwn(opt.chatterMap, part.toLowerCase());
 
 			if (maybeEmote) {
 				// handle zero width overlaying
