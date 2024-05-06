@@ -31,6 +31,7 @@
 -   Fixed an issue that caused international names to not always display logins
 -   Fixed an issue that caused Twitch VODs to not load emotes
 -   Fixed an issue that caused emote names in emote cards to overflow
+-   Fixed an issue that caused certain words to not display in chat
 
 ### 3.0.16.1000
 
