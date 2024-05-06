@@ -36,16 +36,11 @@ const isRemote = seventv.hosted || false;
 .seventv-settings-home {
 	display: grid;
 	height: inherit;
-	grid-template-columns: 1.25fr 21em;
-
-	@media (width <= 1600px) {
-		grid-template-columns: 1.25fr 0;
-	}
+	grid-template-columns: 1fr;
 
 	.seventv-settings-home-body {
 		display: grid;
 		min-width: 30rem;
-		border-right: 1px solid var(--seventv-border-transparent-1);
 		overflow: auto;
 
 		.seventv-settings-home-changelog {

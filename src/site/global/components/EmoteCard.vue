@@ -176,11 +176,12 @@ main.seventv-emote-card-container {
 		place-content: center;
 		grid-template-columns: 8rem 1fr;
 		width: 32rem;
-		height: 9rem;
+		min-height: 9rem;
 		background-color: var(--seventv-background-transparent-1);
 		outline: 0.1em solid var(--seventv-border-transparent-1);
 		backdrop-filter: blur(0.5rem);
 		border-radius: 0.25rem;
+		word-break: break-all;
 
 		.seventv-emote-card-image {
 			display: grid;
@@ -190,7 +191,7 @@ main.seventv-emote-card-container {
 
 		.seventv-emote-card-display {
 			display: grid;
-			padding: 0.5em 0;
+			padding: 0.5em 0.5em 0.5em 0;
 
 			h3 {
 				font-size: 2rem;
