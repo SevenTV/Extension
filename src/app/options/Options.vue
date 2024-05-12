@@ -85,8 +85,6 @@ body[data-seventv-app] {
 }
 
 .seventv-options {
-	display: flex;
-	flex-direction: column;
 	height: 100%;
 	background: var(--seventv-background-shade-1);
 
