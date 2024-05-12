@@ -186,6 +186,7 @@ declare module Twitch {
 		isShowingCommunityHighlightList: boolean;
 		deletedMessageDisplay: "BRIEF" | "DETAILED" | "LEGACY";
 		chatPauseSetting: "MOUSEOVER" | "SCROLL_ONLY" | "ALTKEY" | "MOUSEOVER_ALTKEY";
+		badgeSets: BadgeSets;
 	}>;
 
 	export type ViewerCardComponent = ReactExtended.WritableComponent<{}> & {

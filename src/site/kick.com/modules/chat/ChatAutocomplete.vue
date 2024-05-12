@@ -156,6 +156,7 @@ function handleTab(n: Text, sel: Selection, back = false): void {
 		);
 		if (tab.matches.length === 0 || tab.matches[0].provider === "EMOJI") return;
 	}
+	tab.matches.sort((a, b) => a.name.localeCompare(b.name));
 
 	tab.index = (back ? tab.index - 1 : tab.index + 1) % tab.matches.length;
 	if (tab.index < 0) tab.index = tab.matches.length - 1;

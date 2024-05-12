@@ -10,7 +10,7 @@
 				</span>
 				Gifted a
 				<span class="bold"> Tier {{ msgData.methods?.plan.charAt(0) }} </span>
-				sub to
+				Sub to
 				<span class="bold"> {{ msgData.recipientDisplayName }} </span>
 			</div>
 		</div>
@@ -36,7 +36,7 @@ defineProps<{
 }
 
 .seventv-highlight {
-	border-left: 0.4rem solid var(--seventv-primary-color);
+	border-left: 0.4rem solid var(--seventv-channel-accent);
 	padding-left: 1.6rem !important;
 }
 

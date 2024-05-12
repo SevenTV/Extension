@@ -23,6 +23,8 @@ export function useRouter(app: App<Element>) {
 				router.currentRoute = v;
 			},
 		});
+
+		m.set(app, router);
 	}
 
 	return router;

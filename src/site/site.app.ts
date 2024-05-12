@@ -62,9 +62,10 @@ const app = createApp({
 app.provide("app-id", appID);
 
 const extensionOrigin = scr?.getAttribute("extension_origin") ?? "";
+seventv.hosted ??= seventv.remote;
 app.provide(
 	SITE_WORKER_URL,
-	seventv.remote ? seventv.host_manifest?.worker_file ?? null : null ?? scr?.getAttribute("worker_url"),
+	seventv.hosted ? seventv.host_manifest?.worker_file ?? null : null ?? scr?.getAttribute("worker_url"),
 );
 app.provide(SITE_ASSETS_URL, extensionOrigin + "assets");
 app.provide(SITE_EXT_OPTIONS_URL, extensionOrigin + "index.html");
@@ -76,7 +77,7 @@ app.use(createPinia())
 	.mount("#seventv-root");
 
 // unlink built-in stylesheet while in hosted mode
-if (seventv.remote) {
+if (seventv.hosted) {
 	const sheets = document.querySelectorAll<HTMLLinkElement>("#seventv-stylesheet");
 	for (let i = 0; i < sheets.length; i++) {
 		const sheet = sheets.item(i);
