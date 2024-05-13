@@ -1,6 +1,6 @@
 <template />
 <script setup lang="ts">
-import { computed, onUnmounted, ref, toRef, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { until } from "@vueuse/core";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";

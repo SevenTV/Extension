@@ -43,11 +43,7 @@ const messageLog = new Set<Twitch.ChatMessage>();
 const bucket = new RateBucket(100);
 const executed = new Set<string>();
 
-const c = getModule<"TWITCH", "chat">("chat");
-if (!c?.instance) throw new Error("ChatController not found");
-const id = c.instance.chatController.instances[0].component.props.channelID;
-
-const ctx = useChannelContext(id);
+const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
 
 const handler: Twitch.ChatCommand.Handler = (args: string) => {

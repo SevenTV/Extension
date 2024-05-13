@@ -3,8 +3,7 @@
 import { onUnmounted } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 
-const info = c.instance.chatController.instances[0].component.props;
-const ctx = useChannelContext(info.channelID);
+const ctx = useChannelContext();
 
 const props = defineProps<{
 	add: (c: Twitch.ChatCommand) => void;
@@ -12,10 +11,10 @@ const props = defineProps<{
 }>();
 
 const handler: Twitch.ChatCommand.Handler = () => {
+	const res = ctx.fetch(true).then(() => Promise.resolve({ notice: "Emotes refreshed" }));
+
 	return {
-		deferred: async () => {
-			ctx.setCurrentChannel(ctx.base());
-		},
+		deferred: res,
 	};
 };
 

@@ -75,6 +75,7 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 		user: SevenTV.User | null;
 		channel: CurrentChannel | null;
 		imageFormat: SevenTV.ImageFormat | null;
+		refetch: boolean | null;
 	}>;
 	STATIC_COSMETICS_FETCHED: {
 		badges: SevenTV.Cosmetic<"BADGE">[];

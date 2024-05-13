@@ -47,12 +47,10 @@ const anchorEl = ref<HTMLElement | undefined>();
 const inputEl = ref<HTMLElement | undefined>();
 
 const ctx = useEmoteMenuContext();
-ctx.channelID = props.instance.component.props.channelID ?? "";
 
-const channelCtx = useChannelContext(ctx.channelID, true);
+const channelCtx = useChannelContext(undefined, true);
 const settingsContext = useSettingsMenu();
 const emotes = useChatEmotes(channelCtx);
-
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");

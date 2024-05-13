@@ -1,4 +1,4 @@
-import { inject, onMounted, onUnmounted, provide, reactive, toRaw } from "vue";
+import { computed, inject, onMounted, onUnmounted, provide, reactive, toRaw, watch } from "vue";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
 import { WorkletEvent, useWorker } from "../useWorker";
@@ -34,10 +34,6 @@ export class ChannelContext implements CurrentChannel {
 
 	setCurrentChannel(channel: CurrentChannel): boolean {
 		// Notify the worker about this new channel we are on
-		sendMessage("STATE", {
-			channel: toRaw(this.base),
-		});
-
 		if (this.id === channel.id) {
 			this.username = channel.username;
 			this.displayName = channel.displayName;
@@ -68,18 +64,27 @@ export class ChannelContext implements CurrentChannel {
 		});
 	}
 
-	fetch(): void {
-		// Listen for worker confirmation of channel fetch
-		const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
-			if (this.id !== ev.detail.id) return;
+	async fetch(refetch = false) {
+		sendMessage("STATE", {
+			channel: toRaw(this.base),
+			refetch: refetch,
+		});
 
-			this.loaded = true;
-			this.user = ev.detail.user;
+		return new Promise<void>((resolve) => {
+			// Listen for worker confirmation of channel fetch
+			const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
+				if (this.id !== ev.detail.id) return;
 
-			log.info("Channel loaded:", this.id);
-			target.removeEventListener("channel_fetched", onLoaded);
-		};
-		target.addEventListener("channel_fetched", onLoaded);
+				this.loaded = true;
+				this.user = ev.detail.user;
+
+				log.warn("Channel loaded:", this.id);
+				target.removeEventListener("channel_fetched", onLoaded);
+
+				resolve();
+			};
+			target.addEventListener("channel_fetched", onLoaded);
+		});
 	}
 }
 
@@ -96,7 +101,13 @@ export function useChannelContext(channelID?: string, track = false): ChannelCon
 		if (channelID) ctx.setCurrentChannel({ id: channelID ?? "", username: "", displayName: "", active: true });
 
 		const store = useStore();
-		ctx.platform = store.platform;
+		watch(
+			() => store.platform,
+			() => {
+				ctx!.platform = store.platform;
+			},
+			{ immediate: true },
+		);
 
 		provide(CHANNEL_CTX, ctx);
 		if (channelID) m.set(channelID, ctx);

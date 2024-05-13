@@ -84,6 +84,7 @@ const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
 const primaryColor = ref("");
 
 const ctx = useChannelContext(props.controller.component.props.channelID, true);
+ctx.setCurrentChannel({ ...ctx.base, id: ctx.id });
 const worker = useWorker();
 const emotes = useChatEmotes(ctx);
 const messages = useChatMessages(ctx);
