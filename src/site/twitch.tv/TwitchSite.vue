@@ -12,6 +12,7 @@ import { defineAsyncComponent, onMounted, provide, ref, watch } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useActor } from "@/composable/useActor";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
@@ -30,6 +31,8 @@ const useTransparency = useConfig("ui.transparent_backgrounds");
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
 store.setPlatform("TWITCH", ["7TV", "FFZ", "BTTV"], ffz.active ? ["FFZ"] : []);
+
+useChannelContext();
 
 const currentPath = ref("");
 

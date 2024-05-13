@@ -1,11 +1,10 @@
 <template />
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onUnmounted, ref, toRef, watch } from "vue";
 import { until } from "@vueuse/core";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useActor } from "@/composable/useActor";
-import { getModule } from "@/composable/useModule";
 import { useModifierTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
 import { changeEmoteInSeMutation, userByConnectionQuery } from "@/assets/gql/seventv.user.gql";
 import { userQuery } from "@/assets/gql/seventv.user.gql";
@@ -19,18 +18,16 @@ const props = defineProps<{
 	remove: (c: Twitch.ChatCommand) => void;
 }>();
 
-const c = getModule<"TWITCH", "chat">("chat");
-if (!c?.instance) throw new Error("ChatController not found");
-
-const info = c.instance.chatController.instances[0].component.props;
-const ctx = useChannelContext(info.channelID);
+const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 
 const actor = useActor();
 
 const mutateEmoteInSet = useMutation(changeEmoteInSeMutation, { errorPolicy: "all" });
-await until(ref(info.channelID)).toBeTruthy();
-const getUser = useQuery<userQuery.Result>(userByConnectionQuery, { platform: "TWITCH", id: info.channelID });
+
+await until(() => ctx.id).toBeTruthy();
+
+const getUser = useQuery<userQuery.Result>(userByConnectionQuery, { platform: "TWITCH", id: ctx.id });
 
 let activeSetID = "";
 getUser.onResult((res) => {
@@ -41,7 +38,7 @@ getUser.onResult((res) => {
 
 const hasPermission = computed(() => {
 	if (!actor.user) return false;
-	if (info.channelID == info.userID) return true;
+	if (ctx.id == actor.platformUserID) return true;
 	if (!getUser.result.value) return false;
 	return getUser.result.value.user.editors!.some((e) => e.id == actor.user?.id);
 });
@@ -225,8 +222,8 @@ const commandAlias: Twitch.ChatCommand = {
 };
 
 watch(
-	() => info.channelID,
-	() => getUser.refetch({ platform: "TWITCH", id: info.channelID }),
+	() => ctx.id,
+	() => getUser.refetch({ platform: "TWITCH", id: ctx.id }),
 	{ immediate: true },
 );
 

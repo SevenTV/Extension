@@ -11,7 +11,7 @@ import { until } from "@vueuse/core";
 import { useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import Dashboard from "./Commands/Dashboard.vue";
-//import Nuke from "./Commands/Nuke.vue";
+import Nuke from "./Commands/Nuke.vue";
 import Song from "./Commands/Song.vue";
 
 const { dependenciesMet, markAsReady } = declareModule("command-manager", {
@@ -21,11 +21,7 @@ const { dependenciesMet, markAsReady } = declareModule("command-manager", {
 
 await until(dependenciesMet).toBe(true);
 
-const commands = [
-	Dashboard,
-	Song,
-	// Nuke
-] as Component[];
+const commands = [Dashboard, Song, Nuke] as Component[];
 
 useComponentHook<Twitch.ChatCommandGrouperComponent>(
 	{
@@ -47,10 +43,8 @@ useComponentHook<Twitch.ChatCommandGrouperComponent>(
 );
 
 const ch = useComponentHook<Twitch.ChatCommandComponent>({
-	parentSelector: ".chat-shell",
+	parentSelector: ".chat-shell, .kDpAEF",
 	predicate: (n) => n.addCommand,
-	maxDepth: 50,
+	maxDepth: 100,
 });
-
-markAsReady();
 </script>
