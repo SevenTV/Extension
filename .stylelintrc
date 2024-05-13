@@ -4,14 +4,14 @@ extends:
 rules:
     color-function-notation: "legacy"
     declaration-block-no-redundant-longhand-properties:
-        - true
-        - ignoreShorthands: ["/grid/"]
+        - null
 ignoreFiles: ["locale/*.ts"]
 overrides:
     - files: ["**/*.scss"]
       extends:
           - "stylelint-config-standard-scss"
     - files: ["**/*.vue"]
+      customSyntax: "postcss-html"
       extends:
           - "stylelint-config-standard-scss"
           - "stylelint-config-standard-vue/scss"

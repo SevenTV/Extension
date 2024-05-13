@@ -236,9 +236,13 @@ db.ready().then(async () => {
 				data.sets[setID] = es.value;
 
 				// Re-assign the user's personal emote map
-				data.userEmoteMap[userID] = es.value.emotes
+				const e = es.value.emotes
 					.filter((ae) => ae.data && ae.data.state?.includes("PERSONAL")) // filter out emotes that are not personal-use approved
 					.reduce((acc, cur) => ({ ...acc, [cur.name]: cur }), {} as Record<string, SevenTV.ActiveEmote>);
+
+				for (const eid in e) {
+					data.userEmoteMap[userID][eid] = e[eid];
+				}
 
 				// Update the set's data
 				data.userEmoteSets[userID]?.set(setID, es.value);

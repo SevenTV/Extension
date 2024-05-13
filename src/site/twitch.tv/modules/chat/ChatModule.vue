@@ -269,8 +269,8 @@ export const config = [
 			document.body.style.setProperty(
 				"--seventv-chat-padding",
 				{
-					0: "0.25rem",
-					1: "1rem",
+					0: "1rem",
+					1: "2rem",
 				}[v] ?? null,
 			);
 		},
@@ -402,6 +402,18 @@ export const config = [
 		path: ["Highlights", "Built-In"],
 		label: "Show Restricted Suspicious User Highlights (Moderator only)",
 		hint: "Whether or not to highlight users who are a restricted suspicious user",
+		defaultValue: true,
+	}),
+	declareConfig<boolean>("highlights.basic.returning_chatter", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Returning Chatters (Moderator only)",
+		hint: "Whether or not to highlight users who have returned",
+		defaultValue: false,
+	}),
+	declareConfig<boolean>("highlights.basic.raider", "TOGGLE", {
+		path: ["Highlights", "Built-In"],
+		label: "Show Raiders (Moderator only)",
+		hint: "Whether or not to highlight users who are part of a raid",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.first_time_chatter", "TOGGLE", {

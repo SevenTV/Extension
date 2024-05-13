@@ -12,6 +12,13 @@ const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
 const pubsub = usePubSub();
 const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored_low_trust_user");
+const showReturningChatter = useConfig<boolean>("highlights.basic.returning_chatter");
+const showRaider = useConfig<boolean>("highlights.basic.raider");
+
+const highlightOrder = {
+	returning_chatter: 0,
+	raider: 1,
+};
 
 // Update the event listener in case the socket is updated
 watchEffect(() => {
@@ -45,12 +52,19 @@ function onPubSubMessage(ev: MessageEvent) {
 		case "low_trust_user_new_message":
 			onLowTrustUserNewMessage(data as PubSubMessageData.LowTrustUserNewMessage);
 			break;
+		case "low_trust_user_treatment_update":
+			onLowTrustUserTreatmentUpdate(data as PubSubMessageData.LowTrustUserTreatmentUpdate);
+			break;
 		case "moderation_action":
 			onModerationAction(data as PubSubMessageData.ModAction);
 			break;
 
 		case "chat_rich_embed":
 			onChatRichEmbed(data as PubSubMessageData.ChatRichEmbed);
+			break;
+
+		case "chat-highlight":
+			onChatHighlight(data as PubSubMessageData.ChatHighlight);
 			break;
 
 		default:
@@ -63,6 +77,22 @@ async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMe
 	const ctx = msg.low_trust_user;
 	if (!ctx) return;
 
+	messages.lowTrustUsers[ctx.id] = {
+		id: ctx.low_trust_id,
+		types: ctx.types,
+		banEvasion: {
+			likelihood: ctx.ban_evasion_evaluation,
+			evaluatedAt: ctx.evaluated_at,
+		},
+		sharedBanChannels: ctx.shared_ban_channel_ids,
+		treatment: {
+			type: ctx.treatment,
+			updatedAt: ctx.updated_at,
+			updatedBy: ctx.updated_by.login,
+		},
+		channelSharedBansUpdatedAt: null,
+	};
+
 	if (!showMonitoredLowTrustUser.value) return;
 
 	// Find the message
@@ -72,6 +102,26 @@ async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMe
 	if (!matchedMsg) return;
 
 	matchedMsg.setHighlight("#ff7d00", "Monitored Suspicious User");
+}
+
+async function onLowTrustUserTreatmentUpdate(msg: PubSubMessageData.LowTrustUserTreatmentUpdate) {
+	const lowTrust = messages.lowTrustUsers[msg.target_user_id];
+
+	messages.lowTrustUsers[msg.target_user_id] = {
+		id: msg.low_trust_id,
+		types: msg.types,
+		banEvasion: {
+			evaluatedAt: msg.evaluated_at,
+			likelihood: msg.ban_evasion_evaluation,
+		},
+		sharedBanChannels: lowTrust?.sharedBanChannels ?? [],
+		treatment: {
+			type: msg.treatment === "NO_TREATMENT" ? "NONE" : msg.treatment,
+			updatedAt: msg.updated_at,
+			updatedBy: msg.updated_by.login,
+		},
+		channelSharedBansUpdatedAt: null,
+	};
 }
 
 async function onModerationAction(msg: PubSubMessageData.ModAction) {
@@ -127,6 +177,35 @@ async function onChatRichEmbed(msg: PubSubMessageData.ChatRichEmbed) {
 	message.richEmbed.request_url = request_url;
 	message.richEmbed.thumbnail_url = thumbnail_url;
 	message.richEmbed.twitch_metadata = twitch_metadata;
+}
+
+async function onChatHighlight(msg: PubSubMessageData.ChatHighlight) {
+	const message = await messages.awaitMessage(msg.msg_id).catch((err) => {
+		log.debug("failed to find new message for chat highlight", err.message);
+	});
+	if (!message) return;
+
+	// If the author of this message has low trust treatment, we don't want to apply a new highlight
+	const lowTrust = message.author ? messages.lowTrustUsers[message.author.id] : null;
+	if (lowTrust && lowTrust.treatment.type !== "NONE") {
+		return;
+	}
+
+	const highlights = msg.highlights.sort((a, b) => {
+		return highlightOrder[b.type] - highlightOrder[a.type];
+	});
+
+	for (const highlight of highlights) {
+		switch (highlight.type) {
+			case "raider":
+				if (showRaider.value)
+					message.setHighlight("#6dd126", message.first ? "First Time Chat From Raider" : "Raider");
+				break;
+			case "returning_chatter":
+				if (showReturningChatter.value) message.setHighlight("#3296e6", "Returning Chatter");
+				break;
+		}
+	}
 }
 
 onUnmounted(() => {

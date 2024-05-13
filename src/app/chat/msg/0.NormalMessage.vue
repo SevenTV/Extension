@@ -34,7 +34,7 @@ defineProps<{
 
 	.seventv-chat-message-background {
 		position: relative;
-		padding: 0.5rem 1rem;
+		padding: 0.5rem var(--seventv-chat-padding, 1rem);
 
 		.seventv-reply-part {
 			display: flex;

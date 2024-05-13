@@ -6,6 +6,7 @@ declare interface SeventvGlobalScope {
 		index_file: string;
 	};
 	remote?: boolean;
+	hosted?: boolean;
 }
 
 declare const seventv: SeventvGlobalScope;

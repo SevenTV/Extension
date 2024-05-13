@@ -1,5 +1,5 @@
 <template>
-	<div class="seventv-announce-message-container" :class="className">
+	<span class="seventv-announce-message-container" :class="className">
 		<div class="announce-header">
 			<div class="announce-icon">
 				<TwAnnounce />
@@ -9,7 +9,7 @@
 		<div class="announce-message">
 			<slot />
 		</div>
-	</div>
+	</span>
 </template>
 
 <script setup lang="ts">
@@ -64,6 +64,6 @@ const className =
 
 /* stylelint-disable-next-line selector-class-pattern */
 .announcement-line--primary {
-	border-color: var(--seventv-primary-color, currentColor);
+	border-color: var(--seventv-channel-accent, currentColor);
 }
 </style>

@@ -74,14 +74,23 @@ const emit = defineEmits<{
 }>();
 
 const tray = useTray("Reply", () => ({
-	id: props.msg.parent?.id ?? props.msg.id,
-	body: props.msg.parent?.body ?? props.msg.body,
-	deleted: props.msg.parent?.deleted ?? props.msg.moderation.deleted,
-	...(props.msg.parent?.author ?? props.msg.author
+	id: props.msg.id,
+	body: props.msg.body,
+	deleted: props.msg.moderation.deleted,
+	...(props.msg.author
 		? {
-				authorID: props.msg.parent?.uid ?? props.msg.author?.id,
-				username: props.msg.parent?.author?.username ?? props.msg.author?.username,
-				displayName: props.msg.parent?.author?.displayName ?? props.msg.author?.displayName,
+				authorID: props.msg.author?.id,
+				username: props.msg.author?.username,
+				displayName: props.msg.author?.displayName,
+		  }
+		: {}),
+	...(props.msg.parent
+		? {
+				thread: {
+					deleted: props.msg.parent.thread?.deleted ?? props.msg.parent.deleted,
+					id: props.msg.parent.thread?.id ?? props.msg.parent.id,
+					login: props.msg.parent.thread?.login ?? props.msg.parent.author?.username ?? "",
+				},
 		  }
 		: {}),
 }));
