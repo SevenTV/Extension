@@ -1,7 +1,6 @@
 import { inject, onMounted, onUnmounted, provide, reactive, toRaw, watch } from "vue";
 import { useStore } from "@/store/main";
-import { log } from "@/common/Logger";
-import { WorkletEvent, useWorker } from "../useWorker";
+import { useWorker } from "../useWorker";
 
 export const CHANNEL_CTX = Symbol("seventv-channel-context");
 
@@ -70,21 +69,19 @@ export class ChannelContext implements CurrentChannel {
 			refetch: refetch,
 		});
 
-		return new Promise<void>((resolve) => {
-			// Listen for worker confirmation of channel fetch
-			const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
-				if (this.id !== ev.detail.id) return;
+		await Promise.all([
+			target.listenUntil("channel_fetched", (ev) => {
+				if (this.id !== ev.detail.id) return false;
 
 				this.loaded = true;
 				this.user = ev.detail.user;
 
-				log.warn("Channel loaded:", this.id);
-				target.removeEventListener("channel_fetched", onLoaded);
-
-				resolve();
-			};
-			target.addEventListener("channel_fetched", onLoaded);
-		});
+				return true;
+			}),
+			target.listenUntil("channel_sets_fetched", (ev) => {
+				return this.id === ev.detail.id;
+			}),
+		]);
 	}
 }
 

@@ -13,12 +13,15 @@ const props = defineProps<{
 
 const { reload } = useChatMessages(ctx);
 
+const doRefresh = async () => {
+	await ctx.fetch(true);
+	reload();
+	return { notice: "Emotes refreshed" };
+};
+
 const handler: Twitch.ChatCommand.Handler = () => {
 	return {
-		deferred: ctx.fetch(true).then(() => {
-			reload();
-			return Promise.resolve({ notice: "Emotes refreshed" });
-		}),
+		deferred: doRefresh(),
 	};
 };
 

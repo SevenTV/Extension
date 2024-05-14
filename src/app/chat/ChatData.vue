@@ -8,7 +8,7 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useLiveQuery } from "@/composable/useLiveQuery";
-import { WorkletEvent, useWorker } from "@/composable/useWorker";
+import { WorkletEvent, WorkletEventName, useWorker } from "@/composable/useWorker";
 import EmoteSetUpdateMessage from "@/app/chat/msg/EmoteSetUpdateMessage.vue";
 import { v4 as uuidv4 } from "uuid";
 
