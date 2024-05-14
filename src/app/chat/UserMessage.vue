@@ -269,15 +269,19 @@ watchEffect(() => {
 	display: block;
 
 	&.has-highlight {
-		margin: -0.5rem -0.75rem -0.5rem -1rem;
+		padding: 1rem calc(var(--seventv-chat-padding, 1rem) - 0.25rem);
+		margin: -0.5rem;
+
+		margin-left: calc(var(--seventv-chat-padding, 1rem) * -1);
+		margin-right: calc(-1 * var(--seventv-chat-padding, 1rem) + 0.25rem);
+
+		border: 0.25rem solid transparent;
+		border-top: none;
+		border-bottom: none;
 
 		&[data-highlight-style="0"] {
-			border: 0.25rem solid;
-			border-top: none;
-			border-bottom: none;
 			border-color: var(--seventv-highlight-color);
 			background-color: var(--seventv-highlight-dim-color);
-			padding: 1rem 0.75rem;
 
 			.seventv-chat-message-highlight-label {
 				&::after {
@@ -296,7 +300,6 @@ watchEffect(() => {
 		}
 
 		&[data-highlight-style="1"] {
-			padding: 0.5rem 1.5rem;
 			background-color: var(--seventv-highlight-dim-color);
 		}
 	}

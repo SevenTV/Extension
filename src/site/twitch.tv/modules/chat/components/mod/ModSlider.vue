@@ -15,7 +15,12 @@
 		</div>
 		<div class="grabbable-wrapper">
 			<div class="grabbable-outer" @pointerdown="handleDown" @pointerup="handleRelease" @pointermove="update">
-				<div class="grabbable-inner">
+				<div
+					class="grabbable-inner"
+					:style="{
+						backgroundColor: highlight,
+					}"
+				>
 					<div class="dots" />
 				</div>
 			</div>
@@ -32,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, toRef, watch } from "vue";
+import { computed, reactive, ref, toRef } from "vue";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
@@ -51,15 +56,16 @@ const data = reactive(new ModSliderData(props.msg.author?.isActor ?? false));
 const pos = toRef(data, "pos");
 let initial = 0;
 
-const canModerate = ref(false);
+const highlight = props.msg.highlight?.color ?? "none";
 
-watch(
-	() => [ctx.actor.roles.has("MODERATOR")],
-	(a) => {
-		canModerate.value = a.every((x) => x);
-	},
-	{ immediate: true },
-);
+const canModerate = computed(() => {
+	const roles = ctx.actor.roles;
+	const badges = props.msg.badges;
+
+	if (!roles.has("MODERATOR") && !roles.has("BROADCASTER")) return false;
+	if (badges["broadcaster"] || badges["moderator"]) return false;
+	return true;
+});
 
 const handleDown = (e: PointerEvent) => {
 	e.stopPropagation();
@@ -110,8 +116,14 @@ const update = (e: PointerEvent): void => {
 	transition: transform 0.3s ease;
 }
 
-.wrapped > :first-child {
-	border-left-color: transparent;
+.wrapped {
+	:deep([data-highlight-style="0"]) {
+		border-left-color: var(--seventv-highlight-dim-color) !important;
+	}
+
+	:deep(.seventv-highlight) {
+		border-color: transparent !important;
+	}
 }
 
 %background {
