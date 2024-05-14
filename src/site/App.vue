@@ -20,6 +20,7 @@ import { markRaw, onMounted, ref } from "vue";
 import { APP_BROADCAST_CHANNEL, SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { convertEmojis } from "@/composable/chat/useChatEmotes";
 import { loadEmojiList } from "@/composable/useEmoji";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
@@ -30,6 +31,8 @@ import Global from "./global/Global.vue";
 const TwitchSite = defineAsyncComponent(() => import("@/site/twitch.tv/TwitchSite.vue"));
 const YouTubeSite = defineAsyncComponent(() => import("@/site/youtube.com/YouTubeSite.vue"));
 const KickSite = defineAsyncComponent(() => import("@/site/kick.com/KickSite.vue"));
+
+useChannelContext();
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {

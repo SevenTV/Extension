@@ -3,7 +3,6 @@
 import { onUnmounted } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
-import { getModule } from "@/composable/useModule";
 
 /**
  *  ToDo list:
@@ -134,14 +133,6 @@ const undoCommand: Twitch.ChatCommand = {
 	group: "7TV",
 };
 
-props.add(command);
-
-const messageHandler = (msg: Twitch.AnyMessage) => {
-	if (msg.type == 0) messageLog.add(msg as Twitch.ChatMessage);
-};
-
-messages.handlers.add(messageHandler);
-
 async function execute(args: NukeArgs): Promise<string> {
 	const start = Date.now() - args.before * 1000;
 	executed.clear();
@@ -203,9 +194,18 @@ async function execute(args: NukeArgs): Promise<string> {
 	}
 }
 
+const messageHandler = (msg: Twitch.AnyMessage) => {
+	if (msg.type == 0) messageLog.add(msg as Twitch.ChatMessage);
+};
+
+messages.handlers.add(messageHandler);
+
+props.add(command);
+
 onUnmounted(() => {
 	props.remove(command);
 	props.remove(undoCommand);
+	messages.handlers.delete(messageHandler);
 });
 
 const re = {

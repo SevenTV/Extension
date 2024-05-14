@@ -207,6 +207,8 @@ watch(
 	{ immediate: true },
 );
 
+props.msg.refresh = doTokenize;
+
 // For historical messages
 // Re-render emotes once they load in
 if (props.msg.historical) {

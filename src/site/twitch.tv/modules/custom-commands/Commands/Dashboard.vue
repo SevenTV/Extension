@@ -6,10 +6,9 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useActor } from "@/composable/useActor";
 import { useModifierTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
-import { changeEmoteInSeMutation, userByConnectionQuery } from "@/assets/gql/seventv.user.gql";
-import { userQuery } from "@/assets/gql/seventv.user.gql";
+import { changeEmoteInSeMutation } from "@/assets/gql/seventv.user.gql";
 import EnableTray from "./EnableTray.vue";
-import { useMutation, useQuery } from "@vue/apollo-composable";
+import { useMutation } from "@vue/apollo-composable";
 
 const emoteNameRegex = new RegExp("^[-_A-Za-z():0-9]{2,100}$");
 
@@ -20,27 +19,20 @@ const props = defineProps<{
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
-
 const actor = useActor();
+
+const activeSet = computed(
+	() => ctx.user?.connections?.find((c) => c.platform == ctx.platform)?.emote_set ?? undefined,
+);
 
 const mutateEmoteInSet = useMutation(changeEmoteInSeMutation, { errorPolicy: "all" });
 
 await until(() => ctx.id).toBeTruthy();
 
-const getUser = useQuery<userQuery.Result>(userByConnectionQuery, { platform: "TWITCH", id: ctx.id });
-
-let activeSetID = "";
-getUser.onResult((res) => {
-	if (res.data) {
-		activeSetID = res.data.user.connections!.find((c) => c.platform == "TWITCH")?.emote_set_id ?? "";
-	}
-});
-
 const hasPermission = computed(() => {
 	if (!actor.user) return false;
 	if (ctx.id == actor.platformUserID) return true;
-	if (!getUser.result.value) return false;
-	return getUser.result.value.user.editors!.some((e) => e.id == actor.user?.id);
+	return (ctx.user?.editors ?? []).some((e) => e.id == actor.user?.id);
 });
 
 async function doMutation(variables: object) {
@@ -81,7 +73,7 @@ async function handleEnable(args: string) {
 			doMutation({
 				action: "ADD",
 				emote_id: id,
-				id: activeSetID,
+				id: activeSet.value?.id,
 			}).then((res) => {
 				tray.clear();
 				resolve(res);
@@ -122,10 +114,13 @@ async function handleDisable(args: string) {
 	const [emoteName] = args.split(" ").filter((n) => n);
 
 	const emote = emotes.active[emoteName];
+	const inEditableSet = !!emotes.sets[activeSet.value?.id ?? "_"];
 
-	if (emote?.provider != "7TV") {
+	if (!emote) {
 		return {
-			notice: "Could not find selected 7TV emote",
+			notice: inEditableSet
+				? "The emote is not in a set that you can edit."
+				: "Could not find selected 7TV emote.",
 			error: "invalid_parameters",
 		};
 	}
@@ -133,7 +128,7 @@ async function handleDisable(args: string) {
 	return doMutation({
 		action: "REMOVE",
 		emote_id: emote.id,
-		id: activeSetID,
+		id: activeSet.value?.id,
 	});
 }
 
@@ -141,10 +136,13 @@ async function handleAlias(args: string) {
 	const [currentName, newName] = args.split(" ").filter((n) => n);
 
 	const emote = emotes.active[currentName];
+	const inEditableSet = !!emotes.sets[activeSet.value?.id ?? "_"];
 
-	if (emote?.provider != "7TV") {
+	if (!emote) {
 		return {
-			notice: "Could not find selected 7TV emote.",
+			notice: inEditableSet
+				? "The emote is not in a set that you can edit."
+				: "Could not find selected 7TV emote.",
 			error: "invalid_parameters",
 		};
 	}
@@ -161,7 +159,7 @@ async function handleAlias(args: string) {
 	return doMutation({
 		action: "UPDATE",
 		emote_id: emote.id,
-		id: activeSetID,
+		id: activeSet.value?.id,
 		name: newName === "-" ? "" : newName,
 	});
 }
@@ -220,12 +218,6 @@ const commandAlias: Twitch.ChatCommand = {
 	],
 	group: "7TV",
 };
-
-watch(
-	() => ctx.id,
-	() => getUser.refetch({ platform: "TWITCH", id: ctx.id }),
-	{ immediate: true },
-);
 
 watch(
 	[hasPermission, () => actor.user],

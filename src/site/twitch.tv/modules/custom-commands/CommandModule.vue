@@ -1,7 +1,9 @@
 <template>
-	<template v-for="i of ch.instances" :key="i">
-		<template v-for="cmd of commands" :key="cmd">
-			<component :is="cmd" v-bind="{ add: i.component.addCommand, remove: i.component.removeCommand }" />
+	<template v-if="ch?.instances">
+		<template v-for="i of ch.instances" :key="i">
+			<template v-for="cmd of commands" :key="cmd">
+				<component :is="cmd" v-bind="{ add: i.component.addCommand, remove: i.component.removeCommand }" />
+			</template>
 		</template>
 	</template>
 </template>
@@ -18,6 +20,13 @@ import Song from "./Commands/Song.vue";
 const { dependenciesMet, markAsReady } = declareModule("command-manager", {
 	name: "Command Manager",
 	depends_on: ["chat", "chat-input"],
+});
+
+let ch: ReturnType<typeof useComponentHook<Twitch.ChatCommandComponent>> | undefined = undefined;
+
+defineExpose({
+	addCommand: (c: Twitch.ChatCommand) => ch?.instances[0]?.component.addCommand(c),
+	removeCommand: (c: Twitch.ChatCommand) => ch?.instances[0]?.component.removeCommand(c),
 });
 
 await until(dependenciesMet).toBe(true);
@@ -43,7 +52,7 @@ useComponentHook<Twitch.ChatCommandGrouperComponent>(
 	},
 );
 
-const ch = useComponentHook<Twitch.ChatCommandComponent>({
+ch = useComponentHook<Twitch.ChatCommandComponent>({
 	parentSelector: ".chat-shell, .kDpAEF",
 	predicate: (n) => n.addCommand,
 	maxDepth: 100,

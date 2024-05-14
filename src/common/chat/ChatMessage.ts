@@ -123,6 +123,10 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public setTimestamp(time: number) {
 		this.timestamp = time;
 	}
+
+	public refresh(): void {
+		return;
+	}
 }
 
 export interface ChatUser {

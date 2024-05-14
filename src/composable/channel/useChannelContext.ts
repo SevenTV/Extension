@@ -1,4 +1,4 @@
-import { computed, inject, onMounted, onUnmounted, provide, reactive, toRaw, watch } from "vue";
+import { inject, onMounted, onUnmounted, provide, reactive, toRaw, watch } from "vue";
 import { useStore } from "@/store/main";
 import { log } from "@/common/Logger";
 import { WorkletEvent, useWorker } from "../useWorker";

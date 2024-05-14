@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { onUnmounted } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatMessages } from "@/composable/chat/useChatMessages";
 
 const ctx = useChannelContext();
 
@@ -10,11 +11,14 @@ const props = defineProps<{
 	remove: (c: Twitch.ChatCommand) => void;
 }>();
 
-const handler: Twitch.ChatCommand.Handler = () => {
-	const res = ctx.fetch(true).then(() => Promise.resolve({ notice: "Emotes refreshed" }));
+const { reload } = useChatMessages(ctx);
 
+const handler: Twitch.ChatCommand.Handler = () => {
 	return {
-		deferred: res,
+		deferred: ctx.fetch(true).then(() => {
+			reload();
+			return Promise.resolve({ notice: "Emotes refreshed" });
+		}),
 	};
 };
 
