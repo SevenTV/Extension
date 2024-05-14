@@ -7,6 +7,7 @@ declare interface SeventvGlobalScope {
 	};
 	remote?: boolean;
 	hosted?: boolean;
+	isDev?: boolean;
 }
 
 declare const seventv: SeventvGlobalScope;
