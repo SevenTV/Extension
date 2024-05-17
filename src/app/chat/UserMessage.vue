@@ -73,6 +73,8 @@
 		<!-- Chat Rich Embed -->
 		<RichEmbed v-if="msg.richEmbed.request_url" :rich-embed="msg.richEmbed" />
 
+		<EmoteLinkEmbed v-if="msg.emoteLinkEmbed" :emoteID="msg.emoteLinkEmbed" />
+
 		<!-- Ban State -->
 		<template v-if="!hideModeration && (msg.moderation.banned || msg.moderation.deleted)">
 			<span v-if="msg.moderation.banned" class="seventv-chat-message-moderated">
@@ -102,6 +104,7 @@ import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import ModIcons from "@/site/twitch.tv/modules/chat/components/mod/ModIcons.vue";
 import Emote from "./Emote.vue";
+import EmoteLinkEmbed from "./EmoteLinkEmbed.vue";
 import MessageTokenLink from "./MessageTokenLink.vue";
 import MessageTokenMention from "./MessageTokenMention.vue";
 import RichEmbed from "./RichEmbed.vue";

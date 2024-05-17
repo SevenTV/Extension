@@ -6,7 +6,7 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useActor } from "@/composable/useActor";
 import { useModifierTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
-import { changeEmoteInSeMutation } from "@/assets/gql/seventv.user.gql";
+import { changeEmoteInSetMutation } from "@/assets/gql/seventv.user.gql";
 import EnableTray from "./EnableTray.vue";
 import { useMutation } from "@vue/apollo-composable";
 
@@ -25,7 +25,7 @@ const activeSet = computed(
 	() => ctx.user?.connections?.find((c) => c.platform == ctx.platform)?.emote_set ?? undefined,
 );
 
-const mutateEmoteInSet = useMutation(changeEmoteInSeMutation, { errorPolicy: "all" });
+const mutateEmoteInSet = useMutation(changeEmoteInSetMutation, { errorPolicy: "all" });
 
 await until(() => ctx.id).toBeTruthy();
 

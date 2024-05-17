@@ -1,7 +1,7 @@
 export namespace Regex {
 	export const MessageDelimiter = new RegExp("( )", "g");
 	export const Mention = new RegExp("@([A-Za-z0-9_]{1,24})");
-	export const SevenTVLink = new RegExp("^https?:\\/\\/(?:www\\.)?7tv.app\\/emotes\\/(?<emoteID>[0-9a-f]{24})", "gi");
+	export const SevenTVLink = new RegExp("https?:\\/\\/(?:www\\.)?7tv.app\\/emotes\\/(?<emoteID>[0-9a-f]{24})", "i");
 }
 
 export namespace Selectors {

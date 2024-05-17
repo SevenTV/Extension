@@ -57,7 +57,7 @@ export const userByConnectionQuery = gql`
 	}
 `;
 
-export const changeEmoteInSeMutation = gql`
+export const changeEmoteInSetMutation = gql`
 	mutation ChangeEmoteInSet($id: ObjectID!, $action: ListItemAction!, $emote_id: ObjectID!, $name: String) {
 		emoteSet(id: $id) {
 			id
