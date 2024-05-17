@@ -15,6 +15,7 @@ export class ChannelContext implements CurrentChannel {
 	displayName = "";
 	user?: SevenTV.User;
 	loaded = false;
+	setsFetched = false;
 	active = false;
 	count = 0;
 
@@ -79,6 +80,7 @@ export class ChannelContext implements CurrentChannel {
 				return true;
 			}),
 			target.listenUntil("channel_sets_fetched", (ev) => {
+				this.setsFetched = true;
 				return this.id === ev.detail.id;
 			}),
 		]);

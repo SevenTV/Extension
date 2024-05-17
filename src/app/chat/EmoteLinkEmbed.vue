@@ -1,6 +1,6 @@
 <template>
 	<div v-if="emote" class="emote-link-embed">
-		<div class="emote-link-container">
+		<div class="emote-link-container" :blurred="blurred">
 			<a :href="link" target="_blank" class="link">
 				<div class="emote-preview">
 					<img :srcSet="srcSet" alt="emote preview" />
@@ -14,9 +14,12 @@
 					<p class="emote-owner">Created by {{ emote.owner.username }}</p>
 				</div>
 			</div>
-			<div class="action-button" :type="isEmoteInSet ? 'remove' : 'add'" @click="onClick">
+			<div v-if="canEditSet" class="action-button" :type="isEmoteInSet ? 'remove' : 'add'" @click="onClick">
 				{{ isEmoteInSet ? "-" : "+" }}
 			</div>
+		</div>
+		<div v-if="blurred" class="emote-unlisted-warning" @click="blurred = false">
+			Emote is unlisted! Click to view.
 		</div>
 	</div>
 	<div v-else />
@@ -24,10 +27,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { until } from "@vueuse/core";
 import { imageHostToSrcset } from "@/common/Image";
-import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useSetMutation } from "@/composable/useSetMutation";
 
 const props = defineProps<{
@@ -37,31 +37,19 @@ const props = defineProps<{
 const link = import.meta.env.VITE_APP_SITE + `/emotes/${props.emoteID}`;
 const srcSet = ref("");
 const emote = ref<SevenTV.Emote>();
+const blurred = ref(true);
 
-const ctx = useChannelContext();
-const emoteSets = useChatEmotes(ctx);
+const { add, remove, set, canEditSet } = useSetMutation();
 
-const activeSetID = computed(
-	() => ctx.user?.connections?.find((c) => c.platform === ctx.platform)?.emote_set?.id ?? undefined,
-);
-
-await until(activeSetID).toBeTruthy();
-
-const activeSet = computed(() => emoteSets.providers["7TV"][activeSetID.value ?? ""] ?? undefined);
-
-const isEmoteInSet = computed(() => activeSet.value?.emotes?.find((e) => e.id === props.emoteID));
-
-console.log(activeSetID.value, activeSet.value, isEmoteInSet.value);
-
-const mut = useSetMutation(activeSetID.value!);
+const isEmoteInSet = computed(() => {
+	return !!set?.emotes.find((emote) => emote.id === props.emoteID);
+});
 
 async function onClick() {
-	if (!ctx.user) return;
-
 	if (isEmoteInSet.value) {
-		mut.remove(props.emoteID);
+		remove(props.emoteID);
 	} else {
-		mut.add(props.emoteID);
+		add(props.emoteID);
 	}
 }
 
@@ -73,6 +61,10 @@ async function fetchEmote() {
 
 	emote.value = emoteData;
 	srcSet.value = imageHostToSrcset(emoteData.host, "7TV");
+
+	if (emote.value.listed) {
+		blurred.value = false;
+	}
 }
 
 onMounted(fetchEmote);
@@ -81,19 +73,41 @@ onMounted(fetchEmote);
 <style scoped lang="scss">
 .emote-link-embed {
 	border-radius: 0.25rem;
+	margin: 0.5rem 0;
 	box-shadow:
 		0 0.25rem 0.5rem var(--seventv-embed-border),
 		0 0 0.5rem var(--seventv-embed-border);
 	background-color: var(--seventv-embed-background);
+	position: relative;
 
 	&:hover {
 		background-color: var(--seventv-embed-background-highlight);
+	}
+
+	.emote-unlisted-warning {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(128, 0, 0, 0.5);
+		border-radius: 0.25rem;
+		color: white;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
 	}
 
 	.emote-link-container {
 		display: flex;
 		flex-wrap: nowrap;
 		padding: 0.5rem;
+
+		&[blurred="true"] {
+			filter: blur(0.5rem);
+			pointer-events: none;
+		}
 
 		.link {
 			color: inherit;
