@@ -39,6 +39,14 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 				return cur;
 			},
 		},
+		functionHooks: {
+			getSendMessagePlaceholder(this, old) {
+				const tray = this.props.activeTray;
+
+				if (!tray) return old.call(this);
+				return tray.placeholder ?? old.call(this);
+			},
+		},
 	},
 );
 

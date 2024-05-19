@@ -41,11 +41,7 @@ useComponentHook<Twitch.ChatCommandGrouperComponent>(
 	},
 	{
 		functionHooks: {
-			determineGroup(
-				this,
-				old: Twitch.ChatCommandGrouperComponent["determineGroup"],
-				command: Twitch.ChatCommand,
-			) {
+			determineGroup(this, old, command) {
 				return command.group ? command.group : old.call(this, command) ?? "Twitch";
 			},
 		},

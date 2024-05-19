@@ -13,7 +13,7 @@
 				{{ data.text }}
 			</span>
 		</div>
-		<div class="grabbable-wrapper">
+		<div v-tooltip:left="'Drag to moderate'" class="grabbable-wrapper">
 			<div class="grabbable-outer" @pointerdown="handleDown" @pointerup="handleRelease" @pointermove="update">
 				<div
 					class="grabbable-inner"

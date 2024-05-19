@@ -1,10 +1,12 @@
-import { computed, reactive } from "vue";
+import { computed, reactive, watch } from "vue";
 import { Logger } from "@/common/Logger";
 import { changeEmoteInSetMutation } from "@/assets/gql/seventv.user.gql";
 import { useChannelContext } from "./channel/useChannelContext";
 import { useChatEmotes } from "./chat/useChatEmotes";
 import { useActor } from "./useActor";
+import { FetchResult } from "@apollo/client";
 import { useMutation } from "@vue/apollo-composable";
+import { GraphQLError } from "graphql";
 
 const log = Logger.Get();
 export function useSetMutation(setID?: string) {
@@ -15,7 +17,13 @@ export function useSetMutation(setID?: string) {
 	const actor = useActor();
 
 	if (!setID) {
-		setID = computed(() => ctx.user?.connections?.find((s) => s.platform === ctx.platform)?.emote_set?.id).value;
+		watch(
+			() => ctx.user,
+			(u) => {
+				if (!u) return;
+				setID = u.connections?.find((s) => s.platform === ctx.platform)?.emote_set?.id;
+			},
+		);
 	}
 
 	const set = computed(() => (setID ? emotes.sets[setID] : undefined));
@@ -26,19 +34,23 @@ export function useSetMutation(setID?: string) {
 		return (ctx.user?.editors ?? []).some((e) => e.id == actor.user?.id);
 	});
 
-	async function add(emoteID: string) {
+	async function add(emoteID: string, alias?: string) {
 		if (!setID) {
 			log.error("No set ID found");
+			console.log("asd", ctx);
 			return;
 		}
 		const result = await mutateEmoteInSet.mutate({
 			action: "ADD",
 			emote_id: emoteID,
 			id: setID,
+			name: alias,
 		});
 		if (result?.errors?.length) {
-			throw new Error(result.errors[0].message);
+			const e = result.errors[0];
+			throw new GraphQLError(e.message, e);
 		}
+		return result as FetchResult;
 	}
 
 	async function remove(emoteID: string) {
@@ -52,8 +64,10 @@ export function useSetMutation(setID?: string) {
 			id: setID,
 		});
 		if (result?.errors?.length) {
-			throw new Error(result.errors[0].message);
+			const e = result.errors[0];
+			throw new GraphQLError(e.message, e);
 		}
+		return result as FetchResult;
 	}
 
 	async function rename(emoteID: string, name: string) {
@@ -68,8 +82,10 @@ export function useSetMutation(setID?: string) {
 			name,
 		});
 		if (result?.errors?.length) {
-			throw new Error(result.errors[0].message);
+			const e = result.errors[0];
+			throw new GraphQLError(e.message, e);
 		}
+		return result as FetchResult;
 	}
 
 	return reactive({ add, remove, rename, set, setID, canEditSet });

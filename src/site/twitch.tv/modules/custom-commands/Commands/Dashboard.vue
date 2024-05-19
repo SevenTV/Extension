@@ -1,14 +1,11 @@
 <template />
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
-import { until } from "@vueuse/core";
-import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { useChatEmotes } from "@/composable/chat/useChatEmotes";
-import { useActor } from "@/composable/useActor";
-import { useModifierTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
-import { changeEmoteInSetMutation } from "@/assets/gql/seventv.user.gql";
-import EnableTray from "./EnableTray.vue";
-import { useMutation } from "@vue/apollo-composable";
+import { nextTick, onUnmounted, ref, watch } from "vue";
+import { useSetMutation } from "@/composable/useSetMutation";
+import { useTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
+import EnableTray from "./components/EnableTray.vue";
+import { FetchResult } from "@apollo/client";
+import { GraphQLError } from "graphql";
 
 const emoteNameRegex = new RegExp("^[-_A-Za-z():0-9]{2,100}$");
 
@@ -17,35 +14,15 @@ const props = defineProps<{
 	remove: (c: Twitch.ChatCommand) => void;
 }>();
 
-const ctx = useChannelContext();
-const emotes = useChatEmotes(ctx);
-const actor = useActor();
+const mut = useSetMutation();
 
-const activeSet = computed(
-	() => ctx.user?.connections?.find((c) => c.platform == ctx.platform)?.emote_set ?? undefined,
-);
-
-const mutateEmoteInSet = useMutation(changeEmoteInSetMutation, { errorPolicy: "all" });
-
-await until(() => ctx.id).toBeTruthy();
-
-const hasPermission = computed(() => {
-	if (!actor.user) return false;
-	if (ctx.id == actor.platformUserID) return true;
-	return (ctx.user?.editors ?? []).some((e) => e.id == actor.user?.id);
-});
-
-async function doMutation(variables: object) {
-	const result = await mutateEmoteInSet.mutate(variables);
-
-	if (result?.errors?.length) {
-		return {
-			notice: "Unable to do request: " + result.errors[0].extensions.message,
+async function handle(p: Promise<FetchResult | undefined>): Promise<Twitch.ChatCommand.AsyncResult> {
+	return await p
+		.then(() => ({}))
+		.catch((e: GraphQLError) => ({
+			notice: ("Unable to do request: " + e.message) as string,
 			error: "unauthorized",
-		};
-	}
-
-	return { notice: "" };
+		}));
 }
 
 async function handleEnable(args: string) {
@@ -61,8 +38,8 @@ async function handleEnable(args: string) {
 		},
 	};
 
-	return await new Promise<{ notice: string; error?: string }>((resolve) => {
-		const onClick = (e: MouseEvent, id: string) => {
+	return new Promise<Twitch.ChatCommand.AsyncResult>((resolve) => {
+		const onClick = (e: MouseEvent, id: string, alias: string) => {
 			e.stopPropagation();
 
 			if (e.ctrlKey) {
@@ -70,28 +47,24 @@ async function handleEnable(args: string) {
 				return;
 			}
 
-			doMutation({
-				action: "ADD",
-				emote_id: id,
-				id: activeSet.value?.id,
-			}).then((res) => {
-				tray.clear();
-				resolve(res);
-			});
+			tray.clear();
+			handle(mut.add(id, alias)).then(resolve);
 		};
 
-		tray = useModifierTray(
+		tray = useTray(
 			"CommandInfo",
 			() => ({
 				close: tray.clear,
 				resolve: resolve,
 				search: refName,
+				set: mut.set,
 				onEmoteClick: onClick,
 			}),
 			{
 				type: "command-info",
 				body: EnableTray,
-				disableCommands: true,
+				placeholder: "Search again...",
+				inputValueOverride: refName.value,
 				sendMessageHandler: {
 					type: "custom-message-handler",
 					handleMessage: (message: string) => {
@@ -101,67 +74,51 @@ async function handleEnable(args: string) {
 			},
 		);
 
-		tray.open();
-	}).catch(() => {
-		return {
-			notice: "Could not enable emote",
-			error: "unauthorized",
-		};
-	});
+		nextTick(tray.open);
+	})
+		.catch(() => {
+			return {
+				notice: "Could not enable emote",
+				error: "unauthorized",
+			};
+		})
+		.finally(tray.clear);
 }
 
 async function handleDisable(args: string) {
 	const [emoteName] = args.split(" ").filter((n) => n);
 
-	const emote = emotes.active[emoteName];
-	const inEditableSet = !!emotes.sets[activeSet.value?.id ?? "_"];
+	const emote = mut.set?.emotes.find((e) => e.name === emoteName);
 
 	if (!emote) {
 		return {
-			notice: inEditableSet
-				? "The emote is not in a set that you can edit."
-				: "Could not find selected 7TV emote.",
+			notice: emote ? "The emote is not in a set that you can edit." : "Could not find selected 7TV emote.",
 			error: "invalid_parameters",
 		};
 	}
 
-	return doMutation({
-		action: "REMOVE",
-		emote_id: emote.id,
-		id: activeSet.value?.id,
-	});
+	return handle(mut.remove(emote.id));
 }
 
 async function handleAlias(args: string) {
 	const [currentName, newName] = args.split(" ").filter((n) => n);
 
-	const emote = emotes.active[currentName];
-	const inEditableSet = !!emotes.sets[activeSet.value?.id ?? "_"];
+	const emote = mut.set?.emotes.find((e) => e.name === currentName);
 
 	if (!emote) {
 		return {
-			notice: inEditableSet
-				? "The emote is not in a set that you can edit."
-				: "Could not find selected 7TV emote.",
+			notice: emote ? "The emote is not in a set that you can edit." : "Could not find selected 7TV emote.",
 			error: "invalid_parameters",
 		};
 	}
 
-	if (!emoteNameRegex.test(newName)) {
-		if (newName !== "-") {
-			return {
-				notice: "Illegal characters in new alias",
-				error: "invalid_parameters",
-			};
-		}
+	if (newName && !emoteNameRegex.test(newName)) {
+		return {
+			notice: "Illegal characters in new alias",
+			error: "invalid_parameters",
+		};
 	}
-
-	return doMutation({
-		action: "UPDATE",
-		emote_id: emote.id,
-		id: activeSet.value?.id,
-		name: newName === "-" ? "" : newName,
-	});
+	return handle(mut.rename(emote.id, newName));
 }
 
 const commandEnable: Twitch.ChatCommand = {
@@ -170,7 +127,7 @@ const commandEnable: Twitch.ChatCommand = {
 	helpText: "",
 	permissionLevel: 0,
 	handler: (args) => {
-		return { deferred: handleEnable(args) };
+		return { deferred: handleEnable(args), preserveInput: false };
 	},
 	commandArgs: [
 		{
@@ -213,16 +170,16 @@ const commandAlias: Twitch.ChatCommand = {
 		},
 		{
 			name: "new",
-			isRequired: true,
+			isRequired: false,
 		},
 	],
 	group: "7TV",
 };
 
 watch(
-	[hasPermission, () => actor.user],
-	() => {
-		if (hasPermission.value) {
+	() => mut.canEditSet,
+	(c) => {
+		if (c) {
 			props.add(commandEnable);
 			props.add(commandDisable);
 			props.add(commandAlias);

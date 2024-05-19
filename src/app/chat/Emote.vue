@@ -1,5 +1,13 @@
 <template>
-	<div ref="boxRef" class="seventv-emote-box">
+	<div
+		ref="boxRef"
+		class="seventv-emote-box"
+		:class="{ 'with-border': withBorder }"
+		:ratio="determineRatio(emote)"
+		@mouseenter="onShowTooltip"
+		@mouseleave="hide()"
+		@click="(ev: MouseEvent) => [onShowEmoteCard(ev), emit('emote-click', ev, emote)]"
+	>
 		<img
 			v-if="!emote.unicode && emote.data && emote.data.host"
 			class="seventv-chat-emote"
@@ -9,9 +17,6 @@
 			loading="lazy"
 			decoding="async"
 			@load="onImageLoad"
-			@mouseenter="onShowTooltip"
-			@mouseleave="hide()"
-			@click="(ev: MouseEvent) => [onShowEmoteCard(ev), emit('emote-click', ev, emote)]"
 		/>
 		<SingleEmoji
 			v-else-if="!unload && emote.id"
@@ -55,6 +60,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from "vue";
 import { imageHostToSrcset } from "@/common/Image";
+import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
 import { useTooltip } from "@/composable/useTooltip";
 import EmoteCard from "@/site/global/components/EmoteCard.vue";
@@ -71,8 +77,9 @@ const props = withDefaults(
 		overlaid?: Record<string, SevenTV.ActiveEmote> | undefined;
 		unload?: boolean;
 		scale?: number;
+		withBorder?: boolean;
 	}>(),
-	{ unload: false, scale: 1 },
+	{ unload: false, scale: 1, withBorder: false },
 );
 
 const emit = defineEmits<{
@@ -145,6 +152,40 @@ onBeforeUnmount(hide);
 	overflow: clip;
 }
 
+.with-border {
+	background: hsla(0deg, 0%, 50%, 6%);
+	border-radius: 0.25rem;
+	height: 4em;
+	margin: 0.25em;
+	cursor: pointer;
+
+	&:hover {
+		background: hsla(0deg, 0%, 50%, 32%);
+	}
+
+	&[zero-width="true"] {
+		border: 0.1rem solid rgb(220, 170, 50);
+	}
+
+	// The extra width is to compensate for the spacing
+	// between the emotes so they tile correctly.
+
+	&[ratio="1"] {
+		width: 4em;
+	}
+
+	&[ratio="2"] {
+		width: calc(4em * 1.5 + 0.25em);
+	}
+
+	&[ratio="3"] {
+		width: calc(4em * 2 + 0.5em);
+	}
+
+	&[ratio="4"] {
+		width: calc(4em * 3 + 1em);
+	}
+}
 svg.seventv-emoji {
 	width: 2rem;
 	height: 2rem;

@@ -315,6 +315,7 @@ declare module Twitch {
 		showEmotePicker: (v: any) => void;
 		clearMenus: () => void;
 		closeEmotePicker: () => void;
+		activeTray?: ChatTray;
 	}> & {
 		autocompleteInputRef: ChatAutocompleteComponent;
 		chatInputRef: ChatInputComponent;
@@ -324,6 +325,7 @@ declare module Twitch {
 		closePaidPinnedChatCardForEmotePicker: () => void;
 		closeCheerCard: () => void;
 		onBitsIconClick: () => void;
+		getSendMessagePlaceholder: () => string;
 	};
 
 	export type ChatInputComponent = ReactExtended.WritableComponent<
@@ -410,17 +412,17 @@ declare module Twitch {
 		group?: string;
 	}
 	export namespace ChatCommand {
+		export interface AsyncResult {
+			notice?: string;
+			error?: Error;
+			inputValue?: string;
+		}
+		export type Result = void | {
+			deferred?: Promise<AsyncResult>;
+			preserveInput?: boolean;
+		};
 		export interface Handler {
-			(
-				args: string,
-				context: { channelLogin: string },
-			): void | {
-				deferred: Promise<{
-					notice: string; // Message send in chat on sucess
-					error?: Error; // If an error is provided the notice will show as a popup instead of in the chat
-					inputValue?: string; // Dosn't do anything?
-				}>;
-			};
+			(args: string, context: { channelLogin: string }): Result;
 		}
 		export type Error = "unrecognized_cmd" | "missing_parameters" | "unauthorized" | "pin_failure" | string;
 	}
@@ -455,7 +457,7 @@ declare module Twitch {
 		};
 	}
 
-	export interface ChatTray<T extends keyof ChatTray.Type> {
+	export interface ChatTray<T extends keyof ChatTray.Type = ChatTray.Type> {
 		type: ChatTray.Type[T];
 		header?: ReactExtended.ReactRuntimeElement | Component;
 		body?: ReactExtended.ReactRuntimeElement | Component;
@@ -467,6 +469,7 @@ declare module Twitch {
 		onClose?: (v?: any) => any;
 		disableChat?: boolean;
 		sendMessageHandler?: ChatTray.SendMessageHandler;
+		placeholder?: string;
 	}
 
 	export namespace ChatTray {
