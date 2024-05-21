@@ -1,8 +1,9 @@
 <template />
 <script setup lang="ts">
-import { nextTick, onUnmounted, ref, watch } from "vue";
+import { nextTick, onUnmounted, reactive, ref, watch } from "vue";
+import { until } from "@vueuse/core";
 import { useSetMutation } from "@/composable/useSetMutation";
-import { useTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
+import { useCustomTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
 import EnableTray from "./components/EnableTray.vue";
 import { FetchResult } from "@apollo/client";
 import { GraphQLError } from "graphql";
@@ -16,6 +17,29 @@ const props = defineProps<{
 
 const mut = useSetMutation();
 
+const search = ref("");
+
+const options = reactive({
+	placeholder: "Search again...",
+	inputValueOverride: search,
+	disableCommands: true,
+	sendMessageHandler: {
+		type: "custom-message-handler",
+		handleMessage: (message: string) => {
+			search.value = message;
+		},
+	},
+});
+
+const tray = useCustomTray(
+	EnableTray,
+	{
+		search,
+		mut,
+	},
+	options,
+);
+
 async function handle(p: Promise<FetchResult | undefined>): Promise<Twitch.ChatCommand.AsyncResult> {
 	return await p
 		.then(() => ({}))
@@ -26,63 +50,9 @@ async function handle(p: Promise<FetchResult | undefined>): Promise<Twitch.ChatC
 }
 
 async function handleEnable(args: string) {
-	const [name] = args.split(" ").filter((n) => n);
-	const refName = ref(name);
+	search.value = args.split(" ").filter((n) => n)[0];
 
-	let tray = {
-		open: () => {
-			return;
-		},
-		clear: () => {
-			return;
-		},
-	};
-
-	return new Promise<Twitch.ChatCommand.AsyncResult>((resolve) => {
-		const onClick = (e: MouseEvent, id: string, alias: string) => {
-			e.stopPropagation();
-
-			if (e.ctrlKey) {
-				window.open("https://7tv.app/emotes/" + id, "_blank");
-				return;
-			}
-
-			tray.clear();
-			handle(mut.add(id, alias)).then(resolve);
-		};
-
-		tray = useTray(
-			"CommandInfo",
-			() => ({
-				close: tray.clear,
-				resolve: resolve,
-				search: refName,
-				set: mut.set,
-				onEmoteClick: onClick,
-			}),
-			{
-				type: "command-info",
-				body: EnableTray,
-				placeholder: "Search again...",
-				inputValueOverride: refName.value,
-				sendMessageHandler: {
-					type: "custom-message-handler",
-					handleMessage: (message: string) => {
-						refName.value = message;
-					},
-				},
-			},
-		);
-
-		nextTick(tray.open);
-	})
-		.catch(() => {
-			return {
-				notice: "Could not enable emote",
-				error: "unauthorized",
-			};
-		})
-		.finally(tray.clear);
+	return nextTick(() => until(tray.open).toBe(false)).then(() => ({}));
 }
 
 async function handleDisable(args: string) {
@@ -127,7 +97,7 @@ const commandEnable: Twitch.ChatCommand = {
 	helpText: "",
 	permissionLevel: 0,
 	handler: (args) => {
-		return { deferred: handleEnable(args), preserveInput: false };
+		return { deferred: handleEnable(args) };
 	},
 	commandArgs: [
 		{
@@ -136,6 +106,12 @@ const commandEnable: Twitch.ChatCommand = {
 		},
 	],
 	group: "7TV",
+};
+
+const commandSearch = {
+	...commandEnable,
+	name: "search",
+	description: "Search for a 7TV emote",
 };
 
 const commandDisable: Twitch.ChatCommand = {
@@ -183,10 +159,14 @@ watch(
 			props.add(commandEnable);
 			props.add(commandDisable);
 			props.add(commandAlias);
+
+			props.remove(commandSearch);
 		} else {
-			props.remove(commandEnable);
 			props.remove(commandDisable);
 			props.remove(commandAlias);
+			props.remove(commandEnable);
+
+			props.add(commandSearch);
 		}
 	},
 	{ immediate: true },
@@ -196,5 +176,6 @@ onUnmounted(() => {
 	props.remove(commandEnable);
 	props.remove(commandDisable);
 	props.remove(commandAlias);
+	props.remove(commandSearch);
 });
 </script>

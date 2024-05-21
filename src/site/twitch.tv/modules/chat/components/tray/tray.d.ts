@@ -15,3 +15,9 @@ export type TrayProps<T extends keyof Twitch.ChatTray.Type> = {
 }[T] & {
 	close?: () => void;
 };
+
+export type CustomTrayOptions = Partial<Omit<Twitch.ChatTray, "type" | "body" | "header">>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ComponentProps<C extends Component> = C extends new (...args: any) => any
+	? Omit<InstanceType<C>["$props"], keyof VNodeProps | keyof AllowedComponentProps>
+	: never;

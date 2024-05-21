@@ -1,8 +1,8 @@
-import { Component, Raw, markRaw, reactive, ref, watch } from "vue";
+import { Component, MaybeRefOrGetter, Raw, markRaw, reactive, ref, watch } from "vue";
 import { REACT_ELEMENT_SYMBOL } from "@/common/ReactHooks";
 import { getModuleRef } from "@/composable/useModule";
 import ReplyTray from "./ReplyTray.vue";
-import { TrayProps } from "./tray";
+import { ComponentProps, CustomTrayOptions, TrayProps } from "./tray";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface ElementComponentAndProps<P = any> {
@@ -17,22 +17,19 @@ function toReactComponent<P extends object, T extends Component<P>>(
 	component: T,
 	props?: P,
 ): ReactExtended.ReactRuntimeElement {
-	const track = ref({ current: null as Element | null });
+	const track = reactive({ current: null as Element | null });
 
-	const reactElem = { parent: track.value, component: markRaw<Component<P>>(component), props: props };
+	const reactElem = { parent: track, component: markRaw<Component<P>>(component), props: props };
 
-	const stop = watch(track.value, () => {
-		if (!track.value.current) {
-			// The node was unmounted so we clear and stop watching
-			trayElements.delete(reactElem);
-			stop();
-		} else trayElements.add(reactElem);
-	});
+	watch(
+		() => track.current,
+		(c) => trayElements[c ? "add" : "delete"](reactElem),
+	);
 
 	return {
 		$$typeof: REACT_ELEMENT_SYMBOL,
 		key: null,
-		ref: track.value,
+		ref: track,
 		type: "seventv-tray-container",
 		props: {},
 	};
@@ -94,7 +91,7 @@ function getDefaultTray<T extends keyof Twitch.ChatTray.Type>(type: T, props: Tr
 
 export function useTray<T extends keyof Twitch.ChatTray.Type>(
 	type: T,
-	props?: () => TrayProps<T>,
+	props?: () => Omit<TrayProps<T>, "close">,
 	tray?: Twitch.ChatTray<T>,
 	isModifier = false,
 ) {
@@ -111,26 +108,54 @@ export function useTray<T extends keyof Twitch.ChatTray.Type>(
 	function open() {
 		if (!mod.value || typeof mod.value.instance?.[trayType] !== "function") return;
 
+		const stillOpen = ref(true);
+
 		const p = {
 			...props?.(),
-			close: clear,
+			close: () => {
+				stillOpen.value = false;
+				clear();
+			},
 		} as TrayProps<T>;
-		if (!p) return;
+		if (!p) {
+			stillOpen.value = false;
+			return stillOpen;
+		}
 
 		const trayObject = tray ?? getDefaultTray(type, p);
-		if (!trayObject) return;
+		if (!trayObject) {
+			stillOpen.value = false;
+			return stillOpen;
+		}
 
 		mod.value.instance[trayType]!({
 			...trayObject,
 			header: trayObject.header ? toReactComponent(trayObject.header, p) : undefined,
 			body: trayObject.body ? toReactComponent(trayObject.body, p) : undefined,
 		});
+
+		return stillOpen;
 	}
 
 	return {
 		open,
 		clear,
+		props,
+		options: tray,
 	};
+}
+
+export function useCustomTray<C extends Component>(
+	component: C,
+	props: MaybeRefOrGetter<ComponentProps<C>>,
+	options?: CustomTrayOptions,
+	isModifier: boolean = false,
+) {
+	const p = typeof props === "function" ? props : () => props;
+	const opts = (options ?? {}) as Twitch.ChatTray<"SevenTVCustomTray">;
+	opts.type = "seventv-custom-tray";
+	opts.body = markRaw(component);
+	return useTray("SevenTVCustomTray", p, opts, isModifier);
 }
 
 export function useModifierTray<T extends keyof Twitch.ChatTray.Type>(

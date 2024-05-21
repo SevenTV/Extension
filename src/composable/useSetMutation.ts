@@ -8,8 +8,19 @@ import { FetchResult } from "@apollo/client";
 import { useMutation } from "@vue/apollo-composable";
 import { GraphQLError } from "graphql";
 
+type QueryPromise = Promise<FetchResult | undefined>;
+
+export interface SetMutation {
+	add(emoteID: string, alias?: string): QueryPromise;
+	remove(emoteID: string): QueryPromise;
+	rename(emoteID: string, name: string): QueryPromise;
+	set?: SevenTV.EmoteSet;
+	SetID?: string;
+	canEditSet: boolean;
+}
+
 const log = Logger.Get();
-export function useSetMutation(setID?: string) {
+export function useSetMutation(setID?: string): SetMutation {
 	const mutateEmoteInSet = useMutation(changeEmoteInSetMutation, { errorPolicy: "all" });
 
 	const ctx = useChannelContext();
@@ -23,10 +34,15 @@ export function useSetMutation(setID?: string) {
 				if (!u) return;
 				setID = u.connections?.find((s) => s.platform === ctx.platform)?.emote_set?.id;
 			},
+			{ immediate: true },
 		);
 	}
 
-	const set = computed(() => (setID ? emotes.sets[setID] : undefined));
+	const set = computed(() => {
+		if (!setID) return;
+		if (!emotes.sets[setID]) return;
+		return emotes.sets[setID];
+	});
 
 	const canEditSet = computed(() => {
 		if (!actor.user) return false;
@@ -37,7 +53,6 @@ export function useSetMutation(setID?: string) {
 	async function add(emoteID: string, alias?: string) {
 		if (!setID) {
 			log.error("No set ID found");
-			console.log("asd", ctx);
 			return;
 		}
 		const result = await mutateEmoteInSet.mutate({

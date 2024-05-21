@@ -11,29 +11,9 @@
 			<span class="text" :class="{ notice }">
 				{{ notice === "" ? search : notice }}
 			</span>
-			<div class="alias-button">
-				<div
-					v-if="hideAlias"
-					class="header-button"
-					@click="
-						() => {
-							hideAlias = false;
-							nextTick(() => aliasRef?.focus());
-						}
-					"
-				>
-					...
-				</div>
-				<input
-					v-show="!hideAlias"
-					ref="aliasRef"
-					v-model="alias"
-					placeholder="alias"
-					:invalid="invalidAlias"
-					@focusout="alias === '' && (hideAlias = true)"
-				/>
-			</div>
-			<span class="header-button" :onclick="() => resolve({})">
+			<Alias v-if="mut.canEditSet" :alias="alias" :invalid="invalidAlias" @update:alias="alias = $event" />
+			<div v-else class="padder" />
+			<span class="header-button" :onclick="close">
 				<TwClose />
 			</span>
 		</div>
@@ -49,14 +29,12 @@
 								:zero-width="!!(emote?.flags ?? 0 & 256)"
 								:enabled="isEnabled(emote)"
 								:conflict="isConflict(emote)"
-								@emote-click="(e) => onClick(e, emote)"
+								@emote-click="onEmoteClick($event, emote)"
 							/>
 						</template>
 					</template>
 					<div v-else class="no-emotes">
-						<text>
-							{{ `Could not find any emotes when searching for: ${search}` }}
-						</text>
+						<text>Could not find any emotes </text>
 					</div>
 				</div>
 			</UiScrollable>
@@ -68,12 +46,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, toRef, watch } from "vue";
-import { refAutoReset } from "@vueuse/core";
+import { computed, ref, toRef, watch } from "vue";
+import { onKeyDown, refAutoReset } from "@vueuse/core";
+import type { SetMutation } from "@/composable/useSetMutation";
+import { useTooltip } from "@/composable/useTooltip";
 import { searchQuery } from "@/assets/gql/seventv.user.gql";
 import ppL from "@/assets/svg/icons/ppL.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
+import Alias from "./EmoteAliasButton.vue";
 import Emote from "@/app/chat/Emote.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { useQuery } from "@vue/apollo-composable";
@@ -83,40 +64,83 @@ const emoteNameRegex = new RegExp("^[-_A-Za-z():0-9]{2,100}$");
 const props = defineProps<{
 	close: () => void;
 	search: string;
-	set?: SevenTV.EmoteSet;
-	resolve: (res: Twitch.ChatCommand.AsyncResult) => void;
-	onEmoteClick: (e: MouseEvent, id: string, alias?: string) => void;
+	mut: SetMutation;
 }>();
 
-const pageSize = 64;
+const pageSize = ref(64);
+const exactMatch = ref(false);
+const page = ref(1);
+const maxPage = computed(() => (result.value ? Math.ceil(result.value?.emotes.count / pageSize.value) : 1));
 
-const variables = {
+const notice = refAutoReset("", 3000);
+const alias = ref("");
+
+const invalidAlias = computed(
+	() =>
+		(alias.value !== "" ? !emoteNameRegex.test(alias.value) : false) ||
+		props.mut.set?.emotes.find((e) => e.name === alias.value) !== undefined,
+);
+
+const { show, hide } = useTooltip("Emote link copied to clipboard");
+
+const isEnabled = (emote: SevenTV.Emote) => {
+	return !!props.mut.set?.emotes.find((e) => e.id === emote.id);
+};
+
+const isConflict = (emote: SevenTV.Emote) => {
+	return !!props.mut.set?.emotes.find((e) => e.name === (alias.value === "" ? emote.name : alias.value));
+};
+
+watch(
+	() => props.search,
+	() => (page.value = 1),
+);
+
+const variables = computed(() => ({
 	query: props.search,
 	filter: {
 		animated: false,
 		aspect_ratio: "",
 		case_sensitive: false,
 		category: "TOP",
-		exact_match: false,
+		exact_match: exactMatch.value,
 		ignore_tags: false,
 		zero_width: false,
 	},
-	page: 1,
-	limit: pageSize,
+	page: page.value,
+	limit: pageSize.value,
 	sort: {
 		order: "DESCENDING",
 		value: "popularity",
 	},
-};
+}));
 
-const onClick = (e: MouseEvent, emote: SevenTV.Emote) => {
-	if (invalidAlias.value) {
-		notice.value = "Invalid alias";
+const query = useQuery<{ emotes: { count: number; items: SevenTV.Emote[] } }>(searchQuery, variables);
+const result = toRef(query, "result");
+
+onKeyDown("Escape", props.close);
+
+const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
+	if (e.ctrlKey) {
+		window.open("https://7tv.app/emotes/" + emote.id, "_blank");
+		return;
+	}
+
+	if (!props.mut.canEditSet) {
+		show(e.target as HTMLElement);
+		navigator.clipboard.writeText(`https://7tv.app/emotes/${emote.id}`);
+		setTimeout(hide, 2000);
 		return;
 	}
 
 	if (isEnabled(emote)) {
-		notice.value = "Already enabled";
+		props.mut.remove(emote.id);
+		if (!e.shiftKey) props.close();
+		return;
+	}
+
+	if (invalidAlias.value) {
+		notice.value = "Invalid alias";
 		return;
 	}
 
@@ -125,55 +149,12 @@ const onClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 		return;
 	}
 
-	props.onEmoteClick(e, emote.id, alias.value !== "" ? alias.value : undefined);
+	const name = alias.value !== "" ? alias.value : emote.name;
+	props.mut.add(emote.id, name);
+	alias.value = "";
+
+	if (!e.shiftKey) props.close();
 };
-
-const query = useQuery<{ emotes: { count: number; items: SevenTV.Emote[] } }>(searchQuery, variables);
-const result = toRef(query, "result");
-
-const notice = refAutoReset("", 3000);
-
-const alias = ref("");
-const aliasRef = ref<HTMLInputElement | null>(null);
-const hideAlias = ref(true);
-
-const invalidAlias = computed(
-	() =>
-		(alias.value !== "" ? !emoteNameRegex.test(alias.value) : false) ||
-		props.set?.emotes.find((e) => e.name === alias.value) !== undefined,
-);
-
-const page = ref(1);
-const maxPage = computed(() => (result.value ? Math.ceil(result.value?.emotes.count / pageSize) : 1));
-
-const isEnabled = (emote: SevenTV.Emote) => {
-	return !!props.set?.emotes.find((e) => e.id === emote.id);
-};
-
-const isConflict = (emote: SevenTV.Emote) => {
-	return !!props.set?.emotes.find((e) => e.name === (alias.value === "" ? emote.name : alias.value));
-};
-
-const resolveError = () => {
-	return props.resolve({
-		notice: "Could not find any emotes named: " + props.search,
-		error: "variable_error",
-	});
-};
-
-watch(
-	() => props.search,
-	() => {
-		page.value = 1;
-	},
-);
-
-watch([() => props.search, page], () => {
-	query.loading.value = true;
-	query.refetch({ ...variables, query: props.search, page: page.value });
-});
-
-query.onError(resolveError);
 </script>
 <style lang="scss">
 .seventv-tray {
@@ -234,30 +215,10 @@ query.onError(resolveError);
 			}
 		}
 
-		.alias-button {
-			height: 3rem;
-			width: 6rem;
+		.padder {
+			max-width: 6em;
 			display: flex;
-			align-items: center;
-			justify-content: end;
-			flex-shrink: 1;
-
-			input {
-				width: 5em;
-				height: 2em;
-				font-size: 1.2rem;
-				border: 0.1rem solid var(--color-border-input);
-				border-radius: 0.25rem;
-				background-color: var(--color-background-input);
-				padding: 0.5rem;
-
-				color: var(--color-text-base);
-
-				&[invalid="true"] {
-					border-color: red !important;
-					outline-color: red !important;
-				}
-			}
+			flex-grow: 1;
 		}
 
 		.header-button {

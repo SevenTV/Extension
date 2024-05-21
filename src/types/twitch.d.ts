@@ -524,6 +524,8 @@ declare module Twitch {
 			VerifiedOnlyModeInfo: "verified-only-mode-info";
 			VerifiedOnlyModeWarning: "verified-only-mode-warning";
 			ViewerIntroduction: "viewer-introduction";
+
+			SevenTVCustomTray: "seventv-custom-tray";
 		}
 
 		export interface SendMessageHandler<T extends SendMessageHandler.Type> {
