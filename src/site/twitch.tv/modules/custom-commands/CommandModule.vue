@@ -49,10 +49,9 @@ useComponentHook<Twitch.ChatCommandGrouperComponent>(
 );
 
 ch = useComponentHook<Twitch.ChatCommandComponent>({
-	parentSelector: ".chat-shell, .kDpAEF",
+	childSelector: ".stream-chat",
 	predicate: (n) => n.addCommand,
-	maxDepth: 100,
+	maxDepth: 50,
 });
-
 markAsReady();
 </script>

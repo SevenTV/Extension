@@ -33,20 +33,20 @@ export function getRootVNode(): ReactExtended.ReactVNode | undefined {
  * @param limit Max ammount of components to return
  * @returns Array of found components
  */
-export function findComponentParents(
+export function findComponentParents<T extends ReactExtended.AnyReactComponent>(
 	node: ReactExtended.ReactVNode,
 	predicate: ReactComponentPredicate,
 	maxTraversal = 350,
 	limit = Infinity,
-): ReactExtended.AnyReactComponent[] {
-	const components: ReactExtended.AnyReactComponent[] = [];
+): T[] {
+	const components: T[] = [];
 
 	let current: ReactExtended.ReactVNode | null = node;
 
 	let travel = 0;
 	while (current && components.length < limit && travel <= maxTraversal) {
 		if (current.stateNode && current.stateNode instanceof Element == false) {
-			const component = current.stateNode as ReactExtended.AnyReactComponent;
+			const component = current.stateNode as T;
 			if (predicate(component)) {
 				components.push(component);
 			}
@@ -133,6 +133,13 @@ export function awaitComponents<T extends ReactExtended.WritableComponent>(
 			const node = getVNodeFromDOM(el);
 			if (node) {
 				findComponentChildren<T>(node, criteria.predicate, criteria.maxDepth).forEach((c) => instances.add(c));
+			}
+		});
+	} else if (criteria.childSelector) {
+		document.querySelectorAll(criteria.childSelector).forEach((el) => {
+			const node = getVNodeFromDOM(el);
+			if (node) {
+				findComponentParents<T>(node, criteria.predicate, criteria.maxDepth).forEach((c) => instances.add(c));
 			}
 		});
 	} else {
@@ -416,6 +423,7 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 
 interface ComponentCriteria {
 	parentSelector?: string;
+	childSelector?: string;
 	predicate: ReactComponentPredicate;
 	maxDepth?: number;
 }
