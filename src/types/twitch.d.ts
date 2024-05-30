@@ -97,6 +97,8 @@ declare module Twitch {
 		};
 	}>;
 
+	export type UserAndSessionUserComponent = SessionUserComponent & UserComponent;
+
 	export type ChatServiceComponent = ReactExtended.WritableComponent<{
 		authToken: string;
 		currentUserLogin: string;

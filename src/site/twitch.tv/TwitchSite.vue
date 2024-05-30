@@ -51,24 +51,24 @@ for (const key in modules) {
 	delete modules[key];
 }
 // Session User
-useComponentHook<Twitch.UserComponent>(
+useComponentHook<Twitch.UserAndSessionUserComponent>(
 	{
 		predicate: (n) => {
-			return n.props?.user;
+			return !!n.props?.user || !!n.props?.sessionUser;
 		},
 		maxDepth: 200,
 	},
 	{
 		hooks: {
 			update: (inst) => {
-				if (inst.component && inst.component.props && inst.component.props.user) {
-					store.setIdentity("TWITCH", {
-						id: inst.component.props.user.id,
-						username: inst.component.props.user.login,
-						displayName: inst.component.props.user.displayName,
-					});
-					actor.setPlatformUserID("TWITCH", inst.component.props.user.id);
-				}
+				if (!inst.component || !inst.component.props) return;
+				const user = inst.component.props.user ?? inst.component.props.sessionUser;
+				store.setIdentity("TWITCH", {
+					id: user.id,
+					username: user.login,
+					displayName: user.displayName,
+				});
+				actor.setPlatformUserID("TWITCH", user.id);
 			},
 		},
 	},
