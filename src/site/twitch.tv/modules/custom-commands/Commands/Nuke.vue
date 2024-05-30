@@ -1,15 +1,9 @@
 <template />
 <script setup lang="ts">
 import { onUnmounted } from "vue";
+import { useIntervalFn } from "@vueuse/core";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
-
-/**
- *  ToDo list:
- *      Update help text.
- *      Log messages better and remove them after a certain time.
- * 		Currently it stores all messages until a reload which is not optimal.
- */
 
 const props = defineProps<{
 	add: (c: Twitch.ChatCommand) => void;
@@ -52,8 +46,6 @@ const handler: Twitch.ChatCommand.Handler = (args: string) => {
 
 		if (!matches) throw new Error();
 		if (!matches.pattern) throw errors.nuke.pattern;
-		if (!matches.action) throw errors.nuke.action;
-		if (!matches.before) throw errors.nuke.timebounds;
 
 		const convert = (s: string) => {
 			return (
@@ -65,9 +57,9 @@ const handler: Twitch.ChatCommand.Handler = (args: string) => {
 
 		parsed = {
 			pattern: asRegex ? new RegExp(asRegex[1], asRegex[2]) : new RegExp(matches.pattern),
-			action: matches.action,
-			before: convert(matches.before),
-			after: matches.after ? convert(matches.after) : undefined,
+			action: matches.action ? matches.action : "30",
+			before: matches.before ? convert(matches.before) : 30,
+			after: matches.after ? convert(matches.after) : 120,
 			reason: matches.reason ? matches.reason : "Nuked!",
 		};
 	} catch (err) {
@@ -103,11 +95,11 @@ const command: Twitch.ChatCommand = {
 		},
 		{
 			name: "action",
-			isRequired: true,
+			isRequired: false,
 		},
 		{
 			name: "past:future",
-			isRequired: true,
+			isRequired: false,
 		},
 	],
 	group: "7TV",
@@ -163,14 +155,14 @@ async function execute(args: NukeArgs): Promise<string> {
 		}
 	};
 
-	for (const msg of messageLog.values()) {
+	for (const msg of Array.from(messageLog).reverse()) {
 		if (msg.timestamp < start) break;
 		check(msg as Twitch.ChatMessage);
 	}
 
 	if (args.after) {
 		const handler = (msg: Twitch.AnyMessage) => {
-			if (msg.type === 0) check(msg as Twitch.ChatMessage);
+			if (msg.user) check(msg as Twitch.ChatMessage);
 		};
 
 		messages.handlers.add(handler);
@@ -195,10 +187,25 @@ async function execute(args: NukeArgs): Promise<string> {
 }
 
 const messageHandler = (msg: Twitch.AnyMessage) => {
-	if (msg.type == 0) messageLog.add(msg as Twitch.ChatMessage);
+	if (msg.user) messageLog.add(msg as Twitch.ChatMessage);
+};
+
+const prune = () => {
+	const now = Date.now();
+	const toPrune = new Set<Twitch.ChatMessage>();
+	for (const msg of messageLog) {
+		if (msg.timestamp > now - 1000 * 60 * 10) break;
+		toPrune.add(msg);
+	}
+
+	for (const msg of toPrune) {
+		messageLog.delete(msg);
+	}
 };
 
 messages.handlers.add(messageHandler);
+
+useIntervalFn(prune, 1000 * 60);
 
 props.add(command);
 
@@ -211,7 +218,7 @@ onUnmounted(() => {
 const re = {
 	isRegex: new RegExp("/(?<pattern>.+)/(?<params>[gimyused]*)"),
 	nukeArgs: new RegExp(
-		"^(?<pattern>.+) (?<action>(delete|ban|[0-9]+[dhms])) (?<before>[0-9]+[dhmsDHMS])(:(?<after>([0-9]+[dhms])))?( (?<reason>.+))?$",
+		"^(?<pattern>.+?)( (?<action>(delete|ban|[0-9]+[dhms])))?( (?<before>[0-9]+[dhmsDHMS]))?(:(?<after>([0-9]+[dhms])))?( (?<reason>.+?))?\\s?$",
 		"i",
 	),
 };
