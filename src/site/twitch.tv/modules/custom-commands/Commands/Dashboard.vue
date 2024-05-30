@@ -1,10 +1,19 @@
-<template />
+<template>
+	<Tray
+		v-if="showTray"
+		placeholder="Search again..."
+		:input-value-override="search"
+		disable-commands
+		:message-handler="(m) => (search = m)"
+	>
+		<EnableTray :search="search" :mut="mut" name="body" @close="showTray = false" />
+	</Tray>
+</template>
 <script setup lang="ts">
-import { nextTick, onUnmounted, reactive, ref, watch } from "vue";
-import { until } from "@vueuse/core";
+import { nextTick, onUnmounted, ref, watch } from "vue";
 import { useSetMutation } from "@/composable/useSetMutation";
-import { useCustomTray } from "@/site/twitch.tv/modules/chat/components/tray/ChatTray";
 import EnableTray from "./components/EnableTray.vue";
+import Tray from "../../chat/components/tray/Tray.vue";
 import { FetchResult } from "@apollo/client";
 import { GraphQLError } from "graphql";
 
@@ -18,27 +27,7 @@ const props = defineProps<{
 const mut = useSetMutation();
 
 const search = ref("");
-
-const options = reactive({
-	placeholder: "Search again...",
-	inputValueOverride: search,
-	disableCommands: true,
-	sendMessageHandler: {
-		type: "custom-message-handler",
-		handleMessage: (message: string) => {
-			search.value = message;
-		},
-	},
-});
-
-const tray = useCustomTray(
-	EnableTray,
-	{
-		search,
-		mut,
-	},
-	options,
-);
+const showTray = ref(false);
 
 async function handle(p: Promise<FetchResult | undefined>): Promise<Twitch.ChatCommand.AsyncResult> {
 	return await p
@@ -52,7 +41,7 @@ async function handle(p: Promise<FetchResult | undefined>): Promise<Twitch.ChatC
 async function handleEnable(args: string) {
 	search.value = args.split(" ").filter((n) => n)[0];
 
-	return nextTick(() => until(tray.open).toBe(false)).then(() => ({}));
+	return nextTick(() => (showTray.value = true)).then(() => ({}));
 }
 
 async function handleDisable(args: string) {

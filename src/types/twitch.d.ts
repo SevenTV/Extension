@@ -457,7 +457,10 @@ declare module Twitch {
 		};
 	}
 
-	export interface ChatTray<T extends keyof ChatTray.Type = ChatTray.Type> {
+	export interface ChatTray<
+		T extends keyof ChatTray.Type = "SevenTVCustomTray",
+		H extends keyof ChatTray.SendMessageHandler.Type = "Custom",
+	> {
 		type: ChatTray.Type[T];
 		header?: ReactExtended.ReactRuntimeElement | Component;
 		body?: ReactExtended.ReactRuntimeElement | Component;
@@ -468,7 +471,8 @@ declare module Twitch {
 		disablePaidPinnedChat?: boolean;
 		onClose?: (v?: any) => any;
 		disableChat?: boolean;
-		sendMessageHandler?: ChatTray.SendMessageHandler;
+		sendMessageHandler?: ChatTray.SendMessageHandler<H>;
+		messageHandler?: (v: string) => void;
 		placeholder?: string;
 	}
 
@@ -528,10 +532,10 @@ declare module Twitch {
 			SevenTVCustomTray: "seventv-custom-tray";
 		}
 
-		export interface SendMessageHandler<T extends SendMessageHandler.Type> {
+		export interface SendMessageHandler<T extends keyof SendMessageHandler.Type = "Custom"> {
 			type: SendMessageHandler.Type[T];
-			messageHandler?: (msg: string) => void;
-			additionalMetadata?: Partial<ChatMessage>;
+			handleMessage?: (msg: string) => void;
+			additionalMetadata?: Partial<DisplayableMessage>;
 		}
 
 		export namespace SendMessageHandler {
@@ -551,6 +555,33 @@ declare module Twitch {
 			};
 		}
 	}
+
+	export type TrayProps<T extends keyof Twitch.ChatTray.Type> = {
+		Reply: {
+			id: string;
+			authorID?: string;
+			body: string;
+			deleted: boolean;
+			username?: string;
+			displayName?: string;
+			thread?: {
+				deleted: boolean;
+				id: string;
+				login: string;
+			};
+		};
+	}[T] & {
+		close?: () => void;
+	};
+
+	export type CustomTrayOptions<
+		T extends keyof ChatTray.Type = "SevenTVCustomTray",
+		H extends keyof ChatTray.SendMessageHandler.Type = "Custom",
+	> = Omit<ChatTray<T, H>, "type" | "body" | "header">;
+
+	export type ComponentProps<C extends Component> = C extends new (...args: any) => any
+		? Omit<InstanceType<C>["$props"], keyof VNodeProps | keyof AllowedComponentProps>
+		: never;
 
 	export type ChatSlate = {
 		children: ChatStateLeaf[];

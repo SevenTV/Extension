@@ -25,12 +25,12 @@ declare namespace Twitch {
 		isReturningChatter: boolean;
 		messageType: number;
 		reply?: {
-			parentDeleted: boolean;
-			parentMsgId: string;
-			parentMessageBody: string;
-			parentUid: string;
-			parentUserLogin: string;
-			parentDisplayName: string;
+			parentDeleted?: boolean;
+			parentMsgId?: string;
+			parentMessageBody?: string;
+			parentUid?: string;
+			parentUserLogin?: string;
+			parentDisplayName?: string;
 			threadParentDeleted?: boolean;
 			threadParentMsgId?: string;
 			threadParentUserLogin?: string;

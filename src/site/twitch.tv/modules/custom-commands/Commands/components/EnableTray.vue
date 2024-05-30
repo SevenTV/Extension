@@ -13,7 +13,7 @@
 			</span>
 			<Alias v-if="mut.canEditSet" :alias="alias" :invalid="invalidAlias" @update:alias="alias = $event" />
 			<div v-else class="padder" />
-			<span class="header-button" :onclick="close">
+			<span class="header-button" @click="close">
 				<TwClose />
 			</span>
 		</div>
@@ -62,10 +62,12 @@ import { useQuery } from "@vue/apollo-composable";
 const emoteNameRegex = new RegExp("^[-_A-Za-z():0-9]{2,100}$");
 
 const props = defineProps<{
-	close: () => void;
 	search: string;
 	mut: SetMutation;
 }>();
+
+const emit = defineEmits(["close"]);
+const close = () => emit("close");
 
 const pageSize = ref(64);
 const exactMatch = ref(false);
@@ -118,7 +120,7 @@ const variables = computed(() => ({
 const query = useQuery<{ emotes: { count: number; items: SevenTV.Emote[] } }>(searchQuery, variables);
 const result = toRef(query, "result");
 
-onKeyDown("Escape", props.close);
+onKeyDown("Escape", close);
 
 const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 	if (e.ctrlKey) {
@@ -135,7 +137,7 @@ const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 
 	if (isEnabled(emote)) {
 		props.mut.remove(emote.id);
-		if (!e.shiftKey) props.close();
+		if (!e.shiftKey) close();
 		return;
 	}
 
@@ -153,7 +155,7 @@ const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 	props.mut.add(emote.id, name);
 	alias.value = "";
 
-	if (!e.shiftKey) props.close();
+	if (!e.shiftKey) close();
 };
 </script>
 <style lang="scss">

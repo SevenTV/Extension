@@ -1,3 +1,13 @@
+### Custom 7TV Build
+
+-   This is a custom build of 7TV that includes a few extra features and bugfixes.
+-   Added custom commands /enable /disable and /alias to manage 7TV emotes.
+-   Added /search like /enable but copies to clipboard instead of enabling.
+-   Added /song that uses the AudD api to recognize songs.
+-   Added /refresh to reload emotes.
+-   Fixed native chat width.
+-   Lots of other minor fixes and improvements.
+
 ### Untitled Version
 
 **The changes listed here are not assigned to an official release**.
@@ -47,8 +57,6 @@
 -   Fixed an issue where leaderboard would not hide when "Hide leaderboard" was enabled
 -   Fixed an issue with deleting messages using mod icons
 -   Fixed an issue where the extension menu displayed incorrectly in Chromium-based browsers
--   Added support for custom commands
--   Added custom commands /enable /disable /alias /song /nuke
 
 ### 3.0.15.1000
 
