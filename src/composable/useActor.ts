@@ -1,4 +1,5 @@
-import { InjectionKey, inject, provide, reactive, toRaw, watch } from "vue";
+import { InjectionKey, Ref, inject, provide, reactive, ref, toRaw, watch } from "vue";
+import { useConfig } from "@/composable/useSettings";
 import { userByConnectionQuery, userQuery } from "@/assets/gql/seventv.user.gql";
 import { SubscriptionResponse, useEgVault } from "@/app/store/egvault";
 import { useLazyQuery } from "@vue/apollo-composable";
@@ -8,6 +9,7 @@ const ACTOR_KEY: InjectionKey<ActorContext> = Symbol("ActorContext");
 class ActorContext {
 	user: SevenTV.User | null = null;
 	sub: SubscriptionResponse | null = null;
+	token = useConfig<string>("app.7tv.token") as unknown as string;
 
 	platform: Platform | null = null;
 	platformUserID: string | null = null;
@@ -44,6 +46,7 @@ class ActorContext {
 		}).then(() => {
 			// So the user can re-authenticate if needed
 			this.user = null;
+			this.token = "";
 		});
 	}
 }

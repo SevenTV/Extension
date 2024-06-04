@@ -85,11 +85,11 @@
 									</template>
 								</div>
 								<span class="seventv-settings-sidebar-profile-text seventv-settings-expanded">
-									{{ actor.user ? actor.user.display_name : "SIGN IN" }}
+									{{ actor.token && actor.user ? actor.user.display_name : "SIGN IN" }}
 								</span>
 							</div>
 							<div
-								v-if="actor.user"
+								v-if="actor.token"
 								class="seventv-settings-sidebar-profile-logout seventv-settings-expanded"
 								@click="actor.logout()"
 							>
@@ -175,7 +175,7 @@ function sortNodes(filter?: string) {
 
 	const sorted = Object.values(nodes)
 		.filter((node) => {
-			return node.type != "NONE" && node.path && node.path.length == 2;
+			return node.type != "NONE" && node.path && node.path.length > 1;
 		})
 		.sort((a, b) => {
 			if (!a.path) return -1;
@@ -183,7 +183,17 @@ function sortNodes(filter?: string) {
 
 			const oa = getOrder(a.path[0]);
 			const ob = getOrder(b.path[0]);
-			return oa == ob ? a.path[1].localeCompare(b.path[1]) : oa - ob;
+			if (oa !== ob) return oa - ob;
+
+			const soa = a.path[1];
+			const sob = b.path[1];
+
+			if (soa != sob) return soa.localeCompare(sob);
+
+			const pa = Number(a.path.at(2) ?? 0);
+			const pb = Number(b.path.at(2) ?? 0);
+
+			return pa - pb;
 		});
 
 	const a = sorted.filter((node) => {

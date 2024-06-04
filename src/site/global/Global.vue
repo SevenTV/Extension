@@ -19,6 +19,12 @@ register([
 		label: "App Version",
 		defaultValue: void 0 as never,
 	},
+	{
+		key: "app.7tv.token",
+		type: "NONE",
+		label: "7TV Bearer Token",
+		defaultValue: "",
+	},
 ]);
 
 const updater = useUpdater();
