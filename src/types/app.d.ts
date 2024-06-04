@@ -82,7 +82,7 @@ declare namespace SevenTV {
 		key: string;
 		label: string;
 		hint?: string;
-		path?: [string, string];
+		path?: [string, string] | [string, string, string | number];
 		timestamp?: number;
 
 		custom?: {

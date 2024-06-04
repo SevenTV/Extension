@@ -4,6 +4,7 @@ import { onUnmounted } from "vue";
 import { useIntervalFn } from "@vueuse/core";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
+import { declareConfig, useConfig, useSettings } from "@/composable/useSettings";
 
 const props = defineProps<{
 	add: (c: Twitch.ChatCommand) => void;
@@ -36,8 +37,63 @@ const messageLog = new Set<Twitch.ChatMessage>();
 const bucket = new RateBucket(100);
 const executed = new Set<string>();
 
+const { register } = useSettings();
+
 const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
+
+const isValid = (v: string) => re.duration.test(v);
+
+register([
+	declareConfig<string>("cmd.nuke.action", "DROPDOWN", {
+		path: ["Chat", "Commands", 100],
+		label: "Default Nuke Action",
+		hint: "Default Mod Action to take when using the nuke command",
+		options: [
+			["Delete", "delete"],
+			["Ban", "ban"],
+			["Timeout", "timeout"],
+		],
+		defaultValue: "timeout",
+	}),
+	declareConfig<string>("cmd.nuke.before", "INPUT", {
+		path: ["Chat", "Commands", 102],
+		label: "Default Nuke Before",
+		hint: "Time in seconds to look back for messages",
+		predicate: isValid,
+		defaultValue: "30s",
+	}),
+	declareConfig<string>("cmd.nuke.after", "INPUT", {
+		path: ["Chat", "Commands", 103],
+		label: "Default Nuke After",
+		hint: "Time in seconds to look forward for messages",
+		predicate: isValid,
+		defaultValue: "120s",
+	}),
+	declareConfig<string>("cmd.nuke.reason", "INPUT", {
+		path: ["Chat", "Commands", 104],
+		label: "Default Nuke Reason",
+		hint: "Reason for the nuke",
+		defaultValue: "Nuked!",
+	}),
+]);
+
+const defaultAction = useConfig<string>("cmd.nuke.action");
+const defaultDuration = useConfig<string>("cmd.nuke.action.duration");
+const defaultBefore = useConfig<string>("cmd.nuke.before");
+const defaultAfter = useConfig<string>("cmd.nuke.after");
+const defaultReason = useConfig<string>("cmd.nuke.reason");
+
+register([
+	declareConfig<string>("cmd.nuke.action.duration", "INPUT", {
+		path: ["Chat", "Commands", 101],
+		label: "Timeout Duration if action is timeout",
+		hint: "Timeout duration in seconds, minutes, hours or days",
+		disabledIf: () => defaultAction.value != "timeout",
+		predicate: isValid,
+		defaultValue: "30s",
+	}),
+]);
 
 const handler: Twitch.ChatCommand.Handler = (args: string) => {
 	let parsed: NukeArgs;
@@ -57,10 +113,14 @@ const handler: Twitch.ChatCommand.Handler = (args: string) => {
 
 		parsed = {
 			pattern: asRegex ? new RegExp(asRegex[1], asRegex[2]) : new RegExp(matches.pattern),
-			action: matches.action ? matches.action : "30",
-			before: matches.before ? convert(matches.before) : 30,
-			after: matches.after ? convert(matches.after) : 120,
-			reason: matches.reason ? matches.reason : "Nuked!",
+			action: matches.action
+				? matches.action
+				: defaultAction.value !== "timeout"
+					? defaultAction.value
+					: defaultDuration.value,
+			before: matches.before ? convert(matches.before) : convert(defaultBefore.value),
+			after: matches.after ? convert(matches.after) : convert(defaultAfter.value),
+			reason: matches.reason ? matches.reason : defaultReason.value,
 		};
 	} catch (err) {
 		return {
@@ -218,9 +278,10 @@ onUnmounted(() => {
 const re = {
 	isRegex: new RegExp("/(?<pattern>.+)/(?<params>[gimyused]*)"),
 	nukeArgs: new RegExp(
-		"^(?<pattern>.+?)( (?<action>(delete|ban|[0-9]+[dhms])))?( (?<before>[0-9]+[dhmsDHMS]))?(:(?<after>([0-9]+[dhms])))?( (?<reason>.+?))?\\s?$",
+		"^(?<pattern>(\\/.+\\/|.+?))( (?<action>(delete|ban|[0-9]+[dhms])))?( (?<before>[0-9]+[dhmsDHMS]))?(:(?<after>([0-9]+[dhms])))?( (?<reason>.+?))?\\s?$",
 		"i",
 	),
+	duration: new RegExp("^[0-9]+[dhms]$", "i"),
 };
 
 interface NukeArgs {
