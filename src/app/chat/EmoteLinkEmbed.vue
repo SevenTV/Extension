@@ -1,57 +1,93 @@
 <template>
-	<div v-if="emote" class="emote-link-embed">
+	<div class="emote-link-embed">
 		<div class="emote-link-container" :blurred="blurred">
-			<a :href="link" target="_blank" class="link">
-				<div class="emote-preview">
-					<img :srcSet="srcSet" alt="emote preview" />
+			<template v-if="emote?.data">
+				<a :href="link" target="_blank" class="link">
+					<div class="emote-preview">
+						<Emote v-if="emote" :emote="emote" />
+					</div>
+				</a>
+				<div class="description">
+					<div>
+						<p class="emote-name">{{ emote.name }}</p>
+					</div>
+					<div v-if="emote.data.owner">
+						<p class="emote-owner">{{ emote.data.owner.display_name }}</p>
+					</div>
 				</div>
-			</a>
-			<div class="description">
-				<div>
-					<p class="emote-name">{{ emote.name }}</p>
+				<div class="action-button" :type="buttonType" @click="onClick">
+					<template v-if="buttonType === TYPE.LINK">
+						<OpenLinkIcon />
+					</template>
+					<template v-else>
+						{{ buttonType === TYPE.ADD ? "+" : "-" }}
+					</template>
 				</div>
-				<div v-if="emote.owner">
-					<p class="emote-owner">Created by {{ emote.owner.username }}</p>
-				</div>
-			</div>
-			<div v-if="canEditSet" class="action-button" :type="isEmoteInSet ? 'remove' : 'add'" @click="onClick">
-				{{ isEmoteInSet ? "-" : "+" }}
-			</div>
+			</template>
 		</div>
-		<div v-if="blurred" class="emote-unlisted-warning" @click="blurred = false">
+
+		<div v-if="emote?.data && blurred" class="emote-unlisted-warning" @click="blurred = false">
 			Emote is unlisted! Click to view.
 		</div>
 	</div>
-	<div v-else />
+	<div v-if="mut.needsLogin" class="login-required">
+		<a href="#" @click="openAuthPage"> Authenticate extension to manage emotes </a>
+	</div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { imageHostToSrcset } from "@/common/Image";
 import { useSetMutation } from "@/composable/useSetMutation";
+import OpenLinkIcon from "@/assets/svg/icons/OpenLinkIcon.vue";
+import Emote from "./Emote.vue";
+import { useSettingsMenu } from "../settings/Settings";
 
 const props = defineProps<{
 	emoteID: string;
 }>();
 
 const link = import.meta.env.VITE_APP_SITE + `/emotes/${props.emoteID}`;
-const srcSet = ref("");
-const emote = ref<SevenTV.Emote>();
+const emote = ref<SevenTV.ActiveEmote>();
 const blurred = ref(true);
 
-const { add, remove, set, canEditSet } = useSetMutation();
+const mut = useSetMutation();
+const sCtx = useSettingsMenu();
 
 const isEmoteInSet = computed(() => {
-	return !!set?.emotes.find((emote) => emote.id === props.emoteID);
+	return !!mut.set?.emotes.find((emote) => emote.id === props.emoteID);
 });
 
+const TYPE = {
+	ADD: "add",
+	REMOVE: "remove",
+	LINK: "link",
+};
+
 async function onClick() {
-	if (isEmoteInSet.value) {
-		remove(props.emoteID);
-	} else {
-		add(props.emoteID);
+	switch (buttonType.value) {
+		case TYPE.ADD:
+			await mut.add(props.emoteID);
+			break;
+		case TYPE.REMOVE:
+			await mut.remove(props.emoteID);
+			break;
+		case TYPE.LINK:
+			window.open(link, "_blank");
+			break;
 	}
 }
+
+const openAuthPage = (e: MouseEvent) => {
+	e.preventDefault();
+	sCtx.open = true;
+	sCtx.switchView("profile");
+	return false;
+};
+
+const buttonType = computed(() => {
+	if (!mut.canEditSet) return TYPE.LINK;
+	return isEmoteInSet.value ? TYPE.REMOVE : TYPE.ADD;
+});
 
 async function fetchEmote() {
 	const emoteDataRaw = await fetch(import.meta.env.VITE_APP_API + `/emotes/${props.emoteID}`);
@@ -59,10 +95,13 @@ async function fetchEmote() {
 	const emoteData = (await emoteDataRaw.json()) as SevenTV.Emote;
 	if (emoteData.lifecycle === 2) return;
 
-	emote.value = emoteData;
-	srcSet.value = imageHostToSrcset(emoteData.host, "7TV");
+	emote.value = {
+		id: emoteData.id,
+		name: emoteData.name,
+		data: emoteData,
+	};
 
-	if (emote.value.listed) {
+	if (emoteData.listed !== false) {
 		blurred.value = false;
 	}
 }
@@ -71,7 +110,19 @@ onMounted(fetchEmote);
 </script>
 
 <style scoped lang="scss">
+.login-required {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-shadow:
+		0 0.25rem 0.5rem var(--seventv-embed-border),
+		0 0 0.5rem var(--seventv-embed-border);
+	background-color: var(--seventv-embed-background);
+	height: 3rem;
+	margin-top: -0.5rem;
+}
 .emote-link-embed {
+	height: 5rem;
 	border-radius: 0.25rem;
 	margin: 0.5rem 0;
 	box-shadow:
@@ -117,6 +168,7 @@ onMounted(fetchEmote);
 			vertical-align: middle;
 			align-items: center;
 			.emote-preview {
+				min-width: 3.9rem;
 			}
 		}
 
@@ -146,18 +198,26 @@ onMounted(fetchEmote);
 			text-align: center;
 			vertical-align: middle;
 			flex-shrink: 0;
-			font-weight: 1200;
-			font-size: 4rem;
 			cursor: pointer;
 
 			&[type="add"] {
 				background-color: green;
+				font-weight: 1200;
+				font-size: 4rem;
 			}
 			&[type="remove"] {
 				background-color: red;
+				font-weight: 1200;
+				font-size: 4rem;
 			}
-			&[type="disabled"] {
-				background-color: grey;
+			&[type="link"] {
+				background-color: hsla(0, 0%, 50%, 6%);
+				display: flex;
+				> svg {
+					margin: auto;
+					justify-content: middle;
+					align-items: center;
+				}
 			}
 		}
 	}

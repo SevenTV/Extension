@@ -1,4 +1,4 @@
-import { InjectionKey, Ref, inject, provide, reactive, ref, toRaw, watch } from "vue";
+import { InjectionKey, inject, provide, reactive, toRaw, watch } from "vue";
 import { useConfig } from "@/composable/useSettings";
 import { userByConnectionQuery, userQuery } from "@/assets/gql/seventv.user.gql";
 import { SubscriptionResponse, useEgVault } from "@/app/store/egvault";

@@ -1,6 +1,6 @@
 <template />
 <script setup lang="ts">
-import { onUnmounted } from "vue";
+import { onUnmounted, watch } from "vue";
 import { useIntervalFn } from "@vueuse/core";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
@@ -45,8 +45,17 @@ const messages = useChatMessages(ctx);
 const isValid = (v: string) => re.duration.test(v);
 
 register([
-	declareConfig<string>("cmd.nuke.action", "DROPDOWN", {
+	declareConfig<boolean>("cmd.nuke.enabled", "TOGGLE", {
 		path: ["Chat", "Commands", 100],
+		label: "Enable Nuke Command",
+		hint: "Enable or disable the nuke command, its very powerful and can be dangerous if you dont know what you're doing!",
+		defaultValue: false,
+	}),
+]);
+const nukeEnabled = useConfig<boolean>("cmd.nuke.enabled");
+register([
+	declareConfig<string>("cmd.nuke.action", "DROPDOWN", {
+		path: ["Chat", "Commands", 101],
 		label: "Default Nuke Action",
 		hint: "Default Mod Action to take when using the nuke command",
 		options: [
@@ -55,26 +64,30 @@ register([
 			["Timeout", "timeout"],
 		],
 		defaultValue: "timeout",
+		disabledIf: () => !nukeEnabled.value,
 	}),
 	declareConfig<string>("cmd.nuke.before", "INPUT", {
-		path: ["Chat", "Commands", 102],
+		path: ["Chat", "Commands", 103],
 		label: "Default Nuke Before",
 		hint: "Time in seconds to look back for messages",
 		predicate: isValid,
 		defaultValue: "30s",
+		disabledIf: () => !nukeEnabled.value,
 	}),
 	declareConfig<string>("cmd.nuke.after", "INPUT", {
-		path: ["Chat", "Commands", 103],
+		path: ["Chat", "Commands", 104],
 		label: "Default Nuke After",
 		hint: "Time in seconds to look forward for messages",
 		predicate: isValid,
 		defaultValue: "120s",
+		disabledIf: () => !nukeEnabled.value,
 	}),
 	declareConfig<string>("cmd.nuke.reason", "INPUT", {
-		path: ["Chat", "Commands", 104],
+		path: ["Chat", "Commands", 105],
 		label: "Default Nuke Reason",
 		hint: "Reason for the nuke",
 		defaultValue: "Nuked!",
+		disabledIf: () => !nukeEnabled.value,
 	}),
 ]);
 
@@ -86,10 +99,10 @@ const defaultReason = useConfig<string>("cmd.nuke.reason");
 
 register([
 	declareConfig<string>("cmd.nuke.action.duration", "INPUT", {
-		path: ["Chat", "Commands", 101],
+		path: ["Chat", "Commands", 102],
 		label: "Timeout Duration if action is timeout",
 		hint: "Timeout duration in seconds, minutes, hours or days",
-		disabledIf: () => defaultAction.value != "timeout",
+		disabledIf: () => defaultAction.value != "timeout" || !nukeEnabled.value,
 		predicate: isValid,
 		defaultValue: "30s",
 	}),
@@ -267,7 +280,13 @@ messages.handlers.add(messageHandler);
 
 useIntervalFn(prune, 1000 * 60);
 
-props.add(command);
+watch(nukeEnabled, (v) => {
+	if (v) {
+		props.add(command);
+	} else {
+		props.remove(command);
+	}
+});
 
 onUnmounted(() => {
 	props.remove(command);

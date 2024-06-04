@@ -17,6 +17,9 @@
 				<TwClose />
 			</span>
 		</div>
+		<div v-if="mut.needsLogin" class="login-notice">
+			<a href="#" @click="openAuthPage"> Authenticate extension to manage emotes </a>
+		</div>
 		<div class="body">
 			<UiScrollable v-if="!query.loading.value">
 				<div class="emote-view" :invalidAlias="invalidAlias">
@@ -56,6 +59,7 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
 import Alias from "./EmoteAliasButton.vue";
 import Emote from "@/app/chat/Emote.vue";
+import { useSettingsMenu } from "@/app/settings/Settings";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { useQuery } from "@vue/apollo-composable";
 
@@ -68,6 +72,8 @@ const props = defineProps<{
 
 const emit = defineEmits(["close"]);
 const close = () => emit("close");
+
+const sCtx = useSettingsMenu();
 
 const pageSize = ref(64);
 const exactMatch = ref(false);
@@ -136,7 +142,9 @@ const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 	}
 
 	if (isEnabled(emote)) {
-		props.mut.remove(emote.id);
+		props.mut.remove(emote.id).catch(() => {
+			notice.value = "Error";
+		});
 		if (!e.shiftKey) close();
 		return;
 	}
@@ -152,10 +160,19 @@ const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 	}
 
 	const name = alias.value !== "" ? alias.value : emote.name;
-	props.mut.add(emote.id, name);
+	props.mut.add(emote.id, name).catch(() => {
+		notice.value = "Error";
+	});
 	alias.value = "";
 
 	if (!e.shiftKey) close();
+};
+
+const openAuthPage = (e: MouseEvent) => {
+	e.preventDefault();
+	sCtx.open = true;
+	sCtx.switchView("profile");
+	return false;
 };
 </script>
 <style lang="scss">
@@ -242,6 +259,17 @@ const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 			}
 		}
 	}
+
+	.login-notice {
+		max-height: 4em;
+		display: flex;
+		font-size: 1rem;
+		padding: 0.5rem 0.2rem;
+		border-bottom: 1px solid var(--color-border-base);
+		justify-content: center;
+		font-size: 1.2rem;
+	}
+
 	.body {
 		height: 26em;
 		display: flex;

@@ -17,6 +17,7 @@ export interface SetMutation {
 	set?: SevenTV.EmoteSet;
 	SetID?: string;
 	canEditSet: boolean;
+	needsLogin: boolean;
 }
 
 const log = Logger.Get();
@@ -44,10 +45,19 @@ export function useSetMutation(setID?: string): SetMutation {
 		return emotes.sets[setID];
 	});
 
-	const canEditSet = computed(() => {
+	const canEditIfLoggedIn = computed(() => {
 		if (!actor.user) return false;
 		if (ctx.id == actor.platformUserID) return true;
 		return (ctx.user?.editors ?? []).some((e) => e.id == actor.user?.id);
+	});
+
+	const canEditSet = computed(() => {
+		if (!actor.token) return false;
+		return canEditIfLoggedIn.value;
+	});
+
+	const needsLogin = computed(() => {
+		return canEditIfLoggedIn.value && !actor.token;
 	});
 
 	async function add(emoteID: string, alias?: string) {
@@ -103,5 +113,5 @@ export function useSetMutation(setID?: string): SetMutation {
 		return result as FetchResult;
 	}
 
-	return reactive({ add, remove, rename, set, setID, canEditSet });
+	return reactive({ add, remove, rename, set, setID, canEditSet, needsLogin });
 }
