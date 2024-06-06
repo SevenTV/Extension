@@ -280,13 +280,17 @@ messages.handlers.add(messageHandler);
 
 useIntervalFn(prune, 1000 * 60);
 
-watch(nukeEnabled, (v) => {
-	if (v) {
-		props.add(command);
-	} else {
-		props.remove(command);
-	}
-});
+watch(
+	nukeEnabled,
+	(v) => {
+		if (v) {
+			props.add(command);
+		} else {
+			props.remove(command);
+		}
+	},
+	{ immediate: true },
+);
 
 onUnmounted(() => {
 	props.remove(command);
