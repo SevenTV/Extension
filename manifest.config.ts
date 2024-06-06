@@ -40,7 +40,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 							id: opt.mozillaID,
 						},
 					},
-				}
+			  }
 			: {}),
 
 		background: {

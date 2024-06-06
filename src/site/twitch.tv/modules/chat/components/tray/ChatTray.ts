@@ -62,14 +62,14 @@ function getReplyTray(props: Twitch.TrayProps<"Reply">): Twitch.ChatTray<"Reply"
 								parentUid: props.authorID,
 								parentUserLogin: props.username,
 								parentDisplayName: props.displayName,
-							}
+						  }
 						: {}),
 					...(props.thread
 						? {
 								threadParentMsgId: props.thread.id,
 								threadParentDeleted: props.thread.deleted,
 								threadParentUserLogin: props.thread.login,
-							}
+						  }
 						: {}),
 				},
 			},

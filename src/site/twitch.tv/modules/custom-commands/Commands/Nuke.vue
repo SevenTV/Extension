@@ -129,8 +129,8 @@ const handler: Twitch.ChatCommand.Handler = (args: string) => {
 			action: matches.action
 				? matches.action
 				: defaultAction.value !== "timeout"
-					? defaultAction.value
-					: defaultDuration.value,
+				  ? defaultAction.value
+				  : defaultDuration.value,
 			before: matches.before ? convert(matches.before) : convert(defaultBefore.value),
 			after: matches.after ? convert(matches.after) : convert(defaultAfter.value),
 			reason: matches.reason ? matches.reason : defaultReason.value,

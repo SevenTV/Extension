@@ -43,10 +43,10 @@ import Emote from "./Emote.vue";
 import { useSettingsMenu } from "../settings/Settings";
 
 const props = defineProps<{
-	emoteID: string;
+	emoteId: string;
 }>();
 
-const link = import.meta.env.VITE_APP_SITE + `/emotes/${props.emoteID}`;
+const link = import.meta.env.VITE_APP_SITE + `/emotes/${props.emoteId}`;
 const emote = ref<SevenTV.ActiveEmote>();
 const blurred = ref(true);
 
@@ -54,7 +54,7 @@ const mut = useSetMutation();
 const sCtx = useSettingsMenu();
 
 const isEmoteInSet = computed(() => {
-	return !!mut.set?.emotes.find((emote) => emote.id === props.emoteID);
+	return !!mut.set?.emotes.find((emote) => emote.id === props.emoteId);
 });
 
 const TYPE = {
@@ -66,10 +66,10 @@ const TYPE = {
 async function onClick() {
 	switch (buttonType.value) {
 		case TYPE.ADD:
-			await mut.add(props.emoteID);
+			await mut.add(props.emoteId);
 			break;
 		case TYPE.REMOVE:
-			await mut.remove(props.emoteID);
+			await mut.remove(props.emoteId);
 			break;
 		case TYPE.LINK:
 			window.open(link, "_blank");
@@ -90,7 +90,7 @@ const buttonType = computed(() => {
 });
 
 async function fetchEmote() {
-	const emoteDataRaw = await fetch(import.meta.env.VITE_APP_API + `/emotes/${props.emoteID}`);
+	const emoteDataRaw = await fetch(import.meta.env.VITE_APP_API + `/emotes/${props.emoteId}`);
 	if (!emoteDataRaw.ok) return;
 	const emoteData = (await emoteDataRaw.json()) as SevenTV.Emote;
 	if (emoteData.lifecycle === 2) return;

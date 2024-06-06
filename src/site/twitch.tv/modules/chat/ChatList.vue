@@ -225,7 +225,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					? {
 							username: msgData.reply.parentUserLogin,
 							displayName: msgData.reply.parentDisplayName,
-						}
+					  }
 					: null;
 			const parentMsgThread =
 				msgData.reply && msgData.reply.threadParentMsgId && msgData.reply.threadParentUserLogin
@@ -233,7 +233,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 							deleted: msgData.reply.threadParentDeleted,
 							id: msgData.reply.threadParentMsgId,
 							login: msgData.reply.threadParentUserLogin,
-						}
+					  }
 					: null;
 
 			msg.parent = {
@@ -280,11 +280,11 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 									cheerAmount: e.cheerAmount,
 									cheerColor: e.cheerColor,
 									images: e.images,
-								})
+							  })
 							: convertTwitchEmote({
 									id: e.emoteID,
 									token: e.alt,
-								} as Partial<Twitch.TwitchEmote>),
+							  } as Partial<Twitch.TwitchEmote>),
 					};
 					const emoteName = e.alt + (e.cheerAmount ?? "");
 
