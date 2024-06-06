@@ -33,6 +33,7 @@ const listener = (ev: MessageEvent) => {
 };
 
 onMounted(() => {
+	if (token.value !== "") return;
 	w = window.open(src, "7tv-auth", "width=400,height=600");
 	if (!w) return;
 	window.addEventListener("message", listener);

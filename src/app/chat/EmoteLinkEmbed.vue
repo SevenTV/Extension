@@ -8,12 +8,12 @@
 					</div>
 				</a>
 				<div class="description">
-					<div>
-						<p class="emote-name">{{ emote.name }}</p>
-					</div>
-					<div v-if="emote.data.owner">
-						<p class="emote-owner">{{ emote.data.owner.display_name }}</p>
-					</div>
+					<p class="emote-name" :title="emote.name">{{ emote.name }}</p>
+					<template v-if="emote.data.owner">
+						<p class="emote-owner">
+							{{ emote.data.owner.display_name }}
+						</p>
+					</template>
 				</div>
 				<div class="action-button" :type="buttonType" @click="onClick">
 					<template v-if="buttonType === TYPE.LINK">
@@ -123,9 +123,9 @@ onMounted(fetchEmote);
 }
 
 .emote-link-embed {
-	height: 5rem;
 	border-radius: 0.25rem;
 	margin: 0.5rem 0;
+	height: 4.2rem;
 	box-shadow:
 		0 0.25rem 0.5rem var(--seventv-embed-border),
 		0 0 0.5rem var(--seventv-embed-border);
@@ -155,6 +155,7 @@ onMounted(fetchEmote);
 		display: flex;
 		flex-wrap: nowrap;
 		padding: 0.5rem;
+		gap: 0.5rem;
 
 		&[blurred="true"] {
 			filter: blur(0.5rem);
@@ -170,18 +171,19 @@ onMounted(fetchEmote);
 			align-items: center;
 
 			.emote-preview {
-				min-width: 3.9rem;
+				min-width: 3.2rem;
 			}
 		}
 
 		.description {
-			display: flex;
-			flex-direction: column;
+			width: 100%;
 			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-			padding-left: 1rem;
-			flex-grow: 1;
+
+			> p {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
 
 			.emote-name {
 				font-weight: bold;
@@ -189,6 +191,8 @@ onMounted(fetchEmote);
 
 			.emote-owner {
 				color: var(--seventv-text-color-secondary);
+				font-size: 1rem;
+				line-height: 1rem;
 			}
 		}
 
@@ -196,7 +200,10 @@ onMounted(fetchEmote);
 			padding: 0.5rem;
 			border: 0.1rem solid black;
 			border-radius: 0.25rem;
-			width: 4rem;
+			aspect-ratio: 1;
+			width: 3.2rem;
+			height: 3.2rem;
+
 			text-align: center;
 			vertical-align: middle;
 			flex-shrink: 0;
@@ -205,13 +212,13 @@ onMounted(fetchEmote);
 			&[type="add"] {
 				background-color: green;
 				font-weight: 1200;
-				font-size: 4rem;
+				font-size: 2rem;
 			}
 
 			&[type="remove"] {
 				background-color: red;
 				font-weight: 1200;
-				font-size: 4rem;
+				font-size: 2rem;
 			}
 
 			&[type="link"] {
