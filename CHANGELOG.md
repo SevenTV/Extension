@@ -1,12 +1,12 @@
-### Custom 7TV Build
+### 3.1.0
 
--   This is a custom build of 7TV that includes a few extra features and bugfixes.
+-   Added rich embeds for 7TV emotes.
 -   Added custom commands /enable /disable and /alias to manage 7TV emotes.
 -   Added /search like /enable but copies to clipboard instead of enabling.
 -   Added /song that uses the AudD api to recognize songs.
 -   Added /refresh to reload emotes.
+-   Added /nuke to moderate multiple messages at once. Can be enabled in the settings.
 -   Fixed native chat width.
--   Lots of other minor fixes and improvements.
 
 ### 3.0.16
 
