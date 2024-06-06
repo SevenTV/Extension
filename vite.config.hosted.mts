@@ -101,9 +101,13 @@ export default defineConfig(() => {
 						worker_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/worker.${fullVersion}.js`,
 					};
 
-					const manifestName = process.env.BRANCH
-						? `manifest.${process.env.BRANCH.toLowerCase()}.json`
-						: "manifest.json";
+					let manifestName = "manifest";
+					if (process.env.MANIFEST_NAME) {
+						manifestName += "." + process.env.MANIFEST_NAME.toLowerCase();
+					} else if (process.env.BRANCH) {
+						manifestName += "." + process.env.BRANCH.toLowerCase();
+					}
+					manifestName += ".json";
 
 					setTimeout(() => {
 						const p = r("dist-hosted") + (outDir ? "/" + outDir : "");

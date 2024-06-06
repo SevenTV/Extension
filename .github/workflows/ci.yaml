@@ -21,6 +21,11 @@ on:
                     - stable
                 default: nightly
 
+            stage-host:
+                type: boolean
+                default: false
+                description: "Use stage-host"
+
             store-upload:
                 type: boolean
                 default: false
@@ -80,6 +85,7 @@ jobs:
               env:
                   BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
                   EXTENSION_ID_MOZ: ${{ (inputs.branch == 'stable' && env.EXTENSION_ID_AMO) || env.NIGHTLY_EXTENSION_ID_AMO }}
+
               run: |
                   OUT_DIR=mv3 yarn build:prod
                   OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID_MOZ }} MV2=true yarn build:prod
@@ -256,6 +262,7 @@ jobs:
             - name: Build (Hosted)
               env:
                   BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
+                  MANIFEST_NAME: ${{ (inputs.stage-host && 'Stage') || ''}}
               run: |
                   yarn build-hosted:prod
 
