@@ -263,7 +263,6 @@ const openAuthPage = (e: MouseEvent) => {
 	.login-notice {
 		max-height: 4em;
 		display: flex;
-		font-size: 1rem;
 		padding: 0.5rem 0.2rem;
 		border-bottom: 1px solid var(--color-border-base);
 		justify-content: center;
@@ -285,9 +284,11 @@ const openAuthPage = (e: MouseEvent) => {
 				&[zero-width="true"] {
 					border: 0.1rem solid rgb(220, 170, 50);
 				}
+
 				&[conflict="true"] {
 					border: 0.1rem solid rgb(220, 50, 50);
 				}
+
 				&[enabled="true"] {
 					border: 0.1rem solid rgb(50, 220, 50);
 				}

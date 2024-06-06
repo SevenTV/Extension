@@ -415,7 +415,7 @@ async function doRequest<T = object>(base: string, path: string, method?: string
 		headers: body
 			? {
 					"Content-Type": "application/json",
-			  }
+				}
 			: undefined,
 		referrer: location.origin,
 		referrerPolicy: "origin",

@@ -121,6 +121,7 @@ onMounted(fetchEmote);
 	height: 3rem;
 	margin-top: -0.5rem;
 }
+
 .emote-link-embed {
 	height: 5rem;
 	border-radius: 0.25rem;
@@ -141,7 +142,7 @@ onMounted(fetchEmote);
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background-color: rgba(128, 0, 0, 0.5);
+		background-color: rgba(128, 0, 0, 50%);
 		border-radius: 0.25rem;
 		color: white;
 		display: flex;
@@ -167,6 +168,7 @@ onMounted(fetchEmote);
 			flex-shrink: 0;
 			vertical-align: middle;
 			align-items: center;
+
 			.emote-preview {
 				min-width: 3.9rem;
 			}
@@ -205,14 +207,17 @@ onMounted(fetchEmote);
 				font-weight: 1200;
 				font-size: 4rem;
 			}
+
 			&[type="remove"] {
 				background-color: red;
 				font-weight: 1200;
 				font-size: 4rem;
 			}
+
 			&[type="link"] {
-				background-color: hsla(0, 0%, 50%, 6%);
+				background-color: hsla(0deg, 0%, 50%, 6%);
 				display: flex;
+
 				> svg {
 					margin: auto;
 					justify-content: middle;

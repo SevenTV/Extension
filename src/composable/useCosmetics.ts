@@ -409,7 +409,7 @@ text-shadow: ${
 				paint.data.text.shadows
 					?.map((v) => `${v.x_offset}px ${v.y_offset}px ${v.radius}px ${DecimalToStringRGBA(v.color)}`)
 					.join(", ") ?? "unset"
-		  };
+			};
 text-transform: ${paint.data.text.transform ?? "unset"};
 `
 		: ""

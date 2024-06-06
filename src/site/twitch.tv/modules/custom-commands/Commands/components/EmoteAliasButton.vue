@@ -32,6 +32,7 @@ const aliasRef = ref<HTMLInputElement>();
 		outline-color: red !important;
 	}
 }
+
 .alias-button {
 	height: 3rem;
 	max-width: 6rem;
@@ -46,9 +47,7 @@ const aliasRef = ref<HTMLInputElement>();
 		padding: 0.5rem;
 		color: var(--color-text-base);
 		box-sizing: border-box;
-
 		transition: width 0.2s;
-
 		border: 0.1rem solid transparent;
 		border-radius: 0.5rem;
 		background-color: var(--color-background-input);

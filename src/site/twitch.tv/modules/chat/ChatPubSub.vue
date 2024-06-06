@@ -146,7 +146,7 @@ async function onModerationAction(msg: PubSubMessageData.ModAction) {
 							username: msg.created_by ?? "",
 							displayName: msg.created_by ?? "",
 							color: "",
-					  }
+						}
 					: null;
 				m.moderation.banDuration = duration ? parseInt(duration) : null;
 				m.moderation.banned = true;

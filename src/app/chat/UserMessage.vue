@@ -73,7 +73,7 @@
 		<!-- Chat Rich Embed -->
 		<RichEmbed v-if="msg.richEmbed.request_url" :rich-embed="msg.richEmbed" />
 
-		<EmoteLinkEmbed v-if="msg.emoteLinkEmbed" :emoteID="msg.emoteLinkEmbed" />
+		<EmoteLinkEmbed v-if="msg.emoteLinkEmbed" :emote-i-d="msg.emoteLinkEmbed" />
 
 		<!-- Ban State -->
 		<template v-if="!hideModeration && (msg.moderation.banned || msg.moderation.deleted)">
@@ -210,6 +210,7 @@ watch(
 	{ immediate: true },
 );
 
+// eslint-disable-next-line vue/no-mutating-props
 props.msg.refresh = doTokenize;
 
 // For historical messages
