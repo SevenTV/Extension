@@ -82,7 +82,7 @@ const tray = useTray("Reply", () => ({
 				authorID: props.msg.author?.id,
 				username: props.msg.author?.username,
 				displayName: props.msg.author?.displayName,
-			}
+		  }
 		: {}),
 	...(props.msg.parent
 		? {
@@ -91,7 +91,7 @@ const tray = useTray("Reply", () => ({
 					id: props.msg.parent.thread?.id ?? props.msg.parent.id,
 					login: props.msg.parent.thread?.login ?? props.msg.parent.author?.username ?? "",
 				},
-			}
+		  }
 		: {}),
 }));
 

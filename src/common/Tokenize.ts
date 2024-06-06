@@ -58,7 +58,7 @@ export function tokenize(opt: TokenizeOptions) {
 								? {
 										cheerAmount: maybeEmote.isTwitchCheer.amount,
 										cheerColor: maybeEmote.isTwitchCheer.color,
-									}
+								  }
 								: {}),
 						} as EmoteToken["content"],
 					}),

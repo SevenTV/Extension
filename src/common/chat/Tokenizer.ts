@@ -75,7 +75,7 @@ export class Tokenizer {
 									? {
 											cheerAmount: maybeEmote.isTwitchCheer.amount,
 											cheerColor: maybeEmote.isTwitchCheer.color,
-										}
+									  }
 									: {}),
 							} as EmoteToken["content"],
 						}),

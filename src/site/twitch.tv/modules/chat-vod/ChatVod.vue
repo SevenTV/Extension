@@ -235,11 +235,11 @@ function createMessageComponentRef(data: CommentData) {
 								cheerAmount: e.cheerAmount,
 								cheerColor: e.cheerColor,
 								images: e.images,
-							})
+						  })
 						: convertTwitchEmote({
 								id: e.emoteID,
 								token: e.alt,
-							} as Partial<Twitch.TwitchEmote>),
+						  } as Partial<Twitch.TwitchEmote>),
 				};
 				const emoteName = e.alt + (e.cheerAmount ?? "");
 

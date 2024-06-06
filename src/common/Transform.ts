@@ -22,7 +22,7 @@ export function convertPlatformEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Em
 					username: data.owner.displayName,
 					display_name: data.owner.displayName,
 					avatar_url: data.owner.profileImageURL,
-				}
+			  }
 			: undefined,
 		emotes: data.emotes.map((e) => {
 			const d = convertTwitchEmote(e, data.owner);
@@ -55,7 +55,7 @@ export function convertTwitchEmote(
 					username: owner.displayName,
 					display_name: owner.displayName,
 					avatar_url: owner.profileImageURL,
-				}
+			  }
 			: null,
 		host: {
 			url: "//static-cdn.jtvnw.net/emoticons/v2/" + data.id + "/default/dark",
@@ -165,7 +165,7 @@ export function convertBttvEmote(data: BTTV.Emote): SevenTV.Emote {
 					username: data.user.name,
 					display_name: data.user.displayName,
 					avatar_url: "",
-				}
+			  }
 			: null,
 		host: {
 			url: "//cdn.betterttv.net/emote/" + data.id,
@@ -220,7 +220,7 @@ export function convertFFZEmoteSet(data: FFZ.RoomResponse, channelID: string): S
 							};
 						}) as SevenTV.ActiveEmote[]),
 					];
-				}, [] as SevenTV.ActiveEmote[])
+			  }, [] as SevenTV.ActiveEmote[])
 			: [],
 	};
 }
@@ -307,7 +307,7 @@ export function convertTwitchMessage(d: TwTypeMessage): ChatMessage {
 						return con;
 					},
 					{} as Record<string, string>,
-				)
+			  )
 			: {};
 	msg.timestamp = new Date(d.sentAt).getTime();
 	msg.moderation.deleted = !!d.deletedAt;

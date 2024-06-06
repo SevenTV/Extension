@@ -83,7 +83,7 @@ function addStop(): void {
 				at: 0,
 				color: 0,
 				alpha: 1,
-			};
+		  };
 
 	stops.value.push(s);
 }
