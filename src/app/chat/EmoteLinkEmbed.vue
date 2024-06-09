@@ -203,7 +203,6 @@ onMounted(fetchEmote);
 			aspect-ratio: 1;
 			width: 3.2rem;
 			height: 3.2rem;
-
 			text-align: center;
 			vertical-align: middle;
 			flex-shrink: 0;
