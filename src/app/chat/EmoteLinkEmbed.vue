@@ -155,7 +155,7 @@ onMounted(fetchEmote);
 		display: flex;
 		flex-wrap: nowrap;
 		padding: 0.5rem;
-		gap: 0.5rem;
+		gap: 1rem;
 
 		&[blurred="true"] {
 			filter: blur(0.5rem);
