@@ -10,7 +10,7 @@
 	</Tray>
 </template>
 <script setup lang="ts">
-import { nextTick, onUnmounted, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useSetMutation } from "@/composable/useSetMutation";
 import EnableTray from "./components/EnableTray.vue";
 import Tray from "../../chat/components/tray/Tray.vue";
@@ -81,8 +81,8 @@ async function handleAlias(args: string) {
 }
 
 const commandEnable: Twitch.ChatCommand = {
-	name: "enable",
-	description: "Enable a 7TV emote",
+	name: "search",
+	description: "Search for 7TV emote",
 	helpText: "",
 	permissionLevel: 0,
 	handler: (args) => {
@@ -97,15 +97,9 @@ const commandEnable: Twitch.ChatCommand = {
 	group: "7TV",
 };
 
-const commandSearch = {
-	...commandEnable,
-	name: "search",
-	description: "Search for a 7TV emote",
-};
-
 const commandDisable: Twitch.ChatCommand = {
-	name: "disable",
-	description: "Disable a 7TV emote",
+	name: "remove",
+	description: "Remove a 7TV emote",
 	helpText: "",
 	permissionLevel: 0,
 	handler: (args) => {
@@ -141,21 +135,19 @@ const commandAlias: Twitch.ChatCommand = {
 	group: "7TV",
 };
 
+onMounted(() => {
+	props.add(commandEnable);
+});
+
 watch(
 	() => mut.canEditSet,
 	(c) => {
 		if (c) {
-			props.add(commandEnable);
 			props.add(commandDisable);
 			props.add(commandAlias);
-
-			props.remove(commandSearch);
 		} else {
 			props.remove(commandDisable);
 			props.remove(commandAlias);
-			props.remove(commandEnable);
-
-			props.add(commandSearch);
 		}
 	},
 	{ immediate: true },
@@ -165,6 +157,5 @@ onUnmounted(() => {
 	props.remove(commandEnable);
 	props.remove(commandDisable);
 	props.remove(commandAlias);
-	props.remove(commandSearch);
 });
 </script>

@@ -8,8 +8,8 @@
 				<div class="header-button" :disabled="page === 1" @click="page--"><text> &lt; </text></div>
 				<div class="header-button" :disabled="page === maxPage" @click="page++"><text> &gt; </text></div>
 			</div>
-			<span class="text" :class="{ notice }">
-				{{ notice === "" ? search : notice }}
+			<span class="text" :class="notice.type">
+				{{ notice.type === "none" ? search : notice.message }}
 			</span>
 			<Alias v-if="mut.canEditSet" :alias="alias" :invalid="invalidAlias" @update:alias="alias = $event" />
 			<div v-else class="padder" />
@@ -52,7 +52,6 @@
 import { computed, ref, toRef, watch } from "vue";
 import { onKeyDown, refAutoReset } from "@vueuse/core";
 import type { SetMutation } from "@/composable/useSetMutation";
-import { useTooltip } from "@/composable/useTooltip";
 import { searchQuery } from "@/assets/gql/seventv.user.gql";
 import ppL from "@/assets/svg/icons/ppL.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
@@ -75,12 +74,14 @@ const close = () => emit("close");
 
 const sCtx = useSettingsMenu();
 
-const pageSize = ref(64);
+const pageSize = ref(32);
 const exactMatch = ref(false);
 const page = ref(1);
 const maxPage = computed(() => (result.value ? Math.ceil(result.value?.emotes.count / pageSize.value) : 1));
 
-const notice = refAutoReset("", 3000);
+type Notice = { type: "error" | "info" | "none"; message: string };
+
+const notice = refAutoReset<Notice>({ type: "none", message: "" }, 3000);
 const alias = ref("");
 
 const invalidAlias = computed(
@@ -89,13 +90,12 @@ const invalidAlias = computed(
 		props.mut.set?.emotes.find((e) => e.name === alias.value) !== undefined,
 );
 
-const { show, hide } = useTooltip("Emote link copied to clipboard");
-
 const isEnabled = (emote: SevenTV.Emote) => {
 	return !!props.mut.set?.emotes.find((e) => e.id === emote.id);
 };
 
 const isConflict = (emote: SevenTV.Emote) => {
+	if (!props.mut.canEditSet) return false;
 	return !!props.mut.set?.emotes.find((e) => e.name === (alias.value === "" ? emote.name : alias.value));
 };
 
@@ -135,37 +135,33 @@ const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 	}
 
 	if (!props.mut.canEditSet) {
-		show(e.target as HTMLElement);
 		navigator.clipboard.writeText(`https://7tv.app/emotes/${emote.id}`);
-		setTimeout(hide, 2000);
+		notice.value = { type: "info", message: "Copied" };
 		return;
 	}
 
 	if (isEnabled(emote)) {
 		props.mut.remove(emote.id).catch(() => {
-			notice.value = "Error";
+			notice.value = { type: "error", message: "Error" };
 		});
-		if (!e.shiftKey) close();
 		return;
 	}
 
 	if (invalidAlias.value) {
-		notice.value = "Invalid alias";
+		notice.value = { type: "error", message: "Invalid alias" };
 		return;
 	}
 
 	if (isConflict(emote)) {
-		notice.value = "Name conflict";
+		notice.value = { type: "error", message: "Name conflict" };
 		return;
 	}
 
 	const name = alias.value !== "" ? alias.value : emote.name;
 	props.mut.add(emote.id, name).catch(() => {
-		notice.value = "Error";
+		notice.value = { type: "error", message: "Error" };
 	});
 	alias.value = "";
-
-	if (!e.shiftKey) close();
 };
 
 const openAuthPage = (e: MouseEvent) => {
@@ -211,11 +207,16 @@ const openAuthPage = (e: MouseEvent) => {
 			overflow: hidden;
 			width: auto;
 			margin: auto;
-		}
 
-		.notice {
-			color: rgb(220, 100, 100);
-			text-decoration: underline;
+			&.error {
+				color: rgb(220, 100, 100);
+				text-decoration: underline;
+			}
+
+			&.info {
+				color: rgb(100, 220, 100);
+				text-decoration: underline;
+			}
 		}
 
 		.page-buttons {
@@ -247,6 +248,7 @@ const openAuthPage = (e: MouseEvent) => {
 			cursor: pointer;
 			text-align: center;
 			padding: 0.5em;
+			user-select: none;
 
 			&:hover {
 				background-color: var(--color-background-button-text-hover);
