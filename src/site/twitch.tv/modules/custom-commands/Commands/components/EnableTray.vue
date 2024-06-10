@@ -74,7 +74,7 @@ const close = () => emit("close");
 
 const sCtx = useSettingsMenu();
 
-const pageSize = ref(32);
+const pageSize = ref(50);
 const exactMatch = ref(false);
 const page = ref(1);
 const maxPage = computed(() => (result.value ? Math.ceil(result.value?.emotes.count / pageSize.value) : 1));
