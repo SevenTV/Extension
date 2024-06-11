@@ -141,17 +141,18 @@ const user =
 		.change-action {
 			flex-shrink: 0;
 			font-weight: bold;
+			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 
 			&[type="add"] {
-				color: green;
+				color: var(--seventv-accent);
 			}
 
 			&[type="remove"] {
-				color: red;
+				color: var(--seventv-warning);
 			}
 
 			&[type="update"] {
-				color: blue;
+				color: var(--seventv-info);
 			}
 		}
 
