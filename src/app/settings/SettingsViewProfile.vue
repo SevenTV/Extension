@@ -1,8 +1,12 @@
 <template>
-	<div v-if="actor.token" class="profile">
-		Hello {{ actor.user?.display_name }} <br />
-		You are authenticated with 7TV <br />
-		Try using the the custom 7TV commands if a channel where you have editor rights
+	<div class="profile">
+		<template v-if="actor.user && actor.token">
+			You are authenticated with 7TV <br />
+			Try using the the custom 7TV commands if a channel where you have editor rights
+		</template>
+		<template v-else>
+			<button class="login-button" @click="login">Sign in</button>
+		</template>
 	</div>
 </template>
 <script setup lang="ts">
@@ -32,15 +36,21 @@ const listener = (ev: MessageEvent) => {
 	}
 };
 
-onMounted(() => {
+function login() {
 	if (token.value !== "") return;
+	if (w && !w.closed) {
+		w.focus();
+		return;
+	}
 	w = window.open(src, "7tv-auth", "width=400,height=600");
 	if (!w) return;
 	window.addEventListener("message", listener);
 	s = useIntervalFn(() => {
 		w?.postMessage("7tv-token-request", "*");
 	}, 100);
-});
+}
+
+onMounted(login);
 
 onUnmounted(() => {
 	w?.close();
@@ -50,8 +60,17 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .profile {
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	height: 100%;
+	padding: 1rem;
+
+	.login-button {
+		margin-top: 1rem;
+		padding: 0.5rem 1rem;
+		border: 1px solid var(--color-border-base);
+		border-radius: 0.25rem;
+	}
 }
 </style>

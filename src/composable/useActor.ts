@@ -21,31 +21,12 @@ class ActorContext {
 		this.platformUserID = id;
 	}
 
-	openAuthorizeWindow(platform: Platform): void {
-		if (this.user) return;
-
-		const w = window.open(
-			import.meta.env.VITE_APP_API + `/auth?platform=${platform}`,
-			"7TV Auth",
-			"width=500,height=600",
-		);
-		if (!w) return;
-
-		const interval = setInterval(() => {
-			if (!w.closed) return;
-
-			this.query?.refetch();
-			clearInterval(interval);
-		}, 100);
-	}
-
 	logout(): void {
 		fetch(import.meta.env.VITE_APP_API + "/auth/logout", {
 			method: "POST",
 			credentials: "include",
 		}).then(() => {
 			// So the user can re-authenticate if needed
-			this.user = null;
 			this.token = "";
 		});
 	}

@@ -74,10 +74,7 @@
 							</div>
 						</UiScrollable>
 
-						<div
-							class="seventv-settings-sidebar-actor"
-							@click="[openAuthWindow(), ctx.switchView('profile')]"
-						>
+						<div class="seventv-settings-sidebar-actor" @click="ctx.switchView('profile')">
 							<div class="seventv-settings-sidebar-profile-left">
 								<div class="seventv-settings-sidebar-profile-picture">
 									<template v-if="actor.user?.avatar_url">
@@ -108,9 +105,8 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { useBreakpoints, useMagicKeys } from "@vueuse/core";
-import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
@@ -135,7 +131,6 @@ const root = document.getElementById("root") ?? undefined;
 const dragHandle = ref<HTMLDivElement | undefined>();
 
 const filter = ref("");
-const platform = inject(SITE_CURRENT_PLATFORM, "UNKNOWN");
 
 const breakpoints = useBreakpoints({
 	compact: 960,
@@ -221,10 +216,6 @@ function getOrder(c: string | undefined) {
 
 function isOrdered(c: string): c is keyof typeof categoryOrder {
 	return c in categoryOrder;
-}
-
-function openAuthWindow(): void {
-	actor.openAuthorizeWindow(platform);
 }
 
 const sidebarScroller = ref<InstanceType<typeof UiScrollable>>();
