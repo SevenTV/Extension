@@ -43,7 +43,7 @@ const openAuthPage = (e: MouseEvent) => {
 
 const search = ref("");
 const showTray = ref(false);
-const showLogin = refAutoReset<boolean>(false, 1000000);
+const showLogin = refAutoReset<boolean>(false, 10000);
 
 async function handle(p: Promise<FetchResult | undefined>): Promise<Twitch.ChatCommand.AsyncResult> {
 	return await p
