@@ -141,7 +141,7 @@ const user =
 		.change-action {
 			flex-shrink: 0;
 			font-weight: bold;
-			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+			text-shadow: 1px 1px 2px rgba(0, 0, 0, 50%);
 
 			&[type="add"] {
 				color: var(--seventv-accent);
