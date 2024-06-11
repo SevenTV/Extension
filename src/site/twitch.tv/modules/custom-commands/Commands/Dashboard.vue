@@ -120,7 +120,7 @@ async function handleAlias(args: string) {
 	return handle(mut.rename(emote.id, newName));
 }
 
-const canEdit = () => (mut.canEditSet ? 0 : 3);
+const canEdit = () => (mut.canEditSet || mut.needsLogin ? 0 : 3);
 
 const commandSearch: Twitch.ChatCommand = {
 	name: "search",
