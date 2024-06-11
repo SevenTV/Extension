@@ -1,12 +1,44 @@
 ### 3.1.0
 
 -   Added rich embeds for 7TV emotes.
--   Added custom commands /enable /disable and /alias to manage 7TV emotes.
--   Added /search like /enable but copies to clipboard instead of enabling.
+-   Added custom commands /search /enable /disable and /alias to manage 7TV emotes.
 -   Added /song that uses the AudD api to recognize songs.
 -   Added /refresh to reload emotes.
 -   Added /nuke to moderate multiple messages at once. Can be enabled in the settings.
 -   Fixed native chat width.
+
+### 3.0.17
+
+-   Reinstated animated avatars
+-   Fixed an issue where links would include a period at the end
+-   Added an option to hide the channel point balance button under the chat input box
+-   Updated background of the current emote tab selection
+-   Fixed an issue where suspicious users were not highlighted and clips not being displayed in chat
+-   Fixed an issue which caused timestamps to count beyond 24 hours
+-   Fixed an issue which caused scrolling to not work while scrolling through a category
+-   Fixed an issue where lowercase cheers were displayed as text
+-   Added an option to hide the community challenge contributions in the chat
+-   Fixed extension not working on twitch for some users (React 18 support)
+-   Fixed an issue where chat messages (like announcements) did not use the channel accent color
+-   Fixed an issue where an emote with a long alias would cause the alias to go outside of the tooltip
+-   Added an option to hide timestamps in vods
+-   Fixed an issue which sometimes caused chat badges to not appear
+-   Fixed an issue that caused replies in threads to not appear
+-   Fixed an issue where replies in threads could not be selected
+-   Fixed an issue where switching the selected emote-set would not be detected
+-   Fixed an issue where the emote menu button did not appear on Kick
+-   Fixed an issue which sometimes caused old messages to not appear
+-   Sort emotes alphabetically with tab auto-completion on Kick
+-   Removed option to hide the React button on Twitch
+-   Added emote support for introduction & watch streak messages.
+-   Fixed an issue that caused suspicious user highlights to not persist
+-   Fixed an issue that caused returning users to not be highlighted
+-   Added an option to show raider highlights
+-   Added an option to show returning user highlights
+-   Fixed an issue that caused international names to not always display logins
+-   Fixed an issue that caused Twitch VODs to not load emotes
+-   Fixed an issue that caused emote names in emote cards to overflow
+-   Fixed an issue that caused certain words to not display in chat
 
 ### 3.0.16
 
