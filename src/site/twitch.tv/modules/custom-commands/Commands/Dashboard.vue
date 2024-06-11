@@ -8,11 +8,17 @@
 	>
 		<EnableTray :search="search" :mut="mut" name="body" @close="showTray = false" />
 	</Tray>
+	<Tray v-if="showLogin">
+		<a class="tray-notice" href="#" @click="openAuthPage"> Authenticate extension to manage emotes </a>
+	</Tray>
 </template>
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, ref } from "vue";
+import { refAutoReset } from "@vueuse/core";
 import { useSetMutation } from "@/composable/useSetMutation";
+import { Regex } from "@/site/twitch.tv";
 import EnableTray from "./components/EnableTray.vue";
+import { useSettingsMenu } from "@/app/settings/Settings";
 import Tray from "../../chat/components/tray/Tray.vue";
 import { FetchResult } from "@apollo/client";
 import { GraphQLError } from "graphql";
@@ -25,23 +31,57 @@ const props = defineProps<{
 }>();
 
 const mut = useSetMutation();
+const sCtx = useSettingsMenu();
+
+const openAuthPage = (e: MouseEvent) => {
+	e.preventDefault();
+	showLogin.value = false;
+	sCtx.open = true;
+	sCtx.switchView("profile");
+	return false;
+};
 
 const search = ref("");
 const showTray = ref(false);
+const showLogin = refAutoReset<boolean>(false, 1000000);
 
 async function handle(p: Promise<FetchResult | undefined>): Promise<Twitch.ChatCommand.AsyncResult> {
 	return await p
 		.then(() => ({}))
-		.catch((e: GraphQLError) => ({
-			notice: ("Unable to do request: " + e.message) as string,
-			error: "unauthorized",
-		}));
+		.catch((e: GraphQLError) => {
+			if (e.extensions?.code === 70401 && mut.needsLogin) {
+				showLogin.value = true;
+				return {};
+			}
+
+			return {
+				notice: ("Unable to do request: " + e.message) as string,
+				error: "unauthorized",
+			};
+		});
 }
 
-async function handleEnable(args: string) {
+async function handleSearch(args: string) {
 	search.value = args.split(" ").filter((n) => n)[0];
 
 	return nextTick(() => (showTray.value = true)).then(() => ({}));
+}
+
+async function handleEnable(args: string) {
+	const linkMatch = args.match(Regex.SevenTVLink);
+	if (linkMatch && linkMatch.groups?.emoteID) {
+		return handle(mut.add(linkMatch.groups.emoteID));
+	}
+
+	const emoteIDMatch = args.match(Regex.EmoteID);
+	if (emoteIDMatch) {
+		return handle(mut.add(emoteIDMatch[0]));
+	}
+
+	return {
+		notice: "Invalid 7TV emote link or ID.",
+		error: "invalid_parameters",
+	};
 }
 
 async function handleDisable(args: string) {
@@ -80,13 +120,17 @@ async function handleAlias(args: string) {
 	return handle(mut.rename(emote.id, newName));
 }
 
-const commandEnable: Twitch.ChatCommand = {
+const canEdit = () => (mut.canEditSet ? 0 : 3);
+
+const commandSearch: Twitch.ChatCommand = {
 	name: "search",
-	description: "Search for 7TV emote",
+	get description() {
+		return !mut.canEditSet ? "Search for 7TV emote" : "Search for 7TV emote and add/remove it";
+	},
 	helpText: "",
 	permissionLevel: 0,
 	handler: (args) => {
-		return { deferred: handleEnable(args) };
+		return { deferred: handleSearch(args) };
 	},
 	commandArgs: [
 		{
@@ -97,11 +141,32 @@ const commandEnable: Twitch.ChatCommand = {
 	group: "7TV",
 };
 
+const commandEnable: Twitch.ChatCommand = {
+	name: "add",
+	description: "Add a 7TV emote",
+	helpText: "",
+	get permissionLevel() {
+		return canEdit();
+	},
+	handler: (args) => {
+		return { deferred: handleEnable(args) };
+	},
+	commandArgs: [
+		{
+			name: "link or ID",
+			isRequired: true,
+		},
+	],
+	group: "7TV",
+};
+
 const commandDisable: Twitch.ChatCommand = {
 	name: "remove",
 	description: "Remove a 7TV emote",
 	helpText: "",
-	permissionLevel: 0,
+	get permissionLevel() {
+		return canEdit();
+	},
 	handler: (args) => {
 		return { deferred: handleDisable(args) };
 	},
@@ -118,7 +183,9 @@ const commandAlias: Twitch.ChatCommand = {
 	name: "alias",
 	description: "Set an alias for a 7TV emote",
 	helpText: "",
-	permissionLevel: 0,
+	get permissionLevel() {
+		return canEdit();
+	},
 	handler: (args) => {
 		return { deferred: handleAlias(args) };
 	},
@@ -136,26 +203,23 @@ const commandAlias: Twitch.ChatCommand = {
 };
 
 onMounted(() => {
+	props.add(commandSearch);
 	props.add(commandEnable);
+	props.add(commandDisable);
+	props.add(commandAlias);
 });
 
-watch(
-	() => mut.canEditSet,
-	(c) => {
-		if (c) {
-			props.add(commandDisable);
-			props.add(commandAlias);
-		} else {
-			props.remove(commandDisable);
-			props.remove(commandAlias);
-		}
-	},
-	{ immediate: true },
-);
-
 onUnmounted(() => {
+	props.remove(commandSearch);
 	props.remove(commandEnable);
 	props.remove(commandDisable);
 	props.remove(commandAlias);
 });
 </script>
+
+<style scoped lang="scss">
+.tray-notice {
+	display: block;
+	text-align: center;
+}
+</style>
