@@ -15,13 +15,18 @@
 						</p>
 					</template>
 				</div>
+				<AliasButton
+					v-if="conflictWithoutAlias"
+					class="alias-button"
+					:alias="alias"
+					@update:alias="(v) => (alias = v)"
+				/>
 				<div class="action-button" :type="buttonType" @click="onClick">
 					<template v-if="buttonType === TYPE.LINK">
 						<OpenLinkIcon />
 					</template>
-					<template v-else>
-						{{ buttonType === TYPE.ADD ? "+" : "-" }}
-					</template>
+					<template v-else-if="buttonType === TYPE.REMOVE"> - </template>
+					<template v-else-if="buttonType === TYPE.ADD"> + </template>
 				</div>
 			</template>
 		</div>
@@ -37,9 +42,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { SEVENTV_EMOTE_NAME_REGEXP } from "@/common/Constant";
 import { useSetMutation } from "@/composable/useSetMutation";
 import OpenLinkIcon from "@/assets/svg/icons/OpenLinkIcon.vue";
 import Emote from "./Emote.vue";
+import AliasButton from "./EmoteAliasButton.vue";
 import { useSettingsMenu } from "../settings/Settings";
 
 const props = defineProps<{
@@ -48,6 +55,7 @@ const props = defineProps<{
 
 const link = import.meta.env.VITE_APP_SITE + `/emotes/${props.emoteId}`;
 const emote = ref<SevenTV.ActiveEmote>();
+const alias = ref("");
 const blurred = ref(true);
 
 const mut = useSetMutation();
@@ -60,16 +68,20 @@ const isEmoteInSet = computed(() => {
 const TYPE = {
 	ADD: "add",
 	REMOVE: "remove",
+	CONFLICT: "conflict",
 	LINK: "link",
 };
 
 async function onClick() {
 	switch (buttonType.value) {
 		case TYPE.ADD:
-			await mut.add(props.emoteId);
+			await mut.add(props.emoteId, alias.value !== "" ? alias.value : undefined);
+			alias.value = "";
 			break;
 		case TYPE.REMOVE:
 			await mut.remove(props.emoteId);
+			break;
+		case TYPE.CONFLICT:
 			break;
 		case TYPE.LINK:
 			window.open(link, "_blank");
@@ -84,9 +96,19 @@ const openAuthPage = (e: MouseEvent) => {
 	return false;
 };
 
+const conflictWithoutAlias = computed(() => {
+	if (buttonType.value === TYPE.LINK || buttonType.value === TYPE.REMOVE) return false;
+	return !!mut.set?.emotes.find((e) => e.name === emote.value?.name);
+});
+
 const buttonType = computed(() => {
-	if (!mut.canEditSet) return TYPE.LINK;
-	return isEmoteInSet.value ? TYPE.REMOVE : TYPE.ADD;
+	if (!mut.canEditSet || !emote.value) return TYPE.LINK;
+	if (isEmoteInSet.value) return TYPE.REMOVE;
+	const isConflict =
+		mut.set?.emotes.find((e) => e.name === (alias.value !== "" ? alias.value : emote.value?.name)) ||
+		!SEVENTV_EMOTE_NAME_REGEXP.test(alias.value);
+	if (isConflict) return TYPE.CONFLICT;
+	return TYPE.ADD;
 });
 
 async function fetchEmote() {
@@ -196,6 +218,10 @@ onMounted(fetchEmote);
 			}
 		}
 
+		.alias-button {
+			margin: 0.1rem;
+		}
+
 		.action-button {
 			padding: 0.5rem;
 			border: 0.1rem solid black;
@@ -209,15 +235,21 @@ onMounted(fetchEmote);
 			cursor: pointer;
 
 			&[type="add"] {
-				background-color: green;
+				background-color: var(--seventv-accent);
 				font-weight: 1200;
 				font-size: 2rem;
 			}
 
 			&[type="remove"] {
-				background-color: red;
+				background-color: var(--seventv-error);
 				font-weight: 1200;
 				font-size: 2rem;
+			}
+
+			&[type="conflict"] {
+				background-color: #66bb6a40;
+				pointer-events: none;
+				display: none;
 			}
 
 			&[type="link"] {

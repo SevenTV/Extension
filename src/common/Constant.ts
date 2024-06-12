@@ -26,3 +26,4 @@ export const SEVENTV_EMOTE_LINK = new RegExp(
 	"i",
 );
 export const SEVENTV_EMOTE_ID = new RegExp("[0-9a-f]{24}");
+export const SEVENTV_EMOTE_NAME_REGEXP = new RegExp("^[-_A-Za-z():0-9]{2,100}$");

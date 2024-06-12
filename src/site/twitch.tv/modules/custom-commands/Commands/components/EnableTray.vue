@@ -51,18 +51,17 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from "vue";
 import { onKeyDown, refAutoReset } from "@vueuse/core";
+import { SEVENTV_EMOTE_NAME_REGEXP } from "@/common/Constant";
 import type { SetMutation } from "@/composable/useSetMutation";
 import { searchQuery } from "@/assets/gql/seventv.user.gql";
 import ppL from "@/assets/svg/icons/ppL.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
-import Alias from "./EmoteAliasButton.vue";
 import Emote from "@/app/chat/Emote.vue";
+import Alias from "@/app/chat/EmoteAliasButton.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { useQuery } from "@vue/apollo-composable";
-
-const emoteNameRegex = new RegExp("^[-_A-Za-z():0-9]{2,100}$");
 
 const props = defineProps<{
 	search: string;
@@ -86,7 +85,7 @@ const alias = ref("");
 
 const invalidAlias = computed(
 	() =>
-		(alias.value !== "" ? !emoteNameRegex.test(alias.value) : false) ||
+		(alias.value !== "" ? !SEVENTV_EMOTE_NAME_REGEXP.test(alias.value) : false) ||
 		props.mut.set?.emotes.find((e) => e.name === alias.value) !== undefined,
 );
 
