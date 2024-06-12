@@ -2,7 +2,7 @@
 	<input
 		ref="inputEl"
 		:type="type"
-		autcomplete="off"
+		autocomplete="off"
 		:error="error"
 		:autofocus="autofocus"
 		:value="modelValue"

@@ -3,7 +3,7 @@
 		<input
 			:id="node.key"
 			v-model="temp"
-			autcomplete="off"
+			autocomplete="off"
 			:valid="isValid"
 			:placeholder="node.options?.placeholder"
 			:type="node.options?.type ?? 'inputbox'"
