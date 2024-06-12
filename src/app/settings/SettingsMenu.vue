@@ -25,7 +25,14 @@
 					<!-- Sidebar -->
 					<div class="seventv-settings-sidebar">
 						<div class="seventv-settings-sidebar-search">
-							<input v-model="filter" placeholder="Search..." class="seventv-settings-search-input" />
+							<input
+								v-model="filter"
+								placeholder="Search..."
+								type="text"
+								name="search"
+								autocomplete="off"
+								class="seventv-settings-search-input"
+							/>
 						</div>
 
 						<UiScrollable ref="sidebarScroller" @container-scroll="updateSidebarExpansionIndicator">
