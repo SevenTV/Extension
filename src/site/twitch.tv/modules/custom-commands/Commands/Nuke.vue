@@ -125,7 +125,8 @@ const handler: Twitch.ChatCommand.Handler = (args: string) => {
 		const asRegex = matches.pattern.match(re.isRegex);
 
 		parsed = {
-			pattern: asRegex ? new RegExp(asRegex[1], asRegex[2]) : new RegExp(matches.pattern),
+			regexp: asRegex ? new RegExp(asRegex[1], asRegex[2]) : undefined,
+			pattern: matches.pattern,
 			action: matches.action
 				? matches.action
 				: defaultAction.value !== "timeout"
@@ -219,12 +220,16 @@ async function execute(args: NukeArgs): Promise<string> {
 		if (msg.type !== 0 || msg.user?.userID == ctx.user?.id || msg.user?.userType == "mod") return;
 		if (args.action != "delete" && executed.has(msg.user!.userLogin)) return;
 
-		if (msg && args.pattern.test(msg.messageBody)) {
-			if (bucket.take()) {
-				messages.sendMessage(msgBuilder(msg));
-				executed.add(msg.user!.userLogin);
-				amount += 1;
-			}
+		if (args.regexp) {
+			if (!args.regexp.test(msg.messageBody)) return;
+		} else {
+			if (!msg.messageBody.includes(args.pattern!)) return;
+		}
+
+		if (bucket.take()) {
+			messages.sendMessage(msgBuilder(msg));
+			executed.add(msg.user!.userLogin);
+			amount += 1;
 		}
 	};
 
@@ -301,14 +306,15 @@ onUnmounted(() => {
 const re = {
 	isRegex: new RegExp("/(?<pattern>.+)/(?<params>[gimyused]*)"),
 	nukeArgs: new RegExp(
-		"^(?<pattern>(\\/.+\\/|.+?))( (?<action>(delete|ban|[0-9]+[dhms])))?( (?<before>[0-9]+[dhmsDHMS]))?(:(?<after>([0-9]+[dhms])))?( (?<reason>.+?))?\\s?$",
+		"^(?<pattern>(\\/.+\\/|.+?))(((\\s(?<action>(delete|ban|[0-9]+[dhms])))( (?<before>[0-9]+[dhms]))?(:(?<after>([0-9]+[dhms])))?)( (?<reason>.+?))?)?\\s?$",
 		"i",
 	),
 	duration: new RegExp("^[0-9]+[dhms]$", "i"),
 };
 
 interface NukeArgs {
-	pattern: RegExp;
+	pattern: string;
+	regexp?: RegExp;
 	action: string;
 	before: number;
 	after?: number;
