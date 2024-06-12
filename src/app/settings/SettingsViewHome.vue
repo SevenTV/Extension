@@ -10,10 +10,11 @@
 				<div class="seventv-settings-app-info">
 					<span class="seventv-settings-compact">{{ appName }} ({{ appContainer }})</span>
 					<span class="seventv-version">
-						<span>v{{ version }}</span>
 						<span v-if="isRemote" v-tooltip="'Running in Hosted Mode'" class="seventv-version-remote">
+							<span>v{{ remoteVersion }}</span>
 							<CloudIcon />
 						</span>
+						<span v-else>v{{ version }}</span>
 					</span>
 					<span class="seventv-settings-compact">API: {{ appServer }}</span>
 				</div>
@@ -31,6 +32,7 @@ const appContainer = import.meta.env.VITE_APP_CONTAINER ?? "Extension";
 const appServer = import.meta.env.VITE_APP_API ?? "Offline";
 const version = import.meta.env.VITE_APP_VERSION;
 const isRemote = seventv.hosted || false;
+const remoteVersion = seventv.host_manifest?.version;
 </script>
 <style scoped lang="scss">
 .seventv-settings-home {
