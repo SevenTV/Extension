@@ -1,7 +1,7 @@
 ### 3.1.0.1000
 
 -   Added rich embeds for 7TV emotes.
--   Added custom commands /search, /add, /remove and /alias to manage 7TV emotes.
+-   Added custom commands /search, /add, /remove and /rename to manage 7TV emotes.
 -   Added /song that uses the AudD api to recognize songs.
 -   Added /refresh to reload emotes.
 -   Added /nuke to moderate multiple messages at once. Can be enabled in the settings.
