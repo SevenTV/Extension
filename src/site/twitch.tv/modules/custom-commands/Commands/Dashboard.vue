@@ -127,7 +127,8 @@ const commandSearch: Twitch.ChatCommand = {
 	get description() {
 		return !mut.canEditSet ? "Search for 7TV emote" : "Search for 7TV emote and add/remove it";
 	},
-	helpText: "",
+	helpText:
+		"Search for a 7TV emote, and add/remove it if you have the permission. Green outline indicates the emote is already added, red outline indicates a name conflict and gold outline indicates a zero-width emote.",
 	permissionLevel: 0,
 	handler: (args) => {
 		return { deferred: handleSearch(args) };
@@ -144,7 +145,7 @@ const commandSearch: Twitch.ChatCommand = {
 const commandEnable: Twitch.ChatCommand = {
 	name: "add",
 	description: "Add a 7TV emote",
-	helpText: "",
+	helpText: "Add a 7TV emote using a link or 7TV emote ID.",
 	get permissionLevel() {
 		return canEdit();
 	},
@@ -163,7 +164,7 @@ const commandEnable: Twitch.ChatCommand = {
 const commandDisable: Twitch.ChatCommand = {
 	name: "remove",
 	description: "Remove a 7TV emote",
-	helpText: "",
+	helpText: "Remove a 7TV emote by name.",
 	get permissionLevel() {
 		return canEdit();
 	},
@@ -180,9 +181,9 @@ const commandDisable: Twitch.ChatCommand = {
 };
 
 const commandAlias: Twitch.ChatCommand = {
-	name: "alias",
-	description: "Set an alias for a 7TV emote",
-	helpText: "",
+	name: "rename",
+	description: "Rename a 7TV emote",
+	helpText: "Rename a 7TV emote from current name to new name.",
 	get permissionLevel() {
 		return canEdit();
 	},

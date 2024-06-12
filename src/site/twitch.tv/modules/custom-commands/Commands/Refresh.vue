@@ -28,7 +28,8 @@ const handler: Twitch.ChatCommand.Handler = () => {
 const command: Twitch.ChatCommand = {
 	name: "refresh",
 	description: "Refresh chat emotes",
-	helpText: "Refresh chat emotes",
+	helpText:
+		"Refresh chat emotes, this might fix missing emotes sets, but will not update emotes that have been added very recently.",
 	permissionLevel: 0,
 	handler: handler,
 	group: "7TV",
