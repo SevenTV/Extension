@@ -4,7 +4,7 @@
 			<span class="seventv-logo">
 				<Logo provider="7TV" />
 			</span>
-			<span class="seventv-message-title"> Emote Set Update </span>
+			<span class="seventv-message-title" :style="{ color }"> {{ title }} </span>
 			<span v-if="appUser" class="seventv-author">
 				<UserTag :user="user" />
 			</span>
@@ -31,7 +31,7 @@
 						</template>
 					</div>
 
-					<span class="change-action" :type="'add'"> Added </span>
+					<span v-if="isMultiple" class="change-action" :type="'add'"> Added </span>
 				</div>
 			</template>
 
@@ -47,7 +47,7 @@
 						</template>
 					</div>
 
-					<span class="change-action" :type="'remove'"> Removed </span>
+					<span v-if="isMultiple" class="change-action" :type="'remove'"> Removed </span>
 				</div>
 			</template>
 
@@ -60,7 +60,7 @@
 						<p class="emote-name" :title="n.name">{{ n.name }}</p>
 						<p class="emote-owner" :title="o.name">From: {{ o.name }}</p>
 					</div>
-					<span class="change-action" :type="'update'"> Rename </span>
+					<span v-if="isMultiple" class="change-action" :type="'update'"> Rename </span>
 				</div>
 			</template>
 		</div>
@@ -86,6 +86,24 @@ const props = defineProps<{
 
 const ctx = useChannelContext();
 const { chatters } = useChatMessages(ctx);
+
+let title = "Emote Set Update";
+let color = "currentColor";
+
+const filtered = [props.add, props.remove, props.update].filter((a) => a.length > 0);
+const isMultiple = filtered.length > 1;
+if (!props.wholeSet || isMultiple) {
+	if (props.add.length > 0) {
+		title = "Added Emote";
+		color = "var(--seventv-accent)";
+	} else if (props.remove.length > 0) {
+		title = "Removed Emote";
+		color = "var(--seventv-warning)";
+	} else if (props.update.length > 0) {
+		title = "Renamed Emote";
+		color = "var(--seventv-info)";
+	}
+}
 
 const uc = props.appUser.connections?.find((c) => c.platform === "TWITCH");
 const user =
