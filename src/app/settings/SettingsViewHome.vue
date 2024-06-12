@@ -10,10 +10,12 @@
 				<div class="seventv-settings-app-info">
 					<span class="seventv-settings-compact">{{ appName }} ({{ appContainer }})</span>
 					<span class="seventv-version">
-						<span v-if="isRemote" v-tooltip="'Running in Hosted Mode'" class="seventv-version-remote">
+						<template v-if="isRemote">
 							<span>v{{ remoteVersion }}</span>
-							<CloudIcon />
-						</span>
+							<span v-tooltip="'Running in Hosted Mode'" class="seventv-version-remote">
+								<CloudIcon />
+							</span>
+						</template>
 						<span v-else>v{{ version }}</span>
 					</span>
 					<span class="seventv-settings-compact">API: {{ appServer }}</span>
