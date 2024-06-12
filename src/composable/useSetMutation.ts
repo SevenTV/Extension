@@ -1,6 +1,5 @@
 import { computed, reactive, watch } from "vue";
 import { Logger } from "@/common/Logger";
-import { SevenTVRoles } from "@/common/Roles";
 import { changeEmoteInSetMutation } from "@/assets/gql/seventv.user.gql";
 import { useChannelContext } from "./channel/useChannelContext";
 import { useChatEmotes } from "./chat/useChatEmotes";
@@ -47,11 +46,8 @@ export function useSetMutation(setID?: string): SetMutation {
 	});
 
 	const canEditIfLoggedIn = computed(() => {
-		console.log(actor.user?.roles);
 		if (!actor.user) return false;
 		if (ctx.id == actor.platformUserID) return true;
-		if (actor.user.roles?.some((r) => [SevenTVRoles.MODERATOR, SevenTVRoles.ADMIN].includes(r as SevenTVRoles)))
-			return true;
 		return (ctx.user?.editors ?? []).some((e) => e.id == actor.user?.id);
 	});
 
