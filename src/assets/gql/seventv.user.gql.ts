@@ -53,6 +53,11 @@ export const userByConnectionQuery = gql`
 			editors {
 				id
 			}
+			editor_of {
+				id
+				permissions
+			}
+			roles
 		}
 	}
 `;

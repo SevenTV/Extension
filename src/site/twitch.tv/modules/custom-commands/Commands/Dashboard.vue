@@ -15,8 +15,8 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from "vue";
 import { refAutoReset } from "@vueuse/core";
+import { SEVENTV_EMOTE_ID, SEVENTV_EMOTE_LINK } from "@/common/Constant";
 import { useSetMutation } from "@/composable/useSetMutation";
-import { Regex } from "@/site/twitch.tv";
 import EnableTray from "./components/EnableTray.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
 import Tray from "../../chat/components/tray/Tray.vue";
@@ -68,12 +68,12 @@ async function handleSearch(args: string) {
 }
 
 async function handleEnable(args: string) {
-	const linkMatch = args.match(Regex.SevenTVLink);
+	const linkMatch = args.match(SEVENTV_EMOTE_LINK);
 	if (linkMatch && linkMatch.groups?.emoteID) {
 		return handle(mut.add(linkMatch.groups.emoteID));
 	}
 
-	const emoteIDMatch = args.match(Regex.EmoteID);
+	const emoteIDMatch = args.match(SEVENTV_EMOTE_ID);
 	if (emoteIDMatch) {
 		return handle(mut.add(emoteIDMatch[0]));
 	}

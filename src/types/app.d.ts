@@ -172,9 +172,18 @@ declare namespace SevenTV {
 		style?: UserStyle;
 		connections?: UserConnection[];
 		emote_sets?: EmoteSet[];
-		editors?: User[];
+		editors?: UserEditor[];
+		editor_of?: UserEditor[];
+		roles?: string[];
 	}
 
+	interface UserEditor {
+		id: ObjectID;
+		user: UserPartial;
+		permissions: Int;
+		visible: boolean;
+		added_at: int;
+	}
 	interface UserStyle {
 		color: number;
 		paint_id?: ObjectID;

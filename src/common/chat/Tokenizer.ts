@@ -8,6 +8,7 @@ import type {
 	VoidToken,
 } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
+import { SEVENTV_EMOTE_LINK } from "../Constant";
 import { parse as tldParse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\/|\.$/i;
@@ -145,7 +146,7 @@ export class Tokenizer {
 	}
 
 	private isSeventvEmoteLink(u: string): string | null {
-		const match = u.match(Regex.SevenTVLink);
+		const match = u.match(SEVENTV_EMOTE_LINK);
 		return match?.groups!.emoteID ?? null;
 	}
 }
