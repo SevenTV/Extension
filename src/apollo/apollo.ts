@@ -1,3 +1,4 @@
+import { decodeJWT } from "@/common/Jwt";
 import { useConfig } from "@/composable/useSettings";
 import { ApolloClient, ApolloLink, InMemoryCache, createHttpLink } from "@apollo/client/core";
 
@@ -7,14 +8,6 @@ export const httpLink = createHttpLink({
 });
 
 const token = useConfig<string>("app.7tv.token");
-function decodeJWT(token: string): SevenTV.JWT | undefined {
-	try {
-		return JSON.parse(atob(token.split(".")[1]));
-	} catch {
-		return;
-	}
-}
-
 const authLink = new ApolloLink((op, next) => {
 	const jwt = decodeJWT(token.value);
 	if (!jwt || jwt.exp * 1000 < Date.now()) {
