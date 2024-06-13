@@ -39,6 +39,7 @@
 							<div class="seventv-settings-sidebar-categories">
 								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
+									v-if="'home changelog version'.includes(filter.toLowerCase())"
 									category="Home"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('home')"
@@ -53,18 +54,24 @@
 									/>
 								</template>
 								<CategoryDropdown
-									v-if="actor.user && actor.user.style?.paint_id"
+									v-if="
+										actor.user &&
+										actor.user.style?.paint_id &&
+										'paint tool subscriber color'.includes(filter.toLowerCase())
+									"
 									:style="{ color: 'var(--seventv-subscriber-color)' }"
 									category="Paint Tool"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('paint')"
 								/>
 								<CategoryDropdown
+									v-if="'compatibility error fix check'.includes(filter.toLowerCase())"
 									category="Compatibility"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('compat')"
 								/>
 								<CategoryDropdown
+									v-if="'backup restore config export import'.includes(filter.toLowerCase())"
 									category="Backup"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('backup')"
@@ -81,7 +88,7 @@
 							</div>
 						</UiScrollable>
 
-						<div class="seventv-settings-sidebar-actor" @click="ctx.switchView('profile')">
+						<div class="seventv-settings-sidebar-actor" @click="openProfile">
 							<div class="seventv-settings-sidebar-profile-left">
 								<div class="seventv-settings-sidebar-profile-picture">
 									<template v-if="actor.user?.avatar_url">
@@ -248,6 +255,11 @@ function scrollSidebarToNextPage() {
 
 	container.scrollTop = Math.max(0, Math.max(bottomExtreme, current + visible));
 }
+
+const openProfile = () => {
+	ctx.view = null;
+	nextTick(() => ctx.switchView("profile"));
+};
 
 const keys = useMagicKeys();
 const paintToolShortcut = keys["Alt+Shift+P"];
