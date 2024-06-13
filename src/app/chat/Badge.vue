@@ -50,7 +50,5 @@ if (isApp(props.badge)) {
 .seventv-chat-badge {
 	display: inline-block;
 	vertical-align: baseline;
-	min-width: 1.8rem;
-	min-height: 1.8rem;
 }
 </style>

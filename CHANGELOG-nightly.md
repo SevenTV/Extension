@@ -1,3 +1,7 @@
+### 3.1.0.2000
+
+-   Fixed badge width on kick
+
 ### 3.1.0.1000
 
 -   Added rich embeds for 7TV emotes.
