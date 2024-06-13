@@ -43,7 +43,7 @@ const listener = (ev: MessageEvent) => {
 			w?.close();
 			window.removeEventListener("message", listener);
 
-			if ((decodeJWT(ev.data.token as string)?.exp ?? 0) * 0 < Date.now()) {
+			if ((decodeJWT(ev.data.token as string)?.exp ?? 0) * 1000 < Date.now()) {
 				isExpired.value = true;
 				return;
 			}

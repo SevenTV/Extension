@@ -6,6 +6,7 @@
 -   Added /refresh to reload emotes.
 -   Added /nuke to moderate multiple messages at once. Can be enabled in the settings.
 -   Fixed native chat width.
+-   Make all setting pages searchable.
 
 ### 3.0.17.1000
 
