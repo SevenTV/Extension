@@ -1,6 +1,14 @@
-### Untitled Version
+### 3.1.0.1000
 
-**The changes listed here are not assigned to an official release**.
+-   Added rich embeds for 7TV emotes.
+-   Added custom commands /search, /add, /remove and /rename to manage 7TV emotes.
+-   Added /song that uses the AudD api to recognize songs. (Requires an api token from [AudD](https://audd.io/))
+-   Added /refresh to reload emotes.
+-   Added /nuke to moderate multiple messages at once. Can be enabled in the settings.
+-   Fixed native chat width.
+-   Make all setting pages searchable.
+
+### 3.0.17.1000
 
 -   Reinstated animated avatars
 -   Fixed an issue where links would include a period at the end

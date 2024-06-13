@@ -132,18 +132,24 @@ export class WorkerHttp {
 		};
 
 		// iterate results and store sets to DB
-		for (const [provider, fetchSetData] of promises) {
-			if (!port.providers.has(provider)) continue;
-
-			fetchSetData()
-				.then(onResult)
-				.catch((err) =>
-					this.driver.log.error(
-						`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`,
-						err,
-					),
-				);
-		}
+		Promise.allSettled(
+			promises
+				.filter(([provider]) => port.providers.has(provider))
+				.map(([provider, fetchSetData]) =>
+					fetchSetData()
+						.then(onResult)
+						.catch((err) =>
+							this.driver.log.error(
+								`<Net/Http> failed to load emote set from provider ${provider} in #${channel.username}`,
+								err,
+							),
+						),
+				),
+		).then(() => {
+			port?.postMessage("CHANNEL_SETS_FETCHED", {
+				channel,
+			});
+		});
 
 		channel.user = (await userPromise)?.user ?? undefined;
 		if (port) {

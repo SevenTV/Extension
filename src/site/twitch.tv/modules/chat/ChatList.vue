@@ -237,10 +237,10 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					: null;
 
 			msg.parent = {
-				id: msgData.reply.parentMsgId,
-				uid: msgData.reply.parentUid,
-				deleted: msgData.reply.parentDeleted,
-				body: msgData.reply.parentMessageBody,
+				id: msgData.reply.parentMsgId ?? "",
+				uid: msgData.reply.parentUid ?? "",
+				deleted: msgData.reply.parentDeleted ?? false,
+				body: msgData.reply.parentMessageBody ?? "",
 				author: parentMsgAuthor,
 				thread: parentMsgThread,
 			};

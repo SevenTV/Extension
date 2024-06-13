@@ -59,6 +59,7 @@ const app = createApp({
 	render: () => h(App),
 });
 
+app.config.compilerOptions.comments = !!seventv.isDev;
 app.provide("app-id", appID);
 
 const extensionOrigin = scr?.getAttribute("extension_origin") ?? "";

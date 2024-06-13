@@ -289,6 +289,10 @@ export function useChatMessages(ctx: ChannelContext) {
 		});
 	}
 
+	function reload() {
+		data.displayed.forEach((msg) => msg.refresh());
+	}
+
 	return reactive({
 		displayed: toRef(data, "displayed"),
 		handlers: data.twitchHandlers,
@@ -302,5 +306,6 @@ export function useChatMessages(ctx: ChannelContext) {
 		awaitMessage,
 		add,
 		clear,
+		reload,
 	});
 }

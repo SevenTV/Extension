@@ -147,6 +147,12 @@ function useHandlers(mp: MessagePort) {
 				events.emit("channel_fetched", channel);
 				break;
 			}
+			case "CHANNEL_SETS_FETCHED": {
+				const { channel } = data as TypedWorkerMessage<"CHANNEL_SETS_FETCHED">;
+
+				events.emit("channel_sets_fetched", channel);
+				break;
+			}
 			case "COSMETIC_CREATED": {
 				const cosmetic = data as TypedWorkerMessage<"COSMETIC_CREATED">;
 
@@ -216,13 +222,30 @@ class WorkletTarget extends EventTarget {
 	emit<T extends WorkletEventName>(type: T, data: WorkletTypedEvent<T>) {
 		this.dispatchEvent(new CustomEvent(type, { detail: data }));
 	}
+
+	/**
+	 * Listen until callback returns true
+	 *
+	 * @param name event name
+	 * @param cb event callback
+	 **/
+	async listenUntil<T extends WorkletEventName>(name: T, cb: (ev: WorkletEvent<T>) => boolean) {
+		await new Promise<void>((resolve) => {
+			this.addEventListener(name, (ev) => {
+				if (!cb(ev)) return;
+				this.removeEventListener(name, cb);
+				resolve();
+			});
+		});
+	}
 }
 
-type WorkletEventName =
+export type WorkletEventName =
 	| "ready"
 	| "config"
 	| "identity_fetched"
 	| "channel_fetched"
+	| "channel_sets_fetched"
 	| "cosmetic_created"
 	| "entitlement_created"
 	| "entitlement_deleted"
@@ -236,6 +259,7 @@ type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	config: TypedWorkerMessage<"CONFIG">;
 	identity_fetched: TypedWorkerMessage<"IDENTITY_FETCHED">;
 	channel_fetched: CurrentChannel;
+	channel_sets_fetched: CurrentChannel;
 	cosmetic_created: Pick<SevenTV.Cosmetic, "id" | "data" | "kind">;
 	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
 	entitlement_deleted: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;

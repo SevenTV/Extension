@@ -8,6 +8,7 @@ import type {
 	VoidToken,
 } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
+import { SEVENTV_EMOTE_LINK } from "../Constant";
 import { parse as tldParse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\/|\.$/i;
@@ -36,6 +37,7 @@ export class Tokenizer {
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
 		let parsedUrl: URL | null = null;
+		let emoteID: string | null = null;
 
 		const toVoid = (start: number, end: number) =>
 			({
@@ -95,6 +97,10 @@ export class Tokenizer {
 						url: parsedUrl.toString(),
 					},
 				} as LinkToken);
+				// Check if the link is a 7TV emote link
+				if ((emoteID = this.isSeventvEmoteLink(parsedUrl.href))) {
+					this.msg.emoteLinkEmbed = emoteID;
+				}
 			} else if (part.match(Regex.Mention) || maybeMention) {
 				//  Check mention
 				const commaAt = part.indexOf(",");
@@ -137,6 +143,11 @@ export class Tokenizer {
 		}
 
 		return null;
+	}
+
+	private isSeventvEmoteLink(u: string): string | null {
+		const match = u.match(SEVENTV_EMOTE_LINK);
+		return match?.groups!.emoteID ?? null;
 	}
 }
 

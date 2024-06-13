@@ -73,6 +73,8 @@
 		<!-- Chat Rich Embed -->
 		<RichEmbed v-if="msg.richEmbed.request_url" :rich-embed="msg.richEmbed" />
 
+		<EmoteLinkEmbed v-if="msg.emoteLinkEmbed" :emote-id="msg.emoteLinkEmbed" />
+
 		<!-- Ban State -->
 		<template v-if="!hideModeration && (msg.moderation.banned || msg.moderation.deleted)">
 			<span v-if="msg.moderation.banned" class="seventv-chat-message-moderated">
@@ -102,6 +104,7 @@ import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
 import ModIcons from "@/site/twitch.tv/modules/chat/components/mod/ModIcons.vue";
 import Emote from "./Emote.vue";
+import EmoteLinkEmbed from "./EmoteLinkEmbed.vue";
 import MessageTokenLink from "./MessageTokenLink.vue";
 import MessageTokenMention from "./MessageTokenMention.vue";
 import RichEmbed from "./RichEmbed.vue";
@@ -207,6 +210,9 @@ watch(
 	{ immediate: true },
 );
 
+// eslint-disable-next-line vue/no-mutating-props
+props.msg.refresh = doTokenize;
+
 // For historical messages
 // Re-render emotes once they load in
 if (props.msg.historical) {
@@ -269,15 +275,17 @@ watchEffect(() => {
 	display: block;
 
 	&.has-highlight {
-		margin: -0.5rem -0.75rem -0.5rem -1rem;
+		padding: 1rem calc(var(--seventv-chat-padding, 1rem) - 0.25rem);
+		margin: -0.5rem;
+		margin-left: calc(var(--seventv-chat-padding, 1rem) * -1);
+		margin-right: calc(-1 * var(--seventv-chat-padding, 1rem) + 0.25rem);
+		border: 0.25rem solid transparent;
+		border-top: none;
+		border-bottom: none;
 
 		&[data-highlight-style="0"] {
-			border: 0.25rem solid;
-			border-top: none;
-			border-bottom: none;
 			border-color: var(--seventv-highlight-color);
 			background-color: var(--seventv-highlight-dim-color);
-			padding: 1rem 0.75rem;
 
 			.seventv-chat-message-highlight-label {
 				&::after {
@@ -296,7 +304,6 @@ watchEffect(() => {
 		}
 
 		&[data-highlight-style="1"] {
-			padding: 0.5rem 1.5rem;
 			background-color: var(--seventv-highlight-dim-color);
 		}
 	}

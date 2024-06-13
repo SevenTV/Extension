@@ -1,4 +1,5 @@
 import { InjectionKey, inject, provide, reactive, toRaw, watch } from "vue";
+import { useConfig } from "@/composable/useSettings";
 import { userByConnectionQuery, userQuery } from "@/assets/gql/seventv.user.gql";
 import { SubscriptionResponse, useEgVault } from "@/app/store/egvault";
 import { useLazyQuery } from "@vue/apollo-composable";
@@ -8,6 +9,7 @@ const ACTOR_KEY: InjectionKey<ActorContext> = Symbol("ActorContext");
 class ActorContext {
 	user: SevenTV.User | null = null;
 	sub: SubscriptionResponse | null = null;
+	token = useConfig<string>("app.7tv.token") as unknown as string;
 
 	platform: Platform | null = null;
 	platformUserID: string | null = null;
@@ -19,32 +21,13 @@ class ActorContext {
 		this.platformUserID = id;
 	}
 
-	openAuthorizeWindow(platform: Platform): void {
-		if (this.user) return;
-
-		const w = window.open(
-			import.meta.env.VITE_APP_API + `/auth?platform=${platform}`,
-			"7TV Auth",
-			"width=500,height=600",
-		);
-		if (!w) return;
-
-		const interval = setInterval(() => {
-			if (!w.closed) return;
-
-			this.query?.refetch();
-			clearInterval(interval);
-		}, 100);
-	}
-
 	logout(): void {
 		fetch(import.meta.env.VITE_APP_API + "/auth/logout", {
 			method: "POST",
 			credentials: "include",
-		}).then((res) => {
-			if (!res.ok) return;
-
-			this.user = null;
+		}).then(() => {
+			// So the user can re-authenticate if needed
+			this.token = "";
 		});
 	}
 }

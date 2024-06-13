@@ -84,6 +84,7 @@ const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
 const primaryColor = ref("");
 
 const ctx = useChannelContext(props.controller.component.props.channelID, true);
+ctx.setCurrentChannel({ ...ctx.base, id: ctx.id });
 const worker = useWorker();
 const emotes = useChatEmotes(ctx);
 const messages = useChatMessages(ctx);
@@ -204,6 +205,7 @@ definePropertyHook(controller.value.component, "props", {
 			};
 		}
 
+		const temp = new Set<ChannelRole>();
 		for (const [role, ok] of [
 			["VIP", v.isCurrentUserVIP],
 			["EDITOR", v.isCurrentUserEditor],
@@ -211,8 +213,10 @@ definePropertyHook(controller.value.component, "props", {
 			["BROADCASTER", v.channelID === v.userID],
 		] as [ChannelRole, boolean][]) {
 			if (!ok) continue;
-			ctx.actor.roles.add(role);
+			temp.add(role);
 		}
+
+		ctx.actor.roles = temp;
 
 		// Keep track of chat props
 		properties.isDarkTheme = v.theme;

@@ -97,6 +97,8 @@ declare module Twitch {
 		};
 	}>;
 
+	export type UserAndSessionUserComponent = SessionUserComponent & UserComponent;
+
 	export type ChatServiceComponent = ReactExtended.WritableComponent<{
 		authToken: string;
 		currentUserLogin: string;
@@ -315,6 +317,7 @@ declare module Twitch {
 		showEmotePicker: (v: any) => void;
 		clearMenus: () => void;
 		closeEmotePicker: () => void;
+		activeTray?: ChatTray;
 	}> & {
 		autocompleteInputRef: ChatAutocompleteComponent;
 		chatInputRef: ChatInputComponent;
@@ -324,6 +327,7 @@ declare module Twitch {
 		closePaidPinnedChatCardForEmotePicker: () => void;
 		closeCheerCard: () => void;
 		onBitsIconClick: () => void;
+		getSendMessagePlaceholder: () => string;
 	};
 
 	export type ChatInputComponent = ReactExtended.WritableComponent<
@@ -395,6 +399,44 @@ declare module Twitch {
 		setValue: (v: string) => void;
 	};
 
+	export interface ChatCommand {
+		name: string;
+		description: string;
+		helpText: string; // Gets called by /help
+		permissionLevel: 0 | 1 | 2 | 3; // Anyone, vip, mod, broadcaster (editor if allowEditorUsage is true)
+		handler?: ChatCommand.Handler;
+		commandArgs?: {
+			name: string;
+			isRequired: boolean;
+		}[];
+		hidden?: boolean; // Makes the command not appear in the preview, but will still be callable.
+		allowEditorUsage?: boolean;
+		group?: string;
+	}
+	export namespace ChatCommand {
+		export interface AsyncResult {
+			notice?: string;
+			error?: Error;
+			inputValue?: string;
+		}
+		export type Result = void | {
+			deferred?: Promise<AsyncResult>;
+			preserveInput?: boolean;
+		};
+		export interface Handler {
+			(args: string, context: { channelLogin: string }): Result;
+		}
+		export type Error = "unrecognized_cmd" | "missing_parameters" | "unauthorized" | "pin_failure" | string;
+	}
+
+	export type ChatCommandComponent = ReactExtended.WritableComponent<{}> & {
+		addCommand: (c: ChatCommand) => void;
+		removeCommand: (c: ChatCommand) => void;
+	};
+	export type ChatCommandGrouperComponent = ReactExtended.WritableComponent<{}> & {
+		determineGroup: (command: ChatCommand) => string;
+	};
+
 	export type ChatChannelPointsClaimComponent = ReactExtended.WritableComponent<{
 		hidden: boolean;
 	}> & {
@@ -417,18 +459,23 @@ declare module Twitch {
 		};
 	}
 
-	export interface ChatTray<T extends keyof ChatTray.Type> {
+	export interface ChatTray<
+		T extends keyof ChatTray.Type = "SevenTVCustomTray",
+		H extends keyof ChatTray.SendMessageHandler.Type = "Custom",
+	> {
 		type: ChatTray.Type[T];
 		header?: ReactExtended.ReactRuntimeElement | Component;
 		body?: ReactExtended.ReactRuntimeElement | Component;
 		inputValueOverride?: string;
-		sendButtonOverride: string;
+		sendButtonOverride?: string;
 		disableCommands?: boolean;
 		disableBits?: boolean;
 		disablePaidPinnedChat?: boolean;
 		onClose?: (v?: any) => any;
 		disableChat?: boolean;
-		sendMessageHandler?: ChatTray.SendMessageHandler;
+		sendMessageHandler?: ChatTray.SendMessageHandler<H>;
+		messageHandler?: (v: string) => void;
+		placeholder?: string;
 	}
 
 	export namespace ChatTray {
@@ -483,11 +530,14 @@ declare module Twitch {
 			VerifiedOnlyModeInfo: "verified-only-mode-info";
 			VerifiedOnlyModeWarning: "verified-only-mode-warning";
 			ViewerIntroduction: "viewer-introduction";
+
+			SevenTVCustomTray: "seventv-custom-tray";
 		}
 
-		export interface SendMessageHandler<T extends SendMessageHandler.Type> {
+		export interface SendMessageHandler<T extends keyof SendMessageHandler.Type = "Custom"> {
 			type: SendMessageHandler.Type[T];
-			additionalMetadata: Partial<ChatMessage>;
+			handleMessage?: (msg: string) => void;
+			additionalMetadata?: Partial<DisplayableMessage>;
 		}
 
 		export namespace SendMessageHandler {
@@ -503,9 +553,37 @@ declare module Twitch {
 				ShareEmoteReward: "share-emote-reward";
 				ShareResub: "share-resub";
 				ThankSubGifter: "thank-sub-gifter";
+				Custom: "custom-message-handler";
 			};
 		}
 	}
+
+	export type TrayProps<T extends keyof Twitch.ChatTray.Type> = {
+		Reply: {
+			id: string;
+			authorID?: string;
+			body: string;
+			deleted: boolean;
+			username?: string;
+			displayName?: string;
+			thread?: {
+				deleted: boolean;
+				id: string;
+				login: string;
+			};
+		};
+	}[T] & {
+		close?: () => void;
+	};
+
+	export type CustomTrayOptions<
+		T extends keyof ChatTray.Type = "SevenTVCustomTray",
+		H extends keyof ChatTray.SendMessageHandler.Type = "Custom",
+	> = Omit<ChatTray<T, H>, "type" | "body" | "header">;
+
+	export type ComponentProps<C extends Component> = C extends new (...args: any) => any
+		? Omit<InstanceType<C>["$props"], keyof VNodeProps | keyof AllowedComponentProps>
+		: never;
 
 	export type ChatSlate = {
 		children: ChatStateLeaf[];

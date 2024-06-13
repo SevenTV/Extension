@@ -46,6 +46,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 		thumbnail_url: "",
 		request_url: "",
 	};
+	public emoteLinkEmbed: string | null = null;
 	public pinnable = false;
 	public deletable = false;
 	public slashMe = false;
@@ -122,6 +123,10 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 
 	public setTimestamp(time: number) {
 		this.timestamp = time;
+	}
+
+	public refresh(): void {
+		return;
 	}
 }
 

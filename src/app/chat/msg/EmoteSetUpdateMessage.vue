@@ -1,73 +1,69 @@
 <template>
 	<span class="seventv-emote-set-update-message-container">
-		<span class="seventv-logo">
-			<Logo provider="7TV" />
-		</span>
+		<div class="container-header">
+			<span class="seventv-logo">
+				<Logo provider="7TV" />
+			</span>
+			<span class="seventv-message-title" :style="{ color }"> {{ title }} </span>
+			<span v-if="appUser" class="seventv-author">
+				<UserTag :user="user" />
+			</span>
+		</div>
 
-		<span v-if="appUser" class="seventv-author">
-			<UserTag :user="user" />
-		</span>
-
-		<span class="seventv-change-detail">
-			<template v-if="wholeSet && wholeSet.length === 2">
+		<div class="container-body">
+			<!-- Whole Set -->
+			<div v-if="wholeSet && wholeSet.length === 2" class="change-row">
 				<span>switched the active emote set from </span>
 				<strong>{{ wholeSet[0].name }}</strong>
 				<span> to </span>
 				<strong>{{ wholeSet[1].name }}</strong>
+			</div>
+
+			<template v-if="add.length">
+				<div v-for="ae of add" :key="ae.id" class="change-row">
+					<span class="change-emote">
+						<Emote :emote="ae" />
+					</span>
+					<div class="change-content">
+						<p class="emote-name" :title="ae.name">{{ ae.name }}</p>
+						<template v-if="ae.data?.owner">
+							<p class="emote-owner">By: {{ ae.data.owner.display_name }}</p>
+						</template>
+					</div>
+
+					<span v-if="isMultiple" class="change-action" :type="'add'"> Added </span>
+				</div>
 			</template>
 
-			<!-- Add -->
-			<template v-if="add.length > 1">
-				<span>added {{ add.length }} emotes </span>
-			</template>
-			<template v-else-if="add.length">
-				<span>added </span>
+			<template v-if="remove.length">
+				<div v-for="ae of remove" :key="ae.id" class="change-row">
+					<span class="change-emote">
+						<Emote :emote="ae" />
+					</span>
+					<div class="change-content">
+						<p class="emote-name" :title="ae.name">{{ ae.name }}</p>
+						<template v-if="ae.data?.owner">
+							<p class="emote-owner">By: {{ ae.data.owner.display_name }}</p>
+						</template>
+					</div>
+
+					<span v-if="isMultiple" class="change-action" :type="'remove'"> Removed </span>
+				</div>
 			</template>
 
-			<template v-for="ae of add" :key="ae.id">
-				<span class="referenced-emote">
-					<Emote :emote="ae" />
-					{{ ae.name }}
-				</span>
-			</template>
-
-			<!-- Remove -->
-			<template v-if="add.length && remove.length">
-				<span> and </span>
-			</template>
-			<template v-if="remove.length > 1">
-				<span>removed {{ remove.length }} emotes </span>
-			</template>
-			<template v-else-if="remove.length">
-				<span>removed </span>
-			</template>
-
-			<template v-for="ae of remove" :key="ae.id">
-				<span class="referenced-emote">
-					<Emote :emote="ae" />
-					<span>{{ ae.name }}</span>
-				</span>
-			</template>
-
-			<!-- Update -->
-			<template v-if="(add.length || remove.length) && update.length">
-				<span> and </span>
-			</template>
-
-			<template v-for="[o, n] of update" :key="n.id + o.id">
-				<template v-if="n.name !== o.name">
-					<span>changed the name of </span>
-					<span class="referenced-emote">
+			<template v-if="update.length">
+				<div v-for="[o, n] of update" :key="o.id" class="change-row">
+					<span class="change-emote">
 						<Emote :emote="n" />
-						<span>{{ o.name }}</span>
 					</span>
-					<span>to </span>
-					<span class="referenced-emote">
-						<span>{{ n.name }}</span>
-					</span>
-				</template>
+					<div class="change-content">
+						<p class="emote-name" :title="n.name">{{ n.name }}</p>
+						<p class="emote-owner" :title="o.name">From: {{ o.name }}</p>
+					</div>
+					<span v-if="isMultiple" class="change-action" :type="'update'"> Rename </span>
+				</div>
 			</template>
-		</span>
+		</div>
 	</span>
 </template>
 
@@ -91,6 +87,24 @@ const props = defineProps<{
 const ctx = useChannelContext();
 const { chatters } = useChatMessages(ctx);
 
+let title = "Emote Set Update";
+let color = "currentColor";
+
+const filtered = [props.add, props.remove, props.update].filter((a) => a.length > 0);
+const isMultiple = filtered.length > 1;
+if (!props.wholeSet || isMultiple) {
+	if (props.add.length > 0) {
+		title = "Added Emote";
+		color = "var(--seventv-accent)";
+	} else if (props.remove.length > 0) {
+		title = "Removed Emote";
+		color = "var(--seventv-warning)";
+	} else if (props.update.length > 0) {
+		title = "Renamed Emote";
+		color = "var(--seventv-info)";
+	}
+}
+
 const uc = props.appUser.connections?.find((c) => c.platform === "TWITCH");
 const user =
 	(uc ? chatters[uc.id] : null) ??
@@ -104,38 +118,88 @@ const user =
 
 <style scoped lang="scss">
 .seventv-emote-set-update-message-container {
-	display: inline-block;
-	font-size: 1.25rem;
-	padding: 0.5em 0.5rem;
-	width: 100%;
+	display: block;
 	background-color: rgba(41, 181, 246, 5%);
-	border-right: 0.5rem solid var(--seventv-primary);
+	margin: 0.5rem 0;
 	border-left: 0.5rem solid var(--seventv-primary);
+	border-right: 0.5rem solid var(--seventv-primary);
 
-	.seventv-logo {
+	.container-header {
+		display: flex;
+		padding: 0.5rem 0.5rem 0.5rem 1rem;
 		vertical-align: middle;
-		font-size: 3rem;
-		color: var(--seventv-primary);
-		margin-right: 0.25em;
-	}
+		gap: 1em;
+		background-color: rgba(41, 181, 246, 10%);
 
-	.seventv-author {
-		font-weight: 700;
-		font-size: 1.5rem;
-		margin-right: 0.25em;
-	}
-
-	.seventv-change-detail {
-		font-size: 1.5rem;
-
-		.referenced-emote {
-			display: inline-grid;
-			gap: 0.5em;
-			align-items: center;
+		.seventv-logo {
 			vertical-align: middle;
+			font-size: 2.5rem;
+			color: var(--seventv-primary);
+		}
+
+		.seventv-message-title {
+			font-weight: 600;
+			font-size: 1.5rem;
+			flex-grow: 1;
+			margin: auto;
+		}
+
+		.seventv-author {
 			font-weight: 700;
-			grid-template-columns: 3rem auto;
-			margin-right: 0.5em;
+			font-size: 1.5rem;
+			margin: auto;
+		}
+	}
+
+	.change-row {
+		display: flex;
+		gap: 1rem;
+		padding: 0.5rem 1rem;
+
+		.change-action {
+			flex-shrink: 0;
+			font-weight: bold;
+			text-shadow: 1px 1px 2px rgba(0, 0, 0, 50%);
+
+			&[type="add"] {
+				color: var(--seventv-accent);
+			}
+
+			&[type="remove"] {
+				color: var(--seventv-warning);
+			}
+
+			&[type="update"] {
+				color: var(--seventv-info);
+			}
+		}
+
+		.change-emote {
+			flex-shrink: 0;
+		}
+
+		.change-content {
+			width: 100%;
+			overflow: hidden;
+
+			> p {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.emote-name {
+				font-weight: bold;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
+			}
+
+			.emote-owner {
+				color: var(--seventv-text-color-secondary);
+				font-size: 1rem;
+				line-height: 1rem;
+			}
 		}
 	}
 }

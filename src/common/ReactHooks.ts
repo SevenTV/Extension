@@ -33,20 +33,20 @@ export function getRootVNode(): ReactExtended.ReactVNode | undefined {
  * @param limit Max ammount of components to return
  * @returns Array of found components
  */
-export function findComponentParents(
+export function findComponentParents<T extends ReactExtended.AnyReactComponent>(
 	node: ReactExtended.ReactVNode,
 	predicate: ReactComponentPredicate,
 	maxTraversal = 350,
 	limit = Infinity,
-): ReactExtended.AnyReactComponent[] {
-	const components: ReactExtended.AnyReactComponent[] = [];
+): T[] {
+	const components: T[] = [];
 
 	let current: ReactExtended.ReactVNode | null = node;
 
 	let travel = 0;
 	while (current && components.length < limit && travel <= maxTraversal) {
 		if (current.stateNode && current.stateNode instanceof Element == false) {
-			const component = current.stateNode as ReactExtended.AnyReactComponent;
+			const component = current.stateNode as T;
 			if (predicate(component)) {
 				components.push(component);
 			}
@@ -133,6 +133,13 @@ export function awaitComponents<T extends ReactExtended.WritableComponent>(
 			const node = getVNodeFromDOM(el);
 			if (node) {
 				findComponentChildren<T>(node, criteria.predicate, criteria.maxDepth).forEach((c) => instances.add(c));
+			}
+		});
+	} else if (criteria.childSelector) {
+		document.querySelectorAll(criteria.childSelector).forEach((el) => {
+			const node = getVNodeFromDOM(el);
+			if (node) {
+				findComponentParents<T>(node, criteria.predicate, criteria.maxDepth).forEach((c) => instances.add(c));
 			}
 		});
 	} else {
@@ -296,6 +303,12 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 					return options.replaceContents ? false : old?.apply(this, args) ?? true;
 				});
 
+				if (options.functionHooks) {
+					for (const [k, f] of Object.entries(options.functionHooks)) {
+						defineFunctionHook(proto, k as keyof C, f);
+					}
+				}
+
 				for (const instance of instances) {
 					instance.forceUpdate();
 				}
@@ -394,13 +407,23 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 ): ReactComponentHook<C> {
 	const hook = defineComponentHook<C>(criteria, options);
 
-	onUnmounted(() => unhookComponent(hook));
+	onUnmounted(() => {
+		if (options?.functionHooks) {
+			for (const k of Object.keys(options.functionHooks)) {
+				if (hook.cls) {
+					unsetPropertyHook(hook.cls.prototype, k as keyof C);
+				}
+			}
+		}
+		unhookComponent(hook);
+	});
 
 	return hook;
 }
 
 interface ComponentCriteria {
 	parentSelector?: string;
+	childSelector?: string;
 	predicate: ReactComponentPredicate;
 	maxDepth?: number;
 }
@@ -415,6 +438,12 @@ interface HookOptions<C extends ReactExtended.WritableComponent> {
 		unmount?: (inst: HookedInstance<C>) => void;
 		shouldUpdate?: (inst: HookedInstance<C>) => boolean;
 		render?: (inst: HookedInstance<C>, current: React.ReactNode) => React.ReactNode;
+	};
+	functionHooks?: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		[F in keyof C]?: C[F] extends (...args: any[]) => any
+			? (this: C, old: C[F], ...args: Parameters<C[F]>) => ReturnType<C[F]>
+			: never;
 	};
 }
 

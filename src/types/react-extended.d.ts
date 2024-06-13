@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/prefer-namespace-keyword */
 
+type MaybeElement = Element | null;
+
 declare namespace ReactExtended {
 	type AnyReactComponent = WritableComponent<any, any> & { [x: string]: any };
 
@@ -31,6 +33,6 @@ declare namespace ReactExtended {
 
 	interface ReactRuntimeElement extends React.ReactElement {
 		$$typeof: symbol;
-		ref: { current: Element | null } | null;
+		ref: { current: MaybeElement } | ((e: MaybeElement) => void) | null;
 	}
 }

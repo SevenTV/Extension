@@ -25,13 +25,25 @@
 					<!-- Sidebar -->
 					<div class="seventv-settings-sidebar">
 						<div class="seventv-settings-sidebar-search">
-							<input v-model="filter" placeholder="Search..." class="seventv-settings-search-input" />
+							<input
+								v-model="filter"
+								placeholder="Search..."
+								type="text"
+								name="search"
+								autocomplete="off"
+								class="seventv-settings-search-input"
+							/>
 						</div>
 
-						<UiScrollable ref="sidebarScroller" @container-scroll="updateSidebarExpansionIndicator">
+						<UiScrollable
+							ref="sidebarScroller"
+							class="seventv-settings-sidebar-categories-scroll"
+							@container-scroll="updateSidebarExpansionIndicator"
+						>
 							<div class="seventv-settings-sidebar-categories">
 								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
+									v-if="'home changelog version'.includes(filter.toLowerCase())"
 									category="Home"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('home')"
@@ -46,18 +58,24 @@
 									/>
 								</template>
 								<CategoryDropdown
-									v-if="actor.user && actor.user.style?.paint_id"
+									v-if="
+										actor.user &&
+										actor.user.style?.paint_id &&
+										'paint tool subscriber color'.includes(filter.toLowerCase())
+									"
 									:style="{ color: 'var(--seventv-subscriber-color)' }"
 									category="Paint Tool"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('paint')"
 								/>
 								<CategoryDropdown
+									v-if="'compatibility error fix check'.includes(filter.toLowerCase())"
 									category="Compatibility"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('compat')"
 								/>
 								<CategoryDropdown
+									v-if="'backup restore config export import'.includes(filter.toLowerCase())"
 									category="Backup"
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('backup')"
@@ -74,10 +92,7 @@
 							</div>
 						</UiScrollable>
 
-						<div
-							class="seventv-settings-sidebar-actor"
-							@click="[openAuthWindow(), ctx.switchView('profile')]"
-						>
+						<div class="seventv-settings-sidebar-actor" @click="openProfile">
 							<div class="seventv-settings-sidebar-profile-left">
 								<div class="seventv-settings-sidebar-profile-picture">
 									<template v-if="actor.user?.avatar_url">
@@ -85,11 +100,11 @@
 									</template>
 								</div>
 								<span class="seventv-settings-sidebar-profile-text seventv-settings-expanded">
-									{{ actor.user ? actor.user.display_name : "SIGN IN" }}
+									{{ actor.token && actor.user ? actor.user.display_name : "SIGN IN" }}
 								</span>
 							</div>
 							<div
-								v-if="actor.user"
+								v-if="actor.token"
 								class="seventv-settings-sidebar-profile-logout seventv-settings-expanded"
 								@click="actor.logout()"
 							>
@@ -108,9 +123,8 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { useBreakpoints, useMagicKeys } from "@vueuse/core";
-import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
@@ -135,7 +149,6 @@ const root = document.getElementById("root") ?? undefined;
 const dragHandle = ref<HTMLDivElement | undefined>();
 
 const filter = ref("");
-const platform = inject(SITE_CURRENT_PLATFORM, "UNKNOWN");
 
 const breakpoints = useBreakpoints({
 	compact: 960,
@@ -175,7 +188,7 @@ function sortNodes(filter?: string) {
 
 	const sorted = Object.values(nodes)
 		.filter((node) => {
-			return node.type != "NONE" && node.path && node.path.length == 2;
+			return node.type != "NONE" && node.path && node.path.length > 1;
 		})
 		.sort((a, b) => {
 			if (!a.path) return -1;
@@ -183,7 +196,17 @@ function sortNodes(filter?: string) {
 
 			const oa = getOrder(a.path[0]);
 			const ob = getOrder(b.path[0]);
-			return oa == ob ? a.path[1].localeCompare(b.path[1]) : oa - ob;
+			if (oa !== ob) return oa - ob;
+
+			const soa = a.path[1];
+			const sob = b.path[1];
+
+			if (soa != sob) return soa.localeCompare(sob);
+
+			const pa = Number(a.path.at(2) ?? 0);
+			const pb = Number(b.path.at(2) ?? 0);
+
+			return pa - pb;
 		});
 
 	const a = sorted.filter((node) => {
@@ -213,10 +236,6 @@ function isOrdered(c: string): c is keyof typeof categoryOrder {
 	return c in categoryOrder;
 }
 
-function openAuthWindow(): void {
-	actor.openAuthorizeWindow(platform);
-}
-
 const sidebarScroller = ref<InstanceType<typeof UiScrollable>>();
 const shouldShowSidebarExpansion = ref(true);
 
@@ -240,6 +259,11 @@ function scrollSidebarToNextPage() {
 
 	container.scrollTop = Math.max(0, Math.max(bottomExtreme, current + visible));
 }
+
+const openProfile = () => {
+	ctx.view = null;
+	nextTick(() => ctx.switchView("profile"));
+};
 
 const keys = useMagicKeys();
 const paintToolShortcut = keys["Alt+Shift+P"];
@@ -310,7 +334,7 @@ watch(
 	pointer-events: all;
 	background: var(--seventv-background-shade-1);
 	border-radius: 0.25rem;
-	outline: 0.1rem solid var(--seventv-border-transparent-1);
+	border: 0.1rem solid var(--seventv-border-transparent-1);
 }
 
 .seventv-settings-header {
@@ -319,7 +343,8 @@ watch(
 	grid-template-rows: 1fr;
 	place-items: center;
 	cursor: move;
-	margin: 0 0.5em;
+	padding: 0 0.5em;
+	border-bottom: 0.1rem solid var(--seventv-border-transparent-1);
 
 	.seventv-settings-header-icon {
 		display: grid;
@@ -349,12 +374,13 @@ watch(
 .seventv-settings-sidebar {
 	grid-area: sidebar;
 	display: grid;
-	grid-template-rows: 4em 1fr 6em;
+	grid-template-rows: 4em 1fr 4em;
 	grid-template-areas:
 		"search"
 		"categories"
 		"actor";
 	background: var(--seventv-background-transparent-2);
+	border-right: 0.1rem solid var(--seventv-border-transparent-1);
 
 	.seventv-settings-sidebar-search {
 		grid-area: search;
@@ -378,9 +404,9 @@ watch(
 		}
 	}
 
-	.seventv-settings-sidebar-categories {
-		grid-area: categories;
-		overflow: auto;
+	.seventv-settings-sidebar-categories-scroll {
+		border-top: 1px solid var(--seventv-border-transparent-1);
+		border-bottom: 1px solid var(--seventv-border-transparent-1);
 	}
 
 	.seventv-settings-sidebar-actor {

@@ -38,7 +38,7 @@ export class WorkerPort {
 
 		switch (type) {
 			case "STATE": {
-				const { platform, providers, provider_extensions, identity, channel, user, imageFormat } =
+				const { platform, providers, provider_extensions, identity, channel, user, imageFormat, refetch } =
 					data as TypedWorkerMessage<"STATE">;
 
 				if (platform) this.platform = platform;
@@ -54,6 +54,9 @@ export class WorkerPort {
 					this.channels.set(channel.id, channel);
 
 					this.driver.log.debugWithObjects(["Channel added"], [channel]);
+					this.driver.emit("join_channel", channel, this);
+				} else if (channel && channel.active && refetch) {
+					this.driver.log.debugWithObjects(["Channel refetched"], [channel]);
 					this.driver.emit("join_channel", channel, this);
 				} else if (channel && !channel.active && this.channels.has(channel.id)) {
 					this.channels.delete(channel.id);
