@@ -4,6 +4,7 @@
 			:id="node.key"
 			v-model="temp"
 			autocomplete="noidontthinkso"
+			data-form-type="other"
 			:valid="isValid"
 			:placeholder="node.options?.placeholder"
 			:type="node.options?.type ?? 'inputbox'"

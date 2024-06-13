@@ -35,7 +35,11 @@
 							/>
 						</div>
 
-						<UiScrollable ref="sidebarScroller" @container-scroll="updateSidebarExpansionIndicator">
+						<UiScrollable
+							ref="sidebarScroller"
+							class="seventv-settings-sidebar-categories-scroll"
+							@container-scroll="updateSidebarExpansionIndicator"
+						>
 							<div class="seventv-settings-sidebar-categories">
 								<SettingsUpdateButton v-if="!updater.isUpToDate" />
 								<CategoryDropdown
@@ -330,7 +334,7 @@ watch(
 	pointer-events: all;
 	background: var(--seventv-background-shade-1);
 	border-radius: 0.25rem;
-	outline: 0.1rem solid var(--seventv-border-transparent-1);
+	border: 0.1rem solid var(--seventv-border-transparent-1);
 }
 
 .seventv-settings-header {
@@ -339,7 +343,8 @@ watch(
 	grid-template-rows: 1fr;
 	place-items: center;
 	cursor: move;
-	margin: 0 0.5em;
+	padding: 0 0.5em;
+	border-bottom: 0.1rem solid var(--seventv-border-transparent-1);
 
 	.seventv-settings-header-icon {
 		display: grid;
@@ -369,12 +374,13 @@ watch(
 .seventv-settings-sidebar {
 	grid-area: sidebar;
 	display: grid;
-	grid-template-rows: 4em 1fr 6em;
+	grid-template-rows: 4em 1fr 4em;
 	grid-template-areas:
 		"search"
 		"categories"
 		"actor";
 	background: var(--seventv-background-transparent-2);
+	border-right: 0.1rem solid var(--seventv-border-transparent-1);
 
 	.seventv-settings-sidebar-search {
 		grid-area: search;
@@ -398,9 +404,9 @@ watch(
 		}
 	}
 
-	.seventv-settings-sidebar-categories {
-		grid-area: categories;
-		overflow: auto;
+	.seventv-settings-sidebar-categories-scroll {
+		border-top: 1px solid var(--seventv-border-transparent-1);
+		border-bottom: 1px solid var(--seventv-border-transparent-1);
 	}
 
 	.seventv-settings-sidebar-actor {

@@ -4,7 +4,7 @@
 			{{ node.options.left }}
 		</span>
 		<label class="seventv-toggle-switch" :for="node.key">
-			<input :id="node.key" v-model="setting" type="checkbox" />
+			<input :id="node.key" v-model="setting" tabindex="0" type="checkbox" />
 			<div class="seventv-toggle round"></div>
 		</label>
 		<span v-if="node.options?.right" class="seventv-toggle-option">
@@ -46,10 +46,6 @@ const setting = useConfig<boolean>(props.node.key);
 	width: 4rem;
 }
 
-.seventv-toggle-switch input {
-	display: none;
-}
-
 .seventv-toggle {
 	background-color: var(--seventv-input-background);
 	inset: 0;
@@ -70,9 +66,17 @@ const setting = useConfig<boolean>(props.node.key);
 	width: 1.4rem;
 }
 
-input:checked + .seventv-toggle::before {
-	background-color: var(--seventv-primary);
-	transform: translateX(2rem);
+input {
+	opacity: 0;
+
+	&:focus + .seventv-toggle {
+		outline: 0.1rem solid currentcolor;
+	}
+
+	&:checked + .seventv-toggle::before {
+		background-color: var(--seventv-primary);
+		transform: translateX(2rem);
+	}
 }
 
 .seventv-toggle.round {

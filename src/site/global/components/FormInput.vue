@@ -3,6 +3,7 @@
 		ref="inputEl"
 		:type="type"
 		autocomplete="noidontthinkso"
+		data-form-type="other"
 		:error="error"
 		:autofocus="autofocus"
 		:value="modelValue"
