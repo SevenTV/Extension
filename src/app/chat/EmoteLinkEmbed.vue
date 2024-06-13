@@ -16,8 +16,9 @@
 					</template>
 				</div>
 				<AliasButton
-					v-if="conflictWithoutAlias"
+					v-if="buttonType === TYPE.ADD || buttonType === TYPE.CONFLICT"
 					class="alias-button"
+					:type="buttonType"
 					:alias="alias"
 					@update:alias="(v) => (alias = v)"
 				/>
@@ -26,7 +27,7 @@
 						<OpenLinkIcon />
 					</template>
 					<template v-else-if="buttonType === TYPE.REMOVE"> - </template>
-					<template v-else-if="buttonType === TYPE.ADD"> + </template>
+					<template v-else> + </template>
 				</div>
 			</template>
 		</div>
@@ -96,17 +97,12 @@ const openAuthPage = (e: MouseEvent) => {
 	return false;
 };
 
-const conflictWithoutAlias = computed(() => {
-	if (buttonType.value === TYPE.LINK || buttonType.value === TYPE.REMOVE) return false;
-	return !!mut.set?.emotes.find((e) => e.name === emote.value?.name);
-});
-
 const buttonType = computed(() => {
 	if (!mut.canEditSet || !emote.value) return TYPE.LINK;
 	if (isEmoteInSet.value) return TYPE.REMOVE;
 	const isConflict =
 		mut.set?.emotes.find((e) => e.name === (alias.value !== "" ? alias.value : emote.value?.name)) ||
-		!SEVENTV_EMOTE_NAME_REGEXP.test(alias.value);
+		(alias.value !== "" && !SEVENTV_EMOTE_NAME_REGEXP.test(alias.value));
 	if (isConflict) return TYPE.CONFLICT;
 	return TYPE.ADD;
 });
@@ -220,6 +216,10 @@ onMounted(fetchEmote);
 
 		.alias-button {
 			margin: 0.1rem;
+
+			&[type="conflict"] :deep(input[active="false"]) {
+				outline: 1px solid currentColor;
+			}
 		}
 
 		.action-button {
@@ -241,15 +241,15 @@ onMounted(fetchEmote);
 			}
 
 			&[type="remove"] {
-				background-color: var(--seventv-error);
+				background-color: var(--seventv-warning);
 				font-weight: 1200;
 				font-size: 2rem;
 			}
 
 			&[type="conflict"] {
-				background-color: #66bb6a40;
-				pointer-events: none;
-				display: none;
+				background-color: hsla(0deg, 0%, 50%, 6%);
+				font-weight: 1200;
+				font-size: 2rem;
 			}
 
 			&[type="link"] {
