@@ -53,6 +53,15 @@ declare namespace SevenTV {
 		ZERO_WIDTH = 1 << 8,
 	}
 
+	interface JWT {
+		u: string;
+		v: number;
+		iss: string;
+		exp: number;
+		nbf: number;
+		iat: number;
+	}
+
 	interface EmoteSet {
 		id: ObjectID;
 		name: string;
@@ -84,6 +93,7 @@ declare namespace SevenTV {
 		hint?: string;
 		path?: [string, string] | [string, string, string | number];
 		timestamp?: number;
+		expires?: number;
 
 		custom?: {
 			component: Raw<object>;

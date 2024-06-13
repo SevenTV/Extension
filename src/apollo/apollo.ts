@@ -7,14 +7,25 @@ export const httpLink = createHttpLink({
 });
 
 const token = useConfig<string>("app.7tv.token");
-const authLink = new ApolloLink((op, next) => {
-	if (token.value !== "") {
-		op.setContext({
-			headers: {
-				Authorization: `Bearer ${token.value}`,
-			},
-		});
+function decodeJWT(token: string): SevenTV.JWT | undefined {
+	try {
+		return JSON.parse(atob(token.split(".")[1]));
+	} catch {
+		return;
 	}
+}
+
+const authLink = new ApolloLink((op, next) => {
+	const jwt = decodeJWT(token.value);
+	if (!jwt || jwt.exp * 1000 < Date.now()) {
+		token.value = "";
+		return next(op);
+	}
+	op.setContext({
+		headers: {
+			Authorization: `Bearer ${token.value}`,
+		},
+	});
 	return next(op);
 });
 
