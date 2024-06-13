@@ -1,6 +1,7 @@
 ### 3.1.0.2000
 
 -   Fixed badge width on kick
+-   Fixed an issue where settings would be hidden due to auto-filling the searchbox
 
 ### 3.1.0.1000
 
