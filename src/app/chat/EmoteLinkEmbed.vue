@@ -218,14 +218,14 @@ onMounted(fetchEmote);
 			margin: 0.1rem;
 
 			&[type="conflict"] :deep(input[active="false"]) {
-				outline: 1px solid currentColor;
+				outline: 1px solid currentcolor;
 			}
 		}
 
 		.action-button {
 			padding: 0.5rem;
 			border: 0.1rem solid black;
-			border-radius: 0.25rem;
+			border-radius: 0.5rem;
 			aspect-ratio: 1;
 			width: 3.2rem;
 			height: 3.2rem;
