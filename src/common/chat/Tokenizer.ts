@@ -8,9 +8,10 @@ import type {
 	VoidToken,
 } from "@/common/chat/ChatMessage";
 import { Regex } from "@/site/twitch.tv";
+import { SEVENTV_EMOTE_LINK } from "../Constant";
 import { parse as tldParse } from "tldts";
 
-const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
+const URL_PROTOCOL_REGEXP = /^https?:\/\/|\.$/i;
 
 const backwardModifierBlacklist = new Set(["w!", "h!", "v!"]);
 
@@ -22,12 +23,21 @@ export class Tokenizer {
 		const tokens = [] as AnyToken[];
 
 		const textParts = this.msg.body.split(" ");
-		const getEmote = (name: string) => opt.localEmoteMap?.[name] ?? opt.emoteMap[name];
+		const getEmote = (name: string) => {
+			if (opt.localEmoteMap?.[name] && Object.hasOwn(opt.localEmoteMap, name)) {
+				return opt.localEmoteMap[name];
+			}
+
+			if (opt.emoteMap[name] && Object.hasOwn(opt.emoteMap, name)) {
+				return opt.emoteMap[name];
+			}
+		};
 		const showModifiers = opt.showModifiers;
 
 		let cursor = -1;
 		let lastEmoteToken: EmoteToken | undefined = undefined;
 		let parsedUrl: URL | null = null;
+		let emoteID: string | null = null;
 
 		const toVoid = (start: number, end: number) =>
 			({
@@ -43,7 +53,8 @@ export class Tokenizer {
 			const maybeEmote = getEmote(part);
 			const nextEmote = getEmote(textParts[textParts.indexOf(part) + 1]);
 			const prevEmote = getEmote(textParts[textParts.indexOf(part) - 1]);
-			const maybeMention = !!opt.chatterMap[part.toLowerCase()];
+			const maybeMention =
+				opt.chatterMap[part.toLowerCase()] && Object.hasOwn(opt.chatterMap, part.toLowerCase());
 
 			if (maybeEmote) {
 				// handle zero width overlaying
@@ -86,6 +97,10 @@ export class Tokenizer {
 						url: parsedUrl.toString(),
 					},
 				} as LinkToken);
+				// Check if the link is a 7TV emote link
+				if ((emoteID = this.isSeventvEmoteLink(parsedUrl.href))) {
+					this.msg.emoteLinkEmbed = emoteID;
+				}
 			} else if (part.match(Regex.Mention) || maybeMention) {
 				//  Check mention
 				const commaAt = part.indexOf(",");
@@ -128,6 +143,11 @@ export class Tokenizer {
 		}
 
 		return null;
+	}
+
+	private isSeventvEmoteLink(u: string): string | null {
+		const match = u.match(SEVENTV_EMOTE_LINK);
+		return match?.groups!.emoteID ?? null;
 	}
 }
 

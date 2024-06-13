@@ -2,7 +2,6 @@
 	<div
 		:data-key="node.key"
 		class="seventv-settings-node"
-		tabindex="0"
 		:disabled="node.disabledIf?.()"
 		:grid-mode="node.custom?.gridMode"
 		@mouseover="onHover"

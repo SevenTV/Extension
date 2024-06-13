@@ -1,36 +1,25 @@
 import { reactive, ref } from "vue";
 import { definePropertyHook } from "@/common/Reflection";
 
-declare const __Twitch__pubsubInstances: {
-	production: {
-		_client: PubSubClient;
-		_clientReady: boolean;
-		_clienType: string;
-		_env: string;
-		_hasDisconnected: boolean;
-		_iframeHost: string;
-		_numDisconnects: number;
-		_queuedRequests: unknown[];
-	};
-};
+declare const __twitch_pubsub_client: PubSubClient;
 
 const client = ref<PubSubClient | null>(null);
 const socket = ref<WebSocket | null>(null);
 
 definePropertyHook(
-	window as Window & { __Twitch__pubsubInstances?: typeof __Twitch__pubsubInstances },
-	"__Twitch__pubsubInstances",
+	window as Window & { __twitch_pubsub_client?: typeof __twitch_pubsub_client },
+	"__twitch_pubsub_client",
 	{
 		value(v) {
-			if (!v || !v.production || !v.production._client) return;
+			if (!v || !v.connection || !v.connection.socket) return;
 
-			client.value = v.production._client;
+			client.value = v;
 
-			definePropertyHook(client.value, "_primarySocket", {
+			definePropertyHook(client.value, "connection", {
 				value(v) {
-					if (!v || !v._socket) return;
+					if (!v || !v.socket || !v.socket.socket) return;
 
-					socket.value = v._socket;
+					socket.value = v.socket.socket;
 				},
 			});
 		},
@@ -45,31 +34,25 @@ export function usePubSub() {
 }
 
 export interface PubSubClient {
-	_addr: string;
-	_connectCalled: boolean;
-	_connected: boolean;
-	_env: string;
-	_firstConnectTime: number;
-	_firstListenTime: number;
-	_listens: {
-		_events: Record<string, [(n: unknown) => void, PubSubClient]>;
-	};
-	_opts: {
+	env: string;
+	reconnecting: boolean;
+	connection: {
 		env: string;
-	};
-	_primarySocket: {
-		_addr: string;
-		_connecting: boolean;
-		_connectionAttempts: number;
-		_id: string;
-		_opts: {
-			addr: string;
+		_events: Record<string, [(n: unknown) => void, PubSubClient]>;
+		iframeHost: string | null;
+		currentTopics: Record<string, { auth: string | undefined; topic: string }>;
+		socket: {
+			env: string;
+			address: string;
+			closing: boolean;
+			connecting: boolean;
+			connectionAttempts: number;
+			pingInterval: number;
+			pongTimeout: number;
+			receivedPong: boolean;
+			sentPing: boolean;
+			socket: WebSocket;
 		};
-		_pingInterval: number;
-		_pongTimeout: number;
-		_receivedPong: number;
-		_sentPing: boolean;
-		_socket: WebSocket;
 	};
 }
 
@@ -92,12 +75,20 @@ export namespace PubSubMessageData {
 			id: string;
 			low_trust_id: string;
 			channel_id: string;
-			sender: Twitch.ChatUser;
-			evaluated_at: string;
+			sender?: {
+				login: string;
+				display_name: string;
+				chat_color: string;
+			};
 			updated_at: string;
-			ban_evasion_evaluation: string;
-			treatment: string;
-			updated_by: Twitch.ChatUser;
+			treatment: "ACTIVE_MONITORING" | "RESTRICTED" | "NONE";
+			evaluated_at: string;
+			ban_evasion_evaluation: "LIKELY" | "UNLIKELY" | "POSSIBLE";
+			updated_by: {
+				id: string;
+				login: string;
+				display_name: string;
+			};
 			shared_ban_channel_ids: string[];
 			types: string[];
 		};
@@ -107,6 +98,23 @@ export namespace PubSubMessageData {
 		};
 		message_id: string;
 		sent_at: string;
+	}
+
+	export interface LowTrustUserTreatmentUpdate {
+		low_trust_id: string;
+		channel_id: string;
+		updated_by: {
+			id: string;
+			login: string;
+			display_name: string;
+		};
+		updated_at: string;
+		target_user_id: string;
+		target_user: string;
+		treatment: "ACTIVE_MONITORING" | "RESTRICTED" | "NO_TREATMENT";
+		types: string[];
+		ban_evasion_evaluation: "LIKELY" | "UNLIKELY" | "POSSIBLE";
+		evaluated_at: string;
 	}
 
 	export interface ModAction {
@@ -146,5 +154,20 @@ export namespace PubSubMessageData {
 		thumbnail_url: string;
 		request_url: string;
 		message_id: string;
+	}
+
+	export interface ChatHighlight {
+		msg_id: string;
+		highlights: (
+			| {
+					type: "raider";
+					source_channel_id: string;
+					seconds_since_event: number;
+			  }
+			| {
+					type: "returning_chatter";
+					source_channel_id: string;
+			  }
+		)[];
 	}
 }

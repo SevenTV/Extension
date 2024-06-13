@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watchEffect } from "vue";
+import { reactive, ref, watch, watchEffect } from "vue";
 import { onClickOutside, onKeyStroke, useEventListener, useKeyModifier } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
@@ -91,7 +91,13 @@ const containerRef = ref<HTMLElement | undefined>();
 
 const channelCtx = useChannelContext();
 const ctx = useEmoteMenuContext();
-ctx.channelID = channelCtx.id;
+watch(
+	() => channelCtx.id,
+	(id) => {
+		ctx.channelID = id;
+	},
+	{ immediate: true },
+);
 
 const settingsContext = useSettingsMenu();
 const { providers, platform } = useStore();

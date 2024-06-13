@@ -84,6 +84,7 @@ const scrollerRef = ref<InstanceType<typeof UiScrollable> | undefined>();
 const primaryColor = ref("");
 
 const ctx = useChannelContext(props.controller.component.props.channelID, true);
+ctx.setCurrentChannel({ ...ctx.base, id: ctx.id });
 const worker = useWorker();
 const emotes = useChatEmotes(ctx);
 const messages = useChatMessages(ctx);
@@ -128,13 +129,6 @@ watch(
 		definePropertyHook(inst.component, "props", {
 			value(v) {
 				messageHandler.value = v.messageHandlerAPI;
-
-				// Find message to grab some data
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const msgItem = (v.children[0] as any | undefined)?.props as Twitch.ChatLineComponent["props"];
-				if (!msgItem?.badgeSets?.count) return;
-
-				properties.twitchBadgeSets = msgItem.badgeSets;
 			},
 		});
 	},
@@ -170,6 +164,7 @@ watch(
 
 		definePropertyHook(room.value.component, "props", {
 			value(v) {
+				properties.twitchBadgeSets = v.badgeSets;
 				properties.primaryColorHex = v.primaryColorHex;
 				primaryColor.value = `#${v.primaryColorHex ?? "755ebc"}`;
 				document.body.style.setProperty("--seventv-channel-accent", primaryColor.value);
@@ -210,6 +205,7 @@ definePropertyHook(controller.value.component, "props", {
 			};
 		}
 
+		const temp = new Set<ChannelRole>();
 		for (const [role, ok] of [
 			["VIP", v.isCurrentUserVIP],
 			["EDITOR", v.isCurrentUserEditor],
@@ -217,8 +213,10 @@ definePropertyHook(controller.value.component, "props", {
 			["BROADCASTER", v.channelID === v.userID],
 		] as [ChannelRole, boolean][]) {
 			if (!ok) continue;
-			ctx.actor.roles.add(role);
+			temp.add(role);
 		}
+
+		ctx.actor.roles = temp;
 
 		// Keep track of chat props
 		properties.isDarkTheme = v.theme;
@@ -270,36 +268,46 @@ if (a instanceof ObserverPromise) {
 const messageBufferComponent = ref<Twitch.MessageBufferComponent | null>(null);
 const messageBufferComponentDbc = refDebounced(messageBufferComponent, 100);
 
+const isLoadingHistoricalMessages = ref(true);
+watch(isLoadingHistoricalMessages, (isLoading) => {
+	const buffer = messageBufferComponent.value?.buffer;
+	if (isLoading || !buffer) return;
+	handleBuffer(buffer);
+});
+
+function handleBuffer(buffer: Twitch.MessageBufferComponent["buffer"]) {
+	if (!buffer.length) return;
+	const historical: ChatMessage[] = [];
+
+	for (const msg of buffer) {
+		const m = new ChatMessage(msg.id);
+
+		// If the message is historical we add it to the array and continue
+		if ((msg as Twitch.ChatMessage).isHistorical || msg.type === MessageType.CONNECTED) {
+			m.historical = true;
+			chatList.value?.onChatMessage(m, msg as Twitch.ChatMessage, false);
+
+			historical.push(m);
+			continue;
+		}
+	}
+
+	messages.displayed = historical.concat(messages.displayed);
+
+	nextTick(() => {
+		// Instantly scroll to the bottom and stop hooking the buffer
+		scroller.scrollToLive(0);
+	});
+}
+
 watch(messageBufferComponentDbc, (msgBuf, old) => {
 	if (old && msgBuf !== old) {
-		unsetPropertyHook(old, "buffer");
 		unsetPropertyHook(old, "blockedUsers");
+		unsetPropertyHook(old, "props");
 	} else if (msgBuf) {
-		definePropertyHook(msgBuf, "buffer", {
-			value(buffer) {
-				if (!buffer.length) return;
-				const historical = [] as ChatMessage[];
-
-				for (const msg of buffer) {
-					const m = new ChatMessage(msg.id);
-
-					// If the message is historical we add it to the array and continue
-					if ((msg as Twitch.ChatMessage).isHistorical || msg.type === MessageType.CONNECTED) {
-						m.historical = true;
-						chatList.value?.onChatMessage(m, msg as Twitch.ChatMessage, false);
-
-						historical.push(m);
-						continue;
-					}
-				}
-
-				messages.displayed = historical.concat(messages.displayed);
-
-				nextTick(() => {
-					// Instantly scroll to the bottom and stop hooking the buffer
-					scroller.scrollToLive(0);
-					unsetPropertyHook(msgBuf, "buffer");
-				});
+		definePropertyHook(msgBuf, "props", {
+			value(props) {
+				isLoadingHistoricalMessages.value = props.isLoadingHistoricalMessages;
 			},
 		});
 

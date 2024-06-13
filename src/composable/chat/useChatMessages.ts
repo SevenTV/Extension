@@ -1,6 +1,6 @@
 import { nextTick, reactive, toRef, watch } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
-import { ChatMessage, ChatMessageModeration, ChatUser } from "@/common/chat/ChatMessage";
+import { ChatMessage, ChatMessageModeration, ChatUser, LowTrustUserProperties } from "@/common/chat/ChatMessage";
 import { useChatScroller } from "./useChatScroller";
 import { ChannelContext } from "../channel/useChannelContext";
 import { useConfig } from "../useSettings";
@@ -21,6 +21,7 @@ interface ChatMessages {
 		victim: ChatUser;
 		mod: ChatMessageModeration;
 	}[];
+	lowTrustUsers: Record<string, LowTrustUserProperties>;
 	chatters: Record<string, ChatUser>;
 	chattersByUsername: Record<string, ChatUser>;
 	overflowLimit: number;
@@ -46,6 +47,7 @@ export function useChatMessages(ctx: ChannelContext) {
 			displayedByUser: {} as Record<string, Record<string, ChatMessage>>,
 			awaited: new Map<string, (v: ChatMessage) => void>(),
 			buffer: [] as ChatMessage[],
+			lowTrustUsers: {} as Record<string, LowTrustUserProperties>,
 			moderated: [] as {
 				id: symbol;
 				messages: ChatMessage[];
@@ -287,11 +289,16 @@ export function useChatMessages(ctx: ChannelContext) {
 		});
 	}
 
+	function reload() {
+		data.displayed.forEach((msg) => msg.refresh());
+	}
+
 	return reactive({
 		displayed: toRef(data, "displayed"),
 		handlers: data.twitchHandlers,
 		chatters: toRef(data, "chatters"),
 		chattersByUsername: toRef(data, "chattersByUsername"),
+		lowTrustUsers: toRef(data, "lowTrustUsers"),
 		moderated: toRef(data, "moderated"),
 		sendMessage: toRef(data, "sendMessage"),
 		find,
@@ -299,5 +306,6 @@ export function useChatMessages(ctx: ChannelContext) {
 		awaitMessage,
 		add,
 		clear,
+		reload,
 	});
 }

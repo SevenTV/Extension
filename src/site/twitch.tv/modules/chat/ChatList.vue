@@ -74,6 +74,7 @@ const showSelfHighlights = useConfig<boolean>("highlights.basic.self");
 const shouldPlaySoundOnMention = useConfig<boolean>("highlights.basic.mention_sound");
 const shouldFlashTitleOnHighlight = useConfig<boolean>("highlights.basic.mention_title_flash");
 const showRestrictedLowTrustUser = useConfig<boolean>("highlights.basic.restricted_low_trust_user");
+const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored_low_trust_user");
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
@@ -115,7 +116,9 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.CHANNEL_POINTS_REWARD:
 		case MessageType.ANNOUNCEMENT_MESSAGE:
 		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
-		case MessageType.PAID_MESSAGE:
+		case MessageType.BITS_BADGE_TIER_MESSAGE:
+		case MessageType.COMMUNITY_INTRODUCTION:
+		case MessageType.VIEWER_MILESTONE:
 		case MessageType.CONNECTED:
 			onChatMessage(msg, msgData);
 			break;
@@ -174,6 +177,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 				id: authorData.userID,
 				username: authorData.userLogin ?? (authorData.userDisplayName ?? authorData.displayName)?.toLowerCase(),
 				displayName: authorData.userDisplayName ?? authorData.displayName ?? authorData.userLogin,
+				intl: authorData.isIntl,
 				color,
 			},
 		);
@@ -197,14 +201,21 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	if (IsDisplayableMessage(msgData)) {
 		msg.body = (msgData.messageBody ?? msgData.message?.messageBody ?? "").replace("\n", " ");
+		msg.first = msgData.isFirstMsg;
 
 		if (typeof msgData.nonce === "string") msg.setNonce(msgData.nonce);
 
 		// assign highlight
 		if (msgData.isFirstMsg && showFirstTimeChatter.value) {
 			msg.setHighlight("#c832c8", "First Message");
-		} else if (msgData.isReturningChatter) {
-			msg.setHighlight("#3296e6", "Returning Chatter");
+		}
+
+		if (msg.author) {
+			const lowTrust = messages.lowTrustUsers[msg.author.id];
+
+			if (lowTrust && lowTrust.treatment.type === "ACTIVE_MONITORING" && showMonitoredLowTrustUser.value) {
+				msg.setHighlight("#ff7d00", "Monitored Suspicious User");
+			}
 		}
 
 		// assign parent message data
@@ -216,13 +227,22 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 							displayName: msgData.reply.parentDisplayName,
 					  }
 					: null;
+			const parentMsgThread =
+				msgData.reply && msgData.reply.threadParentMsgId && msgData.reply.threadParentUserLogin
+					? {
+							deleted: msgData.reply.threadParentDeleted,
+							id: msgData.reply.threadParentMsgId,
+							login: msgData.reply.threadParentUserLogin,
+					  }
+					: null;
 
 			msg.parent = {
-				id: msgData.reply.parentMsgId,
-				uid: msgData.reply.parentUid,
-				deleted: msgData.reply.parentDeleted,
-				body: msgData.reply.parentMessageBody,
+				id: msgData.reply.parentMsgId ?? "",
+				uid: msgData.reply.parentUid ?? "",
+				deleted: msgData.reply.parentDeleted ?? false,
+				body: msgData.reply.parentMessageBody ?? "",
 				author: parentMsgAuthor,
+				thread: parentMsgThread,
 			};
 
 			// Highlight as a reply to the actor
@@ -245,7 +265,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					// skip over emotes patched in by FFZ and BTTV
 					if (e.emoteID?.startsWith("__FFZ__") || e.emoteID?.startsWith("__BTTV__")) continue;
 
-					msg.nativeEmotes[e.alt + (e.cheerAmount ?? "")] = {
+					const nativeEmote: SevenTV.ActiveEmote = {
 						id: e.emoteID ?? "",
 						name: e.alt,
 						flags: 0,
@@ -266,6 +286,14 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 									token: e.alt,
 							  } as Partial<Twitch.TwitchEmote>),
 					};
+					const emoteName = e.alt + (e.cheerAmount ?? "");
+
+					msg.nativeEmotes[emoteName] = nativeEmote;
+
+					// if it's a cheer we also want to support it's lowercase variant (e.g. Cheer1 & cheer1)
+					if (e.cheerAmount) {
+						msg.nativeEmotes[emoteName.toLowerCase()] = nativeEmote;
+					}
 					break;
 				}
 				// replace flagged segments

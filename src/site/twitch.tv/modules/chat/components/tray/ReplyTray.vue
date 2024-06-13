@@ -17,22 +17,25 @@
 
 	<UiScrollable>
 		<div class="seventv-tray-user-message-container">
-			<UserMessage
-				v-for="m of thread"
-				:key="m.id"
-				:msg="m"
-				:emotes="emotes.active"
-				:force-timestamp="true"
-				:as="'Reply'"
-				class="thread-msg"
-				:class="{ 'is-root-msg': currentMsg?.id === m.id }"
-			/>
+			<div v-for="m of thread" :key="m.id" ref="msgElems" class="seventv-tray-user-message">
+				<UserMessage
+					:msg="m"
+					:emotes="emotes.active"
+					:force-timestamp="true"
+					:as="'Reply'"
+					class="thread-msg"
+					:class="{
+						'is-root-msg': currentMsg?.id === m.id,
+						'is-selected-msg': props.id === m.id && thread.length > 1,
+					}"
+				/>
+			</div>
 		</div>
 	</UiScrollable>
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { nextTick, ref, watchEffect } from "vue";
 import { log } from "@/common/Logger";
 import { convertTwitchMessage } from "@/common/Transform";
 import { ChatMessage } from "@/common/chat/ChatMessage";
@@ -55,9 +58,15 @@ const props = defineProps<{
 	displayName?: string;
 	body: string;
 	deleted: boolean;
+	thread?: {
+		deleted: boolean;
+		id: string;
+		login: string;
+	};
 }>();
 
 const currentMsg = ref<ChatMessage | null>(null);
+const msgElems = ref<HTMLDivElement[]>([]);
 const thread = ref<ChatMessage[]>([]);
 
 const ctx = useChannelContext();
@@ -74,7 +83,7 @@ watchEffect(async () => {
 			query: twitchChatReplyQuery,
 			fetchPolicy: "no-cache",
 			variables: {
-				messageID: props.id,
+				messageID: props.thread?.id ?? props.id,
 				channelID: ctx.id,
 			},
 		})
@@ -84,7 +93,30 @@ watchEffect(async () => {
 	if (!resp || !resp.data || !resp.data.message) return;
 
 	currentMsg.value = convertTwitchMessage(resp.data.message);
-	thread.value = [currentMsg.value, ...resp.data.message.replies.nodes.map((m) => convertTwitchMessage(m))];
+	const msgs = [currentMsg.value, ...resp.data.message.replies.nodes.map((m) => convertTwitchMessage(m))];
+	msgs.forEach((m) => {
+		m.parent = {
+			author: {
+				displayName: props.displayName ?? "",
+				username: props.username ?? "",
+			},
+			body: props.body,
+			deleted: props.deleted,
+			id: props.id,
+			uid: props.authorID ?? "",
+			thread: props.thread ?? null,
+		};
+	});
+	thread.value = msgs;
+});
+
+// Scroll to the message that is selected inside of the thread.
+watchEffect(() => {
+	const msgIndex = thread.value.findIndex((m) => m.id === props.id);
+	const msgElem = msgElems.value.at(msgIndex);
+	if (msgElem) {
+		nextTick(() => msgElem.scrollIntoView());
+	}
 });
 </script>
 
@@ -143,6 +175,32 @@ watchEffect(async () => {
 		margin-bottom: 0.5em;
 		padding-left: 0;
 		border-left: none;
+	}
+
+	.is-selected-msg {
+		background: hsla(0deg, 0%, 60%, 10%);
+		border-color: var(--seventv-primary);
+	}
+}
+
+.seventv-tray-user-message {
+	display: block;
+	position: relative;
+}
+
+.seventv-user-message {
+	&:hover,
+	&:focus-within {
+		border-radius: 0.25rem;
+		background: hsla(0deg, 0%, 60%, 24%);
+
+		.seventv-buttons-container {
+			visibility: visible;
+		}
+
+		:deep(.seventv-chat-message-buttons) {
+			visibility: visible;
+		}
 	}
 }
 </style>

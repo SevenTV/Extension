@@ -3,7 +3,7 @@
 	"displayName": "7TV",
 	"description": "Improve your viewing experience on Twitch & YouTube with new features, emotes, vanity and performance.",
 	"private": true,
-	"version": "3.0.16",
+	"version": "3.1.0",
 	"dev_version": "1.0",
 	"scripts": {
 		"start": "NODE_ENV=dev yarn build:dev && NODE_ENV=dev vite --mode dev",
@@ -35,7 +35,7 @@
 		"vue": "^3.3.4"
 	},
 	"devDependencies": {
-		"@apollo/client": "^3.8.1",
+		"@apollo/client": "^3.9.1",
 		"@floating-ui/dom": "^1.5.1",
 		"@intlify/unplugin-vue-i18n": "^1.5.0",
 		"@trivago/prettier-plugin-sort-imports": "^4.2.0",

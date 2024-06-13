@@ -1,7 +1,6 @@
-import { inject, onMounted, onUnmounted, provide, reactive, toRaw } from "vue";
+import { inject, onMounted, onUnmounted, provide, reactive, toRaw, watch } from "vue";
 import { useStore } from "@/store/main";
-import { log } from "@/common/Logger";
-import { WorkletEvent, useWorker } from "../useWorker";
+import { useWorker } from "../useWorker";
 
 export const CHANNEL_CTX = Symbol("seventv-channel-context");
 
@@ -16,6 +15,7 @@ export class ChannelContext implements CurrentChannel {
 	displayName = "";
 	user?: SevenTV.User;
 	loaded = false;
+	setsFetched = false;
 	active = false;
 	count = 0;
 
@@ -34,10 +34,6 @@ export class ChannelContext implements CurrentChannel {
 
 	setCurrentChannel(channel: CurrentChannel): boolean {
 		// Notify the worker about this new channel we are on
-		sendMessage("STATE", {
-			channel: toRaw(this.base),
-		});
-
 		if (this.id === channel.id) {
 			this.username = channel.username;
 			this.displayName = channel.displayName;
@@ -68,18 +64,26 @@ export class ChannelContext implements CurrentChannel {
 		});
 	}
 
-	fetch(): void {
-		// Listen for worker confirmation of channel fetch
-		const onLoaded = (ev: WorkletEvent<"channel_fetched">) => {
-			if (this.id !== ev.detail.id) return;
+	async fetch(refetch = false) {
+		sendMessage("STATE", {
+			channel: toRaw(this.base),
+			refetch: refetch,
+		});
 
-			this.loaded = true;
-			this.user = ev.detail.user;
+		await Promise.all([
+			target.listenUntil("channel_fetched", (ev) => {
+				if (this.id !== ev.detail.id) return false;
 
-			log.info("Channel loaded:", this.id);
-			target.removeEventListener("channel_fetched", onLoaded);
-		};
-		target.addEventListener("channel_fetched", onLoaded);
+				this.loaded = true;
+				this.user = ev.detail.user;
+
+				return true;
+			}),
+			target.listenUntil("channel_sets_fetched", (ev) => {
+				this.setsFetched = true;
+				return this.id === ev.detail.id;
+			}),
+		]);
 	}
 }
 
@@ -96,7 +100,13 @@ export function useChannelContext(channelID?: string, track = false): ChannelCon
 		if (channelID) ctx.setCurrentChannel({ id: channelID ?? "", username: "", displayName: "", active: true });
 
 		const store = useStore();
-		ctx.platform = store.platform;
+		watch(
+			() => store.platform,
+			() => {
+				ctx!.platform = store.platform;
+			},
+			{ immediate: true },
+		);
 
 		provide(CHANNEL_CTX, ctx);
 		if (channelID) m.set(channelID, ctx);

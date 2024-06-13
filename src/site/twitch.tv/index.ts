@@ -1,7 +1,6 @@
 export namespace Regex {
 	export const MessageDelimiter = new RegExp("( )", "g");
 	export const Mention = new RegExp("@([A-Za-z0-9_]{1,24})");
-	export const SevenTVLink = new RegExp("^https?:\\/\\/(?:www\\.)?7tv.app\\/emotes\\/(?<emoteID>[0-9a-f]{24})", "gi");
 }
 
 export namespace Selectors {
@@ -76,12 +75,9 @@ export enum MessageType {
 	COMMUNITY_INTRODUCTION = 47,
 	SHOUTOUT = 48,
 	ANNOUNCEMENT_MESSAGE = 49,
-	MIDNIGHT_SQUID = 50,
-	CHARITY_DONATION = 51,
-	MESSAGE_ID_UPDATE = 52,
-	PINNED_CHAT = 53,
-	VIEWER_MILESTONE = 54,
-	PAID_MESSAGE = 55,
+	CHARITY_DONATION = 50,
+	MESSAGE_ID_UPDATE = 51,
+	VIEWER_MILESTONE = 52,
 
 	// 7TV Message Types
 	SEVENTV_EMOTE_SET_UPDATE = 7000,

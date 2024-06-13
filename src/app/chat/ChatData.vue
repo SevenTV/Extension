@@ -112,16 +112,28 @@ function onEmoteSetUpdated(ev: WorkletEvent<"emote_set_updated">) {
 
 		delete emotes.active[o.name];
 		emotes.active[n.name] = aer.value;
+
+		if (emotes.sets[id]) {
+			const i = set.emotes.findIndex((e) => e.id === n.id);
+			if (i !== -1) set.emotes.splice(i, 1, aer.value);
+		}
 	}
 
 	// Handle removed emotes
 	for (let i = 0; i < emotes_removed.length; i++) {
 		const emote = emotes_removed[i];
-		const e = emotes.active[emote.name];
+		const e = emotes.find((ae) => ae.id === emote.id, true);
 		if (!e || e.id !== emote.id) continue;
 
 		emotes_removed[i].data = e.data;
-		delete emotes.active[emote.name];
+		emotes_removed[i].name = e.name;
+
+		delete emotes.active[e.name];
+		if (emotes.sets[id]) {
+			const i = set.emotes.findIndex((e) => e.id === emote.id);
+			if (i !== -1) set.emotes.splice(i, 1);
+		}
+
 		if (emotes.sets[id]) {
 			const i = set.emotes.findIndex((e) => e.id === emote.id);
 			if (i !== -1) set.emotes.splice(i, 1);

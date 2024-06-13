@@ -1,8 +1,45 @@
-### Untitled Version
+### 3.1.0.1000
 
-**The changes listed here are not assigned to an official release**.
+-   Added rich embeds for 7TV emotes.
+-   Added custom commands /search, /add, /remove and /rename to manage 7TV emotes.
+-   Added /song that uses the AudD api to recognize songs. (Requires an api token from [AudD](https://audd.io/))
+-   Added /refresh to reload emotes.
+-   Added /nuke to moderate multiple messages at once. Can be enabled in the settings.
+-   Fixed native chat width.
+-   Make all setting pages searchable.
+
+### 3.0.17.1000
 
 -   Reinstated animated avatars
+-   Fixed an issue where links would include a period at the end
+-   Added an option to hide the channel point balance button under the chat input box
+-   Updated background of the current emote tab selection
+-   Fixed an issue where suspicious users were not highlighted and clips not being displayed in chat
+-   Fixed an issue which caused timestamps to count beyond 24 hours
+-   Fixed an issue which caused scrolling to not work while scrolling through a category
+-   Fixed an issue where lowercase cheers were displayed as text
+-   Added an option to hide the community challenge contributions in the chat
+-   Fixed extension not working on twitch for some users (React 18 support)
+-   Fixed an issue where chat messages (like announcements) did not use the channel accent color
+-   Fixed an issue where an emote with a long alias would cause the alias to go outside of the tooltip
+-   Added an option to hide timestamps in vods
+-   Fixed an issue which sometimes caused chat badges to not appear
+-   Fixed an issue that caused replies in threads to not appear
+-   Fixed an issue where replies in threads could not be selected
+-   Fixed an issue where switching the selected emote-set would not be detected
+-   Fixed an issue where the emote menu button did not appear on Kick
+-   Fixed an issue which sometimes caused old messages to not appear
+-   Sort emotes alphabetically with tab auto-completion on Kick
+-   Removed option to hide the React button on Twitch
+-   Added emote support for introduction & watch streak messages.
+-   Fixed an issue that caused suspicious user highlights to not persist
+-   Fixed an issue that caused returning users to not be highlighted
+-   Added an option to show raider highlights
+-   Added an option to show returning user highlights
+-   Fixed an issue that caused international names to not always display logins
+-   Fixed an issue that caused Twitch VODs to not load emotes
+-   Fixed an issue that caused emote names in emote cards to overflow
+-   Fixed an issue that caused certain words to not display in chat
 
 ### 3.0.16.1000
 
@@ -15,12 +52,11 @@
 -   Fixed emote tile width in emote menu
 -   Fixed "hidden subscription status" message in the User Card
 -   Fixed extraneous emote menu blank space when "Live Input Search" was enabled
+-   Fixed an issue where leaderboard would not hide when "Hide leaderboard" was enabled
 -   Fixed an issue with deleting messages using mod icons
 -   Fixed an issue where the extension menu displayed incorrectly in Chromium-based browsers
 
 ### 3.0.15.1000
-
-**The changes listed here are not assigned to an official release**.
 
 -   Added a backup tab to the settings menu for importing & exporting settings
 -   Added an option to select the default Emote Menu tab

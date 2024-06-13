@@ -25,12 +25,15 @@ declare namespace Twitch {
 		isReturningChatter: boolean;
 		messageType: number;
 		reply?: {
-			parentDeleted: boolean;
-			parentMsgId: string;
-			parentMessageBody: string;
-			parentUid: string;
-			parentUserLogin: string;
-			parentDisplayName: string;
+			parentDeleted?: boolean;
+			parentMsgId?: string;
+			parentMessageBody?: string;
+			parentUid?: string;
+			parentUserLogin?: string;
+			parentDisplayName?: string;
+			threadParentDeleted?: boolean;
+			threadParentMsgId?: string;
+			threadParentUserLogin?: string;
 		};
 
 		height?: number;
@@ -216,6 +219,28 @@ declare namespace Twitch {
 	export interface AnnouncementMessage extends AnyMessage {
 		color: "PRIMARY" | "BLUE" | "GREEN" | "ORANGE" | "PURPLE";
 		message: ChatMessage;
+	}
+
+	export interface BitsBadgeTierMessage extends AnyMessage {
+		message: ChatMessage;
+		threshold: number;
+		user: ChatUser;
+	}
+
+	export interface CommunityIntroductionMessage extends AnyMessage {
+		message: string;
+		userID: string;
+		login: string;
+		displayName: string;
+	}
+
+	export interface MilestoneMessage extends AnyMessage {
+		category: string;
+		channel: string;
+		copoReward: number;
+		message: string;
+		milestoneID: string;
+		watchStreak: number;
 	}
 
 	export interface IDUpdateMessage extends AnyMessage {

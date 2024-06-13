@@ -71,11 +71,13 @@ defineExpose({
 	position: sticky;
 	top: 0;
 	background: var(--seventv-background-shade-2);
-	border-bottom: 0.01rem solid var(--seventv-text-color-secondary);
+	border-top: 0.01rem solid var(--seventv-border-transparent-1);
+	border-bottom: 0.01rem solid var(--seventv-border-transparent-1);
+	box-sizing: border-box !important;
 	backdrop-filter: blur(0.25em);
 	z-index: 1;
 	display: block;
-	padding: 0.75em 1em;
+	padding: calc(0.5em - 1px) 1em;
 	margin-bottom: 0.5em;
 }
 </style>

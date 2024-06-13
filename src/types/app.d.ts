@@ -5,7 +5,9 @@ declare interface SeventvGlobalScope {
 		stylesheet_file: string;
 		index_file: string;
 	};
+	remote?: boolean;
 	hosted?: boolean;
+	isDev?: boolean;
 }
 
 declare const seventv: SeventvGlobalScope;
@@ -51,6 +53,15 @@ declare namespace SevenTV {
 		ZERO_WIDTH = 1 << 8,
 	}
 
+	interface JWT {
+		u: string;
+		v: number;
+		iss: string;
+		exp: number;
+		nbf: number;
+		iat: number;
+	}
+
 	interface EmoteSet {
 		id: ObjectID;
 		name: string;
@@ -80,8 +91,9 @@ declare namespace SevenTV {
 		key: string;
 		label: string;
 		hint?: string;
-		path?: [string, string];
+		path?: [string, string] | [string, string, string | number];
 		timestamp?: number;
+		expires?: number;
 
 		custom?: {
 			component: Raw<object>;
@@ -99,7 +111,10 @@ declare namespace SevenTV {
 			SELECT: [string, T][];
 			DROPDOWN: [string, T][];
 			CHECKBOX: never;
-			INPUT: string;
+			INPUT: {
+				placeholder?: string;
+				type?: string;
+			};
 			COLOR: string;
 			TOGGLE: {
 				left: string;
@@ -167,8 +182,18 @@ declare namespace SevenTV {
 		style?: UserStyle;
 		connections?: UserConnection[];
 		emote_sets?: EmoteSet[];
+		editors?: UserEditor[];
+		editor_of?: UserEditor[];
+		roles?: string[];
 	}
 
+	interface UserEditor {
+		id: ObjectID;
+		user: UserPartial;
+		permissions: Int;
+		visible: boolean;
+		added_at: int;
+	}
 	interface UserStyle {
 		color: number;
 		paint_id?: ObjectID;
@@ -183,6 +208,7 @@ declare namespace SevenTV {
 		linked_at: number;
 		emote_capacity: number;
 		emote_set: EmoteSet | null;
+		emote_set_id: string;
 
 		provider?: Provider;
 		user?: User;

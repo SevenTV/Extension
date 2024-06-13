@@ -8,6 +8,7 @@ import { defineConfig, loadEnv } from "vite";
 export default defineConfig(() => {
 	const mode = process.env.NODE_ENV ?? "";
 	const isNightly = process.env.BRANCH === "nightly";
+	const isStage = !!process.env.MANIFEST_NAME;
 	const outDir = process.env.OUT_DIR || "";
 	const fullVersion = getFullVersion(isNightly);
 
@@ -95,15 +96,19 @@ export default defineConfig(() => {
 					}
 
 					const man = {
-						version: getFullVersion(isNightly),
+						version: getFullVersion(isNightly, isStage),
 						index_file: `${process.env.VITE_APP_HOST}/${indexPath}`,
 						stylesheet_file: `${process.env.VITE_APP_HOST}/${stylePath}`,
 						worker_file: `${process.env.VITE_APP_HOST}/v${fullVersion}/worker.${fullVersion}.js`,
 					};
 
-					const manifestName = process.env.BRANCH
-						? `manifest.${process.env.BRANCH.toLowerCase()}.json`
-						: "manifest.json";
+					let manifestName = "manifest";
+					if (isStage) {
+						manifestName += "." + process.env.MANIFEST_NAME!.toLowerCase();
+					} else if (process.env.BRANCH) {
+						manifestName += "." + process.env.BRANCH.toLowerCase();
+					}
+					manifestName += ".json";
 
 					setTimeout(() => {
 						const p = r("dist-hosted") + (outDir ? "/" + outDir : "");
