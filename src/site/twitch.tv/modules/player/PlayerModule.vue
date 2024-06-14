@@ -3,11 +3,11 @@
 		<PlayerController :inst="inst" :media-player="mediaPlayer" />
 	</template>
 
-	<template v-for="(inst, i) of streamInfo.instances" :key="inst.identifier">
+	<template v-if="playerAdvancedOptionsComponent.instances.length > 0">
 		<PlayerStreamInfo
 			v-if="shouldShowVideoStats"
-			:inst="inst"
-			:advanced-controls="playerAdvancedOptionsComponent.instances[i]"
+			ref="info"
+			:advanced-controls="playerAdvancedOptionsComponent.instances[0]"
 			:media-player="mediaPlayer"
 		/>
 	</template>
@@ -29,6 +29,7 @@ declareModule<"TWITCH">("player", {
 const mediaPlayer = ref<Twitch.MediaPlayerInstance>();
 
 const shouldShowVideoStats = useConfig<boolean>("player.video_stats");
+const info = ref<typeof PlayerStreamInfo | null>(null);
 
 const player = useComponentHook<Twitch.VideoPlayerComponent>(
 	{
@@ -39,6 +40,7 @@ const player = useComponentHook<Twitch.VideoPlayerComponent>(
 		hooks: {
 			render(inst, cur) {
 				mediaPlayer.value = inst.component.props.mediaPlayerInstance;
+				info.value?.remount?.();
 
 				return cur;
 			},
@@ -51,19 +53,7 @@ const playerAdvancedOptionsComponent = useComponentHook<Twitch.MediaPlayerAdvanc
 	parentSelector: ".persistent-player",
 	predicate: (n) => n.props && n.setStatsOverlay && n.setShowControls,
 });
-
-// hook to render video stats in the channel page view
-const streamInfo = useComponentHook<Twitch.StreamInfo>(
-	{
-		parentSelector: "#live-channel-stream-information",
-		predicate: (el) => el.props && el.props.liveSince,
-	},
-	{
-		trackRoot: true,
-	},
-);
 </script>
-
 <script lang="ts">
 export const config = [
 	declareConfig("player.skip_content_restriction", "TOGGLE", {
