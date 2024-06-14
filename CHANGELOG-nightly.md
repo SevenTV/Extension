@@ -1,3 +1,14 @@
+### 3.1.0.3000
+
+-   Fixed video player stats not showing
+-   Pass rendering of animated messages to twitch
+-   Add option to hide on screen celebrations
+
+### 3.1.0.2000
+
+-   Fixed badge width on kick
+-   Fixed an issue where settings would be hidden due to auto-filling the searchbox
+
 ### 3.1.0.1000
 
 -   Added rich embeds for 7TV emotes.

@@ -149,6 +149,12 @@ export const config = [
 		hint: "If checked, the player extensions will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("player.hide_onscreen_celebrations", "TOGGLE", {
+		path: ["Player", ""],
+		label: "Hide On-Screen Celebrations",
+		hint: "If checked, on-screen celebrations will be hidden",
+		defaultValue: false,
+	}),
 ];
 </script>
 
@@ -271,8 +277,8 @@ export const config = [
 	}
 }
 
+/* stylelint-disable */
 .seventv-hide-player-ext {
-	/* stylelint-disable */
 	.video-player .extension-taskbar,
 	.video-player .extension-container,
 	.video-player .extensions-dock__layout,
@@ -280,6 +286,12 @@ export const config = [
 	.video-player .extensions-video-overlay-size-container {
 		display: none !important;
 	}
-	/* stylelint-enable */
 }
+
+.seventv-hide-onscreen-celebrations {
+	div.celebration__overlay {
+		display: none !important;
+	}
+}
+/* stylelint-enable */
 </style>

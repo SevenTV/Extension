@@ -120,7 +120,6 @@ settings.register([
 		defaultValue: "",
 		options: {
 			placeholder: "Key",
-			type: "password",
 		},
 		predicate(v) {
 			return v.length == 32 || v == "";

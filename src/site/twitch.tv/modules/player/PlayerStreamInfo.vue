@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, reactive, ref, watch, watchEffect } from "vue";
+import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { HookedInstance } from "@/common/ReactHooks";
 import { definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { useTooltip } from "@/composable/useTooltip";
@@ -28,7 +28,6 @@ import GaugeIcon from "@/assets/svg/icons/GaugeIcon.vue";
 import PlayerStatsTooltip from "./PlayerStatsTooltip.vue";
 
 const props = defineProps<{
-	inst: HookedInstance<Twitch.StreamInfo>;
 	advancedControls: HookedInstance<Twitch.MediaPlayerAdvancedControls>;
 	mediaPlayer?: Twitch.MediaPlayerInstance;
 }>();
@@ -56,16 +55,14 @@ function openStatsOverlay() {
 	controls.setStatsOverlay(isOpen ? 0 : 1);
 }
 
-watchEffect(() => {
-	const rootNode = props.inst.domNodes.root;
-	if (!rootNode) return;
-
-	// Place stats next to the live time value
-	const sibling = rootNode.querySelector<HTMLElement>("span.live-time")?.parentElement;
+function remount() {
+	const sibling = document.querySelector<HTMLElement>("span.live-time")?.parentElement;
 	if (!sibling || sibling.parentElement?.contains(container)) return;
 
 	sibling.insertAdjacentElement("afterend", container);
-});
+}
+
+defineExpose({ remount });
 
 watch(
 	latency,
@@ -99,6 +96,10 @@ watch(
 	},
 	{ immediate: true },
 );
+
+onMounted(() => {
+	remount();
+});
 
 onUnmounted(() => {
 	container.remove();
