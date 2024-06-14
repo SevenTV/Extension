@@ -106,6 +106,9 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 
 	msg.channelID = ctx.id;
 
+	// Send message to our registered message handlers
+	messages.handlers.forEach((h) => h(msgData));
+
 	switch (msgData.type) {
 		case MessageType.MESSAGE:
 		case MessageType.SUBSCRIPTION:
@@ -113,7 +116,6 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.SUB_GIFT:
 		case MessageType.RAID:
 		case MessageType.SUB_MYSTERY_GIFT:
-		case MessageType.CHANNEL_POINTS_REWARD:
 		case MessageType.ANNOUNCEMENT_MESSAGE:
 		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
 		case MessageType.BITS_BADGE_TIER_MESSAGE:
@@ -121,6 +123,14 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.VIEWER_MILESTONE:
 		case MessageType.CONNECTED:
 			onChatMessage(msg, msgData);
+			break;
+
+		case MessageType.CHANNEL_POINTS_REWARD:
+			if (!(msgData as Twitch.ChannelPointsRewardMessage).animationID) {
+				onChatMessage(msg, msgData);
+			} else {
+				return false;
+			}
 			break;
 
 		case MessageType.MODERATION:
@@ -134,9 +144,6 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		default:
 			return false;
 	}
-
-	// Send message to our registered message handlers
-	messages.handlers.forEach((h) => h(msgData));
 
 	return true;
 };

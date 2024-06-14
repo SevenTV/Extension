@@ -192,8 +192,10 @@ declare namespace Twitch {
 			cost: number;
 			isHighlighted: boolean;
 			name: string;
+			pricingType?: string;
 		};
 		userID: string;
+		animationID?: string;
 	}
 
 	export interface MassGiftMessage extends AnyMessage {
