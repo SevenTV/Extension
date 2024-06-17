@@ -1,3 +1,7 @@
+### 3.1.1.2000
+
+-   Fixed an issue where twitch emotes were displayed larger after hovering over them
+
 ### 3.1.0.3000
 
 -   Fixed video player stats not showing

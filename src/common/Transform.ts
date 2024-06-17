@@ -69,10 +69,6 @@ export function convertTwitchEmote(
 					format: "PNG",
 				},
 				{
-					name: "3.0",
-					format: "PNG",
-				},
-				{
 					name: "4.0",
 					format: "PNG",
 				},
