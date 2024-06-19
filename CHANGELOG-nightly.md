@@ -1,6 +1,7 @@
 ### 3.1.1.2000
 
 -   Fixed an issue where twitch emotes were displayed larger after hovering over them
+-   Fixed an issue causing VOD messages to display two timestamps
 -   Added option to hide 7TV badges from chat
 
 ### 3.1.0.3000
