@@ -301,10 +301,17 @@ export const config = [
 }
 
 .seventv-hide-powerups-reward-list {
-	#channel-points-reward-center-body > *:nth-child(1) > *:nth-child(1) > .ZvPWT:nth-child(n+3):nth-child(-n+4){
+	#channel-points-reward-center-body
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(n + 3):nth-child(-n + 4)
+		> p:nth-of-type(1) {
 		display: none !important;
 	}
-	#channel-points-reward-center-body > *:nth-child(1) > *:nth-child(1) > .reward-list-item:nth-child(n+4):nth-child(-n+7){
+	#channel-points-reward-center-body
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> .reward-list-item:nth-child(n + 4):nth-child(-n + 7) {
 		display: none !important;
 	}
 }
