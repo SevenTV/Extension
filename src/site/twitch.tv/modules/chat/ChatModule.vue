@@ -478,5 +478,11 @@ export const config = [
 		hint: "Whether or not to display nametag paints",
 		defaultValue: true,
 	}),
+	declareConfig<boolean>("vanity.7tv_Badges", "TOGGLE", {
+		path: ["Appearance", "Vanity"],
+		label: "7TV Badges",
+		hint: "Whether or not to display 7TV Badges",
+		defaultValue: true,
+	}),
 ];
 </script>

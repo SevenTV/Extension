@@ -79,6 +79,7 @@ const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
 const shouldRenderPaint = useConfig("vanity.nametag_paints");
+const shouldRender7tvBadges = useConfig("vanity.7tv_Badges");
 const betterUserCardEnabled = useConfig("chat.user_card");
 const twitchBadges = ref<Twitch.ChatBadge[]>([]);
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
@@ -133,7 +134,7 @@ const stop = watch(
 		}
 
 		paint.value = shouldRenderPaint.value && paints && paints.size ? paints.values().next().value : null;
-		activeBadges.value = [...badges.values()];
+		activeBadges.value = shouldRender7tvBadges.value && badges && badges.size ? [...badges.values()] : [];
 	},
 	{ immediate: true },
 );
