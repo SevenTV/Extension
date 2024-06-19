@@ -437,6 +437,10 @@ declare module Twitch {
 		determineGroup: (command: ChatCommand) => string;
 	};
 
+	export type ChatCommunityPointsButtonComponent = ReactExtended.WritableComponent<{}> & {
+		shouldShowBitsBalance: () => boolean;
+	};
+
 	export type ChatChannelPointsClaimComponent = ReactExtended.WritableComponent<{
 		hidden: boolean;
 	}> & {

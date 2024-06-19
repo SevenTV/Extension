@@ -78,6 +78,22 @@ const chatEvents = useComponentHook<Twitch.ChatEventComponent>({
 	predicate: (n) => n.onClearChatEvent,
 });
 
+const hideBitsBalance = useConfig<boolean>("chat.hide_bits_balance");
+useComponentHook<Twitch.ChatCommunityPointsButtonComponent>(
+	{
+		childSelector: ".community-points-summary",
+		predicate: (el) => el.shouldShowBitsBalance,
+	},
+	{
+		functionHooks: {
+			shouldShowBitsBalance(this, old) {
+				if (hideBitsBalance.value) return false;
+				return old.call(this);
+			},
+		},
+	},
+);
+
 const isHookable = ref(false);
 const isHookableDbc = refDebounced(isHookable, 200);
 
@@ -483,6 +499,12 @@ export const config = [
 		label: "7TV Badges",
 		hint: "Whether or not to display 7TV Badges",
 		defaultValue: true,
+	}),
+	declareConfig("chat.hide_bits_balance", "TOGGLE", {
+		label: "Hide Bits Balance",
+		hint: "Hide the bits balance in the chat.",
+		path: ["Chat", "Style"],
+		defaultValue: false,
 	}),
 ];
 </script>
