@@ -1,7 +1,7 @@
 import { useUserAgent } from "@/composable/useUserAgent";
 
 const layout = {
-	PLATFORM: [1, 2, 3],
+	PLATFORM: [1, 2, 4],
 	"7TV": [1, 2, 3, 4],
 	FFZ: [1, 2, 4],
 	BTTV: [1, 2, 4],
