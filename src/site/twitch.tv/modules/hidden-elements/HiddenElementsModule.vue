@@ -155,6 +155,12 @@ export const config = [
 		hint: "If checked, on-screen celebrations will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_powerups_reward_list", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Power-ups from rewards menu",
+		hint: "If checked, power-ups are hidden from the bits and channel points reward menu",
+		defaultValue: false,
+	}),
 ];
 </script>
 
@@ -290,6 +296,15 @@ export const config = [
 
 .seventv-hide-onscreen-celebrations {
 	div.celebration__overlay {
+		display: none !important;
+	}
+}
+
+.seventv-hide-powerups-reward-list {
+	#channel-points-reward-center-body > *:nth-child(1) > *:nth-child(1) > .ZvPWT:nth-child(n+3):nth-child(-n+4){
+		display: none !important;
+	}
+	#channel-points-reward-center-body > *:nth-child(1) > *:nth-child(1) > .reward-list-item:nth-child(n+4):nth-child(-n+7){
 		display: none !important;
 	}
 }

@@ -1,6 +1,7 @@
 ### 3.1.1.2000
 
 -   Fixed an issue where twitch emotes were displayed larger after hovering over them
+-   Added option to hide the power-ups reward options from the channel point reward menu
 
 ### 3.1.0.3000
 
