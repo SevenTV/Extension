@@ -1,3 +1,7 @@
+### 3.1.1.2100
+
+-   Fixed an issue where certain hooks would not work properly
+
 ### 3.1.1.2000
 
 -   Added option to hide 7TV badges from chat
