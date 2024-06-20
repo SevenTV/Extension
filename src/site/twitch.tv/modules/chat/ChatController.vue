@@ -328,7 +328,7 @@ watch(
 		messages.clear();
 		scroller.unpause();
 
-		nextTick(() => emotes.resetProviders());
+		nextTick(emotes.reset);
 	},
 	{ immediate: true },
 );

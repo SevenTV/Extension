@@ -480,6 +480,7 @@ declare module Twitch {
 		sendMessageHandler?: ChatTray.SendMessageHandler<H>;
 		messageHandler?: (v: string) => void;
 		placeholder?: string;
+		floating?: boolean;
 	}
 
 	export namespace ChatTray {

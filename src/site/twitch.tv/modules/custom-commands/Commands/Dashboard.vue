@@ -4,6 +4,7 @@
 		placeholder="Search again..."
 		:input-value-override="search"
 		disable-commands
+		floating
 		:message-handler="(m) => (search = m)"
 	>
 		<EnableTray :search="search" :mut="mut" name="body" @close="showTray = false" />
