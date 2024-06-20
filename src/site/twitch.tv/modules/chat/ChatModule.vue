@@ -501,8 +501,8 @@ export const config = [
 		defaultValue: true,
 	}),
 	declareConfig("chat.hide_bits_balance", "TOGGLE", {
-		label: "Hide Bits Balance",
-		hint: "Hide the bits balance in the chat.",
+		label: "Hide Bits From Community Points Button",
+		hint: "Hide the bits balance from the community points button under the chatbox",
 		path: ["Chat", "Style"],
 		defaultValue: false,
 	}),
