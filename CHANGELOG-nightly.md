@@ -1,4 +1,4 @@
-### 3.2.2 1000
+### 3.1.1 3000
 
 -   Added support for animated FFZ emotes
 
