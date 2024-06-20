@@ -1,5 +1,6 @@
 ### 3.1.1.2100
 
+-   Added support for animated FFZ emotes
 -   Fixed an issue where certain hooks would not work properly
 
 ### 3.1.1.2000
