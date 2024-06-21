@@ -1,6 +1,7 @@
 ### 3.1.1 3000
 
 -   Added support for animated FFZ emotes
+-   Added option to hide whispers
 
 ### 3.1.1.2100
 
