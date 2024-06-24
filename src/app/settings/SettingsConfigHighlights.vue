@@ -5,6 +5,7 @@
 			<div class="item heading">
 				<div>Pattern</div>
 				<div>Label</div>
+				<div class="centered">Username</div>
 				<div class="centered">Flash Title</div>
 				<div class="centered">RegExp</div>
 				<div>Case Sensitive</div>
@@ -34,20 +35,33 @@
 							/>
 						</div>
 
+						<!-- Checkbox: Username -->
+						<div name="is-username" class="centered">
+							<FormCheckbox
+								:checked="!!h.username"
+								@update:checked="onUsernameStateChange(h, $event)" />
+						</div>
+
 						<!-- Checkbox: Flash Title -->
 						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
+							<FormCheckbox
+								:checked="!!h.flashTitle"
+								update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: RegExp -->
 						<div name="is-regexp" class="centered">
-							<FormCheckbox :checked="!!h.regexp" @update:checked="onRegExpStateChange(h, $event)" />
+							<FormCheckbox
+								:checked="!!h.regexp"
+								:disabled="h.username"
+								@update:checked="onRegExpStateChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: Case Sensitive -->
 						<div name="case-sensitive" class="centered">
 							<FormCheckbox
 								:checked="!!h.caseSensitive"
+								:disabled="h.username"
 								@update:checked="onCaseSensitiveChange(h, $event)"
 							/>
 						</div>
@@ -138,6 +152,11 @@ function onInputBlur(h: HighlightDef, inputName: keyof typeof inputs): void {
 
 	const id = uuid();
 	highlights.updateId("new-highlight", id);
+	highlights.save();
+}
+
+function onUsernameStateChange(h: HighlightDef, checked: boolean): void {
+	h.username = checked;
 	highlights.save();
 }
 
@@ -265,7 +284,7 @@ main.seventv-settings-custom-highlights {
 		.item {
 			display: grid;
 			grid-auto-flow: row dense;
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr 1fr;
 			column-gap: 3rem;
 			padding: 1rem;
 

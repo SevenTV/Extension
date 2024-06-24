@@ -1,12 +1,13 @@
 <template>
 	<div>
-		<input id="checkbox" :checked="checked" type="checkbox" @change="onInput" />
+		<input id="checkbox" :checked="checked" :disabled="disabled" type="checkbox" @change="onInput" />
 	</div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
 	checked: boolean;
+	disabled?: boolean;
 }>();
 
 const emit = defineEmits<{

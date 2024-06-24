@@ -33,6 +33,7 @@ export interface HighlightDef {
 		data: ArrayBuffer;
 	};
 	persist?: boolean;
+	username?: boolean;
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
@@ -149,27 +150,31 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		if (h.regexp) {
-			let regexp = h.cachedRegExp;
-			if (!regexp) {
-				try {
-					regexp = new RegExp(h.pattern as string, "i");
-					Object.defineProperty(h, "cachedRegExp", { value: regexp });
-				} catch (err) {
-					log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
+		if (!h.username) {	
+			if (h.regexp) {
+				let regexp = h.cachedRegExp;
+				if (!regexp) {
+					try {
+						regexp = new RegExp(h.pattern as string, "i");
+						Object.defineProperty(h, "cachedRegExp", { value: regexp });
+					} catch (err) {
+						log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
 
-					msg.setHighlight("#878787", "Error " + (err as Error).message);
-					return false;
+						msg.setHighlight("#878787", "Error " + (err as Error).message);
+						return false;
+					}
 				}
-			}
 
-			ok = regexp.test(msg.body);
-		} else if (h.pattern) {
-			ok = h.caseSensitive
-				? msg.body.includes(h.pattern)
-				: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
-		} else if (typeof h.test === "function") {
-			ok = h.test(msg);
+				ok = regexp.test(msg.body);
+			} else if (h.pattern) {
+				ok = h.caseSensitive
+					? msg.body.includes(h.pattern)
+					: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
+			} else if (typeof h.test === "function") {
+				ok = h.test(msg);
+			}
+		} else {
+			ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
 		}
 
 		if (ok) {
