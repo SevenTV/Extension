@@ -1,3 +1,7 @@
+### 3.1.1 4000
+
+-   Added option to highlight messages of specific usernames
+
 ### 3.1.1 3000
 
 -   Added support for animated FFZ emotes
