@@ -543,6 +543,7 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`
 					: undefined,
 				flashTitle: true,
+				phrase: true,
 			});
 
 			chatHighlights.define("~reply", {
@@ -561,6 +562,7 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`
 					: undefined,
 				flashTitle: true,
+				phrase: true,
 			});
 		} else {
 			chatHighlights.remove("~mention");

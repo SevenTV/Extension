@@ -33,7 +33,9 @@ export interface HighlightDef {
 		data: ArrayBuffer;
 	};
 	persist?: boolean;
+	phrase?: boolean;
 	username?: boolean;
+	badge?: boolean;
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
@@ -150,7 +152,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		if (!h.username) {	
+		if (h.phrase) {	
 			if (h.regexp) {
 				let regexp = h.cachedRegExp;
 				if (!regexp) {
@@ -173,8 +175,10 @@ export function useChatHighlights(ctx: ChannelContext) {
 			} else if (typeof h.test === "function") {
 				ok = h.test(msg);
 			}
-		} else {
+		} else if (h.username) {
 			ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
+		} else if (h.badge) {
+			ok = Object.keys(msg.badges).indexOf(h.pattern?.toLowerCase() ?? "") > -1
 		}
 
 		if (ok) {
@@ -227,6 +231,36 @@ export function useChatHighlights(ctx: ChannelContext) {
 		return toReactive(data.highlights);
 	}
 
+	function getAllPhraseHighlights(): Record<string, HighlightDef> {
+		if (!data) return {};
+		// Filtering the highlights to include only those with phrase: true
+		const filteredHighlights = Object.fromEntries(
+			Object.entries(data.highlights).filter(([, highlight]) => highlight.phrase === true)
+		);
+
+		return toReactive(filteredHighlights);
+	}
+
+	function getAllUsernameHighlights(): Record<string, HighlightDef> {
+		if (!data) return {};
+		// Filtering the highlights to include only those with username: true
+		const filteredHighlights = Object.fromEntries(
+			Object.entries(data.highlights).filter(([, highlight]) => highlight.username === true)
+		);
+
+		return toReactive(filteredHighlights);
+	}
+
+	function getAllBadgeHighlights(): Record<string, HighlightDef> {
+		if (!data) return {};
+		// Filtering the highlights to include only those with badge: true
+		const filteredHighlights = Object.fromEntries(
+			Object.entries(data.highlights).filter(([, highlight]) => highlight.badge === true)
+		);
+
+		return toReactive(filteredHighlights);
+	}
+
 	function updateId(oldId: string, newId: string): void {
 		if (!data) return;
 
@@ -245,6 +279,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 		define,
 		remove,
 		getAll,
+		getAllPhraseHighlights,
+		getAllUsernameHighlights,
+		getAllBadgeHighlights,
 		save,
 		updateId,
 		checkMatch,
