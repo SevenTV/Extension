@@ -1,6 +1,8 @@
 ### 3.1.1 4000
 
 -   Added option to highlight messages of specific usernames
+-   Added option to highlight messages based on badges
+-   Added button to user card to highlight/stop highlighting a users messages
 
 ### 3.1.1 3000
 

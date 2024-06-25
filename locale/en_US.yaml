@@ -21,6 +21,8 @@ user_card:
     previously_subscription_length: Previously subscribed for {length} months
     hidden_subscription_status: Status hidden
     native: Open Native User Card
+    highlight: Highlight messages of this user
+    stop_highlight: Stop highlighting of this user
     no_messages: "{user} has not chatted here"
     no_timeouts: "{user} hasn't been timed out before"
     no_bans: "{user} hasn't been banned before"

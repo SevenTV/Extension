@@ -45,7 +45,8 @@
 							<FormCheckbox
 								:checked="!!h.regexp"
 								:disabled="h.username"
-								@update:checked="onRegExpStateChange(h, $event)" />
+								@update:checked="onRegExpStateChange(h, $event)"
+							/>
 						</div>
 
 						<!-- Checkbox: Case Sensitive -->
@@ -104,7 +105,6 @@
 					<FormInput v-model="newPhraseInput" label="New Phrase Highlight..."> hi </FormInput>
 				</div>
 			</div>
-
 
 			<!--Username highlights-->
 			<u><h6>Usernames</h6></u>
@@ -193,7 +193,6 @@
 					<FormInput v-model="newUsernameInput" label="New Username Highlight..."> hi </FormInput>
 				</div>
 			</div>
-
 
 			<!--Badge highlights-->
 			<u><h6>Badges</h6></u>
@@ -428,74 +427,36 @@ function onDeleteHighlight(h: HighlightDef): void {
 
 // Watch for user writing to "new highlight" input
 // If they do, we create a new highlight and switch focus
-watch(newPhraseInput, (val, old) => {
-	if (!val || old) return;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function setupWatcher(inputRef: any, patternKey: string) {
+	watch(inputRef, (val, old) => {
+		if (!val || old) return;
 
-	const h = highlights.define(
-		"new-highlight",
-		{
-			color: "#8803fc",
-			label: "",
-			pattern: val,
-			phrase: true,
-		},
-		true,
-	);
+		const h = highlights.define(
+			"new-highlight",
+			{
+				color: "#8803fc",
+				label: "",
+				pattern: inputRef.value,
+				[patternKey]: true,
+			},
+			true,
+		);
 
-	nextTick(() => {
-		const input = inputs.pattern.get(h);
-		if (!input) return;
+		nextTick(() => {
+			const input = inputs.pattern.get(h);
+			if (!input) return;
 
-		input.focus();
-		newPhraseInput.value = "";
+			input.focus();
+			inputRef.value = "";
+		});
 	});
-});
+}
 
-watch(newUsernameInput, (val, old) => {
-	if (!val || old) return;
-
-	const h = highlights.define(
-		"new-highlight",
-		{
-			color: "#8803fc",
-			label: "",
-			pattern: val,
-			username: true,
-		},
-		true,
-	);
-
-	nextTick(() => {
-		const input = inputs.pattern.get(h);
-		if (!input) return;
-
-		input.focus();
-		newUsernameInput.value = "";
-	});
-});
-
-watch(newBadgeInput, (val, old) => {
-	if (!val || old) return;
-
-	const h = highlights.define(
-		"new-highlight",
-		{
-			color: "#8803fc",
-			label: "",
-			pattern: newBadgeInput.value,
-			badge: true,
-		},
-		true,
-	);
-
-	nextTick(() => {
-		const input = inputs.pattern.get(h);
-		if (!input) return;
-
-		input.focus();
-		newBadgeInput.value = "";
-	});
-});
+// Set up watchers for each input
+setupWatcher(newPhraseInput, "phrase");
+setupWatcher(newUsernameInput, "username");
+setupWatcher(newBadgeInput, "badge");
 </script>
 
 <style scoped lang="scss">
