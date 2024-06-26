@@ -37,7 +37,7 @@
 
 						<!-- Checkbox: Flash Title -->
 						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" update:checked="onFlashTitleChange(h, $event)" />
+							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<!-- Checkbox: RegExp -->
@@ -140,7 +140,7 @@
 
 						<!-- Checkbox: Flash Title -->
 						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" update:checked="onFlashTitleChange(h, $event)" />
+							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<div name="color">
@@ -234,7 +234,7 @@
 
 						<!-- Checkbox: Flash Title -->
 						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" update:checked="onFlashTitleChange(h, $event)" />
+							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<div name="color">

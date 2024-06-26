@@ -411,7 +411,7 @@ function highlightUserMessages(): void {
 			color: "#8803fc",
 			flashTitle: false,
 			username: true,
-		});
+		}, true);
 		ok = true;
 	}
 
