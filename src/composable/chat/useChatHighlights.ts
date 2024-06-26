@@ -235,7 +235,10 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!data) return {};
 		// Filtering the highlights to include only those with phrase: true
 		const filteredHighlights = Object.fromEntries(
-			Object.entries(data.highlights).filter(([, highlight]) => highlight.phrase === true)
+			Object.entries(data.highlights).filter(
+				([, highlight]) =>
+					highlight.phrase === true || (!highlight.phrase && !highlight.username && !highlight.badge),
+			),
 		);
 
 		return toReactive(filteredHighlights);
