@@ -50,6 +50,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 			{
 				matches: ["*://*.twitch.tv/*"],
 				js: ["content.js"],
+				all_frames: true,
 			},
 		],
 		options_ui: {

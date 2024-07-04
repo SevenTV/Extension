@@ -3,6 +3,7 @@
 -   Added support for animated FFZ emotes
 -   Added option to hide whispers
 -   Added tooltip to error messages in /search
+-   Added support for 7TV to work in Twitch chat embeds and popouts
 
 ### 3.1.1.2100
 
