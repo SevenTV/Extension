@@ -199,6 +199,7 @@
 			<div class="badge-item item heading">
 				<div>Badge ID</div>
 				<div>Label</div>
+				<div>Badge</div>
 				<div class="centered">Flash Title</div>
 				<div>Color</div>
 			</div>
@@ -230,6 +231,10 @@
 								v-model="h.label"
 								@blur="onInputBlur(h, 'label')"
 							/>
+						</div>
+
+						<div name="badgeURL">
+							<input v-model="h.badgeURL" type="image" :src="h.badgeURL" />
 						</div>
 
 						<!-- Checkbox: Flash Title -->
@@ -282,26 +287,7 @@
 			<div class="item create-new">
 				<div name="badge">
 					<select v-model="newBadgeInput" v-tooltip="'Badge to highlight'">
-						<option disabled value="">Select option</option>
-						<option value="staff">Twitch Staff</option>
-						<option value="admin">Admin</option>
-						<option value="ambassador">Twitch Ambassador</option>
-						<option value="broadcaster">Broadaster</option>
-						<option value="moderator">Chat Moderator</option>
-						<option value="global_mod">Global Moderator</option>
-						<option value="partner">Verified</option>
-						<option value="vip">VIP</option>
-						<option value="artist-badge">Artist</option>
-						<option value="founder">Founder</option>
-						<option value="subscriber">Subscriber</option>
-						<option value="clip-champ">Power Clipper</option>
-						<option value="premium">Prime Gaming</option>
-						<option value="turbo">Turbo</option>
-						<option value="no_audio">Watching without audio</option>
-						<option value="no_video">Listening only</option>
-						<option value="game-developer">Game Developer</option>
-						<option value="twitch-dj">Twitch DJ</option>
-						<option value="Enter badge ID here">Custom</option>
+						<option v-for="badge in globalBadges" :key="badge[0]">{{ badge[0] }}</option>
 					</select>
 				</div>
 			</div>
@@ -310,9 +296,10 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, ref, watch } from "vue";
+import { nextTick, reactive, ref, toRef, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { HighlightDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
+import { useChatProperties } from "@/composable/chat/useChatProperties";
 import FormCheckbox from "@/site/global/components/FormCheckbox.vue";
 import FormInput from "@/site/global/components/FormInput.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
@@ -323,6 +310,7 @@ import { v4 as uuid } from "uuid";
 
 const ctx = useChannelContext(); // this will be an empty context, as config is not tied to channel
 const highlights = useChatHighlights(ctx);
+const properties = useChatProperties(ctx);
 
 const newPhraseInput = ref("");
 const newUsernameInput = ref("");
@@ -334,6 +322,14 @@ const inputs = reactive({
 const interactRefPhrases = ref<HTMLElement[]>();
 const interactRefUsernames = ref<HTMLElement[]>();
 const interactRefBadges = ref<HTMLElement[]>();
+
+const globalBadges = toRef(properties, "twitchBadgeSets").value?.globalsBySet;
+const globalBadgeObjects: Twitch.ChatBadge[] = [];
+globalBadges!.forEach((badgeObject) => {
+	badgeObject.forEach((value) => {
+		globalBadgeObjects.push(value);
+	})
+})
 
 function onInputFocus(h: HighlightDef, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);
@@ -433,10 +429,13 @@ function setupWatcher(inputRef: any, patternKey: string) {
 		if (!val || old) return;
 
 		const h = highlights.define(
-			"new-highlight",
+			newBadgeInput.value ? inputRef.value : "new-highlight",
 			{
 				color: "#8803fc",
-				label: "",
+				label: newBadgeInput.value ? globalBadgeObjects.find((key) => key.setID === inputRef.value)!.title : "",
+				badgeURL: newBadgeInput.value
+					? globalBadgeObjects.find((key) => key.setID === inputRef.value)!.image1x
+					: "",
 				pattern: inputRef.value,
 				[patternKey]: true,
 			},
@@ -490,7 +489,7 @@ main.seventv-settings-custom-highlights {
 		}
 
 		.badge-item {
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr;
+			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr;
 		}
 
 		.item {

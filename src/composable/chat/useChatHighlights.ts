@@ -36,6 +36,7 @@ export interface HighlightDef {
 	phrase?: boolean;
 	username?: boolean;
 	badge?: boolean;
+	badgeURL?: string;
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();

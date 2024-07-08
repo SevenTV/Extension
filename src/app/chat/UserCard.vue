@@ -5,7 +5,7 @@
 				<!--Identity (avatar, nametag, badges) -->
 				<div ref="dragHandle" class="seventv-user-card-identity">
 					<div class="seventv-user-card-menuactions">
-						<PauseIcon
+						<DeleteIcon
 							v-if="data.targetUser.username in chatHighlights.getAllUsernameHighlights()"
 							v-tooltip="t('user_card.stop_highlight')"
 							@click="highlightUserMessages"
@@ -145,8 +145,8 @@ import {
 import BellsIcon from "@/assets/svg/icons/BellsIcon.vue";
 import CakeIcon from "@/assets/svg/icons/CakeIcon.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
+import DeleteIcon from "@/assets/svg/icons/DeleteIcon.vue";
 import HeartIcon from "@/assets/svg/icons/HeartIcon.vue";
-import PauseIcon from "@/assets/svg/icons/PauseIcon.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import LogoTwitch from "@/assets/svg/logos/LogoTwitch.vue";
 import Badge from "./Badge.vue";
