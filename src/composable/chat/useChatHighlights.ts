@@ -37,6 +37,7 @@ export interface HighlightDef {
 	username?: boolean;
 	badge?: boolean;
 	badgeURL?: string;
+	version?: string
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
@@ -179,7 +180,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 		} else if (h.username) {
 			ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
 		} else if (h.badge) {
-			ok = Object.keys(msg.badges).indexOf(h.pattern?.toLowerCase() ?? "") > -1
+			ok =
+				Object.keys(msg.badges).indexOf(h.pattern?.toLowerCase() ?? "") > -1 &&
+				Object.values(msg.badges).indexOf(h.version?.toLowerCase() ?? "") > -1;
 		}
 
 		if (ok) {

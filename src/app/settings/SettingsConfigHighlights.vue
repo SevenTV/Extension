@@ -106,6 +106,115 @@
 				</div>
 			</div>
 
+			<!--Badge highlights-->
+			<u><h6>Badges</h6></u>
+			<div class="badge-item item heading">
+				<div>Badge ID</div>
+				<div>Version</div>
+				<div>Label</div>
+				<div>Badge</div>
+				<div class="centered">Flash Title</div>
+				<div>Color</div>
+			</div>
+
+			<UiScrollable>
+				<template v-for="(h, _, index) of highlights.getAllBadgeHighlights()" :key="h.id">
+					<div class="badge-item item">
+						<!-- Badge ID -->
+						<div
+							name="pattern"
+							class="use-virtual-input"
+							contenteditable="false"
+							tabindex="0"
+							@click="onInputFocus(h, 'pattern')"
+						>
+							<span>{{ h.pattern }}</span>
+							<FormInput
+								:ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.pattern"
+								@blur="onInputBlur(h, 'pattern')"
+							/>
+						</div>
+
+						<!-- Version -->
+						<div name="version" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'version')">
+							<span>{{ h.version }}</span>
+							<FormInput
+								:ref="(c) => inputs.version.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.version"
+								@blur="onInputBlur(h, 'version')"
+							/>
+						</div>
+
+						<!-- Label -->
+						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
+							<span>{{ h.label }}</span>
+							<FormInput
+								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.label"
+								@blur="onInputBlur(h, 'label')"
+							/>
+						</div>
+
+						<div name="badgeURL">
+							<input v-model="h.badgeURL" type="image" :src="h.badgeURL" />
+						</div>
+
+						<!-- Checkbox: Flash Title -->
+						<div name="flash-title" class="centered">
+							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
+						</div>
+
+						<div name="color">
+							<input v-model="h.color" type="color" @input="onColorChange(h, $event as InputEvent)" />
+						</div>
+
+						<div ref="interactRefBadges" name="interact">
+							<button
+								ref="soundEffectButton"
+								class="sound-button"
+								:class="{ 'has-sound': !!h.soundFile }"
+								tabindex="0"
+							>
+								<CompactDiscIcon v-tooltip="'Set Custom Sound'" />
+								<div class="sound-options">
+									<UiFloating v-if="interactRefBadges?.[index]" :anchor="interactRefBadges[index]">
+										<button :active="!h.soundPath && !h.soundFile" @click="onRemoveSound(h)">
+											No Sound
+										</button>
+										<button :active="!!h.soundPath && !h.soundFile" @click="onUseDefaultSound(h)">
+											Default Sound
+										</button>
+										<button :active="!!h.soundFile">
+											<label>
+												Custom Sound{{ h.soundFile ? "" : "..." }}
+												<p v-if="h.soundFile">{{ h.soundFile.name }}</p>
+												<input
+													type="file"
+													accept="audio/midi, audio/mpeg, audio/ogg, audio/wav, audio/webm, audio/vorbis, audio/ogg"
+													@input="onUploadSoundFile(h, $event)"
+												/>
+											</label>
+										</button>
+									</UiFloating>
+								</div>
+							</button>
+
+							<CloseIcon v-tooltip="'Remove'" tabindex="0" @click="onDeleteHighlight(h)" />
+						</div>
+					</div>
+				</template>
+			</UiScrollable>
+
+			<!-- New -->
+			<div class="item create-new">
+				<div name="badge">
+					<select v-model="newBadgeInput" v-tooltip="'Badge to highlight'" autocomplete="on">
+						<option v-for="badge in globalBadgeObjects" :key="badge.title">{{ badge.title }}</option>
+					</select>
+				</div>
+			</div>
+
 			<!--Username highlights-->
 			<u><h6>Usernames</h6></u>
 			<div class="username-item item heading">
@@ -193,104 +302,6 @@
 					<FormInput v-model="newUsernameInput" label="New Username Highlight..."> hi </FormInput>
 				</div>
 			</div>
-
-			<!--Badge highlights-->
-			<u><h6>Badges</h6></u>
-			<div class="badge-item item heading">
-				<div>Badge ID</div>
-				<div>Label</div>
-				<div>Badge</div>
-				<div class="centered">Flash Title</div>
-				<div>Color</div>
-			</div>
-
-			<UiScrollable>
-				<template v-for="(h, _, index) of highlights.getAllBadgeHighlights()" :key="h.id">
-					<div class="badge-item item">
-						<!-- Badge -->
-						<div
-							name="pattern"
-							class="use-virtual-input"
-							contenteditable="false"
-							tabindex="0"
-							@click="onInputFocus(h, 'pattern')"
-						>
-							<span>{{ h.pattern }}</span>
-							<FormInput
-								:ref="(c) => inputs.pattern.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.pattern"
-								@blur="onInputBlur(h, 'pattern')"
-							/>
-						</div>
-
-						<!-- Label -->
-						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
-							<span>{{ h.label }}</span>
-							<FormInput
-								:ref="(c) => inputs.label.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.label"
-								@blur="onInputBlur(h, 'label')"
-							/>
-						</div>
-
-						<div name="badgeURL">
-							<input v-model="h.badgeURL" type="image" :src="h.badgeURL" />
-						</div>
-
-						<!-- Checkbox: Flash Title -->
-						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
-						</div>
-
-						<div name="color">
-							<input v-model="h.color" type="color" @input="onColorChange(h, $event as InputEvent)" />
-						</div>
-
-						<div ref="interactRefBadges" name="interact">
-							<button
-								ref="soundEffectButton"
-								class="sound-button"
-								:class="{ 'has-sound': !!h.soundFile }"
-								tabindex="0"
-							>
-								<CompactDiscIcon v-tooltip="'Set Custom Sound'" />
-								<div class="sound-options">
-									<UiFloating v-if="interactRefBadges?.[index]" :anchor="interactRefBadges[index]">
-										<button :active="!h.soundPath && !h.soundFile" @click="onRemoveSound(h)">
-											No Sound
-										</button>
-										<button :active="!!h.soundPath && !h.soundFile" @click="onUseDefaultSound(h)">
-											Default Sound
-										</button>
-										<button :active="!!h.soundFile">
-											<label>
-												Custom Sound{{ h.soundFile ? "" : "..." }}
-												<p v-if="h.soundFile">{{ h.soundFile.name }}</p>
-												<input
-													type="file"
-													accept="audio/midi, audio/mpeg, audio/ogg, audio/wav, audio/webm, audio/vorbis, audio/ogg"
-													@input="onUploadSoundFile(h, $event)"
-												/>
-											</label>
-										</button>
-									</UiFloating>
-								</div>
-							</button>
-
-							<CloseIcon v-tooltip="'Remove'" tabindex="0" @click="onDeleteHighlight(h)" />
-						</div>
-					</div>
-				</template>
-			</UiScrollable>
-
-			<!-- New -->
-			<div class="item create-new">
-				<div name="badge">
-					<select v-model="newBadgeInput" v-tooltip="'Badge to highlight'">
-						<option v-for="badge in globalBadges" :key="badge[0]">{{ badge[0] }}</option>
-					</select>
-				</div>
-			</div>
 		</div>
 	</main>
 </template>
@@ -318,6 +329,7 @@ const newBadgeInput = ref("");
 const inputs = reactive({
 	pattern: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 	label: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
+	version: new WeakMap<HighlightDef, InstanceType<typeof FormInput>>(),
 });
 const interactRefPhrases = ref<HTMLElement[]>();
 const interactRefUsernames = ref<HTMLElement[]>();
@@ -432,11 +444,16 @@ function setupWatcher(inputRef: any, patternKey: string) {
 			newBadgeInput.value ? inputRef.value : "new-highlight",
 			{
 				color: "#8803fc",
-				label: newBadgeInput.value ? globalBadgeObjects.find((key) => key.setID === inputRef.value)!.title : "",
+				label: newBadgeInput.value ? inputRef.value : "",
 				badgeURL: newBadgeInput.value
-					? globalBadgeObjects.find((key) => key.setID === inputRef.value)!.image1x
+					? globalBadgeObjects.find((key) => key.title === inputRef.value)!.image1x
 					: "",
-				pattern: inputRef.value,
+				version: newBadgeInput.value
+					? globalBadgeObjects.find((key) => key.title === inputRef.value)!.version
+					: "",
+				pattern: newBadgeInput.value
+					? globalBadgeObjects.find((key) => key.title === inputRef.value)!.setID
+					: inputRef.value,
 				[patternKey]: true,
 			},
 			true,
@@ -489,7 +506,7 @@ main.seventv-settings-custom-highlights {
 		}
 
 		.badge-item {
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr;
+			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
 		}
 
 		.item {
