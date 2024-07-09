@@ -2,7 +2,7 @@
 	<main class="seventv-settings-custom-highlights">
 		<div class="tabs"></div>
 		<div class="list">
-			<u><h6>Phrases & Words</h6></u>
+			<u><h5>Phrases & Words</h5></u>
 			<div class="phrase-item item heading">
 				<div>Pattern</div>
 				<div>Label</div>
@@ -106,8 +106,10 @@
 				</div>
 			</div>
 
+			<hr class="solid">
+
 			<!--Badge highlights-->
-			<u><h6>Badges</h6></u>
+			<u><h5>Badges</h5></u>
 			<div class="badge-item item heading">
 				<div>Badge ID</div>
 				<div>Version</div>
@@ -210,13 +212,16 @@
 			<div class="item create-new">
 				<div name="badge">
 					<select v-model="newBadgeInput" v-tooltip="'Badge to highlight'" autocomplete="on">
+						<option value="" disabled selected>New Badge Highlight</option>
 						<option v-for="badge in globalBadgeObjects" :key="badge.title">{{ badge.title }}</option>
 					</select>
 				</div>
 			</div>
 
+			<hr class="solid">
+
 			<!--Username highlights-->
-			<u><h6>Usernames</h6></u>
+			<u><h5>Usernames</h5></u>
 			<div class="username-item item heading">
 				<div>Username</div>
 				<div>Label</div>
@@ -485,6 +490,12 @@ main.seventv-settings-custom-highlights {
 		"list";
 	overflow-x: auto;
 
+	hr.solid {
+		border-top: 2px solid #fff;
+		opacity: 0.2;
+		padding: 1.5rem;
+	}
+
 	.tabs {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
@@ -495,7 +506,7 @@ main.seventv-settings-custom-highlights {
 	.list {
 		display: grid;
 		grid-area: list;
-		max-height: 86rem;
+		max-height: 100rem;
 
 		.phrase-item {
 			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
@@ -548,6 +559,7 @@ main.seventv-settings-custom-highlights {
 				border-radius: 0.25rem;
 				color: var(--seventv-text-color-normal);
 				padding: 0.5rem;
+				opacity: 0.5;
 
 				&[type="number"] {
 					max-width: 6rem;
