@@ -213,7 +213,9 @@
 				<div name="badge">
 					<select v-model="newBadgeInput" v-tooltip="'Badge to highlight'" autocomplete="on">
 						<option value="" disabled selected>New Badge Highlight</option>
-						<option v-for="badge in globalBadgeObjects" :key="badge.title">{{ badge.title }}</option>
+						<option v-for="badge in globalBadgeObjects" :key="badge.title">
+							{{ badge.title }} | {{ badge.setID }} | {{ badge.version }}
+						</option>
 					</select>
 				</div>
 			</div>
@@ -449,16 +451,16 @@ function setupWatcher(inputRef: any, patternKey: string) {
 			newBadgeInput.value ? inputRef.value : "new-highlight",
 			{
 				color: "#8803fc",
-				label: newBadgeInput.value ? inputRef.value : "",
+				label: newBadgeInput.value ? inputRef.value.split(/\s*\|\s*/)[0] : "",
 				badgeURL: newBadgeInput.value
-					? globalBadgeObjects.find((key) => key.title === inputRef.value)!.image1x
+					? globalBadgeObjects.find(
+							(key) =>
+								key.setID === inputRef.value.split(/\s*\|\s*/)[1] &&
+								key.version === inputRef.value.split(/\s*\|\s*/)[2],
+					  )!.image1x
 					: "",
-				version: newBadgeInput.value
-					? globalBadgeObjects.find((key) => key.title === inputRef.value)!.version
-					: "",
-				pattern: newBadgeInput.value
-					? globalBadgeObjects.find((key) => key.title === inputRef.value)!.setID
-					: inputRef.value,
+				version: newBadgeInput.value ? inputRef.value.split(/\s*\|\s*/)[2]! : "",
+				pattern: newBadgeInput.value ? inputRef.value.split(/\s*\|\s*/)[1] : inputRef.value,
 				[patternKey]: true,
 			},
 			true,
