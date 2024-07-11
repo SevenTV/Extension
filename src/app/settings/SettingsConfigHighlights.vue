@@ -106,7 +106,7 @@
 				</div>
 			</div>
 
-			<hr class="solid">
+			<hr class="solid" />
 
 			<!--Badge highlights-->
 			<u><h5>Badges</h5></u>
@@ -220,7 +220,7 @@
 				</div>
 			</div>
 
-			<hr class="solid">
+			<hr class="solid" />
 
 			<!--Username highlights-->
 			<u><h5>Usernames</h5></u>
@@ -347,8 +347,8 @@ const globalBadgeObjects: Twitch.ChatBadge[] = [];
 globalBadges!.forEach((badgeObject) => {
 	badgeObject.forEach((value) => {
 		globalBadgeObjects.push(value);
-	})
-})
+	});
+});
 
 function onInputFocus(h: HighlightDef, inputName: keyof typeof inputs): void {
 	const input = inputs[inputName].get(h);

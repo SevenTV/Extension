@@ -37,7 +37,7 @@ export interface HighlightDef {
 	username?: boolean;
 	badge?: boolean;
 	badgeURL?: string;
-	version?: string
+	version?: string;
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
@@ -154,7 +154,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		if (h.phrase) {	
+		if (h.phrase) {
 			if (h.regexp) {
 				let regexp = h.cachedRegExp;
 				if (!regexp) {
@@ -252,7 +252,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!data) return {};
 		// Filtering the highlights to include only those with username: true
 		const filteredHighlights = Object.fromEntries(
-			Object.entries(data.highlights).filter(([, highlight]) => highlight.username === true)
+			Object.entries(data.highlights).filter(([, highlight]) => highlight.username === true),
 		);
 
 		return toReactive(filteredHighlights);
@@ -262,7 +262,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!data) return {};
 		// Filtering the highlights to include only those with badge: true
 		const filteredHighlights = Object.fromEntries(
-			Object.entries(data.highlights).filter(([, highlight]) => highlight.badge === true)
+			Object.entries(data.highlights).filter(([, highlight]) => highlight.badge === true),
 		);
 
 		return toReactive(filteredHighlights);

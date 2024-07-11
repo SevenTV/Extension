@@ -402,16 +402,20 @@ function highlightUserMessages(): void {
 	if (!data.targetUser.username) return;
 	let ok = false;
 	if (data.targetUser.username in chatHighlights.getAllUsernameHighlights()) {
-		chatHighlights.remove(data.targetUser.username)
+		chatHighlights.remove(data.targetUser.username);
 		ok = true;
 	} else {
-		chatHighlights.define(data.targetUser.username, {
-			pattern: data.targetUser.username,
-			label: "Messages by " + data.targetUser.username,
-			color: "#8803fc",
-			flashTitle: false,
-			username: true,
-		}, true);
+		chatHighlights.define(
+			data.targetUser.username,
+			{
+				pattern: data.targetUser.username,
+				label: "Messages by " + data.targetUser.username,
+				color: "#8803fc",
+				flashTitle: false,
+				username: true,
+			},
+			true,
+		);
 		ok = true;
 	}
 
