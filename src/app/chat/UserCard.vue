@@ -5,12 +5,12 @@
 				<!--Identity (avatar, nametag, badges) -->
 				<div ref="dragHandle" class="seventv-user-card-identity">
 					<div class="seventv-user-card-menuactions">
-						<DeleteIcon
+						<BellSlashIcon
 							v-if="data.targetUser.username in chatHighlights.getAllUsernameHighlights()"
 							v-tooltip="t('user_card.stop_highlight')"
 							@click="highlightUserMessages"
 						/>
-						<BellsIcon v-else v-tooltip="t('user_card.highlight')" @click="highlightUserMessages" />
+						<BellIcon v-else v-tooltip="t('user_card.highlight')" @click="highlightUserMessages" />
 						<LogoTwitch v-tooltip="t('user_card.native')" @click="openNativeCard" />
 						<CloseIcon class="close-button" @click="emit('close')" />
 					</div>
@@ -142,10 +142,10 @@ import {
 	twitchUserCardModLogsQuery,
 	twitchUserCardQuery,
 } from "@/assets/gql/tw.user-card.gql";
-import BellsIcon from "@/assets/svg/icons/BellsIcon.vue";
+import BellIcon from "@/assets/svg/icons/BellIcon.vue";
+import BellSlashIcon from "@/assets/svg/icons/BellSlashIcon.vue";
 import CakeIcon from "@/assets/svg/icons/CakeIcon.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
-import DeleteIcon from "@/assets/svg/icons/DeleteIcon.vue";
 import HeartIcon from "@/assets/svg/icons/HeartIcon.vue";
 import StarIcon from "@/assets/svg/icons/StarIcon.vue";
 import LogoTwitch from "@/assets/svg/logos/LogoTwitch.vue";
