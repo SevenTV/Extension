@@ -39,7 +39,7 @@ export function imageHostToSrcset(
 		multiplier /= targetSize;
 
 		if (srcset) srcset += ", ";
-		srcset += `https:${host.url}/${size.name} ${multiplier}x`;
+		srcset += `${host.url}/${size.name} ${multiplier}x`;
 	}
 
 	if (targetSize === 1) known[host.url] = srcset;
