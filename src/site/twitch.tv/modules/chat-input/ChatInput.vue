@@ -402,6 +402,8 @@ function resetState() {
 }
 
 function onKeyDown(ev: KeyboardEvent) {
+	if (ev.isComposing) return;
+
 	switch (ev.key) {
 		case "Tab":
 			handleTabPress(ev, isShift.value);

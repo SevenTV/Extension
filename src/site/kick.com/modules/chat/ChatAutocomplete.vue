@@ -195,6 +195,8 @@ useEventListener(
 	inputEl,
 	"keydown",
 	(ev: KeyboardEvent) => {
+		if (ev.isComposing) return;
+
 		const sel = document.getSelection();
 		if (!sel) return;
 

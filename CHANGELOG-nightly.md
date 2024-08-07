@@ -1,4 +1,8 @@
-### 3.1.1 3000
+### 3.1.1.3100
+
+-   Fixed an issue where history navigation is accidentally triggered during IME composition
+
+### 3.1.1.3000
 
 -   Added support for animated FFZ emotes
 -   Added option to hide whispers
