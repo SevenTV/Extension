@@ -1,3 +1,8 @@
+### 3.1.1 4000
+
+-   Added option to settings to hide Stories from the sidebar
+-   Fixed settings to hide recommended channels and viewers also watch channels
+
 ### 3.1.1 3000
 
 -   Added support for animated FFZ emotes

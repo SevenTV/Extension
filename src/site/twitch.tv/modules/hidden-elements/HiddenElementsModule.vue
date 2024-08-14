@@ -246,13 +246,65 @@ export const config = [
 }
 
 .seventv-hide-recommended-channels {
-	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(4) {
+	div[class$="side-nav--collapsed"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3) {
+		display: none !important;
+	}
+
+	div[class$="side-nav--expanded"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(4) {
 		display: none !important;
 	}
 }
 
 .seventv-hide-viewers-also-watch {
-	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(5) {
+	div[class$="side-nav--collapsed"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(4) {
+		display: none !important;
+	}
+
+	div[class$="side-nav--expanded"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(5) {
 		display: none !important;
 	}
 }
