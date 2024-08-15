@@ -21,6 +21,16 @@
 		</span>
 
 		<span
+			v-if="msg.author && !msg.author.isActor"
+			ref="warningRef"
+			@click="banUserFromChat('10m')"
+			@mouseenter="warningTooltip.show(timeoutRef)"
+			@mouseleave="warningTooltip.hide()"
+		>
+			<TwChatModWarning />
+		</span>
+
+		<span
 			ref="deleteRef"
 			@click="deleteChatMessage(msg.id)"
 			@mouseenter="deleteTooltip.show(deleteRef)"
@@ -40,6 +50,7 @@ import { useTooltip } from "@/composable/useTooltip";
 import TwChatModBan from "@/assets/svg/twitch/TwChatModBan.vue";
 import TwChatModDelete from "@/assets/svg/twitch/TwChatModDelete.vue";
 import TwChatModTimeout from "@/assets/svg/twitch/TwChatModTimeout.vue";
+import TwChatModWarning from "@/assets/svg/twitch/TwChatModWarning.vue";
 
 const props = defineProps<{
 	msg: ChatMessage;
@@ -53,6 +64,9 @@ const banTooltip = useTooltip(`Ban ${props.msg.author?.username ?? "???"}`);
 
 const timeoutRef = ref();
 const timeoutTooltip = useTooltip(`Timeout ${props.msg.author?.username ?? "???"}`);
+
+const warningRef = ref();
+const warningTooltip = useTooltip(`Warn ${props.msg.author?.username ?? "???"}`);
 
 const deleteRef = ref();
 const deleteTooltip = useTooltip(`Delete message by ${props.msg.author?.username ?? "???"}`);

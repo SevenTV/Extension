@@ -96,6 +96,7 @@
 					v-if="ctx.actor.roles.has('MODERATOR')"
 					:active-tab="data.activeTab"
 					:message-count="data.count.messages"
+					:warning-count="data.count.warnings"
 					:ban-count="data.count.bans"
 					:timeout-count="data.count.timeouts"
 					:comment-count="data.count.comments"
@@ -211,6 +212,7 @@ const data = reactive({
 	} as Record<UserCardTabName, Record<string, ChatMessage[]>>,
 	count: {
 		messages: 0,
+		warnings: 0,
 		bans: 0,
 		timeouts: 0,
 		comments: 0,
@@ -267,6 +269,7 @@ async function fetchModeratorData(): Promise<void> {
 	if (!resp || resp.errors?.length || !resp.data.channelUser) return;
 
 	data.count.messages = resp.data.viewerCardModLogs.messages.count ?? 0;
+	//data.count.bans = resp.data.viewerCardModLogs.warnings.count ?? 0;
 	data.count.bans = resp.data.viewerCardModLogs.bans.count ?? 0;
 	data.count.timeouts = resp.data.viewerCardModLogs.timeouts.count ?? 0;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;

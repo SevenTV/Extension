@@ -15,11 +15,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-export type UserCardTabName = "messages" | "timeouts" | "bans" | "comments";
+export type UserCardTabName = "messages" | "warnings" | "timeouts" | "bans" | "comments";
 
 const props = defineProps<{
 	activeTab: UserCardTabName;
 	messageCount: number;
+	warningCount: number;
 	timeoutCount: number;
 	banCount: number;
 	commentCount: number;
@@ -33,6 +34,7 @@ const buttons = computed(
 	() =>
 		[
 			{ id: "messages", label: "Messages", count: props.messageCount, maxCount: 1000 },
+			{ id: "warnings", label: "Warnings", count: props.warningCount, maxCount: 10 },
 			{ id: "timeouts", label: "Timeouts", count: props.timeoutCount, maxCount: 99 },
 			{ id: "bans", label: "Bans", count: props.banCount, maxCount: 99 },
 			{ id: "comments", label: "Comments", count: props.commentCount, maxCount: 10 },
