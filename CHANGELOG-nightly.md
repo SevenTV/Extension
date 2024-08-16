@@ -1,3 +1,7 @@
+### 3.1.1 4000
+
+-   Added mod icon for warning users to chat mod icons and user card
+
 ### 3.1.1 3000
 
 -   Added support for animated FFZ emotes
