@@ -206,6 +206,7 @@ const data = reactive({
 	messageCursors: new WeakMap<ChatMessage, string>(),
 	timelines: {
 		messages: {} as Record<string, ChatMessage[]>,
+		warnings: {} as Record<string, ChatMessage[]>,
 		bans: {} as Record<string, ChatMessage[]>,
 		timeouts: {} as Record<string, ChatMessage[]>,
 		comments: {} as Record<string, ChatMessage[]>,
@@ -269,7 +270,7 @@ async function fetchModeratorData(): Promise<void> {
 	if (!resp || resp.errors?.length || !resp.data.channelUser) return;
 
 	data.count.messages = resp.data.viewerCardModLogs.messages.count ?? 0;
-	//data.count.bans = resp.data.viewerCardModLogs.warnings.count ?? 0;
+	data.count.warnings = resp.data.viewerCardModLogs.warnings.count ?? 0;
 	data.count.bans = resp.data.viewerCardModLogs.bans.count ?? 0;
 	data.count.timeouts = resp.data.viewerCardModLogs.timeouts.count ?? 0;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
@@ -278,11 +279,13 @@ async function fetchModeratorData(): Promise<void> {
 
 	const timeouts = resp.data.viewerCardModLogs.timeouts.edges;
 	const bans = resp.data.viewerCardModLogs.bans.edges;
+	const warnings = resp.data.viewerCardModLogs.warnings.edges;
 
-	// Add timeouts and bans to the timeline
+	// Add warnings, timeouts and bans to the timeline
 	for (const [tabName, a] of [
 		["timeouts", timeouts] as [UserCardTabName, typeof timeouts],
 		["bans", bans] as [UserCardTabName, typeof bans],
+		["warnings", warnings] as [UserCardTabName, typeof warnings],
 	]) {
 		const result = [] as ChatMessage[];
 
@@ -510,7 +513,7 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-$card-width: 32rem;
+$card-width: 37rem;
 $card-height: 48rem;
 
 main.seventv-user-card-container {
@@ -686,7 +689,7 @@ main.seventv-user-card-container {
 			// grid: position each badge next to the other on the same row, wrapping if necessary
 			display: flex;
 			flex-wrap: wrap;
-			max-width: 18rem;
+			max-width: 22rem;
 			gap: 0.5rem;
 			align-self: start;
 			z-index: 1;

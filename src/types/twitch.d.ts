@@ -119,6 +119,11 @@ declare module Twitch {
 		};
 	};
 
+	export enum WarnUserPopoverPlacement {
+		CHAT = 0,
+		VIEWERS_LIST = 1,
+	}
+
 	export type ChatControllerComponent = ReactExtended.WritableComponent<{
 		authToken: string | undefined;
 		channelDisplayName: string;
@@ -161,6 +166,10 @@ declare module Twitch {
 		userDisplayName: string | undefined;
 		userID: string | undefined;
 		userLogin: string | undefined;
+		warnUserTargetLogin: string | undefined;
+		warnUserTargetID: string | undefined;
+		setWarnUserTarget: (target: { targetUserLogin: string; targetUserID: string }) => void;
+		setWarnUserPopoverPlacement: (placement: WarnUserPopoverPlacement | null) => void;
 	}> & {
 		pushMessage: (msg: Partial<ChatMessage>) => void;
 		sendMessage: (msg: string, n?: any) => void;

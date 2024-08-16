@@ -4,6 +4,11 @@ import { ChannelContext } from "../channel/useChannelContext";
 interface ChatTools {
 	TWITCH: {
 		onShowViewerCard: Twitch.ViewerCardComponent["onShowViewerCard"];
+		onShowViewerWarnPopover: (
+			userId: string,
+			userLogin: string,
+			placement: Twitch.WarnUserPopoverPlacement,
+		) => void;
 	};
 	YOUTUBE: Record<string, never>;
 	KICK: Record<string, never>;
@@ -18,6 +23,7 @@ export function useChatTools(ctx: ChannelContext) {
 		data = reactive<ChatTools>({
 			TWITCH: {
 				onShowViewerCard: () => void 0,
+				onShowViewerWarnPopover: () => void 0,
 			},
 			YOUTUBE: {},
 			KICK: {},
@@ -27,10 +33,10 @@ export function useChatTools(ctx: ChannelContext) {
 		m.set(ctx, data);
 	}
 
-	function update<P extends Platform>(platorm: P, key: keyof ChatTools[P], value: ChatTools[P][keyof ChatTools[P]]) {
+	function update<P extends Platform>(platform: P, key: keyof ChatTools[P], value: ChatTools[P][keyof ChatTools[P]]) {
 		if (!data) return;
 
-		data[platorm][key] = value;
+		data[platform][key] = value;
 	}
 
 	function openViewerCard(e: MouseEvent, username: string, msgID: string) {
@@ -41,8 +47,16 @@ export function useChatTools(ctx: ChannelContext) {
 		return true;
 	}
 
+	function openViewerWarnPopover(userId: string, userLogin: string, placement: Twitch.WarnUserPopoverPlacement) {
+		if (!data || !userId || !userLogin) return false;
+
+		data[ctx.platform].onShowViewerWarnPopover(userId, userLogin, placement);
+		return true;
+	}
+
 	return {
 		update,
 		openViewerCard,
+		openViewerWarnPopover,
 	};
 }

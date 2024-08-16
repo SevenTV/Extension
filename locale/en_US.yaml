@@ -30,6 +30,7 @@ user_card:
     unban_button: Unban
     mod_button: Mod
     unmod_button: Unmod
+    warn_button: Warn
 
 # Emote Menu
 # This interface allows the user to pick from available emotes

@@ -194,7 +194,7 @@ export const twitchUserCardModLogsQuery = gql`
 			untimeouts: targetedActions(first: 99, type: UNTIMEOUT) {
 				...modLogsTargetedActionsResultFragment
 			}
-			warnings: targetedActions(first: 99, type: WARNING) {
+			warnings: targetedActions(first: 99, type: WARN) {
 				...modLogsTargetedActionsResultFragment
 			}
 			comments(first: 100) {
@@ -294,7 +294,7 @@ export namespace twitchUserCardModLogsQuery {
 			}[];
 		};
 		timestamp: string;
-		type: "BAN" | "WARNING" | "TIMEOUT" | "UNBAN" | "UNTIMEOUT";
+		type: "BAN" | "WARN" | "TIMEOUT" | "UNBAN" | "UNTIMEOUT";
 	}
 
 	interface ActionsConnection {

@@ -259,6 +259,19 @@ a.then(
 	() => null,
 );
 
+tools.update(
+	"TWITCH",
+	"onShowViewerWarnPopover",
+	(userId: string, userLogin: string, placement: Twitch.WarnUserPopoverPlacement) => {
+		const props = controller.value.component.props;
+		props.setWarnUserTarget({
+			targetUserID: userId,
+			targetUserLogin: userLogin,
+		});
+		props.setWarnUserPopoverPlacement(placement);
+	},
+);
+
 if (a instanceof ObserverPromise) {
 	until(useTimeout(1e4))
 		.toBeTruthy()
