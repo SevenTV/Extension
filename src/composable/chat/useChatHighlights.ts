@@ -154,7 +154,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		if (h.phrase) {
+		if (h.phrase || (!h.phrase && !h.username && !h.badge)) {
 			if (h.regexp) {
 				let regexp = h.cachedRegExp;
 				if (!regexp) {
