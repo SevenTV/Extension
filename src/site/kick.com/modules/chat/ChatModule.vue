@@ -1,9 +1,7 @@
 <template>
-	<template v-if="chan.active">
-		<Suspense>
-			<ChatController ref="controller" :slug="chan.slug" />
-		</Suspense>
-	</template>
+	<Suspense>
+		<ChatController ref="controller" :slug="chan.slug" />
+	</Suspense>
 </template>
 
 <script setup lang="ts">
@@ -25,7 +23,6 @@ const { markAsReady } = declareModule<"KICK">("chat", {
 
 // Acquire vue app
 const app = useApp();
-const router = useRouter(app);
 
 const controller = ref<InstanceType<typeof ChatController> | null>(null);
 
@@ -41,76 +38,16 @@ const CHAT_ROUTES = ["channel", "channel.chatroom", "moderation-dashboard", "das
 
 let ok = false;
 const stoppers: (typeof noop)[] = [];
-function handle(): void {
-	const route = router.currentRoute;
-	if (route && typeof route.name === "string" && !CHAT_ROUTES.includes(route.name)) return;
-	if (ok && chan.active) return;
 
-	const chatroomStore = usePinia<ChatRoom>(app, "chatroomv2");
-	type chatroomWithActions = typeof chatroomStore & {
-		sendCurrentMessage: () => void;
-	};
-	if (!chatroomStore) return;
+location.pathname.split("/");
+var path = location.pathname.split("/");
 
-	ok = true;
-
-	chan.slug = chatroomStore.$state.currentChannelSlug;
-	chan.active = !!chan.slug;
-
-	while (stoppers.length) stoppers.pop()?.();
-	stoppers.push(
-		chatroomStore.$subscribe(async (_, s: ChatRoom) => {
-			if (!s.chatroom || typeof s.chatroom.id !== "number") return;
-
-			if (chan.slug !== s.currentChannelSlug) {
-				chan.active = false;
-				await new Promise((r) => setTimeout(r, 250));
-				chan.active = true;
-				ok = false;
-			}
-
-			chan.slug = s.currentChannelSlug;
-			chan.currentMessage = s.currentMessage;
-		}),
-	);
-
-	stoppers.push(
-		watch(
-			() => chan.currentMessage,
-			(v) => {
-				chatroomStore?.$patch({
-					currentMessage: v,
-				});
-			},
-		),
-	);
-
-	defineFunctionHook(chatroomStore as chatroomWithActions, "sendCurrentMessage", function (this, ...args) {
-		const f = args[0];
-
-		if (controller.value) {
-			controller.value.onMessageSend(this.$state.currentMessage);
-		}
-
-		return f?.apply(this, []);
-	});
+var username = path[1];
+if (username == "popout") {
+	username = path[2];
 }
 
-onMounted(() => {
-	handle();
-});
-
-watch(
-	() => router.currentRoute,
-	(route) => {
-		if (route && typeof route.name === "string" && !CHAT_ROUTES.includes(route.name)) {
-			chan.active = false;
-		}
-		handle();
-	},
-	{ immediate: true },
-);
-useEventListener(document, "click", () => setTimeout(handle, 250));
+chan.slug = username;
 
 markAsReady();
 </script>

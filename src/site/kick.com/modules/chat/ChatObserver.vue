@@ -35,30 +35,99 @@ const userCard = ref<ActiveUserCard[]>([]);
 
 const refreshRate = useConfig<number>("chat.message_batch_duration", 100);
 
+function getReactProps(element: HTMLElement): object | undefined {
+	for (const k in element) {
+		if (k.startsWith("__reactProps")) {
+			const props = Reflect.get(element, k);
+
+			return props;
+		}
+	}
+	return undefined;
+}
+
+interface ReplyReactMessageProps {
+	id: string;
+	metadata: {
+		original_sender: {
+			content: string;
+			id: string;
+		};
+		original_sender: {
+			id: number;
+			username: string;
+		};
+	};
+	sender: {
+		id: number;
+		username: string;
+		slug: string;
+	};
+}
+
+interface DefaultReactMessageProps {
+	channelSlug: string;
+	message: {
+		id: string;
+		chatroom_id: number;
+		content: string;
+		created_at: string;
+		sender: {
+			id: number;
+			username: string;
+			slug: string;
+			type: string;
+		};
+	};
+	sender: {
+		id: number;
+		slug: string;
+		username: string;
+	};
+	messageId: string;
+}
+
+type ReactMessageProps = DefaultReactMessageProps | ReplyReactMessageProps;
+
+function isDefaultReactMessageProps(props: unknown): props is DefaultReactMessageProps {
+	return (
+		props != null &&
+		typeof props === "object" &&
+		"sender" in props &&
+		typeof props.sender === "object" &&
+		"message" in props &&
+		typeof props.message === "object"
+	);
+}
+
+function getMessageReactProps(el: HTMLDivElement): KickReactMessageProps | undefined {
+	const messageElements = el.querySelector('div > div[style*="chatroom-font-size"]');
+	if (!messageElements) return;
+	const props = getReactProps(messageElements);
+
+	if (!props || !Array.isArray(props.children)) return;
+
+	const child = props.children.find((child) => child?.props?.sender);
+	return child?.props;
+}
+
 function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
-	if (!el.hasAttribute("data-chat-entry")) return; // not a message
+	if (!el.hasAttribute("data-index")) return; // not a message
+	const props = getMessageReactProps(el);
+	console.log(props);
+	if (!props) return;
 
-	const entryID = el.getAttribute("data-chat-entry")!;
-
-	const identity = el.querySelector<HTMLSpanElement>(".chat-message-identity");
-	if (!identity) return; // missing identity
-
-	const entryUser = identity.querySelector<HTMLSpanElement>(".chat-entry-username");
-	if (!entryUser) return; // missing username
-
-	const userID = entryUser.getAttribute("data-chat-entry-user-id");
-	const username = entryUser.getAttribute("data-chat-entry-user");
-	if (!userID || !username) return; // missing user ID or username
-
-	// find all untokenized content
-	const texts = el.querySelectorAll<HTMLSpanElement>(".chat-entry-content");
+	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props.id;
+	const userID = props.sender.id.toString;
+	const username = props.sender.username;
+	const texts = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
 	const bind: ChatMessageBinding = {
 		id: entryID,
 		authorID: userID,
 		authorName: username,
 		texts: Array.from(texts),
-		usernameEl: entryUser,
+		usernameEl: el.querySelector<HTMLSpanElement>("div.inline-flex > button"),
 		el,
 	};
 
@@ -66,6 +135,42 @@ function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 
 	messageBuffer.value.push(bind);
 	messageMap.set(el, bind);
+	console.log(bind);
+
+	// const entryID = props.messageId;
+	// const userID = props.sender.id.toString();
+	// const username = props.sender.username;
+	// const texts = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
+
+	// const entryID = el.getAttribute("data-index")!;
+
+	// // const identity = el.querySelector<HTMLSpanElement>(".chat-message-identity");
+	// // if (!identity) return; // missing identity
+
+	// const entryUser = el.firstElementChild.firstElementChild.querySelector<HTMLSpanElement>("div.inline-flex > button");
+	// if (!entryUser) return; // missing username
+
+	// const userID = entryUser.getAttribute("title");
+	// const username = entryUser.getAttribute("title");
+	// if (!userID || !username) return; // missing user ID or username
+
+	// // find all untokenized content
+	// const texts = el.firstElementChild.firstElementChild.querySelectorAll<HTMLSpanElement>("span.font-normal");
+
+	// const bind: ChatMessageBinding = {
+	// 	id: entryID,
+	// 	authorID: userID,
+	// 	authorName: username,
+	// 	texts: Array.from(texts),
+	// 	usernameEl: entryUser,
+	// 	el,
+	// };
+
+	// if (!noBuffer) el.classList.add("seventv-chat-message-buffered");
+
+	// messageBuffer.value.push(bind);
+	// messageMap.set(el, bind);
+	// console.log(bind);
 }
 
 async function onOpenUserCard(bind: ChatMessageBinding) {
@@ -97,7 +202,7 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 }
 
 function patch(): void {
-	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
+	const entries = props.listElement.querySelectorAll("[data-index]");
 	for (const el of Array.from(entries)) {
 		patchMessageElement(el as HTMLDivElement, true);
 	}
@@ -157,6 +262,7 @@ watchEffect(() => {
 useMutationObserver(
 	props.listElement,
 	(records) => {
+		console.log(records);
 		for (const rec of records) {
 			rec.addedNodes.forEach((n) => {
 				if (!(n instanceof HTMLDivElement)) return;

@@ -12,11 +12,12 @@ import { defineAsyncComponent, provide } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM } from "@/common/Constant";
 import { useActor } from "@/composable/useActor";
+import { useCookies } from "@/composable/useCookies";
 import { getModule } from "@/composable/useModule";
 import { useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import { useApp } from "./composable/useApp";
-import { usePinia } from "./composable/usePinia";
+import { useUserdata } from "./composable/useUserdata";
 import { KickModuleID } from "@/types/kick.module";
 
 const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
@@ -31,24 +32,11 @@ store.setPlatform("KICK", ["7TV"], []);
 
 document.body.setAttribute("seventv-kick", "true");
 
+const cookies = useCookies();
+const auth = cookies.get("XSRF-TOKEN");
+
 const app = useApp();
-const user = usePinia<{
-	user: {
-		id: number;
-		username: string;
-		bio: string;
-		email: string;
-		streamer_channel: {
-			slug: string;
-		};
-		discord?: string;
-		facebook?: string;
-		twitter?: string;
-		youtube?: string;
-		tiktok?: string;
-		instagram?: string;
-	};
-}>(app, "user");
+const user = await useUserdata(auth);
 
 if (user) {
 	const updateIdentity = (data: typeof user.$state.user) => {
@@ -71,10 +59,7 @@ if (user) {
 		actor.setPlatformUserID("KICK", data.id.toString());
 	};
 
-	user.$subscribe(() => {
-		updateIdentity(user.$state.user);
-	});
-	updateIdentity(user.$state.user);
+	updateIdentity(user);
 }
 
 provide(SITE_CURRENT_PLATFORM, "KICK");

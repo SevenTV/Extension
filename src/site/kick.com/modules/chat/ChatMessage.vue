@@ -78,19 +78,23 @@ useEventListener(props.bind.usernameEl.parentElement, "click", () => {
 	emit("open-card", props.bind);
 });
 
+function KickEmoteSplitter(text: string): string[] {
+	return text.split(/\[emote:(\d+):?([a-zA-Z0-9-_!]*)?\]/g);
+}
+
 // Process kick's text entries into a containerized token
 function process(): void {
 	if (props.parity) props.bind.el.setAttribute("parity", props.parity);
 	props.bind.usernameEl.insertAdjacentElement("beforebegin", badgeContainer);
-
+	console.log(cosmetics);
 	if (cosmetics.paints.size) {
 		updateElementStyles(props.bind.usernameEl, Array.from(cosmetics.paints.values())[0].id);
 	}
 
 	containers.value.length = 0;
 	for (const el of props.bind.texts) {
+		//const message = props?.children?.props?.content ?? "";
 		const text = el.textContent ?? "";
-
 		const newTokens = tokenize({
 			body: text,
 			chatterMap: {},

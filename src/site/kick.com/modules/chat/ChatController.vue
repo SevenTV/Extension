@@ -39,6 +39,7 @@ function onMessageSend(text: string) {
 const resp = await fetch(`https://kick.com/api/v2/channels/${props.slug}`).catch((err) => {
 	log.error("failed to fetch channel data", err);
 });
+console.log(resp);
 if (!resp) throw new Error("failed to fetch channel data");
 
 const { user_id: id } = await resp.json();
@@ -76,14 +77,15 @@ watchEffect(async () => {
 
 	// Find chatroom element
 	// "chatroom-top" is the heading
-	const chatroomTop = document.getElementById("chatroom-top");
-	if (!chatroomTop || !chatroomTop.nextElementSibling) return;
+	const chatroomTop = document.getElementById("chatroom-messages");
+	console.log(chatroomTop);
+	if (!chatroomTop) return;
 
-	chatList.value = chatroomTop.nextElementSibling as HTMLDivElement;
+	chatList.value = chatroomTop.firstElementChild as HTMLDivElement;
 
 	// Create observer
 	if (observer) observer.disconnect();
-	if (!chatroomTop.nextElementSibling.firstElementChild) {
+	if (!chatroomTop.firstElementChild) {
 		observer = new ObserverPromise<HTMLDivElement>(
 			(records, emit) => {
 				for (const rec of records) {
@@ -93,7 +95,7 @@ watchEffect(async () => {
 					emit(rec.target.firstElementChild as HTMLDivElement);
 				}
 			},
-			chatroomTop.nextElementSibling,
+			chatroomTop,
 			{
 				childList: true,
 				subtree: true,
@@ -103,7 +105,7 @@ watchEffect(async () => {
 		const el = await observer;
 		shallowList.value = el;
 	} else {
-		shallowList.value = chatroomTop.nextElementSibling.firstElementChild as HTMLDivElement;
+		shallowList.value = chatroomTop.firstElementChild as HTMLDivElement;
 	}
 });
 </script>
