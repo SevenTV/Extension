@@ -1,6 +1,6 @@
 <template>
 	<!-- Patch messages -->
-	<template v-for="(bind, i) of messages" :key="bind.id">
+	<template v-for="bind of messages" :key="bind.id">
 		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" />
 	</template>
 
@@ -14,9 +14,9 @@
 import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
-import { useConfig } from "@/composable/useSettings";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
+import { Kick } from "@/types/kick.module";
 
 interface ActiveUserCard {
 	bind: ChatMessageBinding;
@@ -33,63 +33,17 @@ const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
 const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
 
-const refreshRate = useConfig<number>("chat.message_batch_duration", 100);
-
-function getReactProps(element: HTMLElement): object | undefined {
+function getReactProps<T>(element: HTMLElement): T | undefined {
 	for (const k in element) {
 		if (k.startsWith("__reactProps")) {
 			const props = Reflect.get(element, k);
-
 			return props;
 		}
 	}
 	return undefined;
 }
 
-interface ReplyReactMessageProps {
-	id: string;
-	metadata: {
-		original_sender: {
-			content: string;
-			id: string;
-		};
-		original_sender: {
-			id: number;
-			username: string;
-		};
-	};
-	sender: {
-		id: number;
-		username: string;
-		slug: string;
-	};
-}
-
-interface DefaultReactMessageProps {
-	channelSlug: string;
-	message: {
-		id: string;
-		chatroom_id: number;
-		content: string;
-		created_at: string;
-		sender: {
-			id: number;
-			username: string;
-			slug: string;
-			type: string;
-		};
-	};
-	sender: {
-		id: number;
-		slug: string;
-		username: string;
-	};
-	messageId: string;
-}
-
-type ReactMessageProps = DefaultReactMessageProps | ReplyReactMessageProps;
-
-function isDefaultReactMessageProps(props: unknown): props is DefaultReactMessageProps {
+function isDefaultReactMessageProps(props: unknown): props is Kick.Message.DefaultProps {
 	return (
 		props != null &&
 		typeof props === "object" &&
@@ -100,10 +54,12 @@ function isDefaultReactMessageProps(props: unknown): props is DefaultReactMessag
 	);
 }
 
-function getMessageReactProps(el: HTMLDivElement): KickReactMessageProps | undefined {
-	const messageElements = el.querySelector('div > div[style*="chatroom-font-size"]');
+function getMessageReactProps(el: HTMLDivElement): Kick.Message.DefaultProps | undefined {
+	const messageElements = el.querySelector("div > div[style*='chatroom-font-size']");
 	if (!messageElements) return;
-	const props = getReactProps(messageElements);
+	const props = getReactProps(messageElements as HTMLElement) as
+		| { children: ReactExtended.Writeable<Kick.Message.DefaultProps> }
+		| undefined;
 
 	if (!props || !Array.isArray(props.children)) return;
 
@@ -116,7 +72,7 @@ function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 	const props = getMessageReactProps(el);
 	if (!props) return;
 
-	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props.id;
+	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props;
 	const userID = props.sender.id.toString();
 	const username = props.sender.username;
 	const texts = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
@@ -126,7 +82,7 @@ function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 		authorID: userID,
 		authorName: username,
 		texts: Array.from(texts),
-		usernameEl: el.querySelector<HTMLSpanElement>("div.inline-flex > button"),
+		usernameEl: el.querySelector<HTMLSpanElement>("div.inline-flex > button")!,
 		el,
 	};
 
@@ -283,11 +239,7 @@ useMutationObserver(
 	{ childList: true },
 );
 
-let flushTimeout: number | null = null;
 function flush(): void {
-	//if (flushTimeout) return;
-
-	//flushTimeout = window.setTimeout(() => {
 	if (messageBuffer.value.length) {
 		const unbuf = messageBuffer.value.splice(0, messageBuffer.value.length);
 
@@ -298,21 +250,13 @@ function flush(): void {
 	}
 
 	if (messageDeleteBuffer.value.length >= 25) {
-		//flushTimeout = window.setTimeout(() => {
 		for (const bind of messageDeleteBuffer.value) {
 			messages.value.splice(messages.value.indexOf(bind), 1);
 		}
 
 		messageDeleteBuffer.value.length = 0;
-
-		flushTimeout = null;
-		//}, refreshRate.value / 1.5);
-	} else {
-		flushTimeout = null;
 	}
-
 	onMessageRendered();
-	//}, refreshRate.value);
 }
 
 // ftk789: I have no clue what the F is above, And why does it have setTimeouts, with it being present it lags the chat and makes it go crazy.so I just commented settimeouts.
