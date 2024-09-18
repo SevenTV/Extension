@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { declareModule } from "@/composable/useModule";
 import SettingsChatHook from "./SettingsChatHook.vue";

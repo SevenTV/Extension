@@ -5,10 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import { provide, reactive, ref } from "vue";
-import { noop } from "@vueuse/core";
+import { reactive, ref } from "vue";
 import { declareModule } from "@/composable/useModule";
-import { KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
+import { KickChannelInfo } from "@/site/kick.com";
 import ChatController from "./ChatController.vue";
 import { declareConfig } from "@/composable/useSettings";
 
@@ -25,17 +24,10 @@ const chan = reactive<KickChannelInfo>({
 	currentMessage: "",
 });
 
-provide(KICK_CHANNEL_KEY, chan);
-
-const CHAT_ROUTES = ["channel", "channel.chatroom", "moderation-dashboard", "dashboard.stream"];
-
-let ok = false;
-const stoppers: (typeof noop)[] = [];
-
 location.pathname.split("/");
-var path = location.pathname.split("/");
+const path = location.pathname.split("/");
 
-var username = path[1];
+let username = path[1];
 if (username == "popout") {
 	username = path[2];
 }

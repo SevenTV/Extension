@@ -1,34 +1,32 @@
 <template>
-	<template v-for="(box, index) of containers" :key="index">
-		<Teleport :to="box">
-			<template v-for="(token, i) of tokens.get(box)" :key="i">
-				<span v-if="typeof token === 'string'" class="seventv-text-token">
-					<template v-for="part in splitToken(token)">
-						<span v-if="IsKickEmote(part)">
-							<span class="kick-emote-token">
-								<img :src="getKickEmoteUrl(part)" alt="Kick Emote" />
-							</span>
+	<Teleport v-for="(box, index) of containers" :key="`${index}`" :to="box">
+		<template v-for="(token, i) of tokens.get(box)">
+			<span v-if="typeof token === 'string'" :key="`${index}-${i}`" class="seventv-text-token">
+				<template v-for="(part, j) in splitToken(token)">
+					<span v-if="IsKickEmote(part)" :key="j">
+						<span class="kick-emote-token">
+							<img :src="getKickEmoteUrl(part)" alt="Kick Emote" />
 						</span>
-						<span v-else>
-							{{ part }}
-						</span>
-					</template>
-				</span>
-				<span v-else-if="IsEmoteToken(token)">
-					<Emote
-						class="seventv-emote-token"
-						:emote="token.content.emote"
-						:overlaid="token.content.overlaid"
-						format="WEBP"
-					/>
-				</span>
-			</template>
-		</Teleport>
-	</template>
+					</span>
+					<span v-else :key="`${index}-${j}-else`">
+						{{ part }}
+					</span>
+				</template>
+			</span>
+			<span v-else-if="IsEmoteToken(token)" :key="`${i}-else`">
+				<Emote
+					class="seventv-emote-token"
+					:emote="token.content.emote"
+					:overlaid="token.content.overlaid"
+					format="WEBP"
+				/>
+			</span>
+		</template>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { WatchSource, nextTick, onMounted, reactive, watch, watchEffect } from "vue";
+import { nextTick, onMounted, reactive, watchEffect } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
@@ -38,7 +36,6 @@ import { IsEmoteToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
-import Badge from "@/app/chat/Badge.vue";
 import Emote from "@/app/chat/Emote.vue";
 import { updateElementStyles } from "@/directive/TextPaintDirective";
 
@@ -130,7 +127,6 @@ function getKickEmoteUrl(token: string): string {
 function process(): void {
 	cosmetics = useCosmetics(props.bind.authorID);
 	if (cosmetics.paints.size) {
-		console.log("buh");
 		updateElementStyles(props.bind.usernameEl, Array.from(cosmetics.paints.values())[0].id);
 	}
 	containers.value.length = 0;
@@ -223,6 +219,7 @@ onUnmounted(() => {
 	vertical-align: middle;
 	margin-right: 0.25rem;
 }
+
 .kick-emote-token {
 	width: 30px;
 	height: 20px;

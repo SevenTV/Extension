@@ -16,7 +16,7 @@ import { useCookies } from "@/composable/useCookies";
 import { getModule } from "@/composable/useModule";
 import { useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
-// import { useApp } from "./composable/useApp";
+// import { useApp } from ".x/composable/useApp";
 import { useUserdata } from "./composable/useUserdata";
 import { KickModuleID } from "@/types/kick.module";
 

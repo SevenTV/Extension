@@ -1,6 +1,6 @@
 <template>
 	<!-- Patch messages -->
-	<template v-for="(bind, i) of messages" :key="bind.id">
+	<template v-for="bind of messages" :key="bind.id">
 		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" />
 	</template>
 
@@ -14,7 +14,6 @@
 import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
-import { useConfig } from "@/composable/useSettings";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
 
@@ -32,8 +31,6 @@ const messageBuffer = ref<ChatMessageBinding[]>([]);
 const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
 const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
-
-const refreshRate = useConfig<number>("chat.message_batch_duration", 100);
 
 function getReactProps(element: HTMLElement): object | undefined {
 	for (const k in element) {
@@ -98,8 +95,11 @@ function isDefaultReactMessageProps(props: unknown): props is DefaultReactMessag
 }
 
 function getMessageReactProps(el: HTMLDivElement): ReactMessageProps | undefined {
+	// eslint-disable-next-line
 	const messageElements = el.querySelector('div > div[style*="chatroom-font-size"]');
 	if (!messageElements) return;
+
+	// eslint-disable-next-line
 	const props = getReactProps(messageElements as HTMLElement) as { children: any[] } | undefined;
 
 	if (!props || !Array.isArray(props.children)) return;
@@ -280,7 +280,7 @@ useMutationObserver(
 	{ childList: true },
 );
 
-let flushTimeout: number | null = null;
+// let flushTimeout: number | null = null;
 function flush(): void {
 	//if (flushTimeout) return;
 
@@ -302,10 +302,10 @@ function flush(): void {
 
 		messageDeleteBuffer.value.length = 0;
 
-		flushTimeout = null;
+		// flushTimeout = null;
 		//}, refreshRate.value / 1.5);
-	} else {
-		flushTimeout = null;
+		// } else {
+		// flushTimeout = null;
 	}
 
 	onMessageRendered();
