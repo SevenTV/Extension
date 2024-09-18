@@ -4,6 +4,32 @@ import SettingsModuleVue from "@/site/kick.com/modules/settings/SettingsModule.v
 
 declare type KickModuleID = keyof KickModuleComponentMap;
 
+declare namespace Kick {
+	namespace Message {
+		interface DefaultProps {
+			channelSlug: string;
+			message: {
+				id: string;
+				chatroom_id: number;
+				content: string;
+				created_at: string;
+				sender: {
+					id: number;
+					username: string;
+					slug: string;
+					type: string;
+				};
+			};
+			sender: {
+				id: number;
+				slug: string;
+				username: string;
+			};
+			messageId: string;
+		}
+	}
+}
+
 declare type KickModuleComponentMap = {
 	auth: typeof AuthModuleVue;
 	chat: typeof ChatModuleVue;

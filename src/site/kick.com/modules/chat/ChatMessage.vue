@@ -1,28 +1,35 @@
 <template>
-	<Teleport v-for="(box, index) of containers" :key="`${index}`" :to="box">
-		<template v-for="(token, i) of tokens.get(box)">
-			<span v-if="typeof token === 'string'" :key="`${index}-${i}`" class="seventv-text-token">
-				<template v-for="(part, j) in splitToken(token)">
-					<span v-if="IsKickEmote(part)" :key="j">
-						<span class="kick-emote-token">
-							<img :src="getKickEmoteUrl(part)" alt="Kick Emote" />
+	<template v-for="(box, index) of containers" :key="index">
+		<Teleport :to="box">
+			<template v-for="(token, i) of tokens.get(box)" :key="i">
+				<span v-if="typeof token === 'string'" class="seventv-text-token">
+					<template v-for="(part, j) in splitToken(token)" :key="j">
+						<span v-if="IsKickEmote(part)">
+							<span class="kick-emote-token">
+								<img :src="getKickEmoteUrl(part)" :alt="part" />
+							</span>
 						</span>
-					</span>
-					<span v-else :key="`${index}-${j}-else`">
-						{{ part }}
-					</span>
-				</template>
-			</span>
-			<span v-else-if="IsEmoteToken(token)" :key="`${i}-else`">
-				<Emote
-					class="seventv-emote-token"
-					:emote="token.content.emote"
-					:overlaid="token.content.overlaid"
-					format="WEBP"
-				/>
-			</span>
-		</template>
-	</Teleport>
+						<span v-else>
+							{{ part }}
+						</span>
+					</template>
+				</span>
+				<span v-else-if="IsLinkToken(token)">
+					<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
+						token.content.url
+					}}</a>
+				</span>
+				<span v-else-if="IsEmoteToken(token)">
+					<Emote
+						class="seventv-emote-token"
+						:emote="token.content.emote"
+						:overlaid="token.content.overlaid"
+						format="WEBP"
+					/>
+				</span>
+			</template>
+		</Teleport>
+	</template>
 </template>
 
 <script setup lang="ts">
@@ -32,7 +39,7 @@ import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { tokenize } from "@/common/Tokenize";
 import { AnyToken } from "@/common/chat/ChatMessage";
-import { IsEmoteToken } from "@/common/type-predicates/MessageTokens";
+import { IsEmoteToken, IsLinkToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
@@ -62,6 +69,7 @@ const emit = defineEmits<{
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 let cosmetics;
+const regex = /\[emote:\d+:[^\]]+\]|https?:\/\/[^\s]+/g;
 
 const badgeContainer = document.createElement("seventv-container");
 
@@ -74,9 +82,8 @@ useEventListener(props.bind.usernameEl.parentElement, "click", () => {
 });
 
 function splitToken(token: string): string[] {
-	const parts = [];
+	const parts: string[] = [];
 	let lastIndex = 0;
-	const regex = /\[emote:\d+:[^\]]+\]/g;
 	let match;
 	while ((match = regex.exec(token)) !== null) {
 		if (lastIndex < match.index) {
@@ -97,7 +104,9 @@ function extractTextWithKickEmotes(el: HTMLElement): string {
 		if (node.nodeType === Node.TEXT_NODE) {
 			result += node.textContent || "";
 		} else if (node instanceof HTMLElement) {
-			if (node.hasAttribute("data-emote-id") && node.hasAttribute("data-emote-name")) {
+			if (node.tagName === "A") {
+				result += node.innerText || "";
+			} else if (node.hasAttribute("data-emote-id") && node.hasAttribute("data-emote-name")) {
 				const emoteId = node.getAttribute("data-emote-id");
 				const emoteName = node.getAttribute("data-emote-name");
 				result += `[emote:${emoteId}:${emoteName}]`;
@@ -110,7 +119,6 @@ function extractTextWithKickEmotes(el: HTMLElement): string {
 }
 
 function IsKickEmote(token: string): boolean {
-	// Check if the token matches the Kick emote format
 	return token.startsWith("[emote:") && token.endsWith("]");
 }
 
@@ -212,6 +220,10 @@ onUnmounted(() => {
 
 .seventv-text-token {
 	word-break: break-word;
+}
+
+.seventv-links {
+	text-decoration-line: underline;
 }
 
 .seventv-badge-list {
