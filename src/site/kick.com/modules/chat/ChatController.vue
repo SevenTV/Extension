@@ -39,7 +39,6 @@ function onMessageSend(text: string) {
 const resp = await fetch(`https://kick.com/api/v2/channels/${props.slug}`).catch((err) => {
 	log.error("failed to fetch channel data", err);
 });
-console.log(resp);
 if (!resp) throw new Error("failed to fetch channel data");
 
 const { user_id: id } = await resp.json();
@@ -78,7 +77,6 @@ watchEffect(async () => {
 	// Find chatroom element
 	// "chatroom-top" is the heading
 	const chatroomTop = document.getElementById("chatroom-messages");
-	console.log(chatroomTop);
 	if (!chatroomTop) return;
 
 	chatList.value = chatroomTop.firstElementChild as HTMLDivElement;

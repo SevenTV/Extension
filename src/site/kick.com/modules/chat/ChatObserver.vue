@@ -1,7 +1,7 @@
 <template>
 	<!-- Patch messages -->
 	<template v-for="(bind, i) of messages" :key="bind.id">
-		<ChatMessageVue :parity="i % 2 === 0 ? 'even' : 'odd'" :bind="bind" @open-card="onOpenUserCard" />
+		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" />
 	</template>
 
 	<!-- Modify user card -->
@@ -114,11 +114,10 @@ function getMessageReactProps(el: HTMLDivElement): KickReactMessageProps | undef
 function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 	if (!el.hasAttribute("data-index")) return; // not a message
 	const props = getMessageReactProps(el);
-	console.log(props);
 	if (!props) return;
 
 	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props.id;
-	const userID = props.sender.id.toString;
+	const userID = props.sender.id.toString();
 	const username = props.sender.username;
 	const texts = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
@@ -135,7 +134,6 @@ function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 
 	messageBuffer.value.push(bind);
 	messageMap.set(el, bind);
-	console.log(bind);
 
 	// const entryID = props.messageId;
 	// const userID = props.sender.id.toString();
@@ -262,7 +260,6 @@ watchEffect(() => {
 useMutationObserver(
 	props.listElement,
 	(records) => {
-		console.log(records);
 		for (const rec of records) {
 			rec.addedNodes.forEach((n) => {
 				if (!(n instanceof HTMLDivElement)) return;
@@ -288,35 +285,37 @@ useMutationObserver(
 
 let flushTimeout: number | null = null;
 function flush(): void {
-	if (flushTimeout) return;
+	//if (flushTimeout) return;
 
-	flushTimeout = window.setTimeout(() => {
-		if (messageBuffer.value.length) {
-			const unbuf = messageBuffer.value.splice(0, messageBuffer.value.length);
+	//flushTimeout = window.setTimeout(() => {
+	if (messageBuffer.value.length) {
+		const unbuf = messageBuffer.value.splice(0, messageBuffer.value.length);
 
-			for (const bind of unbuf) {
-				bind.el.classList.remove("seventv-chat-message-buffered");
-			}
-			messages.value.push(...unbuf);
+		for (const bind of unbuf) {
+			bind.el.classList.remove("seventv-chat-message-buffered");
+		}
+		messages.value.push(...unbuf);
+	}
+
+	if (messageDeleteBuffer.value.length >= 25) {
+		//flushTimeout = window.setTimeout(() => {
+		for (const bind of messageDeleteBuffer.value) {
+			messages.value.splice(messages.value.indexOf(bind), 1);
 		}
 
-		if (messageDeleteBuffer.value.length >= 25) {
-			flushTimeout = window.setTimeout(() => {
-				for (const bind of messageDeleteBuffer.value) {
-					messages.value.splice(messages.value.indexOf(bind), 1);
-				}
+		messageDeleteBuffer.value.length = 0;
 
-				messageDeleteBuffer.value.length = 0;
+		flushTimeout = null;
+		//}, refreshRate.value / 1.5);
+	} else {
+		flushTimeout = null;
+	}
 
-				flushTimeout = null;
-			}, refreshRate.value / 1.5);
-		} else {
-			flushTimeout = null;
-		}
-
-		onMessageRendered();
-	}, refreshRate.value);
+	onMessageRendered();
+	//}, refreshRate.value);
 }
+
+// ftk789: I have no clue what the F is above, And why does it have setTimeouts, with it being present it lags the chat and makes it go crazy.so I just commented settimeouts.
 
 useMutationObserver(
 	props.listElement.parentElement!,

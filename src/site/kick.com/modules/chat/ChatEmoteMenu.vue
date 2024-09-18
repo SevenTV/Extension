@@ -39,13 +39,13 @@ function close(ev: MouseEvent): void {
 }
 
 watchEffect(() => {
-	const parent = document.getElementById("chatroom");
+	const parent = document.getElementById("channel-chatroom");
 	if (!parent) return;
 
-	const inputRow = parent.querySelector(".chat-input-wrapper");
+	const inputRow = document.getElementById("chat-input-wrapper");
 	if (!inputRow) return;
 
-	inputRow.lastElementChild?.insertAdjacentElement("beforebegin", emoteMenuButtonContainer);
+	//inputRow.lastElementChild?.insertAdjacentElement("beforebegin", emoteMenuButtonContainer);
 });
 
 onUnmounted(() => {

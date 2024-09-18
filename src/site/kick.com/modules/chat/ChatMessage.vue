@@ -2,7 +2,18 @@
 	<template v-for="(box, index) of containers" :key="index">
 		<Teleport :to="box">
 			<template v-for="(token, i) of tokens.get(box)" :key="i">
-				<span v-if="typeof token === 'string'" class="seventv-text-token"> {{ token }}</span>
+				<span v-if="typeof token === 'string'" class="seventv-text-token">
+					<template v-for="part in splitToken(token)">
+						<span v-if="IsKickEmote(part)">
+							<span class="kick-emote-token">
+								<img :src="getKickEmoteUrl(part)" alt="Kick Emote" />
+							</span>
+						</span>
+						<span v-else>
+							{{ part }}
+						</span>
+					</template>
+				</span>
 				<span v-else-if="IsEmoteToken(token)">
 					<Emote
 						class="seventv-emote-token"
@@ -14,22 +25,10 @@
 			</template>
 		</Teleport>
 	</template>
-
-	<Teleport :to="badgeContainer">
-		<span v-if="cosmetics.badges.size" class="seventv-badge-list">
-			<Badge
-				v-for="[id, badge] of cosmetics.badges"
-				:key="id"
-				:badge="badge"
-				type="app"
-				:alt="badge.data.tooltip"
-			/>
-		</span>
-	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, watch, watchEffect } from "vue";
+import { WatchSource, nextTick, onMounted, reactive, watch, watchEffect } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
@@ -56,7 +55,6 @@ export interface ChatMessageBinding {
 
 const props = defineProps<{
 	bind: ChatMessageBinding;
-	parity?: "odd" | "even";
 }>();
 
 const emit = defineEmits<{
@@ -66,7 +64,7 @@ const emit = defineEmits<{
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
-const cosmetics = useCosmetics(props.bind.authorID);
+let cosmetics;
 
 const badgeContainer = document.createElement("seventv-container");
 
@@ -78,23 +76,67 @@ useEventListener(props.bind.usernameEl.parentElement, "click", () => {
 	emit("open-card", props.bind);
 });
 
-function KickEmoteSplitter(text: string): string[] {
-	return text.split(/\[emote:(\d+):?([a-zA-Z0-9-_!]*)?\]/g);
+function splitToken(token: string): string[] {
+	const parts = [];
+	let lastIndex = 0;
+	const regex = /\[emote:\d+:[^\]]+\]/g;
+	let match;
+	while ((match = regex.exec(token)) !== null) {
+		if (lastIndex < match.index) {
+			parts.push(token.substring(lastIndex, match.index));
+		}
+		parts.push(match[0]);
+		lastIndex = match.index + match[0].length;
+	}
+	if (lastIndex < token.length) {
+		parts.push(token.substring(lastIndex));
+	}
+	return parts;
+}
+
+function extractTextWithKickEmotes(el: HTMLElement): string {
+	let result = "";
+	el.childNodes.forEach((node) => {
+		if (node.nodeType === Node.TEXT_NODE) {
+			result += node.textContent || "";
+		} else if (node instanceof HTMLElement) {
+			if (node.hasAttribute("data-emote-id") && node.hasAttribute("data-emote-name")) {
+				const emoteId = node.getAttribute("data-emote-id");
+				const emoteName = node.getAttribute("data-emote-name");
+				result += `[emote:${emoteId}:${emoteName}]`;
+			} else {
+				result += extractTextWithKickEmotes(node);
+			}
+		}
+	});
+	return result;
+}
+
+function IsKickEmote(token: string): boolean {
+	// Check if the token matches the Kick emote format
+	return token.startsWith("[emote:") && token.endsWith("]");
+}
+
+function getKickEmoteUrl(token: string): string {
+	const match = token.match(/\[emote:(\d+):([^\]]+)\]/);
+	if (match) {
+		const emoteId = match[1];
+		return `https://files.kick.com/emotes/${emoteId}/fullsize`;
+	}
+	return "";
 }
 
 // Process kick's text entries into a containerized token
 function process(): void {
-	if (props.parity) props.bind.el.setAttribute("parity", props.parity);
-	props.bind.usernameEl.insertAdjacentElement("beforebegin", badgeContainer);
-	console.log(cosmetics);
+	cosmetics = useCosmetics(props.bind.authorID);
 	if (cosmetics.paints.size) {
+		console.log("buh");
 		updateElementStyles(props.bind.usernameEl, Array.from(cosmetics.paints.values())[0].id);
 	}
-
 	containers.value.length = 0;
 	for (const el of props.bind.texts) {
 		//const message = props?.children?.props?.content ?? "";
-		const text = el.textContent ?? "";
+		const text = extractTextWithKickEmotes(el as HTMLElement);
 		const newTokens = tokenize({
 			body: text,
 			chatterMap: {},
@@ -126,9 +168,8 @@ function process(): void {
 
 		const tokenEl = document.createElement("seventv-container");
 		tokenEl.classList.add("seventv-text-token");
-
 		el.after(tokenEl);
-		el.style.display = "none"; // to allow for graceful recovery, we only hide the original token
+		el.style.display = "none";
 
 		containers.value.push(tokenEl);
 		tokens.set(tokenEl, result);
@@ -137,7 +178,7 @@ function process(): void {
 	nextTick(() => emit("render"));
 }
 
-watch(cosmetics, process);
+//watch(cosmetics, process);
 watchEffect(process);
 
 onMounted(process);
@@ -181,5 +222,11 @@ onUnmounted(() => {
 	display: inline-grid;
 	vertical-align: middle;
 	margin-right: 0.25rem;
+}
+.kick-emote-token {
+	width: 30px;
+	height: 20px;
+	display: inline-block;
+	position: relative;
 }
 </style>
