@@ -73,8 +73,6 @@ import { useSettingsMenu } from "@/app/settings/Settings";
 import UiFloating from "@/ui/UiFloating.vue";
 import { offset, shift } from "@floating-ui/dom";
 
-alert("vbyuh");
-
 export type EmoteMenuTabName = SevenTV.Provider | "FAVORITE";
 
 const props = defineProps<{
@@ -153,7 +151,6 @@ useEventListener("keydown", (ev) => {
 
 // Toggle the menu's visibility
 function toggle() {
-	alert("buih");
 	ctx.open = !ctx.open;
 }
 
