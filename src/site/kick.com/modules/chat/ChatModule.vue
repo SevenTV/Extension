@@ -5,14 +5,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, provide, reactive, ref, watch } from "vue";
-import { noop, useEventListener } from "@vueuse/core";
-import { defineFunctionHook } from "@/common/Reflection";
+import { reactive, ref } from "vue";
 import { declareModule } from "@/composable/useModule";
-import { ChatRoom, KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
-import { useApp } from "@/site/kick.com/composable/useApp";
-import { usePinia } from "@/site/kick.com/composable/usePinia";
-import { useRouter } from "@/site/kick.com/composable/useRouter";
+import { KickChannelInfo } from "@/site/kick.com";
 import ChatController from "./ChatController.vue";
 import { declareConfig } from "@/composable/useSettings";
 
@@ -20,9 +15,6 @@ const { markAsReady } = declareModule<"KICK">("chat", {
 	name: "Chat",
 	depends_on: [],
 });
-
-// Acquire vue app
-const app = useApp();
 
 const controller = ref<InstanceType<typeof ChatController> | null>(null);
 
@@ -32,17 +24,10 @@ const chan = reactive<KickChannelInfo>({
 	currentMessage: "",
 });
 
-provide(KICK_CHANNEL_KEY, chan);
-
-const CHAT_ROUTES = ["channel", "channel.chatroom", "moderation-dashboard", "dashboard.stream"];
-
-let ok = false;
-const stoppers: (typeof noop)[] = [];
-
 location.pathname.split("/");
-var path = location.pathname.split("/");
+const path = location.pathname.split("/");
 
-var username = path[1];
+let username = path[1];
 if (username == "popout") {
 	username = path[2];
 }

@@ -16,7 +16,7 @@ import { useCookies } from "@/composable/useCookies";
 import { getModule } from "@/composable/useModule";
 import { useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
-import { useApp } from "./composable/useApp";
+// import { useApp } from ".x/composable/useApp";
 import { useUserdata } from "./composable/useUserdata";
 import { KickModuleID } from "@/types/kick.module";
 
@@ -35,11 +35,10 @@ document.body.setAttribute("seventv-kick", "true");
 const cookies = useCookies();
 const auth = cookies.get("XSRF-TOKEN");
 
-const app = useApp();
-const user = await useUserdata(auth);
+const user = auth ? await useUserdata(auth) : null;
 
 if (user) {
-	const updateIdentity = (data: typeof user.$state.user) => {
+	const updateIdentity = (data: typeof user) => {
 		if (!data || !data.id) return;
 
 		store.setIdentity("KICK", {

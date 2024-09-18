@@ -44,6 +44,7 @@ function getReactProps<T>(element: HTMLElement): T | undefined {
 }
 
 function isDefaultReactMessageProps(props: unknown): props is Kick.Message.DefaultProps {
+
 	return (
 		props != null &&
 		typeof props === "object" &&
@@ -60,6 +61,7 @@ function getMessageReactProps(el: HTMLDivElement): Kick.Message.DefaultProps | u
 	const props = getReactProps(messageElements as HTMLElement) as
 		| { children: ReactExtended.Writeable<Kick.Message.DefaultProps> }
 		| undefined;
+
 
 	if (!props || !Array.isArray(props.children)) return;
 
