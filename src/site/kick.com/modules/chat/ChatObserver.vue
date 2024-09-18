@@ -51,9 +51,6 @@ interface ReplyReactMessageProps {
 	metadata: {
 		original_sender: {
 			content: string;
-			id: string;
-		};
-		original_sender: {
 			id: number;
 			username: string;
 		};
@@ -100,10 +97,10 @@ function isDefaultReactMessageProps(props: unknown): props is DefaultReactMessag
 	);
 }
 
-function getMessageReactProps(el: HTMLDivElement): KickReactMessageProps | undefined {
+function getMessageReactProps(el: HTMLDivElement): ReactMessageProps | undefined {
 	const messageElements = el.querySelector('div > div[style*="chatroom-font-size"]');
 	if (!messageElements) return;
-	const props = getReactProps(messageElements);
+	const props = getReactProps(messageElements as HTMLElement) as { children: any[] } | undefined;
 
 	if (!props || !Array.isArray(props.children)) return;
 
@@ -126,7 +123,7 @@ function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 		authorID: userID,
 		authorName: username,
 		texts: Array.from(texts),
-		usernameEl: el.querySelector<HTMLSpanElement>("div.inline-flex > button"),
+		usernameEl: el.querySelector<HTMLSpanElement>("div.inline-flex > button")!,
 		el,
 	};
 

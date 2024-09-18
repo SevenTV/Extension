@@ -5,14 +5,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, provide, reactive, ref, watch } from "vue";
-import { noop, useEventListener } from "@vueuse/core";
-import { defineFunctionHook } from "@/common/Reflection";
+import { provide, reactive, ref } from "vue";
+import { noop } from "@vueuse/core";
 import { declareModule } from "@/composable/useModule";
-import { ChatRoom, KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
-import { useApp } from "@/site/kick.com/composable/useApp";
-import { usePinia } from "@/site/kick.com/composable/usePinia";
-import { useRouter } from "@/site/kick.com/composable/useRouter";
+import { KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
 import ChatController from "./ChatController.vue";
 import { declareConfig } from "@/composable/useSettings";
 
@@ -20,9 +16,6 @@ const { markAsReady } = declareModule<"KICK">("chat", {
 	name: "Chat",
 	depends_on: [],
 });
-
-// Acquire vue app
-const app = useApp();
 
 const controller = ref<InstanceType<typeof ChatController> | null>(null);
 
