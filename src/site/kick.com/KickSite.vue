@@ -59,6 +59,8 @@ if (user) {
 		actor.setPlatformUserID("KICK", data.id.toString());
 	};
 
+	//TODO: subscribe for allowing new login
+
 	updateIdentity(user);
 }
 
