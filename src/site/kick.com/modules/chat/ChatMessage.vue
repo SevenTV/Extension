@@ -6,13 +6,18 @@
 					<template v-for="part in splitToken(token)">
 						<span v-if="IsKickEmote(part)">
 							<span class="kick-emote-token">
-								<img :src="getKickEmoteUrl(part)" alt="Kick Emote" />
+								<img :src="getKickEmoteUrl(part)" :alt="part" />
 							</span>
 						</span>
 						<span v-else>
 							{{ part }}
 						</span>
 					</template>
+				</span>
+				<span v-else-if="IsLinkToken(token)">
+					<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
+						token.content.url
+					}}</a>
 				</span>
 				<span v-else-if="IsEmoteToken(token)">
 					<Emote
@@ -34,7 +39,7 @@ import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { tokenize } from "@/common/Tokenize";
 import { AnyToken } from "@/common/chat/ChatMessage";
-import { IsEmoteToken } from "@/common/type-predicates/MessageTokens";
+import { IsEmoteToken, IsLinkToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
@@ -77,9 +82,9 @@ useEventListener(props.bind.usernameEl.parentElement, "click", () => {
 });
 
 function splitToken(token: string): string[] {
-	const parts = [];
+	const parts: string[] = [];
 	let lastIndex = 0;
-	const regex = /\[emote:\d+:[^\]]+\]/g;
+	const regex = /\[emote:\d+:[^\]]+\]|https?:\/\/[^\s]+/g;
 	let match;
 	while ((match = regex.exec(token)) !== null) {
 		if (lastIndex < match.index) {
@@ -100,7 +105,9 @@ function extractTextWithKickEmotes(el: HTMLElement): string {
 		if (node.nodeType === Node.TEXT_NODE) {
 			result += node.textContent || "";
 		} else if (node instanceof HTMLElement) {
-			if (node.hasAttribute("data-emote-id") && node.hasAttribute("data-emote-name")) {
+			if (node.tagName === "A") {
+				result += node.innerText || "";
+			} else if (node.hasAttribute("data-emote-id") && node.hasAttribute("data-emote-name")) {
 				const emoteId = node.getAttribute("data-emote-id");
 				const emoteName = node.getAttribute("data-emote-name");
 				result += `[emote:${emoteId}:${emoteName}]`;
@@ -113,7 +120,6 @@ function extractTextWithKickEmotes(el: HTMLElement): string {
 }
 
 function IsKickEmote(token: string): boolean {
-	// Check if the token matches the Kick emote format
 	return token.startsWith("[emote:") && token.endsWith("]");
 }
 
@@ -130,7 +136,6 @@ function getKickEmoteUrl(token: string): string {
 function process(): void {
 	cosmetics = useCosmetics(props.bind.authorID);
 	if (cosmetics.paints.size) {
-		console.log("buh");
 		updateElementStyles(props.bind.usernameEl, Array.from(cosmetics.paints.values())[0].id);
 	}
 	containers.value.length = 0;
@@ -218,11 +223,16 @@ onUnmounted(() => {
 	word-break: break-word;
 }
 
+.seventv-links {
+	text-decoration-line: underline;
+}
+
 .seventv-badge-list {
 	display: inline-grid;
 	vertical-align: middle;
 	margin-right: 0.25rem;
 }
+
 .kick-emote-token {
 	width: 30px;
 	height: 20px;
