@@ -197,7 +197,7 @@ watchEffect(() => {
 	}
 
 	if (props.slug) {
-		const channelInfoBlock = document.getElementById("channel-content")
+		const channelInfoBlock = document.getElementById("channel-content");
 		if (channelInfoBlock) {
 			channelInfoBlock.firstChild.insertAdjacentElement("afterend", channelContainer);
 		}

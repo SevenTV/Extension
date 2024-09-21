@@ -43,19 +43,19 @@ const observer = new MutationObserver((mutationList) => {
 	}
 });
 
-const head = document.getElementsByTagName('head')[0];
+const head = document.getElementsByTagName("head")[0];
 observer.observe(head, { childList: true, subtree: true });
 
 const appToken = useLocalStorage(LOCAL_STORAGE_KEYS.APP_TOKEN, "");
 const urlParams = new URLSearchParams(window.location.search);
 
-if (urlParams.get('seventv_token')) {
+if (urlParams.get("seventv_token")) {
 	watch(
 		() => store.identity,
 		(identity) => {
-			if (!urlParams.get('seventv_token')) return;
+			if (!urlParams.get("seventv_token")) return;
 
-			appToken.value = urlParams.get('seventv_token');
+			appToken.value = urlParams.get("seventv_token");
 
 			setBioCode(identity as KickIdentity, "", cookies).then(() => {
 				setTimeout(() => {
