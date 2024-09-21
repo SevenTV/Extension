@@ -5,7 +5,6 @@
 	</template>
 
 	<ChatData />
-	<ChatEmoteMenu @pick-emote="(ae) => insertToInput(ae.provider === 'EMOJI' ? ae.unicode ?? ae.name : ae.name)" />
 </template>
 
 <script setup lang="ts">
@@ -15,7 +14,6 @@ import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useWorker } from "@/composable/useWorker";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
-import ChatEmoteMenu from "./ChatEmoteMenu.vue";
 import ChatObserver from "./ChatObserver.vue";
 import ChatData from "@/app/chat/ChatData.vue";
 
@@ -27,12 +25,10 @@ defineExpose({
 	onMessageSend,
 });
 
-function onMessageSend(text: string) {
+function onMessageSend() {
 	sendWorkerMessage("CHANNEL_ACTIVE_CHATTER", {
 		channel: toRaw(ctx),
 	});
-
-	autocomplete.value?.handleMessageSend(text);
 }
 
 // need to fetch the channel because we can only get the chatroom ID from this which isn't equal to the user ID
@@ -52,12 +48,6 @@ const chatList = ref<HTMLDivElement | null>(null);
 const shallowList = ref<HTMLDivElement | null>(null);
 
 const autocomplete = ref<InstanceType<typeof ChatAutocomplete> | null>(null);
-
-function insertToInput(value: string): void {
-	if (!autocomplete.value) return;
-
-	autocomplete.value.insertAtEnd(value);
-}
 
 let observer: ObserverPromise<HTMLDivElement> | null = null;
 
