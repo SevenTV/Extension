@@ -1,6 +1,6 @@
 export async function useUserdata(
 	auth: string,
-	sessionToken: string,
+	sessionToken: string | undefined,
 ): Promise<{
 	id: number;
 	username: string;

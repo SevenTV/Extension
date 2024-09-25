@@ -34,8 +34,8 @@ function updateSlug() {
 
 const observer = new MutationObserver((mutationList) => {
 	for (const mutation of mutationList) {
-		for (const addedNode of mutation.addedNodes) {
-			if (addedNode.tagName == "TITLE") {
+		for (let i = 0; i < mutation.addedNodes.length; i++) {
+			if (mutation.addedNodes.item(i)?.nodeName == "TITLE") {
 				updateSlug();
 				break;
 			}
