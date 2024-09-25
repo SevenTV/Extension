@@ -64,6 +64,7 @@ const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 	events?: HookedInstance<Twitch.ChatEventComponent>;
+	presentation?: HookedInstance<Twitch.ChatListPresentationComponent>;
 }>();
 
 const mod = getModule<"TWITCH", "chat">("chat")!;
