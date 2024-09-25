@@ -10,7 +10,7 @@
 			<Badge
 				v-if="sourceData"
 				:key="sourceData.login"
-				:badge="sourceData.profileImageURL"
+				:badge="sourceData"
 				:alt="sourceData.displayName"
 				type="picture"
 			/>
