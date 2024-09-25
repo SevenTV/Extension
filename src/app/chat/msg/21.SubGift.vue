@@ -12,6 +12,7 @@
 				<span class="bold"> Tier {{ msgData.methods?.plan.charAt(0) }} </span>
 				Sub to
 				<span class="bold"> {{ msgData.recipientDisplayName }} </span>
+				<template v-if="msgData.sourceData"> in {{ msgData.sourceData.displayName }}'s channel! </template>
 			</div>
 		</div>
 	</span>

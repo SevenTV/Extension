@@ -2,9 +2,18 @@
 	<div v-if="user && user.displayName" ref="tagRef" class="seventv-chat-user" :style="{ color: user.color }">
 		<!--Badge List -->
 		<span
-			v-if="!hideBadges && ((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size)"
+			v-if="
+				!hideBadges && ((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size || sourceData)
+			"
 			class="seventv-chat-user-badge-list"
 		>
+			<Badge
+				v-if="sourceData"
+				:key="sourceData.login"
+				:badge="sourceData.profileImageURL"
+				:alt="sourceData.displayName"
+				type="picture"
+			/>
 			<Badge
 				v-for="badge of twitchBadges"
 				:key="badge.id"
@@ -60,6 +69,7 @@ import { autoPlacement, shift } from "@floating-ui/dom";
 const props = withDefaults(
 	defineProps<{
 		user: ChatUser;
+		sourceData?: Twitch.SharedChat;
 		msgId?: symbol;
 		asMention?: boolean;
 		hideBadges?: boolean;
@@ -106,7 +116,10 @@ watchEffect(() => {
 			const setID = key;
 			const badgeID = value;
 
-			for (const setGroup of [twitchBadgeSets.value.channelsBySet, twitchBadgeSets.value.globalsBySet]) {
+			for (const setGroup of [
+				props.sourceData?.badges.channelsBySet ?? twitchBadgeSets.value.channelsBySet,
+				twitchBadgeSets.value.globalsBySet,
+			]) {
 				if (!setGroup) continue;
 
 				const set = setGroup.get(setID);

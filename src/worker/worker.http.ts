@@ -25,7 +25,7 @@ enum ProviderPriority {
 }
 
 export class WorkerHttp {
-	private lastPresenceAt = 0;
+	private lastPresenceAt: Map<string, number> = new Map();
 	static imageFormat: SevenTV.ImageFormat = "WEBP";
 
 	constructor(private driver: WorkerDriver) {
@@ -53,11 +53,13 @@ export class WorkerHttp {
 		});
 		driver.addEventListener("set_channel_presence", (ev) => {
 			if (!ev.port || !ev.port.platform || !ev.port.user || !ev.detail) return;
-			if (this.lastPresenceAt && this.lastPresenceAt > Date.now() - 1e4) {
+
+			const lastPresenceAt = this.lastPresenceAt?.get(ev.detail.id);
+			if (lastPresenceAt && lastPresenceAt > Date.now() - 1e4) {
 				return;
 			}
 
-			this.lastPresenceAt = Date.now();
+			this.lastPresenceAt.set(ev.detail.id, Date.now());
 			this.writePresence(ev.port.platform, ev.port.user.id, ev.detail.id);
 		});
 		driver.addEventListener("imageformat_updated", async (ev) => {
