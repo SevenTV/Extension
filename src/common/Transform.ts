@@ -69,10 +69,6 @@ export function convertTwitchEmote(
 					format: "PNG",
 				},
 				{
-					name: "3.0",
-					format: "PNG",
-				},
-				{
 					name: "4.0",
 					format: "PNG",
 				},
@@ -236,13 +232,22 @@ export function convertFFZEmote(data: FFZ.Emote): SevenTV.Emote {
 		listed: true,
 		owner: null,
 		host: {
-			url: "//cdn.frankerfacez.com/emote/" + data.id,
-			files: Object.keys(data.urls).map((key) => {
-				return {
-					name: key,
-					format: "PNG",
-				};
-			}),
+			url: data.animated
+				? "//cdn.frankerfacez.com/emote/" + data.id + "/animated"
+				: "//cdn.frankerfacez.com/emote/" + data.id,
+			files: data.animated
+				? Object.keys(data.animated).map((key) => {
+						return {
+							name: key,
+							format: "WEBP",
+						};
+				  })
+				: Object.keys(data.urls).map((key) => {
+						return {
+							name: key,
+							format: "PNG",
+						};
+				  }),
 		},
 	};
 }

@@ -4,6 +4,7 @@
 		placeholder="Search again..."
 		:input-value-override="search"
 		disable-commands
+		floating
 		:message-handler="(m) => (search = m)"
 	>
 		<EnableTray :search="search" :mut="mut" name="body" @close="showTray = false" />
@@ -16,6 +17,8 @@
 import { nextTick, onMounted, onUnmounted, ref } from "vue";
 import { refAutoReset } from "@vueuse/core";
 import { SEVENTV_EMOTE_ID, SEVENTV_EMOTE_LINK } from "@/common/Constant";
+import { SevenTVRoles } from "@/common/Roles";
+import { useActor } from "@/composable/useActor";
 import { useSetMutation } from "@/composable/useSetMutation";
 import EnableTray from "./components/EnableTray.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
@@ -203,11 +206,29 @@ const commandAlias: Twitch.ChatCommand = {
 	group: "7TV",
 };
 
+const actor = useActor();
+const perms = [SevenTVRoles.ADMIN, SevenTVRoles.MODERATOR] as string[];
+
+const commandEditAnySet: Twitch.ChatCommand = {
+	name: "letmemamageemoteset",
+	description: "<Mod> Lets you edit any 7TV emote set",
+	helpText: "",
+	permissionLevel: 0,
+	handler: () => {
+		actor.editAnySet = true;
+	},
+	group: "7TV",
+	get hidden() {
+		return actor.editAnySet || mut.canEditSet || !actor.user?.roles?.some((v) => perms.includes(v));
+	},
+};
+
 onMounted(() => {
 	props.add(commandSearch);
 	props.add(commandEnable);
 	props.add(commandDisable);
 	props.add(commandAlias);
+	props.add(commandEditAnySet);
 });
 
 onUnmounted(() => {
@@ -215,6 +236,7 @@ onUnmounted(() => {
 	props.remove(commandEnable);
 	props.remove(commandDisable);
 	props.remove(commandAlias);
+	props.remove(commandEditAnySet);
 });
 </script>
 

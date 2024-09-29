@@ -32,7 +32,7 @@ export function useChatEmotes(ctx: ChannelContext) {
 		m.set(ctx, x);
 	}
 
-	function resetProviders() {
+	function reset() {
 		if (!x) return;
 
 		for (const k in x.providers) {
@@ -41,6 +41,12 @@ export function useChatEmotes(ctx: ChannelContext) {
 			for (const k2 in x.providers[k as SevenTV.Provider]) {
 				delete x.providers[k as SevenTV.Provider][k2];
 			}
+		}
+
+		for (const k in x.active) {
+			const ae = x.active[k];
+			if (ae.provider === "EMOJI") continue;
+			delete x.active[k];
 		}
 	}
 
@@ -75,7 +81,7 @@ export function useChatEmotes(ctx: ChannelContext) {
 		sets: x.sets,
 		emojis: x.emojis,
 		providers: x.providers,
-		resetProviders,
+		reset,
 		byProvider,
 		find,
 	});

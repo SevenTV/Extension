@@ -306,6 +306,9 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 				if (options.functionHooks) {
 					for (const [k, f] of Object.entries(options.functionHooks)) {
 						defineFunctionHook(proto, k as keyof C, f);
+						for (const instance of instances) {
+							defineFunctionHook(instance, k as keyof C, f);
+						}
 					}
 				}
 
@@ -412,6 +415,9 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 			for (const k of Object.keys(options.functionHooks)) {
 				if (hook.cls) {
 					unsetPropertyHook(hook.cls.prototype, k as keyof C);
+				}
+				for (const instance of hook.instances) {
+					unsetPropertyHook(instance.component, k as keyof C);
 				}
 			}
 		}

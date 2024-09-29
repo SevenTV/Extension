@@ -19,6 +19,7 @@ const props = withDefaults(
 		messageHandler?: (v: string) => void;
 		placeholder?: string;
 		modifier?: boolean;
+		floating?: boolean;
 	}>(),
 	{
 		modifier: false,

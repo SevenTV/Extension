@@ -155,6 +155,17 @@ export const config = [
 		hint: "If checked, on-screen celebrations will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_whispers", "DROPDOWN", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Whispers",
+		hint: "Choose when to hide whispers, fullscreen means when chat is hidden",
+		options: [
+			["Never", 0],
+			["Fullscreen", 1],
+			["Allways", 2],
+		],
+		defaultValue: 0,
+	}),
 ];
 </script>
 
@@ -290,6 +301,18 @@ export const config = [
 
 .seventv-hide-onscreen-celebrations {
 	div.celebration__overlay {
+		display: none !important;
+	}
+}
+
+.seventv-hide-whispers-fullscreen {
+	div.whispers-open-threads:not(.whispers--right-column-expanded-beside) {
+		display: none !important;
+	}
+}
+
+.seventv-hide-whispers-all {
+	div.whispers-open-threads {
 		display: none !important;
 	}
 }

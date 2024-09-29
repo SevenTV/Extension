@@ -1,3 +1,21 @@
+### 3.1.1 3000
+
+-   Added support for animated FFZ emotes
+-   Added option to hide whispers
+-   Added tooltip to error messages in /search
+
+### 3.1.1.2100
+
+-   Fixed an issue where certain hooks would not work properly
+
+### 3.1.1.2000
+
+-   Added option to hide 7TV badges from chat
+-   Added option to hide bits from community button
+-   Fixed an issue where twitch emotes were displayed larger after hovering over them
+-   Fixed an issue causing VOD messages to display two timestamps
+-   Fixed an issue where the chat would keep rendering emotes of the previous channel
+
 ### 3.1.0.3000
 
 -   Fixed video player stats not showing
