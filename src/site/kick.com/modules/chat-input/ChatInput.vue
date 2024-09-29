@@ -14,7 +14,7 @@
 					@click="insertAtAnchor(match.token)"
 				>
 					<template v-if="match.item">
-						<Emote :emote="match.item" />
+						<Emote :emote="match.item" :scale="match.item.provider === 'PLATFORM' ? 0.45 : 1.0" />
 						<span class="seventv-autocomplete-item-name">{{ match.item.name }}</span>
 						<span
 							v-if="
