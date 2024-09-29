@@ -264,7 +264,7 @@ function handleTab(node: Kick.Lexical.LexicalNode, selection: Kick.Lexical.Range
 	const [wordStart, wordEnd] = getSearchRange(text, anchorOffset);
 	const currentWord = text.substring(wordStart, wordEnd);
 
-	if (anchorOffset === wordStart) {
+	if (anchorOffset === wordStart || currentWord.trim().length === 0) {
 		tabState.value = undefined;
 		return;
 	}
