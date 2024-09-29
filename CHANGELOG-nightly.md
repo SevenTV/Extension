@@ -1,3 +1,8 @@
+### 3.1.1 4000
+
+-   Added option for toggling drop shadow on name paints
+-   Changed default option value for Colored Mentions to false
+
 ### 3.1.1 3000
 
 -   Added support for animated FFZ emotes

@@ -3,6 +3,7 @@ import { until, useTimeout } from "@vueuse/core";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
+import { useConfig } from "@/composable/useSettings";
 import { useLiveQuery } from "./useLiveQuery";
 import { useWorker } from "./useWorker";
 
@@ -23,6 +24,7 @@ const data = reactive({
 
 	staticallyAssigned: {} as Record<string, Record<string, never> | undefined>,
 });
+const dropShadowRender = useConfig("vanity.paints_drop_shadows");
 
 class CosmeticMap<T extends SevenTV.CosmeticKind> extends Map<string, SevenTV.Cosmetic<T>> {
 	private providers = new Set<SevenTV.Provider>();
@@ -384,7 +386,7 @@ export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = fals
 
 	const gradients = paint.data.gradients.map((g) => createGradientFromPaint(g));
 	const filter = (() => {
-		if (!paint.data.shadows) {
+		if (!paint.data.shadows || dropShadowRender.value === false) {
 			return "";
 		}
 
