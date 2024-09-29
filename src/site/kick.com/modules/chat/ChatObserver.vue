@@ -16,7 +16,6 @@ import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
-import { Kick } from "@/types/kick.module";
 
 interface ActiveUserCard {
 	bind: ChatMessageBinding;
