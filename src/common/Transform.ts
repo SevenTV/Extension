@@ -37,6 +37,39 @@ export function convertPlatformEmoteSet(data: Twitch.TwitchEmoteSet): SevenTV.Em
 	};
 }
 
+export function convertKickEmoteSet(data: Kick.KickEmoteSet): SevenTV.EmoteSet {
+	const isGlobalSet = !("user" in data);
+
+	return {
+		id: "PLATFORM#" + data.id,
+		name: isGlobalSet ? data.name : data.user.username,
+		immutable: true,
+		privileged: true,
+		tags: [],
+		flags: 0,
+		provider: "PLATFORM",
+		scope: isGlobalSet ? "GLOBAL" : "CHANNEL",
+		owner: !isGlobalSet
+			? {
+					id: data.user_id.toString(),
+					username: data.user.username,
+					display_name: data.user.username,
+					avatar_url: data.user.profile_pic,
+			  }
+			: undefined,
+		emotes: data.emotes.map((e) => {
+			const d = convertKickEmote(e, !isGlobalSet ? data.user : undefined);
+			return {
+				id: e.id.toString(),
+				name: e.name,
+				flags: 0,
+				provider: "PLATFORM",
+				data: d,
+			};
+		}),
+	};
+}
+
 export function convertTwitchEmote(
 	data: Partial<Twitch.TwitchEmote>,
 	owner?: Twitch.TwitchEmoteSet["owner"],
@@ -82,6 +115,35 @@ export function convertTwitchEmote(
 
 	emote.host.srcset = imageHostToSrcset(emote.host, "PLATFORM");
 	return emote;
+}
+
+export function convertKickEmote(data: Kick.KickEmote, owner?: Kick.KickUserEmoteSet["user"]): SevenTV.Emote {
+	return {
+		id: data.id?.toString(),
+		name: data.name,
+		flags: undefined,
+		tags: [],
+		state: [],
+		lifecycle: 3,
+		listed: true,
+		owner: owner
+			? {
+					id: owner.id,
+					username: owner.username,
+					display_name: owner.username,
+					avatar_url: owner.profile_pic,
+			  }
+			: null,
+		host: {
+			url: "//files.kick.com/emotes/" + data.id,
+			files: [
+				{
+					name: "fullsize",
+					format: "PNG",
+				},
+			],
+		},
+	};
 }
 
 export function convertCheerEmote(data: Twitch.ChatMessage.EmotePart["content"]): SevenTV.Emote {
