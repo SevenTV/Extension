@@ -18,7 +18,6 @@ import { ObserverPromise } from "@/common/Async";
 import { getReactProps } from "@/common/ReactHooks";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
-import { Kick } from "@/types/kick.module";
 
 interface ActiveUserCard {
 	bind: ChatMessageBinding;
