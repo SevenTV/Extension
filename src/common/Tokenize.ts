@@ -1,5 +1,5 @@
 import type { AnyToken, ChatUser, EmoteToken, LinkToken, TextToken, VoidToken } from "@/common/chat/ChatMessage";
-import { convertKickEmote } from "./Transform";
+import { convertExternalKickEmote } from "./Transform";
 import { parse as tldParse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
@@ -20,7 +20,7 @@ export function tokenize(opt: TokenizeOptions) {
 				return {
 					name: name,
 					id: id,
-					data: convertKickEmote(id, name),
+					data: convertExternalKickEmote(id, name),
 					provider: "PLATFORM",
 				} as SevenTV.ActiveEmote;
 			}

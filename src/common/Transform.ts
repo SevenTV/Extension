@@ -410,7 +410,7 @@ export function semanticVersionToNumber(ver: string): number {
 	return result;
 }
 
-export function convertKickEmote(id: string, name: string): SevenTV.Emote {
+export function convertExternalKickEmote(id: string, name: string): SevenTV.Emote {
 	return {
 		id: id,
 		name: name,
