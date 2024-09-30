@@ -8,13 +8,13 @@
 			<div ref="colonList" class="seventv-autocomplete-list">
 				<div
 					v-for="(match, i) in colon.matches"
-					:key="match.token"
+					:key="match.item?.provider ?? '' + match.item?.id ?? ''"
 					class="seventv-autocomplete-item"
 					:selected="i === colon.select"
 					@click="insertAtAnchor(match.token)"
 				>
 					<template v-if="match.item">
-						<Emote :emote="match.item" :scale="match.item.provider === 'PLATFORM' ? 0.45 : 1.0" />
+						<Emote :emote="match.item" />
 						<span class="seventv-autocomplete-item-name">{{ match.item.name }}</span>
 						<span
 							v-if="
@@ -199,7 +199,7 @@ function handleInputChange(): void {
 	const lastColonAt = currentWord.lastIndexOf(":");
 
 	// no space since last colon
-	if (lastColonAt === -1 || currentWord.substring(lastColonAt).indexOf(" ") !== -1) {
+	if (lastColonAt !== 0 || currentWord.substring(lastColonAt).indexOf(" ") !== -1) {
 		colon.active = false;
 	} else {
 		colon.active = true;

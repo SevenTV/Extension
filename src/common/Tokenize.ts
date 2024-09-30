@@ -100,7 +100,7 @@ export function tokenize(opt: TokenizeOptions) {
 			const prev = tokens.at(-1) as TextToken;
 			prev.content += part;
 			prev.range = [prev.range[0], next - 1];
-		} else if (part !== " ") {
+		} else if (part !== " " || !nextEmote || !prevEmote) {
 			tokens.push({
 				kind: "TEXT",
 				range: [cursor + 1, next - 1],
