@@ -10,7 +10,12 @@
 			@mouseleave="properties.hovering = false"
 		>
 			<div id="seventv-message-container" class="seventv-message-container">
-				<ChatList ref="chatList" :list="list" :message-handler="messageHandler" />
+				<ChatList
+					ref="chatList"
+					:list="list"
+					:shared-chat-data="sharedChatDataByChannelID"
+					:message-handler="messageHandler"
+				/>
 			</div>
 
 			<!-- New Messages during Scrolling Pause -->
@@ -40,7 +45,7 @@ import { log } from "@/common/Logger";
 import { HookedInstance, awaitComponents } from "@/common/ReactHooks";
 import { defineFunctionHook, definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { ChatMessage } from "@/common/chat/ChatMessage";
-import { ChannelRole, useChannelContext } from "@/composable/channel/useChannelContext";
+import { ChannelContext, ChannelRole, useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -64,12 +69,13 @@ const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 	events?: HookedInstance<Twitch.ChatEventComponent>;
+	presentation?: HookedInstance<Twitch.ChatListPresentationComponent>;
 }>();
 
 const mod = getModule<"TWITCH", "chat">("chat")!;
 const { sendMessage: sendWorkerMessage } = useWorker();
 
-const { list, controller, room } = toRefs(props);
+const { list, controller, room, presentation } = toRefs(props);
 
 const el = document.createElement("seventv-container");
 el.id = "seventv-chat-controller";
@@ -101,6 +107,7 @@ const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
 
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
+const sharedChannels = new Map<string, ChannelContext>();
 
 // Capture the chat root node
 watchEffect(() => {
@@ -224,9 +231,22 @@ definePropertyHook(controller.value.component, "props", {
 		// Send presence upon message sent
 		messages.sendMessage = v.chatConnectionAPI.sendMessage;
 		defineFunctionHook(v.chatConnectionAPI, "sendMessage", function (old, ...args) {
-			worker.sendMessage("CHANNEL_ACTIVE_CHATTER", {
-				channel: toRaw(ctx.base),
-			});
+			if (sharedChatDataByChannelID.value?.size != 0) {
+				for (const [key, value] of sharedChatDataByChannelID.value?.entries() ?? []) {
+					worker.sendMessage("CHANNEL_ACTIVE_CHATTER", {
+						channel: {
+							id: key,
+							username: value.login,
+							displayName: value.displayName,
+							active: true,
+						},
+					});
+				}
+			} else {
+				worker.sendMessage("CHANNEL_ACTIVE_CHATTER", {
+					channel: toRaw(ctx.base),
+				});
+			}
 
 			// Run message content patching middleware
 			for (const fn of mod.instance?.messageSendMiddleware.values() ?? []) {
@@ -243,6 +263,32 @@ definePropertyHook(controller.value.component, "props", {
 		twitchEmoteSets.value = data.emoteSets;
 	},
 });
+
+const sharedChatDataByChannelID = ref<Map<string, Twitch.SharedChat> | null>(null);
+watch(
+	presentation,
+	(inst, old) => {
+		if (!inst || !inst.component) return;
+
+		if (old && old.component && inst !== old) {
+			unsetPropertyHook(old.component, "props");
+			return;
+		}
+
+		definePropertyHook(inst.component, "props", {
+			value(v) {
+				sharedChatDataByChannelID.value = v.sharedChatDataByChannelID;
+
+				for (const channelID of sharedChatDataByChannelID.value.keys()) {
+					if (!sharedChannels.has(channelID) && channelID != ctx.id) {
+						sharedChannels.set(channelID, useChannelContext(channelID, true));
+					}
+				}
+			},
+		});
+	},
+	{ immediate: true },
+);
 
 const a = awaitComponents<Twitch.MessageCardOpeners>({
 	parentSelector: ".stream-chat",

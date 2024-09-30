@@ -8,45 +8,65 @@
 	<template v-if="emoteMenu.open && emoteMenuAnchor">
 		<EmoteMenu
 			:anchor-el="emoteMenuAnchor"
-			width="20.5rem"
+			width="20rem"
 			scale="0.62rem"
-			@emote-click="emit('pick-emote', $event)"
+			@emote-click="onEmoteClick($event)"
 			@close="close"
 		/>
 	</template>
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, watchEffect } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import EmoteMenu from "@/app/emote-menu/EmoteMenu.vue";
 import { useEmoteMenuContext } from "@/app/emote-menu/EmoteMenuContext";
 
-const emit = defineEmits<{
-	(e: "pick-emote", emote: SevenTV.ActiveEmote): void;
+const props = defineProps<{
+	container: HTMLElement | null;
+	onPickEmote: ((emote: SevenTV.ActiveEmote) => void) | null;
 }>();
 
 const emoteMenu = useEmoteMenuContext();
-const emoteMenuAnchor = document.getElementById("chatroom-footer");
+
+const emoteMenuAnchor = ref<HTMLDivElement | null>(null);
 
 const emoteMenuButtonContainer = document.createElement("seventv-container");
 
 function close(ev: MouseEvent): void {
 	if (!(ev.target instanceof HTMLElement)) return;
-	if (emoteMenuAnchor?.contains(ev.target) || emoteMenuButtonContainer.contains(ev.target)) return;
+	if (emoteMenuAnchor.value?.contains(ev.target) || emoteMenuButtonContainer.contains(ev.target)) return;
 
 	emoteMenu.open = false;
 }
 
-watchEffect(() => {
-	const parent = document.getElementById("chatroom");
-	if (!parent) return;
+watch(
+	() => props.container,
+	async (container) => {
+		emoteMenuAnchor.value =
+			document.querySelector<HTMLDivElement>("#channel-chatroom > div > div:has(#chat-input-wrapper)") ?? null;
 
-	const inputRow = parent.querySelector(".chat-input-wrapper");
-	if (!inputRow) return;
+		if (!container && emoteMenu.open) {
+			emoteMenu.open = false;
+		}
 
-	inputRow.lastElementChild?.insertAdjacentElement("beforebegin", emoteMenuButtonContainer);
-});
+		if (!container) return;
+
+		const input = container.querySelector("div:has(> .editor-input)");
+		if (input) {
+			input.after(emoteMenuButtonContainer);
+		} else if (container.lastElementChild) {
+			container.lastElementChild.insertAdjacentElement("beforebegin", emoteMenuButtonContainer);
+		} else {
+			container.appendChild(emoteMenuButtonContainer);
+		}
+	},
+	{ immediate: true },
+);
+
+function onEmoteClick(emote: SevenTV.ActiveEmote) {
+	props.onPickEmote?.(emote);
+}
 
 onUnmounted(() => {
 	emoteMenuButtonContainer.remove();
@@ -65,16 +85,16 @@ onUnmounted(() => {
 	background: transparent;
 	cursor: pointer;
 	transition: background 0.2s ease-in-out;
-	height: 2.25rem;
+	height: 1.875rem;
 	border-radius: 0.25rem;
 	padding: 0 0.5rem;
 
 	&:hover {
-		background: rgba(255, 255, 255, 10%);
+		background: rgba(255, 255, 255, 15%);
 	}
 
 	.icon {
-		font-size: 1.25rem;
+		font-size: 1rem;
 	}
 }
 </style>

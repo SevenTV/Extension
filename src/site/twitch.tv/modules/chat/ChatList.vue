@@ -51,6 +51,7 @@ import BasicSystemMessage from "@/app/chat/msg/BasicSystemMessage.vue";
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
 	messageHandler: Twitch.MessageHandlerAPI | null;
+	sharedChatData: Map<string, Twitch.SharedChat> | null;
 }>();
 
 const ctx = useChannelContext();
@@ -78,6 +79,7 @@ const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
+const sharedChatData = toRef(props, "sharedChatData");
 
 // Unrender messages out of view
 const chatListEl = ref<HTMLElement>();
@@ -160,6 +162,17 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	if (msgData.type === MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE && showRestrictedLowTrustUser.value) {
 		msg.setHighlight("#ff7d00", "Restricted Suspicious User");
+	}
+
+	let sourceRoomID =
+		msgData.sourceRoomID ?? msgData.sharedChat?.sourceRoomID ?? msgData.message?.sourceRoomID ?? null;
+	if (!sourceRoomID && msgData.nonce) {
+		sourceRoomID = msg.channelID;
+	}
+
+	if (sourceRoomID) {
+		msgData.sourceData = sharedChatData.value?.get(sourceRoomID);
+		msg.setSourceData(msgData.sourceData);
 	}
 
 	// define message author
@@ -543,6 +556,7 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`
 					: undefined,
 				flashTitle: true,
+				phrase: true,
 			});
 
 			chatHighlights.define("~reply", {
@@ -561,6 +575,7 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`
 					: undefined,
 				flashTitle: true,
+				phrase: true,
 			});
 		} else {
 			chatHighlights.remove("~mention");

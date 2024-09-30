@@ -33,6 +33,11 @@ export interface HighlightDef {
 		data: ArrayBuffer;
 	};
 	persist?: boolean;
+	phrase?: boolean;
+	username?: boolean;
+	badge?: boolean;
+	badgeURL?: string;
+	version?: string;
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
@@ -149,27 +154,35 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		if (h.regexp) {
-			let regexp = h.cachedRegExp;
-			if (!regexp) {
-				try {
-					regexp = new RegExp(h.pattern as string, "i");
-					Object.defineProperty(h, "cachedRegExp", { value: regexp });
-				} catch (err) {
-					log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
+		if (h.phrase || (!h.phrase && !h.username && !h.badge)) {
+			if (h.regexp) {
+				let regexp = h.cachedRegExp;
+				if (!regexp) {
+					try {
+						regexp = new RegExp(h.pattern as string, "i");
+						Object.defineProperty(h, "cachedRegExp", { value: regexp });
+					} catch (err) {
+						log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
 
-					msg.setHighlight("#878787", "Error " + (err as Error).message);
-					return false;
+						msg.setHighlight("#878787", "Error " + (err as Error).message);
+						return false;
+					}
 				}
-			}
 
-			ok = regexp.test(msg.body);
-		} else if (h.pattern) {
-			ok = h.caseSensitive
-				? msg.body.includes(h.pattern)
-				: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
-		} else if (typeof h.test === "function") {
-			ok = h.test(msg);
+				ok = regexp.test(msg.body);
+			} else if (h.pattern) {
+				ok = h.caseSensitive
+					? msg.body.includes(h.pattern)
+					: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
+			} else if (typeof h.test === "function") {
+				ok = h.test(msg);
+			}
+		} else if (h.username) {
+			ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
+		} else if (h.badge) {
+			ok =
+				Object.keys(msg.badges).indexOf(h.pattern?.toLowerCase() ?? "") > -1 &&
+				Object.values(msg.badges).indexOf(h.version?.toLowerCase() ?? "") > -1;
 		}
 
 		if (ok) {
@@ -222,6 +235,39 @@ export function useChatHighlights(ctx: ChannelContext) {
 		return toReactive(data.highlights);
 	}
 
+	function getAllPhraseHighlights(): Record<string, HighlightDef> {
+		if (!data) return {};
+		// Filtering the highlights to include only those with phrase: true
+		const filteredHighlights = Object.fromEntries(
+			Object.entries(data.highlights).filter(
+				([, highlight]) =>
+					highlight.phrase === true || (!highlight.phrase && !highlight.username && !highlight.badge),
+			),
+		);
+
+		return toReactive(filteredHighlights);
+	}
+
+	function getAllUsernameHighlights(): Record<string, HighlightDef> {
+		if (!data) return {};
+		// Filtering the highlights to include only those with username: true
+		const filteredHighlights = Object.fromEntries(
+			Object.entries(data.highlights).filter(([, highlight]) => highlight.username === true),
+		);
+
+		return toReactive(filteredHighlights);
+	}
+
+	function getAllBadgeHighlights(): Record<string, HighlightDef> {
+		if (!data) return {};
+		// Filtering the highlights to include only those with badge: true
+		const filteredHighlights = Object.fromEntries(
+			Object.entries(data.highlights).filter(([, highlight]) => highlight.badge === true),
+		);
+
+		return toReactive(filteredHighlights);
+	}
+
 	function updateId(oldId: string, newId: string): void {
 		if (!data) return;
 
@@ -240,6 +286,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 		define,
 		remove,
 		getAll,
+		getAllPhraseHighlights,
+		getAllUsernameHighlights,
+		getAllBadgeHighlights,
 		save,
 		updateId,
 		checkMatch,

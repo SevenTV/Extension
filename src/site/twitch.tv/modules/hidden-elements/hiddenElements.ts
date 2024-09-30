@@ -23,6 +23,7 @@ const hidePlayerExtensions = useConfig<boolean>("player.hide_player_extensions")
 const hideChannelPointBalanceButton = useConfig<boolean>("layout.hide_channel_point_balance_button");
 const hideOnscreenCelebrations = useConfig<boolean>("player.hide_onscreen_celebrations");
 const hideWhispers = useConfig<number>("layout.hide_whispers");
+const hideStories = useConfig<boolean>("layout.hide_stories");
 export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean> }> = [
 	{ class: "seventv-hide-leaderboard", isHidden: hideLeaderboard },
 	{ class: "seventv-hide-buttons-below-chatbox", isHidden: hideButtonsBelowChatbox },
@@ -47,4 +48,5 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-onscreen-celebrations", isHidden: hideOnscreenCelebrations },
 	{ class: "seventv-hide-whispers-fullscreen", isHidden: computed(() => hideWhispers.value === 1) },
 	{ class: "seventv-hide-whispers-all", isHidden: computed(() => hideWhispers.value === 2) },
+	{ class: "seventv-hide-stories", isHidden: hideStories },
 ];

@@ -11,7 +11,9 @@
 				</span>
 				<span class="bold">Subscribed</span>
 				with
-				{{ plan }}. They've subscribed for
+				{{ plan }}
+				<template v-if="msgData.sourceData"> to {{ msgData.sourceData.displayName }} </template>
+				<span>. They've subscribed for </span>
 				<span class="bold"> {{ msgData.cumulativeMonths }} months</span>
 				<template v-if="msgData.shouldShareStreakTenure">
 					, {{ msgData.streakMonths }} month{{ (msgData.streakMonths ?? 0) > 1 ? "s" : "" }} in a row.

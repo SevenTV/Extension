@@ -229,6 +229,10 @@ declare module Twitch {
 		onClearChatEvent: (e: { channel: string }) => void;
 	};
 
+	export type ChatListPresentationComponent = ReactExtended.WritableComponent<{
+		sharedChatDataByChannelID: Map<string, SharedChat>;
+	}>;
+
 	export interface MessageHandlerAPI {
 		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
 		removeMessageHandler: (event: (msg: ChatMessage) => void) => void;
@@ -845,6 +849,15 @@ declare module Twitch {
 		userLogin: string;
 		userType: string;
 		badges?: { id: string }[];
+	}
+
+	export interface SharedChat {
+		badges: BadgeSets;
+		displayName: string;
+		login: string;
+		primaryColorHex: string;
+		profileImageURL: string;
+		status: "ACTIVE" | "INACTIVE";
 	}
 
 	export interface TwitchEmote {

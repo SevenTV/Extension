@@ -5,6 +5,12 @@
 				<!--Identity (avatar, nametag, badges) -->
 				<div ref="dragHandle" class="seventv-user-card-identity">
 					<div class="seventv-user-card-menuactions">
+						<BellSlashIcon
+							v-if="data.targetUser.username in chatHighlights.getAllUsernameHighlights()"
+							v-tooltip="t('user_card.stop_highlight')"
+							@click="highlightUserMessages"
+						/>
+						<BellIcon v-else v-tooltip="t('user_card.highlight')" @click="highlightUserMessages" />
 						<LogoTwitch v-tooltip="t('user_card.native')" @click="openNativeCard" />
 						<CloseIcon class="close-button" @click="emit('close')" />
 					</div>
@@ -126,6 +132,7 @@ import { convertTwitchMessage } from "@/common/Transform";
 import { convertTwitchBadge } from "@/common/Transform";
 import { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useApollo } from "@/composable/useApollo";
@@ -136,6 +143,8 @@ import {
 	twitchUserCardModLogsQuery,
 	twitchUserCardQuery,
 } from "@/assets/gql/tw.user-card.gql";
+import BellIcon from "@/assets/svg/icons/BellIcon.vue";
+import BellSlashIcon from "@/assets/svg/icons/BellSlashIcon.vue";
 import CakeIcon from "@/assets/svg/icons/CakeIcon.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import HeartIcon from "@/assets/svg/icons/HeartIcon.vue";
@@ -166,6 +175,7 @@ const messages = useChatMessages(ctx);
 const { identity } = storeToRefs(useStore());
 const cosmetics = useCosmetics(props.target.id);
 const tools = useChatTools(ctx);
+const chatHighlights = useChatHighlights(ctx);
 
 const apollo = useApollo();
 const { t } = useI18n();
@@ -394,6 +404,31 @@ function openNativeCard(ev: MouseEvent): void {
 	emit("close");
 }
 
+function highlightUserMessages(): void {
+	if (!data.targetUser.username) return;
+	let ok = false;
+	if (data.targetUser.username in chatHighlights.getAllUsernameHighlights()) {
+		chatHighlights.remove(data.targetUser.username);
+		ok = true;
+	} else {
+		chatHighlights.define(
+			data.targetUser.username,
+			{
+				pattern: data.targetUser.username,
+				label: "Messages by " + data.targetUser.username,
+				color: "#8803fc",
+				flashTitle: false,
+				username: true,
+			},
+			true,
+		);
+		ok = true;
+	}
+
+	if (!ok) return;
+	chatHighlights.save();
+}
+
 function getProfileURL(): string {
 	return window.location.origin + "/" + props.target.username;
 }
@@ -593,6 +628,7 @@ main.seventv-user-card-container {
 		right: 0.5rem;
 		top: 0.5rem;
 		height: 2rem;
+		width: 8rem;
 		display: flex;
 		column-gap: 0.25rem;
 

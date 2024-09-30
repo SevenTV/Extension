@@ -15,7 +15,11 @@
 				</div>
 				<span class="bold">Watch Streak Reached!: </span>
 				<span v-if="msg.author">{{ msg.author.displayName }}</span>
-				is currently on a {{ msgData.watchStreak }}-stream streak!
+				is currently on a {{ msgData.watchStreak }}-stream streak
+				<template v-if="msgData.sourceData">
+					<span>in {{ msgData.sourceData.displayName }}'s channel</span>
+				</template>
+				<span>!</span>
 			</div>
 		</div>
 

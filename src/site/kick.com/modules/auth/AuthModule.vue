@@ -9,8 +9,6 @@ import { useStore } from "@/store/main";
 import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import { useCookies } from "@/composable/useCookies";
 import { declareModule } from "@/composable/useModule";
-import { useApp } from "@/site/kick.com/composable/useApp";
-import { useRouter } from "@/site/kick.com/composable/useRouter";
 import { setBioCode } from "./Auth";
 import AuthButton from "./AuthButton.vue";
 
@@ -19,33 +17,45 @@ const { markAsReady } = declareModule<"KICK">("auth", {
 	depends_on: [],
 });
 
-const app = useApp();
-const router = useRouter(app);
 const cookies = useCookies();
 const store = useStore();
 
 const currentSlug = ref("");
 const currentSlugDbc = debouncedRef(currentSlug, 1e3);
 
-watch(
-	() => router.currentRoute,
-	(v) => {
-		if (!v || v.name !== "channel") return;
+function updateSlug() {
+	const path = location.pathname.split("/");
+	if (path[1] == "popout") {
+		currentSlug.value = path[2];
+	} else {
+		currentSlug.value = path[1];
+	}
+}
 
-		currentSlug.value = typeof v.params.channel === "string" ? v.params.channel ?? "" : "";
-	},
-	{ immediate: true },
-);
+const observer = new MutationObserver((mutationList) => {
+	for (const mutation of mutationList) {
+		for (let i = 0; i < mutation.addedNodes.length; i++) {
+			if (mutation.addedNodes.item(i)?.nodeName == "TITLE") {
+				updateSlug();
+				break;
+			}
+		}
+	}
+});
+
+const head = document.getElementsByTagName("head")[0];
+observer.observe(head, { childList: true, subtree: true });
 
 const appToken = useLocalStorage(LOCAL_STORAGE_KEYS.APP_TOKEN, "");
+const urlParams = new URLSearchParams(window.location.search);
 
-if (router.currentRoute && router.currentRoute.query.seventv_token) {
+if (urlParams.get("seventv_token")) {
 	watch(
 		() => store.identity,
 		(identity) => {
-			if (!router.currentRoute || !router.currentRoute.query.seventv_token) return;
+			if (!urlParams.get("seventv_token")) return;
 
-			appToken.value = router.currentRoute.query.seventv_token.toString();
+			appToken.value = urlParams.get("seventv_token");
 
 			setBioCode(identity as KickIdentity, "", cookies).then(() => {
 				setTimeout(() => {
@@ -57,5 +67,6 @@ if (router.currentRoute && router.currentRoute.query.seventv_token) {
 	);
 }
 
+updateSlug();
 markAsReady();
 </script>
