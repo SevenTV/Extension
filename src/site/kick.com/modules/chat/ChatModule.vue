@@ -1,38 +1,45 @@
 <template>
 	<Suspense>
-		<ChatController ref="controller" :slug="chan.slug" />
+		<ChatController ref="controller" :channel-id="channelID" :slug="slug" />
 	</Suspense>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { ref, watch } from "vue";
 import { declareModule } from "@/composable/useModule";
-import { KickChannelInfo } from "@/site/kick.com";
 import ChatController from "./ChatController.vue";
 import { declareConfig } from "@/composable/useSettings";
+import { useStaticRenderFunctionHook } from "@/common/ReactHooks";
+import { Logger } from "@/common/Logger";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 
 const { markAsReady } = declareModule<"KICK">("chat", {
 	name: "Chat",
 	depends_on: [],
 });
 
-const controller = ref<InstanceType<typeof ChatController> | null>(null);
+const slug = ref("");
+const channelID = ref("");
+useChannelContext(channelID.value);
+watch(
+	slug,
+	async (v) => {
+		if (!v) return;
+		const resp = await fetch(`https://kick.com/api/v2/channels/${v}`).catch((err) => {
+			Logger.Get().error("failed to fetch channel data", err);
+		});
+		if (!resp) return;
+		const { user_id: id } = await resp.json();
+		if (!id) return;
+		channelID.value = id.toString() as string;
+	},
+	{ immediate: true },
+);
 
-const chan = reactive<KickChannelInfo>({
-	active: false,
-	slug: "",
-	currentMessage: "",
+useStaticRenderFunctionHook<{ channelSlug: string }>("#chatroom-messages", 2, function (this, old, props, ref) {
+	slug.value = props.channelSlug;
+	return old ? old.call(this, props, ref) : null;
 });
-
-location.pathname.split("/");
-const path = location.pathname.split("/");
-
-let username = path[1];
-if (username == "popout") {
-	username = path[2];
-}
-
-chan.slug = username;
 
 markAsReady();
 </script>

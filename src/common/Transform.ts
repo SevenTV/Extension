@@ -347,3 +347,20 @@ export function semanticVersionToNumber(ver: string): number {
 
 	return result;
 }
+
+export function convertKickEmote(id: string, name: string): SevenTV.Emote {
+	return {
+		id: id,
+		name: name,
+		tags: [],
+		state: [],
+		lifecycle: 3,
+		listed: true,
+		owner: null,
+		host: {
+			url: "",
+			files: [],
+			srcset: `https://files.kick.com/emotes/${id}/fullsize 1x`,
+		},
+	};
+}

@@ -10,7 +10,6 @@
 <script setup lang="ts">
 import { ref, toRaw, watchEffect } from "vue";
 import { ObserverPromise } from "@/common/Async";
-import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useWorker } from "@/composable/useWorker";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
@@ -18,6 +17,7 @@ import ChatObserver from "./ChatObserver.vue";
 import ChatData from "@/app/chat/ChatData.vue";
 
 const props = defineProps<{
+	channelId: string;
 	slug: string;
 }>();
 
@@ -31,16 +31,7 @@ function onMessageSend() {
 	});
 }
 
-// need to fetch the channel because we can only get the chatroom ID from this which isn't equal to the user ID
-const resp = await fetch(`https://kick.com/api/v2/channels/${props.slug}`).catch((err) => {
-	log.error("failed to fetch channel data", err);
-});
-if (!resp) throw new Error("failed to fetch channel data");
-
-const { user_id: id } = await resp.json();
-if (!id) throw new Error("failed to get channel ID");
-
-const ctx = useChannelContext(id.toString(), true);
+const ctx = useChannelContext(props.channelId, true);
 const { sendMessage: sendWorkerMessage } = useWorker();
 
 // The list
@@ -54,7 +45,7 @@ let observer: ObserverPromise<HTMLDivElement> | null = null;
 watchEffect(async () => {
 	// Update channel context
 	const ok = ctx.setCurrentChannel({
-		id: id.toString(),
+		id: props.channelId,
 		username: props.slug,
 		displayName: props.slug,
 		active: true,

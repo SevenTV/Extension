@@ -27,6 +27,9 @@ declare namespace Kick {
 			};
 			messageId: string;
 		}
+		type MessageListProps = {
+			children: ReactExtended.WritableComponent<DefaultProps>[];
+		};
 	}
 }
 
