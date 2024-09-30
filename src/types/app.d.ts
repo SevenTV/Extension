@@ -480,6 +480,7 @@ declare namespace FFZ {
 			display_name: string;
 		} | null;
 		urls: LinkMap;
+		animated?: LinkMap;
 	}
 
 	interface BadgesResponse {

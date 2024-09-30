@@ -22,7 +22,7 @@ export function useTooltip(content?: string | Component, props?: Record<string, 
 		if (!el) return;
 
 		// Set the content, this is necessary to calculate the tooltip's positioning
-		if (content) {
+		if (content !== undefined) {
 			tooltip.content = typeof content === "string" ? content : markRaw(content);
 			tooltip.contentProps = props ?? {};
 		}

@@ -181,7 +181,7 @@ export function useTrayRef(options: Twitch.CustomTrayOptions, modifier: boolean 
 		$$typeof: REACT_ELEMENT_SYMBOL,
 		key: "body",
 		ref: (e: TrayRef) => (bodyRef.value = e),
-		type: "seventv-vue-component",
+		type: "seventv-tray-container-body",
 		props: {},
 	};
 

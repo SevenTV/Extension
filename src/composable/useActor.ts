@@ -10,6 +10,7 @@ class ActorContext {
 	user: SevenTV.User | null = null;
 	sub: SubscriptionResponse | null = null;
 	token = useConfig<string>("app.7tv.token") as unknown as string;
+	editAnySet = false;
 
 	platform: Platform | null = null;
 	platformUserID: string | null = null;

@@ -1,3 +1,4 @@
+kj
 <template>
 	<!-- Patch messages -->
 	<template v-for="bind of messages" :key="bind.id">
@@ -11,9 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
+import { getReactProps } from "@/common/ReactHooks";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
 import { Kick } from "@/types/kick.module";
@@ -33,16 +35,6 @@ const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
 const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
 
-function getReactProps<T>(element: HTMLElement): T | undefined {
-	for (const k in element) {
-		if (k.startsWith("__reactProps")) {
-			const props = Reflect.get(element, k);
-			return props;
-		}
-	}
-	return undefined;
-}
-
 function isDefaultReactMessageProps(props: unknown): props is Kick.Message.DefaultProps {
 	return (
 		props != null &&
@@ -57,31 +49,32 @@ function isDefaultReactMessageProps(props: unknown): props is Kick.Message.Defau
 function getMessageReactProps(el: HTMLDivElement): Kick.Message.DefaultProps | undefined {
 	const messageElements = el.querySelector("div > div[style*='chatroom-font-size']");
 	if (!messageElements) return;
-	const props = getReactProps(messageElements as HTMLElement) as
-		| { children: ReactExtended.Writeable<Kick.Message.DefaultProps> }
-		| undefined;
+	const props = getReactProps<Kick.Message.MessageListProps>(messageElements);
 	if (!props || !Array.isArray(props.children)) return;
 
 	const child = props.children.find((child) => child?.props?.sender);
 	return child?.props;
 }
 
-function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
+function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuffer?: boolean): void {
+	if (el.__seventv) return; // already patched
 	if (!el.hasAttribute("data-index")) return; // not a message
 	const props = getMessageReactProps(el);
 	if (!props) return;
 
+	el.__seventv = true;
+
 	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props;
 	const userID = props.sender.id.toString();
 	const username = props.sender.username;
-	const texts = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
-	const usernameEl = el.querySelector<HTMLSpanElement>("div > button[title]")!;
+	const usernameEl = el.querySelector<HTMLSpanElement>("div.inline-flex > button[title]")!;
+	const textElements = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
 	const bind: ChatMessageBinding = {
 		id: entryID,
 		authorID: userID,
 		authorName: username,
-		texts: Array.from(texts),
+		texts: Array.from(textElements),
 		usernameEl: usernameEl,
 		el,
 	};
@@ -213,30 +206,41 @@ watchEffect(() => {
 	props.listElement.classList.toggle("seventv-chat-observer", true);
 });
 
-useMutationObserver(
-	props.listElement,
-	(records) => {
-		for (const rec of records) {
-			rec.addedNodes.forEach((n) => {
-				if (!(n instanceof HTMLDivElement)) return;
+let stop = () => {
+	void 0;
+};
+watch(
+	() => props.listElement,
+	() => {
+		stop();
+		stop = useMutationObserver(
+			props.listElement,
+			(records) => {
+				for (const rec of records) {
+					rec.addedNodes.forEach((n) => {
+						if (!(n instanceof HTMLDivElement)) return;
 
-				patchMessageElement(n);
-			});
+						patchMessageElement(n);
+					});
 
-			rec.removedNodes.forEach((n) => {
-				if (!(n instanceof HTMLDivElement)) return;
+					rec.removedNodes.forEach((n) => {
+						if (!(n instanceof HTMLDivElement)) return;
 
-				const b = messageMap.get(n);
-				if (!b) return;
+						const b = messageMap.get(n);
+						if (!b) return;
 
-				messageDeleteBuffer.value.push(b);
-				messageMap.delete(n);
-			});
+						messageDeleteBuffer.value.push(b);
+						messageMap.delete(n);
+					});
 
-			flush();
-		}
+					flush();
+				}
+			},
+			{ childList: true },
+		).stop;
+		flush();
 	},
-	{ childList: true },
+	{ immediate: true },
 );
 
 function flush(): void {

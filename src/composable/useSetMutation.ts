@@ -48,7 +48,8 @@ export function useSetMutation(setID?: string): SetMutation {
 	const canEditIfLoggedIn = computed(() => {
 		if (!actor.user) return false;
 		if (ctx.id == actor.platformUserID) return true;
-		return (ctx.user?.editors ?? []).some((e) => e.id == actor.user?.id);
+		if ((ctx.user?.editors ?? []).some((e) => e.id == actor.user?.id)) return true;
+		return actor.editAnySet;
 	});
 
 	const canEditSet = computed(() => {
