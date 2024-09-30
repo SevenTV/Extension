@@ -457,7 +457,7 @@ export const config = [
 			gridMode: "new-row",
 		},
 		label: "Custom Highlights",
-		hint: "Create custom highlights for specific words or phrases",
+		hint: "Create custom highlights for specific words, phrases or all messages from specific users",
 		defaultValue: new Map(),
 	}),
 	declareConfig<number>("highlights.sound_volume", "SLIDER", {
