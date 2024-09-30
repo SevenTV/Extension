@@ -191,15 +191,15 @@ function closePopup(): void {
 }
 
 watchEffect(() => {
-	const navBlock = document.querySelector(".main-navbar");
+	const navBlock = document.getElementsByTagName("nav")[0];
 	if (navBlock) {
-		navBlock.lastElementChild?.insertAdjacentElement("beforebegin", navContainer);
+		navBlock.lastElementChild?.insertAdjacentElement("afterbegin", navContainer);
 	}
 
 	if (props.slug) {
-		const channelInfoBlock = document.querySelector(".channel-info, .stream-info");
+		const channelInfoBlock = document.getElementById("channel-content");
 		if (channelInfoBlock) {
-			channelInfoBlock.insertAdjacentElement("afterend", channelContainer);
+			channelInfoBlock.firstElementChild?.insertAdjacentElement("afterend", channelContainer);
 		}
 	}
 });

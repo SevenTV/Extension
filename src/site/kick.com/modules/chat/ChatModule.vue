@@ -1,116 +1,45 @@
 <template>
-	<template v-if="chan.active">
-		<Suspense>
-			<ChatController ref="controller" :slug="chan.slug" />
-		</Suspense>
-	</template>
+	<Suspense>
+		<ChatController ref="controller" :channel-id="channelID" :slug="slug" />
+	</Suspense>
 </template>
 
 <script setup lang="ts">
-import { onMounted, provide, reactive, ref, watch } from "vue";
-import { noop, useEventListener } from "@vueuse/core";
-import { defineFunctionHook } from "@/common/Reflection";
+import { ref, watch } from "vue";
 import { declareModule } from "@/composable/useModule";
-import { ChatRoom, KICK_CHANNEL_KEY, KickChannelInfo } from "@/site/kick.com";
-import { useApp } from "@/site/kick.com/composable/useApp";
-import { usePinia } from "@/site/kick.com/composable/usePinia";
-import { useRouter } from "@/site/kick.com/composable/useRouter";
 import ChatController from "./ChatController.vue";
 import { declareConfig } from "@/composable/useSettings";
+import { useStaticRenderFunctionHook } from "@/common/ReactHooks";
+import { Logger } from "@/common/Logger";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
 
 const { markAsReady } = declareModule<"KICK">("chat", {
 	name: "Chat",
 	depends_on: [],
 });
 
-// Acquire vue app
-const app = useApp();
-const router = useRouter(app);
-
-const controller = ref<InstanceType<typeof ChatController> | null>(null);
-
-const chan = reactive<KickChannelInfo>({
-	active: false,
-	slug: "",
-	currentMessage: "",
-});
-
-provide(KICK_CHANNEL_KEY, chan);
-
-const CHAT_ROUTES = ["channel", "channel.chatroom", "moderation-dashboard", "dashboard.stream"];
-
-let ok = false;
-const stoppers: (typeof noop)[] = [];
-function handle(): void {
-	const route = router.currentRoute;
-	if (route && typeof route.name === "string" && !CHAT_ROUTES.includes(route.name)) return;
-	if (ok && chan.active) return;
-
-	const chatroomStore = usePinia<ChatRoom>(app, "chatroomv2");
-	type chatroomWithActions = typeof chatroomStore & {
-		sendCurrentMessage: () => void;
-	};
-	if (!chatroomStore) return;
-
-	ok = true;
-
-	chan.slug = chatroomStore.$state.currentChannelSlug;
-	chan.active = !!chan.slug;
-
-	while (stoppers.length) stoppers.pop()?.();
-	stoppers.push(
-		chatroomStore.$subscribe(async (_, s: ChatRoom) => {
-			if (!s.chatroom || typeof s.chatroom.id !== "number") return;
-
-			if (chan.slug !== s.currentChannelSlug) {
-				chan.active = false;
-				await new Promise((r) => setTimeout(r, 250));
-				chan.active = true;
-				ok = false;
-			}
-
-			chan.slug = s.currentChannelSlug;
-			chan.currentMessage = s.currentMessage;
-		}),
-	);
-
-	stoppers.push(
-		watch(
-			() => chan.currentMessage,
-			(v) => {
-				chatroomStore?.$patch({
-					currentMessage: v,
-				});
-			},
-		),
-	);
-
-	defineFunctionHook(chatroomStore as chatroomWithActions, "sendCurrentMessage", function (this, ...args) {
-		const f = args[0];
-
-		if (controller.value) {
-			controller.value.onMessageSend(this.$state.currentMessage);
-		}
-
-		return f?.apply(this, []);
-	});
-}
-
-onMounted(() => {
-	handle();
-});
-
+const slug = ref("");
+const channelID = ref("");
+useChannelContext(channelID.value);
 watch(
-	() => router.currentRoute,
-	(route) => {
-		if (route && typeof route.name === "string" && !CHAT_ROUTES.includes(route.name)) {
-			chan.active = false;
-		}
-		handle();
+	slug,
+	async (v) => {
+		if (!v) return;
+		const resp = await fetch(`https://kick.com/api/v2/channels/${v}`).catch((err) => {
+			Logger.Get().error("failed to fetch channel data", err);
+		});
+		if (!resp) return;
+		const { user_id: id } = await resp.json();
+		if (!id) return;
+		channelID.value = id.toString() as string;
 	},
 	{ immediate: true },
 );
-useEventListener(document, "click", () => setTimeout(handle, 250));
+
+useStaticRenderFunctionHook<{ channelSlug: string }>("#chatroom-messages", 2, function (this, old, props, ref) {
+	slug.value = props.channelSlug;
+	return old ? old.call(this, props, ref) : null;
+});
 
 markAsReady();
 </script>

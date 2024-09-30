@@ -1,9 +1,11 @@
-### 3.1.1 4000
+### 3.1.2.1000
 
--   Added option for toggling drop shadow on name paints
--   Changed default option value for Colored Mentions to false
+-   Implement support for the new Kick site
+-   Added option to settings to hide Stories from the sidebar
+-   Fixed settings to hide recommended channels and viewers also watch channels
+-   Fixed an issue where history navigation is accidentally triggered during IME composition
 
-### 3.1.1 3000
+### 3.1.1.3000
 
 -   Added support for animated FFZ emotes
 -   Added option to hide whispers

@@ -1,7 +1,8 @@
+kj
 <template>
 	<!-- Patch messages -->
-	<template v-for="(bind, i) of messages" :key="bind.id">
-		<ChatMessageVue :parity="i % 2 === 0 ? 'even' : 'odd'" :bind="bind" @open-card="onOpenUserCard" />
+	<template v-for="bind of messages" :key="bind.id">
+		<ChatMessageVue :bind="bind" @open-card="onOpenUserCard" />
 	</template>
 
 	<!-- Modify user card -->
@@ -11,10 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, watchEffect } from "vue";
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
-import { useConfig } from "@/composable/useSettings";
+import { getReactProps } from "@/common/ReactHooks";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
 
@@ -33,32 +34,47 @@ const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
 const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
 
-const refreshRate = useConfig<number>("chat.message_batch_duration", 100);
+function isDefaultReactMessageProps(props: unknown): props is Kick.Message.DefaultProps {
+	return (
+		props != null &&
+		typeof props === "object" &&
+		"sender" in props &&
+		typeof props.sender === "object" &&
+		"message" in props &&
+		typeof props.message === "object"
+	);
+}
 
-function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
-	if (!el.hasAttribute("data-chat-entry")) return; // not a message
+function getMessageReactProps(el: HTMLDivElement): Kick.Message.DefaultProps | undefined {
+	const messageElements = el.querySelector("div > div[style*='chatroom-font-size']");
+	if (!messageElements) return;
+	const props = getReactProps<Kick.Message.MessageListProps>(messageElements);
+	if (!props || !Array.isArray(props.children)) return;
 
-	const entryID = el.getAttribute("data-chat-entry")!;
+	const child = props.children.find((child) => child?.props?.sender);
+	return child?.props;
+}
 
-	const identity = el.querySelector<HTMLSpanElement>(".chat-message-identity");
-	if (!identity) return; // missing identity
+function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuffer?: boolean): void {
+	if (el.__seventv) return; // already patched
+	if (!el.hasAttribute("data-index")) return; // not a message
+	const props = getMessageReactProps(el);
+	if (!props) return;
 
-	const entryUser = identity.querySelector<HTMLSpanElement>(".chat-entry-username");
-	if (!entryUser) return; // missing username
+	el.__seventv = true;
 
-	const userID = entryUser.getAttribute("data-chat-entry-user-id");
-	const username = entryUser.getAttribute("data-chat-entry-user");
-	if (!userID || !username) return; // missing user ID or username
-
-	// find all untokenized content
-	const texts = el.querySelectorAll<HTMLSpanElement>(".chat-entry-content");
+	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props;
+	const userID = props.sender.id.toString();
+	const username = props.sender.username;
+	const usernameEl = el.querySelector<HTMLSpanElement>("div.inline-flex > button[title]")!;
+	const textElements = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
 	const bind: ChatMessageBinding = {
 		id: entryID,
 		authorID: userID,
 		authorName: username,
-		texts: Array.from(texts),
-		usernameEl: entryUser,
+		texts: Array.from(textElements),
+		usernameEl: usernameEl,
 		el,
 	};
 
@@ -97,7 +113,7 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 }
 
 function patch(): void {
-	const entries = props.listElement.querySelectorAll("[data-chat-entry]");
+	const entries = props.listElement.querySelectorAll("[data-index]");
 	for (const el of Array.from(entries)) {
 		patchMessageElement(el as HTMLDivElement, true);
 	}
@@ -154,63 +170,64 @@ watchEffect(() => {
 	props.listElement.classList.toggle("seventv-chat-observer", true);
 });
 
-useMutationObserver(
-	props.listElement,
-	(records) => {
-		for (const rec of records) {
-			rec.addedNodes.forEach((n) => {
-				if (!(n instanceof HTMLDivElement)) return;
+let stop = () => {
+	void 0;
+};
+watch(
+	() => props.listElement,
+	() => {
+		stop();
+		stop = useMutationObserver(
+			props.listElement,
+			(records) => {
+				for (const rec of records) {
+					rec.addedNodes.forEach((n) => {
+						if (!(n instanceof HTMLDivElement)) return;
 
-				patchMessageElement(n);
-			});
+						patchMessageElement(n);
+					});
 
-			rec.removedNodes.forEach((n) => {
-				if (!(n instanceof HTMLDivElement)) return;
+					rec.removedNodes.forEach((n) => {
+						if (!(n instanceof HTMLDivElement)) return;
 
-				const b = messageMap.get(n);
-				if (!b) return;
+						const b = messageMap.get(n);
+						if (!b) return;
 
-				messageDeleteBuffer.value.push(b);
-				messageMap.delete(n);
-			});
+						messageDeleteBuffer.value.push(b);
+						messageMap.delete(n);
+					});
 
-			flush();
-		}
+					flush();
+				}
+			},
+			{ childList: true },
+		).stop;
+		flush();
 	},
-	{ childList: true },
+	{ immediate: true },
 );
 
-let flushTimeout: number | null = null;
 function flush(): void {
-	if (flushTimeout) return;
+	if (messageBuffer.value.length) {
+		const unbuf = messageBuffer.value.splice(0, messageBuffer.value.length);
 
-	flushTimeout = window.setTimeout(() => {
-		if (messageBuffer.value.length) {
-			const unbuf = messageBuffer.value.splice(0, messageBuffer.value.length);
+		for (const bind of unbuf) {
+			bind.el.classList.remove("seventv-chat-message-buffered");
+		}
+		messages.value.push(...unbuf);
+	}
 
-			for (const bind of unbuf) {
-				bind.el.classList.remove("seventv-chat-message-buffered");
-			}
-			messages.value.push(...unbuf);
+	if (messageDeleteBuffer.value.length >= 25) {
+		for (const bind of messageDeleteBuffer.value) {
+			messages.value.splice(messages.value.indexOf(bind), 1);
 		}
 
-		if (messageDeleteBuffer.value.length >= 25) {
-			flushTimeout = window.setTimeout(() => {
-				for (const bind of messageDeleteBuffer.value) {
-					messages.value.splice(messages.value.indexOf(bind), 1);
-				}
-
-				messageDeleteBuffer.value.length = 0;
-
-				flushTimeout = null;
-			}, refreshRate.value / 1.5);
-		} else {
-			flushTimeout = null;
-		}
-
-		onMessageRendered();
-	}, refreshRate.value);
+		messageDeleteBuffer.value.length = 0;
+	}
+	onMessageRendered();
 }
+
+// ftk789: I have no clue what the F is above, And why does it have setTimeouts, with it being present it lags the chat and makes it go crazy.so I just commented settimeouts.
 
 useMutationObserver(
 	props.listElement.parentElement!,
