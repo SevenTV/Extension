@@ -72,7 +72,6 @@ const emit = defineEmits<{
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(props.bind.authorID);
-const regex = /\[emote:\d+:[^\]]+\]|https?:\/\/[^\s]+/g;
 const badgeContainer = document.createElement("seventv-container");
 
 const containers = ref<HTMLElement[]>([]);
