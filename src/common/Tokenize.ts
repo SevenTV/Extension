@@ -6,12 +6,13 @@ const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
 const KICK_EMOTE_REGEXP = /^\[emote:(?<id>\d+):(?<name>.+)\]$/;
 const backwardModifierBlacklist = new Set(["w!", "h!", "v!", "z!"]);
 
-const delimiter = /( )|((?<=\])(?=\[))/;
+const delimiter = /( )|(\[emote:\d{1,10}:.{1,30}\])/;
 
 export function tokenize(opt: TokenizeOptions) {
 	const tokens = [] as AnyToken[];
 
 	const textParts = opt.body.split(delimiter).filter((part) => !!part);
+
 	const getEmote = (name: string) => {
 		if (opt.isKick) {
 			const match = KICK_EMOTE_REGEXP.exec(name);
@@ -95,7 +96,11 @@ export function tokenize(opt: TokenizeOptions) {
 					url: parsedUrl.toString(),
 				},
 			} as LinkToken);
-		} else {
+		} else if (tokens.at(-1)?.kind === "TEXT") {
+			const prev = tokens.at(-1) as TextToken;
+			prev.content += part;
+			prev.range = [prev.range[0], next - 1];
+		} else if (part !== " ") {
 			tokens.push({
 				kind: "TEXT",
 				range: [cursor + 1, next - 1],
@@ -104,7 +109,7 @@ export function tokenize(opt: TokenizeOptions) {
 		}
 
 		cursor = next;
-		if (!maybeEmote && !!part) lastEmoteToken = undefined;
+		if (!maybeEmote && !!part && part !== " ") lastEmoteToken = undefined;
 	}
 
 	tokens.sort((a, b) => a.range[0] - b.range[0]);
