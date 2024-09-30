@@ -8,6 +8,13 @@
 			/>
 		</div>
 
+		<div class="seventv-user-card-mod-side seventv-user-card-mod-warn">
+			<WarningIcon
+				v-tooltip="t('user_card.warn_button')"
+				@click="tools.openViewerWarnPopover(target.id, target.username, 0)"
+			/>
+		</div>
+
 		<div v-show="!ban" class="seventv-user-card-mod-timeout-options">
 			<button
 				v-for="opt of timeoutOptions"
@@ -38,9 +45,11 @@ import { useI18n } from "vue-i18n";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
+import { useChatTools } from "@/composable/chat/useChatTools";
 import { TwTypeChatBanStatus } from "@/assets/gql/tw.gql";
 import GavelIcon from "@/assets/svg/icons/GavelIcon.vue";
 import ShieldIcon from "@/assets/svg/icons/ShieldIcon.vue";
+import WarningIcon from "@/assets/svg/icons/WarningIcon.vue";
 
 const props = defineProps<{
 	target: ChatUser;
@@ -59,6 +68,7 @@ const { t } = useI18n();
 
 const ctx = useChannelContext();
 const mod = useChatModeration(ctx, props.target.username);
+const tools = useChatTools(ctx);
 
 async function banUser(duration: string): Promise<void> {
 	const resp = await mod.banUserFromChat(duration).catch(() => void 0);
@@ -87,9 +97,9 @@ const timeoutOptions = ["1s", "30s", "1m", "10m", "30m", "1h", "4h", "12h", "1d"
 <style scoped lang="scss">
 .seventv-user-card-mod {
 	display: grid;
-	grid-template-columns: 3em 1fr 3em;
+	grid-template-columns: 3em 3em 1fr 3em;
 	grid-template-rows: 1fr;
-	grid-template-areas: ". . .";
+	grid-template-areas: ". . . .";
 	height: 3rem;
 	align-items: center;
 	border-top: 0.1rem solid hsla(0deg, 0%, 100%, 10%);
@@ -126,6 +136,10 @@ const timeoutOptions = ["1s", "30s", "1m", "10m", "30m", "1h", "4h", "12h", "1d"
 	.seventv-user-card-mod-moderator[is-mod="0"]:hover,
 	.seventv-user-card-mod-ban[is-banned="1"]:hover {
 		color: var(--seventv-accent);
+	}
+
+	.seventv-user-card-mod-warn:hover {
+		color: #fd0;
 	}
 }
 </style>

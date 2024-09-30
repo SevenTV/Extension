@@ -7,6 +7,7 @@
 -   Added option to highlight messages of specific usernames
 -   Added option to highlight messages based on badges
 -   Added button to user card to toggle highlighting for a users messages
+-   Added mod icon for warning users to chat mod icons and user card
 
 ### 3.1.1.3000
 
