@@ -10,6 +10,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public body = "";
 	public author: ChatUser | null = null;
 	public channelID = "";
+	public sourceData: Twitch.SharedChat | undefined;
 	private component?: C | null = null;
 	public componentProps?: InstanceType<C>["$props"] | null = null;
 	public highlight: Highlight | null = null;
@@ -94,6 +95,10 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 
 	public setID(id: string): void {
 		this.id = id;
+	}
+
+	public setSourceData(sourceData: Twitch.SharedChat | undefined): void {
+		this.sourceData = sourceData;
 	}
 
 	public setHighlight(color: string, label: string): void {

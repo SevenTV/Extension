@@ -1,10 +1,14 @@
-### 3.1.1 4000
+### 3.1.2.1000
 
+-   Implement support for the new Kick site
+-   Added option to settings to hide Stories from the sidebar
+-   Fixed settings to hide recommended channels and viewers also watch channels
+-   Fixed an issue where history navigation is accidentally triggered during IME composition
 -   Added option to highlight messages of specific usernames
 -   Added option to highlight messages based on badges
 -   Added button to user card to toggle highlighting for a users messages
 
-### 3.1.1 3000
+### 3.1.1.3000
 
 -   Added support for animated FFZ emotes
 -   Added option to hide whispers

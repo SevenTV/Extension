@@ -9,6 +9,7 @@
 				<span class="reward-name bold">
 					{{ msgData.reward.name }}
 				</span>
+				<template v-if="msgData.sourceData"> in {{ msgData.sourceData.displayName }}'s channel </template>
 			</div>
 			<span class="reward-cost bold">
 				<TwChannelPoints />

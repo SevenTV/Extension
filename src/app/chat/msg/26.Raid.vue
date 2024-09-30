@@ -1,7 +1,9 @@
 <template>
 	<span class="seventv-raid-message-container seventv-highlight">
 		<span class="bold">{{ msgData.params.displayName }}</span>
-		raided with a viewer count of
+		raided
+		<template v-if="msgData.sourceData"> {{ msgData.sourceData.displayName }}'s channel </template>
+		with a viewer count of
 		<span class="bold"> {{ msgData.params.viewerCount }}</span>
 		<span>.</span>
 	</span>

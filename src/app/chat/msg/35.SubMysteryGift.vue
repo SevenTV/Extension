@@ -11,7 +11,10 @@
 				is gifting {{ msgData.massGiftCount }} Tier {{ msgData.plan.charAt(0) }} Sub{{
 					msgData.massGiftCount > 1 ? "s" : ""
 				}}
-				to {{ msgData.channel }}'s community.
+				<template v-if="msgData.sourceData">
+					<span>to {{ msgData.sourceData.displayName }}'s community</span>
+				</template>
+				<span>.</span>
 				<template v-if="msgData.senderCount == msgData.massGiftCount">
 					It's their first Gift Sub in the channel!
 				</template>

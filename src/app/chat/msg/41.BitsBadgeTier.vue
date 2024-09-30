@@ -9,7 +9,11 @@
 					{{ msgData.user.displayName }}
 				</span>
 				just earned a new
-				<span class="bold">{{ msgData.threshold }} Bits badge!</span>
+				<span class="bold">{{ msgData.threshold }} Bits badge</span>
+				<template v-if="msgData.sourceData">
+					<span> in {{ msgData.sourceData.displayName }}'s channel</span>
+				</template>
+				<span>!</span>
 			</div>
 		</div>
 		<div v-if="msg.body" class="bits-badge-message">

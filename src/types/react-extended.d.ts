@@ -14,12 +14,12 @@ declare namespace ReactExtended {
 
 	type Writeable<T> = { -readonly [P in keyof T]: Writeable<T[P]> };
 
-	interface ReactVNode {
+	interface ReactVNode<P = {} | null> {
 		alternate: ReactVNode | null;
 		child: ReactVNode | null;
 		childExpirationTime: number | null;
 		effectTag: number | null;
-		elementType: React.ElementType | null;
+		elementType: React.ElementType<P> | null;
 		expirationTime: number | null;
 		index: number | null;
 		key: Key | null;
@@ -28,7 +28,14 @@ declare namespace ReactExtended {
 		sibling: ReactVNode | null;
 		stateNode: React.ReactInstance | null;
 		tag: number | null;
-		type: React.ElementType | null;
+		type: React.ElementType<P> | null;
+		pendingProps: P;
+		memoizedProps: P;
+	}
+
+	interface ReactFunctionalFiber<P = {}> extends ReactVNode<P> {
+		elementType: { render: (props: P) => ReactExtended.ReactVNode };
+		pendingProps: P;
 	}
 
 	interface ReactRuntimeElement extends React.ReactElement {

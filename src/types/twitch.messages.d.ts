@@ -2,6 +2,9 @@ declare namespace Twitch {
 	export interface AnyMessage {
 		id: string;
 		type: number;
+		sourceRoomID?: string;
+		sourceData?: SharedChat;
+		sharedChat?: SharedChatMessage;
 		user?: ChatUser | null;
 		message?: ChatMessage;
 		badges?: Record<string, string>;
@@ -14,6 +17,12 @@ declare namespace Twitch {
 		sendState?: "sending" | "sent" | "failed";
 		channelID?: string;
 		notifySent?: () => void;
+	}
+
+	export interface SharedChatMessage extends AnyMessage {
+		sourceBadges: Record<string, string>;
+		sourceID: string;
+		sourceRoomID: string;
 	}
 
 	export interface DisplayableMessage extends AnyMessage {
