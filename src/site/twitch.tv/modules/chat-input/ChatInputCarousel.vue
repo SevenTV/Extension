@@ -32,10 +32,10 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import { useEventListener } from "@vueuse/core";
+import { TabToken } from "@/common/Input";
 import { HookedInstance } from "@/common/ReactHooks";
 import { useConfig } from "@/composable/useSettings";
 import CaretIcon from "@/assets/svg/icons/CaretIcon.vue";
-import { TabToken } from "./ChatInput.vue";
 import Emote from "@/app/chat/Emote.vue";
 import UiFloating from "@/ui/UiFloating.vue";
 
