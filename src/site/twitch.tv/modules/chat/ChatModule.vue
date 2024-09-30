@@ -332,7 +332,7 @@ export const config = [
 		path: ["Chat", "Style"],
 		label: "Colored Mentions",
 		hint: "Show the color of users mentioned in chat",
-		defaultValue: true,
+		defaultValue: false,
 	}),
 	declareConfig<number>("chat.deleted_messages", "DROPDOWN", {
 		path: ["Chat", "Style"],
@@ -511,6 +511,13 @@ export const config = [
 		hint: "Hide the bits balance from the community points button under the chatbox",
 		path: ["Chat", "Style"],
 		defaultValue: false,
+	}),
+	declareConfig<boolean>("vanity.paints_drop_shadows", "TOGGLE", {
+		path: ["Appearance", "Vanity"],
+		label: "Drop shadows on paints",
+		hint: "Wheather or not to display drop shadows on paints (Requires a refresh)",
+		disabledIf: () => !useConfig("vanity.nametag_paints").value,
+		defaultValue: true,
 	}),
 ];
 </script>

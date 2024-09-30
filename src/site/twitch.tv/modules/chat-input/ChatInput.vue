@@ -17,6 +17,7 @@ import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
 import { imageHostToSrcset } from "@/common/Image";
+import { TabToken, getSearchRange } from "@/common/Input";
 import { HookedInstance } from "@/common/ReactHooks";
 import {
 	defineFunctionHook,
@@ -33,12 +34,6 @@ import { getModule } from "@/composable/useModule";
 import { useConfig } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import ChatInputCarousel from "./ChatInputCarousel.vue";
-
-export interface TabToken {
-	token: string;
-	priority: number;
-	item?: SevenTV.ActiveEmote;
-}
 
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
@@ -195,19 +190,7 @@ function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 		const searchText = currentNode.text;
 		const searchStart = cursorLocation.offset;
 
-		for (let i = searchStart; ; i--) {
-			if (i < 1 || (searchText.charAt(i - 1) === " " && i !== searchStart)) {
-				wordStart = i;
-				break;
-			}
-		}
-
-		for (let i = searchStart + 1; ; i++) {
-			if (i > searchText.length || searchText.charAt(i - 1) === " ") {
-				wordEnd = i - 1;
-				break;
-			}
-		}
+		[wordStart, wordEnd] = getSearchRange(searchText, searchStart);
 
 		if (cursorLocation.offset != wordStart) {
 			currentWord = searchText.substring(wordStart, wordEnd);
@@ -402,6 +385,8 @@ function resetState() {
 }
 
 function onKeyDown(ev: KeyboardEvent) {
+	if (ev.isComposing) return;
+
 	switch (ev.key) {
 		case "Tab":
 			handleTabPress(ev, isShift.value);

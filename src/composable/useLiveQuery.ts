@@ -9,11 +9,6 @@ export function useLiveQuery<T>(
 ) {
 	const value = ref<T>();
 
-	if (opt.reactives) {
-		opt.reactives.forEach((r) => watch(r, async () => handleResult(await queryFn()), { deep: true }));
-		watch(queryFn, async () => handleResult(await queryFn()));
-	}
-
 	const handleResult = (result: T | undefined) => {
 		if (!result) return;
 		if (typeof opt.count === "number" && opt.count-- <= 0) {
@@ -24,18 +19,30 @@ export function useLiveQuery<T>(
 		onResult?.(result);
 	};
 
-	const observable = liveQuery(queryFn);
-	const sub = observable.subscribe({
+	let observable = liveQuery(queryFn);
+	let sub = observable.subscribe({
 		next(x) {
 			handleResult(x);
 		},
 	});
 
-	tryOnUnmounted(() => sub.unsubscribe());
+	const reset = () => {
+		sub.unsubscribe();
+		observable = liveQuery(queryFn);
+		sub = observable.subscribe({
+			next(x) {
+				handleResult(x);
+			},
+		});
+	};
 
-	if (opt.until) {
-		opt.until.then(() => sub.unsubscribe());
+	if (opt.reactives) {
+		watch(opt.reactives, reset);
 	}
+
+	tryOnUnmounted(sub.unsubscribe);
+
+	opt.until?.then(sub.unsubscribe);
 
 	return value;
 }
