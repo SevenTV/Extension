@@ -67,6 +67,7 @@ function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuf
 	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props;
 	const userID = props.sender.id.toString();
 	const username = props.sender.username;
+	const usernameEl = el.querySelector<HTMLSpanElement>("div.inline-flex > button[title]")!;
 	const textElements = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
 	const bind: ChatMessageBinding = {
@@ -74,7 +75,7 @@ function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuf
 		authorID: userID,
 		authorName: username,
 		texts: Array.from(textElements),
-		usernameEl: el.querySelector<HTMLSpanElement>("div.inline-flex > button[title]")!,
+		usernameEl: usernameEl,
 		el,
 	};
 
