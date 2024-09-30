@@ -30,10 +30,22 @@
 			</template>
 		</Teleport>
 	</template>
+
+	<Teleport :to="badgeContainer">
+		<span v-if="cosmetics.badges.size" class="seventv-badge-list">
+			<Badge
+				v-for="[id, badge] of cosmetics.badges"
+				:key="id"
+				:badge="badge"
+				type="app"
+				:alt="badge.data.tooltip"
+			/>
+		</span>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, watchEffect } from "vue";
+import { nextTick, onMounted, reactive, watch, watchEffect } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
@@ -43,6 +55,7 @@ import { IsEmoteToken, IsLinkToken } from "@/common/type-predicates/MessageToken
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
+import Badge from "@/app/chat/Badge.vue";
 import Emote from "@/app/chat/Emote.vue";
 import { updateElementStyles } from "@/directive/TextPaintDirective";
 
@@ -68,7 +81,7 @@ const emit = defineEmits<{
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
-let cosmetics;
+const cosmetics = useCosmetics(props.bind.authorID);
 const regex = /\[emote:\d+:[^\]]+\]|https?:\/\/[^\s]+/g;
 
 const badgeContainer = document.createElement("seventv-container");
@@ -133,10 +146,12 @@ function getKickEmoteUrl(token: string): string {
 
 // Process kick's text entries into a containerized token
 function process(): void {
-	cosmetics = useCosmetics(props.bind.authorID);
+	props.bind.usernameEl.insertAdjacentElement("beforebegin", badgeContainer);
+
 	if (cosmetics.paints.size) {
 		updateElementStyles(props.bind.usernameEl, Array.from(cosmetics.paints.values())[0].id);
 	}
+
 	containers.value.length = 0;
 	for (const el of props.bind.texts) {
 		//const message = props?.children?.props?.content ?? "";
@@ -182,7 +197,7 @@ function process(): void {
 	nextTick(() => emit("render"));
 }
 
-//watch(cosmetics, process);
+watch(cosmetics, process);
 watchEffect(process);
 
 onMounted(process);

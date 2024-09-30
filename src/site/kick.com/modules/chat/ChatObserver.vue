@@ -75,13 +75,14 @@ function patchMessageElement(el: HTMLDivElement, noBuffer?: boolean): void {
 	const userID = props.sender.id.toString();
 	const username = props.sender.username;
 	const texts = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
+	const usernameEl = el.querySelector<HTMLSpanElement>("div > button[title]")!;
 
 	const bind: ChatMessageBinding = {
 		id: entryID,
 		authorID: userID,
 		authorName: username,
 		texts: Array.from(texts),
-		usernameEl: el.querySelector<HTMLSpanElement>("div.inline-flex > button")!,
+		usernameEl: usernameEl,
 		el,
 	};
 
