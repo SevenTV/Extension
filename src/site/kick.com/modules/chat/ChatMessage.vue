@@ -2,17 +2,8 @@
 	<template v-for="(box, index) of containers" :key="index">
 		<Teleport :to="box">
 			<template v-for="(token, i) of tokens.get(box)" :key="i">
-				<span v-if="typeof token === 'string'" class="seventv-text-token">
-					<template v-for="(part, j) in splitToken(token)" :key="j">
-						<span v-if="IsKickEmote(part)">
-							<span class="kick-emote-token">
-								<img :src="getKickEmoteUrl(part)" :alt="part" />
-							</span>
-						</span>
-						<span v-else>
-							{{ part }}
-						</span>
-					</template>
+				<span v-if="IsTextToken(token)" class="seventv-text-token">
+					{{ token.content }}
 				</span>
 				<span v-else-if="IsLinkToken(token)">
 					<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
@@ -37,16 +28,15 @@ import { nextTick, onMounted, reactive, watchEffect } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
+import { getReactProps } from "@/common/ReactHooks";
 import { tokenize } from "@/common/Tokenize";
 import { AnyToken } from "@/common/chat/ChatMessage";
-import { IsEmoteToken, IsLinkToken } from "@/common/type-predicates/MessageTokens";
+import { IsEmoteToken, IsLinkToken, IsTextToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
 import Emote from "@/app/chat/Emote.vue";
 import { updateElementStyles } from "@/directive/TextPaintDirective";
-
-type MessageTokenOrText = AnyToken | string;
 
 export interface ChatMessageBinding {
 	id: string;
@@ -69,66 +59,19 @@ const emit = defineEmits<{
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 let cosmetics;
-const regex = /\[emote:\d+:[^\]]+\]|https?:\/\/[^\s]+/g;
-
 const badgeContainer = document.createElement("seventv-container");
 
 const containers = ref<HTMLElement[]>([]);
-const tokens = reactive<WeakMap<HTMLElement, MessageTokenOrText[]>>(new WeakMap());
+const tokens = reactive<WeakMap<HTMLElement, AnyToken[]>>(new WeakMap());
 
 // Listen for click events
 useEventListener(props.bind.usernameEl.parentElement, "click", () => {
 	emit("open-card", props.bind);
 });
 
-function splitToken(token: string): string[] {
-	const parts: string[] = [];
-	let lastIndex = 0;
-	let match;
-	while ((match = regex.exec(token)) !== null) {
-		if (lastIndex < match.index) {
-			parts.push(token.substring(lastIndex, match.index));
-		}
-		parts.push(match[0]);
-		lastIndex = match.index + match[0].length;
-	}
-	if (lastIndex < token.length) {
-		parts.push(token.substring(lastIndex));
-	}
-	return parts;
-}
-
-function extractTextWithKickEmotes(el: HTMLElement): string {
-	let result = "";
-	el.childNodes.forEach((node) => {
-		if (node.nodeType === Node.TEXT_NODE) {
-			result += node.textContent || "";
-		} else if (node instanceof HTMLElement) {
-			if (node.tagName === "A") {
-				result += node.innerText || "";
-			} else if (node.hasAttribute("data-emote-id") && node.hasAttribute("data-emote-name")) {
-				const emoteId = node.getAttribute("data-emote-id");
-				const emoteName = node.getAttribute("data-emote-name");
-				result += `[emote:${emoteId}:${emoteName}]`;
-			} else {
-				result += extractTextWithKickEmotes(node);
-			}
-		}
-	});
-	return result;
-}
-
-function IsKickEmote(token: string): boolean {
-	return token.startsWith("[emote:") && token.endsWith("]");
-}
-
-function getKickEmoteUrl(token: string): string {
-	const match = token.match(/\[emote:(\d+):([^\]]+)\]/);
-	if (match) {
-		const emoteId = match[1];
-		return `https://files.kick.com/emotes/${emoteId}/fullsize`;
-	}
-	return "";
+function textElToMessage(el: HTMLElement) {
+	const props = getReactProps<{ children: { props: { content: string } } }>(el);
+	return props?.children.props.content;
 }
 
 // Process kick's text entries into a containerized token
@@ -139,36 +82,16 @@ function process(): void {
 	}
 	containers.value.length = 0;
 	for (const el of props.bind.texts) {
-		//const message = props?.children?.props?.content ?? "";
-		const text = extractTextWithKickEmotes(el as HTMLElement);
+		const message = textElToMessage(el);
+		if (!message) continue;
+
 		const newTokens = tokenize({
-			body: text,
+			body: message,
 			chatterMap: {},
 			emoteMap: emotes.active,
 			localEmoteMap: { ...cosmetics.emotes },
+			isKick: true,
 		});
-
-		const result = [] as MessageTokenOrText[];
-
-		let lastOffset = 0;
-		for (const tok of newTokens) {
-			const start = tok.range[0];
-			const end = tok.range[1];
-
-			const before = text.substring(lastOffset, start);
-			if (before) {
-				result.push(before);
-			}
-
-			result.push(tok);
-
-			lastOffset = end + 1;
-		}
-
-		const after = text.substring(lastOffset);
-		if (after) {
-			result.push(after);
-		}
 
 		const tokenEl = document.createElement("seventv-container");
 		tokenEl.classList.add("seventv-text-token");
@@ -176,7 +99,7 @@ function process(): void {
 		el.style.display = "none";
 
 		containers.value.push(tokenEl);
-		tokens.set(tokenEl, result);
+		tokens.set(tokenEl, newTokens);
 	}
 
 	nextTick(() => emit("render"));

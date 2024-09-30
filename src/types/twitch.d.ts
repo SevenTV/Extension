@@ -437,6 +437,10 @@ declare module Twitch {
 		determineGroup: (command: ChatCommand) => string;
 	};
 
+	export type ChatCommunityPointsButtonComponent = ReactExtended.WritableComponent<{}> & {
+		shouldShowBitsBalance: () => boolean;
+	};
+
 	export type ChatChannelPointsClaimComponent = ReactExtended.WritableComponent<{
 		hidden: boolean;
 	}> & {
@@ -476,6 +480,7 @@ declare module Twitch {
 		sendMessageHandler?: ChatTray.SendMessageHandler<H>;
 		messageHandler?: (v: string) => void;
 		placeholder?: string;
+		floating?: boolean;
 	}
 
 	export namespace ChatTray {

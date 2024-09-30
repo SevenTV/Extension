@@ -34,8 +34,9 @@ document.body.setAttribute("seventv-kick", "true");
 
 const cookies = useCookies();
 const auth = cookies.get("XSRF-TOKEN");
+const sessionToken = cookies.get("session_token");
 
-const user = auth ? await useUserdata(auth) : null;
+const user = auth ? await useUserdata(auth, sessionToken) : null;
 
 if (user) {
 	const updateIdentity = (data: typeof user) => {
@@ -57,6 +58,8 @@ if (user) {
 
 		actor.setPlatformUserID("KICK", data.id.toString());
 	};
+
+	//TODO: subscribe for allowing new login
 
 	updateIdentity(user);
 }
