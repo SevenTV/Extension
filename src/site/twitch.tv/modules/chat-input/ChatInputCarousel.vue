@@ -73,6 +73,7 @@ useEventListener(
 	"keydown",
 	(ev) => {
 		if (!shouldListenToArrowPresses.value) return;
+		if (ev.isComposing) return;
 
 		if (ev.key === "ArrowLeft") {
 			emit("back", ev);

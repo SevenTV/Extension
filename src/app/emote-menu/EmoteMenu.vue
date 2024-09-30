@@ -138,6 +138,7 @@ onKeyStroke("e", (ev) => {
 
 // Up/Down Arrow iterates providers
 useEventListener("keydown", (ev) => {
+	if (ev.isComposing) return;
 	if (!["ArrowUp", "ArrowDown"].includes(ev.key)) return;
 
 	const cur = Object.keys(visibleProviders).indexOf(activeProvider.value ?? "7TV");
