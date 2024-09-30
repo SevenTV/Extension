@@ -44,7 +44,7 @@ watch(
 		for (const emoteSet of emoteSets) {
 			emotes.providers.PLATFORM ??= {};
 
-			if ("user" in emoteSet) continue;
+			if ("user" in emoteSet && emoteSet.user_id.toString() == ctx.id) continue;
 			emotes.providers.PLATFORM[emoteSet.id] = convertKickEmoteSet(emoteSet);
 		}
 	},

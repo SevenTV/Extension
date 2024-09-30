@@ -131,13 +131,14 @@ export function convertKickEmote(data: Kick.KickEmote, owner?: Kick.KickUserEmot
 			  }
 			: null,
 		host: {
-			url: "//files.kick.com/emotes/" + data.id,
+			url: "//files.kick.com/emotes/" + data.id.toString(),
 			files: [
 				{
 					name: "fullsize",
 					format: "PNG",
 				},
 			],
+			srcset: `https://files.kick.com/emotes/${data.id}/fullsize 2.2x`,
 		},
 	};
 }
@@ -420,9 +421,14 @@ export function convertExternalKickEmote(id: string, name: string): SevenTV.Emot
 		listed: true,
 		owner: null,
 		host: {
-			url: "",
-			files: [],
-			srcset: `https://files.kick.com/emotes/${id}/fullsize 1x`,
+			url: "//files.kick.com/emotes/" + id,
+			files: [
+				{
+					name: "fullsize",
+					format: "PNG",
+				},
+			],
+			srcset: `https://files.kick.com/emotes/${id}/fullsize 2.2x`,
 		},
 	};
 }

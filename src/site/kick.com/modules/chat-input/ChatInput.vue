@@ -8,7 +8,7 @@
 			<div ref="colonList" class="seventv-autocomplete-list">
 				<div
 					v-for="(match, i) in colon.matches"
-					:key="i"
+					:key="match.token"
 					class="seventv-autocomplete-item"
 					:selected="i === colon.select"
 					@click="insertAtAnchor(match.token)"

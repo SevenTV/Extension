@@ -1,18 +1,15 @@
 <template>
 	<template v-if="shallowList">
 		<ChatObserver :list-element="shallowList" />
-		<ChatAutocomplete ref="autocomplete" />
 	</template>
 
 	<ChatData />
 </template>
 
 <script setup lang="ts">
-import { ref, toRaw, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { ObserverPromise } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { useWorker } from "@/composable/useWorker";
-import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatObserver from "./ChatObserver.vue";
 import ChatData from "@/app/chat/ChatData.vue";
 
@@ -21,24 +18,11 @@ const props = defineProps<{
 	slug: string;
 }>();
 
-defineExpose({
-	onMessageSend,
-});
-
-function onMessageSend() {
-	sendWorkerMessage("CHANNEL_ACTIVE_CHATTER", {
-		channel: toRaw(ctx),
-	});
-}
-
 const ctx = useChannelContext(props.channelId, true);
-const { sendMessage: sendWorkerMessage } = useWorker();
 
 // The list
 const chatList = ref<HTMLDivElement | null>(null);
 const shallowList = ref<HTMLDivElement | null>(null);
-
-const autocomplete = ref<InstanceType<typeof ChatAutocomplete> | null>(null);
 
 let observer: ObserverPromise<HTMLDivElement> | null = null;
 

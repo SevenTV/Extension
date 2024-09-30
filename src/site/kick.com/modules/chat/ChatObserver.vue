@@ -82,41 +82,6 @@ function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuf
 
 	messageBuffer.value.push(bind);
 	messageMap.set(el, bind);
-
-	// const entryID = props.messageId;
-	// const userID = props.sender.id.toString();
-	// const username = props.sender.username;
-	// const texts = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
-
-	// const entryID = el.getAttribute("data-index")!;
-
-	// // const identity = el.querySelector<HTMLSpanElement>(".chat-message-identity");
-	// // if (!identity) return; // missing identity
-
-	// const entryUser = el.firstElementChild.firstElementChild.querySelector<HTMLSpanElement>("div.inline-flex > button");
-	// if (!entryUser) return; // missing username
-
-	// const userID = entryUser.getAttribute("title");
-	// const username = entryUser.getAttribute("title");
-	// if (!userID || !username) return; // missing user ID or username
-
-	// // find all untokenized content
-	// const texts = el.firstElementChild.firstElementChild.querySelectorAll<HTMLSpanElement>("span.font-normal");
-
-	// const bind: ChatMessageBinding = {
-	// 	id: entryID,
-	// 	authorID: userID,
-	// 	authorName: username,
-	// 	texts: Array.from(texts),
-	// 	usernameEl: entryUser,
-	// 	el,
-	// };
-
-	// if (!noBuffer) el.classList.add("seventv-chat-message-buffered");
-
-	// messageBuffer.value.push(bind);
-	// messageMap.set(el, bind);
-	// console.log(bind);
 }
 
 async function onOpenUserCard(bind: ChatMessageBinding) {
