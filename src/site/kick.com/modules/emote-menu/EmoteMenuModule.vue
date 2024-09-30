@@ -10,6 +10,7 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { declareModule, getModuleRef } from "@/composable/useModule";
 import EmoteMenu from "./EmoteMenu.vue";
+import { declareConfig } from "@/composable/useSettings";
 
 const { markAsReady } = declareModule("emote-menu", {
 	name: "Emote Menu",
@@ -51,4 +52,14 @@ watch(
 );
 
 markAsReady();
+</script>
+
+<script lang="ts">
+export const config = [
+	declareConfig<Set<string>>("ui.emote_menu.favorites", "NONE", {
+		path: ["", ""],
+		label: "",
+		defaultValue: new Set(),
+	}),
+];
 </script>
