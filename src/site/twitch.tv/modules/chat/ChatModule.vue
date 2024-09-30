@@ -7,6 +7,7 @@
 			:room="chatRoom.instances[0] ?? undefined"
 			:buffer="chatBuffer.instances[0] ?? undefined"
 			:events="chatEvents.instances[0] ?? undefined"
+			:presentation="chatListPresentation.instances[0] ?? undefined"
 		/>
 	</template>
 </template>
@@ -93,6 +94,11 @@ useComponentHook<Twitch.ChatCommunityPointsButtonComponent>(
 		},
 	},
 );
+
+const chatListPresentation = useComponentHook<Twitch.ChatListPresentationComponent>({
+	parentSelector: ".stream-chat",
+	predicate: (n) => n.props && n.props.sharedChatDataByChannelID,
+});
 
 const isHookable = ref(false);
 const isHookableDbc = refDebounced(isHookable, 200);

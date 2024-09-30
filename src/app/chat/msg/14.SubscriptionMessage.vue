@@ -11,7 +11,9 @@
 				</span>
 				<span class="bold">Subscribed</span>
 				with
-				{{ plan }}.
+				{{ plan }}
+				<template v-if="msgData.sourceData"> to {{ msgData.sourceData.displayName }} </template>
+				<span>.</span>
 			</div>
 		</div>
 
