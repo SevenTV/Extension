@@ -130,9 +130,10 @@ function onKeyDown(ev: KeyboardEvent) {
 				ev.preventDefault();
 
 				if (colon.active) {
+					ev.stopPropagation();
 					insertAtAnchor(colon.matches[colon.select].token);
 					colon.active = false;
-				} else {
+				} else if (ev.key === "Tab") {
 					handleTab(node, selection, isShiftPressed.value);
 				}
 				break;
@@ -377,11 +378,6 @@ watch(
 			const removeCommand = editor.registerCommand(
 				KEY_ENTER_COMMAND,
 				() => {
-					// If we're currently within colons we prevent the text to be sent.
-					if (colon.active) {
-						return true;
-					}
-
 					onSendMessage();
 					return false;
 				},
