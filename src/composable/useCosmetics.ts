@@ -24,7 +24,7 @@ const data = reactive({
 
 	staticallyAssigned: {} as Record<string, Record<string, never> | undefined>,
 });
-const dropShadowRender = useConfig("vanity.paints_drop_shadows");
+const dropShadowRender = useConfig<0 | 1 | 2>("vanity.paints_drop_shadows");
 
 watch(dropShadowRender, () =>
 	Object.values(data.cosmetics)
@@ -394,11 +394,14 @@ export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = fals
 
 	const gradients = paint.data.gradients.map((g) => createGradientFromPaint(g));
 	const filter = (() => {
-		if (!paint.data.shadows || dropShadowRender.value === false) {
+		if (!paint.data.shadows || dropShadowRender.value == 0) {
 			return "";
 		}
 
-		return paint.data.shadows.map((v) => createFilterDropshadow(v)).join(" ");
+		return paint.data.shadows
+			.slice(0, dropShadowRender.value == 2 ? 1 : undefined)
+			.map((v) => createFilterDropshadow(v))
+			.join(" ");
 	})();
 
 	const selector = `.seventv-paint[data-seventv-paint-id="${paint.id}"]`;

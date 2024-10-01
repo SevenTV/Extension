@@ -22,7 +22,15 @@
 				type="twitch"
 				@click="handleClick($event)"
 			/>
-			<Badge v-for="badge of activeBadges" :key="badge.id" :badge="badge" :alt="badge.data.tooltip" type="app" />
+			<template v-if="shouldRender7tvBadges">
+				<Badge
+					v-for="badge of activeBadges"
+					:key="badge.id"
+					:badge="badge"
+					:alt="badge.data.tooltip"
+					type="app"
+				/>
+			</template>
 		</span>
 
 		<!-- Message Author -->
@@ -31,7 +39,7 @@
 			class="seventv-chat-user-username"
 			@click="handleClick($event)"
 		>
-			<span v-cosmetic-paint="paint ? paint.id : null">
+			<span v-cosmetic-paint="shouldRenderPaint && paint ? paint.id : null">
 				<span v-if="asMention">@</span>
 				<span>{{ user.displayName }}</span>
 				<span v-if="user.intl"> ({{ user.username }})</span>
@@ -146,8 +154,8 @@ const stop = watch(
 			return;
 		}
 
-		paint.value = shouldRenderPaint.value && paints && paints.size ? paints.values().next().value : null;
-		activeBadges.value = shouldRender7tvBadges.value && badges && badges.size ? [...badges.values()] : [];
+		paint.value = paints && paints.size ? paints.values().next().value : null;
+		activeBadges.value = badges && badges.size ? [...badges.values()] : [];
 	},
 	{ immediate: true },
 );

@@ -66,11 +66,16 @@ export const globalSettings = [
 		hint: "Whether or not to display 7TV Badges",
 		defaultValue: true,
 	}),
-	declareConfig<boolean>("vanity.paints_drop_shadows", "TOGGLE", {
+	declareConfig<number>("vanity.paints_drop_shadows", "DROPDOWN", {
 		path: ["Appearance", "Vanity"],
 		label: "Drop shadows on paints",
+		options: [
+			["None", 0],
+			["One", 2],
+			["All", 1],
+		],
 		hint: "Wheather or not to display drop shadows on paints (Requires a refresh)",
 		disabledIf: () => !useConfig("vanity.nametag_paints").value,
-		defaultValue: true,
+		defaultValue: 1,
 	}),
 ];
