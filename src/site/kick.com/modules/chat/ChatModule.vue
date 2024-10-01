@@ -10,7 +10,6 @@ import { Logger } from "@/common/Logger";
 import { useStaticRenderFunctionHook } from "@/common/ReactHooks";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { declareModule } from "@/composable/useModule";
-import { declareConfig } from "@/composable/useSettings";
 import ChatController from "./ChatController.vue";
 
 const { markAsReady } = declareModule<"KICK">("chat", {
