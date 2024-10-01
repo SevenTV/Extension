@@ -1,7 +1,10 @@
 ### 3.1.2.1000
 
--   Implement support for the new Kick site
-
+-   **Implement support for the new Kick site:**
+    -   Chat emotes
+    -   Emote menu
+    -   Emote auto-completion
+    -   Cosmetics
 -   Added option to settings to hide Stories from the sidebar
 -   Fixed settings to hide recommended channels and viewers also watch channels
 -   Fixed an issue where history navigation is accidentally triggered during IME composition
