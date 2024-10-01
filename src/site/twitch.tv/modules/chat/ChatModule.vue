@@ -494,30 +494,11 @@ export const config = [
 		},
 		defaultValue: 10,
 	}),
-	declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
-		path: ["Appearance", "Vanity"],
-		label: "Nametag Paints",
-		hint: "Whether or not to display nametag paints",
-		defaultValue: true,
-	}),
-	declareConfig<boolean>("vanity.7tv_Badges", "TOGGLE", {
-		path: ["Appearance", "Vanity"],
-		label: "7TV Badges",
-		hint: "Whether or not to display 7TV Badges",
-		defaultValue: true,
-	}),
 	declareConfig("chat.hide_bits_balance", "TOGGLE", {
 		label: "Hide Bits From Community Points Button",
 		hint: "Hide the bits balance from the community points button under the chatbox",
 		path: ["Chat", "Style"],
 		defaultValue: false,
-	}),
-	declareConfig<boolean>("vanity.paints_drop_shadows", "TOGGLE", {
-		path: ["Appearance", "Vanity"],
-		label: "Drop shadows on paints",
-		hint: "Wheather or not to display drop shadows on paints (Requires a refresh)",
-		disabledIf: () => !useConfig("vanity.nametag_paints").value,
-		defaultValue: true,
 	}),
 ];
 </script>

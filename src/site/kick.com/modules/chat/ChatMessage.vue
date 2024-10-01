@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, watch } from "vue";
+import { nextTick, reactive, watch } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";

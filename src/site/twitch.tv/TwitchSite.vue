@@ -8,14 +8,14 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, provide, ref, watch } from "vue";
+import { defineAsyncComponent, onMounted, provide, ref } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
 import { useComponentHook } from "@/common/ReactHooks";
 import { useActor } from "@/composable/useActor";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
-import { synchronizeFrankerFaceZ, useConfig, useSettings } from "@/composable/useSettings";
+import { synchronizeFrankerFaceZ, useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import type { TwModuleID } from "@/types/tw.module";
 
@@ -26,7 +26,6 @@ const actor = useActor();
 const ua = useUserAgent();
 const ffz = useFrankerFaceZ();
 
-const useTransparency = useConfig("ui.transparent_backgrounds");
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
 store.setPlatform("TWITCH", ["7TV", "FFZ", "BTTV"], ffz.active ? ["FFZ"] : []);
@@ -88,16 +87,6 @@ useComponentHook<Twitch.RouterComponent>(
 			},
 		},
 	},
-);
-
-const rootClasses = document.documentElement.classList;
-
-watch(
-	useTransparency,
-	() => {
-		useTransparency.value ? rootClasses.add("seventv-transparent") : rootClasses.remove("seventv-transparent");
-	},
-	{ immediate: true },
 );
 
 const settings = useSettings();

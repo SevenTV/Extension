@@ -31,7 +31,7 @@ export function updateElementStyles(el: PaintedElement, paintID: string | null):
 		};
 	}
 
-	if (hasPaint && (!paintID || el.getAttribute(ATTR_SEVENTV_PAINT_ID) !== paintID)) {
+	if (hasPaint && newPaint) {
 		const backup = el.__seventv_backup_style;
 		el.style.backgroundImage = backup?.backgroundImage ?? "";
 		el.style.filter = backup?.filter ?? "";
