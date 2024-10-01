@@ -1,4 +1,4 @@
-import { Ref, reactive, ref, toRef } from "vue";
+import { Ref, reactive, ref, toRef, watch } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { log } from "@/common/Logger";
@@ -25,6 +25,12 @@ const data = reactive({
 	staticallyAssigned: {} as Record<string, Record<string, never> | undefined>,
 });
 const dropShadowRender = useConfig("vanity.paints_drop_shadows");
+
+watch(dropShadowRender, () =>
+	Object.values(data.cosmetics)
+		.filter((c) => c.kind === "PAINT")
+		.forEach((c) => updatePaintStyle(c as SevenTV.Cosmetic<"PAINT">)),
+);
 
 class CosmeticMap<T extends SevenTV.CosmeticKind> extends Map<string, SevenTV.Cosmetic<T>> {
 	private providers = new Set<SevenTV.Provider>();
@@ -63,16 +69,18 @@ db.ready().then(async () => {
 	useLiveQuery(
 		() => db.cosmetics.toArray(),
 		(result) => {
-			data.cosmetics = {};
+			const temp = {} as typeof data.cosmetics;
 
 			for (const cos of result) {
-				if (data.cosmetics[cos.id]) continue;
-				data.cosmetics[cos.id] = reactive(cos);
+				if (temp[cos.id]) continue;
+				temp[cos.id] = reactive(cos);
 
 				if (cos.kind === "PAINT") {
 					updatePaintStyle(cos as SevenTV.Cosmetic<"PAINT">);
 				}
 			}
+
+			data.cosmetics = temp;
 		},
 	);
 

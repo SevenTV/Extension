@@ -22,7 +22,7 @@
 		</Teleport>
 	</template>
 
-	<Teleport :to="badgeContainer">
+	<Teleport v-if="shouldRenderBadges" :to="badgeContainer">
 		<span v-if="cosmetics.badges.size" class="seventv-badge-list">
 			<Badge
 				v-for="[id, badge] of cosmetics.badges"
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, watch, watchEffect } from "vue";
+import { nextTick, onMounted, reactive, watch } from "vue";
 import { ref } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
@@ -47,6 +47,7 @@ import { IsEmoteToken, IsLinkToken, IsTextToken } from "@/common/type-predicates
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
+import { useConfig } from "@/composable/useSettings";
 import Badge from "@/app/chat/Badge.vue";
 import Emote from "@/app/chat/Emote.vue";
 import { updateElementStyles } from "@/directive/TextPaintDirective";
@@ -77,6 +78,9 @@ const badgeContainer = document.createElement("seventv-container");
 const containers = ref<HTMLElement[]>([]);
 const tokens = reactive<WeakMap<HTMLElement, AnyToken[]>>(new WeakMap());
 
+const shouldRenderPaints = useConfig<boolean>("vanity.nametag_paints");
+const shouldRenderBadges = useConfig<boolean>("vanity.7tv_Badges");
+
 // Listen for click events
 useEventListener(props.bind.usernameEl.parentElement, "click", () => {
 	emit("open-card", props.bind);
@@ -89,12 +93,6 @@ function textElToMessage(el: HTMLElement) {
 
 // Process kick's text entries into a containerized token
 function process(): void {
-	props.bind.usernameEl.insertAdjacentElement("beforebegin", badgeContainer);
-
-	if (cosmetics.paints.size) {
-		updateElementStyles(props.bind.usernameEl, Array.from(cosmetics.paints.values())[0].id);
-	}
-
 	containers.value.length = 0;
 	for (const el of props.bind.texts) {
 		const message = textElToMessage(el);
@@ -120,10 +118,20 @@ function process(): void {
 	nextTick(() => emit("render"));
 }
 
-watch(cosmetics, process);
-watchEffect(process);
+watch(() => props.bind.texts, process, { immediate: true });
+watch(
+	() => props.bind.usernameEl,
+	(el) => {
+		if (!el.contains(badgeContainer)) el.insertAdjacentElement("beforebegin", badgeContainer);
+	},
+	{ immediate: true },
+);
 
-onMounted(process);
+watch(
+	[() => props.bind.usernameEl, cosmetics, shouldRenderPaints],
+	([el, c, s]) => updateElementStyles(el, s && c.paints.size ? Array.from(c.paints.values())[0].id : null),
+	{ immediate: true },
+);
 
 onUnmounted(() => {
 	for (const el of containers.value) {

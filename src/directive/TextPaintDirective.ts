@@ -16,11 +16,26 @@ export const TextPaintDirective = {
 	},
 } as Directive<HTMLElement, string | null>;
 
-export function updateElementStyles(el: HTMLElement, paintID: string | null): void {
-	if (!paintID || (el.hasAttribute(ATTR_SEVENTV_PAINT_ID) && el.getAttribute(ATTR_SEVENTV_PAINT_ID) !== paintID)) {
-		el.style.backgroundImage = "";
-		el.style.filter = "";
-		el.style.color = "";
+type PaintedElement = HTMLElement & {
+	__seventv_backup_style?: { backgroundImage: string; filter: string; color: string };
+};
+export function updateElementStyles(el: PaintedElement, paintID: string | null): void {
+	const hasPaint = el.hasAttribute(ATTR_SEVENTV_PAINT_ID);
+	const newPaint = hasPaint && paintID !== el.getAttribute(ATTR_SEVENTV_PAINT_ID);
+
+	if (!hasPaint) {
+		el.__seventv_backup_style = {
+			backgroundImage: el.style.backgroundImage,
+			filter: el.style.filter,
+			color: el.style.color,
+		};
+	}
+
+	if (hasPaint && (!paintID || el.getAttribute(ATTR_SEVENTV_PAINT_ID) !== paintID)) {
+		const backup = el.__seventv_backup_style;
+		el.style.backgroundImage = backup?.backgroundImage ?? "";
+		el.style.filter = backup?.filter ?? "";
+		el.style.color = backup?.color ?? "";
 
 		el.classList.remove("seventv-painted-content");
 		el.removeAttribute(ATTR_SEVENTV_TEXT);
