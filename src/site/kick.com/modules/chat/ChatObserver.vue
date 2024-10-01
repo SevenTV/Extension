@@ -267,14 +267,6 @@ onUnmounted(() => {
 </style>
 
 <style lang="scss">
-:root.seventv-alternating-chat-lines {
-	.seventv-chat-observer {
-		> div[parity="even"] {
-			background-color: hsla(0deg, 0%, 50%, 6%);
-		}
-	}
-}
-
 .seventv-chat-message-buffered {
 	display: none !important;
 }

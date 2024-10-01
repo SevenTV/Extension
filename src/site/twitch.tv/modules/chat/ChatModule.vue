@@ -137,43 +137,6 @@ const timestampKeyValues: Record<TimestampFormatKey, string> = {
 const timestampFormatOptions = Object.entries(timestampKeyValues).map(([k, v]) => [v, k]);
 
 export const config = [
-	declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
-		path: ["General", ""],
-		label: "Hide Unlisted Emotes",
-		hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
-		defaultValue: false,
-	}),
-	declareConfig<number>("chat.emote_margin", "SLIDER", {
-		path: ["Chat", "Style"],
-		label: "Emote Spacing",
-		hint: "Choose the margin around emotes in chat. Negative values lets them overlap and keep the chatlines inline. 0 Makes the emotes not overlap at all",
-		options: {
-			min: -1,
-			max: 1,
-			step: 0.1,
-			unit: "rem",
-		},
-		defaultValue: -0.5,
-		effect(v) {
-			document.documentElement.style.setProperty("--seventv-emote-margin", `${v}rem`);
-		},
-	}),
-	declareConfig<number>("chat.emote_scale", "SLIDER", {
-		path: ["Chat", "Style"],
-		label: "Emote Scale",
-		ffz_key: "chat.emotes.2x",
-		ffz_transform(v: unknown) {
-			return typeof v === "number" && v > 0 ? 2 : 1;
-		},
-		hint: "Change how large emotes should be in chat, as a multiple of their original size.",
-		options: {
-			min: 0.25,
-			max: 3,
-			step: 0.25,
-			unit: "x",
-		},
-		defaultValue: 1,
-	}),
 	declareConfig("chat.show_emote_modifiers", "TOGGLE", {
 		path: ["Chat", "Style"],
 		label: "Show Emote Modifiers",
@@ -262,23 +225,6 @@ export const config = [
 		label: "Compact tooltips",
 		hint: "Make the tooltips compact instead of showing the full emote",
 		defaultValue: false,
-	}),
-	declareConfig<boolean>("chat.alternating_background", "TOGGLE", {
-		path: ["Chat", "Style"],
-		ffz_key: "chat.lines.alternate",
-		label: "settings.chat_alternating_background.label",
-		hint: "settings.chat_alternating_background.hint",
-		defaultValue: false,
-	}),
-	declareConfig<string>("chat.alternating_background_color", "COLOR", {
-		path: ["Chat", "Style"],
-		label: "Alternating Background Color",
-		hint: "Configure the color of alternating background (~6% opacity)",
-		disabledIf: () => !useConfig("chat.alternating_background").value,
-		effect(v) {
-			document.body.style.setProperty("--seventv-chat-alternate-background-color", `${v}0f`);
-		},
-		defaultValue: "#808080",
 	}),
 	declareConfig<number>("chat.padding", "DROPDOWN", {
 		path: ["Chat", "Style"],
@@ -494,30 +440,11 @@ export const config = [
 		},
 		defaultValue: 10,
 	}),
-	declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
-		path: ["Appearance", "Vanity"],
-		label: "Nametag Paints",
-		hint: "Whether or not to display nametag paints",
-		defaultValue: true,
-	}),
-	declareConfig<boolean>("vanity.7tv_Badges", "TOGGLE", {
-		path: ["Appearance", "Vanity"],
-		label: "7TV Badges",
-		hint: "Whether or not to display 7TV Badges",
-		defaultValue: true,
-	}),
 	declareConfig("chat.hide_bits_balance", "TOGGLE", {
 		label: "Hide Bits From Community Points Button",
 		hint: "Hide the bits balance from the community points button under the chatbox",
 		path: ["Chat", "Style"],
 		defaultValue: false,
-	}),
-	declareConfig<boolean>("vanity.paints_drop_shadows", "TOGGLE", {
-		path: ["Appearance", "Vanity"],
-		label: "Drop shadows on paints",
-		hint: "Wheather or not to display drop shadows on paints (Requires a refresh)",
-		disabledIf: () => !useConfig("vanity.nametag_paints").value,
-		defaultValue: true,
 	}),
 ];
 </script>

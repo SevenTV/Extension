@@ -1,7 +1,11 @@
 ### 3.1.2.1000
 
--   Implement support for the new Kick site
-
+-   **Implement support for the new Kick site:**
+    -   Chat emotes
+    -   Emote menu
+    -   Emote auto-completion
+    -   Cosmetics
+    -   7TV settings
 -   Added option to settings to hide Stories from the sidebar
 -   Fixed settings to hide recommended channels and viewers also watch channels
 -   Fixed an issue where history navigation is accidentally triggered during IME composition
@@ -9,6 +13,7 @@
 -   Added option to highlight messages based on badges
 -   Added button to user card to toggle highlighting for a users messages
 -   Added mod icon for warning users to chat mod icons and user card
+-   Added an option to limit the drop shadows on paints
 
 ### 3.1.1.3000
 

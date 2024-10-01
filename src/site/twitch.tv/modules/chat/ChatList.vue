@@ -1,5 +1,5 @@
 <template>
-	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
+	<main ref="chatListEl" class="seventv-chat-list">
 		<div v-for="msg of displayedMessages" :key="msg.sym" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
 				<component
@@ -68,7 +68,6 @@ const pausedByVisibility = ref(false);
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const showModerationMessages = useConfig<boolean>("chat.mod_messages");
-const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
 const showSelfHighlights = useConfig<boolean>("highlights.basic.self");
@@ -597,11 +596,5 @@ defineExpose({
 	padding: 1rem 0;
 	font-size: var(--seventv-chat-font-size, inherit);
 	line-height: 1.5em;
-}
-
-.seventv-chat-list[alternating-background="true"] {
-	.seventv-message:nth-child(even) {
-		background-color: var(--seventv-chat-alternate-background-color);
-	}
 }
 </style>

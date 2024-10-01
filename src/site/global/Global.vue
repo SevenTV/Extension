@@ -1,6 +1,9 @@
 <template>
 	<Tooltip />
 	<FloatContext />
+	<Transition name="settings-menu" appear>
+		<SettingsMenu v-if="settingsMenuCtx.open" />
+	</Transition>
 </template>
 
 <script setup lang="ts">
@@ -9,24 +12,17 @@ import { useConfig, useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import { useWorker } from "@/composable/useWorker";
 import FloatContext from "./FloatContext.vue";
+import { dataSettings, globalSettings } from "./GlobalSettings";
 import Tooltip from "./Tooltip.vue";
+import { useSettingsMenu } from "@/app/settings/Settings";
+import SettingsMenu from "@/app/settings/SettingsMenu.vue";
+
+const settingsMenuCtx = useSettingsMenu();
 
 const { register } = useSettings();
-register([
-	{
-		key: "app.version",
-		type: "NONE",
-		label: "App Version",
-		defaultValue: void 0 as never,
-	},
-	{
-		key: "app.7tv.token",
-		type: "NONE",
-		label: "7TV Bearer Token",
-		expires: 0,
-		defaultValue: "",
-	},
-]);
+
+register(dataSettings);
+register(globalSettings);
 
 const updater = useUpdater();
 const version = useConfig("app.version");

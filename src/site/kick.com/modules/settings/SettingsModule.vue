@@ -1,6 +1,4 @@
 <template>
-	<SettingsMenu v-if="ctx.open" />
-
 	<template v-if="chatSettingsPopup">
 		<SettingsChatHook :el="chatSettingsPopup" @open-settings="ctx.open = true" />
 	</template>
@@ -12,7 +10,6 @@ import { useEventListener } from "@vueuse/core";
 import { declareModule } from "@/composable/useModule";
 import SettingsChatHook from "./SettingsChatHook.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
-import SettingsMenu from "@/app/settings/SettingsMenu.vue";
 
 declareModule<"KICK">("settings", {
 	name: "Settings",

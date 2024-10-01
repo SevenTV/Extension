@@ -128,7 +128,7 @@ function updateMediaHref(value: string): string {
 		display: grid;
 		row-gap: 0.5rem;
 		list-style: square;
-		margin: 0.25rem 0.5rem;
+		margin: 0.5rem 1rem;
 	}
 
 	:deep(li) {
