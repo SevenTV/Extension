@@ -134,6 +134,16 @@ watchEffect(async () => {
 			}),
 		);
 
+		const { result: emoteArtistResult } = useQuery<userQuery.Result, userQuery.Variables>(
+			userQuery,
+			{
+				id: props.emote.data?.owner?.id ?? "",
+			},
+			() => ({
+				enabled: !!props.emote.data?.owner?.id,
+			}),
+		);
+
 		watch(
 			emoteActorResult,
 			(value) => {
@@ -147,10 +157,24 @@ watchEffect(async () => {
 			{ immediate: true },
 		);
 
+		watch(
+			emoteArtistResult,
+			(value) => {
+				if (!value?.user) return;
+				artist.id = value?.user.id;
+				artist.username = value?.user.username;
+				artist.displayName = value?.user.display_name;
+				artist.avatarURL = value?.user.avatar_url;
+				artist.url = `https://7tv.app/users/${value?.user.id}`;
+			},
+			{ immediate: true },
+		);
+
 		timestamp.value = new Date(props.emote.timestamp ?? 0).toLocaleDateString();
 		emoteLink.value = `//7tv.app/emotes/${props.emote.id}`;
 	} else if (props.emote.provider === "BTTV") emoteLink.value = `//betterttv.com/emotes/${props.emote.id}`;
 	else if (props.emote.provider === "FFZ") emoteLink.value = `//frankerfacez.com/emoticon/${props.emote.id}`;
+	else if (props.emote.provider === "EMOJI") emoteLink.value = "";
 });
 
 watch(

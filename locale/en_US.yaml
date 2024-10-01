@@ -24,6 +24,7 @@ user_card:
     highlight: Highlight messages of this user
     stop_highlight: Stop highlighting of this user
     no_messages: "{user} has not chatted here"
+    no_warnings: "{user} has not been warned before"
     no_timeouts: "{user} hasn't been timed out before"
     no_bans: "{user} hasn't been banned before"
     no_comments: "No mod comments have been written for {user}"

@@ -2,6 +2,7 @@
 
 -   Fixed some settings on kick
 -   Added more drop shadow settings
+-   Added link to creators 7TV profile to emote cards of 7TV emotes
 
 ### 3.1.2.1000
 
