@@ -24,24 +24,6 @@ const { register } = useSettings();
 register(dataSettings);
 register(globalSettings);
 
-const html = document.documentElement.classList;
-const body = document.body.classList;
-const useTransparency = useConfig("ui.transparent_backgrounds");
-
-watch(
-	useTransparency,
-	() => {
-		if (useTransparency.value) {
-			html.add("seventv-transparent");
-			body.add("seventv-transparent");
-		} else {
-			html.remove("seventv-transparent");
-			body.remove("seventv-transparent");
-		}
-	},
-	{ immediate: true },
-);
-
 const updater = useUpdater();
 const version = useConfig("app.version");
 

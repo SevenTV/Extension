@@ -31,7 +31,67 @@ export const globalSettings = [
 		path: ["Appearance", "Interface"],
 		label: "Use UI transparency",
 		hint: "If checked some backgrounds will be transparent and blurred. This may affect performance",
+		effect(v) {
+			document.documentElement.classList.toggle("seventv-transparent", v);
+			document.body.classList.toggle("seventv-transparent", v);
+		},
 		defaultValue: true,
+	}),
+	declareConfig("chat.alternating_background", "TOGGLE", {
+		label: "settings.chat_alternating_background.label",
+		hint: "settings.chat_alternating_background.hint",
+		path: ["Chat", ""],
+		defaultValue: false,
+		effect(v) {
+			document.documentElement.classList.toggle("seventv-alternating-chat-lines", v);
+		},
+	}),
+	declareConfig<string>("chat.alternating_background_color", "COLOR", {
+		path: ["Chat", "Style"],
+		label: "Alternating Background Color",
+		hint: "Configure the color of alternating background (~6% opacity)",
+		disabledIf: () => !useConfig("chat.alternating_background").value,
+		effect(v) {
+			document.documentElement.style.setProperty("--seventv-chat-alternate-background-color", `${v}0f`);
+		},
+		defaultValue: "#808080",
+	}),
+	declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
+		path: ["General", ""],
+		label: "Hide Unlisted Emotes",
+		hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
+		defaultValue: false,
+	}),
+	declareConfig<number>("chat.emote_margin", "SLIDER", {
+		path: ["Chat", "Style"],
+		label: "Emote Spacing",
+		hint: "Choose the margin around emotes in chat. Negative values lets them overlap and keep the chatlines inline. 0 Makes the emotes not overlap at all",
+		options: {
+			min: -1,
+			max: 1,
+			step: 0.1,
+			unit: "rem",
+		},
+		defaultValue: -0.5,
+		effect(v) {
+			document.documentElement.style.setProperty("--seventv-emote-margin", `${v}rem`);
+		},
+	}),
+	declareConfig<number>("chat.emote_scale", "SLIDER", {
+		path: ["Chat", "Style"],
+		label: "Emote Scale",
+		ffz_key: "chat.emotes.2x",
+		ffz_transform(v: unknown) {
+			return typeof v === "number" && v > 0 ? 2 : 1;
+		},
+		hint: "Change how large emotes should be in chat, as a multiple of their original size.",
+		options: {
+			min: 0.25,
+			max: 3,
+			step: 0.25,
+			unit: "x",
+		},
+		defaultValue: 1,
 	}),
 	declareConfig("ui.emote_menu.default_tab", "DROPDOWN", {
 		path: ["Appearance", "Interface"],

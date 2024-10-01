@@ -89,3 +89,13 @@ body[theme="light"] {
 	-webkit-background-clip: text !important;
 	font-weight: 700;
 }
+
+:root.seventv-alternating-chat-lines {
+	.seventv-chat-observer > div:nth-child(even) {
+		background-color: var(--seventv-chat-alternate-background-color);
+	}
+
+	.seventv-chat-list .seventv-message:nth-child(even) {
+		background-color: var(--seventv-chat-alternate-background-color);
+	}
+}
