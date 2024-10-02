@@ -720,6 +720,17 @@ declare module Twitch {
 		userLogin: string;
 	}>;
 
+	export type SideBarComponent = ReactExtended.WritableComponent<{}> & {
+		collapseOnBreakpoint: () => void;
+	};
+
+	export type SideBarToggleComponent = ReactExtended.WritableComponent<{
+		collapsed: boolean;
+	}> & {
+		toggle: () => void;
+		handleToggleVisibility: () => void;
+	};
+
 	export enum Theme {
 		"Light",
 		"Dark",

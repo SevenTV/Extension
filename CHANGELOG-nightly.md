@@ -1,9 +1,13 @@
-### 3.1.2.1000
+### 3.1.2.3000
+
+-   Added an option to expand sidebar on twitch when hovering
+-   Fixed mentions not being clickable when colred mentions are turned off
+-   Added link to creators 7TV profile to emote cards of 7TV emotes
+
+### 3.1.2.2000
 
 -   Fixed some settings on kick
 -   Added more drop shadow settings
--   Added link to creators 7TV profile to emote cards of 7TV emotes
--   Fixed mentions not being clickable when colred mentions are turned off
 
 ### 3.1.2.1000
 
