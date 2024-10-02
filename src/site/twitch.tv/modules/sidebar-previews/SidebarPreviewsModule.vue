@@ -53,7 +53,7 @@ function toggle(hovering: boolean) {
 
 const sidebarEl = ref<Element>();
 const isHovering = useElementHover(sidebarEl);
-watch(isHovering, toggle);
+watch(isHovering, toggle, { immediate: true });
 
 watch(
 	() => sidebar.instances.at(0)?.domNodes["root"],
@@ -76,23 +76,26 @@ export const config = [
 		path: ["Appearance", "Interface"],
 		label: "Sidebar Expand on Hover",
 		hint: "Expand the sidebar when hovering over it.",
+		effect: (v) => document.body.classList.toggle("seventv-sidebar-hover", v),
 		defaultValue: false,
 	}),
 ];
 </script>
 <style lang="scss">
-/* stylelint-disable */
-.side-nav-card__link__tooltip-arrow {
-	display: none !important;
-}
-/* stylelint-enable */
+.seventv-sidebar-hover {
+	/* stylelint-disable */
+	.side-nav-card__link__tooltip-arrow {
+		display: none !important;
+	}
+	/* stylelint-enable */
 
-.side-nav {
-	position: absolute;
-	z-index: 3;
-}
+	.side-nav {
+		position: absolute;
+		z-index: 3;
+	}
 
-.twilight-main {
-	margin-left: 5rem;
+	.twilight-main {
+		margin-left: 5rem;
+	}
 }
 </style>
