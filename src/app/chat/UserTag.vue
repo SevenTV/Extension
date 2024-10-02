@@ -35,11 +35,17 @@
 
 		<!-- Message Author -->
 		<span
-			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
+			v-tooltip="
+				paint && paint.data && !(asMention && !shouldRenderColoredMentions) ? `Paint: ${paint.data.name}` : ''
+			"
 			class="seventv-chat-user-username"
 			@click="handleClick($event)"
 		>
-			<span v-cosmetic-paint="shouldRenderPaint && paint ? paint.id : null">
+			<span
+				v-cosmetic-paint="
+					shouldRenderPaint && !(asMention && !shouldRenderColoredMentions) && paint ? paint.id : null
+				"
+			>
 				<span v-if="asMention">@</span>
 				<span>{{ user.displayName }}</span>
 				<span v-if="user.intl"> ({{ user.username }})</span>
@@ -101,6 +107,7 @@ const shouldRender7tvBadges = useConfig("vanity.7tv_Badges");
 const betterUserCardEnabled = useConfig("chat.user_card");
 const twitchBadges = ref<Twitch.ChatBadge[]>([]);
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
+const shouldRenderColoredMentions = useConfig("chat.colored_mentions");
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);

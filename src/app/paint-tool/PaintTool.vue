@@ -5,6 +5,11 @@
 			<div ref="shareButton">
 				<UiButton @click="onImport">IMPORT...</UiButton>
 			</div>
+			<h6 style="color: red">
+				⚠️ Paints you try on here will not be visible to other users and are not permanent. To actually change
+				your paint, go to 'Edit Profile' on 7tv.app.
+			</h6>
+			<br /><br /><br /><br />
 			<sub>Select Project</sub>
 		</div>
 		<UiScrollable>
