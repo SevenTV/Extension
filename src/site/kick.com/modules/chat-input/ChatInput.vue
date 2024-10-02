@@ -82,9 +82,12 @@ const colon = reactive({
 });
 
 const history = reactive({
-	index: 0,
+	index: -1,
 	messages: [] as Kick.Lexical.EditorState[],
+	previous: undefined as Kick.Lexical.EditorState | undefined,
 });
+
+const awaitingUpdate = ref(false);
 
 const TextNode = props.editor._nodes.get("text")?.klass as typeof Kick.Lexical.TextNode;
 
@@ -96,6 +99,8 @@ function onSendMessage() {
 	});
 
 	history.messages.unshift(props.editor.getEditorState());
+
+	resetState();
 }
 
 function findCommandListener(predicate: (listener: Kick.Lexical.CommandListener<unknown>) => boolean) {
@@ -111,7 +116,8 @@ const { shift: isShiftPressed } = useMagicKeys();
 function onKeyDown(ev: KeyboardEvent) {
 	const editor = toRaw(editorRef.value);
 	const state = editor.getEditorState();
-	const selection = state?._selection;
+	const selection = state?._selection as Kick.Lexical.RangeSelection | undefined;
+	const root = state._nodeMap.get("root") as Kick.Lexical.RootNode;
 
 	if (!state || !selection) return;
 
@@ -121,13 +127,14 @@ function onKeyDown(ev: KeyboardEvent) {
 		switch (ev.key) {
 			case "Tab":
 			case "Enter":
+				ev.preventDefault();
+
 				if (colon.active) {
 					ev.stopPropagation();
 					insertAtAnchor(colon.matches[colon.select].token);
 					colon.active = false;
-				} else {
-					ev.preventDefault();
-					handleTab(node, selection as Kick.Lexical.RangeSelection, isShiftPressed.value);
+				} else if (ev.key === "Tab") {
+					handleTab(node, selection, isShiftPressed.value);
 				}
 				break;
 			case "ArrowUp":
@@ -151,24 +158,30 @@ function onKeyDown(ev: KeyboardEvent) {
 						inline: "nearest",
 					});
 				} else {
-					const state = editor.getEditorState();
-					const root = state._nodeMap.get("root") as Kick.Lexical.RootNode;
-					const children = root?.getChildren() ?? [];
+					const content = root.getTextContent();
 
-					if (children.length > 0) {
-						ev.preventDefault();
-
-						const content = root?.getTextContent();
-						if (direction === "up") {
-							history.index = content?.length
-								? Math.min(history.messages.length - 1, history.index + 1)
-								: 0;
-						} else {
-							history.index = Math.max(0, history.index - 1);
-						}
-
-						editor.setEditorState(history.messages[history.index]);
+					const index = direction === "up" ? history.index + 1 : history.index - 1;
+					if (index < -1 || index > history.messages.length) {
+						return;
 					}
+
+					if (!history.previous) {
+						history.previous = state;
+					}
+
+					const historyState = index < 0 ? toRaw(history.previous) : history.messages[index];
+					if (!historyState) {
+						return;
+					}
+
+					awaitingUpdate.value = true;
+
+					if (direction === "up" && selection.focus.offset > 1) return;
+					else if (direction === "down" && selection.focus.offset < content.length) return;
+
+					editor.setEditorState(historyState);
+					history.index = index;
+					ev.preventDefault();
 				}
 
 				break;
@@ -177,7 +190,7 @@ function onKeyDown(ev: KeyboardEvent) {
 				colon.active = false;
 				break;
 			default:
-				history.index = 0;
+				history.index = -1;
 				break;
 		}
 	});
@@ -225,6 +238,8 @@ function handleInputChange(): void {
 				priority: e.name.length,
 				item: e,
 			}));
+
+		if (colon.matches.length > 0) awaitingUpdate.value = true;
 
 		if (colon.select > colon.matches.length - 1) {
 			colon.select = Math.max(0, colon.matches.length - 1);
@@ -275,7 +290,7 @@ function handleTab(node: Kick.Lexical.LexicalNode, selection: Kick.Lexical.Range
 	let matchIndex = 0;
 	let matches: TabToken[];
 
-	if (!state || state.expectedOffset !== selection.anchor.offset || state.expectedWord !== currentWord) {
+	if (!state || state.expectedOffset !== anchorOffset || state.expectedWord !== currentWord) {
 		const searchWord = currentWord.endsWith(" ") ? currentWord.slice(0, -1) : currentWord;
 		matches = [
 			...Object.values(emotes.active),
@@ -303,6 +318,8 @@ function handleTab(node: Kick.Lexical.LexicalNode, selection: Kick.Lexical.Range
 	}
 
 	if (match) {
+		awaitingUpdate.value = true;
+
 		editor.focus(() => {
 			editor.update(() => {
 				const anchor = selection.anchor;
@@ -329,11 +346,14 @@ function handleTab(node: Kick.Lexical.LexicalNode, selection: Kick.Lexical.Range
 	}
 }
 
-function resetColon() {
+function resetState() {
 	colon.matches = [];
 	colon.select = 0;
 	colon.active = false;
 	colon.cursor = "";
+
+	history.index = -1;
+	history.previous = undefined;
 }
 
 watch(
@@ -342,8 +362,9 @@ watch(
 		const removeTextNodeTransform = editor.registerNodeTransform(TextNode, handleInputChange);
 		listeners.add(removeTextNodeTransform);
 
-		const removeTextContentListener = editor.registerTextContentListener((text) => {
-			if (text.length === 0) resetColon();
+		const removeTextContentListener = editor.registerTextContentListener(() => {
+			if (!awaitingUpdate.value) resetState();
+			awaitingUpdate.value = false;
 		});
 		listeners.add(removeTextContentListener);
 
@@ -357,23 +378,18 @@ watch(
 			const removeCommand = editor.registerCommand(
 				KEY_ENTER_COMMAND,
 				() => {
-					// If we're currently within colons we prevent the text to be sent.
-					if (colon.active) {
-						return true;
-					}
-
 					onSendMessage();
 					return false;
 				},
-				3, // CommandListenerPriority.COMMAND_PRIORITY_HIGH
+				4, // CommandListenerPriority.COMMAND_PRIORITY_CRITICAL
 			);
 
 			listeners.add(removeCommand);
 		}
 
 		const removeRootListener = editor.registerRootListener((rootEl, prevRootEl) => {
-			prevRootEl?.removeEventListener("keydown", onKeyDown);
-			rootEl?.addEventListener("keydown", onKeyDown);
+			prevRootEl?.removeEventListener("keydown", onKeyDown, { capture: true });
+			rootEl?.addEventListener("keydown", onKeyDown, { capture: true });
 		});
 		listeners.add(removeRootListener);
 
