@@ -418,6 +418,7 @@ watch(
 		margin-top: auto;
 		align-items: center;
 		padding: 1rem;
+		height: 100%;
 
 		&:hover {
 			cursor: pointer;

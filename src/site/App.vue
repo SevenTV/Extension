@@ -22,6 +22,7 @@ import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { convertEmojis } from "@/composable/chat/useChatEmotes";
+import { useActor } from "@/composable/useActor";
 import { loadEmojiList } from "@/composable/useEmoji";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { fillSettings, useConfig, useSettings } from "@/composable/useSettings";
@@ -33,6 +34,7 @@ const YouTubeSite = defineAsyncComponent(() => import("@/site/youtube.com/YouTub
 const KickSite = defineAsyncComponent(() => import("@/site/kick.com/KickSite.vue"));
 
 useChannelContext();
+useActor();
 
 if (import.meta.hot) {
 	import.meta.hot.on("full-reload", () => {
