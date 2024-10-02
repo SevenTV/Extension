@@ -6,9 +6,8 @@
 				<UiButton @click="onImport">IMPORT...</UiButton>
 			</div>
 			<h6 style="color: red">
-				⚠️ This tool's purpose is assisting paint designers in creating new paints and verifying how they look
-				in native Twitch chat. You can test a paint with the "Try on" button, but it will not be visible to
-				other users. To change your paint, go to 'Edit Profile' on 7tv.app
+				⚠️ Paints you try on here will not be visible to other users and are not permanent. To actually change
+				your paint, go to 'Edit Profile' on 7tv.app.
 			</h6>
 			<br /><br /><br /><br />
 			<sub>Select Project</sub>
