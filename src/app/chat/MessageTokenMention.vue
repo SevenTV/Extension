@@ -11,7 +11,6 @@
 			"
 			:as-mention="asMention"
 			:hide-badges="true"
-			:colored-mention="shouldRenderColoredMentions"
 			:style="shouldRenderColoredMentions ? { color: token.content.user?.color } : null"
 		/>
 	</span>
