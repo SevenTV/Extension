@@ -1,22 +1,19 @@
 <template>
 	<span class="mention-token">
-		<span v-if="shouldRenderColoredMentions" :style="{ color: token.content.user?.color }">
-			<UserTag
-				:user="
-					token.content.user ?? {
-						id: uuid(),
-						username: tag.toLowerCase(),
-						displayName: tag,
-						color: '',
-					}
-				"
-				:as-mention="asMention"
-				:hide-badges="true"
-			/>
-		</span>
-		<span v-else>
-			{{ token.content.displayText }}
-		</span>
+		<UserTag
+			:user="
+				token.content.user ?? {
+					id: uuid(),
+					username: tag.toLowerCase(),
+					displayName: tag,
+					color: '',
+				}
+			"
+			:as-mention="asMention"
+			:hide-badges="true"
+			:colored-mention="shouldRenderColoredMentions"
+			:style="shouldRenderColoredMentions ? { color: token.content.user?.color } : null"
+		/>
 	</span>
 </template>
 
@@ -31,7 +28,7 @@ const props = defineProps<{
 	msg?: ChatMessage;
 }>();
 
-const shouldRenderColoredMentions = useConfig("chat.colored_mentions");
+const shouldRenderColoredMentions = useConfig<boolean>("chat.colored_mentions");
 
 const asMention = props.token.content.displayText.charAt(0) === "@";
 const tag = asMention ? props.token.content.displayText.slice(1) : props.token.content.displayText;
