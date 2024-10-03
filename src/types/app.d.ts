@@ -106,6 +106,7 @@ declare namespace SevenTV {
 		disabledIf?: () => boolean;
 		predicate?: (p: T) => boolean;
 		effect?: (v: T) => void;
+		transform?: (v: unknown) => T;
 
 		options?: {
 			SELECT: [string, T][];

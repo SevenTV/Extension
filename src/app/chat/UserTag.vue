@@ -1,5 +1,10 @@
 <template>
-	<div v-if="user && user.displayName" ref="tagRef" class="seventv-chat-user" :style="{ color: user.color }">
+	<div
+		v-if="user && user.displayName"
+		ref="tagRef"
+		class="seventv-chat-user"
+		:style="shouldColor ? { color: user.color } : {}"
+	>
 		<!--Badge List -->
 		<span
 			v-if="
@@ -35,18 +40,12 @@
 
 		<!-- Message Author -->
 		<span
-			v-tooltip="
-				paint && paint.data && !(asMention && !shouldRenderColoredMentions) ? `Paint: ${paint.data.name}` : ''
-			"
+			v-tooltip="shouldPaint ? `Paint: ${paint!.data.name}` : ''"
 			class="seventv-chat-user-username"
 			@click="handleClick($event)"
 		>
-			<span
-				v-cosmetic-paint="
-					shouldRenderPaint && !(asMention && !shouldRenderColoredMentions) && paint ? paint.id : null
-				"
-			>
-				<span v-if="asMention">@</span>
+			<span v-cosmetic-paint="shouldPaint ? paint!.id : null">
+				<span v-if="isMention && !hideAt">@</span>
 				<span>{{ user.displayName }}</span>
 				<span v-if="user.intl"> ({{ user.username }})</span>
 			</span>
@@ -69,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, toRef, watch, watchEffect } from "vue";
+import { computed, nextTick, ref, toRef, watch, watchEffect } from "vue";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -85,7 +84,8 @@ const props = withDefaults(
 		user: ChatUser;
 		sourceData?: Twitch.SharedChat;
 		msgId?: symbol;
-		asMention?: boolean;
+		isMention?: boolean;
+		hideAt?: boolean;
 		hideBadges?: boolean;
 		clickable?: boolean;
 		badges?: Record<string, string>;
@@ -99,21 +99,38 @@ const emit = defineEmits<{
 	(e: "open-native-card", ev: MouseEvent): void;
 }>();
 
+enum MentionStyle {
+	NONE = 0,
+	COLORED = 1,
+	PAINTED = 2,
+}
+
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
-const shouldRenderPaint = useConfig("vanity.nametag_paints");
-const shouldRender7tvBadges = useConfig("vanity.7tv_Badges");
-const betterUserCardEnabled = useConfig("chat.user_card");
+const shouldRenderPaint = useConfig<boolean>("vanity.nametag_paints");
+const shouldRender7tvBadges = useConfig<boolean>("vanity.7tv_Badges");
+const betterUserCardEnabled = useConfig<boolean>("chat.user_card");
 const twitchBadges = ref<Twitch.ChatBadge[]>([]);
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
-const shouldRenderColoredMentions = useConfig("chat.colored_mentions");
+const mentionStyle = useConfig<MentionStyle>("chat.colored_mentions");
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
 const cardHandle = ref<HTMLDivElement>();
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
 const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
+
+const shouldPaint = computed(() => {
+	if (!shouldRenderPaint.value) return false;
+	if (!paint.value) return false;
+	if (!props.isMention) return true;
+	return mentionStyle.value === MentionStyle.PAINTED;
+});
+
+const shouldColor = computed(() => {
+	return !props.isMention || mentionStyle.value === MentionStyle.COLORED;
+});
 
 function handleClick(ev: MouseEvent) {
 	if (!props.clickable) return;

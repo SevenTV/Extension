@@ -274,11 +274,19 @@ export const config = [
 		},
 		defaultValue: 13,
 	}),
-	declareConfig<boolean>("chat.colored_mentions", "TOGGLE", {
+	declareConfig<0 | 1 | 2>("chat.colored_mentions", "DROPDOWN", {
 		path: ["Chat", "Style"],
-		label: "Colored Mentions",
-		hint: "Show the color of users mentioned in chat",
-		defaultValue: false,
+		label: "Mention Style",
+		hint: "Control how mentions are displayed in chat",
+		options: [
+			["Default", 0],
+			["Colored", 1],
+			["Painted", 2],
+		],
+		transform(v) {
+			return v === false ? 0 : 2;
+		},
+		defaultValue: 1,
 	}),
 	declareConfig<number>("chat.deleted_messages", "DROPDOWN", {
 		path: ["Chat", "Style"],
