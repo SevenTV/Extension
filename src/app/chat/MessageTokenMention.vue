@@ -2,12 +2,14 @@
 	<span class="mention-token">
 		<UserTag
 			:user="
-				shouldRenderColoredMentions && token.content.user ? token.content.user : {
-					id: uuid(),
-					username: tag.toLowerCase(),
-					displayName: tag,
-					color: '',
-				}
+				shouldRenderColoredMentions && token.content.user
+					? token.content.user
+					: {
+							id: uuid(),
+							username: tag.toLowerCase(),
+							displayName: tag,
+							color: '',
+					  }
 			"
 			:as-mention="asMention"
 			:hide-badges="true"
