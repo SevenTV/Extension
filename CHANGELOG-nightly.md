@@ -1,3 +1,6 @@
+### 3.1.2.4000
+-   Fixed unable to disable color mentions
+
 ### 3.1.2.3000
 
 -   Added an option to expand sidebar on twitch when hovering

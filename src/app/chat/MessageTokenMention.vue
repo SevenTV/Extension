@@ -2,7 +2,7 @@
 	<span class="mention-token">
 		<UserTag
 			:user="
-				token.content.user ?? {
+				shouldRenderColoredMentions && token.content.user ? token.content.user : {
 					id: uuid(),
 					username: tag.toLowerCase(),
 					displayName: tag,
