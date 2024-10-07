@@ -21,7 +21,6 @@
 		<SingleEmoji
 			v-else-if="!unload && emote.id"
 			:id="emote.id"
-			ref="boxRef"
 			:alt="emote.name"
 			class="seventv-chat-emote seventv-emoji"
 			:style="{ width: `${scale * 2}rem`, height: `${scale * 2}rem` }"
