@@ -2,6 +2,8 @@
 
 -   Fixed a bug that could cause issues when clicking an emoji in chat
 -   Fixed an issue with emote sets not switching on channel switch
+-   Fixed an issue with making users unable to chat
+-   Fixed an issue with certain settings not saving
 
 ### 3.1.2.3000
 
