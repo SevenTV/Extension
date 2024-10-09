@@ -1,3 +1,26 @@
+### 3.1.2
+
+-   **Implement support for the new Kick site:**
+    -   Chat emotes
+    -   Emote menu
+    -   Emote auto-completion
+    -   Cosmetics
+    -   Settings
+-   Added option to settings to hide Stories from the sidebar
+-   Fixed settings to hide recommended channels and viewers also watch channels
+-   Fixed an issue where history navigation is accidentally triggered during IME composition
+-   Added option to highlight messages of specific usernames
+-   Added option to highlight messages based on badges
+-   Added button to user card to toggle highlighting for a users messages
+-   Added mod icon for warning users to chat mod icons and user card
+-   Added an option to limit the drop shadows on paints
+-   Added more drop shadow settings
+-   Added link to creators 7TV profile to emote cards of 7TV emotes
+-   Fixed a bug that could cause issues when clicking an emoji in chat
+-   Fixed an issue with emote sets not switching on channel switch
+-   Fixed an issue with making users unable to chat
+-   Added an option to expand sidebar on twitch when hovering
+
 ### 3.1.1
 
 -   Fixed video player stats not showing
