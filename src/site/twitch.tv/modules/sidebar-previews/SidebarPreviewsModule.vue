@@ -2,6 +2,9 @@
 	<template v-for="inst in sidebarCard.instances" :key="inst.identifier">
 		<SidebarCard v-if="showPreviews" :instance="inst" />
 	</template>
+	<template v-for="inst in sidebarToggle.instances" :key="inst.identifier">
+		<SidebarButton v-if="expandOnHover" :inst="inst" :expanded="fullyExpanded" :hovering="isHovering" />
+	</template>
 </template>
 
 <script setup lang="ts">
@@ -9,8 +12,10 @@ import { declareModule } from "@/composable/useModule";
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import { useComponentHook } from "@/common/ReactHooks";
 import SidebarCard from "./SidebarCard.vue";
-import { ref, watch } from "vue";
-import { useElementHover } from "@vueuse/core";
+import { computed, ref, toRef, watch } from "vue";
+import { useElementHover, useTimeoutFn } from "@vueuse/core";
+import SidebarButton from "./SidebarButton.vue";
+import { usePropBinding } from "@/common/Reflection";
 
 const { markAsReady } = declareModule("sidebar-previews", {
 	name: "Sidebar Previews",
@@ -34,26 +39,48 @@ const sidebar = useComponentHook<Twitch.SideBarComponent>(
 	},
 );
 
-const sidebarToggle = useComponentHook<Twitch.SideBarToggleComponent>({
-	parentSelector: ".side-nav",
-	predicate: (n) => n.handleToggleVisibility,
-});
+const sidebarToggle = useComponentHook<Twitch.SideBarToggleComponent>(
+	{
+		parentSelector: ".side-nav",
+		predicate: (n) => n.handleToggleVisibility,
+	},
+	{ trackRoot: true },
+);
 
 const expandOnHover = useConfig<boolean>("ui.sidebar_hover_expand");
-function toggle(hovering: boolean) {
-	if (!expandOnHover.value) return;
+const expandTimeout = useConfig<number>("ui.sidebar_hover_expand_timeout");
+
+const btnProps = usePropBinding(() => sidebarToggle.instances.at(0)?.component, { collapsed: true });
+const collapsed = toRef(btnProps, "collapsed");
+const fullyExpanded = computed(() => !collapsed.value && !isExpanding.value);
+
+let stop: () => void | undefined;
+const isExpanding = ref(false);
+function toggle([h, conf, c]: [boolean, boolean, boolean]) {
+	if (!conf) return;
 
 	const btn = sidebarToggle.instances.at(0)?.component;
 	if (!btn) return;
 
-	if (hovering !== btn.props.collapsed) return;
+	stop?.();
+	if (h !== c) return;
 
-	btn.handleToggleVisibility();
+	if (h) {
+		btn.handleToggleVisibility();
+		isExpanding.value = true;
+		useTimeoutFn(() => (isExpanding.value = false), 200);
+		return;
+	} else if (isExpanding.value) {
+		btn.handleToggleVisibility();
+		isExpanding.value = false;
+	} else {
+		stop = useTimeoutFn(btn.handleToggleVisibility, expandTimeout.value).stop;
+	}
 }
 
 const sidebarEl = ref<Element>();
 const isHovering = useElementHover(sidebarEl);
-watch(isHovering, toggle, { immediate: true });
+watch([isHovering, expandOnHover, collapsed], toggle, { immediate: true });
 
 watch(
 	() => sidebar.instances.at(0)?.domNodes["root"],
@@ -73,11 +100,24 @@ export const config = [
 		defaultValue: false,
 	}),
 	declareConfig("ui.sidebar_hover_expand", "TOGGLE", {
-		path: ["Appearance", "Interface"],
+		path: ["Appearance", "Interface", 1],
 		label: "Sidebar Expand on Hover",
 		hint: "Expand the sidebar when hovering over it.",
 		effect: (v) => document.body.classList.toggle("seventv-sidebar-hover", v),
 		defaultValue: false,
+	}),
+	declareConfig("ui.sidebar_hover_expand_timeout", "SLIDER", {
+		path: ["Appearance", "Interface", 2],
+		label: "Sidebar Expand Timeout",
+		hint: "Delay in milliseconds before the sidebar collapses.",
+		options: {
+			min: 0,
+			max: 2000,
+			step: 100,
+			unit: "ms",
+		},
+		disabledIf: () => !useConfig<boolean>("ui.sidebar_hover_expand").value,
+		defaultValue: 0,
 	}),
 ];
 </script>
@@ -92,6 +132,10 @@ export const config = [
 	.side-nav {
 		position: absolute;
 		z-index: 3;
+		transition: width 0.2s ease;
+
+		white-space: nowrap;
+		overflow: hidden;
 	}
 
 	.twilight-main {

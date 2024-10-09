@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { toRaw } from "vue";
+import { WatchSource, shallowReactive, toRaw, watch } from "vue";
 
 export const PROP_STORE_ACCESSOR = Symbol("seventv.reflection.store");
 export const EVENT_STORE_ACCESSOR = Symbol("seventv.reflection.events");
@@ -256,4 +256,27 @@ export function unsetNamedEventHandler<K extends keyof HTMLElementEventMap>(
 	if (oldHandler) target.removeEventListener(event, oldHandler);
 
 	Reflect.deleteProperty(store, prop);
+}
+
+export function usePropBinding<P extends object, O extends { props: P }, DV = P | undefined>(
+	obj: WatchSource<O | undefined>,
+	defaultValue?: DV,
+): DV {
+	const r = shallowReactive(defaultValue ?? {}) as NonNullable<DV>;
+	watch(
+		obj,
+		(n, o) => {
+			if (o === n) return;
+
+			o && unsetPropertyHook(o, "props");
+			n &&
+				definePropertyHook(n, "props", {
+					value: (p) => {
+						Object.assign(r, p);
+					},
+				});
+		},
+		{ immediate: true },
+	);
+	return r;
 }
