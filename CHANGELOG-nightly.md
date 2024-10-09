@@ -1,7 +1,12 @@
+### 3.1.2.4000
+
+-   Fixed a bug that could cause issues when clicking an emoji in chat
+-   Fixed an issue with emote sets not switching on channel switch
+
 ### 3.1.2.3000
 
 -   Added an option to expand sidebar on twitch when hovering
--   Fixed mentions not being clickable when colred mentions are turned off
+-   Fixed mentions not being clickable when colored mentions are turned off
 -   Added link to creators 7TV profile to emote cards of 7TV emotes
 
 ### 3.1.2.2000
