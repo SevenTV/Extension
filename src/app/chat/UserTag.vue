@@ -1,10 +1,24 @@
 <template>
-	<div v-if="user && user.displayName" ref="tagRef" class="seventv-chat-user" :style="{ color: user.color }">
+	<div
+		v-if="user && user.displayName"
+		ref="tagRef"
+		class="seventv-chat-user"
+		:style="shouldColor ? { color: user.color } : {}"
+	>
 		<!--Badge List -->
 		<span
-			v-if="!hideBadges && ((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size)"
+			v-if="
+				!hideBadges && ((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size || sourceData)
+			"
 			class="seventv-chat-user-badge-list"
 		>
+			<Badge
+				v-if="sourceData"
+				:key="sourceData.login"
+				:badge="sourceData"
+				:alt="sourceData.displayName"
+				type="picture"
+			/>
 			<Badge
 				v-for="badge of twitchBadges"
 				:key="badge.id"
@@ -13,17 +27,25 @@
 				type="twitch"
 				@click="handleClick($event)"
 			/>
-			<Badge v-for="badge of activeBadges" :key="badge.id" :badge="badge" :alt="badge.data.tooltip" type="app" />
+			<template v-if="shouldRender7tvBadges">
+				<Badge
+					v-for="badge of activeBadges"
+					:key="badge.id"
+					:badge="badge"
+					:alt="badge.data.tooltip"
+					type="app"
+				/>
+			</template>
 		</span>
 
 		<!-- Message Author -->
 		<span
-			v-tooltip="paint && paint.data ? `Paint: ${paint.data.name}` : ''"
+			v-tooltip="shouldPaint ? `Paint: ${paint!.data.name}` : ''"
 			class="seventv-chat-user-username"
 			@click="handleClick($event)"
 		>
-			<span v-cosmetic-paint="paint ? paint.id : null">
-				<span v-if="asMention">@</span>
+			<span v-cosmetic-paint="shouldPaint ? paint!.id : null">
+				<span v-if="isMention && !hideAt">@</span>
 				<span>{{ user.displayName }}</span>
 				<span v-if="user.intl"> ({{ user.username }})</span>
 			</span>
@@ -46,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, toRef, watch, watchEffect } from "vue";
+import { computed, nextTick, ref, toRef, watch, watchEffect } from "vue";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -60,8 +82,10 @@ import { autoPlacement, shift } from "@floating-ui/dom";
 const props = withDefaults(
 	defineProps<{
 		user: ChatUser;
+		sourceData?: Twitch.SharedChat;
 		msgId?: symbol;
-		asMention?: boolean;
+		isMention?: boolean;
+		hideAt?: boolean;
 		hideBadges?: boolean;
 		clickable?: boolean;
 		badges?: Record<string, string>;
@@ -75,19 +99,38 @@ const emit = defineEmits<{
 	(e: "open-native-card", ev: MouseEvent): void;
 }>();
 
+enum MentionStyle {
+	NONE = 0,
+	COLORED = 1,
+	PAINTED = 2,
+}
+
 const ctx = useChannelContext();
 const properties = useChatProperties(ctx);
 const cosmetics = useCosmetics(props.user.id);
-const shouldRenderPaint = useConfig("vanity.nametag_paints");
-const betterUserCardEnabled = useConfig("chat.user_card");
+const shouldRenderPaint = useConfig<boolean>("vanity.nametag_paints");
+const shouldRender7tvBadges = useConfig<boolean>("vanity.7tv_Badges");
+const betterUserCardEnabled = useConfig<boolean>("chat.user_card");
 const twitchBadges = ref<Twitch.ChatBadge[]>([]);
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
+const mentionStyle = useConfig<MentionStyle>("chat.colored_mentions");
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
 const cardHandle = ref<HTMLDivElement>();
 const paint = ref<SevenTV.Cosmetic<"PAINT"> | null>(null);
 const activeBadges = ref<SevenTV.Cosmetic<"BADGE">[]>([]);
+
+const shouldPaint = computed(() => {
+	if (!shouldRenderPaint.value) return false;
+	if (!paint.value) return false;
+	if (!props.isMention) return true;
+	return mentionStyle.value === MentionStyle.PAINTED;
+});
+
+const shouldColor = computed(() => {
+	return !props.isMention || mentionStyle.value === MentionStyle.COLORED;
+});
 
 function handleClick(ev: MouseEvent) {
 	if (!props.clickable) return;
@@ -105,7 +148,10 @@ watchEffect(() => {
 			const setID = key;
 			const badgeID = value;
 
-			for (const setGroup of [twitchBadgeSets.value.channelsBySet, twitchBadgeSets.value.globalsBySet]) {
+			for (const setGroup of [
+				props.sourceData?.badges.channelsBySet ?? twitchBadgeSets.value.channelsBySet,
+				twitchBadgeSets.value.globalsBySet,
+			]) {
 				if (!setGroup) continue;
 
 				const set = setGroup.get(setID);
@@ -132,8 +178,8 @@ const stop = watch(
 			return;
 		}
 
-		paint.value = shouldRenderPaint.value && paints && paints.size ? paints.values().next().value : null;
-		activeBadges.value = [...badges.values()];
+		paint.value = paints && paints.size ? paints.values().next().value : null;
+		activeBadges.value = badges && badges.size ? [...badges.values()] : [];
 	},
 	{ immediate: true },
 );

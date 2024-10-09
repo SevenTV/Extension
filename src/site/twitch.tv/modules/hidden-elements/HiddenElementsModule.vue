@@ -155,6 +155,23 @@ export const config = [
 		hint: "If checked, on-screen celebrations will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_whispers", "DROPDOWN", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Whispers",
+		hint: "Choose when to hide whispers, fullscreen means when chat is hidden",
+		options: [
+			["Never", 0],
+			["Fullscreen", 1],
+			["Allways", 2],
+		],
+		defaultValue: 0,
+	}),
+	declareConfig("layout.hide_stories", "TOGGLE", {
+		path: ["Site Layout", "Sidebar"],
+		label: "Hide Stories",
+		hint: "If checked, Stories will be hidden from the side bar",
+		defaultValue: false,
+	}),
 ];
 </script>
 
@@ -229,13 +246,65 @@ export const config = [
 }
 
 .seventv-hide-recommended-channels {
-	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(3) {
+	div[class$="side-nav--collapsed"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3) {
+		display: none !important;
+	}
+
+	div[class$="side-nav--expanded"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(4) {
 		display: none !important;
 	}
 }
 
 .seventv-hide-viewers-also-watch {
-	#side-nav > *:nth-child(1) > *:nth-child(1) > *:nth-child(4) {
+	div[class$="side-nav--collapsed"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(4) {
+		display: none !important;
+	}
+
+	div[class$="side-nav--expanded"]
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(3)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(2)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(1)
+		> *:nth-child(5) {
 		display: none !important;
 	}
 }
@@ -290,6 +359,27 @@ export const config = [
 
 .seventv-hide-onscreen-celebrations {
 	div.celebration__overlay {
+		display: none !important;
+	}
+}
+
+.seventv-hide-whispers-fullscreen {
+	div.whispers-open-threads:not(.whispers--right-column-expanded-beside) {
+		display: none !important;
+	}
+}
+
+.seventv-hide-whispers-all {
+	div.whispers-open-threads {
+		display: none !important;
+	}
+}
+
+.seventv-hide-stories {
+	div[class$="storiesLeftNavSection--csO9S"] {
+		display: none !important;
+	}
+	button:has(div[class$="storiesLeftNavSectionCollapsedButton--txKvw"]) {
 		display: none !important;
 	}
 }

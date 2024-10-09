@@ -38,6 +38,7 @@
 		<UserTag
 			v-if="msg.author && !hideAuthor"
 			:user="msg.author"
+			:source-data="msg.sourceData"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
 			@open-native-card="openViewerCard($event, msg.author.username, msg.id)"

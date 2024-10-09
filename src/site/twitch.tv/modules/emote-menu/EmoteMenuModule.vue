@@ -71,7 +71,7 @@ const doButtonUpdate = debounceFn((nodes: Element[]) => {
 
 watch(
 	placement,
-	(v) => {
+	() => {
 		for (const n of Object.values(chatInputController.instances).map((i) => i.domNodes)) {
 			doButtonUpdate(Object.values(n));
 		}
@@ -84,20 +84,6 @@ markAsReady();
 
 <script lang="ts">
 export const config = [
-	declareConfig("ui.emote_menu.default_tab", "DROPDOWN", {
-		path: ["Appearance", "Interface"],
-		label: "Emote Menu: Default Emote Tab",
-		hint: "Select default tab when opening emote menu",
-		options: [
-			["Favorite", "FAVORITE"],
-			["7TV", "7TV"],
-			["FFZ", "FFZ"],
-			["BTTV", "BTTV"],
-			["Platform", "PLATFORM"],
-			["Emoji", "EMOJI"],
-		],
-		defaultValue: "7TV",
-	}),
 	declareConfig("ui.emote_menu_search", "TOGGLE", {
 		path: ["Appearance", "Interface"],
 		label: "Emote Menu: Live Input Search",
@@ -114,30 +100,6 @@ export const config = [
 			["Hidden", "hidden"],
 		],
 		defaultValue: "regular",
-	}),
-	declareConfig<boolean>("ui.emote_menu.most_used", "TOGGLE", {
-		path: ["Appearance", "Interface"],
-		label: "Emote Menu: Most Used Emotes",
-		hint: "Whether or not to display the emotes you type the most in the emote menu (Temporarily disabled due to performance issues)",
-		disabledIf: () => true,
-		defaultValue: true,
-	}),
-	declareConfig<Set<string>>("ui.emote_menu.favorites", "NONE", {
-		path: ["", ""],
-		label: "",
-		defaultValue: new Set(),
-	}),
-	declareConfig<Map<string, number>>("ui.emote_menu.usage", "NONE", {
-		path: ["", ""],
-		label: "",
-		defaultValue: new Map(),
-		serialize: false,
-	}),
-	declareConfig<Set<string>>("ui.emote_menu.collapsed_sets", "NONE", {
-		path: ["", ""],
-		label: "",
-		defaultValue: new Set(),
-		serialize: false,
 	}),
 ];
 </script>

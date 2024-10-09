@@ -111,6 +111,8 @@ definePropertyHook(props.controller.component, "props", {
 		} else {
 			ctx.actor.roles.delete("MODERATOR");
 		}
+
+		properties.showTimestamps = false;
 	},
 });
 

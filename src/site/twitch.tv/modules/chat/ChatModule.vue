@@ -7,6 +7,7 @@
 			:room="chatRoom.instances[0] ?? undefined"
 			:buffer="chatBuffer.instances[0] ?? undefined"
 			:events="chatEvents.instances[0] ?? undefined"
+			:presentation="chatListPresentation.instances[0] ?? undefined"
 		/>
 	</template>
 </template>
@@ -78,6 +79,27 @@ const chatEvents = useComponentHook<Twitch.ChatEventComponent>({
 	predicate: (n) => n.onClearChatEvent,
 });
 
+const hideBitsBalance = useConfig<boolean>("chat.hide_bits_balance");
+useComponentHook<Twitch.ChatCommunityPointsButtonComponent>(
+	{
+		childSelector: ".community-points-summary",
+		predicate: (el) => el.shouldShowBitsBalance,
+	},
+	{
+		functionHooks: {
+			shouldShowBitsBalance(this, old) {
+				if (hideBitsBalance.value) return false;
+				return old.call(this);
+			},
+		},
+	},
+);
+
+const chatListPresentation = useComponentHook<Twitch.ChatListPresentationComponent>({
+	parentSelector: ".stream-chat",
+	predicate: (n) => n.props && n.props.sharedChatDataByChannelID,
+});
+
 const isHookable = ref(false);
 const isHookableDbc = refDebounced(isHookable, 200);
 
@@ -115,43 +137,6 @@ const timestampKeyValues: Record<TimestampFormatKey, string> = {
 const timestampFormatOptions = Object.entries(timestampKeyValues).map(([k, v]) => [v, k]);
 
 export const config = [
-	declareConfig("general.blur_unlisted_emotes", "TOGGLE", {
-		path: ["General", ""],
-		label: "Hide Unlisted Emotes",
-		hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
-		defaultValue: false,
-	}),
-	declareConfig<number>("chat.emote_margin", "SLIDER", {
-		path: ["Chat", "Style"],
-		label: "Emote Spacing",
-		hint: "Choose the margin around emotes in chat. Negative values lets them overlap and keep the chatlines inline. 0 Makes the emotes not overlap at all",
-		options: {
-			min: -1,
-			max: 1,
-			step: 0.1,
-			unit: "rem",
-		},
-		defaultValue: -0.5,
-		effect(v) {
-			document.documentElement.style.setProperty("--seventv-emote-margin", `${v}rem`);
-		},
-	}),
-	declareConfig<number>("chat.emote_scale", "SLIDER", {
-		path: ["Chat", "Style"],
-		label: "Emote Scale",
-		ffz_key: "chat.emotes.2x",
-		ffz_transform(v: unknown) {
-			return typeof v === "number" && v > 0 ? 2 : 1;
-		},
-		hint: "Change how large emotes should be in chat, as a multiple of their original size.",
-		options: {
-			min: 0.25,
-			max: 3,
-			step: 0.25,
-			unit: "x",
-		},
-		defaultValue: 1,
-	}),
 	declareConfig("chat.show_emote_modifiers", "TOGGLE", {
 		path: ["Chat", "Style"],
 		label: "Show Emote Modifiers",
@@ -241,23 +226,6 @@ export const config = [
 		hint: "Make the tooltips compact instead of showing the full emote",
 		defaultValue: false,
 	}),
-	declareConfig<boolean>("chat.alternating_background", "TOGGLE", {
-		path: ["Chat", "Style"],
-		ffz_key: "chat.lines.alternate",
-		label: "settings.chat_alternating_background.label",
-		hint: "settings.chat_alternating_background.hint",
-		defaultValue: false,
-	}),
-	declareConfig<string>("chat.alternating_background_color", "COLOR", {
-		path: ["Chat", "Style"],
-		label: "Alternating Background Color",
-		hint: "Configure the color of alternating background (~6% opacity)",
-		disabledIf: () => !useConfig("chat.alternating_background").value,
-		effect(v) {
-			document.body.style.setProperty("--seventv-chat-alternate-background-color", `${v}0f`);
-		},
-		defaultValue: "#808080",
-	}),
 	declareConfig<number>("chat.padding", "DROPDOWN", {
 		path: ["Chat", "Style"],
 		label: "Padding Style",
@@ -306,11 +274,19 @@ export const config = [
 		},
 		defaultValue: 13,
 	}),
-	declareConfig<boolean>("chat.colored_mentions", "TOGGLE", {
+	declareConfig<0 | 1 | 2>("chat.colored_mentions", "DROPDOWN", {
 		path: ["Chat", "Style"],
-		label: "Colored Mentions",
-		hint: "Show the color of users mentioned in chat",
-		defaultValue: true,
+		label: "Mention Style",
+		hint: "Control how mentions are displayed in chat",
+		options: [
+			["Default", 0],
+			["Colored", 1],
+			["Painted", 2],
+		],
+		transform(v) {
+			return v === false ? 0 : 2;
+		},
+		defaultValue: 1,
 	}),
 	declareConfig<number>("chat.deleted_messages", "DROPDOWN", {
 		path: ["Chat", "Style"],
@@ -435,7 +411,7 @@ export const config = [
 			gridMode: "new-row",
 		},
 		label: "Custom Highlights",
-		hint: "Create custom highlights for specific words or phrases",
+		hint: "Create custom highlights for specific words, phrases or all messages from specific users",
 		defaultValue: new Map(),
 	}),
 	declareConfig<number>("highlights.sound_volume", "SLIDER", {
@@ -472,11 +448,11 @@ export const config = [
 		},
 		defaultValue: 10,
 	}),
-	declareConfig<boolean>("vanity.nametag_paints", "TOGGLE", {
-		path: ["Appearance", "Vanity"],
-		label: "Nametag Paints",
-		hint: "Whether or not to display nametag paints",
-		defaultValue: true,
+	declareConfig("chat.hide_bits_balance", "TOGGLE", {
+		label: "Hide Bits From Community Points Button",
+		hint: "Hide the bits balance from the community points button under the chatbox",
+		path: ["Chat", "Style"],
+		defaultValue: false,
 	}),
 ];
 </script>

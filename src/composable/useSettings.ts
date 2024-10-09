@@ -209,7 +209,15 @@ export function useSettings() {
 			};
 
 			if (["string", "boolean", "object", "number", "undefined"].includes(typeof raw[node.key])) {
-				raw[node.key] = raw[node.key] ?? node.defaultValue;
+				raw[node.key] = (() => {
+					const v = raw[node.key];
+					if (v === undefined) return node.defaultValue;
+
+					if (v.constructor.name === node.defaultValue?.constructor.name) return v;
+
+					if (typeof node.transform === "function") return node.transform(v);
+					return node.defaultValue ? node.defaultValue : v;
+				})();
 			}
 
 			if (typeof node.effect === "function") {

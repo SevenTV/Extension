@@ -1,8 +1,9 @@
-import { Ref, reactive, ref, toRef } from "vue";
+import { Ref, reactive, ref, toRef, watch } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
+import { useConfig } from "@/composable/useSettings";
 import { useLiveQuery } from "./useLiveQuery";
 import { useWorker } from "./useWorker";
 
@@ -23,6 +24,13 @@ const data = reactive({
 
 	staticallyAssigned: {} as Record<string, Record<string, never> | undefined>,
 });
+const dropShadowRender = useConfig<0 | 1 | 2>("vanity.paints_drop_shadows");
+
+watch(dropShadowRender, () =>
+	Object.values(data.cosmetics)
+		.filter((c) => c.kind === "PAINT")
+		.forEach((c) => updatePaintStyle(c as SevenTV.Cosmetic<"PAINT">)),
+);
 
 class CosmeticMap<T extends SevenTV.CosmeticKind> extends Map<string, SevenTV.Cosmetic<T>> {
 	private providers = new Set<SevenTV.Provider>();
@@ -61,16 +69,18 @@ db.ready().then(async () => {
 	useLiveQuery(
 		() => db.cosmetics.toArray(),
 		(result) => {
-			data.cosmetics = {};
+			const temp = {} as typeof data.cosmetics;
 
 			for (const cos of result) {
-				if (data.cosmetics[cos.id]) continue;
-				data.cosmetics[cos.id] = reactive(cos);
+				if (temp[cos.id]) continue;
+				temp[cos.id] = reactive(cos);
 
 				if (cos.kind === "PAINT") {
 					updatePaintStyle(cos as SevenTV.Cosmetic<"PAINT">);
 				}
 			}
+
+			data.cosmetics = temp;
 		},
 	);
 
@@ -384,11 +394,14 @@ export function updatePaintStyle(paint: SevenTV.Cosmetic<"PAINT">, remove = fals
 
 	const gradients = paint.data.gradients.map((g) => createGradientFromPaint(g));
 	const filter = (() => {
-		if (!paint.data.shadows) {
+		if (!paint.data.shadows || dropShadowRender.value == 0) {
 			return "";
 		}
 
-		return paint.data.shadows.map((v) => createFilterDropshadow(v)).join(" ");
+		return paint.data.shadows
+			.slice(0, dropShadowRender.value == 2 ? 1 : undefined)
+			.map((v) => createFilterDropshadow(v))
+			.join(" ");
 	})();
 
 	const selector = `.seventv-paint[data-seventv-paint-id="${paint.id}"]`;

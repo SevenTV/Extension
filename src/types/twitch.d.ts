@@ -119,6 +119,11 @@ declare module Twitch {
 		};
 	};
 
+	export enum WarnUserPopoverPlacement {
+		CHAT = 0,
+		VIEWERS_LIST = 1,
+	}
+
 	export type ChatControllerComponent = ReactExtended.WritableComponent<{
 		authToken: string | undefined;
 		channelDisplayName: string;
@@ -161,6 +166,10 @@ declare module Twitch {
 		userDisplayName: string | undefined;
 		userID: string | undefined;
 		userLogin: string | undefined;
+		warnUserTargetLogin: string | undefined;
+		warnUserTargetID: string | undefined;
+		setWarnUserTarget: (target: { targetUserLogin: string; targetUserID: string }) => void;
+		setWarnUserPopoverPlacement: (placement: WarnUserPopoverPlacement | null) => void;
 	}> & {
 		pushMessage: (msg: Partial<ChatMessage>) => void;
 		sendMessage: (msg: string, n?: any) => void;
@@ -219,6 +228,10 @@ declare module Twitch {
 	export type ChatEventComponent = ReactExtended.WritableComponent<{}> & {
 		onClearChatEvent: (e: { channel: string }) => void;
 	};
+
+	export type ChatListPresentationComponent = ReactExtended.WritableComponent<{
+		sharedChatDataByChannelID: Map<string, SharedChat>;
+	}>;
 
 	export interface MessageHandlerAPI {
 		addMessageHandler: (event: (msg: ChatMessage) => void) => void;
@@ -437,6 +450,10 @@ declare module Twitch {
 		determineGroup: (command: ChatCommand) => string;
 	};
 
+	export type ChatCommunityPointsButtonComponent = ReactExtended.WritableComponent<{}> & {
+		shouldShowBitsBalance: () => boolean;
+	};
+
 	export type ChatChannelPointsClaimComponent = ReactExtended.WritableComponent<{
 		hidden: boolean;
 	}> & {
@@ -476,6 +493,7 @@ declare module Twitch {
 		sendMessageHandler?: ChatTray.SendMessageHandler<H>;
 		messageHandler?: (v: string) => void;
 		placeholder?: string;
+		floating?: boolean;
 	}
 
 	export namespace ChatTray {
@@ -702,6 +720,17 @@ declare module Twitch {
 		userLogin: string;
 	}>;
 
+	export type SideBarComponent = ReactExtended.WritableComponent<{}> & {
+		collapseOnBreakpoint: () => void;
+	};
+
+	export type SideBarToggleComponent = ReactExtended.WritableComponent<{
+		collapsed: boolean;
+	}> & {
+		toggle: () => void;
+		handleToggleVisibility: () => void;
+	};
+
 	export enum Theme {
 		"Light",
 		"Dark",
@@ -831,6 +860,15 @@ declare module Twitch {
 		userLogin: string;
 		userType: string;
 		badges?: { id: string }[];
+	}
+
+	export interface SharedChat {
+		badges: BadgeSets;
+		displayName: string;
+		login: string;
+		primaryColorHex: string;
+		profileImageURL: string;
+		status: "ACTIVE" | "INACTIVE";
 	}
 
 	export interface TwitchEmote {

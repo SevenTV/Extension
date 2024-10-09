@@ -1,14 +1,31 @@
-import type { AnyToken, ChatUser, EmoteToken, LinkToken, VoidToken } from "@/common/chat/ChatMessage";
+import type { AnyToken, ChatUser, EmoteToken, LinkToken, TextToken, VoidToken } from "@/common/chat/ChatMessage";
+import { convertExternalKickEmote } from "./Transform";
 import { parse as tldParse } from "tldts";
 
 const URL_PROTOCOL_REGEXP = /^https?:\/\//i;
+const KICK_EMOTE_REGEXP = /^\[emote:(?<id>\d+):(?<name>.+)\]$/;
 const backwardModifierBlacklist = new Set(["w!", "h!", "v!", "z!"]);
+
+const delimiter = /( )|(\[emote:\d{1,10}:.{1,30}\])/;
 
 export function tokenize(opt: TokenizeOptions) {
 	const tokens = [] as AnyToken[];
 
-	const textParts = opt.body.split(" ");
+	const textParts = opt.body.split(delimiter).filter((part) => !!part);
+
 	const getEmote = (name: string) => {
+		if (opt.isKick) {
+			const match = KICK_EMOTE_REGEXP.exec(name);
+			if (match && match.groups) {
+				const { name, id } = match.groups;
+				return {
+					name: name,
+					id: id,
+					data: convertExternalKickEmote(id, name),
+					provider: "PLATFORM",
+				} as SevenTV.ActiveEmote;
+			}
+		}
 		if (opt.localEmoteMap?.[name] && Object.hasOwn(opt.localEmoteMap, name)) {
 			return opt.localEmoteMap[name];
 		}
@@ -79,10 +96,20 @@ export function tokenize(opt: TokenizeOptions) {
 					url: parsedUrl.toString(),
 				},
 			} as LinkToken);
+		} else if (tokens.at(-1)?.kind === "TEXT") {
+			const prev = tokens.at(-1) as TextToken;
+			prev.content += part;
+			prev.range = [prev.range[0], next - 1];
+		} else if (part !== " " || !nextEmote || !prevEmote) {
+			tokens.push({
+				kind: "TEXT",
+				range: [cursor + 1, next - 1],
+				content: part,
+			} as TextToken);
 		}
 
 		cursor = next;
-		if (!maybeEmote && !!part) lastEmoteToken = undefined;
+		if (!maybeEmote && !!part && part !== " ") lastEmoteToken = undefined;
 	}
 
 	tokens.sort((a, b) => a.range[0] - b.range[0]);
@@ -113,4 +140,5 @@ export interface TokenizeOptions {
 	filteredWords?: string[];
 	actorUsername?: string;
 	showModifiers?: boolean;
+	isKick?: boolean;
 }

@@ -15,11 +15,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-export type UserCardTabName = "messages" | "timeouts" | "bans" | "comments";
+export type UserCardTabName = "messages" | "warnings" | "timeouts" | "bans" | "comments";
 
 const props = defineProps<{
 	activeTab: UserCardTabName;
 	messageCount: number;
+	warningCount: number;
 	timeoutCount: number;
 	banCount: number;
 	commentCount: number;
@@ -33,6 +34,7 @@ const buttons = computed(
 	() =>
 		[
 			{ id: "messages", label: "Messages", count: props.messageCount, maxCount: 1000 },
+			{ id: "warnings", label: "Warnings", count: props.warningCount, maxCount: 99 },
 			{ id: "timeouts", label: "Timeouts", count: props.timeoutCount, maxCount: 99 },
 			{ id: "bans", label: "Bans", count: props.banCount, maxCount: 99 },
 			{ id: "comments", label: "Comments", count: props.commentCount, maxCount: 10 },
@@ -48,8 +50,8 @@ function formatCount(count: number, maxCount: number): string {
 .seventv-user-card-tabs {
 	border-top: 0.1rem solid hsla(0deg, 0%, 100%, 10%);
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	grid-template-areas: ". . . .";
+	grid-template-columns: repeat(5, 1fr);
+	grid-template-areas: ". . . . .";
 	height: 4rem;
 	box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 35%);
 	background-color: var(--seventv-background-transparent-1);

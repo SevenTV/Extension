@@ -5,6 +5,12 @@
 				<!--Identity (avatar, nametag, badges) -->
 				<div ref="dragHandle" class="seventv-user-card-identity">
 					<div class="seventv-user-card-menuactions">
+						<BellSlashIcon
+							v-if="data.targetUser.username in chatHighlights.getAllUsernameHighlights()"
+							v-tooltip="t('user_card.stop_highlight')"
+							@click="highlightUserMessages"
+						/>
+						<BellIcon v-else v-tooltip="t('user_card.highlight')" @click="highlightUserMessages" />
 						<LogoTwitch v-tooltip="t('user_card.native')" @click="openNativeCard" />
 						<CloseIcon class="close-button" @click="emit('close')" />
 					</div>
@@ -96,6 +102,7 @@
 					v-if="ctx.actor.roles.has('MODERATOR')"
 					:active-tab="data.activeTab"
 					:message-count="data.count.messages"
+					:warning-count="data.count.warnings"
 					:ban-count="data.count.bans"
 					:timeout-count="data.count.timeouts"
 					:comment-count="data.count.comments"
@@ -125,6 +132,7 @@ import { convertTwitchMessage } from "@/common/Transform";
 import { convertTwitchBadge } from "@/common/Transform";
 import { ChatMessage, ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useApollo } from "@/composable/useApollo";
@@ -135,6 +143,8 @@ import {
 	twitchUserCardModLogsQuery,
 	twitchUserCardQuery,
 } from "@/assets/gql/tw.user-card.gql";
+import BellIcon from "@/assets/svg/icons/BellIcon.vue";
+import BellSlashIcon from "@/assets/svg/icons/BellSlashIcon.vue";
 import CakeIcon from "@/assets/svg/icons/CakeIcon.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import HeartIcon from "@/assets/svg/icons/HeartIcon.vue";
@@ -165,6 +175,7 @@ const messages = useChatMessages(ctx);
 const { identity } = storeToRefs(useStore());
 const cosmetics = useCosmetics(props.target.id);
 const tools = useChatTools(ctx);
+const chatHighlights = useChatHighlights(ctx);
 
 const apollo = useApollo();
 const { t } = useI18n();
@@ -205,12 +216,14 @@ const data = reactive({
 	messageCursors: new WeakMap<ChatMessage, string>(),
 	timelines: {
 		messages: {} as Record<string, ChatMessage[]>,
+		warnings: {} as Record<string, ChatMessage[]>,
 		bans: {} as Record<string, ChatMessage[]>,
 		timeouts: {} as Record<string, ChatMessage[]>,
 		comments: {} as Record<string, ChatMessage[]>,
 	} as Record<UserCardTabName, Record<string, ChatMessage[]>>,
 	count: {
 		messages: 0,
+		warnings: 0,
 		bans: 0,
 		timeouts: 0,
 		comments: 0,
@@ -267,6 +280,7 @@ async function fetchModeratorData(): Promise<void> {
 	if (!resp || resp.errors?.length || !resp.data.channelUser) return;
 
 	data.count.messages = resp.data.viewerCardModLogs.messages.count ?? 0;
+	data.count.warnings = resp.data.viewerCardModLogs.warnings.count ?? 0;
 	data.count.bans = resp.data.viewerCardModLogs.bans.count ?? 0;
 	data.count.timeouts = resp.data.viewerCardModLogs.timeouts.count ?? 0;
 	data.count.comments = resp.data.viewerCardModLogs.comments.edges.length ?? 0;
@@ -275,11 +289,13 @@ async function fetchModeratorData(): Promise<void> {
 
 	const timeouts = resp.data.viewerCardModLogs.timeouts.edges;
 	const bans = resp.data.viewerCardModLogs.bans.edges;
+	const warnings = resp.data.viewerCardModLogs.warnings.edges;
 
-	// Add timeouts and bans to the timeline
+	// Add warnings, timeouts and bans to the timeline
 	for (const [tabName, a] of [
 		["timeouts", timeouts] as [UserCardTabName, typeof timeouts],
 		["bans", bans] as [UserCardTabName, typeof bans],
+		["warnings", warnings] as [UserCardTabName, typeof warnings],
 	]) {
 		const result = [] as ChatMessage[];
 
@@ -386,6 +402,31 @@ function openNativeCard(ev: MouseEvent): void {
 	if (!ok) return;
 
 	emit("close");
+}
+
+function highlightUserMessages(): void {
+	if (!data.targetUser.username) return;
+	let ok = false;
+	if (data.targetUser.username in chatHighlights.getAllUsernameHighlights()) {
+		chatHighlights.remove(data.targetUser.username);
+		ok = true;
+	} else {
+		chatHighlights.define(
+			data.targetUser.username,
+			{
+				pattern: data.targetUser.username,
+				label: "Messages by " + data.targetUser.username,
+				color: "#8803fc",
+				flashTitle: false,
+				username: true,
+			},
+			true,
+		);
+		ok = true;
+	}
+
+	if (!ok) return;
+	chatHighlights.save();
 }
 
 function getProfileURL(): string {
@@ -507,7 +548,7 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-$card-width: 32rem;
+$card-width: 37rem;
 $card-height: 48rem;
 
 main.seventv-user-card-container {
@@ -587,6 +628,7 @@ main.seventv-user-card-container {
 		right: 0.5rem;
 		top: 0.5rem;
 		height: 2rem;
+		width: 8rem;
 		display: flex;
 		column-gap: 0.25rem;
 
@@ -683,7 +725,7 @@ main.seventv-user-card-container {
 			// grid: position each badge next to the other on the same row, wrapping if necessary
 			display: flex;
 			flex-wrap: wrap;
-			max-width: 18rem;
+			max-width: 22rem;
 			gap: 0.5rem;
 			align-self: start;
 			z-index: 1;

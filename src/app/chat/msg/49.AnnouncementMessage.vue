@@ -4,7 +4,10 @@
 			<div class="announce-icon">
 				<TwAnnounce />
 			</div>
-			<div class="announce-title">Announcement</div>
+			<div class="announce-title">
+				<template v-if="msgData.sourceData"> {{ msgData.sourceData.displayName }}'s </template>
+				Announcement
+			</div>
 		</div>
 		<div class="announce-message">
 			<slot />

@@ -1,5 +1,5 @@
 <template>
-	<main ref="chatListEl" class="seventv-chat-list" :alternating-background="isAlternatingBackground">
+	<main ref="chatListEl" class="seventv-chat-list">
 		<div v-for="msg of displayedMessages" :key="msg.sym" :msg-id="msg.id" class="seventv-message">
 			<template v-if="msg.instance">
 				<component
@@ -51,6 +51,7 @@ import BasicSystemMessage from "@/app/chat/msg/BasicSystemMessage.vue";
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
 	messageHandler: Twitch.MessageHandlerAPI | null;
+	sharedChatData: Map<string, Twitch.SharedChat> | null;
 }>();
 
 const ctx = useChannelContext();
@@ -67,7 +68,6 @@ const pausedByVisibility = ref(false);
 
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const showModerationMessages = useConfig<boolean>("chat.mod_messages");
-const isAlternatingBackground = useConfig<boolean>("chat.alternating_background");
 const showMentionHighlights = useConfig("highlights.basic.mention");
 const showFirstTimeChatter = useConfig<boolean>("highlights.basic.first_time_chatter");
 const showSelfHighlights = useConfig<boolean>("highlights.basic.self");
@@ -78,6 +78,7 @@ const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored
 
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
+const sharedChatData = toRef(props, "sharedChatData");
 
 // Unrender messages out of view
 const chatListEl = ref<HTMLElement>();
@@ -160,6 +161,17 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 	if (msgData.type === MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE && showRestrictedLowTrustUser.value) {
 		msg.setHighlight("#ff7d00", "Restricted Suspicious User");
+	}
+
+	let sourceRoomID =
+		msgData.sourceRoomID ?? msgData.sharedChat?.sourceRoomID ?? msgData.message?.sourceRoomID ?? null;
+	if (!sourceRoomID && msgData.nonce) {
+		sourceRoomID = msg.channelID;
+	}
+
+	if (sourceRoomID) {
+		msgData.sourceData = sharedChatData.value?.get(sourceRoomID);
+		msg.setSourceData(msgData.sourceData);
 	}
 
 	// define message author
@@ -543,6 +555,7 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} mentioned you`
 					: undefined,
 				flashTitle: true,
+				phrase: true,
 			});
 
 			chatHighlights.define("~reply", {
@@ -561,6 +574,7 @@ watch(
 					? (msg: ChatMessage) => `🔔 @${msg.author?.username ?? "A user"} replied to you`
 					: undefined,
 				flashTitle: true,
+				phrase: true,
 			});
 		} else {
 			chatHighlights.remove("~mention");
@@ -582,11 +596,5 @@ defineExpose({
 	padding: 1rem 0;
 	font-size: var(--seventv-chat-font-size, inherit);
 	line-height: 1.5em;
-}
-
-.seventv-chat-list[alternating-background="true"] {
-	.seventv-message:nth-child(even) {
-		background-color: var(--seventv-chat-alternate-background-color);
-	}
 }
 </style>

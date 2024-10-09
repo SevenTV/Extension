@@ -25,6 +25,15 @@ export function getRootVNode(): ReactExtended.ReactVNode | undefined {
 	return undefined;
 }
 
+export function getReactProps<T>(element: Element): T | undefined {
+	for (const k in element) {
+		if (k.startsWith("__reactProps")) {
+			const props = Reflect.get(element, k);
+			return props;
+		}
+	}
+	return undefined;
+}
 /**
  * Searches the React VDOM tree for a component, starting at the defined node, searching upwards.
  * @param node React VDOM node to start at
@@ -306,6 +315,9 @@ export function defineComponentHook<C extends ReactExtended.WritableComponent>(
 				if (options.functionHooks) {
 					for (const [k, f] of Object.entries(options.functionHooks)) {
 						defineFunctionHook(proto, k as keyof C, f);
+						for (const instance of instances) {
+							defineFunctionHook(instance, k as keyof C, f);
+						}
 					}
 				}
 
@@ -413,6 +425,9 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 				if (hook.cls) {
 					unsetPropertyHook(hook.cls.prototype, k as keyof C);
 				}
+				for (const instance of hook.instances) {
+					unsetPropertyHook(instance.component, k as keyof C);
+				}
 			}
 		}
 		unhookComponent(hook);
@@ -420,6 +435,73 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 
 	return hook;
 }
+
+export function getElementFiberStatic<P>(
+	elem: Element,
+	offset: number,
+): ReactExtended.ReactFunctionalFiber<P> | undefined {
+	const node = getVNodeFromDOM(elem);
+	if (!node) return;
+	let current = node;
+	for (let i = 0; i < offset; i++) {
+		if (!current.return) return;
+		current = current.return;
+	}
+	if (!current.elementType) return;
+
+	return current as unknown as ReactExtended.ReactFunctionalFiber<P>;
+}
+
+export async function useStaticRenderFunctionHook<P extends object>(
+	selector: string,
+	offset: number,
+	func: HookedElementFunction<P>,
+) {
+	let elem = document.querySelector(selector);
+
+	if (!elem || !getElementFiberStatic(elem, offset)) {
+		elem = await new Promise<Element>((resolve) => {
+			const observer = new MutationObserver((records) => {
+				for (const record of records) {
+					if (!record.addedNodes) continue;
+					record.addedNodes.forEach((node) => {
+						if (node instanceof Element && node.querySelector(selector)) {
+							if (getElementFiberStatic(node, offset)) {
+								resolve(node);
+								observer.disconnect();
+								return;
+							}
+						}
+					});
+				}
+			});
+			observer.observe(document, { childList: true, subtree: true });
+		});
+	}
+
+	if (!elem) return;
+
+	const fiber = getElementFiberStatic<P>(elem, offset)!;
+
+	defineFunctionHook(fiber.elementType, "render", func);
+	func.call(fiber.elementType, null, fiber.pendingProps);
+
+	onUnmounted(() => {
+		unsetPropertyHook(fiber.elementType, "render");
+	});
+}
+
+type RenderFunction<P extends object> = (props: P, ref?: React.RefObject<Element>) => ReactExtended.ReactRuntimeElement;
+
+type HookedElementFunction<
+	P extends object,
+	E extends ReactExtended.ReactFunctionalFiber<P> = ReactExtended.ReactFunctionalFiber<P>,
+> = (
+	this: E["elementType"],
+	old: RenderFunction<P> | null,
+	props: P,
+	ref?: React.RefObject<Element>,
+) => ReactExtended.ReactRuntimeElement | null;
 
 interface ComponentCriteria {
 	parentSelector?: string;

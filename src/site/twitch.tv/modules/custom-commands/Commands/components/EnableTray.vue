@@ -8,7 +8,7 @@
 				<div class="header-button" :disabled="page === 1" @click="page--"><text> &lt; </text></div>
 				<div class="header-button" :disabled="page === maxPage" @click="page++"><text> &gt; </text></div>
 			</div>
-			<span class="text" :class="notice.type">
+			<span v-tooltip:top="notice.tooltip" class="text" :class="notice.type">
 				{{ notice.type === "none" ? search : notice.message }}
 			</span>
 			<Alias v-if="mut.canEditSet" :alias="alias" :invalid="invalidAlias" @update:alias="alias = $event" />
@@ -62,6 +62,7 @@ import Alias from "@/app/chat/EmoteAliasButton.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import { useQuery } from "@vue/apollo-composable";
+import { GraphQLError } from "graphql";
 
 const props = defineProps<{
 	search: string;
@@ -78,7 +79,7 @@ const exactMatch = ref(false);
 const page = ref(1);
 const maxPage = computed(() => (result.value ? Math.ceil(result.value?.emotes.count / pageSize.value) : 1));
 
-type Notice = { type: "error" | "info" | "none"; message: string };
+type Notice = { type: "error" | "info" | "none"; message: string; tooltip?: string };
 
 const notice = refAutoReset<Notice>({ type: "none", message: "" }, 3000);
 const alias = ref("");
@@ -135,30 +136,30 @@ const onEmoteClick = (e: MouseEvent, emote: SevenTV.Emote) => {
 
 	if (!props.mut.canEditSet) {
 		navigator.clipboard.writeText(`https://7tv.app/emotes/${emote.id}`);
-		notice.value = { type: "info", message: "Copied" };
+		notice.value = { type: "info", message: "Copied", tooltip: "Emote link copied to clipboard" };
 		return;
 	}
 
 	if (isEnabled(emote)) {
-		props.mut.remove(emote.id).catch(() => {
-			notice.value = { type: "error", message: "Error" };
+		props.mut.remove(emote.id).catch((err: GraphQLError) => {
+			notice.value = { type: "error", message: "Error", tooltip: err.message };
 		});
 		return;
 	}
 
 	if (invalidAlias.value) {
-		notice.value = { type: "error", message: "Invalid alias" };
+		notice.value = { type: "error", message: "Invalid alias", tooltip: "The alias contains illegal characters" };
 		return;
 	}
 
 	if (isConflict(emote)) {
-		notice.value = { type: "error", message: "Name conflict" };
+		notice.value = { type: "error", message: "Name conflict", tooltip: "The emote name is already in use" };
 		return;
 	}
 
 	const name = alias.value !== "" ? alias.value : emote.name;
-	props.mut.add(emote.id, name).catch(() => {
-		notice.value = { type: "error", message: "Error" };
+	props.mut.add(emote.id, name).catch((err: GraphQLError) => {
+		notice.value = { type: "error", message: "Error", tooltip: err.message };
 	});
 	alias.value = "";
 };

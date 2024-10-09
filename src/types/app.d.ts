@@ -106,6 +106,7 @@ declare namespace SevenTV {
 		disabledIf?: () => boolean;
 		predicate?: (p: T) => boolean;
 		effect?: (v: T) => void;
+		transform?: (v: unknown) => T;
 
 		options?: {
 			SELECT: [string, T][];
@@ -480,6 +481,7 @@ declare namespace FFZ {
 			display_name: string;
 		} | null;
 		urls: LinkMap;
+		animated?: LinkMap;
 	}
 
 	interface BadgesResponse {

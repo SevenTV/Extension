@@ -1,3 +1,55 @@
+### 3.1.2.4000
+
+-   Fixed a bug that could cause issues when clicking an emoji in chat
+-   Fixed an issue with emote sets not switching on channel switch
+-   Fixed an issue with making users unable to chat
+-   Fixed an issue with certain settings not saving
+
+### 3.1.2.3000
+
+-   Added an option to expand sidebar on twitch when hovering
+-   Fixed mentions not being clickable when colored mentions are turned off
+-   Added link to creators 7TV profile to emote cards of 7TV emotes
+
+### 3.1.2.2000
+
+-   Fixed some settings on kick
+-   Added more drop shadow settings
+
+### 3.1.2.1000
+
+-   **Implement support for the new Kick site:**
+    -   Chat emotes
+    -   Emote menu
+    -   Emote auto-completion
+    -   Cosmetics
+-   Added option to settings to hide Stories from the sidebar
+-   Fixed settings to hide recommended channels and viewers also watch channels
+-   Fixed an issue where history navigation is accidentally triggered during IME composition
+-   Added option to highlight messages of specific usernames
+-   Added option to highlight messages based on badges
+-   Added button to user card to toggle highlighting for a users messages
+-   Added mod icon for warning users to chat mod icons and user card
+-   Added an option to limit the drop shadows on paints
+
+### 3.1.1.3000
+
+-   Added support for animated FFZ emotes
+-   Added option to hide whispers
+-   Added tooltip to error messages in /search
+
+### 3.1.1.2100
+
+-   Fixed an issue where certain hooks would not work properly
+
+### 3.1.1.2000
+
+-   Added option to hide 7TV badges from chat
+-   Added option to hide bits from community button
+-   Fixed an issue where twitch emotes were displayed larger after hovering over them
+-   Fixed an issue causing VOD messages to display two timestamps
+-   Fixed an issue where the chat would keep rendering emotes of the previous channel
+
 ### 3.1.0.3000
 
 -   Fixed video player stats not showing
