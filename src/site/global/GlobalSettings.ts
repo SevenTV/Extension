@@ -17,6 +17,7 @@ export const dataSettings = [
 	declareConfig("ui.emote_menu.usage", "NONE", {
 		label: "Emote menu usage",
 		defaultValue: new Map(),
+		transform: (v) => (String(v) !== "[object Map]" ? new Map() : (v as Map<string, number>)),
 		serialize: false,
 	}),
 	declareConfig("ui.emote_menu.collapsed_sets", "NONE", {

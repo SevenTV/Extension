@@ -211,10 +211,12 @@ export function useSettings() {
 			if (["string", "boolean", "object", "number", "undefined"].includes(typeof raw[node.key])) {
 				raw[node.key] = (() => {
 					const v = raw[node.key];
-					if (!v) return node.defaultValue;
-					if (typeof v === typeof node.defaultValue) return v;
+					if (v === undefined) return node.defaultValue;
+
+					if (v.constructor.name === node.defaultValue?.constructor.name) return v;
+
 					if (typeof node.transform === "function") return node.transform(v);
-					return node.defaultValue;
+					return node.defaultValue ? node.defaultValue : v;
 				})();
 			}
 
