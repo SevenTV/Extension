@@ -454,5 +454,11 @@ export const config = [
 		path: ["Chat", "Style"],
 		defaultValue: false,
 	}),
+	declareConfig("chat.hide_shared_chat", "TOGGLE", {
+		label: "Hide Shared Chat",
+		hint: "Hides messages from other chats",
+		path: ["Chat", "Style"],
+		defaultValue: false,
+	}),
 ];
 </script>
