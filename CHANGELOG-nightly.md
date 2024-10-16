@@ -1,3 +1,7 @@
+### 3.1.3.1000
+
+-   Added option hide shared chat
+
 ### 3.1.2.4000
 
 -   Fixed a bug that could cause issues when clicking an emoji in chat

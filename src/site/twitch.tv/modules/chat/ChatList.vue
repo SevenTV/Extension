@@ -66,6 +66,7 @@ const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
 const pausedByVisibility = ref(false);
 
+const hideSharedChat = useConfig<boolean>("chat.hide_shared_chat");
 const isModSliderEnabled = useConfig<boolean>("chat.mod_slider");
 const showModerationMessages = useConfig<boolean>("chat.mod_messages");
 const showMentionHighlights = useConfig("highlights.basic.mention");
@@ -169,7 +170,11 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		sourceRoomID = msg.channelID;
 	}
 
-	if (sourceRoomID) {
+	if (hideSharedChat.value && msg.channelID != sourceRoomID) {
+		return;
+	}
+
+	if (sourceRoomID && !hideSharedChat.value) {
 		msgData.sourceData = sharedChatData.value?.get(sourceRoomID);
 		msg.setSourceData(msgData.sourceData);
 	}
