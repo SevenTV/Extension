@@ -1,6 +1,7 @@
 ### 3.1.3.1000
 
 -   Added option hide shared chat
+-   Fixed an issue with profile picture in shared chat
 
 ### 3.1.2.4000
 
