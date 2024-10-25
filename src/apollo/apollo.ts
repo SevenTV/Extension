@@ -4,13 +4,12 @@ import { ApolloClient, ApolloLink, InMemoryCache, createHttpLink } from "@apollo
 
 export const httpLink = createHttpLink({
 	uri: import.meta.env.VITE_APP_API_GQL,
-	credentials: "include",
 });
 
 const token = useConfig<string>("app.7tv.token");
 const authLink = new ApolloLink((op, next) => {
 	const jwt = decodeJWT(token.value);
-	if (!jwt || jwt.exp * 1000 < Date.now()) {
+	if (!jwt || jwt.exp * 1000 < Date.now() || !jwt.sub) {
 		token.value = "";
 		return next(op);
 	}
