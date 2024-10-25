@@ -1,6 +1,7 @@
 ### 3.1.3.1000
 
 -   Fixed extension login
+-   Fixed an issue when users had multiple personal emote sets
 
 ### 3.1.2.4000
 

@@ -1,4 +1,4 @@
-import { Ref, reactive, ref, toRef, watch } from "vue";
+import { ComputedRef, computed, reactive, toRef, watch } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { log } from "@/common/Logger";
@@ -20,7 +20,7 @@ const data = reactive({
 	userBadges: {} as Record<string, CosmeticMap<"BADGE">>,
 	userPaints: {} as Record<string, CosmeticMap<"PAINT">>,
 	userEmoteSets: {} as Record<string, Map<string, SevenTV.EmoteSet>>,
-	userEmoteMap: {} as Record<string, Record<string, SevenTV.ActiveEmote>>,
+	userEmoteMap: {} as Record<string, ComputedRef<Record<string, SevenTV.ActiveEmote>>>,
 
 	staticallyAssigned: {} as Record<string, Record<string, never> | undefined>,
 });
@@ -233,61 +233,42 @@ db.ready().then(async () => {
 	}
 
 	// Watch a user's personal emote set for creation or changes
-	function watchSet(userID: string, setID: SevenTV.ObjectID): Ref<SevenTV.EmoteSet | null> {
-		const es = ref<SevenTV.EmoteSet | null>(null);
+	function watchSet(userID: string, setID: SevenTV.ObjectID) {
+		return new Promise<SevenTV.EmoteSet | null>((resolve) => {
+			useLiveQuery(
+				() => db.emoteSets.where("id").equals(setID).first(),
+				(res) => {
+					data.sets[setID] = res;
 
-		data.userEmoteMap[userID] = {};
-
-		useLiveQuery(
-			() => db.emoteSets.where("id").equals(setID).first(),
-			(res) => {
-				es.value = res; // assign to value
-
-				data.sets[setID] = es.value;
-
-				// Re-assign the user's personal emote map
-				const e = es.value.emotes
-					.filter((ae) => ae.data && ae.data.state?.includes("PERSONAL")) // filter out emotes that are not personal-use approved
-					.reduce((acc, cur) => ({ ...acc, [cur.name]: cur }), {} as Record<string, SevenTV.ActiveEmote>);
-
-				for (const eid in e) {
-					data.userEmoteMap[userID][eid] = e[eid];
-				}
-
-				// Update the set's data
-				data.userEmoteSets[userID]?.set(setID, es.value);
-			},
-			{
-				until: until(data.userEmoteMap[userID])
-					.toBeUndefined()
-					.then(() => true),
-			},
-		);
-
-		return es;
+					// Update the set's data
+					data.userEmoteSets[userID]?.set(setID, res);
+					resolve(res);
+				},
+				{
+					until: until(useTimeout(10000))
+						.toBeTruthy()
+						.then(() => resolve(null))
+						.then(() => true),
+					count: 1,
+				},
+			);
+		});
 	}
 
 	// Bind a user's personal emote set
 	async function bindUserEmotes(userID: string, setID: string) {
-		const es = watchSet(userID, setID);
-
-		// Wait until set becomes available
-		// or timeout after 10 seconds
-		const set = await Promise.race([
-			until(es).not.toBeNull(),
-			until(useTimeout(10000))
-				.toBeTruthy()
-				.then(() => null),
-		]);
+		const set = await watchSet(userID, setID);
 
 		if (!set) {
 			delete data.userEmoteMap[userID];
 
-			log.warn("<Cosmetics>", "Emote Set could not be found", `id=${setID}`);
+			log.warn("<Cosmetics>", "Em ggote Set could not be found", `id=${setID}`);
 			return;
 		}
 
-		if (!data.userEmoteSets[userID]) data.userEmoteSets[userID] = new Map();
+		if (!data.userEmoteSets[userID]) {
+			data.userEmoteSets[userID] = new Map();
+		}
 		if (!data.userEmoteSets[userID].has(setID)) {
 			data.userEmoteSets[userID].set(setID, set);
 		}
@@ -339,7 +320,17 @@ db.ready().then(async () => {
 export function useCosmetics(userID: string) {
 	if (!data.userBadges[userID]) data.userBadges[userID] = new CosmeticMap();
 	if (!data.userPaints[userID]) data.userPaints[userID] = new CosmeticMap();
-	if (!data.userEmoteMap[userID]) data.userEmoteMap[userID] = {};
+	if (!data.userEmoteMap[userID])
+		data.userEmoteMap[userID] = computed(() => {
+			const un = {} as Record<string, SevenTV.ActiveEmote>;
+			for (const set of data.userEmoteSets[userID].values()) {
+				for (const emote of set.emotes) {
+					if (!emote.data?.state?.includes("PERSONAL")) continue;
+					un[emote.name] = emote;
+				}
+			}
+			return un;
+		});
 
 	return reactive({
 		paints: toRef(data.userPaints, userID),
