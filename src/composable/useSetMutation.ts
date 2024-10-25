@@ -33,7 +33,7 @@ export function useSetMutation(setID?: string): SetMutation {
 			() => ctx.user,
 			(u) => {
 				if (!u) return;
-				setID = u.connections?.find((s) => s.platform === ctx.platform)?.emote_set?.id;
+				setID = u.connections?.find((s) => s.platform === ctx.platform)?.emote_set_id;
 			},
 			{ immediate: true },
 		);
