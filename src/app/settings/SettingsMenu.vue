@@ -106,7 +106,7 @@
 							<div
 								v-if="actor.token"
 								class="seventv-settings-sidebar-profile-logout seventv-settings-expanded"
-								@click="actor.logout()"
+								@click.stop="actor.logout"
 							>
 								<LogoutIcon />
 							</div>
