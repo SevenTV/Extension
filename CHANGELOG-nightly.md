@@ -1,3 +1,7 @@
+### 3.1.3.1000
+
+-   Fixed extension login
+
 ### 3.1.2.4000
 
 -   Fixed a bug that could cause issues when clicking an emoji in chat
