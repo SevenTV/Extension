@@ -22,7 +22,7 @@ export const UNICODE_TAG_0_REGEX = new RegExp(UNICODE_TAG_0, "g");
 
 export const HOSTNAME_SUPPORTED_REGEXP = /([a-z0-9]+[.])*(youtube|kick)[.]com/;
 export const SEVENTV_EMOTE_LINK = new RegExp(
-	"https?:\\/\\/(?:www\\.)?7tv.app\\/emotes\\/(?<emoteID>[0-9a-f]{24})",
+	"https?:\\/\\/(?:www\\.)?7tv.app\\/emotes\\/(?<emoteID>[0-7][0-9A-HJKMNP-TV-Z]{25})",
 	"i",
 );
 export const SEVENTV_EMOTE_ID = new RegExp("[0-9a-f]{24}");

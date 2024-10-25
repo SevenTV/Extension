@@ -54,12 +54,11 @@ declare namespace SevenTV {
 	}
 
 	interface JWT {
-		u: string;
-		v: number;
 		iss: string;
+		sub: string;
 		exp: number;
-		nbf: number;
 		iat: number;
+		jti: string;
 	}
 
 	interface EmoteSet {

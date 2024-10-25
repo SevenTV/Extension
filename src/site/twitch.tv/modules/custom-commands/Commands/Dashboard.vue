@@ -210,7 +210,7 @@ const actor = useActor();
 const perms = [SevenTVRoles.ADMIN, SevenTVRoles.MODERATOR] as string[];
 
 const commandEditAnySet: Twitch.ChatCommand = {
-	name: "letmemamageemoteset",
+	name: "letmemanageemoteset",
 	description: "<Mod> Lets you edit any 7TV emote set",
 	helpText: "",
 	permissionLevel: 0,
