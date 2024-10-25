@@ -260,9 +260,7 @@ db.ready().then(async () => {
 		const set = await watchSet(userID, setID);
 
 		if (!set) {
-			delete data.userEmoteMap[userID];
-
-			log.warn("<Cosmetics>", "Em ggote Set could not be found", `id=${setID}`);
+			log.warn("<Cosmetics>", "Emote Set could not be found", `id=${setID}`);
 			return;
 		}
 
@@ -320,6 +318,7 @@ db.ready().then(async () => {
 export function useCosmetics(userID: string) {
 	if (!data.userBadges[userID]) data.userBadges[userID] = new CosmeticMap();
 	if (!data.userPaints[userID]) data.userPaints[userID] = new CosmeticMap();
+	if (!data.userEmoteSets[userID]) data.userEmoteSets[userID] = new Map();
 	if (!data.userEmoteMap[userID])
 		data.userEmoteMap[userID] = computed(() => {
 			const un = {} as Record<string, SevenTV.ActiveEmote>;
