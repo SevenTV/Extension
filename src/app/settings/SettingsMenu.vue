@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, toRef, watch } from "vue";
 import { useBreakpoints, useMagicKeys } from "@vueuse/core";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
@@ -144,11 +144,11 @@ const settings = useSettings();
 const actor = useActor();
 const updater = useUpdater();
 
+const filter = toRef(ctx, "filter");
+
 // The useDraggable needs an element to use middleware
 const root = document.getElementById("root") ?? undefined;
 const dragHandle = ref<HTMLDivElement | undefined>();
-
-const filter = ref("");
 
 const breakpoints = useBreakpoints({
 	compact: 960,

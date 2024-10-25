@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import { nextTick, watch } from "vue";
+import { useNavigator } from "@/composable/useNavigator";
 import { useConfig, useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import { useWorker } from "@/composable/useWorker";
@@ -49,4 +50,6 @@ const stop = watch(
 	},
 	{ immediate: true },
 );
+
+useNavigator();
 </script>

@@ -18,6 +18,8 @@ class SettingsMenuContext {
 	intersectingSubcategory = "";
 	seen = [] as string[];
 
+	filter = "";
+
 	mappedNodes: Record<string, Record<string, SevenTV.SettingNode[]>> = reactive({
 		Home: {},
 	});
@@ -51,7 +53,7 @@ class SettingsMenuContext {
 	}
 }
 
-const views = {
+export const views = {
 	home: SettingsViewHomeVue,
 	config: SettingsViewConfigVue,
 	profile: SettingsViewProfileVue,

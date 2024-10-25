@@ -78,6 +78,12 @@
 					<div v-if="!updater.isUpToDate" class="seventv-emote-menu-settings-button-update-flair" />
 				</div>
 			</div>
+			<div class="seventv-emote-menu-settings-button-container">
+				<InternalAnchor class="seventv-emote-menu-settings-button" param="settings:key:chat.minify_spam">
+					<GearsIcon :provider="'7TV'" />
+					<div v-if="!updater.isUpToDate" class="seventv-emote-menu-settings-button-update-flair" />
+				</InternalAnchor>
+			</div>
 		</div>
 	</div>
 </template>
@@ -99,6 +105,7 @@ import Logo from "@/assets/svg/logos/Logo.vue";
 import type { EmoteMenuTabName } from "./EmoteMenu.vue";
 import { useEmoteMenuContext } from "./EmoteMenuContext";
 import EmoteMenuSet from "./EmoteMenuSet.vue";
+import InternalAnchor from "@/app/components/InternalAnchor.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 import StoreSubscribeButton from "../store/StoreSubscribeButton.vue";
 
