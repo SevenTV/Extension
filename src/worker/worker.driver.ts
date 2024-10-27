@@ -143,6 +143,7 @@ type WorkerEventName =
 	| "set_channel_presence"
 	| "identity_updated"
 	| "user_updated"
+	| "request_user_cosmetics"
 	| "imageformat_updated";
 
 type WorkerTypedEvent<EVN extends WorkerEventName> = {
@@ -155,6 +156,7 @@ type WorkerTypedEvent<EVN extends WorkerEventName> = {
 	channel_data_fetched: CurrentChannel;
 	identity_updated: TwitchIdentity | YouTubeIdentity;
 	user_updated: SevenTV.User;
+	request_user_cosmetics: ["id" | "username", string][];
 	imageformat_updated: string;
 }[EVN];
 

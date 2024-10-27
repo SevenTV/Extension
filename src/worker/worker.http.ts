@@ -66,6 +66,21 @@ export class WorkerHttp {
 			if (!ev.port) return;
 			WorkerHttp.imageFormat = ev.port.imageFormat!;
 		});
+		driver.addEventListener("request_user_cosmetics", async (ev) => {
+			if (!ev.port) return;
+
+			const cosmetics = await this.API()
+				.seventv.loadUserCosmetics(ev.detail)
+				.catch(() => void 0);
+
+			if (!cosmetics) {
+				return;
+			}
+
+			for (const cosmetic of cosmetics) {
+				this.driver.eventAPI.onCosmetic(cosmetic);
+			}
+		});
 	}
 
 	public async fetchConfig(): Promise<SevenTV.Config> {
@@ -299,6 +314,23 @@ export const seventv = {
 		if (!userConn.user) return Promise.reject(new Error("No user was returned!"));
 
 		return Promise.resolve(userConn.user);
+	},
+
+	async loadUserCosmetics(identifiers: ["id" | "username", string][]): Promise<SevenTV.Cosmetic<"AVATAR">[]> {
+		const body = {
+			identifiers: identifiers.map(([idType, id]) => `${idType}:${id}`),
+		};
+
+		const resp = await doRequest(API_BASE.SEVENTV, "bridge/event-api", "POST", body).catch((err) =>
+			Promise.reject(err),
+		);
+
+		if (!resp || resp.status !== 200) {
+			return Promise.reject(resp);
+		}
+
+		const cosmetics = (await resp.json()) as SevenTV.Cosmetic<"AVATAR">[];
+		return Promise.resolve(cosmetics);
 	},
 };
 

@@ -96,17 +96,7 @@ export class WorkerPort {
 				if (!Array.isArray(identifiers) || !this.platform || !kinds.length) break;
 
 				log.debugWithObjects(["Requesting cosmetics"], [identifiers, kinds]);
-				this.driver.eventAPI.sendMessage({
-					op: "BRIDGE",
-					data: {
-						command: "userstate",
-						body: {
-							identifiers: identifiers.map(([idType, id]) => `${idType}:${id}`),
-							platform: this.platform,
-							kinds,
-						},
-					},
-				});
+				this.driver.emit("request_user_cosmetics", identifiers, this);
 				break;
 			}
 			case "CLOSE":

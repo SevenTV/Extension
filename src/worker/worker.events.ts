@@ -170,6 +170,13 @@ export class EventAPI {
 		log.error("<EventAPI>", "Error received", msg.data.message);
 	}
 
+	onCosmetic(cosmetic: SevenTV.Cosmetic<"AVATAR">): void {
+		this.onMessage({
+			op: "DISPATCH",
+			data: cosmetic as EventAPIMessage<"DISPATCH">,
+		});
+	}
+
 	resume(sessionID: string): void {
 		this.sendMessage({
 			op: "RESUME",
