@@ -1,3 +1,7 @@
+### 3.1.4
+
+-   Fixed an issue with avatars not loading
+
 ### 3.1.3
 
 -   Added option hide shared chat

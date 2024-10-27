@@ -16,7 +16,9 @@ export class EventAPI {
 	subscriptions: Record<string, SubscriptionRecord[]> = {};
 
 	url = import.meta.env.VITE_APP_API_EVENTS;
+	branch = import.meta.env.VITE_APP_VERSION_BRANCH;
 	version = import.meta.env.VITE_APP_VERSION;
+
 	private socket: WebSocket | null = null;
 	private eventSource: EventSource | null = null;
 	private shouldResume = false;
@@ -43,7 +45,7 @@ export class EventAPI {
 
 		const url = new URL(this.url);
 
-		url.searchParams.append("app", "7tv-extension");
+		url.searchParams.append("app", `7tv-extension${this.branch ? `-${this.branch}` : ""}`);
 		url.searchParams.append("version", this.version);
 
 		this.transport = transport;
