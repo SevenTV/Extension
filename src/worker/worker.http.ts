@@ -7,6 +7,7 @@ import { convertBttvEmoteSet, convertFFZEmoteSet, convertFfzBadges } from "@/com
 import { db } from "@/db/idb";
 import type { WorkerDriver } from "./worker.driver";
 import type { WorkerPort } from "./worker.port";
+import { EventAPIMessage } from ".";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API;
@@ -65,6 +66,21 @@ export class WorkerHttp {
 		driver.addEventListener("imageformat_updated", async (ev) => {
 			if (!ev.port) return;
 			WorkerHttp.imageFormat = ev.port.imageFormat!;
+		});
+		driver.addEventListener("request_user_cosmetics", async (ev) => {
+			if (!ev.port) return;
+
+			const cosmeticEvents = await this.API()
+				.seventv.loadUserCosmetics(ev.detail)
+				.catch(() => void 0);
+
+			if (!cosmeticEvents) {
+				return;
+			}
+
+			for (const cosmeticEvent of cosmeticEvents) {
+				this.driver.eventAPI.onDispatch(cosmeticEvent);
+			}
 		});
 	}
 
@@ -299,6 +315,23 @@ export const seventv = {
 		if (!userConn.user) return Promise.reject(new Error("No user was returned!"));
 
 		return Promise.resolve(userConn.user);
+	},
+
+	async loadUserCosmetics(identifiers: ["id" | "username", string][]): Promise<EventAPIMessage<"DISPATCH">[]> {
+		const body = {
+			identifiers: identifiers.map(([idType, id]) => `${idType}:${id}`),
+		};
+
+		const resp = await doRequest(API_BASE.SEVENTV, "bridge/event-api", "POST", body).catch((err) =>
+			Promise.reject(err),
+		);
+
+		if (!resp || resp.status !== 200) {
+			return Promise.reject(resp);
+		}
+
+		const cosmetics = (await resp.json()) as EventAPIMessage<"DISPATCH">[];
+		return Promise.resolve(cosmetics);
 	},
 };
 

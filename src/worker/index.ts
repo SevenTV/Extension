@@ -115,7 +115,6 @@ export enum EventAPIOpCode {
 	RESUME = 34,
 	SUBSCRIBE = 35,
 	UNSUBSCRIBE = 36,
-	BRIDGE = 38,
 
 	UNKNOWN = 1001,
 }
