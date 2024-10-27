@@ -43,7 +43,7 @@ export class EventAPI {
 
 		const url = new URL(this.url);
 
-		url.searchParams.append("app", "extension")
+		url.searchParams.append("app", "extension");
 		url.searchParams.append("version", this.version);
 
 		this.transport = transport;
