@@ -1,4 +1,4 @@
-import { InjectionKey, inject, provide, reactive, toRaw, watch } from "vue";
+import { InjectionKey, inject, nextTick, provide, reactive, toRaw, watch } from "vue";
 import { useConfig } from "@/composable/useSettings";
 import { userByConnectionQuery, userQuery } from "@/assets/gql/seventv.user.gql";
 import { SubscriptionResponse, useEgVault } from "@/app/store/egvault";
@@ -23,11 +23,7 @@ class ActorContext {
 	}
 
 	logout(): void {
-		fetch(import.meta.env.VITE_APP_API + "/auth/logout", {
-			method: "POST",
-			credentials: "include",
-		}).then(() => {
-			// So the user can re-authenticate if needed
+		nextTick(() => {
 			this.token = "";
 		});
 	}

@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { TWITCH_PROFILE_IMAGE_REGEX } from "@/common/Constant";
 import { useTooltip } from "@/composable/useTooltip";
 import BadgeTooltip from "./BadgeTooltip.vue";
 
@@ -30,7 +31,8 @@ const borderRadius = ref("");
 const srcset = {
 	twitch: (badge: Twitch.ChatBadge) => `${badge.image1x} 1x, ${badge.image2x} 2x, ${badge.image4x} 4x`,
 	picture: (badge: Twitch.SharedChat) =>
-		`${badge.profileImageURL.slice(0, -9)}28x28.png 1.6x, ${badge.profileImageURL.slice(0, -9)}70x70.png 3.8x`,
+		`${badge.profileImageURL.replace(TWITCH_PROFILE_IMAGE_REGEX, "28x28")} 1.6x,
+		${badge.profileImageURL.replace(TWITCH_PROFILE_IMAGE_REGEX, "70x70")} 3.8x`,
 	app: (badge: SevenTV.Cosmetic<"BADGE">) =>
 		badge.data.host.files.map((fi, i) => `https:${badge.data.host.url}/${fi.name} ${i + 1}x`).join(", "),
 }[props.type](props.badge as SevenTV.Cosmetic<"BADGE"> & Twitch.SharedChat & Twitch.ChatBadge);
