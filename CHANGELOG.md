@@ -1,3 +1,10 @@
+### 3.1.3
+
+-   Added option hide shared chat
+-   Fixed an issue with profile picture in shared chat
+-   Fixed extension login
+-   Fixed an issue when users had multiple personal emote sets
+
 ### 3.1.2
 
 -   **Implement support for the new Kick site:**
