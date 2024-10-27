@@ -122,7 +122,7 @@ export class EventAPI {
 		);
 	}
 
-	private onDispatch(msg: EventAPIMessage<"DISPATCH">): void {
+	onDispatch(msg: EventAPIMessage<"DISPATCH">): void {
 		handleDispatchedEvent(this.getContext(), msg.data.type, msg.data.body);
 
 		log.debugWithObjects(["<EventAPI>", "Dispatch received"], [msg.data]);
@@ -168,13 +168,6 @@ export class EventAPI {
 
 	private onError(msg: EventAPIMessage<"ERROR">): void {
 		log.error("<EventAPI>", "Error received", msg.data.message);
-	}
-
-	onCosmetic(cosmetic: SevenTV.Cosmetic<"AVATAR">): void {
-		this.onMessage({
-			op: "DISPATCH",
-			data: cosmetic as EventAPIMessage<"DISPATCH">,
-		});
 	}
 
 	resume(sessionID: string): void {

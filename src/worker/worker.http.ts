@@ -7,6 +7,7 @@ import { convertBttvEmoteSet, convertFFZEmoteSet, convertFfzBadges } from "@/com
 import { db } from "@/db/idb";
 import type { WorkerDriver } from "./worker.driver";
 import type { WorkerPort } from "./worker.port";
+import { EventAPIMessage } from ".";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API;
@@ -69,16 +70,16 @@ export class WorkerHttp {
 		driver.addEventListener("request_user_cosmetics", async (ev) => {
 			if (!ev.port) return;
 
-			const cosmetics = await this.API()
+			const cosmeticEvents = await this.API()
 				.seventv.loadUserCosmetics(ev.detail)
 				.catch(() => void 0);
 
-			if (!cosmetics) {
+			if (!cosmeticEvents) {
 				return;
 			}
 
-			for (const cosmetic of cosmetics) {
-				this.driver.eventAPI.onCosmetic(cosmetic);
+			for (const cosmeticEvent of cosmeticEvents) {
+				this.driver.eventAPI.onDispatch(cosmeticEvent);
 			}
 		});
 	}
@@ -316,7 +317,7 @@ export const seventv = {
 		return Promise.resolve(userConn.user);
 	},
 
-	async loadUserCosmetics(identifiers: ["id" | "username", string][]): Promise<SevenTV.Cosmetic<"AVATAR">[]> {
+	async loadUserCosmetics(identifiers: ["id" | "username", string][]): Promise<EventAPIMessage<"DISPATCH">[]> {
 		const body = {
 			identifiers: identifiers.map(([idType, id]) => `${idType}:${id}`),
 		};
@@ -329,7 +330,7 @@ export const seventv = {
 			return Promise.reject(resp);
 		}
 
-		const cosmetics = (await resp.json()) as SevenTV.Cosmetic<"AVATAR">[];
+		const cosmetics = (await resp.json()) as EventAPIMessage<"DISPATCH">[];
 		return Promise.resolve(cosmetics);
 	},
 };
