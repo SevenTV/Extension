@@ -17,6 +17,7 @@ export class EventAPI {
 
 	url = import.meta.env.VITE_APP_API_EVENTS;
 	version = import.meta.env.VITE_APP_VERSION;
+	nightly = import.meta.env.VITE_APP_VERSION_BRANCH === "nightly";
 	private socket: WebSocket | null = null;
 	private eventSource: EventSource | null = null;
 	private shouldResume = false;
@@ -43,7 +44,7 @@ export class EventAPI {
 
 		const url = new URL(this.url);
 
-		url.searchParams.append("app", "7tv-extension");
+		url.searchParams.append("app", "7tv-extension" + (this.nightly ? "-nightly" : ""));
 		url.searchParams.append("version", this.version);
 
 		this.transport = transport;
@@ -65,7 +66,7 @@ export class EventAPI {
 			this.disconnectReason = "";
 		}
 
-		log.debug("<EventAPI>", "Connecting...", `url=${this.url}`);
+		log.debug("<EventAPI>", "Connecting...", `url=${this.url}`, `version=${this.version}`);
 	}
 
 	getSocket(): WebSocket | null {
