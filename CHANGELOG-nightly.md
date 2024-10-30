@@ -1,3 +1,8 @@
+### 3.1.5.1000
+
+-   Entitlements like paints and badges should now better reflect what the user has equipped
+-   Fixed and issue with entitlements on accounts with multiple connections
+
 ### 3.1.4.1000
 
 -   Fixed an issue with avatars not loading

@@ -1,4 +1,4 @@
-import { ComputedRef, computed, reactive, toRef, watch } from "vue";
+import { ComputedRef, computed, reactive, ref, toRef, watch } from "vue";
 import { until, useTimeout } from "@vueuse/core";
 import { DecimalToStringRGBA } from "@/common/Color";
 import { log } from "@/common/Logger";
@@ -59,6 +59,7 @@ class CosmeticMap<T extends SevenTV.CosmeticKind> extends Map<string, SevenTV.Co
 }
 
 let flushTimeout: number | null = null;
+const firstFlush = ref(false);
 
 /**
  * Set up cosmetics
@@ -104,6 +105,7 @@ db.ready().then(async () => {
 							kind: "BADGE",
 							ref_id: badge.id,
 							user_id: u,
+							platform_id: u,
 						},
 						"+",
 					);
@@ -129,6 +131,7 @@ db.ready().then(async () => {
 							kind: "PAINT",
 							ref_id: paint.id,
 							user_id: u,
+							platform_id: u,
 						},
 						"+",
 					);
@@ -152,19 +155,19 @@ db.ready().then(async () => {
 	 * @param mode "+" to bind, "-" to unbind
 	 */
 	function setEntitlement(ent: SevenTV.Entitlement, mode: "+" | "-") {
-		if (data.staticallyAssigned[ent.user_id]) {
+		if (data.staticallyAssigned[ent.platform_id]) {
 			// If user had statically assigned cosmetics,
 			// clear them so they be properly set with live data
-			for (const cos of data.userBadges[ent.user_id]?.values() ?? []) {
+			for (const cos of data.userBadges[ent.platform_id]?.values() ?? []) {
 				if (cos.provider !== "7TV") continue;
 
-				data.userBadges[ent.user_id].delete(cos.id);
+				data.userBadges[ent.platform_id].delete(cos.id);
 			}
-			for (const cos of data.userPaints[ent.user_id]?.values() ?? []) {
-				data.userPaints[ent.user_id].delete(cos.id);
+			for (const cos of data.userPaints[ent.platform_id]?.values() ?? []) {
+				data.userPaints[ent.platform_id].delete(cos.id);
 			}
 
-			delete data.staticallyAssigned[ent.user_id];
+			delete data.staticallyAssigned[ent.platform_id];
 		}
 
 		data.entitlementBuffers[mode].push(ent);
@@ -177,31 +180,42 @@ db.ready().then(async () => {
 	// This operation processes a time gap between grants and revokations
 	// in order to allow the UI to update smoothly
 	function flush() {
+		firstFlush.value = true;
 		if (flushTimeout) return;
 
 		flushTimeout = window.setTimeout(() => {
-			const add = data.entitlementBuffers["+"].splice(0, data.entitlementBuffers["+"].length);
-			const del = data.entitlementBuffers["-"].splice(0, data.entitlementBuffers["-"].length);
+			const add = new Map(
+				data.entitlementBuffers["+"].splice(0, data.entitlementBuffers["+"].length).map((e) => [e.id, e]),
+			);
+			const del = new Map(
+				data.entitlementBuffers["-"].splice(0, data.entitlementBuffers["-"].length).map((e) => [e.id, e]),
+			);
 
-			for (const ent of del) {
+			for (const [id, ent] of del.entries()) {
+				// if we are removing entitlement and adding it back we can skip it entirely
+				if (add.has(id)) {
+					add.delete(id);
+					continue;
+				}
 				const l = userListFor(ent.kind);
-				if (!l[ent.user_id] || !l[ent.user_id].has(ent.ref_id)) continue;
+				if (!l[ent.platform_id] || !l[ent.platform_id].has(ent.ref_id)) continue;
 
-				l[ent.user_id].delete(ent.ref_id);
+				l[ent.platform_id].delete(ent.ref_id);
 			}
 
 			flushTimeout = window.setTimeout(async () => {
-				for (const ent of add) {
+				for (const ent of add.values()) {
 					const l = userListFor(ent.kind);
 
 					if (ent.kind === "EMOTE_SET") {
-						if (!l[ent.user_id]) l[ent.user_id] = new Map();
+						if (!l[ent.platform_id]) l[ent.platform_id] = new Map();
 
-						bindUserEmotes(ent.user_id, ent.ref_id);
+						bindUserEmotes(ent.platform_id, ent.ref_id);
 					} else {
-						if (!l[ent.user_id]) (l[ent.user_id] as CosmeticMap<"BADGE" | "PAINT">) = new CosmeticMap();
+						if (!l[ent.platform_id])
+							(l[ent.platform_id] as CosmeticMap<"BADGE" | "PAINT">) = new CosmeticMap();
 
-						const m = l[ent.user_id] as CosmeticMap<"BADGE" | "PAINT">;
+						const m = l[ent.platform_id] as CosmeticMap<"BADGE" | "PAINT">;
 						awaitCosmetic(ent.ref_id).then((cos) => {
 							if (m.has(ent.ref_id) || m.hasProvider(cos.provider)) return;
 
@@ -281,38 +295,58 @@ db.ready().then(async () => {
 	target.addEventListener("entitlement_deleted", (ev) => {
 		setEntitlement(ev.detail, "-");
 	});
+	target.addEventListener("entitlement_reset", async (ev) => {
+		const userID = ev.detail.id;
+		await until(firstFlush).toBe(true);
+
+		const entries = db.entitlements
+			.where("user_id")
+			.equals(userID)
+			.and((e) => e.kind !== "EMOTE_SET");
+
+		await entries.each((ent) => {
+			setEntitlement(ent, "-");
+		});
+
+		entries.delete();
+	});
 
 	// Assign stored entitlements
-	db.entitlements.toArray().then((ents) => {
-		for (const ent of ents) {
-			let assigned = false;
+	db.entitlements
+		.toArray()
+		.then((ents) => {
+			for (const ent of ents) {
+				let assigned = false;
 
-			const isLegacy = !!data.staticallyAssigned[ent.user_id];
-			switch (ent.kind) {
-				case "BADGE":
-					if (!isLegacy && data.userBadges[ent.user_id]?.size) continue;
+				const id = ent.platform_id ?? ent.user_id;
 
-					setEntitlement(ent, "+");
-					assigned = true;
-					break;
-				case "PAINT":
-					if (!isLegacy && data.userPaints[ent.user_id]?.size) continue;
+				const isLegacy = !!data.staticallyAssigned[id];
+				switch (ent.kind) {
+					case "BADGE":
+						if (!isLegacy && data.userBadges[id]?.size) continue;
 
-					setEntitlement(ent, "+");
-					assigned = true;
-					break;
-				case "EMOTE_SET":
-					bindUserEmotes(ent.user_id, ent.ref_id);
-					break;
+						setEntitlement(ent, "+");
+						assigned = true;
+						break;
+					case "PAINT":
+						if (!isLegacy && data.userPaints[id]?.size) continue;
+
+						setEntitlement(ent, "+");
+						assigned = true;
+						break;
+					case "EMOTE_SET":
+						bindUserEmotes(id, ent.ref_id);
+						break;
+				}
+
+				log.debug("<Cosmetics>", "Assigned", ents.length.toString(), "stored entitlements");
+
+				if (assigned) {
+					data.staticallyAssigned[ent.user_id] = {};
+				}
 			}
-
-			log.debug("<Cosmetics>", "Assigned", ents.length.toString(), "stored entitlements");
-
-			if (assigned) {
-				data.staticallyAssigned[ent.user_id] = {};
-			}
-		}
-	});
+		})
+		.then(flush);
 });
 
 export function useCosmetics(userID: string) {

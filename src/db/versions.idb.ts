@@ -18,4 +18,12 @@ export function defineVersions(db: Dexie7) {
 		entitlements: "id,scope,timestamp,user_id",
 		settings: "key",
 	});
+	db.version(2.6).stores({
+		channels: "id,timestamp",
+		emoteSets: "id,timestamp,priority,provider,scope",
+		emotes: "id,timestamp,name,owner.id",
+		cosmetics: "id,timestamp,kind",
+		entitlements: "id,scope,timestamp,user_id,platform_id",
+		settings: "key",
+	});
 }

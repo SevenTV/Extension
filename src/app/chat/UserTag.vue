@@ -169,7 +169,7 @@ watchEffect(() => {
 
 const t = Date.now();
 const stop = watch(
-	[cosmetics.paints, cosmetics.badges],
+	[() => cosmetics.paints, () => cosmetics.badges],
 	([paints, badges]) => {
 		// condition to ignore
 		// msg is not the last message, or is older than a second

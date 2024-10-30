@@ -171,6 +171,12 @@ function useHandlers(mp: MessagePort) {
 				events.emit("entitlement_deleted", entitlement);
 				break;
 			}
+			case "ENTITLEMENT_RESET": {
+				const entitlement = data as TypedWorkerMessage<"ENTITLEMENT_RESET">;
+
+				events.emit("entitlement_reset", entitlement);
+				break;
+			}
 			case "STATIC_COSMETICS_FETCHED": {
 				const { badges, paints } = data as TypedWorkerMessage<"STATIC_COSMETICS_FETCHED">;
 
@@ -249,6 +255,7 @@ export type WorkletEventName =
 	| "cosmetic_created"
 	| "entitlement_created"
 	| "entitlement_deleted"
+	| "entitlement_reset"
 	| "static_cosmetics_fetched"
 	| "twitch_emote_set_data"
 	| "emote_set_updated"
@@ -261,8 +268,9 @@ type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	channel_fetched: CurrentChannel;
 	channel_sets_fetched: CurrentChannel;
 	cosmetic_created: Pick<SevenTV.Cosmetic, "id" | "data" | "kind">;
-	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
-	entitlement_deleted: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id" | "platform_id">;
+	entitlement_deleted: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id" | "platform_id">;
+	entitlement_reset: Pick<SevenTV.Entitlement, "id">;
 	static_cosmetics_fetched: Pick<TypedWorkerMessage<"STATIC_COSMETICS_FETCHED">, "badges" | "paints">;
 	twitch_emote_set_data: SevenTV.EmoteSet;
 	emote_set_updated: TypedWorkerMessage<"EMOTE_SET_UPDATED">;

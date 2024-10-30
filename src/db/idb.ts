@@ -11,7 +11,7 @@ export class Dexie7 extends Dexie {
 	emoteSets!: Table<SevenTV.EmoteSet & WithTimestamp, SevenTV.ObjectID>;
 	emotes!: Table<SevenTV.Emote & WithTimestamp, SevenTV.ObjectID>;
 	cosmetics!: Table<SevenTV.Cosmetic & WithTimestamp, SevenTV.ObjectID>;
-	entitlements!: Table<SevenTV.Entitlement & ScopedEntitlement & WithTimestamp, SevenTV.ObjectID>;
+	entitlements!: Table<SevenTV.Entitlement & ScopedEntitlement & WithTimestamp & WithPlatform, SevenTV.ObjectID>;
 	settings!: Table<SevenTV.Setting<SevenTV.SettingType>>;
 
 	constructor() {
@@ -123,7 +123,10 @@ export class Dexie7 extends Dexie {
 			// Clean up entitlements
 			this.entitlements
 				.filter(
-					(e) => !e.scope || e.scope.split(",").every((v) => !exemptChannels.includes(v.split(":")[1] ?? "")),
+					(e) =>
+						!e.platform_id ||
+						!e.scope ||
+						e.scope.split(",").every((v) => !exemptChannels.includes(v.split(":")[1] ?? "")),
 				)
 				.delete();
 
@@ -162,4 +165,8 @@ interface Transaction<T> {
 
 interface ScopedEntitlement {
 	scope?: string;
+}
+
+interface WithPlatform {
+	platform_id?: string;
 }
