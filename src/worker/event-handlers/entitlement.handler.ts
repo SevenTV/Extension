@@ -67,17 +67,14 @@ export async function onEntitlementDelete(ctx: EventContext, cm: ChangeMap<Seven
 }
 
 export async function onEntitlementReset(ctx: EventContext, obj: Pick<SevenTV.User, "id">) {
+	const removals = ctx.db.entitlements.filter((e) => e.user_id === obj.id);
+	const arr = await removals.toArray();
 	for (const port of ctx.driver.ports.values()) {
-		const platform = port.platform;
-		if (!platform) return; // no platform set
+		if (!port.platform) return; // no platform set
 
-		const o: typeof obj = structuredClone(obj);
-		if (!o.id) return;
-
-		port.postMessage("ENTITLEMENT_RESET", {
-			id: o.id,
+		arr.forEach((r) => {
+			port.postMessage("ENTITLEMENT_DELETED", r);
 		});
-
-		ctx.db.entitlements.filter((e) => e.user_id === o.id).delete();
 	}
+	await removals.delete();
 }

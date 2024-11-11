@@ -295,21 +295,6 @@ db.ready().then(async () => {
 	target.addEventListener("entitlement_deleted", (ev) => {
 		setEntitlement(ev.detail, "-");
 	});
-	target.addEventListener("entitlement_reset", async (ev) => {
-		const userID = ev.detail.id;
-		await until(firstFlush).toBe(true);
-
-		const entries = db.entitlements
-			.where("user_id")
-			.equals(userID)
-			.and((e) => e.kind !== "EMOTE_SET");
-
-		await entries.each((ent) => {
-			setEntitlement(ent, "-");
-		});
-
-		entries.delete();
-	});
 
 	// Assign stored entitlements
 	db.entitlements
