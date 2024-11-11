@@ -62,8 +62,8 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 		};
 	};
 	COSMETIC_CREATED: SevenTV.Cosmetic<"BADGE" | "PAINT" | "AVATAR">;
-	ENTITLEMENT_CREATED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
-	ENTITLEMENT_DELETED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	ENTITLEMENT_CREATED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id" | "platform_id">;
+	ENTITLEMENT_DELETED: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id" | "platform_id">;
 	INIT: object;
 	LOG: {
 		type: LogType;

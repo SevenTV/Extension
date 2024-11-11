@@ -7,7 +7,7 @@ import { convertBttvEmoteSet, convertFFZEmoteSet, convertFfzBadges } from "@/com
 import { db } from "@/db/idb";
 import type { WorkerDriver } from "./worker.driver";
 import type { WorkerPort } from "./worker.port";
-import { EventAPIMessage } from ".";
+import { EventAPIMessage, EventAPIMessageData } from ".";
 
 namespace API_BASE {
 	export const SEVENTV = import.meta.env.VITE_APP_API;
@@ -330,8 +330,9 @@ export const seventv = {
 			return Promise.reject(resp);
 		}
 
-		const cosmetics = (await resp.json()) as EventAPIMessage<"DISPATCH">[];
-		return Promise.resolve(cosmetics);
+		const cosmetics = (await resp.json()) as EventAPIMessageData<"DISPATCH">[];
+		const message = cosmetics.map((c) => ({ data: c, op: "DISPATCH" })) as EventAPIMessage<"DISPATCH">[];
+		return Promise.resolve(message);
 	},
 };
 

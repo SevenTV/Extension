@@ -10,24 +10,28 @@ export async function onEntitlementCreate(ctx: EventContext, cm: ChangeMap<Seven
 		const obj: typeof cm.object = structuredClone(cm.object);
 		if (!obj || !obj.user || !obj.user.connections?.length) return;
 
-		const cid = obj.user.connections.find((x) => x.platform === platform)?.id ?? "";
-
-		// Write to IDB
+		const ids = obj.user.connections.filter((x) => x.platform === platform).map((x) => x.id);
+		const user_id = obj.user.id;
 		delete obj.user;
-		ctx.db.entitlements
-			.put({
+		ids.forEach((cid) => {
+			// Write to IDB
+			obj.id = `${cid}:${obj.kind}:${obj.ref_id}`;
+			const o = {
 				...obj,
 				scope: port.channelIds.map((channelID) => `${platform}:${channelID ?? "X"}`).join(","),
-				user_id: cid,
-			})
-			.catch(() => ctx.db.entitlements.update(obj.id, obj));
+				user_id: user_id,
+				platform_id: cid,
+			};
+			ctx.db.entitlements.put(o).catch(() => ctx.db.entitlements.update(o.id, o));
 
-		// Send the entitlement to the client
-		port.postMessage("ENTITLEMENT_CREATED", {
-			id: obj.id,
-			kind: obj.kind,
-			ref_id: obj.ref_id,
-			user_id: cid,
+			// Send the entitlement to the client
+			port.postMessage("ENTITLEMENT_CREATED", {
+				id: obj.id,
+				kind: obj.kind,
+				ref_id: obj.ref_id,
+				user_id: user_id,
+				platform_id: cid,
+			});
 		});
 	}
 }
@@ -42,17 +46,35 @@ export async function onEntitlementDelete(ctx: EventContext, cm: ChangeMap<Seven
 		const obj: typeof cm.object = structuredClone(cm.object);
 		if (!obj || !obj.user || !obj.user.connections?.length) return;
 
-		const cid = obj.user.connections.find((x) => x.platform === platform)?.id ?? "";
+		obj.user.connections
+			.filter((x) => x.platform === platform)
+			.map((x) => x.id)
+			.forEach((cid) => {
+				const id = `${cid}:${obj.kind}:${obj.ref_id}`;
+				// Write to IDB
+				ctx.db.entitlements.delete(id);
 
-		// Write to IDB
-		ctx.db.entitlements.delete(obj.id);
+				// Send the entitlement to the client
+				port.postMessage("ENTITLEMENT_DELETED", {
+					id: id,
+					kind: obj.kind,
+					ref_id: obj.ref_id,
+					user_id: obj.user!.id,
+					platform_id: cid,
+				});
+			});
+	}
+}
 
-		// Send the entitlement to the client
-		port.postMessage("ENTITLEMENT_DELETED", {
-			id: obj.id,
-			kind: obj.kind,
-			ref_id: obj.ref_id,
-			user_id: cid,
+export async function onEntitlementReset(ctx: EventContext, obj: Pick<SevenTV.User, "id">) {
+	const removals = ctx.db.entitlements.filter((e) => e.user_id === obj.id);
+	const arr = await removals.toArray();
+	for (const port of ctx.driver.ports.values()) {
+		if (!port.platform) return; // no platform set
+
+		arr.forEach((r) => {
+			port.postMessage("ENTITLEMENT_DELETED", r);
 		});
 	}
+	await removals.delete();
 }

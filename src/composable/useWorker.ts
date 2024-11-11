@@ -261,8 +261,8 @@ type WorkletTypedEvent<EVN extends WorkletEventName> = {
 	channel_fetched: CurrentChannel;
 	channel_sets_fetched: CurrentChannel;
 	cosmetic_created: Pick<SevenTV.Cosmetic, "id" | "data" | "kind">;
-	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
-	entitlement_deleted: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id">;
+	entitlement_created: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id" | "platform_id">;
+	entitlement_deleted: Pick<SevenTV.Entitlement, "id" | "kind" | "ref_id" | "user_id" | "platform_id">;
 	static_cosmetics_fetched: Pick<TypedWorkerMessage<"STATIC_COSMETICS_FETCHED">, "badges" | "paints">;
 	twitch_emote_set_data: SevenTV.EmoteSet;
 	emote_set_updated: TypedWorkerMessage<"EMOTE_SET_UPDATED">;
