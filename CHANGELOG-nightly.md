@@ -1,3 +1,7 @@
+### 3.1.5.2000
+
+-   Added animated avatars to 7TV user card
+
 ### 3.1.5.1000
 
 -   Entitlements like paints and badges should now better reflect what the user has equipped
