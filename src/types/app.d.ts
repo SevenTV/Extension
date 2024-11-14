@@ -311,7 +311,7 @@ declare namespace SevenTV {
 
 	interface CosmeticAvatar {
 		id: ObjectID;
-		user: Pick<User, "id" | "username" | "display_name" | "connections">;
+		user: Pick<User, "id" | "username" | "display_name" | "connections" | "avatar_url">;
 		host: ImageHost;
 	}
 

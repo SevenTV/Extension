@@ -16,7 +16,8 @@
 					</div>
 
 					<div class="seventv-user-card-avatar">
-						<img v-if="data.targetUser.avatarURL" :src="data.targetUser.avatarURL" />
+						<img v-if="avatarURL" :src="avatarURL" />
+						<img v-else-if="data.targetUser.avatarURL" :src="data.targetUser.avatarURL" />
 					</div>
 					<div class="seventv-user-card-usertag-container">
 						<a :href="getProfileURL()" target="_blank" class="seventv-user-card-usertag">
@@ -123,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
@@ -137,6 +138,7 @@ import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatTools } from "@/composable/chat/useChatTools";
 import { useApollo } from "@/composable/useApollo";
 import { useCosmetics } from "@/composable/useCosmetics";
+import { getModuleRef } from "@/composable/useModule";
 import { TwTypeChatBanStatus, TwTypeModComment } from "@/assets/gql/tw.gql";
 import {
 	twitchUserCardMessagesQuery,
@@ -228,6 +230,14 @@ const data = reactive({
 		timeouts: 0,
 		comments: 0,
 	},
+});
+
+const avatarURL = computed(() => {
+	if (!data.targetUser.username) return;
+	const aMod = getModuleRef("avatars").value;
+	if (!aMod?.instance?.avatars) return;
+	const avatar = aMod.instance.avatars[data.targetUser.username] as SevenTV.Cosmetic<"AVATAR"> | undefined;
+	return avatar?.data.user.avatar_url;
 });
 
 function getActiveTimeline(): Record<string, ChatMessage[]> {
@@ -674,8 +684,10 @@ main.seventv-user-card-container {
 			display: grid;
 			align-content: center;
 			justify-content: center;
-			padding: 0.5rem;
+			padding: 1rem;
 			grid-area: avatar;
+			height: 8rem;
+			width: 8rem;
 
 			img {
 				clip-path: circle(50% at 50% 50%);

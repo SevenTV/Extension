@@ -1,3 +1,10 @@
+### 3.1.5
+
+-   Entitlements like paints and badges should now better reflect what the user has equipped
+-   Fixed an issue with entitlements on accounts with multiple connections
+-   Fixed an issue with causing animated avatars to not work
+-   Added animated avatars to 7TV user card
+
 ### 3.1.4
 
 -   Fixed an issue with avatars not loading

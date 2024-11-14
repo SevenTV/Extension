@@ -249,6 +249,8 @@ onUnmounted(() => {
 	}
 });
 
+defineExpose({ avatars });
+
 markAsReady();
 </script>
 
