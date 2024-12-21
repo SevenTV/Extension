@@ -50,6 +50,7 @@ import BasicSystemMessage from "@/app/chat/msg/BasicSystemMessage.vue";
 
 const props = defineProps<{
 	list: HookedInstance<Twitch.ChatListComponent>;
+	restrictions?: HookedInstance<Twitch.ChatRestrictionsComponent>;
 	messageHandler: Twitch.MessageHandlerAPI | null;
 	sharedChatData: Map<string, Twitch.SharedChat> | null;
 }>();
@@ -80,6 +81,7 @@ const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored
 const messageHandler = toRef(props, "messageHandler");
 const list = toRef(props, "list");
 const sharedChatData = toRef(props, "sharedChatData");
+const restrictions = toRef(props, "restrictions");
 
 // Unrender messages out of view
 const chatListEl = ref<HTMLElement>();
@@ -449,8 +451,16 @@ watch(
 	messageHandler,
 	(handler, old) => {
 		if (handler !== old && old) {
+			if (restrictions.value?.component.onChatEvent) {
+				messages.handlers.delete(restrictions.value.component.onChatEvent);
+			}
+
 			unsetPropertyHook(old, "handleMessage");
 		} else if (handler) {
+			if (restrictions.value?.component.onChatEvent) {
+				messages.handlers.add(restrictions.value.component.onChatEvent);
+			}
+
 			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
 				const ok = onMessage(msg);
 				if (ok) return ""; // message was rendered by the extension
