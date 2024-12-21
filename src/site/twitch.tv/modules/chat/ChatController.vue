@@ -13,6 +13,7 @@
 				<ChatList
 					ref="chatList"
 					:list="list"
+					:restrictions="restrictions"
 					:shared-chat-data="sharedChatDataByChannelID"
 					:message-handler="messageHandler"
 				/>
@@ -70,6 +71,7 @@ const props = defineProps<{
 	buffer?: HookedInstance<Twitch.MessageBufferComponent>;
 	events?: HookedInstance<Twitch.ChatEventComponent>;
 	presentation?: HookedInstance<Twitch.ChatListPresentationComponent>;
+	restrictions?: HookedInstance<Twitch.ChatRestrictionsComponent>;
 }>();
 
 const mod = getModule<"TWITCH", "chat">("chat")!;

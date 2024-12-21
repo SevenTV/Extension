@@ -239,6 +239,13 @@ declare module Twitch {
 		handleMessage: (msg: ChatMessage) => void;
 	}
 
+	export type ChatRestrictionsComponent = ReactExtended.WritableComponent<{}> & {
+		notifyHandlers: () => void;
+		getRestrictions: () => string[];
+		updateRestrictionState: () => void;
+		onChatEvent: (msgData: Twitch.AnyMessage) => void;
+	};
+
 	export type VideoChannelComponent = ReactExtended.WritableComponent<{
 		channelID: string;
 		displayName: string;

@@ -8,6 +8,7 @@
 			:buffer="chatBuffer.instances[0] ?? undefined"
 			:events="chatEvents.instances[0] ?? undefined"
 			:presentation="chatListPresentation.instances[0] ?? undefined"
+			:restrictions="chatRestrictions.instances[0] ?? undefined"
 		/>
 	</template>
 </template>
@@ -98,6 +99,11 @@ useComponentHook<Twitch.ChatCommunityPointsButtonComponent>(
 const chatListPresentation = useComponentHook<Twitch.ChatListPresentationComponent>({
 	parentSelector: ".stream-chat",
 	predicate: (n) => n.props && n.props.sharedChatDataByChannelID,
+});
+
+const chatRestrictions = useComponentHook<Twitch.ChatRestrictionsComponent>({
+	parentSelector: ".stream-chat",
+	predicate: (n) => n.getRestrictions && n.onChatEvent,
 });
 
 const isHookable = ref(false);
