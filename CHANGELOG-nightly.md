@@ -1,3 +1,7 @@
+### 3.1.5.3000
+
+-   Fixed an issue with the Twitch chat not showing a cooldown timer
+
 ### 3.1.5.2000
 
 -   Added animated avatars to 7TV user card
