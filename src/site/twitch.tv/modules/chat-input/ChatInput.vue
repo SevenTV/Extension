@@ -425,9 +425,6 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	if (completionMode === "off") return;
 
-	// TODO : Remove if not necessary
-	// if (str.startsWith("@")) return; // Tagging a user
-
 	if (completionMode === "colon" && !str.startsWith(":")) return;
 
 	let search = str;
@@ -440,6 +437,10 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 	}
 
 	const results = native?.call(this, `:${search}`, ...args) ?? [];
+
+	if (completionMode === "on") {
+		results.map((r) => (r.current = str));
+	}
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
 

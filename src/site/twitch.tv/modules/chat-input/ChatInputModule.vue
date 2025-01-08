@@ -189,7 +189,6 @@ export const config = [
 	declareConfig("chat_input.autocomplete.chatters", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
 		label: "Autocomplete chatters",
-		disabledIf: () => useConfig("chat_input.autocomplete").value === 2,
 		hint: "Whether or not to consider the usernames of active chatters when using tab-completion",
 		defaultValue: true,
 	}),
