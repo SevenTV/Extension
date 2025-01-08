@@ -47,7 +47,7 @@ const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const ua = useUserAgent();
 
-const shouldUseColonComplete = useConfig("chat_input.autocomplete.colon");
+const autocompletionMode = useConfig("chat_input.autocomplete.colon");
 const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
 const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.carousel");
@@ -407,13 +407,37 @@ function onKeyDown(ev: KeyboardEvent) {
 }
 
 function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]) | null, str: string, ...args: []) {
-	if (!str.startsWith(":") || str.length < 3) return;
-	if (!shouldUseColonComplete.value) return;
+	let completionMode;
+	switch (autocompletionMode.value) {
+		case 0:
+			completionMode = "off";
+			break;
+		case 1:
+			completionMode = "colon";
+			break;
+		case 2:
+			completionMode = "on";
+			break;
+
+		default:
+			break;
+	}
+
+	if (completionMode === "off") return;
+
+	if (str.startsWith("@")) return; // Tagging a user
+
+	if (completionMode === "colon" && (!str.startsWith(":") || str.length < 3)) return;
+
+	if (completionMode === "on" && str.length < 2) return;
 
 	const results = native?.call(this, str, ...args) ?? [];
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
-	const tokens = findMatchingTokens(str.substring(1), "colon", 25);
+
+	const search = completionMode === "colon" ? str.substring(1) : str;
+
+	const tokens = findMatchingTokens(search, "colon", 25);
 
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;
@@ -439,7 +463,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 		results.unshift({
 			type: "emote",
-			current: str,
+			current: search,
 			element: [
 				emote.provider === "EMOJI"
 					? {
