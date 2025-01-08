@@ -39,6 +39,13 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
+interface AutocompleteResult {
+	current: string;
+	type: string;
+	element: unknown;
+	replacement: string;
+}
+
 const mod = getModule<"TWITCH", "chat-input">("chat-input");
 const store = useStore();
 const ctx = useChannelContext(props.instance.component.componentRef.props.channelID, true);
@@ -436,7 +443,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 		return;
 	}
 
-	const results = native?.call(this, `:${search}`, ...args) ?? [];
+	const results = (native?.call(this, `:${search}`, ...args) ?? []) as AutocompleteResult[];
 
 	if (completionMode === "on") {
 		results.map((r) => (r.current = str));
