@@ -47,12 +47,12 @@ const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const ua = useUserAgent();
 
-const autocompletionMode = useConfig("chat_input.autocomplete.colon");
-const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
+const autocompletionMode = useConfig("chat_input.autocomplete");
+const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.emoji");
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
 const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.carousel");
 const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
-const colonCompletionMode = useConfig<number>("chat_input.autocomplete.colon.mode");
+const colonCompletionMode = useConfig<number>("chat_input.autocomplete.mode");
 const tabCompletionMode = useConfig<number>("chat_input.autocomplete.carousel.mode");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
@@ -425,17 +425,23 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	if (completionMode === "off") return;
 
-	if (str.startsWith("@")) return; // Tagging a user
+	// TODO : Remove if not necessary
+	// if (str.startsWith("@")) return; // Tagging a user
 
-	if (completionMode === "colon" && (!str.startsWith(":") || str.length < 3)) return;
+	if (completionMode === "colon" && !str.startsWith(":")) return;
 
-	if (completionMode === "on" && str.length < 2) return;
+	let search = str;
+	if (str.startsWith(":")) {
+		search = search.substring(1);
+	}
 
-	const results = native?.call(this, str, ...args) ?? [];
+	if (search.length < 2) {
+		return;
+	}
+
+	const results = native?.call(this, `:${search}`, ...args) ?? [];
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
-
-	const search = completionMode === "colon" ? str.substring(1) : str;
 
 	const tokens = findMatchingTokens(search, "colon", 25);
 
@@ -463,7 +469,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 		results.unshift({
 			type: "emote",
-			current: search,
+			current: str,
 			element: [
 				emote.provider === "EMOJI"
 					? {
