@@ -434,10 +434,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	if (completionMode === "colon" && !str.startsWith(":")) return;
 
-	let search = str;
-	if (str.startsWith(":")) {
-		search = search.substring(1);
-	}
+	const search = str.startsWith(":") ? str.substring(1) : str;
 
 	if (search.length < 2) {
 		return;
