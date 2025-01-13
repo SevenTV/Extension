@@ -167,7 +167,6 @@ const props = defineProps<{
 	target: ChatUser;
 }>();
 
-
 const TWITCH_ROOT_URL = "https://twitch.tv";
 
 const emit = defineEmits<{
