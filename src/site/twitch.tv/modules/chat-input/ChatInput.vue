@@ -431,28 +431,12 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 		// Checks if the chat input is focused
 		if (!chatInner || chatInner !== target) return;
 
-		// Stop default effects
 		ev.preventDefault();
 		ev.stopPropagation();
-		ev.stopImmediatePropagation();
-
-		// Close Tray
-		simulateKeyPress(chatInner.lastChild as HTMLElement, "Escape", 27);
-		// Close Send messsage
-		setTimeout(() => simulateKeyPress(chatInner.lastChild as HTMLElement, "Enter", 13), 0);
+		// Send message
+		const chatButton = document.querySelector("button[data-a-target='chat-send-button']") as HTMLButtonElement;
+		chatButton.click();
 	}
-}
-
-function simulateKeyPress(element: HTMLElement, key: string, keyCode: number) {
-	element.dispatchEvent(
-		new KeyboardEvent("keydown", {
-			bubbles: true,
-			cancelable: true,
-			key,
-			code: key,
-			keyCode,
-		}),
-	);
 }
 
 function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]) | null, str: string, ...args: []) {
