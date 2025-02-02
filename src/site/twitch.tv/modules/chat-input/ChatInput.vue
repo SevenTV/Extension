@@ -12,7 +12,7 @@
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
@@ -167,6 +167,10 @@ function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: 
 
 	return matches;
 }
+
+onMounted(() => {
+	window.addEventListener("keydown", handleCapturedKeyDown, { capture: true });
+});
 
 function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 	const component = props.instance.component;
@@ -411,6 +415,44 @@ function onKeyDown(ev: KeyboardEvent) {
 			}
 			break;
 	}
+}
+
+function handleCapturedKeyDown(ev: KeyboardEvent) {
+	// Prevents autocompletion on Enter when completion mode is -> always on
+	if (ev.key === "Enter") {
+		if (autocompletionMode.value !== 2) {
+			return;
+		}
+
+		const target = ev.target as HTMLElement;
+		const chatInner = document.querySelector(".seventv-chat-input-textarea")?.children[0]?.children[0]?.children[0]
+			?.lastChild as HTMLElement;
+
+		// Checks if the chat input is focused
+		if (!chatInner || chatInner !== target) return;
+
+		// Stop default effects
+		ev.preventDefault();
+		ev.stopPropagation();
+		ev.stopImmediatePropagation();
+
+		// Close Tray
+		simulateKeyPress(chatInner.lastChild as HTMLElement, "Escape", 27);
+		// Close Send messsage
+		setTimeout(() => simulateKeyPress(chatInner.lastChild as HTMLElement, "Enter", 13), 0);
+	}
+}
+
+function simulateKeyPress(element: HTMLElement, key: string, keyCode: number) {
+	element.dispatchEvent(
+		new KeyboardEvent("keydown", {
+			bubbles: true,
+			cancelable: true,
+			key,
+			code: key,
+			keyCode,
+		}),
+	);
 }
 
 function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]) | null, str: string, ...args: []) {
