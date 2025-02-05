@@ -420,9 +420,11 @@ function onKeyDown(ev: KeyboardEvent) {
 function handleCapturedKeyDown(ev: KeyboardEvent) {
 	// Prevents autocompletion on Enter when completion mode is -> always on
 	if (ev.key === "Enter") {
-		if (autocompletionMode.value !== 2) {
+		if (autocompletionMode.value !== 2 || !mod || !mod.instance) {
 			return;
 		}
+		const tray = document.querySelector(".chat-input-tray__open");
+		if (tray === null) return;
 
 		const target = ev.target as HTMLElement;
 		const chatInner = document.querySelector(".seventv-chat-input-textarea")?.children[0]?.children[0]?.children[0]
@@ -431,11 +433,16 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 		// Checks if the chat input is focused
 		if (!chatInner || chatInner !== target) return;
 
+		// Prevents autocompletion
 		ev.preventDefault();
+		ev.stopImmediatePropagation();
 		ev.stopPropagation();
-		// Send message
-		const chatButton = document.querySelector("button[data-a-target='chat-send-button']") as HTMLButtonElement;
-		chatButton.click();
+
+		// Close tray
+		if (!mod.instance.clearModifierTray) {
+			return;
+		}
+		mod.instance.clearModifierTray();
 	}
 }
 
