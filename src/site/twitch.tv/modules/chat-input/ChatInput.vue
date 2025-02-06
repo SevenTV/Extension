@@ -46,6 +46,12 @@ interface AutocompleteResult {
 	replacement: string;
 }
 
+const AUTOCOMPLETION_MODE = {
+	OFF: 0,
+	COLON: 1,
+	ALWAYS_ON: 2,
+};
+
 const mod = getModule<"TWITCH", "chat-input">("chat-input");
 const store = useStore();
 const ctx = useChannelContext(props.instance.component.componentRef.props.channelID, true);
@@ -420,10 +426,19 @@ function onKeyDown(ev: KeyboardEvent) {
 function handleCapturedKeyDown(ev: KeyboardEvent) {
 	// Prevents autocompletion on Enter when completion mode is -> always on
 	if (ev.key === "Enter") {
-		// Return if autocomplete tray is not opened
-		const activeTray: Twitch.ChatTray = props.instance.component.componentRef.props.tray;
+		const { component } = props.instance;
+		const { componentRef } = component;
+		const activeTray: Twitch.ChatTray = componentRef.props.tray;
+		const slate = componentRef.state?.slateEditor;
 
-		if (autocompletionMode.value !== 2 || !activeTray || activeTray.type !== "autocomplete-tray") {
+		// Exit if autocomplete is not always on or anything needed is unavailable
+		if (
+			autocompletionMode.value !== AUTOCOMPLETION_MODE.ALWAYS_ON ||
+			!activeTray ||
+			activeTray.type !== "autocomplete-tray" ||
+			!slate ||
+			!slate.selection?.anchor
+		) {
 			return;
 		}
 
@@ -432,34 +447,33 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 		ev.stopImmediatePropagation();
 		ev.stopPropagation();
 
-		// Close autocomplete tray
-		mod.instance.clearModifierTray();
-		// OPTIONAL TODO : Send message
-		// const chatButton = document.querySelector("button[data-a-target='chat-send-button']") as HTMLButtonElement;
-		// chatButton.click();
+		// Close autocomplete tray by adding a space
+		const cursorLocation = slate.selection.anchor;
+		let currentNode: { children: Twitch.ChatSlateLeaf[] } & Partial<Twitch.ChatSlateLeaf> = slate;
+
+		for (const index of cursorLocation.path) {
+			if (!currentNode) break;
+			currentNode = currentNode.children[index];
+		}
+
+		const currentWordEnd =
+			currentNode.type === "text" && typeof currentNode.text === "string"
+				? getSearchRange(currentNode.text, cursorLocation.offset)[1]
+				: 0;
+
+		slate.apply({
+			type: "insert_text",
+			path: cursorLocation.path,
+			offset: currentWordEnd,
+			text: " ",
+		});
 	}
 }
 
 function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]) | null, str: string, ...args: []) {
-	let completionMode;
-	switch (autocompletionMode.value) {
-		case 0:
-			completionMode = "off";
-			break;
-		case 1:
-			completionMode = "colon";
-			break;
-		case 2:
-			completionMode = "on";
-			break;
+	if (autocompletionMode.value === AUTOCOMPLETION_MODE.OFF) return;
 
-		default:
-			break;
-	}
-
-	if (completionMode === "off") return;
-
-	if (completionMode === "colon" && !str.startsWith(":")) return;
+	if (autocompletionMode.value === AUTOCOMPLETION_MODE.COLON && !str.startsWith(":")) return;
 
 	const search = str.startsWith(":") ? str.substring(1) : str;
 
@@ -469,7 +483,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	const results = (native?.call(this, `:${search}`, ...args) ?? []) as AutocompleteResult[];
 
-	if (completionMode === "on") {
+	if (autocompletionMode.value === AUTOCOMPLETION_MODE.ALWAYS_ON) {
 		results.map((r) => (r.current = str));
 	}
 
