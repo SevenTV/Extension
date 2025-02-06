@@ -428,14 +428,16 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 	if (ev.key === "Enter") {
 		const { component } = props.instance;
 		const { componentRef } = component;
-		const activeTray: Twitch.ChatTray = componentRef.props.tray;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const componentProps: any = componentRef.props;
+		const activeTray: Twitch.ChatTray = componentProps.tray;
 		const slate = componentRef.state?.slateEditor;
 
 		// Exit if autocomplete is not always on or anything needed is unavailable
 		if (
 			autocompletionMode.value !== AUTOCOMPLETION_MODE.ALWAYS_ON ||
 			!activeTray ||
-			activeTray.type !== "autocomplete-tray" ||
+			(activeTray.type as string) !== "autocomplete-tray" ||
 			!slate ||
 			!slate.selection?.anchor
 		) {
