@@ -451,6 +451,7 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 
 		// Close autocomplete tray by adding a space
 		const cursorLocation = slate.selection.anchor;
+
 		let currentNode: { children: Twitch.ChatSlateLeaf[] } & Partial<Twitch.ChatSlateLeaf> = slate;
 
 		for (const index of cursorLocation.path) {
@@ -462,7 +463,9 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 			currentNode.type === "text" && typeof currentNode.text === "string"
 				? getSearchRange(currentNode.text, cursorLocation.offset)[1]
 				: 0;
+		const newCursor = { path: cursorLocation.path, offset: currentWordEnd };
 
+		slate.apply({ type: "set_selection", newProperties: { anchor: newCursor, focus: newCursor } });
 		slate.apply({
 			type: "insert_text",
 			path: cursorLocation.path,
