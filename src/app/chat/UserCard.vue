@@ -424,7 +424,7 @@ function highlightUserMessages(): void {
 		chatHighlights.define(
 			data.targetUser.username,
 			{
-				pattern: data.targetUser.username,
+				pattern: data.targetUser.displayName,
 				label: "Messages by " + data.targetUser.username,
 				color: "#8803fc",
 				flashTitle: false,
