@@ -494,7 +494,7 @@ export async function awaitElementFiber<P>(
 	return fiber;
 }
 
-export function useElementFiber<P extends object>(
+export function useElementFiberHook<P extends object>(
 	criteria: ComponentCriteria<ReactExtended.ReactFunctionalFiber<P>>,
 	options?: FiberHookOptions<P>,
 ): void {

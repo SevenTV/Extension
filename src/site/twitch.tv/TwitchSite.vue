@@ -11,7 +11,7 @@
 import { defineAsyncComponent, onMounted, provide, ref } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
-import { useComponentHook, useElementFiber } from "@/common/ReactHooks";
+import { useComponentHook, useElementFiberHook } from "@/common/ReactHooks";
 import { useActor } from "@/composable/useActor";
 import { useApollo } from "@/composable/useApollo";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
@@ -92,7 +92,7 @@ useComponentHook<Twitch.RouterComponent>(
 	},
 );
 
-useElementFiber<{ client: ApolloClient<object> }>(
+useElementFiberHook<{ client: ApolloClient<object> }>(
 	{
 		maxDepth: 50,
 		predicate: (n) => !!(n.memoizedProps && n.memoizedProps.client && n.memoizedProps.client.query),

@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { Logger } from "@/common/Logger";
-import { useElementFiber } from "@/common/ReactHooks";
+import { useElementFiberHook } from "@/common/ReactHooks";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { declareModule } from "@/composable/useModule";
 import ChatController from "./ChatController.vue";
@@ -35,7 +35,7 @@ watch(
 	{ immediate: true },
 );
 
-useElementFiber<{ channelSlug: string }>(
+useElementFiberHook<{ channelSlug: string }>(
 	{
 		childSelector: "#chatroom-messages",
 		maxDepth: 5,
