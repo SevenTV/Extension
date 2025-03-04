@@ -1,376 +1,376 @@
 name: WebExtension Lint, Build, Release, Publish
 
 on:
-    push:
-        branches:
-            - master
-            - dev
-    pull_request:
-        types:
-            - opened
-            - synchronize
-            - reopened
-            - labeled
-    workflow_dispatch:
-        inputs:
-            branch:
-                type: choice
-                description: "Branch"
-                options:
-                    - nightly
-                    - stable
-                default: nightly
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+  workflow_dispatch:
+    inputs:
+      branch:
+        type: choice
+        description: "Branch"
+        options:
+          - nightly
+          - stable
+        default: nightly
 
-            stage-host:
-                type: boolean
-                default: false
-                description: "Use stage-host"
+      stage-host:
+        type: boolean
+        default: false
+        description: "Use stage-host"
 
-            store-upload:
-                type: boolean
-                default: false
-                description: "Upload to CWS/AMO"
+      store-upload:
+        type: boolean
+        default: false
+        description: "Upload to CWS/AMO"
 
-            deploy:
-                type: boolean
-                default: false
-                description: "Deploy Hosted Build"
+      deploy:
+        type: boolean
+        default: false
+        description: "Deploy Hosted Build"
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.branch }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.branch }}
 
 env:
-    ARTIFACT_NAME: 7tv-webextension
-    EXTENSION_ID_CWS: ammjkodgmmoknidbanneddgankgfejfh
-    EXTENSION_ID_AMO: "moz-addon-prod@7tv.app"
-    NIGHTLY_EXTENSION_ID_CWS: fphegifdehlodcepfkgofelcenelpedj
-    NIGHTLY_EXTENSION_ID_AMO: "moz-addon@7tv.app"
-    IS_MASTER_COMMIT: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master' }}
+  ARTIFACT_NAME: 7tv-webextension
+  EXTENSION_ID_CWS: ammjkodgmmoknidbanneddgankgfejfh
+  EXTENSION_ID_AMO: "moz-addon-prod@7tv.app"
+  NIGHTLY_EXTENSION_ID_CWS: fphegifdehlodcepfkgofelcenelpedj
+  NIGHTLY_EXTENSION_ID_AMO: "moz-addon@7tv.app"
+  IS_MASTER_COMMIT: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master' }}
 
 jobs:
-    ci:
-        name: WebExtension Lint, Build, Test
-        runs-on: ubuntu-latest
+  ci:
+    name: WebExtension Lint, Build, Test
+    runs-on: ubuntu-latest
+    env:
+      installable: ${{ secrets.WEB_EXTENSION_CRX }}
+    concurrency:
+      group: ${{ github.workflow }}-ci-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Node Modules Cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+
+      - name: Install Dependencies
+        run: |
+          yarn
+
+      - name: Run Linter
+        run: yarn lint
+
+      - name: Build App
         env:
-            installable: ${{ secrets.WEB_EXTENSION_CRX }}
-        concurrency:
-            group: ${{ github.workflow }}-ci-${{ github.ref }}
-            cancel-in-progress: true
+          BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
+          EXTENSION_ID_MOZ: ${{ (inputs.branch == 'stable' && env.EXTENSION_ID_AMO) || env.NIGHTLY_EXTENSION_ID_AMO }}
 
-        steps:
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: "18"
+        run: |
+          OUT_DIR=mv3 yarn build:prod
+          OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID_MOZ }} MV2=true yarn build:prod
 
-            - name: Install Yarn
-              run: npm install -g yarn
+      - name: Create Build Archives
+        run: |
+          apt-get update && apt-get install -y zip
+          cd dist/mv3 && zip -r ../mv3.zip . && cd ../../
+          cd dist/mv2 && zip -r ../mv2.zip .
 
-            - name: Checkout code
-              uses: actions/checkout@v3
+      # CRX is Chromium installer
+      - name: Create CRX (Chromium)
+        if: ${{ env.installable }}
+        uses: cardinalby/webext-buildtools-chrome-crx-action@v2
+        with:
+          zipFilePath: dist/mv3.zip
+          crxFilePath: dist/ext.crx
+          privateKey: ${{ secrets.WEB_EXTENSION_CRX }}
 
-            - name: Node Modules Cache
-              uses: actions/cache@v3
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+      # XPI is Firefox installer
+      - name: Create XPI (Firefox)
+        if: ${{ env.installable }}
+        id: web-ext-build
+        uses: kewisch/action-web-ext@v1
+        with:
+          cmd: build
+          source: dist/mv2
+          filename: ext.xpi
 
-            - name: Install Dependencies
-              run: |
-                  yarn
+      - name: Move XPI (Firefox)
+        if: ${{ env.installable }}
+        run: mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
 
-            - name: Run Linter
-              run: yarn lint
+      - name: Structure Files
+        run: |
+          mkdir -p dist/manifest
+          cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
+          cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
 
-            - name: Build App
-              env:
-                  BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
-                  EXTENSION_ID_MOZ: ${{ (inputs.branch == 'stable' && env.EXTENSION_ID_AMO) || env.NIGHTLY_EXTENSION_ID_AMO }}
+      - name: "Upload Artifact: Installable"
+        if: ${{ env.installable }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: installable
+          retention-days: 60
+          path: |
+            dist/ext.crx
+            dist/ext.xpi
 
-              run: |
-                  OUT_DIR=mv3 yarn build:prod
-                  OUT_DIR=mv2 MOZILLA_ID=${{ env.EXTENSION_ID_MOZ }} MV2=true yarn build:prod
+      - name: "Upload Artifact: Unpacked"
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          retention-days: 60
+          path: |
+            dist/mv3.zip
+            dist/mv2.zip
 
-            - name: Create Build Archives
-              run: |
-                  apt-get update && apt-get install -y zip
-                  cd dist/mv3 && zip -r ../mv3.zip . && cd ../../
-                  cd dist/mv2 && zip -r ../mv2.zip .
+      - name: Upload Manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: manifest
+          path: dist/manifest
 
-            # CRX is Chromium installer
-            - name: Create CRX (Chromium)
-              if: ${{ env.installable }}
-              uses: cardinalby/webext-buildtools-chrome-crx-action@v2
-              with:
-                  zipFilePath: dist/mv3.zip
-                  crxFilePath: dist/ext.crx
-                  privateKey: ${{ secrets.WEB_EXTENSION_CRX }}
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [ci]
+    if: ${{ (inputs.branch) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
-            # XPI is Firefox installer
-            - name: Create XPI (Firefox)
-              if: ${{ env.installable }}
-              id: web-ext-build
-              uses: kewisch/action-web-ext@v1
-              with:
-                  cmd: build
-                  source: dist/mv2
-                  filename: ext.xpi
+    steps:
+      - uses: actions/checkout@v3
 
-            - name: Move XPI (Firefox)
-              if: ${{ env.installable }}
-              run: mv ${{ steps.web-ext-build.outputs.target }} dist/ext.xpi
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: ext
 
-            - name: Structure Files
-              run: |
-                  mkdir -p dist/manifest
-                  cp dist/mv2/manifest.json dist/manifest/manifest.mv2.json
-                  cp dist/mv3/manifest.json dist/manifest/manifest.mv3.json
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: installable
+          path: ext
 
-            - name: "Upload Artifact: Installable"
-              if: ${{ env.installable }}
-              uses: actions/upload-artifact@v3
-              with:
-                  name: installable
-                  retention-days: 60
-                  path: |
-                      dist/ext.crx
-                      dist/ext.xpi
+      - name: File Names
+        run: |
+          cd ext/
+          for file in *; do
+              mv "$file" "7tv-webextension-$file"
+          done
 
-            - name: "Upload Artifact: Unpacked"
-              uses: actions/upload-artifact@v3
-              with:
-                  name: build
-                  retention-days: 60
-                  path: |
-                      dist/mv3.zip
-                      dist/mv2.zip
+      - run: |
+          echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
+          cat ./package.json >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
-            - name: Upload Manifest
-              uses: actions/upload-artifact@v3
-              with:
-                  name: manifest
-                  path: dist/manifest
+      - name: Define Release Tag
+        id: release-tag
+        run: |
+          echo "VERSION=${{ fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
+          echo "DEV_VERSION=${{ fromJson(env.PACKAGE_JSON).dev_version }}" >> $GITHUB_OUTPUT
 
-    release:
-        name: Create Release
-        runs-on: ubuntu-latest
-        needs: [ci]
-        if: ${{ (inputs.branch) || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+          if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
+              echo "RELEASE_TAG=nightly-release" >> $GITHUB_OUTPUT
+              exit 0
+          fi
 
-        steps:
-            - uses: actions/checkout@v3
+          echo "RELEASE_TAG=${{ format('v{0}', fromJson(env.PACKAGE_JSON).version) }}" >> $GITHUB_OUTPUT
 
-            - name: Download Artifact
-              uses: actions/download-artifact@v3
-              with:
-                  name: build
-                  path: ext
+      - name: Create Nightly Release
+        if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
+        id: create_nightly_release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          removeArtifacts: true
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: "ext/*"
+          body: ${{ github.event.head_commit.message }}
+          prerelease: true
+          name: Nightly Release
+          tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
-            - name: Download Artifact
-              uses: actions/download-artifact@v3
-              with:
-                  name: installable
-                  path: ext
+      - name: Update Nightly Tag
+        if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
+        run: |
+          git tag -f nightly-release
+          git push -f origin nightly-release
 
-            - name: File Names
-              run: |
-                  cd ext/
-                  for file in *; do
-                      mv "$file" "7tv-webextension-$file"
-                  done
+      - name: Create Release
+        if: ${{ inputs.branch == 'stable' }}
+        id: create_release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifactErrorsFailBuild: true
+          artifacts: "ext/*"
+          allowUpdates: true
+          prerelease: false
+          draft: true
+          omitBodyDuringUpdate: true
+          omitDraftDuringUpdate: true
+          omitNameDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
+          replacesArtifacts: true
+          body: ${{ github.event.head_commit.message }}
+          name: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+          tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
 
-            - run: |
-                  echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
-                  cat ./package.json >> $GITHUB_ENV
-                  echo 'EOF' >> $GITHUB_ENV
+    outputs:
+      release_tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+      version: ${{ steps.release-tag.outputs.VERSION }}
+      dev_version: ${{ steps.release-tag.outputs.DEV_VERSION }}
 
-            - name: Define Release Tag
-              id: release-tag
-              run: |
-                  echo "VERSION=${{ fromJson(env.PACKAGE_JSON).version }}" >> $GITHUB_OUTPUT
-                  echo "DEV_VERSION=${{ fromJson(env.PACKAGE_JSON).dev_version }}" >> $GITHUB_OUTPUT
+  deploy:
+    name: Deploy Hosted Build
+    runs-on: ubuntu-latest
+    needs: [ci, release]
+    if: ${{ inputs.deploy || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
 
-                  if [[ "${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}" == "true" ]]; then
-                      echo "RELEASE_TAG=nightly-release" >> $GITHUB_OUTPUT
-                      exit 0
-                  fi
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
 
-                  echo "RELEASE_TAG=${{ format('v{0}', fromJson(env.PACKAGE_JSON).version) }}" >> $GITHUB_OUTPUT
+      - name: Install Yarn
+        run: npm install -g yarn
 
-            - name: Create Nightly Release
-              if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
-              id: create_nightly_release
-              uses: ncipollo/release-action@v1.12.0
-              with:
-                  removeArtifacts: true
-                  allowUpdates: true
-                  artifactErrorsFailBuild: true
-                  artifacts: "ext/*"
-                  body: ${{ github.event.head_commit.message }}
-                  prerelease: true
-                  name: Nightly Release
-                  tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+      - name: Install Dependencies
+        run: |
+          yarn
 
-            - name: Update Nightly Tag
-              if: ${{ inputs.branch == 'nightly' || env.IS_MASTER_COMMIT == 'true' }}
-              run: |
-                  git tag -f nightly-release
-                  git push -f origin nightly-release
+      - name: Build (Hosted)
+        env:
+          BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
+          MANIFEST_NAME: ${{ (inputs.stage-host && 'Stage') || ''}}
+        run: |
+          yarn build-hosted:prod
 
-            - name: Create Release
-              if: ${{ inputs.branch == 'stable' }}
-              id: create_release
-              uses: ncipollo/release-action@v1.12.0
-              with:
-                  artifactErrorsFailBuild: true
-                  artifacts: "ext/*"
-                  allowUpdates: true
-                  prerelease: false
-                  draft: true
-                  omitBodyDuringUpdate: true
-                  omitDraftDuringUpdate: true
-                  omitNameDuringUpdate: true
-                  omitPrereleaseDuringUpdate: true
-                  replacesArtifacts: true
-                  body: ${{ github.event.head_commit.message }}
-                  name: ${{ steps.release-tag.outputs.RELEASE_TAG }}
-                  tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
+      - name: Upload to Host
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          endpoint: ${{ secrets.R2_API_ENDPOINT }}
+          aws_key_id: ${{ secrets.R2_API_AK }}
+          aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
+          aws_bucket: 7tv-extension
+          source_dir: "dist-hosted/"
+          destination_dir: ""
 
-        outputs:
-            release_tag: ${{ steps.release-tag.outputs.RELEASE_TAG }}
-            version: ${{ steps.release-tag.outputs.VERSION }}
-            dev_version: ${{ steps.release-tag.outputs.DEV_VERSION }}
+  push:
+    name: Submit to CWS / Sign XPI
+    runs-on: aws-runner
+    needs: [ci, release]
+    if: ${{ inputs.store-upload && inputs.branch }}
 
-    deploy:
-        name: Deploy Hosted Build
-        runs-on: ubuntu-latest
-        needs: [ci, release]
-        if: ${{ inputs.deploy || (github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master') }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
 
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: "18"
+      # Retrieve the non-CRX MV3 zip to be uploaded to CWS
+      - name: Download Artifact (Build)
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: ext
 
-            - name: Install Yarn
-              run: npm install -g yarn
+      - name: Download Artifact (Installable)
+        uses: actions/download-artifact@v4
+        with:
+          name: installable
+          path: ext
 
-            - name: Install Dependencies
-              run: |
-                  yarn
+      # Get the XPI File for Firefox
+      # It will be uploaded to AMO
+      - name: Download Manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: manifest
+          path: manifest
 
-            - name: Build (Hosted)
-              env:
-                  BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
-                  MANIFEST_NAME: ${{ (inputs.stage-host && 'Stage') || ''}}
-              run: |
-                  yarn build-hosted:prod
+      - name: CLI Setup
+        run: |
+          npm install -g chrome-webstore-upload-cli
 
-            - name: Upload to Host
-              uses: shallwefootball/s3-upload-action@master
-              with:
-                  endpoint: ${{ secrets.R2_API_ENDPOINT }}
-                  aws_key_id: ${{ secrets.R2_API_AK }}
-                  aws_secret_access_key: ${{ secrets.R2_API_SECRET }}
-                  aws_bucket: 7tv-extension
-                  source_dir: "dist-hosted/"
-                  destination_dir: ""
+      - name: Upload to CWS
+        continue-on-error: true
+        env:
+          CREDENTIALS: ${{ secrets.CWS }}
+          EXTENSION_ID: ${{ (inputs.branch == 'stable' && env.EXTENSION_ID_CWS) || env.NIGHTLY_EXTENSION_ID_CWS }}
+        run: |
+          echo "${{ env.CREDENTIALS }}" >> c
 
-    push:
-        name: Submit to CWS / Sign XPI
-        runs-on: aws-runner
-        needs: [ci, release]
-        if: ${{ inputs.store-upload && inputs.branch }}
+          chrome-webstore-upload upload \
+            --source ext/mv3.zip \
+            --extension-id $EXTENSION_ID \
+            --client-id "$(sed '1q;d' c)" \
+            --client-secret "$(sed '2q;d' c)" \
+            --refresh-token "$(sed '3q;d' c)"
 
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: "18"
+      - name: Copy Unsigned XPI
+        run: |
+          cp ext/ext.xpi ext/ext-signable.xpi
+          mkdir web-ext-artifacts/
 
-            # Retrieve the non-CRX MV3 zip to be uploaded to CWS
-            - name: Download Artifact (Build)
-              uses: actions/download-artifact@v3
-              with:
-                  name: build
-                  path: ext
+      - name: Sign XPI (Firefox)
+        id: xpi-sign
+        continue-on-error: true
+        uses: kewisch/action-web-ext@v1
+        with:
+          cmd: sign
+          source: ext/ext-signable.xpi
+          channel: unlisted
+          apiKey: ${{ secrets.AMO_API_KEY }}
+          apiSecret: ${{ secrets.AMO_API_SECRET }}
+          timeout: 900000
 
-            - name: Download Artifact (Installable)
-              uses: actions/download-artifact@v3
-              with:
-                  name: installable
-                  path: ext
+      - name: Move Signed XPI (Firefox)
+        if: ${{ steps.xpi-sign.outputs.target }}
+        run: mv ${{ steps.xpi-sign.outputs.target }} ext/ext-signed.xpi
 
-            # Get the XPI File for Firefox
-            # It will be uploaded to AMO
-            - name: Download Manifest
-              uses: actions/download-artifact@v3
-              with:
-                  name: manifest
-                  path: manifest
+      - name: "Upload Artifact: Signed XPI"
+        if: ${{ steps.xpi-sign.outputs.target }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: installable
+          retention-days: 60
+          path: |
+            ext/ext-signed.xpi
 
-            - name: CLI Setup
-              run: |
-                  npm install -g chrome-webstore-upload-cli
+      - name: "Rename Signed Artifact"
+        if: ${{ steps.xpi-sign.outputs.target }}
+        run: cp ext/ext-signed.xpi ext/7tv-webextension-ext-signed.xpi
 
-            - name: Upload to CWS
-              continue-on-error: true
-              env:
-                  CREDENTIALS: ${{ secrets.CWS }}
-                  EXTENSION_ID: ${{ (inputs.branch == 'stable' && env.EXTENSION_ID_CWS) || env.NIGHTLY_EXTENSION_ID_CWS }}
-              run: |
-                  echo "${{ env.CREDENTIALS }}" >> c
-
-                  chrome-webstore-upload upload \
-                    --source ext/mv3.zip \
-                    --extension-id $EXTENSION_ID \
-                    --client-id "$(sed '1q;d' c)" \
-                    --client-secret "$(sed '2q;d' c)" \
-                    --refresh-token "$(sed '3q;d' c)"
-
-            - name: Copy Unsigned XPI
-              run: |
-                  cp ext/ext.xpi ext/ext-signable.xpi
-                  mkdir web-ext-artifacts/
-
-            - name: Sign XPI (Firefox)
-              id: xpi-sign
-              continue-on-error: true
-              uses: kewisch/action-web-ext@v1
-              with:
-                  cmd: sign
-                  source: ext/ext-signable.xpi
-                  channel: unlisted
-                  apiKey: ${{ secrets.AMO_API_KEY }}
-                  apiSecret: ${{ secrets.AMO_API_SECRET }}
-                  timeout: 900000
-
-            - name: Move Signed XPI (Firefox)
-              if: ${{ steps.xpi-sign.outputs.target }}
-              run: mv ${{ steps.xpi-sign.outputs.target }} ext/ext-signed.xpi
-
-            - name: "Upload Artifact: Signed XPI"
-              if: ${{ steps.xpi-sign.outputs.target }}
-              uses: actions/upload-artifact@v3
-              with:
-                  name: installable
-                  retention-days: 60
-                  path: |
-                      ext/ext-signed.xpi
-
-            - name: "Rename Signed Artifact"
-              if: ${{ steps.xpi-sign.outputs.target }}
-              run: cp ext/ext-signed.xpi ext/7tv-webextension-ext-signed.xpi
-
-            - name: Update Release
-              if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
-              uses: ncipollo/release-action@v1.12.0
-              with:
-                  allowUpdates: true
-                  artifacts: "ext/7tv-webextension-ext-signed.xpi"
-                  body: ${{ github.event.head_commit.message }}
-                  omitNameDuringUpdate: true
-                  omitPrereleaseDuringUpdate: true
-                  omitDraftDuringUpdate: true
-                  omitBodyDuringUpdate: true
-                  tag: ${{ needs.release.outputs.release_tag }}
+      - name: Update Release
+        if: ${{ steps.xpi-sign.outputs.target && needs.release.outputs.release_tag }}
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          artifacts: "ext/7tv-webextension-ext-signed.xpi"
+          body: ${{ github.event.head_commit.message }}
+          omitNameDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
+          omitDraftDuringUpdate: true
+          omitBodyDuringUpdate: true
+          tag: ${{ needs.release.outputs.release_tag }}
