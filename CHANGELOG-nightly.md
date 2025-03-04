@@ -1,5 +1,7 @@
 ### 3.1.6.2000
 
+-   Fixed the profile redirection when clicking on a user on the Twitch dashboard
+
 ### 3.1.6.1000
 
 -   Fixed an issue causing Twitch chat / moderation tools to not work properly
