@@ -1,11 +1,11 @@
 ### 3.1.6.1000
 
--   Fixed an issue causing Twitch chat / moderation tools to not work properly
+- Fixed an issue causing Twitch chat / moderation tools to not work properly
+- Removed old kick auth
 
 ### 3.1.5.3000
 
 - Fixed an issue with the Twitch chat not showing a cooldown timer
-- Removed old kick auth
 
 ### 3.1.5.2000
 

@@ -7,7 +7,7 @@ import SettingsModuleVue from "@/site/kick.com/modules/settings/SettingsModule.v
 declare type KickModuleID = keyof KickModuleComponentMap;
 
 declare type KickModuleComponentMap = {
-	// auth: typeof AuthModuleVue;
+	auth: typeof AuthModuleVue;
 	chat: typeof ChatModuleVue;
 	settings: typeof SettingsModuleVue;
 	"chat-input": typeof ChatInputModuleVue;
