@@ -167,6 +167,8 @@ const props = defineProps<{
 	target: ChatUser;
 }>();
 
+const TWITCH_ROOT_URL = "https://twitch.tv";
+
 const emit = defineEmits<{
 	(e: "close"): void;
 	(e: "mount-handle", handle: HTMLDivElement): void;
@@ -440,7 +442,7 @@ function highlightUserMessages(): void {
 }
 
 function getProfileURL(): string {
-	return window.location.origin + "/" + props.target.username;
+	return `${TWITCH_ROOT_URL}/${props.target.username}`;
 }
 
 function formatDateToString(date?: string): string {
