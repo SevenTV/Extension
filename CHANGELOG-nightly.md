@@ -1,6 +1,7 @@
 ### 3.1.5.3000
 
 -   Fixed an issue with the Twitch chat not showing a cooldown timer
+-   Fixed the profile redirection when clicking on a user on the Twitch dashboard
 
 ### 3.1.5.2000
 
