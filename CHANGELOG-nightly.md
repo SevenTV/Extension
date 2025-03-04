@@ -1,6 +1,7 @@
 ### 3.1.5.3000
 
 -   Fixed an issue with the Twitch chat not showing a cooldown timer
+-   Added an Always On autocompletion option
 
 ### 3.1.5.2000
 
