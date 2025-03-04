@@ -1,6 +1,7 @@
 ### 3.1.5.3000
 
 -   Fixed an issue with the Twitch chat not showing a cooldown timer
+-   Fixed an issue where the default highlight sound would not play on Firefox
 
 ### 3.1.5.2000
 
