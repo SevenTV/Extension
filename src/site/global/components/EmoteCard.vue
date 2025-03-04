@@ -85,9 +85,9 @@ watchEffect(async () => {
 	// for twitch emotes we
 	if (props.emote.provider === "PLATFORM") {
 		const apollo = useApollo();
-		if (!apollo) return;
+		if (!apollo.value) return;
 
-		const res = await apollo
+		const res = await apollo.value
 			.query<emoteCardQuery.Result, emoteCardQuery.Variables>({
 				query: emoteCardQuery,
 				variables: {

@@ -1,3 +1,7 @@
+### 3.1.6
+
+-   Fixed an issue causing Twitch chat / moderation tools to not work properly
+
 ### 3.1.5
 
 -   Entitlements like paints and badges should now better reflect what the user has equipped
