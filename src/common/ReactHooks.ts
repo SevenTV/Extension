@@ -436,40 +436,52 @@ export function useComponentHook<C extends ReactExtended.WritableComponent>(
 	return hook;
 }
 
-export function getElementFiberStatic<P>(
-	elem: Element,
-	offset: number,
+export function findElementFiber<P>(
+	options: ComponentCriteria<ReactExtended.ReactFunctionalFiber<P>>,
 ): ReactExtended.ReactFunctionalFiber<P> | undefined {
-	const node = getVNodeFromDOM(elem);
-	if (!node) return;
-	let current = node;
-	for (let i = 0; i < offset; i++) {
-		if (!current.return) return;
-		current = current.return;
+	let current: ReactExtended.ReactVNode | undefined;
+
+	if (options.parentSelector || options.childSelector) {
+		const el = document.querySelector(options.parentSelector! || options.childSelector!);
+		if (!el) return;
+
+		current = getVNodeFromDOM(el);
+	} else {
+		current = getRootVNode();
 	}
-	if (!current.elementType) return;
+
+	const maxDepth = options?.maxDepth ?? 20;
+	for (let i = 0; i < maxDepth; i++) {
+		const next = options.parentSelector || !options.childSelector ? current?.child : current?.return;
+		if (!next) break;
+
+		if (current?.elementType && options.predicate(current as unknown as ReactExtended.ReactFunctionalFiber<P>))
+			break;
+
+		current = next;
+	}
 
 	return current as unknown as ReactExtended.ReactFunctionalFiber<P>;
 }
 
-export async function useStaticRenderFunctionHook<P extends object>(
-	selector: string,
-	offset: number,
-	func: HookedElementFunction<P>,
-) {
-	let elem = document.querySelector(selector);
+export async function awaitElementFiber<P>(
+	options: ComponentCriteria<ReactExtended.ReactFunctionalFiber<P>>,
+): Promise<ReactExtended.ReactFunctionalFiber<P>> {
+	let fiber = findElementFiber<P>(options);
 
-	if (!elem || !getElementFiberStatic(elem, offset)) {
-		elem = await new Promise<Element>((resolve) => {
+	if (!fiber) {
+		fiber = await new Promise<ReactExtended.ReactFunctionalFiber<P>>((resolve) => {
 			const observer = new MutationObserver((records) => {
 				for (const record of records) {
 					if (!record.addedNodes) continue;
+
 					record.addedNodes.forEach((node) => {
-						if (node instanceof Element && node.querySelector(selector)) {
-							if (getElementFiberStatic(node, offset)) {
-								resolve(node);
+						if (node instanceof Element) {
+							const fiber = findElementFiber<P>(options);
+
+							if (fiber) {
+								resolve(fiber);
 								observer.disconnect();
-								return;
 							}
 						}
 					});
@@ -479,15 +491,24 @@ export async function useStaticRenderFunctionHook<P extends object>(
 		});
 	}
 
-	if (!elem) return;
+	return fiber;
+}
 
-	const fiber = getElementFiberStatic<P>(elem, offset)!;
+export function useElementFiberHook<P extends object>(
+	criteria: ComponentCriteria<ReactExtended.ReactFunctionalFiber<P>>,
+	options?: FiberHookOptions<P>,
+): void {
+	const fiber = awaitElementFiber<P>(criteria);
 
-	defineFunctionHook(fiber.elementType, "render", func);
-	func.call(fiber.elementType, null, fiber.pendingProps);
+	fiber.then((fiber) => {
+		if (options?.hooks?.render) {
+			defineFunctionHook(fiber.elementType, "render", options.hooks.render);
+			options.hooks.render.call(fiber.elementType, null, fiber.pendingProps);
 
-	onUnmounted(() => {
-		unsetPropertyHook(fiber.elementType, "render");
+			onUnmounted(() => {
+				unsetPropertyHook(fiber.elementType, "render");
+			});
+		}
 	});
 }
 
@@ -503,10 +524,10 @@ type HookedElementFunction<
 	ref?: React.RefObject<Element>,
 ) => ReactExtended.ReactRuntimeElement | null;
 
-interface ComponentCriteria {
+interface ComponentCriteria<C = ReactExtended.AnyReactComponent> {
 	parentSelector?: string;
 	childSelector?: string;
-	predicate: ReactComponentPredicate;
+	predicate: ReactComponentPredicate<C>;
 	maxDepth?: number;
 }
 
@@ -526,6 +547,12 @@ interface HookOptions<C extends ReactExtended.WritableComponent> {
 		[F in keyof C]?: C[F] extends (...args: any[]) => any
 			? (this: C, old: C[F], ...args: Parameters<C[F]>) => ReturnType<C[F]>
 			: never;
+	};
+}
+
+interface FiberHookOptions<P extends object> {
+	hooks?: {
+		render?: HookedElementFunction<P>;
 	};
 }
 
@@ -554,4 +581,4 @@ export class HookedInstance<C extends ReactExtended.WritableComponent> {
 	}
 }
 
-export type ReactComponentPredicate = (component: ReactExtended.AnyReactComponent) => boolean;
+export type ReactComponentPredicate<C = ReactExtended.AnyReactComponent> = (component: C) => boolean;
