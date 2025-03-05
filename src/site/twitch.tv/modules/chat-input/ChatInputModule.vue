@@ -130,24 +130,32 @@ markAsReady();
 
 <script lang="ts">
 export const config = [
-	declareConfig("chat_input.autocomplete.colon", "TOGGLE", {
+	declareConfig("chat_input.autocomplete.colon", "DROPDOWN", {
 		path: ["Chat", "Autocompletion"],
-		label: "Colon-completion",
-		hint: "Allows the use of a colon (:) to open a list of partially matching emotes",
-		defaultValue: true,
+		label: "Autocompletion",
+		hint: "Enables a list of partially matching emotes when writing a message (Setting this to 'Always on' will disable the Tab-completion Carousel)",
+		options: [
+			["Disabled", 0],
+			["Require the ':' prefix", 1],
+			["Always on", 2],
+		],
+		transform(v) {
+			return v === true ? 1 : 0;
+		},
+		defaultValue: 1,
 	}),
 	declareConfig("chat_input.autocomplete.colon.emoji", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
-		label: "Colon-completion: Emoji",
-		disabledIf: () => !useConfig("chat_input.autocomplete.colon").value,
-		hint: "Whether or not to also include emojis in the colon-completion list (This may impact performance)",
+		label: "Autocompletion: Emoji",
+		disabledIf: () => useConfig("chat_input.autocomplete.colon").value === 0,
+		hint: "Whether or not to also include emojis in the autocompletion list (This may impact performance)",
 		defaultValue: false,
 	}),
 	declareConfig("chat_input.autocomplete.colon.mode", "DROPDOWN", {
 		path: ["Chat", "Autocompletion"],
-		label: "Colon-completion: Mode",
-		disabledIf: () => !useConfig("chat_input.autocomplete.colon").value,
-		hint: "What emotes should be displayed in the colon-completion list",
+		label: "Autocompletion: Mode",
+		disabledIf: () => useConfig("chat_input.autocomplete.colon").value === 0,
+		hint: "What emotes should be displayed in the autocompletion list",
 		options: [
 			["Must start with input", 0],
 			["Must include input", 1],
@@ -157,20 +165,25 @@ export const config = [
 	declareConfig("chat_input.autocomplete.carousel", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
 		label: "Tab-completion Carousel",
+		disabledIf: () => useConfig("chat_input.autocomplete.colon").value === 2,
 		hint: "Show a carousel visualization of previous and next tab-completion matches",
 		defaultValue: true,
 	}),
 	declareConfig("chat_input.autocomplete.carousel_arrow_keys", "TOGGLE", {
 		path: ["Chat", "Autocompletion"],
 		label: "Tab-completion Carousel: Arrow Keys",
-		disabledIf: () => !useConfig("chat_input.autocomplete.carousel").value,
+		disabledIf: () =>
+			!useConfig("chat_input.autocomplete.carousel").value ||
+			useConfig("chat_input.autocomplete.colon").value === 2,
 		hint: "Whether or not to allow using left/right arrow keys to navigate the tab-completion carousel",
 		defaultValue: true,
 	}),
 	declareConfig("chat_input.autocomplete.carousel.mode", "DROPDOWN", {
 		path: ["Chat", "Autocompletion"],
 		label: "Tab-completion: Mode",
-		disabledIf: () => !useConfig("chat_input.autocomplete.carousel").value,
+		disabledIf: () =>
+			!useConfig("chat_input.autocomplete.carousel").value ||
+			useConfig("chat_input.autocomplete.colon").value === 2,
 		hint: "What emotes should be displayed in the tab-completion carousel",
 		options: [
 			["Must start with input", 0],
