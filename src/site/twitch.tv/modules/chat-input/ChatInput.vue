@@ -12,7 +12,7 @@
 
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 import { useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
@@ -60,12 +60,12 @@ const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const ua = useUserAgent();
 
-const autocompletionMode = useConfig("chat_input.autocomplete");
-const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.emoji");
+const autocompletionMode = useConfig("chat_input.autocomplete.colon");
+const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
 const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.carousel");
 const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
-const colonCompletionMode = useConfig<number>("chat_input.autocomplete.mode");
+const colonCompletionMode = useConfig<number>("chat_input.autocomplete.colon.mode");
 const tabCompletionMode = useConfig<number>("chat_input.autocomplete.carousel.mode");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
@@ -93,6 +93,10 @@ const history = ref<Twitch.ChatSlateLeaf[][]>([]);
 const historyLocation = ref(-1);
 
 const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
+
+useEventListener(document, "keydown", (event) => {
+	handleCapturedKeyDown(event);
+});
 
 function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: number): TabToken[] {
 	const usedTokens = new Set<string>();
@@ -173,10 +177,6 @@ function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: 
 
 	return matches;
 }
-
-onMounted(() => {
-	window.addEventListener("keydown", handleCapturedKeyDown, { capture: true });
-});
 
 function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 	const component = props.instance.component;

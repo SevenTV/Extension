@@ -88,8 +88,8 @@ const questions = ref<Question[]>([
 		id: "chatter-config-autocompletion",
 		kind: "config",
 		configEffect: [
-			"chat_input.autocomplete",
-			"chat_input.autocomplete.emoji",
+			"chat_input.autocomplete.colon",
+			"chat_input.autocomplete.colon.emoji",
 			"chat_input.autocomplete.carousel",
 			"chat_input.autocomplete.carousel_arrow_keys",
 			"chat_input.autocomplete.chatters",
