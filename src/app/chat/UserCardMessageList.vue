@@ -101,12 +101,12 @@ function scrollToLive(): void {
 }
 
 async function addModComment(): Promise<void> {
-	if (!commentText.value || !apollo) return;
+	if (!commentText.value || !apollo.value) return;
 
 	const text = commentText.value;
 	commentText.value = "";
 
-	const resp = await apollo
+	const resp = await apollo.value
 		.mutate<twitchUserCardCreateModCommentMut.Response, twitchUserCardCreateModCommentMut.Variables>({
 			mutation: twitchUserCardCreateModCommentMut,
 			variables: {

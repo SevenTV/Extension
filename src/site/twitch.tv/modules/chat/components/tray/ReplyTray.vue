@@ -74,9 +74,9 @@ const emotes = useChatEmotes(ctx);
 const apollo = useApollo();
 
 watchEffect(async () => {
-	if (!apollo) return;
+	if (!apollo.value) return;
 
-	const resp = await apollo
+	const resp = await apollo.value
 		.query<{
 			message: TwTypeMessage;
 		}>({

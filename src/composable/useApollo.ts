@@ -1,11 +1,8 @@
+import { ref } from "vue";
 import type { ApolloClient } from "@apollo/client";
 
-declare const __APOLLO_CLIENT__: ApolloClient<object>;
+const client = ref<ApolloClient<object> | null>(null);
 
-export function useApollo(): ApolloClient<object> | null {
-	if (!("__APOLLO_CLIENT__" in window)) {
-		return null;
-	}
-
-	return __APOLLO_CLIENT__ ?? null;
+export function useApollo() {
+	return client;
 }

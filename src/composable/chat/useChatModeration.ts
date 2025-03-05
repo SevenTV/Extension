@@ -17,9 +17,9 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	 * @param reason the reason for the ban
 	 */
 	function banUserFromChat(expiresIn: string | null, reason?: string) {
-		if (!apollo) return Promise.reject("Missing Apollo");
+		if (!apollo.value) return Promise.reject("Missing Apollo");
 
-		return apollo.mutate<twitchBanUserQuery.Result, twitchBanUserQuery.Variables>({
+		return apollo.value.mutate<twitchBanUserQuery.Result, twitchBanUserQuery.Variables>({
 			mutation: twitchBanUserQuery,
 			variables: {
 				input: {
@@ -39,9 +39,9 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	 * @param victim the login of the user to unban
 	 */
 	function unbanUserFromChat() {
-		if (!apollo) return Promise.reject("Missing Apollo");
+		if (!apollo.value) return Promise.reject("Missing Apollo");
 
-		return apollo.mutate({
+		return apollo.value.mutate({
 			mutation: twitchUnbanUserQuery,
 			variables: {
 				input: {
@@ -53,9 +53,9 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	}
 
 	function pinChatMessage(msgID: string, duration: number) {
-		if (!apollo) return Promise.reject("Missing Apollo");
+		if (!apollo.value) return Promise.reject("Missing Apollo");
 
-		return apollo.mutate<twitchPinMessageQuery.Result, twitchPinMessageQuery.Variables>({
+		return apollo.value.mutate<twitchPinMessageQuery.Result, twitchPinMessageQuery.Variables>({
 			mutation: twitchPinMessageQuery,
 			variables: {
 				input: {
@@ -69,9 +69,9 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	}
 
 	function setUserModerator(victimID: string, mod: boolean) {
-		if (!apollo) return Promise.reject("Missing Apollo");
+		if (!apollo.value) return Promise.reject("Missing Apollo");
 
-		return apollo.mutate<ModOrUnmodUser.Response, ModOrUnmodUser.Variables>({
+		return apollo.value.mutate<ModOrUnmodUser.Response, ModOrUnmodUser.Variables>({
 			mutation: !mod ? twitchModUserMut : twitchUnmodUserMut,
 			variables: {
 				input: {
@@ -83,9 +83,9 @@ export function useChatModeration(ctx: ChannelContext, victim: string) {
 	}
 
 	function deleteChatMessage(msgID: string) {
-		if (!apollo) return Promise.reject("Missing Apollo");
+		if (!apollo.value) return Promise.reject("Missing Apollo");
 
-		return apollo.mutate<twitchDeleteMessageQuery.Result, twitchDeleteMessageQuery.Variables>({
+		return apollo.value.mutate<twitchDeleteMessageQuery.Result, twitchDeleteMessageQuery.Variables>({
 			mutation: twitchDeleteMessageQuery,
 			variables: {
 				input: {

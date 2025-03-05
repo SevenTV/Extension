@@ -11,13 +11,15 @@
 import { defineAsyncComponent, onMounted, provide, ref } from "vue";
 import { useStore } from "@/store/main";
 import { SITE_CURRENT_PLATFORM, SITE_NAV_PATHNAME } from "@/common/Constant";
-import { useComponentHook } from "@/common/ReactHooks";
+import { useComponentHook, useElementFiberHook } from "@/common/ReactHooks";
 import { useActor } from "@/composable/useActor";
+import { useApollo } from "@/composable/useApollo";
 import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { getModule } from "@/composable/useModule";
 import { synchronizeFrankerFaceZ, useSettings } from "@/composable/useSettings";
 import { useUserAgent } from "@/composable/useUserAgent";
 import type { TwModuleID } from "@/types/tw.module";
+import type { ApolloClient } from "@apollo/client";
 
 const ModuleWrapper = defineAsyncComponent(() => import("@/site/global/ModuleWrapper.vue"));
 
@@ -25,6 +27,7 @@ const store = useStore();
 const actor = useActor();
 const ua = useUserAgent();
 const ffz = useFrankerFaceZ();
+const apollo = useApollo();
 
 ua.preferredFormat = store.avifSupported ? "AVIF" : "WEBP";
 store.setPreferredImageFormat(ua.preferredFormat);
@@ -84,6 +87,22 @@ useComponentHook<Twitch.RouterComponent>(
 				if (!v.component || !v.component.props || !v.component.props.location) return;
 
 				currentPath.value = v.component.props.location.pathname;
+			},
+		},
+	},
+);
+
+useElementFiberHook<{ client: ApolloClient<object> }>(
+	{
+		maxDepth: 50,
+		predicate: (n) => !!(n.memoizedProps && n.memoizedProps.client && n.memoizedProps.client.query),
+	},
+	{
+		hooks: {
+			render(old, props, ref) {
+				apollo.value = props.client;
+
+				return old?.call(this, props, ref) ?? null;
 			},
 		},
 	},
