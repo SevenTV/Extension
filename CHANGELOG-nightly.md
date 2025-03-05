@@ -1,3 +1,6 @@
+### 3.1.6.2000
+- Fixed wrong pattern when adding highlights from usercard
+
 ### 3.1.6.1000
 
 - Fixed an issue causing Twitch chat / moderation tools to not work properly
