@@ -13,7 +13,7 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
 import { onUnmounted, ref, watch } from "vue";
-import { useMagicKeys } from "@vueuse/core";
+import { useEventListener, useMagicKeys } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
 import { imageHostToSrcset } from "@/common/Image";
@@ -94,9 +94,7 @@ const historyLocation = ref(-1);
 
 const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
 
-useEventListener(document, "keydown", (event) => {
-	handleCapturedKeyDown(event);
-});
+useEventListener(window, "keydown", handleCapturedKeyDown, { capture: true });
 
 function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: number): TabToken[] {
 	const usedTokens = new Set<string>();
@@ -426,12 +424,9 @@ function onKeyDown(ev: KeyboardEvent) {
 function handleCapturedKeyDown(ev: KeyboardEvent) {
 	// Prevents autocompletion on Enter when completion mode is -> always on
 	if (ev.key === "Enter") {
-		const { component } = props.instance;
-		const { componentRef } = component;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const componentProps: any = componentRef.props;
-		const activeTray: Twitch.ChatTray = componentProps.tray;
-		const slate = componentRef.state?.slateEditor;
+		const component = props.instance.component as Twitch.ChatAutocompleteComponent;
+		const activeTray: Twitch.ChatTray = component.props.tray;
+		const slate = component.componentRef.state?.slateEditor;
 
 		// Exit if autocomplete is not always on or anything needed is unavailable
 		if (
