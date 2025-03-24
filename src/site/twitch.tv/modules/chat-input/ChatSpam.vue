@@ -22,6 +22,7 @@ import { UNICODE_TAG_0, UNICODE_TAG_0_REGEX } from "@/common/Constant";
 import type { HookedInstance } from "@/common/ReactHooks";
 import { useFloatScreen } from "@/composable/useFloatContext";
 import { getModuleRef } from "@/composable/useModule";
+import { useConfig } from "@/composable/useSettings";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
 import UiSuperHint from "@/ui/UiSuperHint.vue";
 import { offset } from "@floating-ui/core";
@@ -44,9 +45,10 @@ const suggestContainer = useFloatScreen(rootEl, {
 });
 
 const alt = refAutoReset(false, 3e4);
+const shouldBypassDuplicateCheck = useConfig("chat_input.spam.bypass_duplicate");
 let prevMessage = "";
 function handleDuplicateMessage(content: string): string {
-	if (typeof content === "string" && content === prevMessage) {
+	if (shouldBypassDuplicateCheck.value && typeof content === "string" && content === prevMessage) {
 		// Remove existing unicode tags
 		// avoids conflict with other extensions
 		content = content.replace(UNICODE_TAG_0_REGEX, "");
