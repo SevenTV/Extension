@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { nextTick, reactive, ref, toRef, watch } from "vue";
-import { until, useDocumentVisibility, useMagicKeys, useTimeoutFn, watchDebounced } from "@vueuse/core";
+import { until, useDocumentVisibility, useKeyModifier, useTimeoutFn, watchDebounced } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useStore } from "@/store/main";
 import { normalizeUsername } from "@/common/Color";
@@ -503,7 +503,7 @@ watchDebounced(
 );
 
 // Scroll Pausing on hotkey / hover
-const { alt } = useMagicKeys();
+const alt = useKeyModifier("Alt");
 
 let pausedByHotkey = false;
 watch([alt, isHovering], ([isAlt, isHover]) => {
