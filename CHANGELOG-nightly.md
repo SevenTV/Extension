@@ -1,6 +1,7 @@
 ### 3.1.6.2000
 
 -   Fixed the profile redirection when clicking on a user on the Twitch dashboard
+-   Fixed the some keyboard shortcuts not working
 
 ### 3.1.6.1000
 

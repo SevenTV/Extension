@@ -134,7 +134,7 @@ function onKeyDown(ev: KeyboardEvent) {
 					insertAtAnchor(colon.matches[colon.select].token);
 					colon.active = false;
 				} else if (ev.key === "Tab") {
-					handleTab(node, selection, isShiftPressed.value);
+					handleTab(node, selection, isShiftPressed.value ?? undefined);
 				}
 				break;
 			case "ArrowUp":

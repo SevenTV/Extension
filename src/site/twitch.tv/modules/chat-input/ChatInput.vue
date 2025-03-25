@@ -390,7 +390,7 @@ function onKeyDown(ev: KeyboardEvent) {
 
 	switch (ev.key) {
 		case "Tab":
-			handleTabPress(ev, isShift.value);
+			handleTabPress(ev, isShift.value ?? undefined);
 			break;
 		case "ArrowUp":
 			if (useHistory(true)) {
