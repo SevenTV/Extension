@@ -1,6 +1,7 @@
 ### 3.1.6.2000
 
 -   Added an Always On autocompletion option for emotes
+-   Fixed an issue where the default highlight sound would not play on Firefox
 
 ### 3.1.6.1000
 
