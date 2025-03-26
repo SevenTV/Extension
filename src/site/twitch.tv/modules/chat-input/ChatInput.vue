@@ -13,7 +13,7 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
 import { onUnmounted, ref, watch } from "vue";
-import { useEventListener, useMagicKeys } from "@vueuse/core";
+import { useEventListener, useKeyModifier } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
 import { imageHostToSrcset } from "@/common/Image";
@@ -92,7 +92,8 @@ const preHistory = ref<Twitch.ChatSlateLeaf[] | undefined>();
 const history = ref<Twitch.ChatSlateLeaf[][]>([]);
 const historyLocation = ref(-1);
 
-const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
+const isCtrl = useKeyModifier("Control");
+const isShift = useKeyModifier("Shift");
 
 useEventListener(window, "keydown", handleCapturedKeyDown, { capture: true });
 
@@ -404,7 +405,7 @@ function onKeyDown(ev: KeyboardEvent) {
 
 	switch (ev.key) {
 		case "Tab":
-			handleTabPress(ev, isShift.value);
+			handleTabPress(ev, isShift.value ?? undefined);
 			break;
 		case "ArrowUp":
 			if (useHistory(true)) {

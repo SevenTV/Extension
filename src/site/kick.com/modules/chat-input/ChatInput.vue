@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { onUnmounted, reactive, ref, toRaw, toRef, watch } from "vue";
-import { useMagicKeys } from "@vueuse/core";
+import { useKeyModifier } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { TabToken, getSearchRange } from "@/common/Input";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
@@ -111,7 +111,7 @@ function findCommandListener(predicate: (listener: Kick.Lexical.CommandListener<
 	);
 }
 
-const { shift: isShiftPressed } = useMagicKeys();
+const isShiftPressed = useKeyModifier("Shift");
 
 function onKeyDown(ev: KeyboardEvent) {
 	const editor = toRaw(editorRef.value);
@@ -134,7 +134,7 @@ function onKeyDown(ev: KeyboardEvent) {
 					insertAtAnchor(colon.matches[colon.select].token);
 					colon.active = false;
 				} else if (ev.key === "Tab") {
-					handleTab(node, selection, isShiftPressed.value);
+					handleTab(node, selection, isShiftPressed.value ?? undefined);
 				}
 				break;
 			case "ArrowUp":

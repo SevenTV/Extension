@@ -123,8 +123,8 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue";
-import { useBreakpoints, useMagicKeys } from "@vueuse/core";
+import { nextTick, onMounted, ref, watch, watchEffect } from "vue";
+import { useBreakpoints, useEventListener, useKeyModifier } from "@vueuse/core";
 import { useActor } from "@/composable/useActor";
 import { useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
@@ -265,20 +265,36 @@ const openProfile = () => {
 	nextTick(() => ctx.switchView("profile"));
 };
 
-const keys = useMagicKeys();
-const paintToolShortcut = keys["Alt+Shift+P"];
-const storeShortcut = keys["Alt+Shift+S"];
+const isAlt = useKeyModifier("Alt");
+const isShift = useKeyModifier("Shift");
+const isMeta = useKeyModifier("Meta");
+const isCtrl = useKeyModifier("Control");
 
-watch(paintToolShortcut, (press) => {
-	if (!press) return;
-
-	ctx.switchView("paint");
+const keys = ref({
+	p: false,
+	s: false,
 });
 
-watch(storeShortcut, (press) => {
-	if (!press) return;
+useEventListener(window, "keydown", updateKeys, { capture: true });
+useEventListener(window, "keyup", updateKeys, { capture: true });
 
-	ctx.switchView("store");
+function updateKeys(e: KeyboardEvent) {
+	const isPressed = e.type === "keydown";
+	if (e.key.toUpperCase() === "S") {
+		keys.value.s = isPressed;
+	} else if (e.key.toUpperCase() === "P") {
+		keys.value.p = isPressed;
+	}
+}
+
+watchEffect(() => {
+	if (isAlt.value && isShift.value && !(isMeta.value || isCtrl.value)) {
+		if (keys.value.p && !keys.value.s) {
+			ctx.switchView("paint");
+		} else if (keys.value.s && !keys.value.p) {
+			ctx.switchView("store");
+		}
+	}
 });
 
 watch(
