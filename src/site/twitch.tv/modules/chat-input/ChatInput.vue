@@ -13,7 +13,7 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
 import { onUnmounted, ref, watch } from "vue";
-import { useMagicKeys } from "@vueuse/core";
+import { useEventListener, useKeyModifier } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { REACT_TYPEOF_TOKEN } from "@/common/Constant";
 import { imageHostToSrcset } from "@/common/Image";
@@ -39,6 +39,19 @@ const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 }>();
 
+interface AutocompleteResult {
+	current: string;
+	type: string;
+	element: unknown;
+	replacement: string;
+}
+
+const AUTOCOMPLETION_MODE = {
+	OFF: 0,
+	COLON: 1,
+	ALWAYS_ON: 2,
+};
+
 const mod = getModule<"TWITCH", "chat-input">("chat-input");
 const store = useStore();
 const ctx = useChannelContext(props.instance.component.componentRef.props.channelID, true);
@@ -47,7 +60,7 @@ const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(store.identity?.id ?? "");
 const ua = useUserAgent();
 
-const shouldUseColonComplete = useConfig("chat_input.autocomplete.colon");
+const autocompletionMode = useConfig("chat_input.autocomplete.colon");
 const shouldColonCompleteEmoji = useConfig("chat_input.autocomplete.colon.emoji");
 const shouldAutocompleteChatters = useConfig("chat_input.autocomplete.chatters");
 const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.carousel");
@@ -79,7 +92,10 @@ const preHistory = ref<Twitch.ChatSlateLeaf[] | undefined>();
 const history = ref<Twitch.ChatSlateLeaf[][]>([]);
 const historyLocation = ref(-1);
 
-const { ctrl: isCtrl, shift: isShift } = useMagicKeys();
+const isCtrl = useKeyModifier("Control");
+const isShift = useKeyModifier("Shift");
+
+useEventListener(window, "keydown", handleCapturedKeyDown, { capture: true });
 
 function findMatchingTokens(str: string, mode: "tab" | "colon" = "tab", limit?: number): TabToken[] {
 	const usedTokens = new Set<string>();
@@ -389,7 +405,7 @@ function onKeyDown(ev: KeyboardEvent) {
 
 	switch (ev.key) {
 		case "Tab":
-			handleTabPress(ev, isShift.value);
+			handleTabPress(ev, isShift.value ?? undefined);
 			break;
 		case "ArrowUp":
 			if (useHistory(true)) {
@@ -406,14 +422,75 @@ function onKeyDown(ev: KeyboardEvent) {
 	}
 }
 
-function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]) | null, str: string, ...args: []) {
-	if (!str.startsWith(":") || str.length < 3) return;
-	if (!shouldUseColonComplete.value) return;
+function handleCapturedKeyDown(ev: KeyboardEvent) {
+	// Prevents autocompletion on Enter when completion mode is -> always on
+	if (ev.key === "Enter") {
+		const component = props.instance.component as Twitch.ChatAutocompleteComponent;
+		const activeTray: Twitch.ChatTray = component.props.tray;
+		const slate = component.componentRef.state?.slateEditor;
 
-	const results = native?.call(this, str, ...args) ?? [];
+		// Exit if autocomplete is not always on or anything needed is unavailable
+		if (
+			autocompletionMode.value !== AUTOCOMPLETION_MODE.ALWAYS_ON ||
+			!activeTray ||
+			(activeTray.type as string) !== "autocomplete-tray" ||
+			!slate ||
+			!slate.selection?.anchor
+		) {
+			return;
+		}
+
+		// Prevents autocompletion
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		ev.stopPropagation();
+
+		// Close autocomplete tray by adding a space
+		const cursorLocation = slate.selection.anchor;
+
+		let currentNode: { children: Twitch.ChatSlateLeaf[] } & Partial<Twitch.ChatSlateLeaf> = slate;
+
+		for (const index of cursorLocation.path) {
+			if (!currentNode) break;
+			currentNode = currentNode.children[index];
+		}
+
+		const currentWordEnd =
+			currentNode.type === "text" && typeof currentNode.text === "string"
+				? getSearchRange(currentNode.text, cursorLocation.offset)[1]
+				: 0;
+		const newCursor = { path: cursorLocation.path, offset: currentWordEnd };
+
+		slate.apply({ type: "set_selection", newProperties: { anchor: newCursor, focus: newCursor } });
+		slate.apply({
+			type: "insert_text",
+			path: cursorLocation.path,
+			offset: currentWordEnd,
+			text: " ",
+		});
+	}
+}
+
+function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]) | null, str: string, ...args: []) {
+	if (autocompletionMode.value === AUTOCOMPLETION_MODE.OFF) return;
+
+	if (autocompletionMode.value === AUTOCOMPLETION_MODE.COLON && !str.startsWith(":")) return;
+
+	const search = str.startsWith(":") ? str.substring(1) : str;
+
+	if (search.length < 2) {
+		return;
+	}
+
+	const results = (native?.call(this, `:${search}`, ...args) ?? []) as AutocompleteResult[];
+
+	if (autocompletionMode.value === AUTOCOMPLETION_MODE.ALWAYS_ON) {
+		results.map((r) => (r.current = str));
+	}
 
 	const allEmotes = { ...cosmetics.emotes, ...emotes.active, ...emotes.emojis };
-	const tokens = findMatchingTokens(str.substring(1), "colon", 25);
+
+	const tokens = findMatchingTokens(search, "colon", 25);
 
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;

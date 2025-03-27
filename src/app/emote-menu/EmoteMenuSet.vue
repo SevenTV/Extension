@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
-import { onKeyDown, until, useMagicKeys, useTimeout } from "@vueuse/core";
+import { onKeyDown, until, useKeyModifier, useTimeout } from "@vueuse/core";
 import { debounceFn } from "@/common/Async";
 import { determineRatio } from "@/common/Image";
 import { useConfig } from "@/composable/useSettings";
@@ -82,7 +82,7 @@ const collapsedSets = useConfig<Set<string>>("ui.emote_menu.collapsed_sets");
 const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 
-const { alt } = useMagicKeys();
+const alt = useKeyModifier("Alt");
 const collapsed = ref(isCollapsed());
 
 function sortCase(ae: SevenTV.ActiveEmote): number {
