@@ -1,3 +1,7 @@
+### 3.1.6.XXXX
+
+-   Fixed "Bypass Duplicate Message Check" setting being ignored (proof of concept)
+
 ### 3.1.6.2000
 
 -   Fixed the profile redirection when clicking on a user on the Twitch dashboard
