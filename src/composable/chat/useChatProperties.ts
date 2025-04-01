@@ -2,6 +2,7 @@ import { reactive } from "vue";
 import { ChannelContext } from "../channel/useChannelContext";
 
 interface ChatProperties {
+	fontAprilFools: string;
 	isDarkTheme: number;
 	primaryColorHex: string | null;
 	useHighContrastColors: boolean;
@@ -34,6 +35,7 @@ export function useChatProperties(ctx: ChannelContext) {
 			imageFormat: "WEBP" as SevenTV.ImageFormat,
 			twitchBadgeSets: {} as Twitch.BadgeSets | null,
 			blockedUsers: new Set<string>(),
+			fontAprilFools: "unset",
 		});
 
 		m.set(ctx, data);
