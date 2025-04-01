@@ -4,6 +4,7 @@
 		<UiScrollable
 			ref="scrollerRef"
 			class="seventv-chat-scroller"
+			:style="{ fontFamily: properties.fontAprilFools }"
 			@container-scroll="scroller.onScroll"
 			@container-wheel="scroller.onWheel"
 			@mouseenter="properties.hovering = true"
@@ -110,6 +111,23 @@ const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
 // Defines the current channel for hooking
 const currentChannel = ref<CurrentChannel | null>(null);
 const sharedChannels = new Map<string, ChannelContext>();
+
+// Check if it's the 1st of April and apply a special font
+const isAprilFools = new Date().getMonth() === 3 && new Date().getDate() === 1;
+if (isAprilFools) {
+	properties.fontAprilFools = "Comic Sans MS, Comic Sans, cursive";
+}
+
+// get the config chat.font-april-fools
+const fontAprilFools = useConfig("chat.font-april-fools", false);
+
+watch(
+	fontAprilFools,
+	(value) => {
+		properties.fontAprilFools = value === false ? "Comic Sans MS, Comic Sans, cursive" : "inherit";
+	},
+	{ immediate: true },
+);
 
 // Capture the chat root node
 watchEffect(() => {

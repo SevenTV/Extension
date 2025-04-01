@@ -38,6 +38,12 @@ export const globalSettings = [
 		},
 		defaultValue: true,
 	}),
+	declareConfig("chat.font-april-fools", "TOGGLE", {
+		label: "Disable Comic Sans",
+		hint: "Disable comic sans font in chat (an april fools joke)",
+		path: ["Chat", ""],
+		defaultValue: false,
+	}),
 	declareConfig("chat.alternating_background", "TOGGLE", {
 		label: "settings.chat_alternating_background.label",
 		hint: "settings.chat_alternating_background.hint",

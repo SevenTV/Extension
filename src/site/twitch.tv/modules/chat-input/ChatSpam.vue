@@ -13,6 +13,20 @@
 			</UiSuperHint>
 		</Teleport>
 	</template>
+	<!-- Dialog to enable April Fools font -->
+	<template v-if="aprilfools && aprilfoolsContainer">
+		<Teleport :to="aprilfoolsContainer">
+			<UiSuperHint title="April Fools">
+				<UiConfirmPrompt
+					:choices="['yes', 'no']"
+					@answer="handleAprilFoolsAnswer($event)"
+					@close="handleAprilFoolsAnswer('')"
+				>
+					<p>We do a little bit of trolling, Would you like to disable the comic sans font?</p>
+				</UiConfirmPrompt>
+			</UiSuperHint>
+		</Teleport>
+	</template>
 </template>
 
 <script setup lang="ts">
@@ -22,6 +36,7 @@ import { UNICODE_TAG_0, UNICODE_TAG_0_REGEX } from "@/common/Constant";
 import type { HookedInstance } from "@/common/ReactHooks";
 import { useFloatScreen } from "@/composable/useFloatContext";
 import { getModuleRef } from "@/composable/useModule";
+import { useConfig } from "@/composable/useSettings";
 import UiConfirmPrompt from "@/ui/UiConfirmPrompt.vue";
 import UiSuperHint from "@/ui/UiSuperHint.vue";
 import { offset } from "@floating-ui/core";
@@ -29,21 +44,39 @@ import { offset } from "@floating-ui/core";
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 	suggest?: boolean;
+	aprilfools?: boolean;
 }>();
 
 const emit = defineEmits<{
 	(e: "suggest-answer", answer: string): void;
+	(e: "aprilfools-answer", answer: string): void;
 }>();
 
 const chatModule = getModuleRef<"TWITCH", "chat">("chat");
 const rootEl = toRef(props.instance.domNodes, "root");
+const fontAprilFools = useConfig<boolean>("chat.font-april-fools", false);
+
 const suggestContainer = useFloatScreen(rootEl, {
 	enabled: () => props.suggest,
 	placement: "top-start",
 	middleware: [offset({ mainAxis: 72 })],
 });
 
+const aprilfoolsContainer = useFloatScreen(rootEl, {
+	enabled: () => props.suggest,
+	placement: "top-start",
+	middleware: [offset({ mainAxis: 72 })],
+});
+
 const alt = refAutoReset(false, 3e4);
+
+// Handle April Fools answer
+function handleAprilFoolsAnswer(answer: string): void {
+	if (answer === "yes") {
+		fontAprilFools.value = true;
+	}
+	emit("aprilfools-answer", answer);
+}
 let prevMessage = "";
 function handleDuplicateMessage(content: string): string {
 	if (typeof content === "string" && content === prevMessage) {
