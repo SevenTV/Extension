@@ -14,7 +14,7 @@
 		</Teleport>
 	</template>
 	<!-- Dialog to enable April Fools font -->
-	<template v-if="aprilfools && aprilfoolsContainer">
+	<template v-if="aprilfoolsContainer">
 		<Teleport :to="aprilfoolsContainer">
 			<UiSuperHint title="April Fools">
 				<UiConfirmPrompt
@@ -30,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, toRef, watch } from "vue";
-import { refAutoReset } from "@vueuse/core";
+import { onUnmounted, ref, toRef, watch } from "vue";
+import { refAutoReset, useTimeoutFn } from "@vueuse/core";
 import { UNICODE_TAG_0, UNICODE_TAG_0_REGEX } from "@/common/Constant";
 import type { HookedInstance } from "@/common/ReactHooks";
 import { useFloatScreen } from "@/composable/useFloatContext";
@@ -44,17 +44,16 @@ import { offset } from "@floating-ui/core";
 const props = defineProps<{
 	instance: HookedInstance<Twitch.ChatAutocompleteComponent>;
 	suggest?: boolean;
-	aprilfools?: boolean;
 }>();
 
 const emit = defineEmits<{
 	(e: "suggest-answer", answer: string): void;
-	(e: "aprilfools-answer", answer: string): void;
 }>();
 
 const chatModule = getModuleRef<"TWITCH", "chat">("chat");
 const rootEl = toRef(props.instance.domNodes, "root");
-const fontAprilFools = useConfig<boolean>("chat.font-april-fools", false);
+const aprilFoolsDisabled = useConfig<boolean>("chat.font-april-fools", false);
+const aprilFoolsDismissed = useConfig<boolean>("chat.font-april-fools-dismissed", false);
 
 const suggestContainer = useFloatScreen(rootEl, {
 	enabled: () => props.suggest,
@@ -62,20 +61,25 @@ const suggestContainer = useFloatScreen(rootEl, {
 	middleware: [offset({ mainAxis: 72 })],
 });
 
+const showAprilsFools = ref(false);
 const aprilfoolsContainer = useFloatScreen(rootEl, {
-	enabled: () => props.suggest,
+	enabled: () => !aprilFoolsDismissed.value && showAprilsFools.value && !aprilFoolsDisabled.value,
 	placement: "top-start",
 	middleware: [offset({ mainAxis: 72 })],
 });
+
+useTimeoutFn(() => {
+	showAprilsFools.value = true;
+}, 10000);
 
 const alt = refAutoReset(false, 3e4);
 
 // Handle April Fools answer
 function handleAprilFoolsAnswer(answer: string): void {
 	if (answer === "yes") {
-		fontAprilFools.value = true;
+		aprilFoolsDisabled.value = true;
 	}
-	emit("aprilfools-answer", answer);
+	aprilFoolsDismissed.value = true;
 }
 let prevMessage = "";
 function handleDuplicateMessage(content: string): string {

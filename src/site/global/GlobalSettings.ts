@@ -42,7 +42,19 @@ export const globalSettings = [
 		label: "Disable Comic Sans",
 		hint: "Disable comic sans font in chat (an april fools joke)",
 		path: ["Chat", ""],
+		transform(v: unknown) {
+			if (new Date() > new Date("2025-04-02")) return true;
+			return v as boolean;
+		},
+		get defaultValue() {
+			return new Date() > new Date("2025-04-02");
+		},
+	}),
+
+	declareConfig("chat.font-april-fools-dismissed", "NONE", {
+		label: "Disable Comic Sans",
 		defaultValue: false,
+		serialize: false,
 	}),
 	declareConfig("chat.alternating_background", "TOGGLE", {
 		label: "settings.chat_alternating_background.label",
