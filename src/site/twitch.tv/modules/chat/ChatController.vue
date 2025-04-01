@@ -112,12 +112,6 @@ const ignoreClearChat = useConfig<boolean>("chat.ignore_clear_chat");
 const currentChannel = ref<CurrentChannel | null>(null);
 const sharedChannels = new Map<string, ChannelContext>();
 
-// Check if it's the 1st of April and apply a special font
-const isAprilFools = new Date().getMonth() === 3 && new Date().getDate() === 1;
-if (isAprilFools) {
-	properties.fontAprilFools = "Comic Sans MS, Comic Sans, cursive";
-}
-
 // get the config chat.font-april-fools
 const fontAprilFools = useConfig("chat.font-april-fools", false);
 
