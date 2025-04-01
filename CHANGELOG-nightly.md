@@ -1,3 +1,7 @@
+### 3.1.8.1000
+
+-   Tomfoolery
+
 ### 3.1.6.2000
 
 -   Fixed the profile redirection when clicking on a user on the Twitch dashboard
