@@ -67,6 +67,7 @@ const shouldRenderAutocompleteCarousel = useConfig("chat_input.autocomplete.caro
 const mayUseControlEnter = useConfig("chat_input.spam.rapid_fire_send");
 const colonCompletionMode = useConfig<number>("chat_input.autocomplete.colon.mode");
 const tabCompletionMode = useConfig<number>("chat_input.autocomplete.carousel.mode");
+const isKeybindsDisabled = useConfig<boolean>("general.disable_all_keybinds");
 
 const providers = ref<Record<string, Twitch.ChatAutocompleteProvider>>({});
 
@@ -608,7 +609,7 @@ defineFunctionHook(
 			pushHistory();
 
 			// Put the previous input back in if the user was pressing control
-			if (mayUseControlEnter.value && isCtrl.value) {
+			if (!isKeybindsDisabled.value && mayUseControlEnter.value && isCtrl.value) {
 				setTimeout(() => useHistory(true), 0);
 			}
 		}

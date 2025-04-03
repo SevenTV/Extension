@@ -126,7 +126,7 @@
 import { nextTick, onMounted, ref, watch, watchEffect } from "vue";
 import { useBreakpoints, useEventListener, useKeyModifier } from "@vueuse/core";
 import { useActor } from "@/composable/useActor";
-import { useSettings } from "@/composable/useSettings";
+import { useConfig, useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import DropdownIcon from "@/assets/svg/icons/DropdownIcon.vue";
 import LogoutIcon from "@/assets/svg/icons/LogoutIcon.vue";
@@ -147,6 +147,7 @@ const updater = useUpdater();
 // The useDraggable needs an element to use middleware
 const root = document.getElementById("root") ?? undefined;
 const dragHandle = ref<HTMLDivElement | undefined>();
+const isKeybindsDisabled = useConfig<boolean>("general.disable_all_keybinds");
 
 const filter = ref("");
 
@@ -286,8 +287,9 @@ function updateKeys(e: KeyboardEvent) {
 		keys.value.p = isPressed;
 	}
 }
-
 watchEffect(() => {
+	if (isKeybindsDisabled) return;
+
 	if (isAlt.value && isShift.value && !(isMeta.value || isCtrl.value)) {
 		if (keys.value.p && !keys.value.s) {
 			ctx.switchView("paint");

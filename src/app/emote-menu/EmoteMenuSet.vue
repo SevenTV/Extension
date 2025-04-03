@@ -83,6 +83,7 @@ const favorites = useConfig<Set<string>>("ui.emote_menu.favorites");
 const usage = useConfig<Map<string, number>>("ui.emote_menu.usage");
 
 const alt = useKeyModifier("Alt");
+const isKeybindsDisabled = useConfig<boolean>("general.disable_all_keybinds");
 const collapsed = ref(isCollapsed());
 
 function sortCase(ae: SevenTV.ActiveEmote): number {
@@ -133,7 +134,7 @@ function isEmoteDisabled(set: SevenTV.EmoteSet, ae: SevenTV.ActiveEmote) {
 
 function onInsertEmote(ae: SevenTV.ActiveEmote): void {
 	if (isEmoteDisabled(props.es, ae)) return;
-	if (alt.value) {
+	if (alt.value || !isKeybindsDisabled) {
 		if (favorites.value.has(ae.id)) {
 			favorites.value.delete(ae.id);
 		} else {

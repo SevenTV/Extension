@@ -105,6 +105,7 @@ const { providers, platform } = useStore();
 const searchInputRef = ref<HTMLInputElement | undefined>();
 
 const isSearchInputEnabled = useConfig<boolean>("ui.emote_menu_search");
+const isKeybindsDisabled = useConfig<boolean>("general.disable_all_keybinds");
 const defaultTab = useConfig<EmoteMenuTabName>("ui.emote_menu.default_tab", "7TV");
 
 const activeProvider = ref<EmoteMenuTabName | null>(defaultTab.value);
@@ -130,7 +131,7 @@ watchEffect(() => {
 // Shortcut (ctrl+e)
 const isCtrl = useKeyModifier("Control", { initial: false });
 onKeyStroke("e", (ev) => {
-	if (!isCtrl.value) return;
+	if (isKeybindsDisabled.value || !isCtrl.value) return;
 
 	toggle();
 	ev.preventDefault();
