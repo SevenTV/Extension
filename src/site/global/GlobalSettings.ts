@@ -81,6 +81,12 @@ export const globalSettings = [
 		hint: "If checked, emotes which have not yet been approved for listing on 7tv.app will be blurred",
 		defaultValue: false,
 	}),
+	declareConfig("general.disable_all_keybinds", "TOGGLE", {
+		path: ["General", ""],
+		label: "Disable All Keybinds",
+		hint: "If checked, all keybinds will be disabled. This includes the emote menu and other keybinds. (This doesn't unclude arrow keys for some menus like autocomplete emotes)",
+		defaultValue: false,
+	}),
 	declareConfig<number>("chat.emote_margin", "SLIDER", {
 		path: ["Chat", "Style"],
 		label: "Emote Spacing",
