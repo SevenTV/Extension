@@ -83,7 +83,7 @@ const chatEvents = useComponentHook<Twitch.ChatEventComponent>({
 const hideBitsBalance = useConfig<boolean>("chat.hide_bits_balance");
 useComponentHook<Twitch.ChatCommunityPointsButtonComponent>(
 	{
-		childSelector: ".community-points-summary",
+		childSelector: ".bits-balance-string",
 		predicate: (el) => el.shouldShowBitsBalance,
 	},
 	{
@@ -453,12 +453,6 @@ export const config = [
 			step: 1,
 		},
 		defaultValue: 10,
-	}),
-	declareConfig("chat.hide_bits_balance", "TOGGLE", {
-		label: "Hide Bits From Community Points Button",
-		hint: "Hide the bits balance from the community points button under the chatbox",
-		path: ["Chat", "Style"],
-		defaultValue: false,
 	}),
 	declareConfig("chat.hide_shared_chat", "TOGGLE", {
 		label: "Hide Shared Chat",

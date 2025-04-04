@@ -76,7 +76,7 @@ export const config = [
 	}),
 	// Main page elements (Twitch Features)
 	declareConfig("layout.hide_bits_buttons", "TOGGLE", {
-		path: ["Site Layout", "Twitch Features"],
+		path: ["Chat", "Style"],
 		label: "Hide Bits Buttons",
 		hint: "If checked, the 'Bits' related buttons will be hidden",
 		defaultValue: false,
@@ -109,12 +109,6 @@ export const config = [
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Live Notification Button",
 		hint: "If checked, the 'Turn notifications off/on' button under the stream will be hidden",
-		defaultValue: false,
-	}),
-	declareConfig("layout.hide_channel_point_balance_button", "TOGGLE", {
-		path: ["Site Layout", "Twitch Features"],
-		label: "Hide Channel Point Balance Button",
-		hint: "If checked, the channel point balance button under the chat input box will be hidden",
 		defaultValue: false,
 	}),
 	// Side bar elements
@@ -196,8 +190,10 @@ export const config = [
 }
 
 .seventv-hide-bits-buttons {
-	button[data-a-target="bits-button"],
-	button[data-a-target="top-nav-get-bits-button"] {
+	button[class="ScCoreButton-sc-ocjdkq-0_GOdqv"],
+	button[data-a-target="top-nav-get-bits-button"],
+	div[data-test-selector="bits-balance-string"],
+	div[class="ScSvgWrapper-sc-wkgzod-0 eDfUTx tw-svg"] {
 		display: none !important;
 	}
 }
@@ -340,12 +336,6 @@ export const config = [
 	}
 }
 
-.seventv-hide-channel-point-balance-button {
-	.community-points-summary {
-		display: none !important;
-	}
-}
-
 /* stylelint-disable */
 .seventv-hide-player-ext {
 	.video-player .extension-taskbar,
@@ -383,5 +373,6 @@ export const config = [
 		display: none !important;
 	}
 }
+
 /* stylelint-enable */
 </style>
