@@ -153,7 +153,7 @@ export const globalSettings = [
 			["One", 2],
 			["All", 1],
 		],
-		hint: "Wheather or not to display drop shadows on paints (Requires a refresh)",
+		hint: "Whether or not to display drop shadows on paints (Requires a refresh)",
 		disabledIf: () => !useConfig("vanity.nametag_paints").value,
 		defaultValue: 1,
 	}),
