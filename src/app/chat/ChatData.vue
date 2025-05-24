@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 const { target } = useWorker();
 const ctx = useChannelContext();
 const channelID = toRef(ctx, "id");
+const peerChannelIDs = toRef(ctx, "peerChannelIds");
 const messages = useChatMessages(ctx);
 const emotes = useChatEmotes(ctx);
 const { providers } = useStore();
@@ -24,12 +25,12 @@ const channelSets = useLiveQuery(
 	() =>
 		db.channels
 			.where("id")
-			.equals(ctx.id)
-			.first()
-			.then((c) => c?.set_ids ?? []),
+			.anyOf([ctx.id, ...ctx.peerChannelIds])
+			.toArray()
+			.then((res) => res.flatMap((c) => c?.set_ids ?? [])),
 	undefined,
 	{
-		reactives: [channelID],
+		reactives: [channelID, peerChannelIDs],
 	},
 );
 
