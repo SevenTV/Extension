@@ -298,6 +298,9 @@ watch(
 						sharedChannels.set(channelID, useChannelContext(channelID, true));
 					}
 				}
+
+				// Update host channel context
+				ctx.setPeerChannelIds([...sharedChannels.keys()]);
 			},
 		});
 	},

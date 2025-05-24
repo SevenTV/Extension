@@ -1,3 +1,7 @@
+### 3.1.8.2000
+
+-   Added loading emote sets from Twitch's shared chat channels
+
 ### 3.1.8.1000
 
 -   Tomfoolery
