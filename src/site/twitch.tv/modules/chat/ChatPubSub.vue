@@ -1,16 +1,14 @@
 <template />
 
 <script setup lang="ts">
-import { onUnmounted, watchEffect } from "vue";
 import { log } from "@/common/Logger";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
-import { PubSubMessage, PubSubMessageData, usePubSub } from "@/composable/usePubSub";
+import { EventDetail, usePubSub } from "@/composable/usePubSub";
 import { useConfig } from "@/composable/useSettings";
 
 const ctx = useChannelContext();
 const messages = useChatMessages(ctx);
-const pubsub = usePubSub();
 const showMonitoredLowTrustUser = useConfig<boolean>("highlights.basic.monitored_low_trust_user");
 const showReturningChatter = useConfig<boolean>("highlights.basic.returning_chatter");
 const showRaider = useConfig<boolean>("highlights.basic.raider");
@@ -21,59 +19,15 @@ const highlightOrder = {
 };
 
 // Update the event listener in case the socket is updated
-watchEffect(() => {
-	if (!pubsub.socket) return;
 
-	pubsub.socket.removeEventListener("message", onPubSubMessage);
-	pubsub.socket.addEventListener("message", onPubSubMessage);
-});
-
-function onPubSubMessage(ev: MessageEvent) {
-	let rootData: PubSubMessage;
-
-	try {
-		rootData = JSON.parse(ev.data);
-	} catch (e) {
-		log.error("Failed to parse pubsub message", (e as Error).message);
-		return;
-	}
-	if (rootData.type !== "MESSAGE") return; // ignore non-message events
-
-	const { topic, message } = rootData.data ?? {};
-	if (typeof topic !== "string" || typeof message !== "string") {
-		log.warn("received an invalid pubsub message");
-		return;
-	}
-
-	const { type, data } = JSON.parse(message ?? {}) as PubSubMessageData;
-
-	switch (type) {
-		// Message from Monitored Suspicious User
-		case "low_trust_user_new_message":
-			onLowTrustUserNewMessage(data as PubSubMessageData.LowTrustUserNewMessage);
-			break;
-		case "low_trust_user_treatment_update":
-			onLowTrustUserTreatmentUpdate(data as PubSubMessageData.LowTrustUserTreatmentUpdate);
-			break;
-		case "moderation_action":
-			onModerationAction(data as PubSubMessageData.ModAction);
-			break;
-
-		case "chat_rich_embed":
-			onChatRichEmbed(data as PubSubMessageData.ChatRichEmbed);
-			break;
-
-		case "chat-highlight":
-			onChatHighlight(data as PubSubMessageData.ChatHighlight);
-			break;
-
-		default:
-			break;
-	}
-}
+usePubSub("low_trust_user_new_message", onLowTrustUserNewMessage);
+usePubSub("low_trust_user_treatment_update", onLowTrustUserTreatmentUpdate);
+usePubSub("moderation_action", onModerationAction);
+usePubSub("chat_rich_embed", onChatRichEmbed);
+usePubSub("chat-highlight", onChatHighlight);
 
 // Amend a message with data about the user being sus among us0
-async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMessage) {
+async function onLowTrustUserNewMessage(msg: EventDetail.LowTrustUserNewMessage) {
 	const ctx = msg.low_trust_user;
 	if (!ctx) return;
 
@@ -104,7 +58,7 @@ async function onLowTrustUserNewMessage(msg: PubSubMessageData.LowTrustUserNewMe
 	matchedMsg.setHighlight("#ff7d00", "Monitored Suspicious User");
 }
 
-async function onLowTrustUserTreatmentUpdate(msg: PubSubMessageData.LowTrustUserTreatmentUpdate) {
+async function onLowTrustUserTreatmentUpdate(msg: EventDetail.LowTrustUserTreatmentUpdate) {
 	const lowTrust = messages.lowTrustUsers[msg.target_user_id];
 
 	messages.lowTrustUsers[msg.target_user_id] = {
@@ -124,7 +78,7 @@ async function onLowTrustUserTreatmentUpdate(msg: PubSubMessageData.LowTrustUser
 	};
 }
 
-async function onModerationAction(msg: PubSubMessageData.ModAction) {
+async function onModerationAction(msg: EventDetail.ModAction) {
 	const ctx = msg.moderation_action;
 	if (!ctx) return;
 
@@ -159,7 +113,7 @@ async function onModerationAction(msg: PubSubMessageData.ModAction) {
 	}
 }
 
-async function onChatRichEmbed(msg: PubSubMessageData.ChatRichEmbed) {
+async function onChatRichEmbed(msg: EventDetail.ChatRichEmbed) {
 	const ctx = msg.twitch_metadata;
 
 	if (!ctx) return;
@@ -179,7 +133,7 @@ async function onChatRichEmbed(msg: PubSubMessageData.ChatRichEmbed) {
 	message.richEmbed.twitch_metadata = twitch_metadata;
 }
 
-async function onChatHighlight(msg: PubSubMessageData.ChatHighlight) {
+async function onChatHighlight(msg: EventDetail.ChatHighlight) {
 	const message = await messages.awaitMessage(msg.msg_id).catch((err) => {
 		log.debug("failed to find new message for chat highlight", err.message);
 	});
@@ -207,10 +161,4 @@ async function onChatHighlight(msg: PubSubMessageData.ChatHighlight) {
 		}
 	}
 }
-
-onUnmounted(() => {
-	if (pubsub.socket) {
-		pubsub.socket.removeEventListener("message", onPubSubMessage);
-	}
-});
 </script>
