@@ -1,15 +1,24 @@
+import { ref } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { log } from "@/common/Logger";
 
 declare let window: Window & {
-	__twitch_pubsub_events: EventSource;
+	__twitch_pubsub_events?: EventSource;
 };
+
+const twitch_pubsub = ref(window.__twitch_pubsub_events);
+
+Object.defineProperty(window, "__twitch_pubsub_events", {
+	set(value: EventSource | undefined) {
+		twitch_pubsub.value = value;
+	},
+});
 
 export function usePubSub<D extends EventData, E extends EventDetails<D>>(
 	event: E["type"],
 	listener: (ev: D) => unknown,
 ) {
-	useEventListener(window.__twitch_pubsub_events, "notification", async (_event: NotificationEvent) => {
+	useEventListener(twitch_pubsub, "notification", async (_event: NotificationEvent) => {
 		let detail: E;
 		try {
 			detail = JSON.parse(_event.detail);
@@ -98,14 +107,14 @@ export namespace EventDetail {
 		created_by: string;
 		created_by_user_id: string;
 		moderation_action:
-			| "ban"
-			| "unban"
-			| "timeout"
-			| "untimeout"
-			| "delete"
-			| "delete_notification"
-			| "add_blocked_term"
-			| "delete_blocked_term";
+		| "ban"
+		| "unban"
+		| "timeout"
+		| "untimeout"
+		| "delete"
+		| "delete_notification"
+		| "add_blocked_term"
+		| "delete_blocked_term";
 		msg_id?: string;
 		target_user_id: string;
 		target_user_login: string;
@@ -136,14 +145,14 @@ export namespace EventDetail {
 		msg_id: string;
 		highlights: (
 			| {
-					type: "raider";
-					source_channel_id: string;
-					seconds_since_event: number;
-			  }
+				type: "raider";
+				source_channel_id: string;
+				seconds_since_event: number;
+			}
 			| {
-					type: "returning_chatter";
-					source_channel_id: string;
-			  }
+				type: "returning_chatter";
+				source_channel_id: string;
+			}
 		)[];
 	}
 }
