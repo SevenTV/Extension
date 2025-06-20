@@ -12,6 +12,9 @@ Object.defineProperty(window, "__twitch_pubsub_events", {
 	set(value: EventSource | undefined) {
 		twitch_pubsub.value = value;
 	},
+	get() {
+		return twitch_pubsub.value;
+	},
 });
 
 export function usePubSub<D extends EventData, E extends EventDetails<D>>(
@@ -107,14 +110,14 @@ export namespace EventDetail {
 		created_by: string;
 		created_by_user_id: string;
 		moderation_action:
-		| "ban"
-		| "unban"
-		| "timeout"
-		| "untimeout"
-		| "delete"
-		| "delete_notification"
-		| "add_blocked_term"
-		| "delete_blocked_term";
+			| "ban"
+			| "unban"
+			| "timeout"
+			| "untimeout"
+			| "delete"
+			| "delete_notification"
+			| "add_blocked_term"
+			| "delete_blocked_term";
 		msg_id?: string;
 		target_user_id: string;
 		target_user_login: string;
@@ -145,14 +148,14 @@ export namespace EventDetail {
 		msg_id: string;
 		highlights: (
 			| {
-				type: "raider";
-				source_channel_id: string;
-				seconds_since_event: number;
-			}
+					type: "raider";
+					source_channel_id: string;
+					seconds_since_event: number;
+			  }
 			| {
-				type: "returning_chatter";
-				source_channel_id: string;
-			}
+					type: "returning_chatter";
+					source_channel_id: string;
+			  }
 		)[];
 	}
 }
