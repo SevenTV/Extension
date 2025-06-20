@@ -1,6 +1,11 @@
-### 3.1.8.1000
+### 3.1.9
 
-- Tomfoolery
+- Remove hosted-site functionality
+- Use new pubsub source
+
+### 3.1.8
+
+- Tomfoolery (april fools)
 
 ### 3.1.7
 
