@@ -1,76 +1,60 @@
-import { reactive, ref } from "vue";
-import { definePropertyHook } from "@/common/Reflection";
+import { ref } from "vue";
+import { useEventListener } from "@vueuse/core";
+import { log } from "@/common/Logger";
 
-declare const __twitch_pubsub_client: PubSubClient;
+declare let window: Window & {
+	__twitch_pubsub_events?: EventSource;
+};
 
-const client = ref<PubSubClient | null>(null);
-const socket = ref<WebSocket | null>(null);
+const twitch_pubsub = ref(window.__twitch_pubsub_events);
 
-definePropertyHook(
-	window as Window & { __twitch_pubsub_client?: typeof __twitch_pubsub_client },
-	"__twitch_pubsub_client",
-	{
-		value(v) {
-			if (!v || !v.connection || !v.connection.socket) return;
-
-			client.value = v;
-
-			definePropertyHook(client.value, "connection", {
-				value(v) {
-					if (!v || !v.socket || !v.socket.socket) return;
-
-					socket.value = v.socket.socket;
-				},
-			});
-		},
+Object.defineProperty(window, "__twitch_pubsub_events", {
+	set(value: EventSource | undefined) {
+		twitch_pubsub.value = value;
 	},
-);
+	get() {
+		return twitch_pubsub.value;
+	},
+});
 
-export function usePubSub() {
-	return reactive({
-		client,
-		socket,
+export function usePubSub<D extends EventData, E extends EventDetails<D>>(
+	event: E["type"],
+	listener: (ev: D) => unknown,
+) {
+	useEventListener(twitch_pubsub, "notification", async (_event: NotificationEvent) => {
+		let detail: E;
+		try {
+			detail = JSON.parse(_event.detail);
+		} catch (e) {
+			log.error("Failed to parse pubsub message", (e as Error).message);
+			return;
+		}
+		if (detail.type === event) {
+			listener(detail.data as D);
+		}
 	});
 }
 
-export interface PubSubClient {
-	env: string;
-	reconnecting: boolean;
-	connection: {
-		env: string;
-		_events: Record<string, [(n: unknown) => void, PubSubClient]>;
-		iframeHost: string | null;
-		currentTopics: Record<string, { auth: string | undefined; topic: string }>;
-		socket: {
-			env: string;
-			address: string;
-			closing: boolean;
-			connecting: boolean;
-			connectionAttempts: number;
-			pingInterval: number;
-			pongTimeout: number;
-			receivedPong: boolean;
-			sentPing: boolean;
-			socket: WebSocket;
-		};
-	};
+export interface NotificationEvent {
+	type: "notification";
+	detail: string;
 }
 
-export interface PubSubMessage {
-	type: "MESSAGE" | "RESPONSE";
-	data: {
-		topic: string;
-		message: string;
-	};
+export type EventData =
+	| EventDetail.LowTrustUserNewMessage
+	| EventDetail.LowTrustUserTreatmentUpdate
+	| EventDetail.ModAction
+	| EventDetail.ChatRichEmbed
+	| EventDetail.ChatHighlight;
+
+export interface EventDetails<T extends EventData = EventData> {
+	type: T["_type"];
+	data: Omit<T, "_type">;
 }
 
-export interface PubSubMessageData {
-	type: string;
-	data: unknown;
-}
-
-export namespace PubSubMessageData {
+export namespace EventDetail {
 	export interface LowTrustUserNewMessage {
+		_type: "low_trust_user_new_message";
 		low_trust_user: {
 			id: string;
 			low_trust_id: string;
@@ -101,6 +85,7 @@ export namespace PubSubMessageData {
 	}
 
 	export interface LowTrustUserTreatmentUpdate {
+		_type: "low_trust_user_treatment_update";
 		low_trust_id: string;
 		channel_id: string;
 		updated_by: {
@@ -118,6 +103,8 @@ export namespace PubSubMessageData {
 	}
 
 	export interface ModAction {
+		_type: "moderation_action";
+		type: "chat_login_moderation" | "chat_targeted_login_moderation";
 		args: string[];
 		created_at: string;
 		created_by: string;
@@ -134,11 +121,11 @@ export namespace PubSubMessageData {
 		msg_id?: string;
 		target_user_id: string;
 		target_user_login: string;
-		type: "chat_login_moderation" | "chat_targeted_login_moderation";
 	}
 
 	// The chat_rich_embed is undocumented in the twitch pubsub docs.
 	export interface ChatRichEmbed {
+		_type: "chat_rich_embed";
 		title: string;
 		author_name: string;
 		twitch_metadata: {
@@ -157,6 +144,7 @@ export namespace PubSubMessageData {
 	}
 
 	export interface ChatHighlight {
+		_type: "chat-highlight";
 		msg_id: string;
 		highlights: (
 			| {
