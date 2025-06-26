@@ -43,6 +43,15 @@ const lock = ref(false);
 const doClaim = debounceFn(async (inst: HookedInstance<Twitch.ChatChannelPointsClaimComponent>) => {
 	if (lock.value || typeof inst.component.onClick !== "function") return;
 
+	// Generate a random delay from 1000 to 7000 ms
+	const delay = 1000 + Math.floor(Math.random() * 6000);
+
+	log.debug(`Delaying claim by ${delay}ms`);
+	await new Promise((resolve) => setTimeout(resolve, delay));
+
+	// Check if the component or state has gone away during the wait time
+	if (lock.value || typeof inst.component.onClick !== "function") return;
+
 	inst.component.onClick();
 
 	// Prevent further clicks while the button is reverting to its original state
