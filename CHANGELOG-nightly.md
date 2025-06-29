@@ -1,3 +1,7 @@
+### 3.1.9.2000
+
+- Added sidebar expand hover delay
+
 ### 3.1.9.1000
 
 - Remove hosted-site functionality

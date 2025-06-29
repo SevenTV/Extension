@@ -51,8 +51,9 @@ function toggle(hovering: boolean) {
 	btn.handleToggleVisibility();
 }
 
+const hoverDelay = useConfig<number>("ui.sidebar_hover_expand_delay");
 const sidebarEl = ref<Element>();
-const isHovering = useElementHover(sidebarEl);
+const isHovering = useElementHover(sidebarEl, { delayEnter: hoverDelay.value });
 watch(isHovering, toggle, { immediate: true });
 
 watch(
@@ -65,6 +66,7 @@ markAsReady();
 </script>
 
 <script lang="ts">
+const isSidebarHoverExpand = useConfig<boolean>("ui.sidebar_hover_expand");
 export const config = [
 	declareConfig("ui.sidebar_previews", "TOGGLE", {
 		path: ["Appearance", "Interface"],
@@ -78,6 +80,19 @@ export const config = [
 		hint: "Expand the sidebar when hovering over it.",
 		effect: (v) => document.body.classList.toggle("seventv-sidebar-hover", v),
 		defaultValue: false,
+	}),
+	declareConfig<number>("ui.sidebar_hover_expand_delay", "SLIDER", {
+		path: ["Appearance", "Interface"],
+		label: "Sidebar Expand Hover Delay",
+		hint: "Change the start of sidebar expand when hovering over it.",
+		options: {
+			min: 0,
+			max: 2000,
+			step: 5,
+			unit: "ms",
+		},
+		defaultValue: 0,
+		disabledIf: () => !isSidebarHoverExpand.value,
 	}),
 ];
 </script>
