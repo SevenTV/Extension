@@ -84,7 +84,7 @@ export const config = [
 		declareConfig<number>("ui.sidebar_hover_expand_delay", "SLIDER", {
 		path: ["Appearance", "Interface"],
 		label: "Sidebar Expand Hover Delay",
-		hint: "Change the delay when hovering over the sidebar.",
+		hint: "Change the start of sidebar expand when hovering over it.",
 		options: {
 			min: 0,
 			max: 1000,
