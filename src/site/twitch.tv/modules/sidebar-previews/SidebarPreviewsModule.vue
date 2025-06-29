@@ -52,7 +52,7 @@ function toggle(hovering: boolean) {
 }
 
 const sidebarEl = ref<Element>();
-const isHovering = useElementHover(sidebarEl);
+const isHovering = useElementHover(sidebarEl, { delayEnter: 2000});
 watch(isHovering, toggle, { immediate: true });
 
 watch(
