@@ -66,6 +66,7 @@ markAsReady();
 </script>
 
 <script lang="ts">
+const expandOnHover = useConfig<boolean>("ui.sidebar_hover_expand");
 export const config = [
 	declareConfig("ui.sidebar_previews", "TOGGLE", {
 		path: ["Appearance", "Interface"],
@@ -91,6 +92,7 @@ export const config = [
 			unit: "ms",
 		},
 		defaultValue: 0,
+		disabledIf: () => !expandOnHover.value
 	}),
 ];
 </script>
