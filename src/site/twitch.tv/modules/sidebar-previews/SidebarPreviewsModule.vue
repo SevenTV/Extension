@@ -81,7 +81,7 @@ export const config = [
 		effect: (v) => document.body.classList.toggle("seventv-sidebar-hover", v),
 		defaultValue: false,
 	}),
-		declareConfig<number>("ui.sidebar_hover_expand_delay", "SLIDER", {
+	declareConfig<number>("ui.sidebar_hover_expand_delay", "SLIDER", {
 		path: ["Appearance", "Interface"],
 		label: "Sidebar Expand Hover Delay",
 		hint: "Change the start of sidebar expand when hovering over it.",
@@ -92,7 +92,7 @@ export const config = [
 			unit: "ms",
 		},
 		defaultValue: 0,
-		disabledIf: () => !isSidebarHoverExpand.value
+		disabledIf: () => !isSidebarHoverExpand.value,
 	}),
 ];
 </script>
