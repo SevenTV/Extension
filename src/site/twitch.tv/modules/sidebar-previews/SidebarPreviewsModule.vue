@@ -87,7 +87,7 @@ export const config = [
 		hint: "Change the start of sidebar expand when hovering over it.",
 		options: {
 			min: 0,
-			max: 1000,
+			max: 2000,
 			step: 5,
 			unit: "ms",
 		},
