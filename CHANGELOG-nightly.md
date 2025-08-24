@@ -1,3 +1,7 @@
+### 3.1.10.1000
+
+- Fixed an issue with the card identity cover not taking full height
+
 ### 3.1.9.1000
 
 - Remove hosted-site functionality
