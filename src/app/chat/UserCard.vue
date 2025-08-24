@@ -659,6 +659,7 @@ main.seventv-user-card-container {
 	.seventv-user-card-identity {
 		cursor: move;
 		display: grid;
+		position: relative;
 		grid-template-columns: max-content 1fr;
 		grid-template-rows: auto auto 1fr;
 		grid-auto-flow: row;
@@ -675,9 +676,9 @@ main.seventv-user-card-container {
 
 		&::before {
 			content: " ";
-			position: fixed;
+			position: absolute;
 			width: $card-width;
-			height: 8rem;
+			height: 100%;
 			opacity: 0.68;
 			background-color: var(--seventv-background-transparent-1);
 		}
