@@ -17,7 +17,7 @@ export const SITE_ASSETS_URL: InjectionKey<string> = Symbol("seventv-site-assets
 export const SITE_EXT_OPTIONS_URL: InjectionKey<string> = Symbol("seventv-site-ext-options-url");
 export const SITE_ACTIVE_WINDOW: InjectionKey<Window> = Symbol("seventv-site-active-window");
 
-export const UNICODE_TAG_0 = "\u{E0000}";
+export const UNICODE_TAG_0 = "\u{34f}";
 export const UNICODE_TAG_0_REGEX = new RegExp(UNICODE_TAG_0, "g");
 
 export const TWITCH_PROFILE_IMAGE_REGEX = /(\d+x\d+)(?=\.\w{3,4}$)/;
