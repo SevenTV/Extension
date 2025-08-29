@@ -1,3 +1,7 @@
+### 3.1.10
+
+- Replaced Unicode tag that gets appended for duplicate message check to not have it dropped by Twitch anymore
+
 ### 3.1.9
 
 - Remove hosted-site functionality
