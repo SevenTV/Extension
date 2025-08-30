@@ -1,6 +1,10 @@
-### 3.1.10.1000
+### 3.1.10.2000
 
 - Fixed an issue with the card identity cover not taking full height
+
+### 3.1.10.1000
+
+- Replaced Unicode tag that gets appended for duplicate message check to not have it dropped by Twitch anymore
 
 ### 3.1.9.1000
 

@@ -58,9 +58,9 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		},
 
 		icons: {
-			16: `./icon/${iconName.replace("%s", "16")}`,
-			48: `./icon/${iconName.replace("%s", "48")}`,
-			128: `./icon/${iconName.replace("%s", "128")}`,
+			16: `/icon/${iconName.replace("%s", "16")}`,
+			48: `/icon/${iconName.replace("%s", "48")}`,
+			128: `/icon/${iconName.replace("%s", "128")}`,
 		},
 
 		// By default the extension is enabled only on Twitch
