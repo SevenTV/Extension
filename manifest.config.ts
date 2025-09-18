@@ -17,14 +17,21 @@ interface ManifestOptions {
 export type BranchName = "nightly" | "dev";
 
 export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExtensionManifest> {
-	const iconName = "".concat(opt.branch ? opt.branch + "-" : "", "icon-%s.png");
+	const iconName = "".concat(opt.branch ? opt.branch + "-" : "", "icon-%s.png").replace(/\s+/g, "");
+
+	const extensionName = (displayName || name)
+		.concat(
+			opt.branch ? ` ${opt.branch.charAt(0).toUpperCase() + opt.branch.slice(1)}` : "",
+			opt.dev ? " (Dev)" : "",
+		)
+		.trim();
+	const versionName = (opt.version + (opt.branch ? ` ${opt.branch}` : "")).trim();
 
 	const manifest = {
 		manifest_version: 3,
-		name:
-			(displayName || name) + (opt.branch ? ` ${opt.branch.charAt(0).toUpperCase() + opt.branch.slice(1)}` : ""),
+		name: extensionName,
 		version: opt.version,
-		version_name: opt.version + (opt.branch ? ` ${opt.branch}` : ""),
+		version_name: versionName,
 		description: description,
 		action: {
 			default_icon: `./icon/${iconName.replace("%s", "128")}`,
@@ -36,8 +43,11 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 			? {
 					browser_specific_settings: {
 						gecko: {
+							id:
+								typeof opt.mozillaID === "string"
+									? opt.mozillaID.trim().replace(/^"+|"+$/g, "")
+									: undefined,
 							update_url: "https://extension.7tv.gg/manifest.moz.json",
-							id: opt.mozillaID,
 						},
 					},
 			  }
@@ -58,9 +68,9 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		},
 
 		icons: {
-			16: `/icon/${iconName.replace("%s", "16")}`,
-			48: `/icon/${iconName.replace("%s", "48")}`,
-			128: `/icon/${iconName.replace("%s", "128")}`,
+			16: `./icon/${iconName.replace("%s", "16")}`,
+			48: `./icon/${iconName.replace("%s", "48")}`,
+			128: `./icon/${iconName.replace("%s", "128")}`,
 		},
 
 		// By default the extension is enabled only on Twitch
