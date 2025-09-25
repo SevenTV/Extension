@@ -10,6 +10,7 @@
 
 - Remove hosted-site functionality
 - Use new pubsub source
+- Added randomized delay to Autoclaim channel points feature
 
 ### 3.1.8.1000
 
