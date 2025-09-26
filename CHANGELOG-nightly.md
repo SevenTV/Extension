@@ -1,3 +1,7 @@
+### 3.1.11.2000
+
+-   Bumped version from 3.1.10 to 3.1.11
+
 ### 3.1.11.1000
 
 -   Fixed some issues with FireFox having old version
