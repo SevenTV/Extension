@@ -1,3 +1,7 @@
+### 3.1.11
+
+- Fixed some issues with FireFox having old version
+
 ### 3.1.10
 
 - Replaced Unicode tag that gets appended for duplicate message check to not have it dropped by Twitch anymore
