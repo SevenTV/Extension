@@ -1,0 +1,1035 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0A0152442E87F8BC00B53B43 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0152432E87F8BC00B53B43 /* AppDelegate.swift */; };
+		0A0152462E87F8BC00B53B43 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0152452E87F8BC00B53B43 /* SceneDelegate.swift */; };
+		0A0152492E87F8BC00B53B43 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152472E87F8BC00B53B43 /* LaunchScreen.storyboard */; };
+		0A01524C2E87F8BC00B53B43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A01524A2E87F8BC00B53B43 /* Main.storyboard */; };
+		0A0152552E87F8BC00B53B43 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0152542E87F8BC00B53B43 /* AppDelegate.swift */; };
+		0A0152582E87F8BC00B53B43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152562E87F8BC00B53B43 /* Main.storyboard */; };
+		0A01525F2E87F8BC00B53B43 /* 7TV Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0A01525E2E87F8BC00B53B43 /* 7TV Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0A0152692E87F8BC00B53B43 /* 7TV Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0A0152682E87F8BC00B53B43 /* 7TV Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0A01526E2E87F8BC00B53B43 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152332E87F8BB00B53B43 /* Main.html */; };
+		0A01526F2E87F8BC00B53B43 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152332E87F8BB00B53B43 /* Main.html */; };
+		0A0152702E87F8BC00B53B43 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152352E87F8BB00B53B43 /* Icon.png */; };
+		0A0152712E87F8BC00B53B43 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152352E87F8BB00B53B43 /* Icon.png */; };
+		0A0152722E87F8BC00B53B43 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152362E87F8BB00B53B43 /* Style.css */; };
+		0A0152732E87F8BC00B53B43 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152362E87F8BB00B53B43 /* Style.css */; };
+		0A0152742E87F8BC00B53B43 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152372E87F8BB00B53B43 /* Script.js */; };
+		0A0152752E87F8BC00B53B43 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152372E87F8BB00B53B43 /* Script.js */; };
+		0A0152762E87F8BC00B53B43 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0152382E87F8BB00B53B43 /* ViewController.swift */; };
+		0A0152772E87F8BC00B53B43 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0152382E87F8BB00B53B43 /* ViewController.swift */; };
+		0A0152782E87F8BC00B53B43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152392E87F8BC00B53B43 /* Assets.xcassets */; };
+		0A0152792E87F8BC00B53B43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152392E87F8BC00B53B43 /* Assets.xcassets */; };
+		0A01527A2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A01523B2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift */; };
+		0A01527B2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A01523B2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift */; };
+		0A0152972E87F8BC00B53B43 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 0A01528D2E87F8BC00B53B43 /* index.html */; };
+		0A0152982E87F8BC00B53B43 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A01528E2E87F8BC00B53B43 /* background.js */; };
+		0A0152992E87F8BC00B53B43 /* worker.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A01528F2E87F8BC00B53B43 /* worker.js */; };
+		0A01529A2E87F8BC00B53B43 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152902E87F8BC00B53B43 /* manifest.json */; };
+		0A01529B2E87F8BC00B53B43 /* site.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152912E87F8BC00B53B43 /* site.js */; };
+		0A01529C2E87F8BC00B53B43 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152922E87F8BC00B53B43 /* content.js */; };
+		0A01529D2E87F8BC00B53B43 /* icon in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152932E87F8BC00B53B43 /* icon */; };
+		0A01529E2E87F8BC00B53B43 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152942E87F8BC00B53B43 /* assets */; };
+		0A01529F2E87F8BC00B53B43 /* logo.svg in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152952E87F8BC00B53B43 /* logo.svg */; };
+		0A0152A02E87F8BC00B53B43 /* src in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152962E87F8BC00B53B43 /* src */; };
+		0A0152A12E87F8BC00B53B43 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 0A01528D2E87F8BC00B53B43 /* index.html */; };
+		0A0152A22E87F8BC00B53B43 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A01528E2E87F8BC00B53B43 /* background.js */; };
+		0A0152A32E87F8BC00B53B43 /* worker.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A01528F2E87F8BC00B53B43 /* worker.js */; };
+		0A0152A42E87F8BC00B53B43 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152902E87F8BC00B53B43 /* manifest.json */; };
+		0A0152A52E87F8BC00B53B43 /* site.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152912E87F8BC00B53B43 /* site.js */; };
+		0A0152A62E87F8BC00B53B43 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152922E87F8BC00B53B43 /* content.js */; };
+		0A0152A72E87F8BC00B53B43 /* icon in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152932E87F8BC00B53B43 /* icon */; };
+		0A0152A82E87F8BC00B53B43 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152942E87F8BC00B53B43 /* assets */; };
+		0A0152A92E87F8BC00B53B43 /* logo.svg in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152952E87F8BC00B53B43 /* logo.svg */; };
+		0A0152AA2E87F8BC00B53B43 /* src in Resources */ = {isa = PBXBuildFile; fileRef = 0A0152962E87F8BC00B53B43 /* src */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0A0152602E87F8BC00B53B43 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A01522D2E87F8BB00B53B43 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A01525D2E87F8BC00B53B43;
+			remoteInfo = "7TV Extension (iOS)";
+		};
+		0A01526A2E87F8BC00B53B43 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A01522D2E87F8BB00B53B43 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A0152672E87F8BC00B53B43;
+			remoteInfo = "7TV Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0A0152812E87F8BC00B53B43 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0A01525F2E87F8BC00B53B43 /* 7TV Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A0152882E87F8BC00B53B43 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0A0152692E87F8BC00B53B43 /* 7TV Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0A0152342E87F8BB00B53B43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		0A0152352E87F8BB00B53B43 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		0A0152362E87F8BB00B53B43 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		0A0152372E87F8BB00B53B43 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		0A0152382E87F8BB00B53B43 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		0A0152392E87F8BC00B53B43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0A01523B2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		0A0152402E87F8BC00B53B43 /* 7TV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 7TV.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0152432E87F8BC00B53B43 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		0A0152452E87F8BC00B53B43 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		0A0152482E87F8BC00B53B43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		0A01524B2E87F8BC00B53B43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		0A01524D2E87F8BC00B53B43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A0152522E87F8BC00B53B43 /* 7TV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 7TV.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0152542E87F8BC00B53B43 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		0A0152572E87F8BC00B53B43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		0A0152592E87F8BC00B53B43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A01525E2E87F8BC00B53B43 /* 7TV Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "7TV Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0152632E87F8BC00B53B43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A0152682E87F8BC00B53B43 /* 7TV Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "7TV Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A01526D2E87F8BC00B53B43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A01528D2E87F8BC00B53B43 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = ../../dist/index.html; sourceTree = "<group>"; };
+		0A01528E2E87F8BC00B53B43 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../dist/background.js; sourceTree = "<group>"; };
+		0A01528F2E87F8BC00B53B43 /* worker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = worker.js; path = ../../dist/worker.js; sourceTree = "<group>"; };
+		0A0152902E87F8BC00B53B43 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../dist/manifest.json; sourceTree = "<group>"; };
+		0A0152912E87F8BC00B53B43 /* site.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = site.js; path = ../../dist/site.js; sourceTree = "<group>"; };
+		0A0152922E87F8BC00B53B43 /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../dist/content.js; sourceTree = "<group>"; };
+		0A0152932E87F8BC00B53B43 /* icon */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icon; path = ../../dist/icon; sourceTree = "<group>"; };
+		0A0152942E87F8BC00B53B43 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../dist/assets; sourceTree = "<group>"; };
+		0A0152952E87F8BC00B53B43 /* logo.svg */ = {isa = PBXFileReference; lastKnownFileType = text; name = logo.svg; path = ../../dist/logo.svg; sourceTree = "<group>"; };
+		0A0152962E87F8BC00B53B43 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../dist/src; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0A01523D2E87F8BC00B53B43 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A01524F2E87F8BC00B53B43 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A01525B2E87F8BC00B53B43 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A0152652E87F8BC00B53B43 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0A01522C2E87F8BB00B53B43 = {
+			isa = PBXGroup;
+			children = (
+				0A0152312E87F8BB00B53B43 /* Shared (App) */,
+				0A01523A2E87F8BC00B53B43 /* Shared (Extension) */,
+				0A0152422E87F8BC00B53B43 /* iOS (App) */,
+				0A0152532E87F8BC00B53B43 /* macOS (App) */,
+				0A0152622E87F8BC00B53B43 /* iOS (Extension) */,
+				0A01526C2E87F8BC00B53B43 /* macOS (Extension) */,
+				0A0152412E87F8BC00B53B43 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0A0152312E87F8BB00B53B43 /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				0A0152382E87F8BB00B53B43 /* ViewController.swift */,
+				0A0152392E87F8BC00B53B43 /* Assets.xcassets */,
+				0A0152322E87F8BB00B53B43 /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		0A0152322E87F8BB00B53B43 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0A0152332E87F8BB00B53B43 /* Main.html */,
+				0A0152352E87F8BB00B53B43 /* Icon.png */,
+				0A0152362E87F8BB00B53B43 /* Style.css */,
+				0A0152372E87F8BB00B53B43 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		0A01523A2E87F8BC00B53B43 /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				0A01528C2E87F8BC00B53B43 /* Resources */,
+				0A01523B2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		0A0152412E87F8BC00B53B43 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0A0152402E87F8BC00B53B43 /* 7TV.app */,
+				0A0152522E87F8BC00B53B43 /* 7TV.app */,
+				0A01525E2E87F8BC00B53B43 /* 7TV Extension.appex */,
+				0A0152682E87F8BC00B53B43 /* 7TV Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0A0152422E87F8BC00B53B43 /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				0A0152432E87F8BC00B53B43 /* AppDelegate.swift */,
+				0A0152452E87F8BC00B53B43 /* SceneDelegate.swift */,
+				0A0152472E87F8BC00B53B43 /* LaunchScreen.storyboard */,
+				0A01524A2E87F8BC00B53B43 /* Main.storyboard */,
+				0A01524D2E87F8BC00B53B43 /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		0A0152532E87F8BC00B53B43 /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				0A0152542E87F8BC00B53B43 /* AppDelegate.swift */,
+				0A0152562E87F8BC00B53B43 /* Main.storyboard */,
+				0A0152592E87F8BC00B53B43 /* Info.plist */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		0A0152622E87F8BC00B53B43 /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				0A0152632E87F8BC00B53B43 /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		0A01526C2E87F8BC00B53B43 /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				0A01526D2E87F8BC00B53B43 /* Info.plist */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		0A01528C2E87F8BC00B53B43 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0A01528D2E87F8BC00B53B43 /* index.html */,
+				0A01528E2E87F8BC00B53B43 /* background.js */,
+				0A01528F2E87F8BC00B53B43 /* worker.js */,
+				0A0152902E87F8BC00B53B43 /* manifest.json */,
+				0A0152912E87F8BC00B53B43 /* site.js */,
+				0A0152922E87F8BC00B53B43 /* content.js */,
+				0A0152932E87F8BC00B53B43 /* icon */,
+				0A0152942E87F8BC00B53B43 /* assets */,
+				0A0152952E87F8BC00B53B43 /* logo.svg */,
+				0A0152962E87F8BC00B53B43 /* src */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A01523F2E87F8BC00B53B43 /* 7TV (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A0152822E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV (iOS)" */;
+			buildPhases = (
+				0A01523C2E87F8BC00B53B43 /* Sources */,
+				0A01523D2E87F8BC00B53B43 /* Frameworks */,
+				0A01523E2E87F8BC00B53B43 /* Resources */,
+				0A0152812E87F8BC00B53B43 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0A0152612E87F8BC00B53B43 /* PBXTargetDependency */,
+			);
+			name = "7TV (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "7TV (iOS)";
+			productReference = 0A0152402E87F8BC00B53B43 /* 7TV.app */;
+			productType = "com.apple.product-type.application";
+		};
+		0A0152512E87F8BC00B53B43 /* 7TV (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A0152892E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV (macOS)" */;
+			buildPhases = (
+				0A01524E2E87F8BC00B53B43 /* Sources */,
+				0A01524F2E87F8BC00B53B43 /* Frameworks */,
+				0A0152502E87F8BC00B53B43 /* Resources */,
+				0A0152882E87F8BC00B53B43 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0A01526B2E87F8BC00B53B43 /* PBXTargetDependency */,
+			);
+			name = "7TV (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "7TV (macOS)";
+			productReference = 0A0152522E87F8BC00B53B43 /* 7TV.app */;
+			productType = "com.apple.product-type.application";
+		};
+		0A01525D2E87F8BC00B53B43 /* 7TV Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A01527E2E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV Extension (iOS)" */;
+			buildPhases = (
+				0A01525A2E87F8BC00B53B43 /* Sources */,
+				0A01525B2E87F8BC00B53B43 /* Frameworks */,
+				0A01525C2E87F8BC00B53B43 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "7TV Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "7TV Extension (iOS)";
+			productReference = 0A01525E2E87F8BC00B53B43 /* 7TV Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		0A0152672E87F8BC00B53B43 /* 7TV Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A0152852E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV Extension (macOS)" */;
+			buildPhases = (
+				0A0152642E87F8BC00B53B43 /* Sources */,
+				0A0152652E87F8BC00B53B43 /* Frameworks */,
+				0A0152662E87F8BC00B53B43 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "7TV Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "7TV Extension (macOS)";
+			productReference = 0A0152682E87F8BC00B53B43 /* 7TV Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0A01522D2E87F8BB00B53B43 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					0A01523F2E87F8BC00B53B43 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					0A0152512E87F8BC00B53B43 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					0A01525D2E87F8BC00B53B43 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					0A0152672E87F8BC00B53B43 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 0A0152302E87F8BB00B53B43 /* Build configuration list for PBXProject "7TV" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 0A01522C2E87F8BB00B53B43;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 0A0152412E87F8BC00B53B43 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0A01523F2E87F8BC00B53B43 /* 7TV (iOS) */,
+				0A0152512E87F8BC00B53B43 /* 7TV (macOS) */,
+				0A01525D2E87F8BC00B53B43 /* 7TV Extension (iOS) */,
+				0A0152672E87F8BC00B53B43 /* 7TV Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0A01523E2E87F8BC00B53B43 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0152702E87F8BC00B53B43 /* Icon.png in Resources */,
+				0A0152492E87F8BC00B53B43 /* LaunchScreen.storyboard in Resources */,
+				0A01526E2E87F8BC00B53B43 /* Main.html in Resources */,
+				0A0152742E87F8BC00B53B43 /* Script.js in Resources */,
+				0A0152782E87F8BC00B53B43 /* Assets.xcassets in Resources */,
+				0A01524C2E87F8BC00B53B43 /* Main.storyboard in Resources */,
+				0A0152722E87F8BC00B53B43 /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A0152502E87F8BC00B53B43 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0152712E87F8BC00B53B43 /* Icon.png in Resources */,
+				0A0152732E87F8BC00B53B43 /* Style.css in Resources */,
+				0A0152582E87F8BC00B53B43 /* Main.storyboard in Resources */,
+				0A0152752E87F8BC00B53B43 /* Script.js in Resources */,
+				0A0152792E87F8BC00B53B43 /* Assets.xcassets in Resources */,
+				0A01526F2E87F8BC00B53B43 /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A01525C2E87F8BC00B53B43 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0152A62E87F8BC00B53B43 /* content.js in Resources */,
+				0A0152A92E87F8BC00B53B43 /* logo.svg in Resources */,
+				0A0152A82E87F8BC00B53B43 /* assets in Resources */,
+				0A0152A52E87F8BC00B53B43 /* site.js in Resources */,
+				0A0152A72E87F8BC00B53B43 /* icon in Resources */,
+				0A0152A42E87F8BC00B53B43 /* manifest.json in Resources */,
+				0A0152A22E87F8BC00B53B43 /* background.js in Resources */,
+				0A0152A32E87F8BC00B53B43 /* worker.js in Resources */,
+				0A0152A12E87F8BC00B53B43 /* index.html in Resources */,
+				0A0152AA2E87F8BC00B53B43 /* src in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A0152662E87F8BC00B53B43 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A01529C2E87F8BC00B53B43 /* content.js in Resources */,
+				0A01529F2E87F8BC00B53B43 /* logo.svg in Resources */,
+				0A01529E2E87F8BC00B53B43 /* assets in Resources */,
+				0A01529B2E87F8BC00B53B43 /* site.js in Resources */,
+				0A01529D2E87F8BC00B53B43 /* icon in Resources */,
+				0A01529A2E87F8BC00B53B43 /* manifest.json in Resources */,
+				0A0152982E87F8BC00B53B43 /* background.js in Resources */,
+				0A0152992E87F8BC00B53B43 /* worker.js in Resources */,
+				0A0152972E87F8BC00B53B43 /* index.html in Resources */,
+				0A0152A02E87F8BC00B53B43 /* src in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0A01523C2E87F8BC00B53B43 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0152762E87F8BC00B53B43 /* ViewController.swift in Sources */,
+				0A0152442E87F8BC00B53B43 /* AppDelegate.swift in Sources */,
+				0A0152462E87F8BC00B53B43 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A01524E2E87F8BC00B53B43 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0152772E87F8BC00B53B43 /* ViewController.swift in Sources */,
+				0A0152552E87F8BC00B53B43 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A01525A2E87F8BC00B53B43 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A01527A2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A0152642E87F8BC00B53B43 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A01527B2E87F8BC00B53B43 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0A0152612E87F8BC00B53B43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A01525D2E87F8BC00B53B43 /* 7TV Extension (iOS) */;
+			targetProxy = 0A0152602E87F8BC00B53B43 /* PBXContainerItemProxy */;
+		};
+		0A01526B2E87F8BC00B53B43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A0152672E87F8BC00B53B43 /* 7TV Extension (macOS) */;
+			targetProxy = 0A01526A2E87F8BC00B53B43 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		0A0152332E87F8BB00B53B43 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A0152342E87F8BB00B53B43 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		0A0152472E87F8BC00B53B43 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A0152482E87F8BC00B53B43 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		0A01524A2E87F8BC00B53B43 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A01524B2E87F8BC00B53B43 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		0A0152562E87F8BC00B53B43 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A0152572E87F8BC00B53B43 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		0A01527C2E87F8BC00B53B43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		0A01527D2E87F8BC00B53B43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		0A01527F2E87F8BC00B53B43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "7TV Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV.Extension;
+				PRODUCT_NAME = "7TV Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0A0152802E87F8BC00B53B43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "7TV Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV.Extension;
+				PRODUCT_NAME = "7TV Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0A0152832E87F8BC00B53B43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = 7TV;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV;
+				PRODUCT_NAME = 7TV;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0A0152842E87F8BC00B53B43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = 7TV;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV;
+				PRODUCT_NAME = 7TV;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0A0152862E87F8BC00B53B43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "7TV Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV.Extension;
+				PRODUCT_NAME = "7TV Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		0A0152872E87F8BC00B53B43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "7TV Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV.Extension;
+				PRODUCT_NAME = "7TV Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		0A01528A2E87F8BC00B53B43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = 7TV;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV;
+				PRODUCT_NAME = 7TV;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		0A01528B2E87F8BC00B53B43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = 7TV;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 3.1.11;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.SevenTV.7TV;
+				PRODUCT_NAME = 7TV;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0A0152302E87F8BB00B53B43 /* Build configuration list for PBXProject "7TV" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A01527C2E87F8BC00B53B43 /* Debug */,
+				0A01527D2E87F8BC00B53B43 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A01527E2E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A01527F2E87F8BC00B53B43 /* Debug */,
+				0A0152802E87F8BC00B53B43 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A0152822E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0152832E87F8BC00B53B43 /* Debug */,
+				0A0152842E87F8BC00B53B43 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A0152852E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0152862E87F8BC00B53B43 /* Debug */,
+				0A0152872E87F8BC00B53B43 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A0152892E87F8BC00B53B43 /* Build configuration list for PBXNativeTarget "7TV (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A01528A2E87F8BC00B53B43 /* Debug */,
+				0A01528B2E87F8BC00B53B43 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0A01522D2E87F8BB00B53B43 /* Project object */;
+}
