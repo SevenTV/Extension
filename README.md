@@ -48,47 +48,122 @@
 
 ## Development
 
-### Building
+# Building
 
--   make deps
--   make production
+* `make deps`  
+* `make production`  
 
 For a development/nightly (non-stable) build, set `BRANCH=nightly` in your environment variables.
 
-Build output located in `dist/`.
+Build output is located in `dist/`.
 
-### Contributing
+# Contributing
 
-This extension is configured to work with HMR (Hot Module Replacement), which makes development significantly faster and more enjoyable than the traditional methods for making web extensions. This allows the developer to see changes reflect in real-time, even while on a remote website.
+This extension is configured to work with **HMR (Hot Module Replacement)**, which makes development significantly faster and more enjoyable than traditional methods for building web extensions.  
+This allows developers to see changes in real-time, even while testing on a remote website.
 
-#### Working Locally
+# Working Locally
 
-We use [Vite](https://vitejs.dev/) as a primary tool for development and bundling.
+We use **Vite** as the primary tool for development and bundling.
 
-Getting the extension to work locally is fast and easy, follow these steps:
+Getting the extension to work locally is fast and easy. Follow these steps:
 
--   Clone the repo: `git clone git@github.com:SevenTV/Extension.git`
--   Install dependencies: `make deps`
--   Run `yarn start`
+## 1. Clone the repository
+```
+git clone git@github.com:SevenTV/Extension.git
+```
 
-The extension will now be compiled into its initial bundle, which may take up to twenty seconds. In dev mode, it is configured to connect to the vite server, which will start right after the bundle is complete.
+## 2. Install dependencies
+```
+make deps
+```
 
-The build files will be located in the `dist/` folder: add this folder as an unpacked extension via the chrome extensions page.
+## 3. Run the development server
+```
+yarn start
+```
 
-#### Extension Loader
+The extension will now be compiled into its initial bundle, which may take up to twenty seconds.  
+In dev mode, it connects to the Vite server automatically after the bundle is complete.
 
-This repository is adapted as a BrowserExtension. It uses a `manifest.json` and the [Extension API](https://developer.chrome.com/docs/extensions/reference/) to run inside a browser.
+To run in dev mode:
+```
+yarn dev
+```
 
-The site-specific content and logic, however, runs as a Site Script, sectioned off by origin under `src/sites`. The Extension Content Script (`src/content/content.ts`) acts as a Loader for the site script, which is where the actual logic for modifying websites is located.
+The build files will be located in the `dist/` folder.  
+Load this folder as an **unpacked extension** via the Chrome extensions page.
 
-We do not use Isolated Worlds as we must access internal values from the website, which is not possible under an Extension Isolated World (content script).
+## Build for production
+```
+yarn build:prod
+```
 
-#### Extension Background / Service Worker
+## To build nightly
+```
+export BRANCH=nightly
+yarn build:prod
+```
 
-The background script sets up some extension API-specific listeners for matters such as permissions. It also takes care of cross-site settings synchronization, by maintaining a copy of IndexedDB inside the Extension Context and re-distributing the updated config nodes to sites.
+# Building for Chrome Extension Store
 
-#### Site Script
+To build for the Chrome Extension Store:
 
-Most of the logic inside the Extension runs under the Site Script, located under `src/sites`. Each folder there corresponds to an origin, such as `twitch.tv` or `youtube.com`. A module system exists to neatly section off features into their own space.
+```
+yarn install
+yarn build:prod
+```
 
-The site script works with HMR (Hot Module Replacement) and any changes to components within will hot-update accordingly, making UI building very efficient.
+Zip the `/dist` folder and upload it to the Chrome Extension Store for the appropriate version (either **stable** or **nightly**).
+
+# Building for Mozilla Add-Ons Store
+
+To build for the Mozilla Add-Ons Store:
+
+```
+yarn install
+```
+
+## Stable Branch (Windows)
+```
+set MOZILLA_ID="moz-addon@7tv.app" && set MV2=1 && yarn build:prod
+```
+
+## Stable Branch (Linux/Other OS)
+```
+export MOZILLA_ID="moz-addon@7tv.app" && export MV2=1 && yarn build:prod
+```
+
+## Nightly Branch (Windows)
+```
+set BRANCH=nightly && set MOZILLA_ID="moz-addon@7tv.app" && set MV2=1 && yarn build:prod
+```
+
+## Nightly Branch (Linux/Other OS)
+```
+export BRANCH=nightly && export MOZILLA_ID="moz-addon@7tv.app" && export MV2=1 && yarn build:prod
+```
+
+Then, submit the contents of the `/dist` folder as a `.zip` or `.xpi` to the Mozilla Add-Ons Store.
+
+# Extension Loader
+
+This repository is a **Browser Extension** using a `manifest.json` and the **Extension API** to run inside browsers.
+
+The site-specific content and logic run as a **Site Script**, organized under `src/sites` by origin.  
+The **Extension Content Script** (`src/content/content.ts`) acts as a Loader for the site script — where most logic for modifying websites resides.
+
+We do **not** use Isolated Worlds since we need access to internal values from websites, which is not possible under a content script’s isolated environment.
+
+# Extension Background / Service Worker
+
+The background script sets up extension API listeners for permissions and other browser-specific operations.  
+It also manages cross-site settings synchronization by maintaining a copy of **IndexedDB** inside the extension context and redistributing updated configuration nodes to sites.
+
+# Site Script
+
+Most of the logic inside the Extension runs under the **Site Script**, located in `src/sites`.  
+Each folder corresponds to an origin (e.g. `twitch.tv`, `youtube.com`).
+
+A modular system organizes features neatly into separate files.  
+The Site Script supports **HMR (Hot Module Replacement)** — allowing UI components and logic to update instantly while developing.
