@@ -1,11 +1,7 @@
 <template>
 	<div class="eloward-tooltip">
 		<div class="eloward-tooltip-badge">
-			<img 
-				:src="badge.imageUrl" 
-				:alt="`${badge.tier} rank`"
-				class="eloward-tooltip-badge-img"
-			/>
+			<img :src="badge.imageUrl" :alt="`${badge.tier} rank`" class="eloward-tooltip-badge-img" />
 		</div>
 		<div class="eloward-tooltip-content">
 			<div class="eloward-rank-line">{{ rankText }}</div>
@@ -34,21 +30,20 @@ const elowardRanks = useEloWardRanks();
 
 const rankText = computed(() => {
 	let text = props.badge.tier;
-	
-	if (props.badge.division && 
-		!['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(props.badge.tier)) {
+
+	if (props.badge.division && !["MASTER", "GRANDMASTER", "CHALLENGER"].includes(props.badge.tier)) {
 		text += ` ${props.badge.division}`;
 	}
-	
+
 	if (props.badge.leaguePoints !== undefined && props.badge.leaguePoints !== null) {
 		text += ` - ${props.badge.leaguePoints} LP`;
 	}
-	
+
 	return text;
 });
 
 const regionDisplay = computed(() => {
-	if (!props.badge.region) return '';
+	if (!props.badge.region) return "";
 	return elowardRanks.getRegionDisplay(props.badge.region);
 });
 </script>
@@ -65,30 +60,30 @@ const regionDisplay = computed(() => {
 	font-size: 13px;
 	color: var(--color-text-base);
 	max-width: 280px;
-	
+
 	.eloward-tooltip-badge {
 		flex-shrink: 0;
 		width: 48px;
 		height: 48px;
-		
+
 		.eloward-tooltip-badge-img {
 			width: 100%;
 			height: 100%;
 			object-fit: contain;
 		}
 	}
-	
+
 	.eloward-tooltip-content {
 		flex: 1;
 		min-width: 0;
-		
+
 		.eloward-rank-line {
 			font-weight: 600;
 			font-size: 14px;
 			margin-bottom: 4px;
 			color: var(--color-text-base);
 		}
-		
+
 		.eloward-summoner-line {
 			font-weight: 500;
 			font-size: 12px;
@@ -98,14 +93,14 @@ const regionDisplay = computed(() => {
 			text-overflow: ellipsis;
 			white-space: nowrap;
 		}
-		
+
 		.eloward-region-line {
 			font-weight: 400;
 			font-size: 11px;
 			color: var(--color-text-alt-2);
 			margin-bottom: 6px;
 		}
-		
+
 		.eloward-hint {
 			font-size: 10px;
 			color: var(--color-text-alt-2);
@@ -120,15 +115,15 @@ const regionDisplay = computed(() => {
 // Dark theme
 :global(.tw-root--theme-dark) .eloward-tooltip {
 	background: rgba(24, 24, 27, 0.95);
-	
+
 	.eloward-rank-line {
 		color: #efeff1;
 	}
-	
+
 	.eloward-summoner-line {
 		color: #adadb8;
 	}
-	
+
 	.eloward-region-line,
 	.eloward-hint {
 		color: #848494;
@@ -138,15 +133,15 @@ const regionDisplay = computed(() => {
 // Light theme
 :global(.tw-root--theme-light) .eloward-tooltip {
 	background: rgba(255, 255, 255, 0.98);
-	
+
 	.eloward-rank-line {
 		color: #0e0e10;
 	}
-	
+
 	.eloward-summoner-line {
 		color: #53535f;
 	}
-	
+
 	.eloward-region-line,
 	.eloward-hint {
 		color: #848494;

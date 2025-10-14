@@ -8,17 +8,14 @@
 		<!--Badge List -->
 		<span
 			v-if="
-				!hideBadges && ((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size || sourceData || elowardBadge)
+				!hideBadges &&
+				((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size || sourceData || elowardBadge)
 			"
 			class="seventv-chat-user-badge-list"
 		>
 			<!-- EloWard Rank Badge -->
-			<EloWardBadge
-				v-if="elowardBadge"
-				:badge="elowardBadge"
-				:username="user.username"
-			/>
-			
+			<EloWardBadge v-if="elowardBadge" :badge="elowardBadge" :username="user.username" />
+
 			<Badge
 				v-if="sourceData"
 				:key="sourceData.login"
@@ -81,14 +78,14 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
+import EloWardBadge from "@/site/twitch.tv/modules/eloward/components/EloWardBadge.vue";
+import { useEloWardRanks } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
+import type { EloWardBadge as EloWardBadgeType } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
+import { useGameDetection } from "@/site/twitch.tv/modules/eloward/composables/useGameDetection";
 import Badge from "./Badge.vue";
 import UserCard from "./UserCard.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
 import { autoPlacement, shift } from "@floating-ui/dom";
-import EloWardBadge from "@/site/twitch.tv/modules/eloward/components/EloWardBadge.vue";
-import { useEloWardRanks } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
-import { useGameDetection } from "@/site/twitch.tv/modules/eloward/composables/useGameDetection";
-import type { EloWardBadge as EloWardBadgeType } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
 
 const props = withDefaults(
 	defineProps<{
@@ -131,7 +128,6 @@ const elowardRanks = useEloWardRanks();
 const gameDetection = useGameDetection();
 const elowardBadge = ref<EloWardBadgeType | null>(null);
 const elowardEnabled = useConfig<boolean>("eloward.enabled");
-const elowardLeagueOnly = useConfig<boolean>("eloward.league_only");
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
@@ -204,18 +200,12 @@ const stop = watch(
 
 // EloWard rank badge logic - fetch immediately without debounce for faster display
 const fetchEloWardBadge = async () => {
-	// Check if EloWard is enabled
-	if (!elowardEnabled.value) {
+	// Check if EloWard is enabled and we're on a League stream
+	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
 		elowardBadge.value = null;
 		return;
 	}
-	
-	// Check if we should only show on League streams
-	if (elowardLeagueOnly.value && !gameDetection.isLeagueStream.value) {
-		elowardBadge.value = null;
-		return;
-	}
-	
+
 	// Fetch rank data (already cached and deduplicated in the composable)
 	const rankData = await elowardRanks.fetchRankData(props.user.username);
 	elowardBadge.value = rankData ? elowardRanks.getRankBadge(rankData) : null;
@@ -227,21 +217,17 @@ watchEffect(() => {
 });
 
 // Watch for settings changes
-watch([elowardEnabled, elowardLeagueOnly], () => {
+watch(elowardEnabled, () => {
 	fetchEloWardBadge();
 });
 
 // Watch for game changes
-watch(() => gameDetection.isLeagueStream.value, (isLeague) => {
-	if (elowardLeagueOnly.value) {
-		// Fetch badge if now on League stream, clear if not
-		if (isLeague) {
-			fetchEloWardBadge();
-		} else {
-			elowardBadge.value = null;
-		}
-	}
-});
+watch(
+	() => gameDetection.isLeagueStream.value,
+	() => {
+		fetchEloWardBadge();
+	},
+);
 </script>
 
 <style scoped lang="scss">

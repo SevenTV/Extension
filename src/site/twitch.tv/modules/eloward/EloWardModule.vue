@@ -56,25 +56,7 @@ export const config = [
 	declareConfig("eloward.enabled", "TOGGLE", {
 		path: ["Chat", "EloWard"],
 		label: "Enable EloWard Rank Badges",
-		hint: "Show League of Legends rank badges next to usernames in chat",
-		defaultValue: true,
-	}),
-	declareConfig("eloward.league_only", "TOGGLE", {
-		path: ["Chat", "EloWard"],
-		label: "Show Only on League Streams",
-		hint: "Only show rank badges when watching League of Legends streams",
-		defaultValue: true,
-	}),
-	declareConfig("eloward.animated_badges", "TOGGLE", {
-		path: ["Chat", "EloWard"],
-		label: "Animated Badges",
-		hint: "Use animated rank badges for higher ranks (Master, Grandmaster, Challenger)",
-		defaultValue: true,
-	}),
-	declareConfig("eloward.show_tooltips", "TOGGLE", {
-		path: ["Chat", "EloWard"],
-		label: "Show Rank Tooltips",
-		hint: "Show detailed rank information when hovering over badges",
+		hint: "Show League of Legends rank badges next to usernames when watching League of Legends streams",
 		defaultValue: true,
 	}),
 ];
