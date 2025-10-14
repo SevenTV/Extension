@@ -1,12 +1,10 @@
-<template>
-	<!-- EloWard Module - Handles League of Legends rank badges in chat -->
-</template>
+<template></template>
 
 <script setup lang="ts">
-import { watch } from "vue";
-import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { useComponentHook } from "@/common/ReactHooks";
+import { watch, onMounted, onUnmounted } from "vue";
 import { declareModule } from "@/composable/useModule";
+import { useChannelContext } from "@/composable/channel/useChannelContext";
+import { declareConfig } from "@/composable/useSettings";
 import { useEloWardRanks } from "./composables/useEloWardRanks";
 import { useGameDetection } from "./composables/useGameDetection";
 
@@ -19,56 +17,41 @@ const ctx = useChannelContext();
 const elowardRanks = useEloWardRanks();
 const gameDetection = useGameDetection();
 
-// Wait for chat module to be ready
-await dependenciesMet;
-
-// Hook into Twitch's StreamInfo component to detect current game
-const streamInfo = useComponentHook<Twitch.StreamInfo>({
-	parentSelector: ".stream-info",
-	predicate: (n) => n.props && n.props.channelID,
+onMounted(() => {
+	if (dependenciesMet.value) {
+		markAsReady();
+	}
 });
 
-// Watch for stream info changes to detect game category
+// Watch for League of Legends stream detection
 watch(
-	() => streamInfo.instances,
-	(instances) => {
-		if (instances.length > 0) {
-			const streamData = instances[0].component.props;
-			gameDetection.updateStreamInfo(streamData);
-		}
-	},
-	{ immediate: true }
-);
-
-// Watch for game changes and enable/disable EloWard accordingly
-watch(
-	() => gameDetection.isLeagueStream,
+	() => gameDetection.isLeagueStream.value,
 	(isLeague) => {
-		if (isLeague) {
-			elowardRanks.enable();
-		} else {
-			elowardRanks.disable();
+		// Clear cache when switching between League and non-League streams
+		if (!isLeague) {
+			elowardRanks.clearCache();
 		}
 	},
-	{ immediate: true }
 );
 
-// Watch for channel changes
+// Watch for channel changes to clear cache
 watch(
 	() => ctx.id,
 	(newChannelId, oldChannelId) => {
-		if (newChannelId !== oldChannelId) {
+		if (newChannelId !== oldChannelId && newChannelId) {
+			// Clear cache when switching channels
 			elowardRanks.clearCache();
 		}
-	}
+	},
 );
 
-markAsReady();
+onUnmounted(() => {
+	elowardRanks.clearCache();
+});
 </script>
 
 <script lang="ts">
-import { declareConfig, useConfig } from "@/composable/useSettings";
-
+// Configuration declarations
 export const config = [
 	declareConfig("eloward.enabled", "TOGGLE", {
 		path: ["Chat", "EloWard"],
@@ -93,18 +76,6 @@ export const config = [
 		label: "Show Rank Tooltips",
 		hint: "Show detailed rank information when hovering over badges",
 		defaultValue: true,
-	}),
-	declareConfig("eloward.cache_duration", "SLIDER", {
-		path: ["Chat", "EloWard"],
-		label: "Cache Duration",
-		hint: "How long to cache rank data before refreshing (in minutes)",
-		options: {
-			min: 5,
-			max: 60,
-			step: 5,
-			unit: "min",
-		},
-		defaultValue: 15,
 	}),
 ];
 </script>

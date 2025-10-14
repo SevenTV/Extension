@@ -202,46 +202,44 @@ const stop = watch(
 	{ immediate: true },
 );
 
-// EloWard rank badge logic
-let fetchTimeout: number | null = null;
-const fetchEloWardBadge = () => {
-	if (fetchTimeout) {
-		clearTimeout(fetchTimeout);
+// EloWard rank badge logic - fetch immediately without debounce for faster display
+const fetchEloWardBadge = async () => {
+	// Check if EloWard is enabled
+	if (!elowardEnabled.value) {
+		elowardBadge.value = null;
+		return;
 	}
 	
-	fetchTimeout = setTimeout(async () => {
-		if (!elowardEnabled.value) {
-			elowardBadge.value = null;
-			return;
-		}
-
-		// Check if we should only show on League streams
-		if (elowardLeagueOnly.value && !gameDetection.isLeagueStream.value) {
-			elowardBadge.value = null;
-			return;
-		}
-
-		try {
-			const rankData = await elowardRanks.fetchRankData(props.user.username);
-			elowardBadge.value = rankData ? elowardRanks.getRankBadge(rankData) : null;
-		} catch (error) {
-			if (process.env.NODE_ENV === 'development') {
-				console.error("[EloWard] Failed to fetch rank badge:", error);
-			}
-			elowardBadge.value = null;
-		}
-	}, 100); // 100ms debounce
+	// Check if we should only show on League streams
+	if (elowardLeagueOnly.value && !gameDetection.isLeagueStream.value) {
+		elowardBadge.value = null;
+		return;
+	}
+	
+	// Fetch rank data (already cached and deduplicated in the composable)
+	const rankData = await elowardRanks.fetchRankData(props.user.username);
+	elowardBadge.value = rankData ? elowardRanks.getRankBadge(rankData) : null;
 };
 
-// Watch for EloWard settings changes
+// Initial fetch on mount
+watchEffect(() => {
+	fetchEloWardBadge();
+});
+
+// Watch for settings changes
 watch([elowardEnabled, elowardLeagueOnly], () => {
 	fetchEloWardBadge();
-}, { immediate: true });
+});
 
 // Watch for game changes
-watch(() => gameDetection.isLeagueStream.value, () => {
+watch(() => gameDetection.isLeagueStream.value, (isLeague) => {
 	if (elowardLeagueOnly.value) {
-		fetchEloWardBadge();
+		// Fetch badge if now on League stream, clear if not
+		if (isLeague) {
+			fetchEloWardBadge();
+		} else {
+			elowardBadge.value = null;
+		}
 	}
 });
 </script>
