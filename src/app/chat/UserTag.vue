@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, toRef, watch, watchEffect } from "vue";
+import { computed, nextTick, onMounted, ref, toRef, watch } from "vue";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -198,28 +198,62 @@ const stop = watch(
 	{ immediate: true },
 );
 
-// EloWard rank badge logic - fetch immediately without debounce for faster display
-const fetchEloWardBadge = async () => {
+// EloWard rank badge logic - optimized for immediate display
+const fetchEloWardBadge = () => {
+	const startTime = performance.now();
+
 	// Check if EloWard is enabled and we're on a League stream
 	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
 		elowardBadge.value = null;
 		return;
 	}
 
-	// Fetch rank data (already cached and deduplicated in the composable)
-	const rankData = await elowardRanks.fetchRankData(props.user.username);
-	elowardBadge.value = rankData ? elowardRanks.getRankBadge(rankData) : null;
+	const username = props.user.username;
+	if (!username) {
+		elowardBadge.value = null;
+		return;
+	}
+
+	console.log(`[EloWard] Fetching badge for ${username}`);
+
+	// Check cache first for immediate display
+	const cachedData = elowardRanks.getCachedRankData(username);
+	if (cachedData !== undefined) {
+		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
+		elowardBadge.value = badge;
+		const endTime = performance.now();
+		console.log(`[EloWard] Cached badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+		return;
+	}
+
+	// Non-blocking fetch for uncached data
+	elowardRanks
+		.fetchRankData(username)
+		.then((rankData) => {
+			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
+			elowardBadge.value = badge;
+			const endTime = performance.now();
+			console.log(`[EloWard] API badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+		})
+		.catch((error) => {
+			console.error(`[EloWard] Failed to fetch badge for ${username}:`, error);
+			elowardBadge.value = null;
+		});
 };
 
 // Initial fetch on mount
-watchEffect(() => {
+onMounted(() => {
 	fetchEloWardBadge();
 });
 
 // Watch for settings changes
-watch(elowardEnabled, () => {
-	fetchEloWardBadge();
-});
+watch(
+	elowardEnabled,
+	() => {
+		fetchEloWardBadge();
+	},
+	{ flush: "post" },
+);
 
 // Watch for game changes
 watch(
@@ -227,6 +261,7 @@ watch(
 	() => {
 		fetchEloWardBadge();
 	},
+	{ flush: "post" },
 );
 </script>
 

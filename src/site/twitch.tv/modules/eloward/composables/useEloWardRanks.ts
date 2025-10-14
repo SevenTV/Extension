@@ -126,18 +126,32 @@ export function useEloWardRanks() {
 	const isLoading = ref(false);
 
 	/**
+	 * Get cached rank data without triggering API call
+	 */
+	function getCachedRankData(username: string): EloWardRankData | null | undefined {
+		if (!enabled.value || !username) return undefined;
+		const normalizedUsername = username.toLowerCase();
+		return rankCache.get(normalizedUsername);
+	}
+
+	/**
 	 * Fetch rank data for a username with caching
 	 */
 	async function fetchRankData(username: string): Promise<EloWardRankData | null> {
 		if (!enabled.value || !username) return null;
 
 		const normalizedUsername = username.toLowerCase();
+		const startTime = performance.now();
 
 		// Check cache first (returns undefined if not cached, null if negative cached, or data)
 		const cached = rankCache.get(normalizedUsername);
 		if (cached !== undefined) {
+			const endTime = performance.now();
+			console.log(`[EloWard] Cache hit for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 			return cached; // Return cached result (can be null for negative cache)
 		}
+
+		console.log(`[EloWard] Cache miss for ${username}, making API call`);
 
 		// Check if there's already a pending request for this user
 		if (pendingRequests.has(normalizedUsername)) {
@@ -159,6 +173,10 @@ export function useEloWardRanks() {
 				if (response.status === 404) {
 					// User not found - cache negative result
 					rankCache.set(normalizedUsername, null);
+					const endTime = performance.now();
+					console.log(
+						`[EloWard] User not found (404) for ${username} in ${(endTime - startTime).toFixed(2)}ms`,
+					);
 					return null;
 				}
 
@@ -187,6 +205,8 @@ export function useEloWardRanks() {
 
 				// Cache successful result
 				rankCache.set(normalizedUsername, rankData);
+				const endTime = performance.now();
+				console.log(`[EloWard] API call completed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 				return rankData;
 			} catch (error) {
 				// Network or parsing error - don't cache
@@ -324,6 +344,7 @@ export function useEloWardRanks() {
 
 	return {
 		fetchRankData,
+		getCachedRankData,
 		getRankBadge,
 		formatRankText,
 		getRegionDisplay,
