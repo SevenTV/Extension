@@ -17,7 +17,10 @@ const ctx = useChannelContext();
 const elowardRanks = useEloWardRanks();
 const gameDetection = useGameDetection();
 
-onMounted(() => {
+onMounted(async () => {
+	// Initialize image cache for instant badge display
+	await elowardRanks.ensureInitialized();
+
 	if (dependenciesMet.value) {
 		markAsReady();
 	}
@@ -57,6 +60,12 @@ export const config = [
 		path: ["Chat", "EloWard"],
 		label: "Enable EloWard Rank Badges",
 		hint: "Show League of Legends rank badges next to usernames when watching League of Legends streams",
+		defaultValue: true,
+	}),
+	declareConfig("eloward.show_tooltips", "TOGGLE", {
+		path: ["Chat", "EloWard"],
+		label: "Show Rank Tooltips",
+		hint: "Display detailed rank information when hovering over badges",
 		defaultValue: true,
 	}),
 ];

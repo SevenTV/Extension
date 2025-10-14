@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useConfig } from "@/composable/useSettings";
 
 const API_BASE_URL = "https://eloward-ranks.unleashai.workers.dev/api/ranks/lol";
@@ -6,6 +6,7 @@ const CDN_BASE_URL = "https://eloward-cdn.unleashai.workers.dev/lol";
 const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for positive cache
 const NEGATIVE_CACHE_DURATION = 15 * 60 * 1000; // 15 minutes for negative cache
 const MAX_CACHE_SIZE = 500;
+const BADGE_CACHE_VERSION = "3";
 
 interface CacheEntry {
 	data: EloWardRankData | null; // null for negative cache
@@ -91,6 +92,146 @@ const RANK_TIERS = new Set([
 	"unranked",
 ]);
 const HIGH_RANKS = new Set(["MASTER", "GRANDMASTER", "CHALLENGER"]);
+
+// Image cache for badge blob URLs
+class ImageCache {
+	private blobUrls: Map<string, string> = new Map();
+	private loadingPromises: Map<string, Promise<string>> = new Map();
+	private initialized = false;
+
+	async init() {
+		if (this.initialized) return;
+		this.initialized = true;
+
+		// Preconnect to CDN
+		this.injectPreconnectLinks();
+
+		// Preload all badge images
+		const preloadPromises: Promise<void>[] = [];
+		for (const tier of RANK_TIERS) {
+			// Preload regular badge
+			preloadPromises.push(this.preloadImage(tier, false));
+			// Preload animated badge for high ranks
+			if (tier === "master" || tier === "grandmaster" || tier === "challenger") {
+				preloadPromises.push(this.preloadImage(tier, true));
+			}
+		}
+
+		// Wait for all images to load
+		await Promise.allSettled(preloadPromises);
+	}
+
+	private injectPreconnectLinks() {
+		try {
+			const head = document.head || document.getElementsByTagName("head")[0];
+			if (!head) return;
+
+			const existing = head.querySelector('link[data-eloward-preconnect="cdn"]');
+			if (!existing) {
+				const dnsPrefetch = document.createElement("link");
+				dnsPrefetch.setAttribute("rel", "dns-prefetch");
+				dnsPrefetch.setAttribute("href", CDN_BASE_URL);
+				dnsPrefetch.setAttribute("data-eloward-preconnect", "cdn");
+				head.appendChild(dnsPrefetch);
+
+				const preconnect = document.createElement("link");
+				preconnect.setAttribute("rel", "preconnect");
+				preconnect.setAttribute("href", CDN_BASE_URL);
+				preconnect.setAttribute("crossorigin", "anonymous");
+				preconnect.setAttribute("data-eloward-preconnect", "cdn");
+				head.appendChild(preconnect);
+			}
+		} catch (_) {
+			// Ignore errors
+		}
+	}
+
+	private async preloadImage(tier: string, isAnimated: boolean): Promise<void> {
+		const key = isAnimated ? `${tier}_premium` : tier;
+		const extension = isAnimated ? ".webp" : ".png";
+		const suffix = isAnimated ? "_premium" : "";
+		const url = `${CDN_BASE_URL}/${tier}${suffix}${extension}?v=${BADGE_CACHE_VERSION}`;
+
+		// Check if already loaded
+		if (this.blobUrls.has(key)) return;
+
+		// Check if already loading
+		if (this.loadingPromises.has(key)) {
+			await this.loadingPromises.get(key);
+			return;
+		}
+
+		// Start loading
+		const loadPromise = this.fetchAndCreateBlobUrl(url, key);
+		this.loadingPromises.set(key, loadPromise);
+
+		try {
+			await loadPromise;
+		} finally {
+			this.loadingPromises.delete(key);
+		}
+	}
+
+	private async fetchAndCreateBlobUrl(url: string, key: string): Promise<string> {
+		try {
+			const response = await fetch(url, {
+				mode: "cors",
+				cache: "default",
+				credentials: "omit",
+			});
+
+			if (!response.ok) {
+				// Fallback to CDN URL
+				this.blobUrls.set(key, url);
+				return url;
+			}
+
+			const blob = await response.blob();
+			const blobUrl = URL.createObjectURL(blob);
+			this.blobUrls.set(key, blobUrl);
+			return blobUrl;
+		} catch (error) {
+			// Fallback to CDN URL on error
+			this.blobUrls.set(key, url);
+			return url;
+		}
+	}
+
+	getImageUrl(tier: string, isAnimated: boolean): string {
+		const key = isAnimated ? `${tier}_premium` : tier;
+
+		// Return cached blob URL if available
+		if (this.blobUrls.has(key)) {
+			return this.blobUrls.get(key)!;
+		}
+
+		// Trigger preload for future use
+		this.preloadImage(tier, isAnimated).catch(() => {});
+
+		// Return CDN URL as fallback
+		const extension = isAnimated ? ".webp" : ".png";
+		const suffix = isAnimated ? "_premium" : "";
+		return `${CDN_BASE_URL}/${tier}${suffix}${extension}?v=${BADGE_CACHE_VERSION}`;
+	}
+
+	clear() {
+		// Revoke all blob URLs
+		for (const url of this.blobUrls.values()) {
+			if (url.startsWith("blob:")) {
+				try {
+					URL.revokeObjectURL(url);
+				} catch (_) {
+					// Ignore errors
+				}
+			}
+		}
+		this.blobUrls.clear();
+		this.loadingPromises.clear();
+	}
+}
+
+// Global image cache instance
+const imageCache = new ImageCache();
 
 export interface EloWardRankData {
 	tier: string;
@@ -196,7 +337,7 @@ export function useEloWardRanks() {
 	}
 
 	/**
-	 * Get badge data from rank data
+	 * Get badge data from rank data with cached image URLs
 	 */
 	function getRankBadge(rankData: EloWardRankData): EloWardBadge | null {
 		if (!rankData?.tier) return null;
@@ -207,9 +348,8 @@ export function useEloWardRanks() {
 		const tierUpper = rankData.tier.toUpperCase();
 		const shouldAnimate = rankData.animate_badge === true && HIGH_RANKS.has(tierUpper);
 
-		const extension = shouldAnimate ? ".webp" : ".png";
-		const suffix = shouldAnimate ? "_premium" : "";
-		const imageUrl = `${CDN_BASE_URL}/${tier}${suffix}${extension}`;
+		// Get cached blob URL or CDN URL fallback
+		const imageUrl = imageCache.getImageUrl(tier, shouldAnimate);
 
 		return {
 			id: `eloward-${tier}${rankData.division ? `-${rankData.division}` : ""}`,
@@ -314,7 +454,22 @@ export function useEloWardRanks() {
 	function clearCache() {
 		rankCache.clear();
 		pendingRequests.clear();
+		imageCache.clear();
 	}
+
+	// Initialize image cache on first use
+	let initPromise: Promise<void> | null = null;
+	async function ensureInitialized() {
+		if (!initPromise) {
+			initPromise = imageCache.init();
+		}
+		await initPromise;
+	}
+
+	// Auto-initialize when composable is first used
+	onMounted(() => {
+		ensureInitialized().catch(() => {});
+	});
 
 	return {
 		fetchRankData,
@@ -326,5 +481,6 @@ export function useEloWardRanks() {
 		isLoading,
 		showTooltips,
 		cacheSize: () => rankCache.size(),
+		ensureInitialized,
 	};
 }

@@ -56,7 +56,7 @@ const regionDisplay = computed(() => {
 	padding: 8px 12px;
 	background: var(--color-background-tooltip);
 	border-radius: 6px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 15%);
 	font-size: 13px;
 	color: var(--color-text-base);
 	max-width: 280px;
@@ -114,7 +114,7 @@ const regionDisplay = computed(() => {
 
 // Dark theme
 :global(.tw-root--theme-dark) .eloward-tooltip {
-	background: rgba(24, 24, 27, 0.95);
+	background: rgba(24, 24, 27, 95%);
 
 	.eloward-rank-line {
 		color: #efeff1;
@@ -132,7 +132,7 @@ const regionDisplay = computed(() => {
 
 // Light theme
 :global(.tw-root--theme-light) .eloward-tooltip {
-	background: rgba(255, 255, 255, 0.98);
+	background: rgba(255, 255, 255, 98%);
 
 	.eloward-rank-line {
 		color: #0e0e10;
