@@ -255,7 +255,6 @@ export interface EloWardBadge {
 
 export function useEloWardRanks() {
 	const enabled = useConfig<boolean>("eloward.enabled");
-	const showTooltips = useConfig<boolean>("eloward.show_tooltips");
 
 	const isLoading = ref(false);
 
@@ -479,7 +478,6 @@ export function useEloWardRanks() {
 		getOpGGUrl,
 		clearCache,
 		isLoading,
-		showTooltips,
 		cacheSize: () => rankCache.size(),
 		ensureInitialized,
 	};
