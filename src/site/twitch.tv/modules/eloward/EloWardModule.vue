@@ -18,9 +18,6 @@ const elowardRanks = useEloWardRanks();
 const gameDetection = useGameDetection();
 
 onMounted(async () => {
-	// Initialize image cache for instant badge display
-	await elowardRanks.ensureInitialized();
-
 	if (dependenciesMet.value) {
 		markAsReady();
 	}
