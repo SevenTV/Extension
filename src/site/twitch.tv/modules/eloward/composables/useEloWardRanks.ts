@@ -1,12 +1,13 @@
-import { ref } from "vue";
+import { ref, reactive, toRef } from "vue";
 import { useConfig } from "@/composable/useSettings";
 
 const API_BASE_URL = "https://eloward-ranks.unleashai.workers.dev/api/ranks/lol";
 const CDN_BASE_URL = "https://eloward-cdn.unleashai.workers.dev/lol";
-const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for positive cache
-const NEGATIVE_CACHE_DURATION = 15 * 60 * 1000; // 15 minutes for negative cache
+const DEFAULT_CACHE_DURATION = 60 * 60 * 1000;
+const NEGATIVE_CACHE_DURATION = 15 * 60 * 1000;
 const MAX_CACHE_SIZE = 500;
 const BADGE_CACHE_VERSION = "3";
+const DEV_MODE = import.meta.env.DEV;
 
 interface CacheEntry {
 	data: EloWardRankData | null; // null for negative cache
@@ -73,14 +74,12 @@ class LRUCache {
 
 // Global cache instance
 const rankCache = new LRUCache(MAX_CACHE_SIZE);
-
-// Track pending requests to avoid duplicate API calls
 const pendingRequests = new Map<string, Promise<EloWardRankData | null>>();
 
-// Image preload cache to ensure images are ready
-const imagePreloadCache = new Map<string, HTMLImageElement>();
+const globalData = reactive({
+	userBadges: {} as Record<string, EloWardBadge | null>,
+});
 
-// Valid rank tiers
 const RANK_TIERS = new Set([
 	"iron",
 	"bronze",
@@ -95,11 +94,16 @@ const RANK_TIERS = new Set([
 	"unranked",
 ]);
 
-// Simple image URL generator - no complex caching needed
 function getImageUrl(tier: string, isAnimated: boolean): string {
 	const extension = isAnimated ? ".webp" : ".png";
 	const suffix = isAnimated ? "_premium" : "";
 	return `${CDN_BASE_URL}/${tier}${suffix}${extension}?v=${BADGE_CACHE_VERSION}`;
+}
+
+function perfLog(message: string, data?: unknown) {
+	if (DEV_MODE) {
+		console.log(`[EloWard Perf] ${message}`, data || "");
+	}
 }
 
 export interface EloWardRankData {
@@ -124,85 +128,102 @@ export interface EloWardBadge {
 
 export function useEloWardRanks() {
 	const enabled = useConfig<boolean>("eloward.enabled");
-
 	const isLoading = ref(false);
 
-	/**
-	 * Preload badge image for instant display
-	 */
-	function preloadImage(url: string): void {
-		if (!imagePreloadCache.has(url)) {
-			const img = new Image();
-			img.src = url;
-			img.decoding = "async";
-			img.fetchPriority = "high";
-			imagePreloadCache.set(url, img);
-
-			// Clean up old entries if cache gets too large
-			if (imagePreloadCache.size > 100) {
-				const firstKey = imagePreloadCache.keys().next().value;
-				if (firstKey) imagePreloadCache.delete(firstKey);
-			}
-		}
-	}
-
-	/**
-	 * Get cached rank data without triggering API call
-	 */
 	function getCachedRankData(username: string): EloWardRankData | null | undefined {
+		const startTime = performance.now();
 		if (!enabled.value || !username) return undefined;
 		const normalizedUsername = username.toLowerCase();
-		return rankCache.get(normalizedUsername);
+		const result = rankCache.get(normalizedUsername);
+		perfLog(`getCachedRankData(${username})`, {
+			cached: result !== undefined,
+			duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+		});
+		return result;
 	}
 
-	/**
-	 * Fetch rank data for a username with caching
-	 */
+	function getOrFetchBadge(username: string): void {
+		if (!enabled.value || !username) return;
+		const normalizedUsername = username.toLowerCase();
+
+		const cachedData = rankCache.get(normalizedUsername);
+		if (cachedData !== undefined) {
+			const badge = cachedData ? getRankBadge(cachedData) : null;
+			globalData.userBadges[normalizedUsername] = badge;
+			return;
+		}
+
+		if (pendingRequests.has(normalizedUsername)) return;
+
+		fetchRankData(username).then((rankData) => {
+			const badge = rankData ? getRankBadge(rankData) : null;
+			globalData.userBadges[normalizedUsername] = badge;
+		});
+	}
+
 	async function fetchRankData(username: string): Promise<EloWardRankData | null> {
-		if (!enabled.value || !username) return null;
+		const startTime = performance.now();
+		perfLog(`fetchRankData(${username}) - START`);
+
+		if (!enabled.value || !username) {
+			perfLog(`fetchRankData(${username}) - SKIPPED (disabled or no username)`);
+			return null;
+		}
 
 		const normalizedUsername = username.toLowerCase();
 
-		// Check cache first (returns undefined if not cached, null if negative cached, or data)
 		const cached = rankCache.get(normalizedUsername);
 		if (cached !== undefined) {
-			return cached; // Return cached result (can be null for negative cache)
+			perfLog(`fetchRankData(${username}) - CACHE HIT`, {
+				duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+			});
+			return cached;
 		}
 
-		// Check if there's already a pending request for this user
 		if (pendingRequests.has(normalizedUsername)) {
+			perfLog(`fetchRankData(${username}) - PENDING REQUEST EXISTS`);
 			return pendingRequests.get(normalizedUsername)!;
 		}
 
-		// Create new request
 		const requestPromise = (async () => {
 			try {
 				isLoading.value = true;
+				perfLog(`fetchRankData(${username}) - FETCH START`);
+				const fetchStart = performance.now();
+
 				const response = await fetch(`${API_BASE_URL}/${normalizedUsername}`, {
 					method: "GET",
 					headers: {
 						Accept: "application/json",
 					},
-					signal: AbortSignal.timeout(5000), // 5 second timeout
+					signal: AbortSignal.timeout(5000),
+				});
+
+				perfLog(`fetchRankData(${username}) - FETCH COMPLETE`, {
+					status: response.status,
+					duration: `${(performance.now() - fetchStart).toFixed(2)}ms`,
 				});
 
 				if (response.status === 404) {
-					// User not found - cache negative result
 					rankCache.set(normalizedUsername, null);
+					perfLog(`fetchRankData(${username}) - NOT FOUND (404)`);
 					return null;
 				}
 
 				if (!response.ok) {
-					// Don't cache other errors - they might be temporary
+					perfLog(`fetchRankData(${username}) - ERROR (${response.status})`);
 					return null;
 				}
 
+				const parseStart = performance.now();
 				const data = await response.json();
+				perfLog(`fetchRankData(${username}) - JSON PARSE`, {
+					duration: `${(performance.now() - parseStart).toFixed(2)}ms`,
+				});
 
-				// Validate the response
 				if (!data.rank_tier || !RANK_TIERS.has(data.rank_tier.toLowerCase())) {
-					// Invalid data - cache as negative
 					rankCache.set(normalizedUsername, null);
+					perfLog(`fetchRankData(${username}) - INVALID DATA`);
 					return null;
 				}
 
@@ -212,18 +233,20 @@ export function useEloWardRanks() {
 					leaguePoints: data.lp,
 					summonerName: data.riot_id,
 					region: data.region,
-					animate_badge: data.animate_badge, // Backend already processes this as boolean
+					animate_badge: data.animate_badge,
 				};
 
-				// Cache successful result
 				rankCache.set(normalizedUsername, rankData);
+				perfLog(`fetchRankData(${username}) - SUCCESS`, {
+					tier: rankData.tier,
+					totalDuration: `${(performance.now() - startTime).toFixed(2)}ms`,
+				});
 				return rankData;
 			} catch (error) {
-				// Network or parsing error - don't cache
+				perfLog(`fetchRankData(${username}) - EXCEPTION`, error);
 				return null;
 			} finally {
 				isLoading.value = false;
-				// Clean up pending request
 				pendingRequests.delete(normalizedUsername);
 			}
 		})();
@@ -232,26 +255,17 @@ export function useEloWardRanks() {
 		return requestPromise;
 	}
 
-	/**
-	 * Get badge data from rank data with cached image URLs
-	 */
 	function getRankBadge(rankData: EloWardRankData): EloWardBadge | null {
+		const startTime = performance.now();
 		if (!rankData?.tier) return null;
 
 		const tier = rankData.tier.toLowerCase();
 		if (!RANK_TIERS.has(tier)) return null;
 
-		// Backend already processes animate_badge as boolean
 		const shouldAnimate = Boolean(rankData.animate_badge);
-
-		// Get image URL directly
 		const imageUrl = getImageUrl(tier, shouldAnimate);
 
-		// Preload the image for instant display (non-blocking)
-		// Using setTimeout to ensure this doesn't block the main thread
-		setTimeout(() => preloadImage(imageUrl), 0);
-
-		return {
+		const badge = {
 			id: `eloward-${tier}${rankData.division ? `-${rankData.division}` : ""}`,
 			tier: rankData.tier.toUpperCase(),
 			division: rankData.division,
@@ -261,6 +275,12 @@ export function useEloWardRanks() {
 			region: rankData.region,
 			leaguePoints: rankData.leaguePoints,
 		};
+
+		perfLog(`getRankBadge(${tier})`, {
+			duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+		});
+
+		return badge;
 	}
 
 	/**
@@ -352,15 +372,17 @@ export function useEloWardRanks() {
 	}
 
 	function clearCache() {
+		perfLog("clearCache() - clearing all caches");
 		rankCache.clear();
 		pendingRequests.clear();
-		imagePreloadCache.clear();
+		globalData.userBadges = {};
 	}
 
 	return {
 		fetchRankData,
 		getCachedRankData,
 		getRankBadge,
+		getOrFetchBadge,
 		formatRankText,
 		getRegionDisplay,
 		getOpGGUrl,
@@ -368,4 +390,15 @@ export function useEloWardRanks() {
 		isLoading,
 		cacheSize: () => rankCache.size(),
 	};
+}
+
+export function useEloWardBadge(username: string) {
+	if (!username) return ref(null);
+	const normalizedUsername = username.toLowerCase();
+
+	if (!globalData.userBadges[normalizedUsername]) {
+		globalData.userBadges[normalizedUsername] = null;
+	}
+
+	return toRef(globalData.userBadges, normalizedUsername);
 }

@@ -2,6 +2,13 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 const LEAGUE_OF_LEGENDS_ID = "21779";
 const LEAGUE_OF_LEGENDS_NAME = "League of Legends";
+const DEV_MODE = import.meta.env.DEV;
+
+function perfLog(message: string, data?: unknown) {
+	if (DEV_MODE) {
+		console.log(`[EloWard GameDetect] ${message}`, data || "");
+	}
+}
 
 export function useGameDetection() {
 	const currentGame = ref<string>("");
@@ -100,12 +107,11 @@ export function useGameDetection() {
 		return window.location.pathname.includes("/videos/") || window.location.pathname.includes("/video/");
 	}
 
-	/**
-	 * Update the current game - only check once or twice per page
-	 */
 	function updateGame() {
-		// Don't check if we already checked for this page
+		const startTime = performance.now();
+
 		if (hasCheckedForCurrentPage.value && window.location.pathname === lastPathname.value) {
+			perfLog("updateGame() - SKIPPED (already checked)");
 			return;
 		}
 
@@ -120,42 +126,45 @@ export function useGameDetection() {
 		if (detectedGame !== currentGame.value) {
 			currentGame.value = detectedGame || "";
 
-			// Set game ID if it's League of Legends
 			if (detectedGame === LEAGUE_OF_LEGENDS_NAME) {
 				currentGameId.value = LEAGUE_OF_LEGENDS_ID;
-				// League of Legends detected
+				perfLog("updateGame() - League of Legends DETECTED", {
+					duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+				});
 			} else {
 				currentGameId.value = "";
-				// Different game or no game detected
+				perfLog("updateGame() - Different game detected", {
+					game: detectedGame,
+					duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+				});
 			}
+		} else {
+			perfLog("updateGame() - No change", {
+				game: currentGame.value,
+				duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+			});
 		}
 
-		// Mark as checked for current page
 		hasCheckedForCurrentPage.value = true;
 		lastPathname.value = window.location.pathname;
 	}
 
-	/**
-	 * Start checking for game category
-	 */
 	function startObserving() {
-		// Clear any existing timeout
+		perfLog("startObserving() - START");
+
 		if (checkTimeout) {
 			clearTimeout(checkTimeout);
 			checkTimeout = null;
 		}
 
-		// Reset check flag for new page
 		hasCheckedForCurrentPage.value = false;
-
-		// Initial check
 		updateGame();
 
-		// Second check after 3 seconds to account for slow page load
 		checkTimeout = window.setTimeout(() => {
+			perfLog("startObserving() - Second check (1s delay)");
 			updateGame();
 			checkTimeout = null;
-		}, 3000);
+		}, 1000);
 	}
 
 	/**
@@ -189,12 +198,11 @@ export function useGameDetection() {
 		return isLeague;
 	});
 
-	// Start observing when mounted
 	onMounted(() => {
-		// Small delay to ensure DOM is ready
+		perfLog("onMounted() - initializing");
 		setTimeout(() => {
 			startObserving();
-		}, 500);
+		}, 100);
 	});
 
 	// Clean up when unmounted

@@ -14,7 +14,11 @@
 			class="seventv-chat-user-badge-list"
 		>
 			<!-- EloWard Rank Badge -->
-			<EloWardBadge v-if="elowardBadge" :badge="elowardBadge" :username="user.username" />
+			<EloWardBadge
+				v-if="elowardBadge && elowardEnabled && gameDetection.isLeagueStream.value"
+				:badge="elowardBadge"
+				:username="user.username"
+			/>
 
 			<Badge
 				v-if="sourceData"
@@ -79,8 +83,7 @@ import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import EloWardBadge from "@/site/twitch.tv/modules/eloward/components/EloWardBadge.vue";
-import { useEloWardRanks } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
-import type { EloWardBadge as EloWardBadgeType } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
+import { useEloWardRanks, useEloWardBadge } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
 import { useGameDetection } from "@/site/twitch.tv/modules/eloward/composables/useGameDetection";
 import Badge from "./Badge.vue";
 import UserCard from "./UserCard.vue";
@@ -123,10 +126,10 @@ const twitchBadges = ref<Twitch.ChatBadge[]>([]);
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
 const mentionStyle = useConfig<MentionStyle>("chat.colored_mentions");
 
-// EloWard integration
 const elowardRanks = useEloWardRanks();
 const gameDetection = useGameDetection();
 const elowardEnabled = useConfig<boolean>("eloward.enabled");
+const elowardBadge = useEloWardBadge(props.user.username);
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
@@ -197,105 +200,9 @@ const stop = watch(
 	{ immediate: true },
 );
 
-// EloWard rank badge logic - optimized for immediate display
-const elowardBadge = ref<EloWardBadgeType | null>(null);
-const badgeImageReady = ref(false);
-
-// Image preloader for cached badges with ready callback
-const preloadBadgeImage = (imageUrl: string): Promise<void> => {
-	return new Promise((resolve) => {
-		const img = new Image();
-		img.decoding = "async";
-		img.fetchPriority = "high";
-		// Mark as ready when image loads
-		img.onload = () => {
-			badgeImageReady.value = true;
-			resolve();
-		};
-		img.onerror = () => {
-			badgeImageReady.value = true; // Still show even if image fails
-			resolve();
-		};
-		img.src = imageUrl;
-	});
-};
-
-// Synchronous badge initialization for instant display
-const initializeEloWardBadge = () => {
-	// Reset state
-	badgeImageReady.value = false;
-	// Check if EloWard is enabled and we're on a League stream
-	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
-		elowardBadge.value = null;
-		return;
-	}
-
-	const username = props.user.username;
-	if (!username) {
-		elowardBadge.value = null;
-		return;
-	}
-
-	// Synchronous cache check for immediate display
-	const cachedData = elowardRanks.getCachedRankData(username);
-	if (cachedData !== undefined) {
-		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
-		if (badge) {
-			// Set badge immediately for instant rendering
-			elowardBadge.value = badge;
-			// Preload image asynchronously
-			preloadBadgeImage(badge.imageUrl);
-		} else {
-			elowardBadge.value = null;
-		}
-		return;
-	}
-
-	// Async fetch for uncached data
-	elowardRanks
-		.fetchRankData(username)
-		.then((rankData) => {
-			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
-			if (badge) {
-				elowardBadge.value = badge;
-				return preloadBadgeImage(badge.imageUrl);
-			}
-			elowardBadge.value = null;
-		})
-		.catch(() => {
-			elowardBadge.value = null;
-		});
-};
-
-// Initialize IMMEDIATELY when component is created (synchronous execution)
-// This is the earliest possible point to show badges
-initializeEloWardBadge();
-
-// Also watch for username changes to handle dynamic updates
-watch(
-	() => props.user.username,
-	() => {
-		initializeEloWardBadge();
-	},
-	{ immediate: false },
-);
-
-// Optimized watchers without post-flush delay
-watch(
-	elowardEnabled,
-	() => {
-		initializeEloWardBadge();
-	},
-	{ immediate: false },
-);
-
-watch(
-	() => gameDetection.isLeagueStream.value,
-	() => {
-		initializeEloWardBadge();
-	},
-	{ immediate: false },
-);
+if (elowardEnabled.value && gameDetection.isLeagueStream.value && props.user.username) {
+	elowardRanks.getOrFetchBadge(props.user.username);
+}
 </script>
 
 <style scoped lang="scss">
