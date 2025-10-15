@@ -10,13 +10,14 @@ function perfLog(message: string, data?: unknown) {
 	}
 }
 
-export function useGameDetection() {
-	const currentGame = ref<string>("");
-	const currentGameId = ref<string>("");
-	const lastPathname = ref<string>("");
-	const hasCheckedForCurrentPage = ref<boolean>(false);
+const currentGame = ref<string>("");
+const currentGameId = ref<string>("");
+const lastPathname = ref<string>("");
+const hasCheckedForCurrentPage = ref<boolean>(false);
+let checkTimeout: number | null = null;
+let isInitialized = false;
 
-	let checkTimeout: number | null = null;
+export function useGameDetection() {
 
 	/**
 	 * Extract game name from Twitch directory URL
@@ -198,17 +199,15 @@ export function useGameDetection() {
 		return isLeague;
 	});
 
-	onMounted(() => {
-		perfLog("onMounted() - initializing");
+	if (!isInitialized) {
+		isInitialized = true;
+		perfLog("useGameDetection() - FIRST INITIALIZATION");
 		setTimeout(() => {
 			startObserving();
 		}, 100);
-	});
-
-	// Clean up when unmounted
-	onUnmounted(() => {
-		stopObserving();
-	});
+	} else {
+		perfLog("useGameDetection() - reusing existing instance");
+	}
 
 	return {
 		currentGame,

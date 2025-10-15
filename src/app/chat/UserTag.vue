@@ -198,17 +198,22 @@ const stop = watch(
 );
 
 const DEV_MODE = import.meta.env.DEV;
+const componentMountTime = performance.now();
 function perfLog(message: string, data?: unknown) {
 	if (DEV_MODE) {
-		console.log(`[EloWard Badge] ${message}`, data || "");
+		const timeSinceMount = (performance.now() - componentMountTime).toFixed(2);
+		console.log(`[EloWard Badge +${timeSinceMount}ms] ${message}`, data || "");
 	}
 }
+
+perfLog(`UserTag CREATED for "${props.user.username}"`);
 
 const elowardBadge = ref<EloWardBadgeType | null>(null);
 
 const initializeEloWardBadge = () => {
 	const startTime = performance.now();
-	perfLog(`initializeEloWardBadge(${props.user.username}) - START`);
+	const timeSinceMount = (startTime - componentMountTime).toFixed(2);
+	perfLog(`initializeEloWardBadge(${props.user.username}) - START (+${timeSinceMount}ms since component create)`);
 
 	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
 		perfLog(`initializeEloWardBadge(${props.user.username}) - SKIPPED`, {
@@ -226,24 +231,28 @@ const initializeEloWardBadge = () => {
 	}
 
 	const cachedData = elowardRanks.getCachedRankData(username);
+
 	if (cachedData !== undefined) {
 		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
 		elowardBadge.value = badge;
-		perfLog(`initializeEloWardBadge(${username}) - COMPLETE (cached)`, {
+
+		perfLog(`initializeEloWardBadge(${username}) - COMPLETE (CACHED - INSTANT)`, {
 			hasBadge: !!badge,
-			duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+			tier: badge?.tier,
+			total: `${(performance.now() - startTime).toFixed(2)}ms`,
 		});
 		return;
 	}
 
-	perfLog(`initializeEloWardBadge(${username}) - FETCHING (not cached)`);
+	perfLog(`initializeEloWardBadge(${username}) - NOT CACHED, fetching from API...`);
 	elowardRanks
 		.fetchRankData(username)
 		.then((rankData) => {
 			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
 			elowardBadge.value = badge;
-			perfLog(`initializeEloWardBadge(${username}) - COMPLETE (fetched)`, {
+			perfLog(`initializeEloWardBadge(${username}) - COMPLETE (FETCHED FROM API)`, {
 				hasBadge: !!badge,
+				tier: badge?.tier,
 				totalDuration: `${(performance.now() - startTime).toFixed(2)}ms`,
 			});
 		})
@@ -253,10 +262,31 @@ const initializeEloWardBadge = () => {
 		});
 };
 
+perfLog(`Calling initializeEloWardBadge() synchronously at component setup`);
 initializeEloWardBadge();
-watch(() => props.user.username, initializeEloWardBadge);
-watch(elowardEnabled, initializeEloWardBadge);
-watch(() => gameDetection.isLeagueStream.value, initializeEloWardBadge);
+
+watch(elowardBadge, (newVal, oldVal) => {
+	if (newVal && !oldVal) {
+		const timeSinceMount = (performance.now() - componentMountTime).toFixed(2);
+		perfLog(`✓ BADGE RENDERED in ${timeSinceMount}ms for "${props.user.username}"`, {
+			tier: newVal.tier,
+			imageUrl: newVal.imageUrl,
+		});
+	}
+});
+
+watch(() => props.user.username, () => {
+	perfLog(`Username changed, reinitializing badge`);
+	initializeEloWardBadge();
+});
+watch(elowardEnabled, () => {
+	perfLog(`EloWard enabled changed to ${elowardEnabled.value}`);
+	initializeEloWardBadge();
+});
+watch(() => gameDetection.isLeagueStream.value, (newVal) => {
+	perfLog(`League stream detection changed to ${newVal}`);
+	initializeEloWardBadge();
+});
 </script>
 
 <style scoped lang="scss">

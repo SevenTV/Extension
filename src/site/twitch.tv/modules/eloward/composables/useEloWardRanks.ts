@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { type Ref, ref } from "vue";
 import { useConfig } from "@/composable/useSettings";
 
 const API_BASE_URL = "https://eloward-ranks.unleashai.workers.dev/api/ranks/lol";
@@ -123,21 +123,24 @@ export interface EloWardBadge {
 	leaguePoints?: number;
 }
 
-export function useEloWardRanks() {
-	const enabled = useConfig<boolean>("eloward.enabled");
+let cachedEnabledConfig: ReturnType<typeof useConfig<boolean>> | null = null;
+let cachedIsLoading: Ref<boolean> | null = null;
 
-	const isLoading = ref(false);
+export function useEloWardRanks() {
+	if (!cachedEnabledConfig) {
+		perfLog("useEloWardRanks() - FIRST INITIALIZATION");
+		cachedEnabledConfig = useConfig<boolean>("eloward.enabled");
+		cachedIsLoading = ref(false);
+	} else {
+		perfLog("useEloWardRanks() - reusing existing instance");
+	}
+
+	const enabled = cachedEnabledConfig!;
+	const isLoading = cachedIsLoading!;
 
 	function getCachedRankData(username: string): EloWardRankData | null | undefined {
-		const startTime = performance.now();
 		if (!enabled.value || !username) return undefined;
-		const normalizedUsername = username.toLowerCase();
-		const result = rankCache.get(normalizedUsername);
-		perfLog(`getCachedRankData(${username})`, {
-			cached: result !== undefined,
-			duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-		});
-		return result;
+		return rankCache.get(username.toLowerCase());
 	}
 
 	async function fetchRankData(username: string): Promise<EloWardRankData | null> {
@@ -235,7 +238,6 @@ export function useEloWardRanks() {
 	}
 
 	function getRankBadge(rankData: EloWardRankData): EloWardBadge | null {
-		const startTime = performance.now();
 		if (!rankData?.tier) return null;
 
 		const tier = rankData.tier.toLowerCase();
@@ -244,7 +246,7 @@ export function useEloWardRanks() {
 		const shouldAnimate = Boolean(rankData.animate_badge);
 		const imageUrl = getImageUrl(tier, shouldAnimate);
 
-		const badge = {
+		return {
 			id: `eloward-${tier}${rankData.division ? `-${rankData.division}` : ""}`,
 			tier: rankData.tier.toUpperCase(),
 			division: rankData.division,
@@ -254,12 +256,6 @@ export function useEloWardRanks() {
 			region: rankData.region,
 			leaguePoints: rankData.leaguePoints,
 		};
-
-		perfLog(`getRankBadge(${tier})`, {
-			duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-		});
-
-		return badge;
 	}
 
 	/**

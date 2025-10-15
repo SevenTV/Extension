@@ -154,52 +154,6 @@ const handleClick = () => {
 		margin-right: -1.5px;
 	}
 
-	// Hover state adjustments
-	&:hover {
-		&.eloward-iron {
-			transform: scale(1.4) translate(-1.5px, 1.5px);
-		}
-
-		&.eloward-bronze {
-			transform: scale(1.3) translate(-1.5px, 3px);
-		}
-
-		&.eloward-silver {
-			transform: scale(1.3) translate(-1.5px, 2.5px);
-		}
-
-		&.eloward-gold {
-			transform: scale(1.32) translate(-1.5px, 3.5px);
-		}
-
-		&.eloward-platinum {
-			transform: scale(1.32) translate(-1.5px, 4px);
-		}
-
-		&.eloward-emerald {
-			transform: scale(1.33) translate(-1.5px, 4px);
-		}
-
-		&.eloward-diamond {
-			transform: scale(1.33) translate(-1.5px, 3.25px);
-		}
-
-		&.eloward-master {
-			transform: scale(1.3) translate(-1.5px, 4px);
-		}
-
-		&.eloward-grandmaster {
-			transform: scale(1.2) translate(-1.5px, 4.5px);
-		}
-
-		&.eloward-challenger {
-			transform: scale(1.32) translate(-1.5px, 4px);
-		}
-
-		&.eloward-unranked {
-			transform: scale(1.1) translate(-1.5px, 5px);
-		}
-	}
 }
 
 // Dark theme adjustments
