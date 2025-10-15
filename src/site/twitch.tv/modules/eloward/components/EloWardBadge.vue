@@ -3,27 +3,26 @@
 		class="seventv-chat-badge eloward-rank-badge"
 		:class="badgeClasses"
 		@click="handleClick"
-		@mouseenter="handleMouseEnter"
-		@mouseleave="handleMouseLeave"
+		@mouseenter="show(imgRef)"
+		@mouseleave="hide()"
 	>
 		<img
+			ref="imgRef"
 			:src="badge.imageUrl"
 			:alt="`${badge.tier} rank badge`"
 			class="eloward-badge-img"
 			loading="eager"
 			decoding="async"
 		/>
-		<div v-if="showTooltipLocal" class="eloward-tooltip-wrapper">
-			<EloWardTooltip :badge="badge" :username="username" />
-		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import EloWardTooltip from "./EloWardTooltip.vue";
+import { useTooltip } from "@/composable/useTooltip";
 import { useEloWardRanks } from "../composables/useEloWardRanks";
 import type { EloWardBadge } from "../composables/useEloWardRanks";
+import EloWardTooltip from "./EloWardTooltip.vue";
 
 const props = defineProps<{
 	badge: EloWardBadge;
@@ -31,38 +30,21 @@ const props = defineProps<{
 }>();
 
 const elowardRanks = useEloWardRanks();
-const showTooltipLocal = ref(false);
-let tooltipTimeout: number | null = null;
+const imgRef = ref<HTMLElement>();
+
+// Use 7TV's tooltip system
+const { show, hide } = useTooltip(EloWardTooltip, {
+	badge: props.badge,
+	username: props.username,
+});
 
 const badgeClasses = computed(() => ({
 	[`eloward-${props.badge.tier.toLowerCase()}`]: true,
 	"eloward-animated": props.badge.animated,
 }));
 
-// Tooltip handling with delay
-const handleMouseEnter = () => {
-	if (tooltipTimeout) {
-		clearTimeout(tooltipTimeout);
-	}
-	// Small delay to prevent tooltip spam
-	tooltipTimeout = window.setTimeout(() => {
-		showTooltipLocal.value = true;
-	}, 200);
-};
-
-const handleMouseLeave = () => {
-	if (tooltipTimeout) {
-		clearTimeout(tooltipTimeout);
-		tooltipTimeout = null;
-	}
-	showTooltipLocal.value = false;
-};
-
 // Click handler to open OP.GG
 const handleClick = () => {
-	// Hide tooltip on click
-	showTooltipLocal.value = false;
-
 	// Use cached data if available
 	const url = elowardRanks.getOpGGUrl({
 		tier: props.badge.tier,
@@ -106,16 +88,6 @@ const handleClick = () => {
 		image-rendering: auto;
 		image-rendering: crisp-edges;
 		image-rendering: optimize-contrast;
-	}
-
-	.eloward-tooltip-wrapper {
-		position: absolute;
-		bottom: 100%;
-		left: 50%;
-		transform: translateX(-50%);
-		margin-bottom: 8px;
-		z-index: 10000;
-		pointer-events: none;
 	}
 
 	// Rank-specific positioning adjustments

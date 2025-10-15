@@ -1,17 +1,19 @@
 <template>
-	<div class="eloward-tooltip">
-		<div class="eloward-tooltip-badge">
-			<img :src="badge.imageUrl" :alt="`${badge.tier} rank`" class="eloward-tooltip-badge-img" />
-		</div>
+	<div class="seventv-tooltip" tooltip-type="badge">
 		<div class="eloward-tooltip-content">
-			<div class="eloward-rank-line">{{ rankText }}</div>
-			<div v-if="badge.summonerName" class="eloward-summoner-line">
-				{{ badge.summonerName }}
+			<div class="eloward-tooltip-badge">
+				<img :src="badge.imageUrl" :alt="`${badge.tier} rank`" class="eloward-tooltip-badge-img" />
 			</div>
-			<div v-if="regionDisplay" class="eloward-region-line">
-				{{ regionDisplay }}
+			<div class="eloward-tooltip-info">
+				<div class="eloward-rank-line">{{ rankText }}</div>
+				<div v-if="badge.summonerName" class="eloward-summoner-line">
+					{{ badge.summonerName }}
+				</div>
+				<div v-if="regionDisplay" class="eloward-region-line">
+					{{ regionDisplay }}
+				</div>
+				<div class="eloward-hint">Click to view OP.GG</div>
 			</div>
-			<div class="eloward-hint">Click to view on OP.GG</div>
 		</div>
 	</div>
 </template>
@@ -49,14 +51,11 @@ const regionDisplay = computed(() => {
 </script>
 
 <style scoped lang="scss">
-.eloward-tooltip {
+.eloward-tooltip-content {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 	padding: 8px 12px;
-	background: var(--color-background-tooltip);
-	border-radius: 6px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 15%);
 	font-size: 13px;
 	color: var(--color-text-base);
 	max-width: 280px;
@@ -73,7 +72,7 @@ const regionDisplay = computed(() => {
 		}
 	}
 
-	.eloward-tooltip-content {
+	.eloward-tooltip-info {
 		flex: 1;
 		min-width: 0;
 
@@ -113,9 +112,7 @@ const regionDisplay = computed(() => {
 }
 
 // Dark theme
-:global(.tw-root--theme-dark) .eloward-tooltip {
-	background: rgba(24, 24, 27, 95%);
-
+:global(.tw-root--theme-dark) .eloward-tooltip-content {
 	.eloward-rank-line {
 		color: #efeff1;
 	}
@@ -131,9 +128,7 @@ const regionDisplay = computed(() => {
 }
 
 // Light theme
-:global(.tw-root--theme-light) .eloward-tooltip {
-	background: rgba(255, 255, 255, 98%);
-
+:global(.tw-root--theme-light) .eloward-tooltip-content {
 	.eloward-rank-line {
 		color: #0e0e10;
 	}

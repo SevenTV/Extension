@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, toRef, watch } from "vue";
+import { computed, nextTick, onMounted, ref, toRef, watch, watchEffect } from "vue";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
