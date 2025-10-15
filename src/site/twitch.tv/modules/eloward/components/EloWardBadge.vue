@@ -70,108 +70,151 @@ const handleClick = () => {
 </script>
 
 <style scoped lang="scss">
-.eloward-rank-badge {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 20px;
-	height: 20px;
-	margin-right: 0.3rem;
-	cursor: pointer;
-	position: relative;
-
-	.eloward-badge-img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-	}
-
-	// Support for animated WebP badges
-	&.eloward-animated .eloward-badge-img {
-		image-rendering: auto;
-		image-rendering: crisp-edges;
-		image-rendering: optimize-contrast;
-	}
-
-	// Rank-specific positioning adjustments
-	&.eloward-iron {
-		transform: scale(1.3) translate(-1.5px, 1.5px);
-		margin-right: 0;
-	}
-
-	&.eloward-bronze {
-		transform: scale(1.2) translate(-1.5px, 3px);
-		margin-right: 0;
-	}
-
-	&.eloward-silver {
-		transform: scale(1.2) translate(-1.5px, 2.5px);
-		margin-right: 0;
-	}
-
-	&.eloward-gold {
-		transform: scale(1.22) translate(-1.5px, 3.5px);
-		margin-right: 0;
-	}
-
-	&.eloward-platinum {
-		transform: scale(1.22) translate(-1.5px, 4px);
-		margin-left: 1px;
-	}
-
-	&.eloward-emerald {
-		transform: scale(1.23) translate(-1.5px, 4px);
-		margin-right: 0;
-	}
-
-	&.eloward-diamond {
-		transform: scale(1.23) translate(-1.5px, 3.25px);
-		margin-left: 2px;
-		margin-right: 2px;
-	}
-
-	&.eloward-master {
-		transform: scale(1.2) translate(-1.5px, 4px);
-		margin-left: 1.5px;
-		margin-right: 1.5px;
-	}
-
-	&.eloward-grandmaster {
-		transform: scale(1.1) translate(-1.5px, 4.5px);
-		margin-left: 1px;
-		margin-right: 1px;
-	}
-
-	&.eloward-challenger {
-		transform: scale(1.22) translate(-1.5px, 4px);
-		margin-left: 2.5px;
-		margin-right: 2.5px;
-	}
-
-	&.eloward-unranked {
-		transform: scale(1) translate(-1.5px, 5px);
-		margin-left: -1.5px;
-		margin-right: -1.5px;
-	}
-
+// Base badge container - matches Chrome Extension exactly
+.seventv-chat-badge.eloward-rank-badge {
+	display: inline-flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	vertical-align: middle !important;
+	cursor: pointer !important;
+	transform: translateY(-3px) !important;
+	transition: none !important;
+	width: 20px !important;
+	height: 20px !important;
+	box-sizing: content-box !important;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+	-webkit-touch-callout: none !important;
+	position: relative !important;
+	overflow: visible !important;
 }
 
-// Dark theme adjustments
-:global(.tw-root--theme-dark) .eloward-rank-badge {
-	filter: brightness(0.95);
+// Image positioning - absolute with centered transform
+.eloward-badge-img {
+	display: block !important;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	transform-origin: center !important;
+	position: absolute !important;
+	top: 50% !important;
+	left: 50% !important;
 }
 
-// Light theme adjustments
-:global(.tw-root--theme-light) .eloward-rank-badge {
-	filter: brightness(1.05) contrast(1.1);
+// IRON rank
+.eloward-iron .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.3) translate(-1.5px, 1px) !important;
+}
+.eloward-iron {
+	margin-right: -2.5px !important;
+	margin-left: 2.5px !important;
+}
+
+// BRONZE rank
+.eloward-bronze .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 2px) !important;
+}
+.eloward-bronze {
+	margin-right: -2.5px !important;
+	margin-left: 2.5px !important;
+}
+
+// SILVER rank
+.eloward-silver .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 2px) !important;
+}
+.eloward-silver {
+	margin-right: -1.5px !important;
+	margin-left: 2.5px !important;
+}
+
+// GOLD rank
+.eloward-gold .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 3px) !important;
+}
+.eloward-gold {
+	margin-right: -1.5px !important;
+	margin-left: 4px !important;
+}
+
+// PLATINUM rank
+.eloward-platinum .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 3.5px) !important;
+}
+.eloward-platinum {
+	margin-right: -0.5px !important;
+	margin-left: 4px !important;
+}
+
+// EMERALD rank
+.eloward-emerald .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.23) translate(-1.5px, 3.5px) !important;
+}
+.eloward-emerald {
+	margin-right: -1px !important;
+	margin-left: 3.5px !important;
+}
+
+// DIAMOND rank
+.eloward-diamond .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.13) translate(-1.5px, 3.25px) !important;
+}
+.eloward-diamond {
+	margin-right: 0px !important;
+	margin-left: 4.5px !important;
+}
+
+// MASTER rank
+.eloward-master .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 3.5px) !important;
+}
+.eloward-master {
+	margin-right: -0.5px !important;
+	margin-left: 4.5px !important;
+}
+
+// GRANDMASTER rank
+.eloward-grandmaster .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.1) translate(-1.5px, 4px) !important;
+}
+.eloward-grandmaster {
+	margin-right: -1px !important;
+	margin-left: 3.5px !important;
+}
+
+// CHALLENGER rank
+.eloward-challenger .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 4px) !important;
+}
+.eloward-challenger {
+	margin-right: 0.5px !important;
+	margin-left: 6px !important;
+}
+
+// UNRANKED
+.eloward-unranked .eloward-badge-img {
+	transform: translate(-50%, -50%) scale(1.0) translate(-1.5px, 4px) !important;
+}
+.eloward-unranked {
+	margin-right: -3px !important;
+	margin-left: 1.5px !important;
+}
+
+// Theme adjustments
+:global(.tw-root--theme-dark) .seventv-chat-badge.eloward-rank-badge {
+	filter: brightness(0.95) !important;
+}
+
+:global(.tw-root--theme-light) .seventv-chat-badge.eloward-rank-badge {
+	filter: brightness(1.05) contrast(1.1) !important;
 }
 
 // Mobile responsive
-@media (width <= 400px) {
-	.eloward-rank-badge {
-		width: 18px;
-		height: 18px;
-		margin-right: 0.2rem;
+@media (max-width: 400px) {
+	.seventv-chat-badge.eloward-rank-badge {
+		width: 20px !important;
+		height: 20px !important;
+		margin: 0 2px 0 0 !important;
 	}
 }
 </style>

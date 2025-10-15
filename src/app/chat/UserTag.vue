@@ -13,9 +13,6 @@
 			"
 			class="seventv-chat-user-badge-list"
 		>
-			<!-- EloWard Rank Badge -->
-			<EloWardBadge v-if="elowardBadge" :badge="elowardBadge" :username="user.username" />
-
 			<Badge
 				v-if="sourceData"
 				:key="sourceData.login"
@@ -40,6 +37,9 @@
 					type="app"
 				/>
 			</template>
+
+			<!-- EloWard Rank Badge - Rightmost position (closest to username) -->
+			<EloWardBadge v-if="elowardBadge" :badge="elowardBadge" :username="user.username" />
 		</span>
 
 		<!-- Message Author -->
@@ -299,7 +299,10 @@ watch(() => gameDetection.isLeagueStream.value, (newVal) => {
 	padding: 0.2rem;
 
 	.seventv-chat-user-badge-list {
-		margin-right: 0.25em;
+		display: inline-flex !important;
+		align-items: center !important;
+		gap: 0px !important;
+		margin-right: 0px !important;
 
 		:deep(img) {
 			vertical-align: middle;
@@ -308,6 +311,11 @@ watch(() => gameDetection.isLeagueStream.value, (newVal) => {
 		.seventv-chat-badge ~ .seventv-chat-badge {
 			margin-left: 0.25em;
 		}
+	}
+
+	// Username spacing after badge list
+	.seventv-chat-user-badge-list + .seventv-chat-user-username {
+		margin-left: 2px !important;
 	}
 
 	.seventv-chat-user-username {
