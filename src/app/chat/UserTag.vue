@@ -14,11 +14,7 @@
 			class="seventv-chat-user-badge-list"
 		>
 			<!-- EloWard Rank Badge -->
-			<EloWardBadge
-				v-if="elowardBadge && elowardEnabled && gameDetection.isLeagueStream.value"
-				:badge="elowardBadge"
-				:username="user.username"
-			/>
+			<EloWardBadge v-if="elowardBadge" :badge="elowardBadge" :username="user.username" />
 
 			<Badge
 				v-if="sourceData"
@@ -83,7 +79,8 @@ import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import EloWardBadge from "@/site/twitch.tv/modules/eloward/components/EloWardBadge.vue";
-import { useEloWardRanks, useEloWardBadge } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
+import { useEloWardRanks } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
+import type { EloWardBadge as EloWardBadgeType } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
 import { useGameDetection } from "@/site/twitch.tv/modules/eloward/composables/useGameDetection";
 import Badge from "./Badge.vue";
 import UserCard from "./UserCard.vue";
@@ -126,10 +123,10 @@ const twitchBadges = ref<Twitch.ChatBadge[]>([]);
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
 const mentionStyle = useConfig<MentionStyle>("chat.colored_mentions");
 
+// EloWard integration
 const elowardRanks = useEloWardRanks();
 const gameDetection = useGameDetection();
 const elowardEnabled = useConfig<boolean>("eloward.enabled");
-const elowardBadge = useEloWardBadge(props.user.username);
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
@@ -200,9 +197,66 @@ const stop = watch(
 	{ immediate: true },
 );
 
-if (elowardEnabled.value && gameDetection.isLeagueStream.value && props.user.username) {
-	elowardRanks.getOrFetchBadge(props.user.username);
+const DEV_MODE = import.meta.env.DEV;
+function perfLog(message: string, data?: unknown) {
+	if (DEV_MODE) {
+		console.log(`[EloWard Badge] ${message}`, data || "");
+	}
 }
+
+const elowardBadge = ref<EloWardBadgeType | null>(null);
+
+const initializeEloWardBadge = () => {
+	const startTime = performance.now();
+	perfLog(`initializeEloWardBadge(${props.user.username}) - START`);
+
+	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
+		perfLog(`initializeEloWardBadge(${props.user.username}) - SKIPPED`, {
+			enabled: elowardEnabled.value,
+			isLeagueStream: gameDetection.isLeagueStream.value,
+		});
+		elowardBadge.value = null;
+		return;
+	}
+
+	const username = props.user.username;
+	if (!username) {
+		elowardBadge.value = null;
+		return;
+	}
+
+	const cachedData = elowardRanks.getCachedRankData(username);
+	if (cachedData !== undefined) {
+		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
+		elowardBadge.value = badge;
+		perfLog(`initializeEloWardBadge(${username}) - COMPLETE (cached)`, {
+			hasBadge: !!badge,
+			duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+		});
+		return;
+	}
+
+	perfLog(`initializeEloWardBadge(${username}) - FETCHING (not cached)`);
+	elowardRanks
+		.fetchRankData(username)
+		.then((rankData) => {
+			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
+			elowardBadge.value = badge;
+			perfLog(`initializeEloWardBadge(${username}) - COMPLETE (fetched)`, {
+				hasBadge: !!badge,
+				totalDuration: `${(performance.now() - startTime).toFixed(2)}ms`,
+			});
+		})
+		.catch(() => {
+			elowardBadge.value = null;
+			perfLog(`initializeEloWardBadge(${username}) - ERROR`);
+		});
+};
+
+initializeEloWardBadge();
+watch(() => props.user.username, initializeEloWardBadge);
+watch(elowardEnabled, initializeEloWardBadge);
+watch(() => gameDetection.isLeagueStream.value, initializeEloWardBadge);
 </script>
 
 <style scoped lang="scss">

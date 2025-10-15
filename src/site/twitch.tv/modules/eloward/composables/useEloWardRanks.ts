@@ -1,4 +1,4 @@
-import { ref, reactive, toRef } from "vue";
+import { ref } from "vue";
 import { useConfig } from "@/composable/useSettings";
 
 const API_BASE_URL = "https://eloward-ranks.unleashai.workers.dev/api/ranks/lol";
@@ -74,11 +74,8 @@ class LRUCache {
 
 // Global cache instance
 const rankCache = new LRUCache(MAX_CACHE_SIZE);
-const pendingRequests = new Map<string, Promise<EloWardRankData | null>>();
 
-const globalData = reactive({
-	userBadges: {} as Record<string, EloWardBadge | null>,
-});
+const pendingRequests = new Map<string, Promise<EloWardRankData | null>>();
 
 const RANK_TIERS = new Set([
 	"iron",
@@ -128,6 +125,7 @@ export interface EloWardBadge {
 
 export function useEloWardRanks() {
 	const enabled = useConfig<boolean>("eloward.enabled");
+
 	const isLoading = ref(false);
 
 	function getCachedRankData(username: string): EloWardRankData | null | undefined {
@@ -140,25 +138,6 @@ export function useEloWardRanks() {
 			duration: `${(performance.now() - startTime).toFixed(2)}ms`,
 		});
 		return result;
-	}
-
-	function getOrFetchBadge(username: string): void {
-		if (!enabled.value || !username) return;
-		const normalizedUsername = username.toLowerCase();
-
-		const cachedData = rankCache.get(normalizedUsername);
-		if (cachedData !== undefined) {
-			const badge = cachedData ? getRankBadge(cachedData) : null;
-			globalData.userBadges[normalizedUsername] = badge;
-			return;
-		}
-
-		if (pendingRequests.has(normalizedUsername)) return;
-
-		fetchRankData(username).then((rankData) => {
-			const badge = rankData ? getRankBadge(rankData) : null;
-			globalData.userBadges[normalizedUsername] = badge;
-		});
 	}
 
 	async function fetchRankData(username: string): Promise<EloWardRankData | null> {
@@ -375,14 +354,12 @@ export function useEloWardRanks() {
 		perfLog("clearCache() - clearing all caches");
 		rankCache.clear();
 		pendingRequests.clear();
-		globalData.userBadges = {};
 	}
 
 	return {
 		fetchRankData,
 		getCachedRankData,
 		getRankBadge,
-		getOrFetchBadge,
 		formatRankText,
 		getRegionDisplay,
 		getOpGGUrl,
@@ -390,15 +367,4 @@ export function useEloWardRanks() {
 		isLoading,
 		cacheSize: () => rankCache.size(),
 	};
-}
-
-export function useEloWardBadge(username: string) {
-	if (!username) return ref(null);
-	const normalizedUsername = username.toLowerCase();
-
-	if (!globalData.userBadges[normalizedUsername]) {
-		globalData.userBadges[normalizedUsername] = null;
-	}
-
-	return toRef(globalData.userBadges, normalizedUsername);
 }
