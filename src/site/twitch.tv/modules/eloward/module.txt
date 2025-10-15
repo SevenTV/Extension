@@ -33,6 +33,7 @@ API INTEGRATION
 - **Endpoint**: `https://eloward-ranks.unleashai.workers.dev/api/ranks/lol/{username}`
 - **Method**: GET requests for rank data
 - **Response**: JSON with rank_tier, rank_division, lp, riot_id, region, animate_badge
+- **Animate Badge Logic**: Backend processes animate_badge as boolean (requires plus_active AND animate_badge)
 - **Caching**: LRU cache with 1-hour positive cache, 15-minute negative cache
 - **Error Handling**: Graceful degradation on API failures
 
@@ -48,9 +49,10 @@ CACHING STRATEGY
 
 EFFICIENCY MEASURES
 -------------------
-- **Lazy Loading**: Images load only when visible (`loading="lazy"`)
-- **Debounced Fetching**: 100ms debounce prevents API spam during rapid changes
-- **Minimal Re-renders**: Efficient Vue reactivity using direct config access
+- **Immediate Display**: Cache-first approach for instant badge display
+- **Non-blocking API**: Async API calls don't block UI rendering
+- **7TV Integration**: Uses 7TV's tooltip system and badge infrastructure
+- **Minimal Re-renders**: Efficient Vue reactivity with direct config access
 - **Smart Cleanup**: Cache cleared when switching channels or disabling module
 
 GAME DETECTION SYSTEM
@@ -70,19 +72,18 @@ USER SETTINGS
 -------------
 - **Enable EloWard Rank Badges**: Master toggle for the entire feature
 - **Game-Aware Display**: Only show badges on League of Legends streams (default: enabled)
-- **Animated Badges**: Use animated WebP badges for high ranks (Master, Grandmaster, Challenger)
-- **Tooltip Display**: Show detailed rank information on hover
-- **Cache Duration**: Configurable cache duration (5-60 minutes)
+- **Animated Badges**: Backend-controlled animated WebP badges for premium users
+- **Tooltip Display**: Show detailed rank information on hover using 7TV's tooltip system
 
 INTEGRATION POINTS
 ==================
 
 7TV BADGE SYSTEM
 ----------------
-- **Native Integration**: Uses 7TV's existing badge infrastructure
-- **Badge Slot**: Integrates with 7TV's badge display system
-- **Styling**: Leverages 7TV's CSS classes and theming
-- **Tooltips**: Uses 7TV's tooltip system for rank information display
+- **Native Integration**: Uses 7TV's existing badge infrastructure and styling
+- **Badge Container**: Integrates with 7TV's `seventv-chat-user-badge-list` container
+- **Tooltip System**: Uses 7TV's `useTooltip` composable for consistent tooltip behavior
+- **Theme Support**: Automatic dark/light theme support through 7TV's CSS variables
 
 USERTAG COMPONENT
 -----------------
@@ -120,9 +121,10 @@ SIMPLICITY FIRST
 
 PERFORMANCE FOCUSED
 -------------------
-- **Efficient Caching**: Smart cache management to minimize API calls
-- **Memory Conscious**: Automatic cleanup and LRU eviction
-- **Network Optimized**: Request deduplication and debouncing
+- **Instant Display**: Cache-first approach provides immediate badge display
+- **Efficient Caching**: Smart LRU cache management to minimize API calls
+- **Memory Conscious**: Automatic cleanup and request deduplication
+- **7TV Native**: Leverages 7TV's infrastructure for optimal performance
 - **Resource Light**: Minimal impact on 7TV extension performance
 
 USER-CENTRIC DESIGN

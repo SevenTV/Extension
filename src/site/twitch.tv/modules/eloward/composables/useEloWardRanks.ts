@@ -91,7 +91,7 @@ const RANK_TIERS = new Set([
 	"challenger",
 	"unranked",
 ]);
-const HIGH_RANKS = new Set(["MASTER", "GRANDMASTER", "CHALLENGER"]);
+// Removed HIGH_RANKS - backend handles animated badge logic
 
 // Simple image URL generator - no complex caching needed
 function getImageUrl(tier: string, isAnimated: boolean): string {
@@ -200,7 +200,7 @@ export function useEloWardRanks() {
 					leaguePoints: data.lp,
 					summonerName: data.riot_id,
 					region: data.region,
-					animate_badge: data.animate_badge === true,
+					animate_badge: data.animate_badge, // Backend already processes this as boolean
 				};
 
 				console.log(`[EloWard] API response for ${username}:`, {
@@ -241,15 +241,13 @@ export function useEloWardRanks() {
 		const tier = rankData.tier.toLowerCase();
 		if (!RANK_TIERS.has(tier)) return null;
 
-		const tierUpper = rankData.tier.toUpperCase();
-		const shouldAnimate = rankData.animate_badge === true && HIGH_RANKS.has(tierUpper);
+		// Backend already processes animate_badge as boolean
+		const shouldAnimate = Boolean(rankData.animate_badge);
 
 		console.log(`[EloWard] Creating badge for ${rankData.tier}:`, {
 			tier,
-			tierUpper,
 			animate_badge: rankData.animate_badge,
 			shouldAnimate,
-			isHighRank: HIGH_RANKS.has(tierUpper),
 		});
 
 		// Get image URL directly
@@ -259,7 +257,7 @@ export function useEloWardRanks() {
 
 		return {
 			id: `eloward-${tier}${rankData.division ? `-${rankData.division}` : ""}`,
-			tier: tierUpper,
+			tier: rankData.tier.toUpperCase(),
 			division: rankData.division,
 			imageUrl,
 			animated: shouldAnimate,

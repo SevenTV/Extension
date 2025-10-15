@@ -13,8 +13,6 @@
 			class="eloward-badge-img"
 			loading="eager"
 			decoding="async"
-			@load="() => console.log(`[EloWard] Image loaded for ${badge.tier}:`, badge.imageUrl)"
-			@error="() => console.error(`[EloWard] Image failed to load for ${badge.tier}:`, badge.imageUrl)"
 		/>
 	</div>
 </template>
@@ -40,20 +38,10 @@ const { show, hide } = useTooltip(EloWardTooltip, {
 	username: props.username,
 });
 
-const badgeClasses = computed(() => {
-	const classes = {
-		[`eloward-${props.badge.tier.toLowerCase()}`]: true,
-		"eloward-animated": props.badge.animated,
-	};
-
-	console.log(`[EloWard] Badge classes for ${props.badge.tier}:`, {
-		badge: props.badge,
-		animated: props.badge.animated,
-		classes,
-	});
-
-	return classes;
-});
+const badgeClasses = computed(() => ({
+	[`eloward-${props.badge.tier.toLowerCase()}`]: true,
+	"eloward-animated": props.badge.animated,
+}));
 
 // Click handler to open OP.GG
 const handleClick = () => {
