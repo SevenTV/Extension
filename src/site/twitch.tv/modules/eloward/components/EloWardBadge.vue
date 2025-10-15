@@ -69,13 +69,7 @@ const handleClick = () => {
 	height: 20px;
 	margin-right: 0.3rem;
 	cursor: pointer;
-	transition: transform 0.1s ease;
 	position: relative;
-
-	&:hover {
-		transform: scale(1.1);
-		z-index: 1000;
-	}
 
 	.eloward-badge-img {
 		width: 100%;
