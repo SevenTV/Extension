@@ -9,10 +9,12 @@
 		<img
 			ref="imgRef"
 			:src="badge.imageUrl"
+			:srcset="srcset"
 			:alt="`${badge.tier} rank badge`"
 			class="eloward-badge-img"
 			loading="eager"
 			decoding="async"
+			fetchpriority="high"
 		/>
 	</div>
 </template>
@@ -42,6 +44,13 @@ const badgeClasses = computed(() => ({
 	[`eloward-${props.badge.tier.toLowerCase()}`]: true,
 	"eloward-animated": props.badge.animated,
 }));
+
+// Generate srcset for responsive loading (similar to 7TV badges)
+const srcset = computed(() => {
+	// For now, use the same image for all resolutions
+	// In future, could add different resolution images
+	return `${props.badge.imageUrl} 1x, ${props.badge.imageUrl} 2x`;
+});
 
 // Click handler to open OP.GG
 const handleClick = () => {

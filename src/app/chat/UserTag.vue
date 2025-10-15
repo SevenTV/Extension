@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, toRef, watch, watchEffect } from "vue";
+import { computed, nextTick, ref, toRef, watch, watchEffect } from "vue";
 import type { ChatUser } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -197,13 +197,33 @@ const stop = watch(
 	{ immediate: true },
 );
 
-// EloWard rank badge logic - immediate display
+// EloWard rank badge logic - optimized for immediate display
 const elowardBadge = ref<EloWardBadgeType | null>(null);
+const badgeImageReady = ref(false);
 
-// Immediate badge fetch
-const fetchEloWardBadgeImmediate = () => {
-	const startTime = performance.now();
+// Image preloader for cached badges with ready callback
+const preloadBadgeImage = (imageUrl: string): Promise<void> => {
+	return new Promise((resolve) => {
+		const img = new Image();
+		img.decoding = "async";
+		img.fetchPriority = "high";
+		// Mark as ready when image loads
+		img.onload = () => {
+			badgeImageReady.value = true;
+			resolve();
+		};
+		img.onerror = () => {
+			badgeImageReady.value = true; // Still show even if image fails
+			resolve();
+		};
+		img.src = imageUrl;
+	});
+};
 
+// Synchronous badge initialization for instant display
+const initializeEloWardBadge = () => {
+	// Reset state
+	badgeImageReady.value = false;
 	// Check if EloWard is enabled and we're on a League stream
 	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
 		elowardBadge.value = null;
@@ -216,54 +236,65 @@ const fetchEloWardBadgeImmediate = () => {
 		return;
 	}
 
-	console.log(`[EloWard] Fetching badge for ${username}`);
-
-	// Check cache first for immediate display
+	// Synchronous cache check for immediate display
 	const cachedData = elowardRanks.getCachedRankData(username);
 	if (cachedData !== undefined) {
 		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
-		elowardBadge.value = badge;
-		const endTime = performance.now();
-		console.log(`[EloWard] Cached badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+		if (badge) {
+			// Set badge immediately for instant rendering
+			elowardBadge.value = badge;
+			// Preload image asynchronously
+			preloadBadgeImage(badge.imageUrl);
+		} else {
+			elowardBadge.value = null;
+		}
 		return;
 	}
 
-	// Non-blocking fetch for uncached data
+	// Async fetch for uncached data
 	elowardRanks
 		.fetchRankData(username)
 		.then((rankData) => {
 			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
-			elowardBadge.value = badge;
-			const endTime = performance.now();
-			console.log(`[EloWard] API badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+			if (badge) {
+				elowardBadge.value = badge;
+				return preloadBadgeImage(badge.imageUrl);
+			}
+			elowardBadge.value = null;
 		})
-		.catch((error) => {
-			console.error(`[EloWard] Failed to fetch badge for ${username}:`, error);
+		.catch(() => {
 			elowardBadge.value = null;
 		});
 };
 
-// Initial fetch on mount
-onMounted(() => {
-	fetchEloWardBadgeImmediate();
-});
+// Initialize IMMEDIATELY when component is created (synchronous execution)
+// This is the earliest possible point to show badges
+initializeEloWardBadge();
 
-// Watch for settings changes
+// Also watch for username changes to handle dynamic updates
+watch(
+	() => props.user.username,
+	() => {
+		initializeEloWardBadge();
+	},
+	{ immediate: false },
+);
+
+// Optimized watchers without post-flush delay
 watch(
 	elowardEnabled,
 	() => {
-		fetchEloWardBadgeImmediate();
+		initializeEloWardBadge();
 	},
-	{ flush: "post" },
+	{ immediate: false },
 );
 
-// Watch for game changes
 watch(
 	() => gameDetection.isLeagueStream.value,
 	() => {
-		fetchEloWardBadgeImmediate();
+		initializeEloWardBadge();
 	},
-	{ flush: "post" },
+	{ immediate: false },
 );
 </script>
 

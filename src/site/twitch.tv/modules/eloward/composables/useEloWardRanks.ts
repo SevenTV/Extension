@@ -77,6 +77,9 @@ const rankCache = new LRUCache(MAX_CACHE_SIZE);
 // Track pending requests to avoid duplicate API calls
 const pendingRequests = new Map<string, Promise<EloWardRankData | null>>();
 
+// Image preload cache to ensure images are ready
+const imagePreloadCache = new Map<string, HTMLImageElement>();
+
 // Valid rank tiers
 const RANK_TIERS = new Set([
 	"iron",
@@ -123,6 +126,25 @@ export function useEloWardRanks() {
 	const enabled = useConfig<boolean>("eloward.enabled");
 
 	const isLoading = ref(false);
+
+	/**
+	 * Preload badge image for instant display
+	 */
+	function preloadImage(url: string): void {
+		if (!imagePreloadCache.has(url)) {
+			const img = new Image();
+			img.src = url;
+			img.decoding = "async";
+			img.fetchPriority = "high";
+			imagePreloadCache.set(url, img);
+
+			// Clean up old entries if cache gets too large
+			if (imagePreloadCache.size > 100) {
+				const firstKey = imagePreloadCache.keys().next().value;
+				if (firstKey) imagePreloadCache.delete(firstKey);
+			}
+		}
+	}
 
 	/**
 	 * Get cached rank data without triggering API call
@@ -224,6 +246,10 @@ export function useEloWardRanks() {
 
 		// Get image URL directly
 		const imageUrl = getImageUrl(tier, shouldAnimate);
+
+		// Preload the image for instant display (non-blocking)
+		// Using setTimeout to ensure this doesn't block the main thread
+		setTimeout(() => preloadImage(imageUrl), 0);
 
 		return {
 			id: `eloward-${tier}${rankData.division ? `-${rankData.division}` : ""}`,
@@ -328,6 +354,7 @@ export function useEloWardRanks() {
 	function clearCache() {
 		rankCache.clear();
 		pendingRequests.clear();
+		imagePreloadCache.clear();
 	}
 
 	return {
