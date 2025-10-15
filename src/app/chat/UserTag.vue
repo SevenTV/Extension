@@ -126,7 +126,6 @@ const mentionStyle = useConfig<MentionStyle>("chat.colored_mentions");
 // EloWard integration
 const elowardRanks = useEloWardRanks();
 const gameDetection = useGameDetection();
-const elowardBadge = ref<EloWardBadgeType | null>(null);
 const elowardEnabled = useConfig<boolean>("eloward.enabled");
 
 const tagRef = ref<HTMLDivElement>();
@@ -198,8 +197,11 @@ const stop = watch(
 	{ immediate: true },
 );
 
-// EloWard rank badge logic - optimized for immediate display
-const fetchEloWardBadge = () => {
+// EloWard rank badge logic - IMMEDIATE display like 7TV emotes
+const elowardBadge = ref<EloWardBadgeType | null>(null);
+
+// Immediate badge fetch - no reactive delays
+const fetchEloWardBadgeImmediate = () => {
 	const startTime = performance.now();
 
 	// Check if EloWard is enabled and we're on a League stream
@@ -214,15 +216,15 @@ const fetchEloWardBadge = () => {
 		return;
 	}
 
-	console.log(`[EloWard] Fetching badge for ${username}`);
+	console.log(`[EloWard] IMMEDIATE fetch for ${username}`);
 
-	// Check cache first for immediate display
+	// Check cache first for INSTANT display
 	const cachedData = elowardRanks.getCachedRankData(username);
 	if (cachedData !== undefined) {
 		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
 		elowardBadge.value = badge;
 		const endTime = performance.now();
-		console.log(`[EloWard] Cached badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+		console.log(`[EloWard] INSTANT cached badge for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 		return;
 	}
 
@@ -233,7 +235,7 @@ const fetchEloWardBadge = () => {
 			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
 			elowardBadge.value = badge;
 			const endTime = performance.now();
-			console.log(`[EloWard] API badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+			console.log(`[EloWard] API badge for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 		})
 		.catch((error) => {
 			console.error(`[EloWard] Failed to fetch badge for ${username}:`, error);
@@ -241,25 +243,25 @@ const fetchEloWardBadge = () => {
 		});
 };
 
-// Initial fetch on mount
+// Initial fetch on mount - IMMEDIATE
 onMounted(() => {
-	fetchEloWardBadge();
+	fetchEloWardBadgeImmediate();
 });
 
-// Watch for settings changes
+// Watch for settings changes - IMMEDIATE
 watch(
 	elowardEnabled,
 	() => {
-		fetchEloWardBadge();
+		fetchEloWardBadgeImmediate();
 	},
 	{ flush: "post" },
 );
 
-// Watch for game changes
+// Watch for game changes - IMMEDIATE
 watch(
 	() => gameDetection.isLeagueStream.value,
 	() => {
-		fetchEloWardBadge();
+		fetchEloWardBadgeImmediate();
 	},
 	{ flush: "post" },
 );

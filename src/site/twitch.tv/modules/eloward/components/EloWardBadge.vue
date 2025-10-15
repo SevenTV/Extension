@@ -13,6 +13,8 @@
 			class="eloward-badge-img"
 			loading="eager"
 			decoding="async"
+			@load="() => console.log(`[EloWard] Image loaded for ${badge.tier}:`, badge.imageUrl)"
+			@error="() => console.error(`[EloWard] Image failed to load for ${badge.tier}:`, badge.imageUrl)"
 		/>
 	</div>
 </template>
@@ -20,9 +22,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useTooltip } from "@/composable/useTooltip";
+import EloWardTooltip from "./EloWardTooltip.vue";
 import { useEloWardRanks } from "../composables/useEloWardRanks";
 import type { EloWardBadge } from "../composables/useEloWardRanks";
-import EloWardTooltip from "./EloWardTooltip.vue";
 
 const props = defineProps<{
 	badge: EloWardBadge;
@@ -38,10 +40,20 @@ const { show, hide } = useTooltip(EloWardTooltip, {
 	username: props.username,
 });
 
-const badgeClasses = computed(() => ({
-	[`eloward-${props.badge.tier.toLowerCase()}`]: true,
-	"eloward-animated": props.badge.animated,
-}));
+const badgeClasses = computed(() => {
+	const classes = {
+		[`eloward-${props.badge.tier.toLowerCase()}`]: true,
+		"eloward-animated": props.badge.animated,
+	};
+
+	console.log(`[EloWard] Badge classes for ${props.badge.tier}:`, {
+		badge: props.badge,
+		animated: props.badge.animated,
+		classes,
+	});
+
+	return classes;
+});
 
 // Click handler to open OP.GG
 const handleClick = () => {

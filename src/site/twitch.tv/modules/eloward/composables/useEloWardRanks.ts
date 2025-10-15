@@ -203,6 +203,16 @@ export function useEloWardRanks() {
 					animate_badge: data.animate_badge === true,
 				};
 
+				console.log(`[EloWard] API response for ${username}:`, {
+					rank_tier: data.rank_tier,
+					rank_division: data.rank_division,
+					lp: data.lp,
+					riot_id: data.riot_id,
+					region: data.region,
+					animate_badge: data.animate_badge,
+					processed_animate_badge: rankData.animate_badge,
+				});
+
 				// Cache successful result
 				rankCache.set(normalizedUsername, rankData);
 				const endTime = performance.now();
@@ -234,8 +244,18 @@ export function useEloWardRanks() {
 		const tierUpper = rankData.tier.toUpperCase();
 		const shouldAnimate = rankData.animate_badge === true && HIGH_RANKS.has(tierUpper);
 
+		console.log(`[EloWard] Creating badge for ${rankData.tier}:`, {
+			tier,
+			tierUpper,
+			animate_badge: rankData.animate_badge,
+			shouldAnimate,
+			isHighRank: HIGH_RANKS.has(tierUpper),
+		});
+
 		// Get image URL directly
 		const imageUrl = getImageUrl(tier, shouldAnimate);
+
+		console.log(`[EloWard] Badge image URL:`, imageUrl);
 
 		return {
 			id: `eloward-${tier}${rankData.division ? `-${rankData.division}` : ""}`,
