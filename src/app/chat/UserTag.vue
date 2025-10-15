@@ -197,10 +197,10 @@ const stop = watch(
 	{ immediate: true },
 );
 
-// EloWard rank badge logic - IMMEDIATE display like 7TV emotes
+// EloWard rank badge logic - immediate display
 const elowardBadge = ref<EloWardBadgeType | null>(null);
 
-// Immediate badge fetch - no reactive delays
+// Immediate badge fetch
 const fetchEloWardBadgeImmediate = () => {
 	const startTime = performance.now();
 
@@ -216,15 +216,15 @@ const fetchEloWardBadgeImmediate = () => {
 		return;
 	}
 
-	console.log(`[EloWard] IMMEDIATE fetch for ${username}`);
+	console.log(`[EloWard] Fetching badge for ${username}`);
 
-	// Check cache first for INSTANT display
+	// Check cache first for immediate display
 	const cachedData = elowardRanks.getCachedRankData(username);
 	if (cachedData !== undefined) {
 		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
 		elowardBadge.value = badge;
 		const endTime = performance.now();
-		console.log(`[EloWard] INSTANT cached badge for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+		console.log(`[EloWard] Cached badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 		return;
 	}
 
@@ -235,7 +235,7 @@ const fetchEloWardBadgeImmediate = () => {
 			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
 			elowardBadge.value = badge;
 			const endTime = performance.now();
-			console.log(`[EloWard] API badge for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
+			console.log(`[EloWard] API badge displayed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 		})
 		.catch((error) => {
 			console.error(`[EloWard] Failed to fetch badge for ${username}:`, error);
@@ -243,12 +243,12 @@ const fetchEloWardBadgeImmediate = () => {
 		});
 };
 
-// Initial fetch on mount - IMMEDIATE
+// Initial fetch on mount
 onMounted(() => {
 	fetchEloWardBadgeImmediate();
 });
 
-// Watch for settings changes - IMMEDIATE
+// Watch for settings changes
 watch(
 	elowardEnabled,
 	() => {
@@ -257,7 +257,7 @@ watch(
 	{ flush: "post" },
 );
 
-// Watch for game changes - IMMEDIATE
+// Watch for game changes
 watch(
 	() => gameDetection.isLeagueStream.value,
 	() => {

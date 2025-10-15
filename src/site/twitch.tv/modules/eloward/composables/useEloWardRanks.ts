@@ -91,7 +91,6 @@ const RANK_TIERS = new Set([
 	"challenger",
 	"unranked",
 ]);
-// Removed HIGH_RANKS - backend handles animated badge logic
 
 // Simple image URL generator - no complex caching needed
 function getImageUrl(tier: string, isAnimated: boolean): string {
@@ -141,17 +140,12 @@ export function useEloWardRanks() {
 		if (!enabled.value || !username) return null;
 
 		const normalizedUsername = username.toLowerCase();
-		const startTime = performance.now();
 
 		// Check cache first (returns undefined if not cached, null if negative cached, or data)
 		const cached = rankCache.get(normalizedUsername);
 		if (cached !== undefined) {
-			const endTime = performance.now();
-			console.log(`[EloWard] Cache hit for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 			return cached; // Return cached result (can be null for negative cache)
 		}
-
-		console.log(`[EloWard] Cache miss for ${username}, making API call`);
 
 		// Check if there's already a pending request for this user
 		if (pendingRequests.has(normalizedUsername)) {
@@ -173,10 +167,6 @@ export function useEloWardRanks() {
 				if (response.status === 404) {
 					// User not found - cache negative result
 					rankCache.set(normalizedUsername, null);
-					const endTime = performance.now();
-					console.log(
-						`[EloWard] User not found (404) for ${username} in ${(endTime - startTime).toFixed(2)}ms`,
-					);
 					return null;
 				}
 
@@ -203,20 +193,8 @@ export function useEloWardRanks() {
 					animate_badge: data.animate_badge, // Backend already processes this as boolean
 				};
 
-				console.log(`[EloWard] API response for ${username}:`, {
-					rank_tier: data.rank_tier,
-					rank_division: data.rank_division,
-					lp: data.lp,
-					riot_id: data.riot_id,
-					region: data.region,
-					animate_badge: data.animate_badge,
-					processed_animate_badge: rankData.animate_badge,
-				});
-
 				// Cache successful result
 				rankCache.set(normalizedUsername, rankData);
-				const endTime = performance.now();
-				console.log(`[EloWard] API call completed for ${username} in ${(endTime - startTime).toFixed(2)}ms`);
 				return rankData;
 			} catch (error) {
 				// Network or parsing error - don't cache
@@ -244,16 +222,8 @@ export function useEloWardRanks() {
 		// Backend already processes animate_badge as boolean
 		const shouldAnimate = Boolean(rankData.animate_badge);
 
-		console.log(`[EloWard] Creating badge for ${rankData.tier}:`, {
-			tier,
-			animate_badge: rankData.animate_badge,
-			shouldAnimate,
-		});
-
 		// Get image URL directly
 		const imageUrl = getImageUrl(tier, shouldAnimate);
-
-		console.log(`[EloWard] Badge image URL:`, imageUrl);
 
 		return {
 			id: `eloward-${tier}${rankData.division ? `-${rankData.division}` : ""}`,
@@ -278,7 +248,7 @@ export function useEloWardRanks() {
 
 		let rankText = tierUpper;
 
-		if (rankData.division && !HIGH_RANKS.has(tierUpper)) {
+		if (rankData.division && !["MASTER", "GRANDMASTER", "CHALLENGER"].includes(tierUpper)) {
 			rankText += ` ${rankData.division}`;
 		}
 
