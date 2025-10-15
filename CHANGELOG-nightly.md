@@ -1,3 +1,7 @@
+### 3.1.11.3000
+
+-   Fixed an issue which led to some messages (like announcements) not displaying correctly
+
 ### 3.1.11.2000
 
 -   Bumped version from 3.1.10 to 3.1.11
