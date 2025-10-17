@@ -105,6 +105,12 @@ export const config = [
 		hint: "If checked, the 'Unfollow' button will be hidden (under stream and in theater mode)",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_get_add-free_buttom", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Get Ad-Free Button",
+		hint: "If checked, the 'Get Ad-Free' button will be hidden",
+		defaultValue: false,
+	}),
 	declareConfig("layout.hide_live_notification_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Live Notification Button",
@@ -198,6 +204,13 @@ export const config = [
 .seventv-hide-bits-buttons {
 	button[data-a-target="bits-button"],
 	button[data-a-target="top-nav-get-bits-button"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-get-ad-free-buttons {
+	button[data-a-target="get-ad-free-button"],
+	button[data-a-target="top-nav-get-ad-free-button"] {
 		display: none !important;
 	}
 }
