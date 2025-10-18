@@ -115,7 +115,7 @@ watchEffect(() => {
 	const msgIndex = thread.value.findIndex((m) => m.id === props.id);
 	const msgElem = msgElems.value.at(msgIndex);
 	if (msgElem) {
-		nextTick(() => msgElem.scrollIntoView());
+		nextTick(() => msgElem.scrollIntoView({ block: "nearest", inline: "nearest" }));
 	}
 });
 </script>
