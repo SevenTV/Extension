@@ -1,3 +1,7 @@
+### 3.1.11.4000
+
+-   Added ability to inject into embeded versions of twitch chat
+
 ### 3.1.11.3000
 
 -   Fixed an issue which led to some messages (like announcements) not displaying correctly
