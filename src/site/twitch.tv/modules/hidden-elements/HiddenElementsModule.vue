@@ -81,6 +81,12 @@ export const config = [
 		hint: "If checked, the 'Bits' related buttons will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_turbo_buttons", "TOGGLE", {
+		path: ["Site Layout", "Twitch Features"],
+		label: "Hide Turbo Buttons",
+		hint: "If checked, the 'Turbo' related buttons will be hidden",
+		defaultValue: false,
+	}),
 	declareConfig("layout.hide_hype_chat_button", "TOGGLE", {
 		path: ["Site Layout", "Twitch Features"],
 		label: "Hide Hype Chat Button",
