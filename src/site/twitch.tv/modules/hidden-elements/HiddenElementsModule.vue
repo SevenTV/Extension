@@ -375,6 +375,12 @@ export const config = [
 	}
 }
 
+.seventv-hide-turbo-buttpm {
+	div.turbo-open-threads:not(.turbo--right-column-expanded-beside) {
+		display: none !important;
+	}
+}
+
 .seventv-hide-whispers-all {
 	div.whispers-open-threads {
 		display: none !important;
