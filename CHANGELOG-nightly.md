@@ -1,6 +1,7 @@
 ### 3.1.11.3000
 
 -   Fixed an issue which led to some messages (like announcements) not displaying correctly
+-   Added a new feature - Hide Turbo Button
 
 ### 3.1.11.2000
 
