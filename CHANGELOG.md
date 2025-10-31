@@ -1,3 +1,7 @@
+### 3.1.12
+
+-   Removed obfuscator plugin and obfuscation build steps for deterministic build output
+
 ### 3.1.11
 
 -   Fixed some issues with FireFox having old version

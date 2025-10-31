@@ -4,7 +4,6 @@ import vuei18n from "@intlify/unplugin-vue-i18n/vite";
 import vue from "@vitejs/plugin-vue";
 import fs from "fs-extra";
 import path from "path";
-import obfuscator from "rollup-plugin-obfuscator";
 import { defineConfig, loadEnv } from "vite";
 
 const ignoreHMR = [
@@ -102,24 +101,7 @@ export default defineConfig(() => {
 					assetFileNames: `assets/seventv.[name].${fullVersion}[extname]`,
 					chunkFileNames: `assets/seventv.[name].${fullVersion}.js`,
 				},
-				plugins: [
-					obfuscator({
-						include: ["src/site/site.ts", "src/composable/useWorker.ts"],
-						options: {
-							stringArray: true,
-							stringArrayEncoding: ["rc4"],
-							stringArrayShuffle: true,
-							splitStrings: true,
-							splitStringsChunkLength: 3,
-							controlFlowFlattening: true,
-							renameGlobals: true,
-							transformObjectKeys: true,
-							selfDefending: true,
-							numbersToExpressions: true,
-							seed: Date.now(),
-						},
-					}),
-				],
+				plugins: [],
 			},
 		},
 

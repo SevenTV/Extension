@@ -1,3 +1,7 @@
+### 3.1.12.3000
+
+-   Removed obfuscator plugin and obfuscation build steps for deterministic build output
+
 ### 3.1.11.3000
 
 -   Fixed an issue which led to some messages (like announcements) not displaying correctly
