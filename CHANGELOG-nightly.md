@@ -1,3 +1,8 @@
+### 3.1.12.4000
+
+-   Fixed an issue which led to VODs not showing emotes
+-   Hide the moderation slider tooltip when dragging
+
 ### 3.1.12.3000
 
 -   Removed obfuscator plugin and obfuscation build steps for deterministic build output
