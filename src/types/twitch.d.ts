@@ -61,22 +61,10 @@ declare module Twitch {
 	}>;
 
 	export type RouterComponent = ReactExtended.WritableComponent<{
-		// React history object used for navigating.
-		history: {
-			action: string;
-			goBack: () => void;
-			goForward: () => void;
-			listen: (handler: (location: Location, action: string) => void) => void;
-			location: Location;
-		};
+		navigate(...args: unknown[]): void;
 		location: Location;
 		isLoggedIn: boolean;
-		match: {
-			isExact: boolean;
-			params: { [key: string]: string };
-			path: string;
-			url: string;
-		};
+		params: { [key: string]: string };
 	}>;
 
 	export type SessionUserComponent = ReactExtended.WritableComponent<{
