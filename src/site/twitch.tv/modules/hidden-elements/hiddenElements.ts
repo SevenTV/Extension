@@ -5,6 +5,7 @@ const hideLeaderboard = useConfig<boolean>("layout.hide_channel_leaderboard");
 const hideButtonsBelowChatbox = useConfig<boolean>("layout.hide_buttons_below_chatbox");
 const hideStreamChatBar = useConfig<boolean>("layout.hide_stream_chat_bar");
 const hideBitsButtons = useConfig<boolean>("layout.hide_bits_buttons");
+const hideTurboButtons = useConfig<boolean>("layout.hide_turbo_buttons");
 const hideHypeChatButton = useConfig<boolean>("layout.hide_hype_chat_button");
 const hideTopBarOfStream = useConfig<boolean>("layout.hide_top_bar_of_stream");
 const hidePlayerControls = useConfig<boolean>("layout.hide_player_controls");
