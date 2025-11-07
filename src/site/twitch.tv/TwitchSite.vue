@@ -52,6 +52,7 @@ for (const key in modules) {
 	modules[modKey!] = modules[key];
 	delete modules[key];
 }
+
 // Session User
 useComponentHook<Twitch.UserAndSessionUserComponent>(
 	{
@@ -79,7 +80,7 @@ useComponentHook<Twitch.UserAndSessionUserComponent>(
 // Router updates
 useComponentHook<Twitch.RouterComponent>(
 	{
-		predicate: (n) => n.props && n.props.match && n.props.history,
+		predicate: (n) => n.props && n.props.params && n.props.navigate,
 	},
 	{
 		hooks: {
