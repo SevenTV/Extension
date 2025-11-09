@@ -1,4 +1,4 @@
-### 3.1.12.4000
+### 3.1.13.1000
 
 -   Fixed an issue which led to VODs not showing emotes
 -   Hide the moderation slider tooltip when dragging
