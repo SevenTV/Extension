@@ -1,3 +1,7 @@
+### 3.1.14.1000
+
+-   Fixed internal configs for FireFox
+
 ### 3.1.13.1000
 
 -   Fixed an issue which led to VODs not showing emotes
