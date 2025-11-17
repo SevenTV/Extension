@@ -1,6 +1,7 @@
 ### 3.1.14
 
 -   Fixed internal configs for FireFox
+-   Bump version from 3.1.13 to 3.1.14
 
 ### 3.1.13
 
