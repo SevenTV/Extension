@@ -30,6 +30,7 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-buttons-below-chatbox", isHidden: hideButtonsBelowChatbox },
 	{ class: "seventv-hide-stream-chat-bar", isHidden: hideStreamChatBar },
 	{ class: "seventv-hide-bits-buttons", isHidden: hideBitsButtons },
+	{ class: "seventv-hide-turbo-buttons", isHidden: hideTurboButtons }, // <-- added
 	{ class: "seventv-hide-hype-chat-button", isHidden: hideHypeChatButton },
 	{ class: "seventv-hide-top-bar-of-stream", isHidden: hideTopBarOfStream },
 	{ class: "seventv-hide-player-controls", isHidden: hidePlayerControls },
