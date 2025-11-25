@@ -172,6 +172,9 @@ export const config = [
 		hint: "If checked, Stories will be hidden from the side bar",
 		defaultValue: false,
 	}),
+		class: "seventv-hide-turbo-button",
+		isHidden: useSetting("layout.hide_turbo_button"),
+	}},
 ];
 </script>
 
@@ -339,6 +342,13 @@ export const config = [
 		display: none !important;
 	}
 }
+
+.seventv-hide-turbo-box {
+	div[class$="turbo"] {
+		display: none !important;
+	}
+}
+
 
 .seventv-hide-channel-point-balance-button {
 	.community-points-summary {
