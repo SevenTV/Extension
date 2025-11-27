@@ -1,3 +1,7 @@
+### 3.1.15
+
+-   Added required Firefox built-in consent metadata to the manifest
+
 ### 3.1.14
 
 -   Fixed internal configs for FireFox

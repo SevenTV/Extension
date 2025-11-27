@@ -3,7 +3,7 @@
 	"displayName": "7TV",
 	"description": "Improve your viewing experience on Twitch & YouTube with new features, emotes, vanity and performance.",
 	"private": true,
-	"version": "3.1.14",
+	"version": "3.1.15",
 	"dev_version": "1.0",
 	"scripts": {
 		"start": "cross-env NODE_ENV=dev yarn build:dev && cross-env NODE_ENV=dev vite --mode dev",
