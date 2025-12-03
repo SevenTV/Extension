@@ -6,7 +6,7 @@ const DEV_MODE = import.meta.env.DEV;
 
 function perfLog(message: string, data?: unknown) {
 	if (DEV_MODE) {
-		console.log(`[EloWard GameDetect] ${message}`, data || "");
+		console.log(`[EloWard-GameDetect] ${message}`, data || "");
 	}
 }
 

@@ -99,7 +99,7 @@ function getImageUrl(tier: string, isAnimated: boolean): string {
 
 function perfLog(message: string, data?: unknown) {
 	if (DEV_MODE) {
-		console.log(`[EloWard Perf] ${message}`, data || "");
+		console.log(`[EloWard-RankAPI] ${message}`, data || "");
 	}
 }
 

@@ -202,7 +202,7 @@ const componentMountTime = performance.now();
 function perfLog(message: string, data?: unknown) {
 	if (DEV_MODE) {
 		const timeSinceMount = (performance.now() - componentMountTime).toFixed(2);
-		console.log(`[EloWard Badge +${timeSinceMount}ms] ${message}`, data || "");
+		console.log(`[EloWard-Badge +${timeSinceMount}ms] ${message}`, data || "");
 	}
 }
 
@@ -300,7 +300,8 @@ watch(() => gameDetection.isLeagueStream.value, (newVal) => {
 
 	.seventv-chat-user-badge-list {
 		display: inline-flex !important;
-		align-items: center !important;
+		align-items: baseline !important;
+		vertical-align: baseline !important;
 		gap: 0px !important;
 		margin-right: 0px !important;
 

@@ -11,7 +11,6 @@
 			:src="badge.imageUrl"
 			:srcset="srcset"
 			:alt="`${badge.tier} rank badge`"
-			class="eloward-badge-img"
 			loading="eager"
 			decoding="async"
 			fetchpriority="high"
@@ -70,17 +69,14 @@ const handleClick = () => {
 </script>
 
 <style scoped lang="scss">
-// Base badge container - matches Chrome Extension exactly
+// Base badge container - using inline-block like standard badges
 .seventv-chat-badge.eloward-rank-badge {
-	display: inline-flex !important;
-	justify-content: center !important;
-	align-items: center !important;
-	vertical-align: middle !important;
+	display: inline-block !important;
 	cursor: pointer !important;
-	transform: translateY(-3px) !important;
 	transition: none !important;
 	width: 20px !important;
 	height: 20px !important;
+	line-height: 20px !important;
 	box-sizing: content-box !important;
 	-webkit-user-select: none !important;
 	user-select: none !important;
@@ -103,7 +99,7 @@ const handleClick = () => {
 
 // IRON rank
 .eloward-iron .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.3) translate(-1.5px, 1px) !important;
+	transform: translate(-50%, -50%) scale(1.3) translate(-1.5px, -2px) !important;
 }
 .eloward-iron {
 	margin-right: -2.5px !important;
@@ -112,7 +108,7 @@ const handleClick = () => {
 
 // BRONZE rank
 .eloward-bronze .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 2px) !important;
+	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, -1px) !important;
 }
 .eloward-bronze {
 	margin-right: -2.5px !important;
@@ -121,7 +117,7 @@ const handleClick = () => {
 
 // SILVER rank
 .eloward-silver .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 2px) !important;
+	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, -1px) !important;
 }
 .eloward-silver {
 	margin-right: -1.5px !important;
@@ -130,7 +126,7 @@ const handleClick = () => {
 
 // GOLD rank
 .eloward-gold .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 3px) !important;
+	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 0px) !important;
 }
 .eloward-gold {
 	margin-right: -1.5px !important;
@@ -139,7 +135,7 @@ const handleClick = () => {
 
 // PLATINUM rank
 .eloward-platinum .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 3.5px) !important;
+	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 0.5px) !important;
 }
 .eloward-platinum {
 	margin-right: -0.5px !important;
@@ -148,7 +144,7 @@ const handleClick = () => {
 
 // EMERALD rank
 .eloward-emerald .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.23) translate(-1.5px, 3.5px) !important;
+	transform: translate(-50%, -50%) scale(1.23) translate(-1.5px, 0.5px) !important;
 }
 .eloward-emerald {
 	margin-right: -1px !important;
@@ -157,7 +153,7 @@ const handleClick = () => {
 
 // DIAMOND rank
 .eloward-diamond .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.13) translate(-1.5px, 3.25px) !important;
+	transform: translate(-50%, -50%) scale(1.13) translate(-1.5px, 0.25px) !important;
 }
 .eloward-diamond {
 	margin-right: 0px !important;
@@ -166,7 +162,7 @@ const handleClick = () => {
 
 // MASTER rank
 .eloward-master .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 3.5px) !important;
+	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 0.5px) !important;
 }
 .eloward-master {
 	margin-right: -0.5px !important;
@@ -175,7 +171,7 @@ const handleClick = () => {
 
 // GRANDMASTER rank
 .eloward-grandmaster .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.1) translate(-1.5px, 4px) !important;
+	transform: translate(-50%, -50%) scale(1.1) translate(-1.5px, 1px) !important;
 }
 .eloward-grandmaster {
 	margin-right: -1px !important;
@@ -184,7 +180,7 @@ const handleClick = () => {
 
 // CHALLENGER rank
 .eloward-challenger .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 4px) !important;
+	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 1px) !important;
 }
 .eloward-challenger {
 	margin-right: 0.5px !important;
@@ -193,7 +189,7 @@ const handleClick = () => {
 
 // UNRANKED
 .eloward-unranked .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.0) translate(-1.5px, 4px) !important;
+	transform: translate(-50%, -50%) scale(1) translate(-1.5px, 1px) !important;
 }
 .eloward-unranked {
 	margin-right: -3px !important;
