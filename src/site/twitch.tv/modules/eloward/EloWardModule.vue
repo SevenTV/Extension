@@ -4,7 +4,7 @@
 import { watch, onMounted, onUnmounted } from "vue";
 import { declareModule } from "@/composable/useModule";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
-import { declareConfig, useConfig } from "@/composable/useSettings";
+import { declareConfig } from "@/composable/useSettings";
 import { useEloWardRanks } from "./composables/useEloWardRanks";
 import { useGameDetection } from "./composables/useGameDetection";
 
@@ -28,6 +28,30 @@ onMounted(async () => {
 			}
 		});
 	}
+});
+
+// Clear cache when leaving League streams
+watch(
+	() => gameDetection.isLeagueStream.value,
+	(isLeague) => {
+		if (!isLeague) {
+			elowardRanks.clearCache();
+		}
+	},
+);
+
+// Clear cache when switching channels
+watch(
+	() => ctx.id,
+	(newChannelId, oldChannelId) => {
+		if (newChannelId !== oldChannelId && newChannelId) {
+			elowardRanks.clearCache();
+		}
+	},
+);
+
+onUnmounted(() => {
+	elowardRanks.clearCache();
 });
 
 // Clear cache when leaving League streams

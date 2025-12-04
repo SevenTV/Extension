@@ -200,7 +200,21 @@ const stop = watch(
 // EloWard badge integration
 const elowardBadge = ref<EloWardBadgeType | null>(null);
 
+// Detect official EloWard Chrome extension
+function detectOfficialExtension(): boolean {
+	const bodyAttr = document.body?.getAttribute("data-eloward-chrome-ext");
+	const htmlAttr = document.documentElement?.getAttribute("data-eloward-chrome-ext");
+
+	return bodyAttr === "active" || htmlAttr === "active";
+}
+
 const initializeEloWardBadge = () => {
+	// Skip if official EloWard Chrome extension is detected
+	if (detectOfficialExtension()) {
+		elowardBadge.value = null;
+		return;
+	}
+
 	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
 		elowardBadge.value = null;
 		return;
