@@ -197,29 +197,11 @@ const stop = watch(
 	{ immediate: true },
 );
 
-const DEV_MODE = import.meta.env.DEV;
-const componentMountTime = performance.now();
-function perfLog(message: string, data?: unknown) {
-	if (DEV_MODE) {
-		const timeSinceMount = (performance.now() - componentMountTime).toFixed(2);
-		console.log(`[EloWard-Badge +${timeSinceMount}ms] ${message}`, data || "");
-	}
-}
-
-perfLog(`UserTag CREATED for "${props.user.username}"`);
-
+// EloWard badge integration
 const elowardBadge = ref<EloWardBadgeType | null>(null);
 
 const initializeEloWardBadge = () => {
-	const startTime = performance.now();
-	const timeSinceMount = (startTime - componentMountTime).toFixed(2);
-	perfLog(`initializeEloWardBadge(${props.user.username}) - START (+${timeSinceMount}ms since component create)`);
-
 	if (!elowardEnabled.value || !gameDetection.isLeagueStream.value) {
-		perfLog(`initializeEloWardBadge(${props.user.username}) - SKIPPED`, {
-			enabled: elowardEnabled.value,
-			isLeagueStream: gameDetection.isLeagueStream.value,
-		});
 		elowardBadge.value = null;
 		return;
 	}
@@ -233,60 +215,25 @@ const initializeEloWardBadge = () => {
 	const cachedData = elowardRanks.getCachedRankData(username);
 
 	if (cachedData !== undefined) {
-		const badge = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
-		elowardBadge.value = badge;
-
-		perfLog(`initializeEloWardBadge(${username}) - COMPLETE (CACHED - INSTANT)`, {
-			hasBadge: !!badge,
-			tier: badge?.tier,
-			total: `${(performance.now() - startTime).toFixed(2)}ms`,
-		});
+		elowardBadge.value = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
 		return;
 	}
 
-	perfLog(`initializeEloWardBadge(${username}) - NOT CACHED, fetching from API...`);
 	elowardRanks
 		.fetchRankData(username)
 		.then((rankData) => {
-			const badge = rankData ? elowardRanks.getRankBadge(rankData) : null;
-			elowardBadge.value = badge;
-			perfLog(`initializeEloWardBadge(${username}) - COMPLETE (FETCHED FROM API)`, {
-				hasBadge: !!badge,
-				tier: badge?.tier,
-				totalDuration: `${(performance.now() - startTime).toFixed(2)}ms`,
-			});
+			elowardBadge.value = rankData ? elowardRanks.getRankBadge(rankData) : null;
 		})
 		.catch(() => {
 			elowardBadge.value = null;
-			perfLog(`initializeEloWardBadge(${username}) - ERROR`);
 		});
 };
 
-perfLog(`Calling initializeEloWardBadge() synchronously at component setup`);
 initializeEloWardBadge();
 
-watch(elowardBadge, (newVal, oldVal) => {
-	if (newVal && !oldVal) {
-		const timeSinceMount = (performance.now() - componentMountTime).toFixed(2);
-		perfLog(`✓ BADGE RENDERED in ${timeSinceMount}ms for "${props.user.username}"`, {
-			tier: newVal.tier,
-			imageUrl: newVal.imageUrl,
-		});
-	}
-});
-
-watch(() => props.user.username, () => {
-	perfLog(`Username changed, reinitializing badge`);
-	initializeEloWardBadge();
-});
-watch(elowardEnabled, () => {
-	perfLog(`EloWard enabled changed to ${elowardEnabled.value}`);
-	initializeEloWardBadge();
-});
-watch(() => gameDetection.isLeagueStream.value, (newVal) => {
-	perfLog(`League stream detection changed to ${newVal}`);
-	initializeEloWardBadge();
-});
+watch(() => props.user.username, initializeEloWardBadge);
+watch(elowardEnabled, initializeEloWardBadge);
+watch(() => gameDetection.isLeagueStream.value, initializeEloWardBadge);
 </script>
 
 <style scoped lang="scss">
@@ -300,7 +247,7 @@ watch(() => gameDetection.isLeagueStream.value, (newVal) => {
 
 	.seventv-chat-user-badge-list {
 		display: inline-flex !important;
-		align-items: baseline !important;
+		align-items: center !important;
 		vertical-align: baseline !important;
 		gap: 0px !important;
 		margin-right: 0px !important;

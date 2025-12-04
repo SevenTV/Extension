@@ -2,15 +2,6 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 const LEAGUE_OF_LEGENDS_ID = "21779";
 const LEAGUE_OF_LEGENDS_NAME = "League of Legends";
-const DEV_MODE = import.meta.env.DEV;
-// Temporarily enable logging in production for debugging
-const ENABLE_LOGGING = true;
-
-function perfLog(message: string, data?: unknown) {
-	if (DEV_MODE || ENABLE_LOGGING) {
-		console.log(`[EloWard GameDetect] ${message}`, data || "");
-	}
-}
 
 const currentGame = ref<string>("");
 const currentGameId = ref<string>("");
@@ -111,8 +102,6 @@ export function useGameDetection() {
 	}
 
 	function updateGame() {
-		const startTime = performance.now();
-
 		// Only skip if we already have a valid game detected (not null)
 		// This allows retries when DOM wasn't ready
 		if (
@@ -120,7 +109,6 @@ export function useGameDetection() {
 			window.location.pathname === lastPathname.value &&
 			currentGame.value !== ""
 		) {
-			perfLog("updateGame() - SKIPPED (already checked with valid result)");
 			return;
 		}
 
@@ -137,27 +125,9 @@ export function useGameDetection() {
 
 			if (detectedGame === LEAGUE_OF_LEGENDS_NAME) {
 				currentGameId.value = LEAGUE_OF_LEGENDS_ID;
-				perfLog("updateGame() - League of Legends DETECTED", {
-					duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-				});
 			} else {
 				currentGameId.value = "";
-				if (detectedGame === null) {
-					perfLog("updateGame() - No game detected (DOM not ready?)", {
-						duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-					});
-				} else {
-					perfLog("updateGame() - Different game detected", {
-						game: detectedGame,
-						duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-					});
-				}
 			}
-		} else {
-			perfLog("updateGame() - No change", {
-				game: currentGame.value,
-				duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-			});
 		}
 
 		// Only mark as checked if we got a valid result
@@ -168,8 +138,6 @@ export function useGameDetection() {
 	}
 
 	function startObserving() {
-		perfLog("startObserving() - START");
-
 		if (checkTimeout) {
 			clearTimeout(checkTimeout);
 			checkTimeout = null;
@@ -180,9 +148,8 @@ export function useGameDetection() {
 
 		// Retry multiple times with increasing delays to ensure DOM is ready
 		const retryDelays = [500, 1500, 3000];
-		retryDelays.forEach((delay, index) => {
+		retryDelays.forEach((delay) => {
 			window.setTimeout(() => {
-				perfLog(`startObserving() - Retry ${index + 1} (${delay}ms delay)`);
 				updateGame();
 			}, delay);
 		});
@@ -221,12 +188,9 @@ export function useGameDetection() {
 
 	if (!isInitialized) {
 		isInitialized = true;
-		perfLog("useGameDetection() - FIRST INITIALIZATION");
 		setTimeout(() => {
 			startObserving();
 		}, 100);
-	} else {
-		perfLog("useGameDetection() - reusing existing instance");
 	}
 
 	return {

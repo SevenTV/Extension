@@ -7,9 +7,6 @@ const DEFAULT_CACHE_DURATION = 60 * 60 * 1000;
 const NEGATIVE_CACHE_DURATION = 15 * 60 * 1000;
 const MAX_CACHE_SIZE = 500;
 const BADGE_CACHE_VERSION = "3";
-const DEV_MODE = import.meta.env.DEV;
-// Temporarily enable logging in production for debugging
-const ENABLE_LOGGING = true;
 
 interface CacheEntry {
 	data: EloWardRankData | null; // null for negative cache
@@ -99,12 +96,6 @@ function getImageUrl(tier: string, isAnimated: boolean): string {
 	return `${CDN_BASE_URL}/${tier}${suffix}${extension}?v=${BADGE_CACHE_VERSION}`;
 }
 
-function perfLog(message: string, data?: unknown) {
-	if (DEV_MODE || ENABLE_LOGGING) {
-		console.log(`[EloWard Perf] ${message}`, data || "");
-	}
-}
-
 export interface EloWardRankData {
 	tier: string;
 	division?: string;
@@ -130,11 +121,8 @@ let cachedIsLoading: Ref<boolean> | null = null;
 
 export function useEloWardRanks() {
 	if (!cachedEnabledConfig) {
-		perfLog("useEloWardRanks() - FIRST INITIALIZATION");
 		cachedEnabledConfig = useConfig<boolean>("eloward.enabled");
 		cachedIsLoading = ref(false);
-	} else {
-		perfLog("useEloWardRanks() - reusing existing instance");
 	}
 
 	const enabled = cachedEnabledConfig!;
@@ -146,11 +134,7 @@ export function useEloWardRanks() {
 	}
 
 	async function fetchRankData(username: string): Promise<EloWardRankData | null> {
-		const startTime = performance.now();
-		perfLog(`fetchRankData(${username}) - START`);
-
 		if (!enabled.value || !username) {
-			perfLog(`fetchRankData(${username}) - SKIPPED (disabled or no username)`);
 			return null;
 		}
 
@@ -158,22 +142,16 @@ export function useEloWardRanks() {
 
 		const cached = rankCache.get(normalizedUsername);
 		if (cached !== undefined) {
-			perfLog(`fetchRankData(${username}) - CACHE HIT`, {
-				duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-			});
 			return cached;
 		}
 
 		if (pendingRequests.has(normalizedUsername)) {
-			perfLog(`fetchRankData(${username}) - PENDING REQUEST EXISTS`);
 			return pendingRequests.get(normalizedUsername)!;
 		}
 
 		const requestPromise = (async () => {
 			try {
 				isLoading.value = true;
-				perfLog(`fetchRankData(${username}) - FETCH START`);
-				const fetchStart = performance.now();
 
 				const response = await fetch(`${API_BASE_URL}/${normalizedUsername}`, {
 					method: "GET",
@@ -183,31 +161,19 @@ export function useEloWardRanks() {
 					signal: AbortSignal.timeout(5000),
 				});
 
-				perfLog(`fetchRankData(${username}) - FETCH COMPLETE`, {
-					status: response.status,
-					duration: `${(performance.now() - fetchStart).toFixed(2)}ms`,
-				});
-
 				if (response.status === 404) {
 					rankCache.set(normalizedUsername, null);
-					perfLog(`fetchRankData(${username}) - NOT FOUND (404)`);
 					return null;
 				}
 
 				if (!response.ok) {
-					perfLog(`fetchRankData(${username}) - ERROR (${response.status})`);
 					return null;
 				}
 
-				const parseStart = performance.now();
 				const data = await response.json();
-				perfLog(`fetchRankData(${username}) - JSON PARSE`, {
-					duration: `${(performance.now() - parseStart).toFixed(2)}ms`,
-				});
 
 				if (!data.rank_tier || !RANK_TIERS.has(data.rank_tier.toLowerCase())) {
 					rankCache.set(normalizedUsername, null);
-					perfLog(`fetchRankData(${username}) - INVALID DATA`);
 					return null;
 				}
 
@@ -221,13 +187,8 @@ export function useEloWardRanks() {
 				};
 
 				rankCache.set(normalizedUsername, rankData);
-				perfLog(`fetchRankData(${username}) - SUCCESS`, {
-					tier: rankData.tier,
-					totalDuration: `${(performance.now() - startTime).toFixed(2)}ms`,
-				});
 				return rankData;
 			} catch (error) {
-				perfLog(`fetchRankData(${username}) - EXCEPTION`, error);
 				return null;
 			} finally {
 				isLoading.value = false;
@@ -349,7 +310,6 @@ export function useEloWardRanks() {
 	}
 
 	function clearCache() {
-		perfLog("clearCache() - clearing all caches");
 		rankCache.clear();
 		pendingRequests.clear();
 	}
