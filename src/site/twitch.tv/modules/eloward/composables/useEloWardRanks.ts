@@ -8,6 +8,8 @@ const NEGATIVE_CACHE_DURATION = 15 * 60 * 1000;
 const MAX_CACHE_SIZE = 500;
 const BADGE_CACHE_VERSION = "3";
 const DEV_MODE = import.meta.env.DEV;
+// Temporarily enable logging in production for debugging
+const ENABLE_LOGGING = true;
 
 interface CacheEntry {
 	data: EloWardRankData | null; // null for negative cache
@@ -98,8 +100,8 @@ function getImageUrl(tier: string, isAnimated: boolean): string {
 }
 
 function perfLog(message: string, data?: unknown) {
-	if (DEV_MODE) {
-		console.log(`[EloWard-RankAPI] ${message}`, data || "");
+	if (DEV_MODE || ENABLE_LOGGING) {
+		console.log(`[EloWard Perf] ${message}`, data || "");
 	}
 }
 

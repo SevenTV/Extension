@@ -11,6 +11,7 @@
 			:src="badge.imageUrl"
 			:srcset="srcset"
 			:alt="`${badge.tier} rank badge`"
+			class="eloward-badge-img"
 			loading="eager"
 			decoding="async"
 			fetchpriority="high"
@@ -69,148 +70,67 @@ const handleClick = () => {
 </script>
 
 <style scoped lang="scss">
-// Base badge container - using inline-block like standard badges
+// Base badge container - exactly matches standard 7TV badges
 .seventv-chat-badge.eloward-rank-badge {
-	display: inline-block !important;
-	cursor: pointer !important;
-	transition: none !important;
-	width: 20px !important;
-	height: 20px !important;
-	line-height: 20px !important;
-	box-sizing: content-box !important;
-	-webkit-user-select: none !important;
-	user-select: none !important;
-	-webkit-touch-callout: none !important;
-	position: relative !important;
-	overflow: visible !important;
+	display: inline-block;
+	vertical-align: baseline;
+	cursor: pointer;
 }
 
-// Image positioning - absolute with centered transform
+// Image - matches standard badge pattern
 .eloward-badge-img {
-	display: block !important;
-	width: 100% !important;
-	height: 100% !important;
-	object-fit: cover !important;
-	transform-origin: center !important;
-	position: absolute !important;
-	top: 50% !important;
-	left: 50% !important;
+	height: 18px;
+	width: auto;
+	vertical-align: middle;
 }
 
-// IRON rank
+// Rank-specific scaling - kept minimal
 .eloward-iron .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.3) translate(-1.5px, -2px) !important;
-}
-.eloward-iron {
-	margin-right: -2.5px !important;
-	margin-left: 2.5px !important;
+	transform: scale(1.15);
 }
 
-// BRONZE rank
 .eloward-bronze .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, -1px) !important;
-}
-.eloward-bronze {
-	margin-right: -2.5px !important;
-	margin-left: 2.5px !important;
+	transform: scale(1.1);
 }
 
-// SILVER rank
 .eloward-silver .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, -1px) !important;
-}
-.eloward-silver {
-	margin-right: -1.5px !important;
-	margin-left: 2.5px !important;
+	transform: scale(1.1);
 }
 
-// GOLD rank
 .eloward-gold .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 0px) !important;
-}
-.eloward-gold {
-	margin-right: -1.5px !important;
-	margin-left: 4px !important;
+	transform: scale(1.15);
 }
 
-// PLATINUM rank
 .eloward-platinum .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 0.5px) !important;
-}
-.eloward-platinum {
-	margin-right: -0.5px !important;
-	margin-left: 4px !important;
+	transform: scale(1.15);
 }
 
-// EMERALD rank
 .eloward-emerald .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.23) translate(-1.5px, 0.5px) !important;
-}
-.eloward-emerald {
-	margin-right: -1px !important;
-	margin-left: 3.5px !important;
+	transform: scale(1.15);
 }
 
-// DIAMOND rank
 .eloward-diamond .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.13) translate(-1.5px, 0.25px) !important;
-}
-.eloward-diamond {
-	margin-right: 0px !important;
-	margin-left: 4.5px !important;
+	transform: scale(1.05);
 }
 
-// MASTER rank
 .eloward-master .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.2) translate(-1.5px, 0.5px) !important;
-}
-.eloward-master {
-	margin-right: -0.5px !important;
-	margin-left: 4.5px !important;
+	transform: scale(1.1);
 }
 
-// GRANDMASTER rank
 .eloward-grandmaster .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.1) translate(-1.5px, 1px) !important;
-}
-.eloward-grandmaster {
-	margin-right: -1px !important;
-	margin-left: 3.5px !important;
+	transform: scale(1.05);
 }
 
-// CHALLENGER rank
 .eloward-challenger .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1.22) translate(-1.5px, 1px) !important;
-}
-.eloward-challenger {
-	margin-right: 0.5px !important;
-	margin-left: 6px !important;
-}
-
-// UNRANKED
-.eloward-unranked .eloward-badge-img {
-	transform: translate(-50%, -50%) scale(1) translate(-1.5px, 1px) !important;
-}
-.eloward-unranked {
-	margin-right: -3px !important;
-	margin-left: 1.5px !important;
+	transform: scale(1.15);
 }
 
 // Theme adjustments
 :global(.tw-root--theme-dark) .seventv-chat-badge.eloward-rank-badge {
-	filter: brightness(0.95) !important;
+	filter: brightness(0.95);
 }
 
 :global(.tw-root--theme-light) .seventv-chat-badge.eloward-rank-badge {
-	filter: brightness(1.05) contrast(1.1) !important;
-}
-
-// Mobile responsive
-@media (max-width: 400px) {
-	.seventv-chat-badge.eloward-rank-badge {
-		width: 20px !important;
-		height: 20px !important;
-		margin: 0 2px 0 0 !important;
-	}
+	filter: brightness(1.05) contrast(1.1);
 }
 </style>

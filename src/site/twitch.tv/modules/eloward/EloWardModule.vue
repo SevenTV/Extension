@@ -9,9 +9,11 @@ import { useEloWardRanks } from "./composables/useEloWardRanks";
 import { useGameDetection } from "./composables/useGameDetection";
 
 const DEV_MODE = import.meta.env.DEV;
+// Temporarily enable logging in production for debugging
+const ENABLE_LOGGING = true;
 function log(message: string, data?: unknown) {
-	if (DEV_MODE) {
-		console.log(`[EloWard-Module] ${message}`, data || "");
+	if (DEV_MODE || ENABLE_LOGGING) {
+		console.log(`[EloWard Module] ${message}`, data || "");
 	}
 }
 
@@ -100,7 +102,7 @@ onUnmounted(() => {
 });
 
 // Expose debug info to window for manual inspection
-if (DEV_MODE && typeof window !== "undefined") {
+if ((DEV_MODE || ENABLE_LOGGING) && typeof window !== "undefined") {
 	(window as any).__ELOWARD_DEBUG__ = {
 		getStatus: () => ({
 			moduleReady: ready.value,

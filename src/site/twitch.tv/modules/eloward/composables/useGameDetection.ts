@@ -3,10 +3,12 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 const LEAGUE_OF_LEGENDS_ID = "21779";
 const LEAGUE_OF_LEGENDS_NAME = "League of Legends";
 const DEV_MODE = import.meta.env.DEV;
+// Temporarily enable logging in production for debugging
+const ENABLE_LOGGING = true;
 
 function perfLog(message: string, data?: unknown) {
-	if (DEV_MODE) {
-		console.log(`[EloWard-GameDetect] ${message}`, data || "");
+	if (DEV_MODE || ENABLE_LOGGING) {
+		console.log(`[EloWard GameDetect] ${message}`, data || "");
 	}
 }
 
@@ -111,8 +113,14 @@ export function useGameDetection() {
 	function updateGame() {
 		const startTime = performance.now();
 
-		if (hasCheckedForCurrentPage.value && window.location.pathname === lastPathname.value) {
-			perfLog("updateGame() - SKIPPED (already checked)");
+		// Only skip if we already have a valid game detected (not null)
+		// This allows retries when DOM wasn't ready
+		if (
+			hasCheckedForCurrentPage.value &&
+			window.location.pathname === lastPathname.value &&
+			currentGame.value !== ""
+		) {
+			perfLog("updateGame() - SKIPPED (already checked with valid result)");
 			return;
 		}
 
@@ -134,10 +142,16 @@ export function useGameDetection() {
 				});
 			} else {
 				currentGameId.value = "";
-				perfLog("updateGame() - Different game detected", {
-					game: detectedGame,
-					duration: `${(performance.now() - startTime).toFixed(2)}ms`,
-				});
+				if (detectedGame === null) {
+					perfLog("updateGame() - No game detected (DOM not ready?)", {
+						duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+					});
+				} else {
+					perfLog("updateGame() - Different game detected", {
+						game: detectedGame,
+						duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+					});
+				}
 			}
 		} else {
 			perfLog("updateGame() - No change", {
@@ -146,7 +160,10 @@ export function useGameDetection() {
 			});
 		}
 
-		hasCheckedForCurrentPage.value = true;
+		// Only mark as checked if we got a valid result
+		if (detectedGame !== null) {
+			hasCheckedForCurrentPage.value = true;
+		}
 		lastPathname.value = window.location.pathname;
 	}
 
@@ -161,11 +178,14 @@ export function useGameDetection() {
 		hasCheckedForCurrentPage.value = false;
 		updateGame();
 
-		checkTimeout = window.setTimeout(() => {
-			perfLog("startObserving() - Second check (1s delay)");
-			updateGame();
-			checkTimeout = null;
-		}, 1000);
+		// Retry multiple times with increasing delays to ensure DOM is ready
+		const retryDelays = [500, 1500, 3000];
+		retryDelays.forEach((delay, index) => {
+			window.setTimeout(() => {
+				perfLog(`startObserving() - Retry ${index + 1} (${delay}ms delay)`);
+				updateGame();
+			}, delay);
+		});
 	}
 
 	/**
