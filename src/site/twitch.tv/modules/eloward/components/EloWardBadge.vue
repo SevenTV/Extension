@@ -45,10 +45,8 @@ const badgeClasses = computed(() => ({
 	"eloward-animated": props.badge.animated,
 }));
 
-// Generate srcset for responsive loading (similar to 7TV badges)
+// Generate srcset for responsive loading
 const srcset = computed(() => {
-	// For now, use the same image for all resolutions
-	// In future, could add different resolution images
 	return `${props.badge.imageUrl} 1x, ${props.badge.imageUrl} 2x`;
 });
 

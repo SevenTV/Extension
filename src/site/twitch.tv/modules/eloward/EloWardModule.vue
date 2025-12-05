@@ -53,30 +53,6 @@ watch(
 onUnmounted(() => {
 	elowardRanks.clearCache();
 });
-
-// Clear cache when leaving League streams
-watch(
-	() => gameDetection.isLeagueStream.value,
-	(isLeague) => {
-		if (!isLeague) {
-			elowardRanks.clearCache();
-		}
-	},
-);
-
-// Clear cache when switching channels
-watch(
-	() => ctx.id,
-	(newChannelId, oldChannelId) => {
-		if (newChannelId !== oldChannelId && newChannelId) {
-			elowardRanks.clearCache();
-		}
-	},
-);
-
-onUnmounted(() => {
-	elowardRanks.clearCache();
-});
 </script>
 
 <script lang="ts">

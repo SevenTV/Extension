@@ -1,4 +1,4 @@
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 const LEAGUE_OF_LEGENDS_ID = "21779";
 const LEAGUE_OF_LEGENDS_NAME = "League of Legends";
@@ -11,7 +11,6 @@ let checkTimeout: number | null = null;
 let isInitialized = false;
 
 export function useGameDetection() {
-
 	/**
 	 * Extract game name from Twitch directory URL
 	 * Turns /directory/category/league-of-legends into "League of Legends"
@@ -34,7 +33,7 @@ export function useGameDetection() {
 	 */
 	function getVodGameFromDom(): string | null {
 		// Primary VOD selector
-		const vodGame = document.querySelector('a[data-a-target="video-info-game-boxart-link"] p');
+		const vodGame = document.querySelector("a[data-a-target='video-info-game-boxart-link'] p");
 		const text = vodGame?.textContent?.trim();
 		if (text) {
 			return text;
@@ -42,7 +41,7 @@ export function useGameDetection() {
 
 		// Fallback selectors for carousels or metadata
 		const previewGameLink = document.querySelector(
-			'a[data-test-selector="preview-card-game-link"], a[data-a-target="preview-card-game-link"]',
+			"a[data-test-selector='preview-card-game-link'], a[data-a-target='preview-card-game-link']",
 		);
 		const text2 = previewGameLink?.textContent?.trim();
 		if (text2) {
@@ -58,14 +57,14 @@ export function useGameDetection() {
 	function getChannelGameFromDom(): string | null {
 		// Priority 1: canonical Twitch selector in channel header
 		const header = document.querySelector("#live-channel-stream-information, .channel-info-content");
-		const link = header?.querySelector('a[data-a-target="stream-game-link"]');
+		const link = header?.querySelector("a[data-a-target='stream-game-link']");
 		const text = link?.textContent?.trim();
 		if (text) {
 			return text;
 		}
 
 		// Priority 2: any visible category link in the header/content
-		const anyCat = header?.querySelector('a[href^="/directory/category/"]');
+		const anyCat = header?.querySelector("a[href^='/directory/category/']");
 		const text2 = anyCat?.textContent?.trim();
 		if (text2) {
 			return text2;
@@ -79,7 +78,7 @@ export function useGameDetection() {
 
 		// Priority 4: broader search (late-loading layouts)
 		const globalCat = document.querySelector(
-			'a[data-a-target="stream-game-link"], a[href^="/directory/category/"]',
+			"a[data-a-target='stream-game-link'], a[href^='/directory/category/']",
 		);
 		const globalText = globalCat?.textContent?.trim();
 		if (globalText) {
