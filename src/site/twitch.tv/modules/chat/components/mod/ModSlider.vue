@@ -13,7 +13,12 @@
 				{{ data.text }}
 			</span>
 		</div>
-		<div v-tooltip:left="'Drag to moderate'" class="grabbable-wrapper">
+		<div
+			ref="sliderRef"
+			class="grabbable-wrapper"
+			@mouseenter="sliderTooltip.show(sliderRef)"
+			@mouseleave="sliderTooltip.hide()"
+		>
 			<div class="grabbable-outer" @pointerdown="handleDown" @pointerup="handleRelease" @pointermove="update">
 				<div
 					class="grabbable-inner"
@@ -41,6 +46,7 @@ import { computed, reactive, ref, toRef } from "vue";
 import type { ChatMessage } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
+import { useTooltip } from "@/composable/useTooltip";
 import { ModSliderData, maxVal } from "./ModSliderBackend";
 
 const props = defineProps<{
@@ -49,6 +55,9 @@ const props = defineProps<{
 
 const ctx = useChannelContext();
 const moderation = useChatModeration(ctx, props.msg.author?.username ?? "");
+
+const sliderRef = ref();
+const sliderTooltip = useTooltip("Drag to moderate", undefined, { placement: "left" });
 
 const transition = ref(false);
 const tracking = ref(false);
@@ -72,6 +81,7 @@ const handleDown = (e: PointerEvent) => {
 	initial = e.pageX;
 	tracking.value = true;
 	(e.target as HTMLElement).setPointerCapture(e.pointerId);
+	sliderTooltip.hide();
 };
 
 const handleRelease = (e: PointerEvent): void => {

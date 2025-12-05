@@ -1,3 +1,25 @@
+### 3.1.15.1000
+
+-   Added required Firefox built-in consent metadata to the manifest
+
+### 3.1.14.1000
+
+-   Fixed internal configs for FireFox
+-   Bump version from 3.1.13 to 3.1.14
+
+### 3.1.13.1000
+
+-   Fixed an issue which led to VODs not showing emotes
+-   Hide the moderation slider tooltip when dragging
+
+### 3.1.12.3000
+
+-   Removed obfuscator plugin and obfuscation build steps for deterministic build output
+
+### 3.1.11.3000
+
+-   Fixed an issue which led to some messages (like announcements) not displaying correctly
+
 ### 3.1.11.2000
 
 -   Bumped version from 3.1.10 to 3.1.11

@@ -47,7 +47,9 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 								typeof opt.mozillaID === "string"
 									? opt.mozillaID.trim().replace(/^"+|"+$/g, "")
 									: undefined,
-							update_url: "https://extension.7tv.gg/manifest.moz.json",
+							data_collection_permissions: {
+								required: ["browsingActivity", "websiteContent"],
+							},
 						},
 					},
 			  }

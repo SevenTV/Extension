@@ -123,7 +123,6 @@ const onMessage = (msgData: Twitch.AnyMessage): boolean => {
 		case MessageType.ANNOUNCEMENT_MESSAGE:
 		case MessageType.RESTRICTED_LOW_TRUST_USER_MESSAGE:
 		case MessageType.BITS_BADGE_TIER_MESSAGE:
-		case MessageType.COMMUNITY_INTRODUCTION:
 		case MessageType.VIEWER_MILESTONE:
 		case MessageType.CONNECTED:
 			onChatMessage(msg, msgData);
