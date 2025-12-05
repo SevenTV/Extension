@@ -263,8 +263,8 @@ watch(() => gameDetection.isLeagueStream.value, initializeEloWardBadge);
 		display: inline-flex !important;
 		align-items: center !important;
 		vertical-align: baseline !important;
-		gap: 0px !important;
-		margin-right: 0px !important;
+		gap: 0 !important;
+		margin-right: 0 !important;
 
 		:deep(img) {
 			vertical-align: middle;
@@ -275,13 +275,13 @@ watch(() => gameDetection.isLeagueStream.value, initializeEloWardBadge);
 		}
 	}
 
+	.seventv-chat-user-username {
+		font-weight: 700;
+	}
+
 	// Username spacing after badge list
 	.seventv-chat-user-badge-list + .seventv-chat-user-username {
 		margin-left: 2px !important;
-	}
-
-	.seventv-chat-user-username {
-		font-weight: 700;
 	}
 }
 

@@ -112,6 +112,7 @@ const regionDisplay = computed(() => {
 }
 
 // Dark theme
+/* stylelint-disable-next-line selector-class-pattern */
 :global(.tw-root--theme-dark) .eloward-tooltip-content {
 	.eloward-rank-line {
 		color: #efeff1;
@@ -128,6 +129,7 @@ const regionDisplay = computed(() => {
 }
 
 // Light theme
+/* stylelint-disable-next-line selector-class-pattern */
 :global(.tw-root--theme-light) .eloward-tooltip-content {
 	.eloward-rank-line {
 		color: #0e0e10;
