@@ -462,9 +462,47 @@ export const config = [
 	}),
 	declareConfig("chat.hide_shared_chat", "TOGGLE", {
 		label: "Hide Shared Chat",
-		hint: "Hides messages from other chats",
-		path: ["Chat", "Style"],
+		hint: "Hide messages from other chats",
+		path: ["Chat", "Shared Chat", 100],
 		defaultValue: false,
+	}),
+	declareConfig<number>("chat.shared_chat.pill_style", "DROPDOWN", {
+		path: ["Chat", "Shared Chat", 101],
+		label: "Chat Pill Style",
+		hint: "Choose how or if, to show shared chat pills",
+		options: [
+			["Off", 0],
+			["Rounded", 1],
+			["Circle", 2],
+		],
+		defaultValue: 2,
+	}),
+	declareConfig("chat.shared_chat.pill_only_mod", "TOGGLE", {
+		label: "Show Chat Pill only when Moderator or Streamer",
+		hint: "Whether or not to show the pill only when in chats where you are Moderator or Streamer",
+		path: ["Chat", "Shared Chat", 102],
+		disabledIf: () => useConfig<number>("chat.shared_chat.pill_style").value === 0,
+		defaultValue: true,
+	}),
+	declareConfig("chat.shared_chat.source_border", "TOGGLE", {
+		label: "Show Source Chat Border",
+		hint: "Whether or not to show a highlighted border around pills, sent in the source chat",
+		path: ["Chat", "Shared Chat", 103],
+		defaultValue: true,
+	}),
+	declareConfig("chat.shared_chat.custom_source_border", "TOGGLE", {
+		label: "Use Custom Border Color",
+		hint: "Whether or not to use a custom highlighted border around pills",
+		path: ["Chat", "Shared Chat", 104],
+		disabledIf: () => !useConfig("chat.shared_chat.source_border").value,
+		defaultValue: false,
+	}),
+	declareConfig("chat.shared_chat.source_border_color", "COLOR", {
+		label: "Custom Source Chat Border Color",
+		hint: "Configure the color of the highlighted border around pills",
+		path: ["Chat", "Shared Chat", 105],
+		disabledIf: () => !useConfig("chat.shared_chat.custom_source_border").value,
+		defaultValue: "#29B6F6",
 	}),
 ];
 </script>

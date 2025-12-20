@@ -22,6 +22,20 @@
 			:data-highlight-label="msg.highlight.label"
 		/>
 
+		<div
+			v-if="msg.sourceData && shouldShowPill"
+			v-tooltip="`Sent from ${msg.sourceData.displayName}'s channel`"
+			:alt="`Sent from ${msg.sourceData.displayName}'s channel`"
+			class="seventv-chat-message-shared-chat-icon"
+			:style="{
+				'--seventv-pill-border-color': pillBorderColor,
+			}"
+			:data-pill-style="sharedChatPillStyle"
+			:data-use-border="sharedChatSourceBorder"
+		>
+			<img :srcset="msg.sourceData.profileImageURL" :alt="msg.sourceData.displayName" />
+		</div>
+
 		<!-- Timestamp -->
 		<template v-if="properties.showTimestamps || msg.historical || forceTimestamp">
 			<span class="seventv-chat-message-timestamp">
@@ -38,7 +52,6 @@
 		<UserTag
 			v-if="msg.author && !hideAuthor"
 			:user="msg.author"
-			:source-data="msg.sourceData"
 			:badges="msg.badges"
 			:msg-id="msg.sym"
 			@open-native-card="openViewerCard($event, msg.author.username, msg.id)"
@@ -90,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch, watchEffect } from "vue";
+import { computed, ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
@@ -144,6 +157,12 @@ const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? 
 
 const emoteScale = useConfig<number>("chat.emote_scale");
 
+const sharedChatPillStyle = useConfig<0 | 1 | 2>("chat.shared_chat.pill_style");
+const sharedChatPillOnlyMod = useConfig<boolean>("chat.shared_chat.pill_only_mod");
+const sharedChatSourceBorder = useConfig<boolean>("chat.shared_chat.source_border");
+const sharedChatCustomSourceBorder = useConfig<boolean>("chat.shared_chat.custom_source_border");
+const sharedChatCustomSourceBorderColor = useConfig<string>("chat.shared_chat.source_border_color");
+
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");
 const highlightStyle = useConfig<number>("highlights.display_style");
@@ -159,6 +178,27 @@ const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emote
 
 // Timestamp
 const timestamp = ref("");
+
+// Shared Chat
+const shouldShowPill = computed(() => {
+	if (sharedChatPillOnlyMod.value && !ctx.actor.roles.has("MODERATOR")) {
+		return false;
+	}
+
+	return sharedChatPillStyle.value !== 0;
+});
+
+const pillBorderColor = computed(() => {
+	if (!sharedChatSourceBorder.value || ctx.username !== msg.value.sourceData?.login) {
+		return "transparent";
+	}
+
+	if (sharedChatCustomSourceBorder.value) {
+		return sharedChatCustomSourceBorderColor.value;
+	}
+
+	return "var(--seventv-channel-accent)";
+});
 
 // Tokenize the message
 type MessageTokenOrText = AnyToken | string;
@@ -348,5 +388,42 @@ watchEffect(() => {
 	font-variant-numeric: tabular-nums;
 	letter-spacing: -0.1rem;
 	color: var(--seventv-muted);
+}
+
+.seventv-chat-message-shared-chat-icon {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	width: 2.2rem;
+	height: 2.2rem;
+	margin-right: 0.5rem;
+	overflow: hidden;
+	vertical-align: middle;
+
+	img {
+		width: 100%;
+		height: 100%;
+	}
+
+	&[data-use-border="true"] {
+		padding: 0.2rem;
+		border: 2px solid var(--seventv-pill-border-color);
+	}
+
+	&[data-pill-style="1"] {
+		border-radius: 0.3em;
+
+		img {
+			border-radius: 0.1em;
+		}
+	}
+
+	&[data-pill-style="2"] {
+		border-radius: 100%;
+
+		img {
+			border-radius: 100%;
+		}
+	}
 }
 </style>
