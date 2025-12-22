@@ -12,6 +12,11 @@ messages:
     mod_ban_user_reason: "{actor} banned {victim} ({reason})"
     mod_undo_ban_user: "{actor} unbanned {victim}"
 
+badges:
+    subscriber:
+        tiered_months: "Tier {tier} for {months} Months | Tier {tier} for {months} Month | Tier {tier} for {months} Months"
+        months: "{months} Months | {months} Month | {months} Months"
+
 user_card:
     add_comment_input_placeholder: Add a comment
     account_created_date: Account created on {date}
