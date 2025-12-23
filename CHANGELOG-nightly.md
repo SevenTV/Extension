@@ -1,3 +1,9 @@
+### 3.1.15.2000
+
+-   Added custom moderation action reasons
+-   Added an option to select the default timeout duration
+-   Added an option to hide the pin confirmation prompt
+
 ### 3.1.15.1000
 
 -   Added required Firefox built-in consent metadata to the manifest
