@@ -241,6 +241,7 @@ definePropertyHook(controller.value.component, "props", {
 
 		// Keep track of chat props
 		properties.isDarkTheme = v.theme;
+		properties.chatRules = v.chatRules ?? [];
 
 		// Send presence upon message sent
 		messages.sendMessage = v.chatConnectionAPI.sendMessage;
