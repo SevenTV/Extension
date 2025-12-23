@@ -9,10 +9,10 @@
 
 		<UiScrollable>
 			<span
-				class="reason"
 				v-for="(reason, index) of reasons.length === 0 ? defaultReasons : reasons"
+				class="reason"
 				:key="index"
-				v-on:click="emit('select', action, reason, duration)"
+				@on:click="emit('select', action, reason, duration)"
 			>
 				{{ reason }}
 			</span>
@@ -20,10 +20,10 @@
 			<template v-if="showChatRules && properties.chatRules.length > 0">
 				<hr />
 				<span
-					class="reason"
 					v-for="(reason, index) of properties.chatRules"
+					class="reason"
 					:key="index"
-					v-on:click="emit('select', action, reason, duration)"
+					@on:click="emit('select', action, reason, duration)"
 				>
 					{{ reason }}
 				</span>
@@ -39,7 +39,7 @@ import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useConfig } from "@/composable/useSettings";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
-const props = defineProps<{
+defineProps<{
 	action: "timeout" | "ban";
 	msg: ChatMessage;
 	duration?: string;

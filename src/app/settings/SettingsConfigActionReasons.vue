@@ -5,7 +5,7 @@
 		</div>
 
 		<UiScrollable>
-			<div class="seventv-settings-action-reason-item" v-for="(reason, index) in reasons">
+			<div v-for="(reason, index) in reasons" :key="index" class="seventv-settings-action-reason-item">
 				<div class="controls">
 					<div class="control" @click="onReasonMove(index, 'up')">
 						<ArrowIcon for="exit-icon" direction="up" />
@@ -18,9 +18,9 @@
 					<div class="use-virtual-input" tabindex="0" @click="onInputFocus(index)">
 						<span>{{ reason }}</span>
 						<FormInput
-							@blur="onInputBlur(index)"
 							:model-value="reason"
 							:ref="(n) => virtualInputs.set(index, n as InstanceType<typeof FormInput>)"
+							@blur="onInputBlur(index)"
 						/>
 					</div>
 					<div v-tooltip="'Remove'" class="control" @click="onReasonRemove(index)">
