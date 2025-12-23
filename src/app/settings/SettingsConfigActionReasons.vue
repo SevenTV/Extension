@@ -18,8 +18,8 @@
 					<div class="use-virtual-input" tabindex="0" @click="onInputFocus(index)">
 						<span>{{ reason }}</span>
 						<FormInput
-							:model-value="reason"
 							:ref="(n) => virtualInputs.set(index, n as InstanceType<typeof FormInput>)"
+							:model-value="reason"
 							@blur="onInputBlur(index)"
 						/>
 					</div>

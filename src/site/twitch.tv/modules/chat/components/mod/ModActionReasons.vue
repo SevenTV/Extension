@@ -10,8 +10,8 @@
 		<UiScrollable>
 			<span
 				v-for="(reason, index) of reasons.length === 0 ? defaultReasons : reasons"
-				class="reason"
 				:key="index"
+				class="reason"
 				@on:click="emit('select', action, reason, duration)"
 			>
 				{{ reason }}
@@ -21,8 +21,8 @@
 				<hr />
 				<span
 					v-for="(reason, index) of properties.chatRules"
-					class="reason"
 					:key="index"
+					class="reason"
 					@on:click="emit('select', action, reason, duration)"
 				>
 					{{ reason }}
