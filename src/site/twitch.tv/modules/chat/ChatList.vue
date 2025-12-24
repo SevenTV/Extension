@@ -171,12 +171,13 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		sourceRoomID = msg.channelID;
 	}
 
-	if (hideSharedChat.value && msg.channelID != sourceRoomID) {
+	const sourceData = sourceRoomID ? sharedChatData.value?.get(sourceRoomID) : undefined;
+	if (hideSharedChat.value && sourceData && msg.channelID != sourceRoomID) {
 		return;
 	}
 
 	if (sourceRoomID && !hideSharedChat.value) {
-		msgData.sourceData = sharedChatData.value?.get(sourceRoomID);
+		msgData.sourceData = sourceData;
 		msg.setSourceData(msgData.sourceData);
 	}
 

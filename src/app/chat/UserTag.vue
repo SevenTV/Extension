@@ -13,13 +13,6 @@
 			class="seventv-chat-user-badge-list"
 		>
 			<Badge
-				v-if="sourceData"
-				:key="sourceData.login"
-				:badge="sourceData"
-				:alt="sourceData.displayName"
-				type="picture"
-			/>
-			<Badge
 				v-for="badge of twitchBadges"
 				:key="badge.id"
 				:badge="badge"
