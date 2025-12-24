@@ -410,6 +410,11 @@ watchEffect(() => {
 		border: 2px solid var(--seventv-pill-border-color);
 	}
 
+	&[data-use-border="false"] {
+		width: 1.8rem;
+		height: 1.8rem;
+	}
+
 	&[data-pill-style="1"] {
 		border-radius: 0.3em;
 
