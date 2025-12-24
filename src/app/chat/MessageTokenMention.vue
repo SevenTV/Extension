@@ -12,6 +12,7 @@
 			is-mention
 			:hide-at="!hasAt"
 			hide-badges
+			hide-intl
 		/>
 	</span>
 </template>
