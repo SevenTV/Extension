@@ -482,7 +482,7 @@ export const config = [
 		hint: "Whether or not to show the pill only when in chats where you are Moderator or Streamer",
 		path: ["Chat", "Shared Chat", 102],
 		disabledIf: () => useConfig<number>("chat.shared_chat.pill_style").value === 0,
-		defaultValue: true,
+		defaultValue: false,
 	}),
 	declareConfig("chat.shared_chat.source_border", "TOGGLE", {
 		label: "Show Source Chat Border",
