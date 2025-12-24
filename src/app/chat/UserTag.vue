@@ -47,7 +47,9 @@
 			<span v-cosmetic-paint="shouldPaint ? paint!.id : null">
 				<span v-if="isMention && !hideAt">@</span>
 				<span>{{ user.displayName }}</span>
-				<span v-if="user.intl"> ({{ user.username }})</span>
+				<span v-if="user.intl && !hideIntl" class="seventv-chat-user-username-login">
+					({{ user.username }})</span
+				>
 			</span>
 		</span>
 	</div>
@@ -87,6 +89,7 @@ const props = withDefaults(
 		isMention?: boolean;
 		hideAt?: boolean;
 		hideBadges?: boolean;
+		hideIntl?: boolean;
 		clickable?: boolean;
 		badges?: Record<string, string>;
 	}>(),
@@ -208,6 +211,16 @@ const stop = watch(
 
 	.seventv-chat-user-username {
 		font-weight: 700;
+
+		.seventv-chat-user-username-login {
+			font-weight: initial;
+		}
+
+		> span:not([data-seventv-painted-text]) {
+			.seventv-chat-user-username-login {
+				opacity: 0.6;
+			}
+		}
 	}
 }
 
