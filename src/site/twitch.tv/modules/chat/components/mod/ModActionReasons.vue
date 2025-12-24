@@ -70,6 +70,7 @@ const defaultReasons: string[] = [
 	display: grid;
 	grid-template-rows: min-content 1fr;
 	max-height: 45vh;
+	max-width: 35rem;
 	border-radius: 0.33rem;
 	background-color: var(--seventv-background-transparent-3);
 	outline: 0.1em solid var(--seventv-border-transparent-1);
