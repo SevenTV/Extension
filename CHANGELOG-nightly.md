@@ -1,3 +1,7 @@
+### 3.1.15.2000
+
+-   Fixed an issue that caused duplicate messages to be modified without the bypass option enabled
+
 ### 3.1.15.1000
 
 -   Added required Firefox built-in consent metadata to the manifest
