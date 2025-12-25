@@ -52,8 +52,10 @@ const emit = defineEmits<{
 
 const chatModule = getModuleRef<"TWITCH", "chat">("chat");
 const rootEl = toRef(props.instance.domNodes, "root");
+
 const aprilFoolsDisabled = useConfig<boolean>("chat.font-april-fools", false);
 const aprilFoolsDismissed = useConfig<boolean>("chat.font-april-fools-dismissed", false);
+const shouldBypassDuplicateCheck = useConfig("chat_input.spam.bypass_duplicate");
 
 const suggestContainer = useFloatScreen(rootEl, {
 	enabled: () => props.suggest,
@@ -81,6 +83,7 @@ function handleAprilFoolsAnswer(answer: string): void {
 	}
 	aprilFoolsDismissed.value = true;
 }
+
 let prevMessage = "";
 function handleDuplicateMessage(content: string): string {
 	if (typeof content === "string" && content === prevMessage) {
@@ -106,11 +109,22 @@ watch(
 	chatModule,
 	(mod) => {
 		if (!mod || !mod.instance) return;
+		if (!shouldBypassDuplicateCheck.value) return;
 
 		mod.instance.messageSendMiddleware.set("handle-dupe", handleDuplicateMessage);
 	},
 	{ immediate: true },
 );
+
+watch(shouldBypassDuplicateCheck, (shouldBypass) => {
+	if (!chatModule.value?.instance) return;
+
+	if (shouldBypass) {
+		chatModule.value.instance.messageSendMiddleware.set("handle-dupe", handleDuplicateMessage);
+	} else {
+		chatModule.value.instance.messageSendMiddleware.delete("handle-dupe");
+	}
+});
 
 onUnmounted(() => {
 	if (!chatModule.value?.instance) return;
