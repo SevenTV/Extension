@@ -47,6 +47,9 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 								typeof opt.mozillaID === "string"
 									? opt.mozillaID.trim().replace(/^"+|"+$/g, "")
 									: undefined,
+							data_collection_permissions: {
+								required: ["browsingActivity", "websiteContent"],
+							},
 						},
 					},
 			  }
