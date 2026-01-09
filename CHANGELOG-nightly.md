@@ -1,3 +1,7 @@
+### 3.1.16.1000
+
+-   Added priority system for custom highlights
+
 ### 3.1.15.1000
 
 -   Added required Firefox built-in consent metadata to the manifest

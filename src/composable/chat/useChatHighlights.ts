@@ -17,6 +17,8 @@ interface ChatHighlights {
 	sortedBadgeCache: HighlightDef[] | null;
 	// Version counter to force Vue reactivity on cache invalidation
 	cacheVersion: number;
+	// Track max priority to avoid O(n) scan on each new highlight
+	currentMaxPriority: number;
 }
 
 export interface HighlightDef {
@@ -68,24 +70,23 @@ export function useChatHighlights(ctx: ChannelContext) {
 		ping: useSound(assetsBase + "/sound/ping.ogg"),
 	});
 
-	// Track the current max priority to avoid O(n) scan on each ensurePriority call
-	let currentMaxPriority = 0;
-
 	// Ensures a highlight has a valid priority assigned.
 	// If missing or invalid, assigns currentMaxPriority + 1 so new/legacy entries land at the end.
 	function ensurePriority(h: HighlightDef): void {
+		if (!data) return;
+
 		// Validate existing priority: must be a finite positive integer
 		if (typeof h.priority === "number" && Number.isFinite(h.priority) && h.priority >= 1) {
 			// Update max tracker if this priority is higher
-			if (h.priority > currentMaxPriority) {
-				currentMaxPriority = h.priority;
+			if (h.priority > data.currentMaxPriority) {
+				data.currentMaxPriority = h.priority;
 			}
 			return;
 		}
 
 		// Assign next available priority
-		currentMaxPriority++;
-		h.priority = currentMaxPriority;
+		data.currentMaxPriority++;
+		h.priority = data.currentMaxPriority;
 	}
 
 	// Invalidates this context's sort caches
@@ -109,6 +110,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 			sortedUsernameCache: null,
 			sortedBadgeCache: null,
 			cacheVersion: 0,
+			currentMaxPriority: 0,
 		}) as ChatHighlights;
 
 		watch(
@@ -125,7 +127,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 				}
 
 				// Reset max priority before loading
-				currentMaxPriority = 0;
+				data.currentMaxPriority = 0;
 
 				for (const [, v] of h) {
 					ensurePriority(v);
@@ -218,7 +220,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		}
 
 		// Update max priority (it's simply the count after sequential re-numbering)
-		currentMaxPriority = remaining.length;
+		data.currentMaxPriority = remaining.length;
 
 		// Invalidate caches
 		invalidateSortCache();
@@ -462,7 +464,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		}
 
 		// Max priority is simply the count after sequential re-numbering
-		currentMaxPriority = filtered.length;
+		data.currentMaxPriority = filtered.length;
 
 		// Invalidate cache since priorities changed
 		invalidateSortCache();
