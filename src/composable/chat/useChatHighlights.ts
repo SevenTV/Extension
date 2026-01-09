@@ -10,6 +10,13 @@ import { useConfig } from "../useSettings";
 
 interface ChatHighlights {
 	highlights: Record<string, HighlightDef>;
+	// Per-context sorted caches - invalidated when highlights change
+	sortedCache: HighlightDef[] | null;
+	sortedPhraseCache: HighlightDef[] | null;
+	sortedUsernameCache: HighlightDef[] | null;
+	sortedBadgeCache: HighlightDef[] | null;
+	// Version counter to force Vue reactivity on cache invalidation
+	cacheVersion: number;
 }
 
 export interface HighlightDef {
@@ -46,9 +53,7 @@ const m = new WeakMap<ChannelContext, ChatHighlights>();
 const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
 const soundVolume = useConfig<number>("highlights.sound_volume");
 
-/**
- * Gets the category of a highlight based on its flags.
- */
+// Gets the category of a highlight based on its flags.
 function getHighlightCategory(h: HighlightDef): "phrase" | "username" | "badge" {
 	if (h.username) return "username";
 	if (h.badge) return "badge";
@@ -63,11 +68,48 @@ export function useChatHighlights(ctx: ChannelContext) {
 		ping: useSound(assetsBase + "/sound/ping.ogg"),
 	});
 
+	// Track the current max priority to avoid O(n) scan on each ensurePriority call
+	let currentMaxPriority = 0;
+
+	// Ensures a highlight has a valid priority assigned.
+	// If missing or invalid, assigns currentMaxPriority + 1 so new/legacy entries land at the end.
+	function ensurePriority(h: HighlightDef): void {
+		// Validate existing priority: must be a finite positive integer
+		if (typeof h.priority === "number" && Number.isFinite(h.priority) && h.priority >= 1) {
+			// Update max tracker if this priority is higher
+			if (h.priority > currentMaxPriority) {
+				currentMaxPriority = h.priority;
+			}
+			return;
+		}
+
+		// Assign next available priority
+		currentMaxPriority++;
+		h.priority = currentMaxPriority;
+	}
+
+	// Invalidates this context's sort caches
+	function invalidateSortCache(): void {
+		if (!data) return;
+		data.sortedCache = null;
+		data.sortedPhraseCache = null;
+		data.sortedUsernameCache = null;
+		data.sortedBadgeCache = null;
+		// Increment version to trigger Vue reactivity
+		data.cacheVersion++;
+	}
+
 	let data = m.get(ctx);
 	if (!data) {
+		// Make data reactive so Vue tracks cache invalidation
 		data = reactive<ChatHighlights>({
 			highlights: {},
-		});
+			sortedCache: null,
+			sortedPhraseCache: null,
+			sortedUsernameCache: null,
+			sortedBadgeCache: null,
+			cacheVersion: 0,
+		}) as ChatHighlights;
 
 		watch(
 			customHighlights,
@@ -82,12 +124,18 @@ export function useChatHighlights(ctx: ChannelContext) {
 					delete data.highlights[k];
 				}
 
+				// Reset max priority before loading
+				currentMaxPriority = 0;
+
 				for (const [, v] of h) {
-					ensurePriority(v, data);
+					ensurePriority(v);
 					data.highlights[v.id] = v;
 					updateSoundData(v);
 					updateFlashTitle(v);
 				}
+
+				// Invalidate sort cache after bulk load
+				invalidateSortCache();
 			},
 			{
 				immediate: true,
@@ -97,24 +145,13 @@ export function useChatHighlights(ctx: ChannelContext) {
 		m.set(ctx, data);
 	}
 
-	/**
-	 * Ensures a highlight has a priority assigned.
-	 * If missing, assigns maxPriority + 1 so new/legacy entries land at the end of ordering.
-	 */
-	function ensurePriority(h: HighlightDef, dataRef: ChatHighlights): void {
-		if (typeof h.priority === "number") return;
-
-		const existing = Object.values(dataRef.highlights);
-		const maxPriority = existing.length ? Math.max(...existing.map((x) => x.priority ?? 0)) : 0;
-		h.priority = maxPriority + 1;
-	}
-
 	const save = debounceFn(function (): void {
 		if (!data) return;
 
-		const items: [string, HighlightDef][] = Array.from(Object.values(data.highlights))
-			.filter((h) => h.persist)
-			.map((h) => [
+		const items: [string, HighlightDef][] = [];
+		for (const h of Object.values(data.highlights)) {
+			if (!h.persist) continue;
+			items.push([
 				h.id,
 				toRaw({
 					...h,
@@ -123,6 +160,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 					flashTitleFn: undefined,
 				}),
 			]);
+		}
 
 		customHighlights.value = new Map(items);
 	}, 250);
@@ -131,8 +169,11 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!data) return {} as HighlightDef;
 
 		const h = (data.highlights[id] = { ...def, id, persist });
-		ensurePriority(h, data);
+		ensurePriority(h);
 		updateSoundData(h);
+
+		// Invalidate cache when adding new highlight
+		invalidateSortCache();
 
 		if (!persist) return h;
 
@@ -169,13 +210,18 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		delete data.highlights[id];
 
-		// Re-number priorities sequentially after removal
-		const remaining = Object.values(data.highlights).sort(
-			(a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity),
-		);
-		remaining.forEach((h, index) => {
-			h.priority = index + 1;
-		});
+		// Re-number priorities sequentially after removal to avoid gaps
+		// Use fresh sort since cache will be invalidated anyway
+		const remaining = Object.values(data.highlights).sort(priorityComparator);
+		for (let i = 0; i < remaining.length; i++) {
+			remaining[i].priority = i + 1;
+		}
+
+		// Update max priority (it's simply the count after sequential re-numbering)
+		currentMaxPriority = remaining.length;
+
+		// Invalidate caches
+		invalidateSortCache();
 
 		save();
 	}
@@ -214,9 +260,10 @@ export function useChatHighlights(ctx: ChannelContext) {
 		} else if (h.username) {
 			ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
 		} else if (h.badge) {
-			ok =
-				Object.keys(msg.badges).indexOf(h.pattern?.toLowerCase() ?? "") > -1 &&
-				Object.values(msg.badges).indexOf(h.version?.toLowerCase() ?? "") > -1;
+			// Check if badge ID exists and version matches
+			const badgeId = h.pattern?.toLowerCase() ?? "";
+			const badgeVersion = h.version?.toLowerCase() ?? "";
+			ok = badgeId in msg.badges && msg.badges[badgeId]?.toLowerCase() === badgeVersion;
 		}
 
 		if (ok) {
@@ -302,71 +349,105 @@ export function useChatHighlights(ctx: ChannelContext) {
 		return toReactive(filteredHighlights);
 	}
 
-	/**
-	 * Returns all highlights sorted by priority (ascending: 1 = highest priority).
-	 * Used by the matching loop to determine which highlight applies first.
-	 */
+	// Comparator for priority sorting (ascending: 1 = highest priority)
+	const priorityComparator = (a: HighlightDef, b: HighlightDef): number =>
+		(a.priority ?? Infinity) - (b.priority ?? Infinity);
+
+	// Returns all highlights sorted by priority (ascending: 1 = highest priority).
+	// Uses cached array - only re-sorts when highlights change.
 	function getAllSorted(): HighlightDef[] {
 		if (!data) return [];
 
-		return Object.values(data.highlights)
-			.slice()
-			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+		// Access cacheVersion to create reactive dependency
+		void data.cacheVersion;
+
+		if (!data.sortedCache) {
+			data.sortedCache = Object.values(data.highlights).sort(priorityComparator);
+		}
+		return data.sortedCache;
 	}
 
-	/**
-	 * Returns phrase highlights sorted by priority (ascending: 1 = highest).
-	 */
+	// Returns phrase highlights sorted by priority (ascending: 1 = highest).
+	// Uses cached array - only re-sorts when highlights change.
 	function getAllPhraseHighlightsSorted(): HighlightDef[] {
 		if (!data) return [];
 
-		return Object.values(data.highlights)
-			.filter((h) => h.phrase === true || (!h.phrase && !h.username && !h.badge))
-			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+		// Access cacheVersion to create reactive dependency
+		void data.cacheVersion;
+
+		if (!data.sortedPhraseCache) {
+			const result: HighlightDef[] = [];
+			for (const h of Object.values(data.highlights)) {
+				if (h.phrase === true || (!h.phrase && !h.username && !h.badge)) {
+					result.push(h);
+				}
+			}
+			result.sort(priorityComparator);
+			data.sortedPhraseCache = result;
+		}
+		return data.sortedPhraseCache;
 	}
 
-	/**
-	 * Returns username highlights sorted by priority (ascending: 1 = highest).
-	 */
+	// Returns username highlights sorted by priority (ascending: 1 = highest).
+	// Uses cached array - only re-sorts when highlights change.
 	function getAllUsernameHighlightsSorted(): HighlightDef[] {
 		if (!data) return [];
 
-		return Object.values(data.highlights)
-			.filter((h) => h.username === true)
-			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+		// Access cacheVersion to create reactive dependency
+		void data.cacheVersion;
+
+		if (!data.sortedUsernameCache) {
+			const result: HighlightDef[] = [];
+			for (const h of Object.values(data.highlights)) {
+				if (h.username === true) {
+					result.push(h);
+				}
+			}
+			result.sort(priorityComparator);
+			data.sortedUsernameCache = result;
+		}
+		return data.sortedUsernameCache;
 	}
 
-	/**
-	 * Returns badge highlights sorted by priority (ascending: 1 = highest).
-	 */
+	// Returns badge highlights sorted by priority (ascending: 1 = highest).
+	// Uses cached array - only re-sorts when highlights change.
 	function getAllBadgeHighlightsSorted(): HighlightDef[] {
 		if (!data) return [];
 
-		return Object.values(data.highlights)
-			.filter((h) => h.badge === true)
-			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+		// Access cacheVersion to create reactive dependency
+		void data.cacheVersion;
+
+		if (!data.sortedBadgeCache) {
+			const result: HighlightDef[] = [];
+			for (const h of Object.values(data.highlights)) {
+				if (h.badge === true) {
+					result.push(h);
+				}
+			}
+			result.sort(priorityComparator);
+			data.sortedBadgeCache = result;
+		}
+		return data.sortedBadgeCache;
 	}
 
-	/**
-	 * Sets the priority for a highlight and re-numbers other highlights to avoid duplicates.
-	 * Priority 1 is highest. If newPriority already exists, shifts other highlights down.
-	 */
+	// Sets the priority for a highlight and re-numbers other highlights to avoid duplicates.
+	// Priority 1 is highest. If newPriority already exists, shifts other highlights.
 	function setPriority(id: string, newPriority: number): void {
 		if (!data) return;
 
 		const highlight = data.highlights[id];
 		if (!highlight) return;
 
-		// Ensure newPriority is at least 1
+		// Validate and clamp newPriority
+		if (!Number.isFinite(newPriority)) return;
 		newPriority = Math.max(1, Math.floor(newPriority));
 
 		const oldPriority = highlight.priority ?? Infinity;
 		if (oldPriority === newPriority) return;
 
-		// Get all highlights sorted by current priority
-		const allHighlights = Object.values(data.highlights).sort(
-			(a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity),
-		);
+		// Always use fresh sort for setPriority to ensure correct ordering
+		// This is only called on user interaction, not per-message, so O(n log n) is fine
+		const allHighlights = Object.values(data.highlights).sort(priorityComparator);
 
 		// Remove the highlight from its current position
 		const filtered = allHighlights.filter((h) => h.id !== id);
@@ -376,9 +457,15 @@ export function useChatHighlights(ctx: ChannelContext) {
 		filtered.splice(insertIndex, 0, highlight);
 
 		// Re-number all priorities sequentially starting from 1
-		filtered.forEach((h, index) => {
-			h.priority = index + 1;
-		});
+		for (let i = 0; i < filtered.length; i++) {
+			filtered[i].priority = i + 1;
+		}
+
+		// Max priority is simply the count after sequential re-numbering
+		currentMaxPriority = filtered.length;
+
+		// Invalidate cache since priorities changed
+		invalidateSortCache();
 
 		save();
 	}
@@ -393,6 +480,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 		delete data.highlights[oldId];
 
 		h.id = newId;
+
+		// Invalidate cache since the object reference in cache may be stale
+		invalidateSortCache();
 
 		save();
 	}
