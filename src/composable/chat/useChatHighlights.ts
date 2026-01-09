@@ -38,12 +38,22 @@ export interface HighlightDef {
 	badge?: boolean;
 	badgeURL?: string;
 	version?: string;
+	priority?: number;
 }
 
 const m = new WeakMap<ChannelContext, ChatHighlights>();
 
 const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
 const soundVolume = useConfig<number>("highlights.sound_volume");
+
+/**
+ * Gets the category of a highlight based on its flags.
+ */
+function getHighlightCategory(h: HighlightDef): "phrase" | "username" | "badge" {
+	if (h.username) return "username";
+	if (h.badge) return "badge";
+	return "phrase"; // Default to phrase (includes phrase=true or no category flags)
+}
 
 export function useChatHighlights(ctx: ChannelContext) {
 	const visibility = useDocumentVisibility();
@@ -63,6 +73,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 			customHighlights,
 			(h) => {
 				if (!data) return;
+				if (!h) return;
 
 				// Clear all custom highlights
 				for (const [k, v] of Object.entries(data.highlights)) {
@@ -72,6 +83,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 				}
 
 				for (const [, v] of h) {
+					ensurePriority(v, data);
 					data.highlights[v.id] = v;
 					updateSoundData(v);
 					updateFlashTitle(v);
@@ -83,6 +95,18 @@ export function useChatHighlights(ctx: ChannelContext) {
 		);
 
 		m.set(ctx, data);
+	}
+
+	/**
+	 * Ensures a highlight has a priority assigned.
+	 * If missing, assigns maxPriority + 1 so new/legacy entries land at the end of ordering.
+	 */
+	function ensurePriority(h: HighlightDef, dataRef: ChatHighlights): void {
+		if (typeof h.priority === "number") return;
+
+		const existing = Object.values(dataRef.highlights);
+		const maxPriority = existing.length ? Math.max(...existing.map((x) => x.priority ?? 0)) : 0;
+		h.priority = maxPriority + 1;
 	}
 
 	const save = debounceFn(function (): void {
@@ -107,6 +131,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!data) return {} as HighlightDef;
 
 		const h = (data.highlights[id] = { ...def, id, persist });
+		ensurePriority(h, data);
 		updateSoundData(h);
 
 		if (!persist) return h;
@@ -143,6 +168,15 @@ export function useChatHighlights(ctx: ChannelContext) {
 		if (!data) return;
 
 		delete data.highlights[id];
+
+		// Re-number priorities sequentially after removal
+		const remaining = Object.values(data.highlights).sort(
+			(a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity),
+		);
+		remaining.forEach((h, index) => {
+			h.priority = index + 1;
+		});
+
 		save();
 	}
 
@@ -268,6 +302,87 @@ export function useChatHighlights(ctx: ChannelContext) {
 		return toReactive(filteredHighlights);
 	}
 
+	/**
+	 * Returns all highlights sorted by priority (ascending: 1 = highest priority).
+	 * Used by the matching loop to determine which highlight applies first.
+	 */
+	function getAllSorted(): HighlightDef[] {
+		if (!data) return [];
+
+		return Object.values(data.highlights)
+			.slice()
+			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+	}
+
+	/**
+	 * Returns phrase highlights sorted by priority (ascending: 1 = highest).
+	 */
+	function getAllPhraseHighlightsSorted(): HighlightDef[] {
+		if (!data) return [];
+
+		return Object.values(data.highlights)
+			.filter((h) => h.phrase === true || (!h.phrase && !h.username && !h.badge))
+			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+	}
+
+	/**
+	 * Returns username highlights sorted by priority (ascending: 1 = highest).
+	 */
+	function getAllUsernameHighlightsSorted(): HighlightDef[] {
+		if (!data) return [];
+
+		return Object.values(data.highlights)
+			.filter((h) => h.username === true)
+			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+	}
+
+	/**
+	 * Returns badge highlights sorted by priority (ascending: 1 = highest).
+	 */
+	function getAllBadgeHighlightsSorted(): HighlightDef[] {
+		if (!data) return [];
+
+		return Object.values(data.highlights)
+			.filter((h) => h.badge === true)
+			.sort((a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity));
+	}
+
+	/**
+	 * Sets the priority for a highlight and re-numbers other highlights to avoid duplicates.
+	 * Priority 1 is highest. If newPriority already exists, shifts other highlights down.
+	 */
+	function setPriority(id: string, newPriority: number): void {
+		if (!data) return;
+
+		const highlight = data.highlights[id];
+		if (!highlight) return;
+
+		// Ensure newPriority is at least 1
+		newPriority = Math.max(1, Math.floor(newPriority));
+
+		const oldPriority = highlight.priority ?? Infinity;
+		if (oldPriority === newPriority) return;
+
+		// Get all highlights sorted by current priority
+		const allHighlights = Object.values(data.highlights).sort(
+			(a, b) => (a.priority ?? Infinity) - (b.priority ?? Infinity),
+		);
+
+		// Remove the highlight from its current position
+		const filtered = allHighlights.filter((h) => h.id !== id);
+
+		// Insert at new position (newPriority - 1 because array is 0-indexed)
+		const insertIndex = Math.min(newPriority - 1, filtered.length);
+		filtered.splice(insertIndex, 0, highlight);
+
+		// Re-number all priorities sequentially starting from 1
+		filtered.forEach((h, index) => {
+			h.priority = index + 1;
+		});
+
+		save();
+	}
+
 	function updateId(oldId: string, newId: string): void {
 		if (!data) return;
 
@@ -286,13 +401,19 @@ export function useChatHighlights(ctx: ChannelContext) {
 		define,
 		remove,
 		getAll,
+		getAllSorted,
 		getAllPhraseHighlights,
 		getAllUsernameHighlights,
 		getAllBadgeHighlights,
+		getAllPhraseHighlightsSorted,
+		getAllUsernameHighlightsSorted,
+		getAllBadgeHighlightsSorted,
+		setPriority,
 		save,
 		updateId,
 		checkMatch,
 		updateSoundData,
 		updateFlashTitle,
+		getHighlightCategory,
 	};
 }
