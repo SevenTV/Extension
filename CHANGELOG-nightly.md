@@ -1,3 +1,7 @@
+### 3.1.16.1000
+
+-   Fixed emote menu not showing emotes with same name but different casing
+
 ### 3.1.15.1000
 
 -   Added required Firefox built-in consent metadata to the manifest
