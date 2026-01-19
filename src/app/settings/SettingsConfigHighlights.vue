@@ -10,9 +10,9 @@
 				<div class="centered">Priority</div>
 				<div>Pattern</div>
 				<div>Label</div>
-				<div class="centered">Flash Title</div>
+				<div class="centered">Case Sensitive</div>
 				<div class="centered">RegExp</div>
-				<div>Case Sensitive</div>
+				<div class="centered">Flash Title</div>
 				<div>Color</div>
 			</div>
 
@@ -51,11 +51,6 @@
 							/>
 						</div>
 
-						<!-- Checkbox: Flash Title -->
-						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
-						</div>
-
 						<!-- Checkbox: RegExp -->
 						<div name="is-regexp" class="centered">
 							<FormCheckbox
@@ -72,6 +67,11 @@
 								:disabled="h.username"
 								@update:checked="onCaseSensitiveChange(h, $event)"
 							/>
+						</div>
+
+						<!-- Checkbox: Flash Title -->
+						<div name="flash-title" class="centered">
+							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<div name="color">
@@ -131,9 +131,9 @@
 			<div class="badge-item item heading">
 				<div class="centered">Priority</div>
 				<div>Badge ID</div>
-				<div>Version</div>
-				<div>Label</div>
-				<div>Badge</div>
+				<div>Lable</div>
+				<div class="centered">Version</div>
+				<div class="centered">Badge</div>
 				<div class="centered">Flash Title</div>
 				<div>Color</div>
 			</div>
@@ -169,16 +169,6 @@
 							/>
 						</div>
 
-						<!-- Version -->
-						<div name="version" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'version')">
-							<span>{{ h.version }}</span>
-							<FormInput
-								:ref="(c) => inputs.version.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.version"
-								@blur="onInputBlur(h, 'version')"
-							/>
-						</div>
-
 						<!-- Label -->
 						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
 							<span>{{ h.label }}</span>
@@ -189,7 +179,22 @@
 							/>
 						</div>
 
-						<div name="badgeURL">
+						<!-- Version -->
+						<div
+							name="version"
+							class="use-virtual-input centered"
+							tabindex="0"
+							@click="onInputFocus(h, 'version')"
+						>
+							<span>{{ h.version }}</span>
+							<FormInput
+								:ref="(c) => inputs.version.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.version"
+								@blur="onInputBlur(h, 'version')"
+							/>
+						</div>
+
+						<div name="badgeURL" class="centered">
 							<input v-model="h.badgeURL" type="image" :src="h.badgeURL" />
 						</div>
 
@@ -599,7 +604,7 @@ main.seventv-settings-custom-highlights {
 		.item {
 			display: grid;
 			grid-auto-flow: row dense;
-			column-gap: 3rem;
+			column-gap: 2rem;
 			padding: 1rem;
 
 			> div {
@@ -643,8 +648,8 @@ main.seventv-settings-custom-highlights {
 			}
 
 			.priority-input {
-				width: 3.5rem;
-				padding: 0.25rem 0.5rem;
+				width: 2.5rem;
+				padding: 0.3rem;
 				text-align: center;
 				font-size: 0.875rem;
 				font-weight: 500;
