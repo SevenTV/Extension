@@ -55,11 +55,17 @@ const m = new WeakMap<ChannelContext, ChatHighlights>();
 const customHighlights = useConfig<Map<string, HighlightDef>>("highlights.custom");
 const soundVolume = useConfig<number>("highlights.sound_volume");
 
+export enum HighlightCategory {
+	Phrase = "phrase",
+	Username = "username",
+	Badge = "badge",
+}
+
 // Gets the category of a highlight based on its flags.
-function getHighlightCategory(h: HighlightDef): "phrase" | "username" | "badge" {
-	if (h.username) return "username";
-	if (h.badge) return "badge";
-	return "phrase"; // Default to phrase (includes phrase=true or no category flags)
+function getHighlightCategory(h: HighlightDef): HighlightCategory {
+	if (h.username) return HighlightCategory.Username;
+	if (h.badge) return HighlightCategory.Badge;
+	return HighlightCategory.Phrase; // Default to phrase (includes phrase=true or no category flags)
 }
 
 export function useChatHighlights(ctx: ChannelContext) {
@@ -236,36 +242,43 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		if (h.phrase || (!h.phrase && !h.username && !h.badge)) {
-			if (h.regexp) {
-				let regexp = h.cachedRegExp;
-				if (!regexp) {
-					try {
-						regexp = new RegExp(h.pattern as string, "i");
-						Object.defineProperty(h, "cachedRegExp", { value: regexp });
-					} catch (err) {
-						log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
+		switch (getHighlightCategory(h)) {
+			case HighlightCategory.Phrase:
+				if (h.regexp) {
+					let regexp = h.cachedRegExp;
+					if (!regexp) {
+						try {
+							regexp = new RegExp(h.pattern as string, "i");
+							Object.defineProperty(h, "cachedRegExp", { value: regexp });
+						} catch (err) {
+							log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
 
-						msg.setHighlight("#878787", "Error " + (err as Error).message);
-						return false;
+							msg.setHighlight("#878787", "Error " + (err as Error).message);
+							return false;
+						}
 					}
-				}
 
-				ok = regexp.test(msg.body);
-			} else if (h.pattern) {
-				ok = h.caseSensitive
-					? msg.body.includes(h.pattern)
-					: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
-			} else if (typeof h.test === "function") {
-				ok = h.test(msg);
+					ok = regexp.test(msg.body);
+				} else if (h.pattern) {
+					ok = h.caseSensitive
+						? msg.body.includes(h.pattern)
+						: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
+				} else if (typeof h.test === "function") {
+					ok = h.test(msg);
+				}
+				break;
+
+			case HighlightCategory.Username:
+				ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
+				break;
+
+			case HighlightCategory.Badge: {
+				// Check if badge ID exists and version matches
+				const badgeId = h.pattern?.toLowerCase() ?? "";
+				const badgeVersion = h.version?.toLowerCase() ?? "";
+				ok = badgeId in msg.badges && msg.badges[badgeId]?.toLowerCase() === badgeVersion;
+				break;
 			}
-		} else if (h.username) {
-			ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
-		} else if (h.badge) {
-			// Check if badge ID exists and version matches
-			const badgeId = h.pattern?.toLowerCase() ?? "";
-			const badgeVersion = h.version?.toLowerCase() ?? "";
-			ok = badgeId in msg.badges && msg.badges[badgeId]?.toLowerCase() === badgeVersion;
 		}
 
 		if (ok) {
