@@ -1,3 +1,8 @@
+### 3.1.16
+
+-   Fixed emote menu not showing emotes with same name but different casing
+-   Fixed animated avatars not working
+
 ### 3.1.15
 
 -   Added required Firefox built-in consent metadata to the manifest
