@@ -1,3 +1,7 @@
+### 3.1.16.2000
+
+-   Updated Firefox extension URL in onboarding
+
 ### 3.1.16.1000
 
 -   Fixed emote menu not showing emotes with same name but different casing
