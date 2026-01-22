@@ -1,6 +1,13 @@
-### 3.1.15.2000
+### 3.1.16.2000
 
+-   Updated Firefox extension URL in onboarding
 -   Added tier and tenure to Twitch subscriber badge tooltips
+
+### 3.1.16.1000
+
+-   Fixed emote menu not showing emotes with same name but different casing
+-   Fixed animated avatars not working
+-   Bump package version to 3.1.16
 
 ### 3.1.15.1000
 
