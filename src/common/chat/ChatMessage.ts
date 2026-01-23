@@ -17,6 +17,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public flags = new Set<string>();
 	public mentions = new Set<string>();
 	public badges = {} as Record<string, string>;
+	public badgeData = {} as Record<string, string>;
 	public nonce = "";
 	public deliveryState: MessageDeliveryState = "IDLE";
 	public timestamp = 0;

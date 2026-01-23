@@ -1,6 +1,7 @@
 ### 3.1.16.2000
 
 -   Updated Firefox extension URL in onboarding
+-   Added tier and tenure to Twitch subscriber badge tooltips
 
 ### 3.1.16.1000
 
