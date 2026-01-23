@@ -40,6 +40,7 @@
 			:user="msg.author"
 			:source-data="msg.sourceData"
 			:badges="msg.badges"
+			:badge-data="msg.badgeData"
 			:msg-id="msg.sym"
 			@open-native-card="openViewerCard($event, msg.author.username, msg.id)"
 		/>

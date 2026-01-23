@@ -4,6 +4,7 @@
 -   Added custom moderation action reasons
 -   Added an option to select the default timeout duration
 -   Added an option to hide the pin confirmation prompt
+-   Added tier and tenure to Twitch subscriber badge tooltips
 
 ### 3.1.16.1000
 
