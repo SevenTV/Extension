@@ -9,7 +9,7 @@
 		</template>
 		<template v-else-if="actor.user && actor.token">
 			You are authenticated with 7TV <br />
-			Try using the the custom 7TV commands if a channel where you have editor rights
+			Try using the custom 7TV commands in a channel where you have editor rights
 		</template>
 		<template v-else>
 			<button class="login-button" @click="login">Sign in</button>
