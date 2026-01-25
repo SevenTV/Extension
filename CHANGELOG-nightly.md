@@ -54,6 +54,7 @@
 
 ### 3.1.6.2000
 
+-   Fixed wrong pattern when adding highlights from usercard
 -   Fixed the profile redirection when clicking on a user on the Twitch dashboard
 -   Fixed some keyboard shortcuts not working
 -   Added an Always On autocompletion option for emotes
