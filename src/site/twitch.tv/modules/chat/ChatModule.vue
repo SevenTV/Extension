@@ -128,8 +128,10 @@ defineExpose({
 </script>
 
 <script lang="ts">
+import { TWITCH_TIMEOUT_REGEX } from "@/common/Constant";
 import { HighlightDef } from "@/composable/chat/useChatHighlights";
 import { declareConfig, useConfig } from "@/composable/useSettings";
+import SettingsConfigActionReasons from "@/app/settings/SettingsConfigActionReasons.vue";
 import SettingsConfigHighlights from "@/app/settings/SettingsConfigHighlights.vue";
 
 export type TimestampFormatKey = "infer" | "12" | "24";
@@ -166,6 +168,61 @@ export const config = [
 		label: "Ignore Clear Chat",
 		hint: "If enabled, messages will be kept intact when a moderator clears the chat",
 		defaultValue: true,
+	}),
+	declareConfig("chat.mod_action_reasons", "TOGGLE", {
+		path: ["Chat", "Moderation", 100],
+		label: "Show Moderation Action Reasons",
+		hint: "Show a list of reasons when clicking on an action button",
+		defaultValue: true,
+	}),
+	declareConfig("chat.mod_action_reasons.list", "CUSTOM", {
+		path: ["Chat", "Moderation", 101],
+		custom: {
+			component: markRaw(SettingsConfigActionReasons),
+			gridMode: "new-row",
+		},
+		label: "Custom Action Reasons",
+		hint: "A list of custom action reasons",
+		defaultValue: [],
+		disabledIf: () => !useConfig("chat.mod_action_reasons").value,
+	}),
+	declareConfig("chat.mod_action_reasons.include_rules", "TOGGLE", {
+		path: ["Chat", "Moderation", 102],
+		label: "Include Chat Rules",
+		hint: "Add current channel's chat rules to the list of reasons",
+		defaultValue: true,
+		disabledIf: () => !useConfig("chat.mod_action_reasons").value,
+	}),
+	declareConfig("chat.mod_action_reasons.ban", "DROPDOWN", {
+		path: ["Chat", "Moderation", 104],
+		label: "Moderation Action for Ban",
+		hint: "Which button is used to show mod action reasons for ban",
+		options: [
+			["Off", 0],
+			["Left-Click", 1],
+			["Right-Click", 2],
+		],
+		defaultValue: 2,
+		disabledIf: () => !useConfig("chat.mod_action_reasons").value,
+	}),
+	declareConfig("chat.mod_action_reasons.timeout", "DROPDOWN", {
+		path: ["Chat", "Moderation", 105],
+		label: "Moderation Action for Timeout",
+		hint: "Which button is used to show mod action reasons for timeout",
+		options: [
+			["Off", 0],
+			["Left-Click", 1],
+			["Right-Click", 2],
+		],
+		defaultValue: 2,
+		disabledIf: () => !useConfig("chat.mod_action_reasons").value,
+	}),
+	declareConfig("chat.mod_action.timeout_duration", "INPUT", {
+		path: ["Chat", "Moderation", 106],
+		label: "Moderation Action Timeout Duration",
+		hint: "The default amount of time someone is timed out for (min. 1s, max. 14d)",
+		defaultValue: "600s",
+		predicate: (v) => TWITCH_TIMEOUT_REGEX.test(v),
 	}),
 	declareConfig("chat.slash_me_style", "DROPDOWN", {
 		path: ["Chat", "Style"],
@@ -352,6 +409,12 @@ export const config = [
 		path: ["Chat", "Tools"],
 		label: "Copy Icon",
 		hint: "Show a 'Copy' icon when hovering over a chat message to copy the message",
+		defaultValue: true,
+	}),
+	declareConfig("chat.pin_prompt_toggle", "TOGGLE", {
+		path: ["Chat", "Tools"],
+		label: "Pin Prompt",
+		hint: "Show a pin confirmation prompt prior to pinning a message",
 		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention", "TOGGLE", {
