@@ -59,7 +59,7 @@
 					:action="modActionType"
 					:duration="defaultTimeoutDuration"
 					:show-chat-rules="includeChatRules"
-					@on:select="onActionSelect"
+					@select="onActionSelect"
 				/>
 			</UiFloating>
 		</Teleport>

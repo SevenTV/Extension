@@ -12,7 +12,7 @@
 				v-for="(reason, index) of reasons.length === 0 ? defaultReasons : reasons"
 				:key="index"
 				class="reason"
-				@on:click="emit('select', action, reason, duration)"
+				@click="emit('select', action, reason, duration)"
 			>
 				{{ reason }}
 			</span>
@@ -23,7 +23,7 @@
 					v-for="(reason, index) of properties.chatRules"
 					:key="index"
 					class="reason"
-					@on:click="emit('select', action, reason, duration)"
+					@click="emit('select', action, reason, duration)"
 				>
 					{{ reason }}
 				</span>
