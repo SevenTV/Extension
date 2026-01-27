@@ -494,7 +494,10 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	for (let i = tokens.length - 1; i > -1; i--) {
 		const token = tokens[i].token;
-		const emote = allEmotes[token];
+		const emote = tokens[i].item ?? allEmotes[token];
+
+		if (results.some(r => r.replacement === (emote.unicode ?? token))) continue;
+
 		if (!emote || (!shouldColonCompleteEmoji.value && emote.provider == "EMOJI")) {
 			continue;
 		}

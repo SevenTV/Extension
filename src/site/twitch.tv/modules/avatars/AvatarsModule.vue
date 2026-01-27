@@ -182,12 +182,12 @@ watch(avatarClass, (ac, oldAc) => {
 		if (shouldRenderAvatars.value) {
 			const { children } = args[0] ?? {};
 
-			if (Array.isArray(children)) {
-				for (const child of children) {
-					if (!child || !child.type || child.type.displayName != "ImageAvatar") continue;
+			const childArray = Array.isArray(children) ? children : children ? [children] : [];
 
-					patchImageAvatar(child);
-				}
+			for (const child of childArray) {
+				if (!child || !child.type || child.type.displayName !== "ImageAvatar") continue;
+
+				patchImageAvatar(child);
 			}
 		}
 
