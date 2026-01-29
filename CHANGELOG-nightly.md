@@ -1,3 +1,6 @@
+### 3.1.17.1000
+
+-   Added priority system for custom highlights
 ### 3.1.16.2000
 
 -   Updated Firefox extension URL in onboarding

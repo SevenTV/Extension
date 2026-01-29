@@ -349,9 +349,12 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 	if (IsChatMessage(msgData)) msg.setTimestamp(msgData.timestamp);
 	else if (msgData.message) msg.setTimestamp(msgData.message.timestamp ?? 0);
 
-	// highlight when message mentions the actor
-	for (const highlightID in chatHighlights.getAll()) {
-		chatHighlights.checkMatch(highlightID, msg);
+	// Highlight when message matches a highlight rule.
+	// Iterate over highlights sorted by priority (highest first) and stop on first match.
+	for (const h of chatHighlights.getAllSorted()) {
+		if (chatHighlights.checkMatch(h.id, msg)) {
+			break;
+		}
 	}
 
 	if (ctx.actor.roles.has("MODERATOR")) {

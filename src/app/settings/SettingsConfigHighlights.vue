@@ -2,19 +2,35 @@
 	<main class="seventv-settings-custom-highlights">
 		<div class="tabs"></div>
 		<div class="list">
-			<u><h5>Phrases & Words</h5></u>
+			<!--Phrases & Words highlights-->
+			<div class="category-header">
+				<u><h5>Phrases & Words</h5></u>
+			</div>
 			<div class="phrase-item item heading">
+				<div class="centered">Priority</div>
 				<div>Pattern</div>
 				<div>Label</div>
-				<div class="centered">Flash Title</div>
+				<div class="centered">Case Sensitive</div>
 				<div class="centered">RegExp</div>
-				<div>Case Sensitive</div>
+				<div class="centered">Flash Title</div>
 				<div>Color</div>
 			</div>
 
 			<UiScrollable>
-				<template v-for="(h, _, index) of highlights.getAllPhraseHighlights()" :key="h.id">
+				<template v-for="(h, index) of phraseHighlightsSorted" :key="h.id">
 					<div class="phrase-item item">
+						<!-- Priority input -->
+						<div name="priority" class="centered">
+							<input
+								type="number"
+								class="priority-input"
+								:value="h.priority"
+								min="1"
+								@blur="onPriorityChange(h, $event)"
+								@keydown.enter="($event.target as HTMLInputElement).blur()"
+							/>
+						</div>
+
 						<!-- Pattern -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
 							<span>{{ h.pattern }}</span>
@@ -35,11 +51,6 @@
 							/>
 						</div>
 
-						<!-- Checkbox: Flash Title -->
-						<div name="flash-title" class="centered">
-							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
-						</div>
-
 						<!-- Checkbox: RegExp -->
 						<div name="is-regexp" class="centered">
 							<FormCheckbox
@@ -56,6 +67,11 @@
 								:disabled="h.username"
 								@update:checked="onCaseSensitiveChange(h, $event)"
 							/>
+						</div>
+
+						<!-- Checkbox: Flash Title -->
+						<div name="flash-title" class="centered">
+							<FormCheckbox :checked="!!h.flashTitle" @update:checked="onFlashTitleChange(h, $event)" />
 						</div>
 
 						<div name="color">
@@ -109,19 +125,34 @@
 			<hr class="solid" />
 
 			<!--Badge highlights-->
-			<u><h5>Badges</h5></u>
+			<div class="category-header">
+				<u><h5>Badges</h5></u>
+			</div>
 			<div class="badge-item item heading">
+				<div class="centered">Priority</div>
 				<div>Badge ID</div>
-				<div>Version</div>
-				<div>Label</div>
-				<div>Badge</div>
+				<div>Lable</div>
+				<div class="centered">Version</div>
+				<div class="centered">Badge</div>
 				<div class="centered">Flash Title</div>
 				<div>Color</div>
 			</div>
 
 			<UiScrollable>
-				<template v-for="(h, _, index) of highlights.getAllBadgeHighlights()" :key="h.id">
+				<template v-for="(h, index) of badgeHighlightsSorted" :key="h.id">
 					<div class="badge-item item">
+						<!-- Priority input -->
+						<div name="priority" class="centered">
+							<input
+								type="number"
+								class="priority-input"
+								:value="h.priority"
+								min="1"
+								@blur="onPriorityChange(h, $event)"
+								@keydown.enter="($event.target as HTMLInputElement).blur()"
+							/>
+						</div>
+
 						<!-- Badge ID -->
 						<div
 							name="pattern"
@@ -138,16 +169,6 @@
 							/>
 						</div>
 
-						<!-- Version -->
-						<div name="version" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'version')">
-							<span>{{ h.version }}</span>
-							<FormInput
-								:ref="(c) => inputs.version.set(h, c as InstanceType<typeof FormInput>)"
-								v-model="h.version"
-								@blur="onInputBlur(h, 'version')"
-							/>
-						</div>
-
 						<!-- Label -->
 						<div name="label" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'label')">
 							<span>{{ h.label }}</span>
@@ -158,7 +179,22 @@
 							/>
 						</div>
 
-						<div name="badgeURL">
+						<!-- Version -->
+						<div
+							name="version"
+							class="use-virtual-input centered"
+							tabindex="0"
+							@click="onInputFocus(h, 'version')"
+						>
+							<span>{{ h.version }}</span>
+							<FormInput
+								:ref="(c) => inputs.version.set(h, c as InstanceType<typeof FormInput>)"
+								v-model="h.version"
+								@blur="onInputBlur(h, 'version')"
+							/>
+						</div>
+
+						<div name="badgeURL" class="centered">
 							<input v-model="h.badgeURL" type="image" :src="h.badgeURL" />
 						</div>
 
@@ -223,8 +259,11 @@
 			<hr class="solid" />
 
 			<!--Username highlights-->
-			<u><h5>Usernames</h5></u>
+			<div class="category-header">
+				<u><h5>Usernames</h5></u>
+			</div>
 			<div class="username-item item heading">
+				<div class="centered">Priority</div>
 				<div>Username</div>
 				<div>Label</div>
 				<div class="centered">Flash Title</div>
@@ -232,8 +271,20 @@
 			</div>
 
 			<UiScrollable>
-				<template v-for="(h, _, index) of highlights.getAllUsernameHighlights()" :key="h.id">
+				<template v-for="(h, index) of usernameHighlightsSorted" :key="h.id">
 					<div class="username-item item">
+						<!-- Priority input -->
+						<div name="priority" class="centered">
+							<input
+								type="number"
+								class="priority-input"
+								:value="h.priority"
+								min="1"
+								@blur="onPriorityChange(h, $event)"
+								@keydown.enter="($event.target as HTMLInputElement).blur()"
+							/>
+						</div>
+
 						<!-- Username -->
 						<div name="pattern" class="use-virtual-input" tabindex="0" @click="onInputFocus(h, 'pattern')">
 							<span>{{ h.pattern }}</span>
@@ -314,7 +365,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, ref, toRef, watch } from "vue";
+import { computed, nextTick, reactive, ref, toRef, watch } from "vue";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { HighlightDef, useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
@@ -329,6 +380,11 @@ import { v4 as uuid } from "uuid";
 const ctx = useChannelContext(); // this will be an empty context, as config is not tied to channel
 const highlights = useChatHighlights(ctx);
 const properties = useChatProperties(ctx);
+
+// Computed sorted lists for each category (reactive to priority changes)
+const phraseHighlightsSorted = computed(() => highlights.getAllPhraseHighlightsSorted());
+const usernameHighlightsSorted = computed(() => highlights.getAllUsernameHighlightsSorted());
+const badgeHighlightsSorted = computed(() => highlights.getAllBadgeHighlightsSorted());
 
 const newPhraseInput = ref("");
 const newUsernameInput = ref("");
@@ -480,6 +536,18 @@ function setupWatcher(inputRef: any, patternKey: string) {
 setupWatcher(newPhraseInput, "phrase");
 setupWatcher(newUsernameInput, "username");
 setupWatcher(newBadgeInput, "badge");
+
+// Priority change handler - updates priority and triggers re-numbering
+function onPriorityChange(h: HighlightDef, ev: Event): void {
+	if (!(ev.target instanceof HTMLInputElement)) return;
+	const newPriority = parseInt(ev.target.value, 10);
+	if (isNaN(newPriority) || newPriority < 1) {
+		// Reset input to current priority if invalid
+		ev.target.value = String(h.priority ?? 1);
+		return;
+	}
+	highlights.setPriority(h.id, newPriority);
+}
 </script>
 
 <style scoped lang="scss">
@@ -491,6 +559,17 @@ main.seventv-settings-custom-highlights {
 		"tabs"
 		"list";
 	overflow-x: auto;
+
+	.category-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-top: 0.5rem;
+
+		u {
+			flex: 1;
+		}
+	}
 
 	hr.solid {
 		border-top: 2px solid #fff;
@@ -511,21 +590,21 @@ main.seventv-settings-custom-highlights {
 		max-height: 100rem;
 
 		.phrase-item {
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 3rem 20% 9rem 1fr 1fr 1fr 1fr 1fr;
 		}
 
 		.username-item {
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr;
+			grid-template-columns: 3rem 20% 9rem 1fr 1fr 1fr;
 		}
 
 		.badge-item {
-			grid-template-columns: 20% 9rem 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 3rem 20% 9rem 1fr 1fr 1fr 1fr 1fr;
 		}
 
 		.item {
 			display: grid;
 			grid-auto-flow: row dense;
-			column-gap: 3rem;
+			column-gap: 2rem;
 			padding: 1rem;
 
 			> div {
@@ -565,6 +644,31 @@ main.seventv-settings-custom-highlights {
 
 				&[type="number"] {
 					max-width: 6rem;
+				}
+			}
+
+			.priority-input {
+				width: 2.5rem;
+				padding: 0.3rem;
+				text-align: center;
+				font-size: 0.875rem;
+				font-weight: 500;
+				background-color: var(--seventv-input-background);
+				border: 0.1rem solid var(--seventv-input-border);
+				border-radius: 0.25rem;
+				color: var(--seventv-text-color-normal);
+				appearance: textfield;
+
+				&:focus {
+					border-color: var(--seventv-primary);
+					outline: none;
+				}
+
+				/* Hide spin buttons */
+				&::-webkit-outer-spin-button,
+				&::-webkit-inner-spin-button {
+					appearance: none;
+					margin: 0;
 				}
 			}
 
