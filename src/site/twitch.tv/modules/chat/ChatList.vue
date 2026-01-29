@@ -222,6 +222,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 		}
 
 		msg.badges = msgData.badges ?? msgData.message?.badges ?? {};
+		msg.badgeData = msgData.badgeDynamicData ?? {};
 	}
 
 	if (IsDisplayableMessage(msgData)) {

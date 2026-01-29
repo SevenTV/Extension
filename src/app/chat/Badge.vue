@@ -16,15 +16,20 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { TWITCH_PROFILE_IMAGE_REGEX } from "@/common/Constant";
 import { useTooltip } from "@/composable/useTooltip";
 import BadgeTooltip from "./BadgeTooltip.vue";
 
+export type TwitchChatBadgeWithData = Twitch.ChatBadge & { data?: string };
+
 const props = defineProps<{
 	alt: string;
 	type: "twitch" | "picture" | "app";
-	badge: Twitch.ChatBadge | Twitch.SharedChat | SevenTV.Cosmetic<"BADGE">;
+	badge: TwitchChatBadgeWithData | Twitch.SharedChat | SevenTV.Cosmetic<"BADGE">;
 }>();
+
+const { t } = useI18n();
 
 const backgroundColor = ref("");
 const borderRadius = ref("");
@@ -39,12 +44,30 @@ const srcset = {
 
 const imgRef = ref<HTMLElement>();
 
-const { show, hide } = useTooltip(BadgeTooltip, {
+const tooltipProps: Record<string, unknown> = {
 	alt: props.alt,
-});
+};
+
+if (isSubscriber(props.badge)) {
+	const version = parseInt(props.badge.version, 10);
+	const months = parseInt(props.badge.data ?? "0", 10);
+	const tier = !isNaN(version) ? Math.max(Math.floor(version / 1000), 0) : 0;
+
+	if (months > 0) {
+		const key = tier > 0 ? "badges.subscriber.tiered_months" : "badges.subscriber.months";
+
+		tooltipProps.alt += ` (${t(key, months, { named: { tier, months } })})`;
+	}
+}
+
+const { show, hide } = useTooltip(BadgeTooltip, tooltipProps);
 
 function isApp(badge: typeof props.badge): badge is SevenTV.Cosmetic<"BADGE"> {
 	return (badge as SevenTV.Cosmetic<"BADGE">).kind === "BADGE" && props.type === "app";
+}
+
+function isSubscriber(badge: typeof props.badge): badge is TwitchChatBadgeWithData {
+	return props.type === "twitch" && "setID" in badge && (badge.setID === "subscriber" || badge.setID === "founder");
 }
 
 if (isApp(props.badge)) {
