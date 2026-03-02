@@ -888,7 +888,7 @@ declare module Twitch {
 		mediaPlayerInstance: MediaPlayerInstanceContainer;
 	}>;
 
-	export interface MediaPlayerInstanceContainer{
+	export interface MediaPlayerInstanceContainer {
 		videoElement: unknown;
 		playerInstance: MediaPlayerInstance;
 	}
