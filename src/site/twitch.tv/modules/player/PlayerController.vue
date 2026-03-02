@@ -106,7 +106,7 @@ onUnmounted(() => {
 	if (contentWarning.value) {
 		unhookComponent(contentWarning.value as ReactComponentHook<Twitch.VideoPlayerContentRestriction>);
 	}
-	unsetPropertyHook(props.inst.component.props.mediaPlayerInstance.core.state, "liveLatency");
+	unsetPropertyHook(props.inst.component.props.mediaPlayerInstance.playerInstance.core.state, "liveLatency");
 	unsetPropertyHook(props.inst.component, "props");
 	if (playerOverlay.value) unsetNamedEventHandler(playerOverlay.value, "PlayerActionOnClick", "click");
 });
