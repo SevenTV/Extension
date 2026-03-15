@@ -190,6 +190,7 @@ export const config = [
 }
 
 .seventv-hide-leaderboard {
+	/* stylelint-disable-next-line selector-class-pattern */
 	section[data-test-selector="chat-room-component-layout"] > div.chat-room__content > div:first-child {
 		display: none !important;
 	}
@@ -221,6 +222,7 @@ export const config = [
 }
 
 .seventv-hide-community-highlights {
+	/* stylelint-disable-next-line selector-class-pattern */
 	section[data-test-selector="chat-room-component-layout"] > div.chat-room__content > div:nth-child(3) {
 		display: none !important;
 	}
