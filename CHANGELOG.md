@@ -1,3 +1,7 @@
+### 3.1.17
+
+-   Fixed "Hide Bits Buttons" setting not working due to Twitch UI changes
+
 ### 3.1.16
 
 -   Fixed emote menu not showing emotes with same name but different casing
