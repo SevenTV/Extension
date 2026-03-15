@@ -17,6 +17,9 @@ export class Logger {
 	}
 
 	private print(type: LogType, text: string[], extraCSS: string[], objects?: object[]): void {
+		if (import.meta.env.MODE === "production" && (type === "info" || type === "debug")) {
+			return;
+		}
 		if (this.pipe) {
 			this.pipe(type, text, extraCSS, objects);
 			return;
