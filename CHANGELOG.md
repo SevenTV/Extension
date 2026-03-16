@@ -1,3 +1,8 @@
+### 3.1.17
+
+-   Fixed an issue where the channel community highlights would appear when the hide option was enabled
+-   Fixed an issue where the chat leaderboard would appear when community highlights were open
+
 ### 3.1.16
 
 -   Fixed emote menu not showing emotes with same name but different casing
