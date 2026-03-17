@@ -56,10 +56,17 @@ function openStatsOverlay() {
 }
 
 function remount() {
-	const sibling = document.querySelector<HTMLElement>("span.live-time")?.parentElement;
-	if (!sibling || sibling.parentElement?.contains(container)) return;
+	const isTheatreMode = document.querySelector(".persistent-player--theatre") !== null;
 
-	sibling.insertAdjacentElement("afterend", container);
+	if (isTheatreMode) {
+		const theatreTarget = document.querySelector<HTMLElement>(".player-controls__right-control-group");
+		if (!theatreTarget || theatreTarget.contains(container)) return;
+		theatreTarget.prepend(container);
+	} else {
+		const sibling = document.querySelector<HTMLElement>("span.live-time")?.parentElement;
+		if (!sibling || sibling.parentElement?.contains(container)) return;
+		sibling.insertAdjacentElement("afterend", container);
+	}
 }
 
 defineExpose({ remount });
@@ -99,10 +106,20 @@ watch(
 
 onMounted(() => {
 	remount();
-});
 
-onUnmounted(() => {
-	container.remove();
+	const playerEl = document.querySelector(".persistent-player");
+	if (!playerEl) return;
+
+	const observer = new MutationObserver(() => {
+		remount();
+	});
+
+	observer.observe(playerEl, { attributeFilter: ["class"] });
+
+	onUnmounted(() => {
+		observer.disconnect();
+		container.remove();
+	});
 });
 </script>
 

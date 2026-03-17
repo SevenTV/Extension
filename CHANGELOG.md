@@ -1,3 +1,12 @@
+### 3.1.18
+
+-   Video stats icon now visible in theatre mode, appearing in the player controls on hover
+
+### 3.1.17
+
+-   Fixed "Hide Bits Buttons" setting not working due to Twitch UI changes
+-   Suppress info and debug logs in production builds
+
 ### 3.1.16
 
 -   Fixed emote menu not showing emotes with same name but different casing
