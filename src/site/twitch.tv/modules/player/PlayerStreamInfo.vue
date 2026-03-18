@@ -98,11 +98,36 @@ watch(
 );
 
 onMounted(() => {
-	remount();
-});
+	let attempts = 0;
+	const maxAttempts = 10;
 
-onUnmounted(() => {
-	container.remove();
+	const tryMount = () => {
+		attempts++;
+		const sibling = document.querySelector<HTMLElement>("span.live-time");
+		if (sibling) {
+			remount();
+			return;
+		}
+		if (attempts < maxAttempts) {
+			setTimeout(tryMount, 500);
+		}
+	};
+
+	tryMount();
+
+	const playerEl = document.querySelector(".persistent-player");
+	if (!playerEl) return;
+
+	const observer = new MutationObserver(() => {
+		remount();
+	});
+
+	observer.observe(playerEl, { attributeFilter: ["class"] });
+
+	onUnmounted(() => {
+		observer.disconnect();
+		container.remove();
+	});
 });
 </script>
 
