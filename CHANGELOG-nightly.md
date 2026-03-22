@@ -1,6 +1,7 @@
-### 3.1.18
+### Unreleased
 
--   Fixed video stats icon not appearing after page load until settings were toggled
+-   Video stats icon now visible in theater mode player controls
+-   Added auto theater mode setting
 
 ### 3.1.17
 

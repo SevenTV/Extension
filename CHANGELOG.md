@@ -1,6 +1,6 @@
 ### Unreleased
 
--   Video stats icon now visible in theatre mode player controls
+-   Video stats icon now visible in theater mode player controls
 -   Added auto theater mode setting
 
 ### 3.1.17
