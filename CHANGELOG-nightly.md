@@ -1,3 +1,12 @@
+### Unreleased
+
+-   Video stats icon now visible in theater mode player controls
+-   Added auto theater mode setting
+
+### 3.1.17
+
+-   Fixed "Hide Bits Buttons" setting not working due to Twitch UI changes
+
 ### 3.1.16.2000
 
 -   Updated Firefox extension URL in onboarding
