@@ -1,3 +1,7 @@
+### 3.1.18
+
+-   Fixed video stats icon not appearing after page load until settings were toggled
+
 ### 3.1.17
 
 -   Fixed "Hide Bits Buttons" setting not working due to Twitch UI changes
