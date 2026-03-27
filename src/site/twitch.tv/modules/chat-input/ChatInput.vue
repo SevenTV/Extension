@@ -447,7 +447,7 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 		const slate = component.componentRef.state?.slateEditor;
 
 		//april fools
-		if (!aprilFoolsConfigDisabled && Math.random() < 1 / 25) {
+		if (!aprilFoolsConfigDisabled && Math.random() < 1 / 25 && slate && slate.selection?.anchor) {
 			const textToInsert = " :tf: ";
 			// Close autocomplete tray by adding a space
 			const cursorLocation = slate.selection.anchor;
