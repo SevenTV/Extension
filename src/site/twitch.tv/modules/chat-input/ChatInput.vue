@@ -275,12 +275,7 @@ function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 
 			// april fools:
 			const replacement = ((t) => (hasSlateToken(t, slateComponent.props.emotes) ? t : `${t} `))(
-				aprilFoolsConfigDisabled
-					? match.token
-					: ((d) =>
-							d.getDate() === 1 && d.getMonth() === 3 && Math.random() < 1 / 50 ? ":tf: " : match.token)(
-							new Date(),
-					  ),
+				aprilFoolsConfigDisabled ? match.token : Math.random() < 1 / 25 ? ":tf: " : match.token,
 			);
 
 			awaitingUpdate.value = true;
@@ -451,6 +446,35 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 		const activeTray: Twitch.ChatTray = component.props.tray;
 		const slate = component.componentRef.state?.slateEditor;
 
+		//april fools
+		if (!aprilFoolsConfigDisabled && Math.random() < 1 / 25) {
+			const textToInsert = " :tf: ";
+			// Close autocomplete tray by adding a space
+			const cursorLocation = slate.selection.anchor;
+
+			let currentNode: { children: Twitch.ChatSlateLeaf[] } & Partial<Twitch.ChatSlateLeaf> = slate;
+
+			for (const index of cursorLocation.path) {
+				if (!currentNode) break;
+				currentNode = currentNode.children[index];
+			}
+
+			const currentWordEnd =
+				currentNode.type === "text" && typeof currentNode.text === "string"
+					? getSearchRange(currentNode.text, cursorLocation.offset)[1]
+					: 0;
+			const newCursor = { path: cursorLocation.path, offset: currentWordEnd };
+
+			slate.apply({ type: "set_selection", newProperties: { anchor: newCursor, focus: newCursor } });
+
+			slate.apply({
+				type: "insert_text",
+				path: cursorLocation.path,
+				offset: currentWordEnd,
+				text: textToInsert,
+			});
+		}
+
 		// Exit if autocomplete is not always on or anything needed is unavailable
 		if (
 			autocompletionMode.value !== AUTOCOMPLETION_MODE.ALWAYS_ON ||
@@ -508,9 +532,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	// April fools:
 	const search = ((s) => (s.startsWith(":") ? s.substring(1) : s))(
-		aprilFoolsConfigDisabled
-			? str
-			: ((d) => (d.getDate() === 1 && d.getMonth() === 3 && Math.random() < 1 / 50 ? ":tf:" : str))(new Date()),
+		aprilFoolsConfigDisabled ? str : Math.random() < 1 / 25 ? ":tf:" : str,
 	);
 
 	if (search.length < 2) {

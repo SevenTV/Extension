@@ -231,6 +231,7 @@ export const config = [
 		display: none !important;
 	}
 }
+
 .seventv-hide-community-highlights {
 	div[class^="community-highlight-stack"] {
 		display: none !important;
@@ -293,29 +294,17 @@ export const config = [
 }
 
 .seventv-hide-live-channels {
+	div[class$="side-nav--collapsed"] div > div:nth-child(1) > div:nth-child(4),
+	div[class$="side-nav--expanded"] div > div:nth-child(1) > div:nth-child(4),
 	#side-nav > div > div:nth-child(1) > div:nth-child(4) {
-		display: none !important;
-	}
-
-	div[class$="side-nav--collapsed"] div > div:nth-child(1) > div:nth-child(4) {
-		display: none !important;
-	}
-
-	div[class$="side-nav--expanded"] div > div:nth-child(1) > div:nth-child(4) {
 		display: none !important;
 	}
 }
 
 .seventv-hide-viewers-also-watch {
+	div[class$="side-nav--collapsed"] div > div:nth-child(1) > div:nth-child(5),
+	div[class$="side-nav--expanded"] div > div:nth-child(1) > div:nth-child(5),
 	#side-nav > div > div:nth-child(1) > div:nth-child(5) {
-		display: none !important;
-	}
-
-	div[class$="side-nav--collapsed"] div > div:nth-child(1) > div:nth-child(5) {
-		display: none !important;
-	}
-
-	div[class$="side-nav--expanded"] div > div:nth-child(1) > div:nth-child(5) {
 		display: none !important;
 	}
 }
@@ -333,7 +322,8 @@ export const config = [
 }
 
 .seventv-hide-live-notification-button {
-	//OLD
+	// FIX: Added space after // for scss/double-slash-comment-whitespace-inside
+	// OLD
 	button[data-a-target="notifications-toggle"] {
 		display: none !important;
 	}

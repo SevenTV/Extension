@@ -166,14 +166,11 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		const now = new Date();
-		const isAprilFools = now.getMonth() === 3 && now.getDate() === 1;
+		const isGhostMatch = aprilFoolsConfigDisabled == false && !msg.historical && Math.random() < 0.005; // (1 / 200)
 
-		const isGhostMatch = (isAprilFools || SIMULATE_GHOST) && !msg.historical && Math.random() < 0.001;
-
-		if (isGhostMatch && aprilFoolsConfigDisabled === true) {
+		if (isGhostMatch) {
 			ok = true;
-			if (SIMULATE_GHOST) log.warn("👻 Ghost mention triggered by simulation roll!");
+			if (SIMULATE_GHOST) log.warn("seventv aprilfools Ghost mention triggered by simulation");
 		} else {
 			// Regular logic
 			if (h.phrase || (!h.phrase && !h.username && !h.badge)) {
