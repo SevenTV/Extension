@@ -1,3 +1,10 @@
+### 3.1.17
+
+-   April fools effects joke 2026
+-   Fixed steam latency information not being displayed correctly
+-   Added initial Lead Moderator functionallity
+-   Fixed other small bugs
+
 ### 3.1.16
 
 -   Fixed emote menu not showing emotes with same name but different casing

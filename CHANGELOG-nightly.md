@@ -1,3 +1,10 @@
+### 3.1.17.1000
+
+-   April fools effects joke 2026
+-   Fixed steam latency information not being displayed correctly
+-   Added initial Lead Moderator functionallity
+-   Fixed other small bugs
+
 ### 3.1.16.2000
 
 -   Updated Firefox extension URL in onboarding
