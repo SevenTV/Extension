@@ -66,7 +66,7 @@ function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuf
 	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props;
 	const userID = props.sender.id.toString();
 	const username = props.sender.username;
-	const usernameEl = el.querySelector<HTMLSpanElement>("div.inline-flex > button[title]")!;
+	const usernameEl = el.querySelector<HTMLSpanElement>("div.inline-flex > button[data-prevent-expand='true']")!;
 	const textElements = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
 	const bind: ChatMessageBinding = {

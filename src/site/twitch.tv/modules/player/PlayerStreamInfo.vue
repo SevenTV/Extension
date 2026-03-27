@@ -84,10 +84,10 @@ watch(
 	() => props.mediaPlayer,
 	(mediaPlayer, old) => {
 		if (old && mediaPlayer !== old) {
-			unsetPropertyHook(old.core.state, "liveLatency");
+			unsetPropertyHook(old.playerInstance.core.state, "liveLatency");
 		} else {
 			if (!mediaPlayer) return;
-			definePropertyHook(mediaPlayer.core.state, "liveLatency", {
+			definePropertyHook(mediaPlayer.playerInstance.core.state, "liveLatency", {
 				value: (v: number) => {
 					latency.value = v?.toFixed(2) ?? "-.--";
 				},

@@ -54,7 +54,7 @@ const props = defineProps<{
 }>();
 
 const ctx = useChannelContext();
-const moderation = useChatModeration(ctx, props.msg.author?.username ?? "");
+const moderation = useChatModeration(ctx, props.msg.author?.username ?? "unknown");
 
 const sliderRef = ref();
 const sliderTooltip = useTooltip("Drag to moderate", undefined, { placement: "left" });

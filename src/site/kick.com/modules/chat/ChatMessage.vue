@@ -6,7 +6,7 @@
 					{{ token.content }}
 				</span>
 				<span v-else-if="IsLinkToken(token)">
-					<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
+					<a :href="token.content.url" targ et="_blank" class="seventv-links" rel="noopener noreferrer">{{
 						token.content.url
 					}}</a>
 				</span>
