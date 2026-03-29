@@ -82,9 +82,11 @@ const shouldRenderPaints = useConfig<boolean>("vanity.nametag_paints");
 const shouldRenderBadges = useConfig<boolean>("vanity.7tv_Badges");
 
 // Listen for click events
-useEventListener(props.bind.usernameEl.parentElement, "click", () => {
-	emit("open-card", props.bind);
-});
+if (props.bind.usernameEl?.parentElement) {
+	useEventListener(props.bind.usernameEl.parentElement, "click", () => {
+		emit("open-card", props.bind);
+	});
+}
 
 function textElToMessage(el: HTMLElement) {
 	const props = getReactProps<{ children: { props: { content: string } } }>(el);

@@ -1,3 +1,7 @@
+### 3.1.16.3000
+
+-   Fix emotes not rendering when usernameEl is undefined on Kick
+
 ### 3.1.16.2000
 
 -   Updated Firefox extension URL in onboarding
