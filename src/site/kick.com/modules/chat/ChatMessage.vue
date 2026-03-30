@@ -1,24 +1,26 @@
 <template>
-	<Teleport v-if="contentContainerMounted" :to="contentContainer">
-		<template v-for="(token, i) of tokens" :key="i">
-			<span v-if="IsTextToken(token)" class="seventv-text-token">
-				{{ token.content }}
-			</span>
-			<span v-else-if="IsLinkToken(token)">
-				<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
-					token.content.url
-				}}</a>
-			</span>
-			<span v-else-if="IsEmoteToken(token)">
-				<Emote
-					class="seventv-emote-token"
-					:emote="token.content.emote"
-					:overlaid="token.content.overlaid"
-					format="WEBP"
-				/>
-			</span>
-		</template>
-	</Teleport>
+	<template v-for="(container, index) of contentContainers" :key="index">
+		<Teleport v-if="contentContainerStates[index]" :to="container">
+			<template v-for="(token, i) of tokens.get(container) ?? []" :key="i">
+				<span v-if="IsTextToken(token)" class="seventv-text-token">
+					{{ token.content }}
+				</span>
+				<span v-else-if="IsLinkToken(token)">
+					<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
+						token.content.url
+					}}</a>
+				</span>
+				<span v-else-if="IsEmoteToken(token)">
+					<Emote
+						class="seventv-emote-token"
+						:emote="token.content.emote"
+						:overlaid="token.content.overlaid"
+						format="WEBP"
+					/>
+				</span>
+			</template>
+		</Teleport>
+	</template>
 
 	<Teleport v-if="shouldRenderBadges" :to="badgeContainer">
 		<span v-if="cosmetics.badges.size" class="seventv-badge-list">
@@ -34,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
 import { tokenize } from "@/common/Tokenize";
@@ -52,7 +54,8 @@ export interface ChatMessageBinding {
 	id: string;
 	authorID: string;
 	authorName: string;
-	messageContent: string;
+	messageSegments: string[];
+	rawMessageContent: string;
 	originalContentEls: HTMLElement[];
 	userCardTriggerEl: HTMLElement;
 	badgeAnchorEl: HTMLElement;
@@ -71,42 +74,68 @@ const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(props.bind.authorID);
 const badgeContainer = document.createElement("seventv-container");
-const contentContainer = document.createElement("seventv-container");
-contentContainer.classList.add("seventv-text-token");
-const tokens = ref<AnyToken[]>([]);
-const contentContainerMounted = ref(false);
+const contentContainers = ref<HTMLElement[]>([]);
+const contentContainerStates = ref<boolean[]>([]);
+const tokens = reactive(new WeakMap<HTMLElement, AnyToken[]>());
 
 const shouldRenderPaints = useConfig<boolean>("vanity.nametag_paints");
 const shouldRenderBadges = useConfig<boolean>("vanity.7tv_Badges");
+const activeEmoteKey = computed(() =>
+	Object.values(emotes.active)
+		.map((emote) => `${emote.name}:${emote.id}`)
+		.sort()
+		.join("\0"),
+);
+const activeSegments = computed(() => {
+	const extractedSegments = props.bind.messageSegments.filter((segment) => segment.length > 0);
+	return extractedSegments.length > 0 ? extractedSegments : [props.bind.rawMessageContent];
+});
 
 // Listen for click events
 useEventListener(props.bind.userCardTriggerEl, "click", () => {
 	emit("open-card", props.bind);
 });
 
-// Replace kick's original message body with a single tokenized container.
 function process(): void {
-	tokens.value = tokenize({
-		body: props.bind.messageContent,
-		chatterMap: {},
-		emoteMap: emotes.active,
-		localEmoteMap: { ...cosmetics.emotes },
-		isKick: true,
-	});
+	contentContainers.value.forEach((container) => container.remove());
+	contentContainers.value = [];
+	contentContainerStates.value = [];
 
-	const anchor = props.bind.originalContentEls.at(-1);
-	if (anchor && !contentContainer.isConnected) {
-		anchor.after(contentContainer);
-		contentContainerMounted.value = true;
-	}
+	const sourceSegments = activeSegments.value;
+	const anchors =
+		sourceSegments.length === props.bind.originalContentEls.length
+			? props.bind.originalContentEls
+			: [props.bind.originalContentEls.at(-1)].filter((el): el is HTMLElement => !!el);
+
+	sourceSegments.forEach((segment, index) => {
+		const anchor = anchors[index];
+		if (!anchor) return;
+
+		const container = document.createElement("seventv-container");
+		container.classList.add("seventv-text-token");
+
+		tokens.set(
+			container,
+			tokenize({
+				body: segment,
+				chatterMap: {},
+				emoteMap: emotes.active,
+				localEmoteMap: { ...cosmetics.emotes },
+				isKick: true,
+			}),
+		);
+
+		anchor.after(container);
+		contentContainers.value.push(container);
+		contentContainerStates.value.push(true);
+	});
 
 	for (const el of props.bind.originalContentEls) {
 		el.style.display = "none";
 	}
 }
 
-watch(() => props.bind.messageContent, process, { immediate: true });
-watch(cosmetics, process);
+watch([activeSegments, cosmetics, activeEmoteKey], process, { immediate: true });
 watch(
 	() => props.bind.badgeAnchorEl,
 	(el) => {
@@ -122,8 +151,9 @@ watch(
 );
 
 onUnmounted(() => {
-	contentContainer.remove();
-	contentContainerMounted.value = false;
+	contentContainers.value.forEach((container) => container.remove());
+	contentContainers.value = [];
+	contentContainerStates.value = [];
 
 	for (const el of props.bind.originalContentEls) {
 		el.style.display = "initial"; // restore the original tokens
@@ -140,15 +170,6 @@ onUnmounted(() => {
 	margin: var(--seventv-emote-margin);
 	margin-left: 0 !important;
 	margin-right: 0 !important;
-
-	> :deep(svg) {
-		max-width: 1.5em !important;
-		max-height: 1.5em !important;
-	}
-
-	:deep(img) {
-		max-height: 1.75rem !important;
-	}
 }
 
 .seventv-text-token {

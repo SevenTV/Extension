@@ -43,7 +43,8 @@ interface ResolvedMessageHosts {
 	userCardTriggerEl: HTMLElement;
 	badgeAnchorEl: HTMLElement;
 	originalContentEls: HTMLElement[];
-	messageContent: string;
+	messageSegments: string[];
+	rawMessageContent: string;
 }
 
 function isDefaultReactMessageProps(props: unknown): props is Kick.Message.DefaultProps {
@@ -117,6 +118,11 @@ function dedupeElements<T extends HTMLElement>(elements: T[]): T[] {
 	return Array.from(new Set(elements));
 }
 
+function getContentSegment(el: HTMLElement): string {
+	const props = getReactProps<{ children?: { props?: { content?: string } } }>(el);
+	return props?.children?.props?.content ?? "";
+}
+
 function resolveContentEls(el: HTMLDivElement, messageContent: string): HTMLElement[] {
 	const directTextEls = Array.from(el.querySelectorAll<HTMLElement>("span.font-normal"));
 	if (directTextEls.length > 0) return dedupeElements(directTextEls);
@@ -141,8 +147,8 @@ function resolveContentEls(el: HTMLDivElement, messageContent: string): HTMLElem
 }
 
 function resolveMessageHosts(el: HTMLDivElement, props: Kick.Message.DefaultProps): ResolvedMessageHosts | null {
-	const messageContent = props.message.content ?? "";
-	const originalContentEls = resolveContentEls(el, messageContent);
+	const rawMessageContent = props.message.content ?? "";
+	const originalContentEls = resolveContentEls(el, rawMessageContent);
 	let userCardTriggerEl = resolveUsernameTriggerEl(el, props.sender.username);
 	const missingHosts: string[] = [];
 
@@ -164,7 +170,8 @@ function resolveMessageHosts(el: HTMLDivElement, props: Kick.Message.DefaultProp
 		userCardTriggerEl,
 		badgeAnchorEl: userCardTriggerEl,
 		originalContentEls,
-		messageContent,
+		messageSegments: originalContentEls.map((contentEl) => getContentSegment(contentEl)),
+		rawMessageContent,
 	};
 }
 
@@ -186,7 +193,8 @@ function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuf
 		id: entryID,
 		authorID: userID,
 		authorName: username,
-		messageContent: hosts.messageContent,
+		messageSegments: hosts.messageSegments,
+		rawMessageContent: hosts.rawMessageContent,
 		originalContentEls: hosts.originalContentEls,
 		userCardTriggerEl: hosts.userCardTriggerEl,
 		badgeAnchorEl: hosts.badgeAnchorEl,
