@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
-import { ObserverPromise } from "@/common/Async";
+import { ObserverPromise, ObserverPromiseNotResolvedError } from "@/common/Async";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import ChatObserver from "./ChatObserver.vue";
 import ChatData from "@/app/chat/ChatData.vue";
@@ -26,7 +26,21 @@ const shallowList = ref<HTMLDivElement | null>(null);
 
 let observer: ObserverPromise<HTMLDivElement> | null = null;
 
-watchEffect(async () => {
+watchEffect((onCleanup) => {
+	let cancelled = false;
+
+	const disconnectObserver = () => {
+		if (!observer) return;
+
+		observer.disconnect();
+		observer = null;
+	};
+
+	onCleanup(() => {
+		cancelled = true;
+		disconnectObserver();
+	});
+
 	// Update channel context
 	const ok = ctx.setCurrentChannel({
 		id: props.channelId,
@@ -42,18 +56,20 @@ watchEffect(async () => {
 	// Find chatroom element
 	// "chatroom-top" is the heading
 	const chatroomTop = document.getElementById("chatroom-messages");
-	if (!chatroomTop) return;
+	if (!(chatroomTop instanceof HTMLDivElement)) return;
 
-	chatList.value = chatroomTop.firstElementChild as HTMLDivElement;
+	const currentList = chatroomTop.firstElementChild;
+	chatList.value = currentList instanceof HTMLDivElement && currentList.isConnected ? currentList : null;
 
 	// Create observer
-	if (observer) observer.disconnect();
-	if (!chatroomTop.firstElementChild) {
-		observer = new ObserverPromise<HTMLDivElement>(
+	disconnectObserver();
+	if (!(currentList instanceof HTMLDivElement)) {
+		const pendingObserver = new ObserverPromise<HTMLDivElement>(
 			(records, emit) => {
 				for (const rec of records) {
 					if (!rec.target || !(rec.target instanceof HTMLDivElement)) continue;
 					if (!rec.target.firstElementChild) continue;
+					if (!(rec.target.firstElementChild instanceof HTMLDivElement)) continue;
 
 					emit(rec.target.firstElementChild as HTMLDivElement);
 				}
@@ -64,11 +80,27 @@ watchEffect(async () => {
 				subtree: true,
 			},
 		);
+		observer = pendingObserver;
 
-		const el = await observer;
-		shallowList.value = el;
+		void pendingObserver
+			.then((el) => {
+				if (cancelled || observer !== pendingObserver) return;
+
+				observer = null;
+
+				const currentChatroomTop = document.getElementById("chatroom-messages");
+				if (currentChatroomTop !== chatroomTop) return;
+				if (!el.isConnected || !chatroomTop.contains(el)) return;
+
+				chatList.value = el;
+				shallowList.value = el;
+			})
+			.catch((err) => {
+				if (err instanceof ObserverPromiseNotResolvedError) return;
+				throw err;
+			});
 	} else {
-		shallowList.value = chatroomTop.firstElementChild as HTMLDivElement;
+		shallowList.value = currentList;
 	}
 });
 </script>

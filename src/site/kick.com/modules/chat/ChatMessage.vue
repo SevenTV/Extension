@@ -1,26 +1,24 @@
 <template>
-	<template v-for="(box, index) of containers" :key="index">
-		<Teleport :to="box">
-			<template v-for="(token, i) of tokens.get(box)" :key="i">
-				<span v-if="IsTextToken(token)" class="seventv-text-token">
-					{{ token.content }}
-				</span>
-				<span v-else-if="IsLinkToken(token)">
-					<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
-						token.content.url
-					}}</a>
-				</span>
-				<span v-else-if="IsEmoteToken(token)">
-					<Emote
-						class="seventv-emote-token"
-						:emote="token.content.emote"
-						:overlaid="token.content.overlaid"
-						format="WEBP"
-					/>
-				</span>
-			</template>
-		</Teleport>
-	</template>
+	<Teleport v-if="contentContainerMounted" :to="contentContainer">
+		<template v-for="(token, i) of tokens" :key="i">
+			<span v-if="IsTextToken(token)" class="seventv-text-token">
+				{{ token.content }}
+			</span>
+			<span v-else-if="IsLinkToken(token)">
+				<a :href="token.content.url" target="_blank" class="seventv-links" rel="noopener noreferrer">{{
+					token.content.url
+				}}</a>
+			</span>
+			<span v-else-if="IsEmoteToken(token)">
+				<Emote
+					class="seventv-emote-token"
+					:emote="token.content.emote"
+					:overlaid="token.content.overlaid"
+					format="WEBP"
+				/>
+			</span>
+		</template>
+	</Teleport>
 
 	<Teleport v-if="shouldRenderBadges" :to="badgeContainer">
 		<span v-if="cosmetics.badges.size" class="seventv-badge-list">
@@ -36,11 +34,9 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, watch } from "vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { onUnmounted } from "vue";
 import { useEventListener } from "@vueuse/core";
-import { getReactProps } from "@/common/ReactHooks";
 import { tokenize } from "@/common/Tokenize";
 import { AnyToken } from "@/common/chat/ChatMessage";
 import { IsEmoteToken, IsLinkToken, IsTextToken } from "@/common/type-predicates/MessageTokens";
@@ -56,8 +52,10 @@ export interface ChatMessageBinding {
 	id: string;
 	authorID: string;
 	authorName: string;
-	texts: HTMLSpanElement[];
-	usernameEl: HTMLSpanElement;
+	messageContent: string;
+	originalContentEls: HTMLElement[];
+	userCardTriggerEl: HTMLElement;
+	badgeAnchorEl: HTMLElement;
 	el: HTMLDivElement;
 }
 
@@ -67,60 +65,50 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: "open-card", bind: ChatMessageBinding): void;
-	(e: "render"): void;
 }>();
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
 const cosmetics = useCosmetics(props.bind.authorID);
 const badgeContainer = document.createElement("seventv-container");
-
-const containers = ref<HTMLElement[]>([]);
-const tokens = reactive<WeakMap<HTMLElement, AnyToken[]>>(new WeakMap());
+const contentContainer = document.createElement("seventv-container");
+contentContainer.classList.add("seventv-text-token");
+const tokens = ref<AnyToken[]>([]);
+const contentContainerMounted = ref(false);
 
 const shouldRenderPaints = useConfig<boolean>("vanity.nametag_paints");
 const shouldRenderBadges = useConfig<boolean>("vanity.7tv_Badges");
 
 // Listen for click events
-useEventListener(props.bind.usernameEl.parentElement, "click", () => {
+useEventListener(props.bind.userCardTriggerEl, "click", () => {
 	emit("open-card", props.bind);
 });
 
-function textElToMessage(el: HTMLElement) {
-	const props = getReactProps<{ children: { props: { content: string } } }>(el);
-	return props?.children.props.content;
-}
-
-// Process kick's text entries into a containerized token
+// Replace kick's original message body with a single tokenized container.
 function process(): void {
-	containers.value.length = 0;
-	for (const el of props.bind.texts) {
-		const message = textElToMessage(el);
-		if (!message) continue;
+	tokens.value = tokenize({
+		body: props.bind.messageContent,
+		chatterMap: {},
+		emoteMap: emotes.active,
+		localEmoteMap: { ...cosmetics.emotes },
+		isKick: true,
+	});
 
-		const newTokens = tokenize({
-			body: message,
-			chatterMap: {},
-			emoteMap: emotes.active,
-			localEmoteMap: { ...cosmetics.emotes },
-			isKick: true,
-		});
-
-		const tokenEl = document.createElement("seventv-container");
-		tokenEl.classList.add("seventv-text-token");
-		el.after(tokenEl);
-		el.style.display = "none";
-
-		containers.value.push(tokenEl);
-		tokens.set(tokenEl, newTokens);
+	const anchor = props.bind.originalContentEls.at(-1);
+	if (anchor && !contentContainer.isConnected) {
+		anchor.after(contentContainer);
+		contentContainerMounted.value = true;
 	}
 
-	nextTick(() => emit("render"));
+	for (const el of props.bind.originalContentEls) {
+		el.style.display = "none";
+	}
 }
 
-watch(() => props.bind.texts, process, { immediate: true });
+watch(() => props.bind.messageContent, process, { immediate: true });
+watch(cosmetics, process);
 watch(
-	() => props.bind.usernameEl,
+	() => props.bind.badgeAnchorEl,
 	(el) => {
 		if (!el.contains(badgeContainer)) el.insertAdjacentElement("beforebegin", badgeContainer);
 	},
@@ -128,17 +116,16 @@ watch(
 );
 
 watch(
-	[() => props.bind.usernameEl, cosmetics, shouldRenderPaints],
+	[() => props.bind.userCardTriggerEl, cosmetics, shouldRenderPaints],
 	([el, c, s]) => updateElementStyles(el, s && c.paints.size ? Array.from(c.paints.values())[0].id : null),
 	{ immediate: true },
 );
 
 onUnmounted(() => {
-	for (const el of containers.value) {
-		el.remove(); // remove our custom containers
-	}
+	contentContainer.remove();
+	contentContainerMounted.value = false;
 
-	for (const el of props.bind.texts) {
+	for (const el of props.bind.originalContentEls) {
 		el.style.display = "initial"; // restore the original tokens
 	}
 

@@ -1,4 +1,3 @@
-kj
 <template>
 	<!-- Patch messages -->
 	<template v-for="bind of messages" :key="bind.id">
@@ -12,9 +11,10 @@ kj
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
+import { nextTick, onUnmounted, ref, watch } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
+import { Logger } from "@/common/Logger";
 import { getReactProps } from "@/common/ReactHooks";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
@@ -31,8 +31,20 @@ const props = defineProps<{
 const messages = ref<ChatMessageBinding[]>([]);
 const messageBuffer = ref<ChatMessageBinding[]>([]);
 const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
-const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
+const bounds = ref(new DOMRect());
+
+let messageMap = new WeakMap<HTMLDivElement, ChatMessageBinding>();
+let warnedMarkupMismatch = false;
+let unpauseListenerAttached = false;
+let unpauseListenerTarget: HTMLDivElement | null = null;
+
+interface ResolvedMessageHosts {
+	userCardTriggerEl: HTMLElement;
+	badgeAnchorEl: HTMLElement;
+	originalContentEls: HTMLElement[];
+	messageContent: string;
+}
 
 function isDefaultReactMessageProps(props: unknown): props is Kick.Message.DefaultProps {
 	return (
@@ -55,26 +67,129 @@ function getMessageReactProps(el: HTMLDivElement): Kick.Message.DefaultProps | u
 	return child?.props;
 }
 
+function warnMarkupMismatch(reason: string): void {
+	if (warnedMarkupMismatch) return;
+
+	warnedMarkupMismatch = true;
+	Logger.Get().warn("kick chat message structure changed, skipping malformed message", `reason=${reason}`);
+}
+
+function normalizeText(value: string | null | undefined): string {
+	return (value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function matchesUsername(el: HTMLElement, username: string): boolean {
+	const normalizedUsername = normalizeText(username);
+	if (!normalizedUsername) return false;
+
+	return [el.getAttribute("title"), el.getAttribute("aria-label"), el.textContent].some(
+		(value) => normalizeText(value) === normalizedUsername,
+	);
+}
+
+function resolveUsernameTriggerEl(el: HTMLDivElement, username: string): HTMLElement | null {
+	const directButton = el.querySelector<HTMLElement>("div.inline-flex > button[title]");
+	if (directButton) return directButton;
+
+	const legacyUsername = el.querySelector<HTMLElement>(".chat-entry-username");
+	if (legacyUsername) return legacyUsername;
+
+	for (const button of Array.from(el.querySelectorAll<HTMLElement>("button"))) {
+		if (matchesUsername(button, username)) return button;
+	}
+
+	return null;
+}
+
+function isLeafLikeTextNode(el: HTMLElement): boolean {
+	return !el.querySelector("span, p, div");
+}
+
+function isExcludedContentNode(el: HTMLElement): boolean {
+	if (el.closest("button, a, [role='button'], img, svg, video, picture, figure")) return true;
+	if (el.closest(".seventv-badge-list, .seventv-container")) return true;
+
+	const className = typeof el.className === "string" ? el.className : "";
+	return /avatar|badge|icon|emote|profile/i.test(className);
+}
+
+function dedupeElements<T extends HTMLElement>(elements: T[]): T[] {
+	return Array.from(new Set(elements));
+}
+
+function resolveContentEls(el: HTMLDivElement, messageContent: string): HTMLElement[] {
+	const directTextEls = Array.from(el.querySelectorAll<HTMLElement>("span.font-normal"));
+	if (directTextEls.length > 0) return dedupeElements(directTextEls);
+
+	const legacyTextEls = Array.from(el.querySelectorAll<HTMLElement>(".chat-entry-content"));
+	if (legacyTextEls.length > 0) return dedupeElements(legacyTextEls);
+
+	const normalizedMessage = normalizeText(messageContent);
+	if (!normalizedMessage) return [];
+
+	const contentEls = Array.from(el.querySelectorAll<HTMLElement>("span, p, div")).filter((candidate) => {
+		if (isExcludedContentNode(candidate)) return false;
+		if (!isLeafLikeTextNode(candidate)) return false;
+
+		const text = normalizeText(candidate.textContent);
+		if (!text) return false;
+
+		return normalizedMessage.includes(text);
+	});
+
+	return dedupeElements(contentEls);
+}
+
+function resolveMessageHosts(el: HTMLDivElement, props: Kick.Message.DefaultProps): ResolvedMessageHosts | null {
+	const messageContent = props.message.content ?? "";
+	const originalContentEls = resolveContentEls(el, messageContent);
+	let userCardTriggerEl = resolveUsernameTriggerEl(el, props.sender.username);
+	let missingHosts: string[] = [];
+
+	if (originalContentEls.length === 0) {
+		missingHosts.push("content hosts");
+	}
+
+	if (!userCardTriggerEl) {
+		missingHosts.push("username trigger");
+		userCardTriggerEl = originalContentEls[0] ?? null;
+	}
+
+	if (!userCardTriggerEl || originalContentEls.length === 0) {
+		if (missingHosts.length > 0) warnMarkupMismatch(`missing ${missingHosts.join(" and ")}`);
+		return null;
+	}
+
+	return {
+		userCardTriggerEl,
+		badgeAnchorEl: userCardTriggerEl,
+		originalContentEls,
+		messageContent,
+	};
+}
+
 function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuffer?: boolean): void {
 	if (el.__seventv) return; // already patched
 	if (!el.hasAttribute("data-index")) return; // not a message
 	const props = getMessageReactProps(el);
 	if (!props) return;
+	const hosts = resolveMessageHosts(el, props);
+	if (!hosts) return;
 
 	el.__seventv = true;
 
 	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props;
 	const userID = props.sender.id.toString();
 	const username = props.sender.username;
-	const usernameEl = el.querySelector<HTMLSpanElement>("div.inline-flex > button[title]")!;
-	const textElements = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
 	const bind: ChatMessageBinding = {
 		id: entryID,
 		authorID: userID,
 		authorName: username,
-		texts: Array.from(textElements),
-		usernameEl: usernameEl,
+		messageContent: hosts.messageContent,
+		originalContentEls: hosts.originalContentEls,
+		userCardTriggerEl: hosts.userCardTriggerEl,
+		badgeAnchorEl: hosts.badgeAnchorEl,
 		el,
 	};
 
@@ -112,74 +227,90 @@ async function onOpenUserCard(bind: ChatMessageBinding) {
 	});
 }
 
-function patch(): void {
-	const entries = props.listElement.querySelectorAll("[data-index]");
+function patch(listElement: HTMLDivElement): void {
+	const entries = listElement.querySelectorAll("[data-index]");
 	for (const el of Array.from(entries)) {
 		patchMessageElement(el as HTMLDivElement, true);
 	}
 }
 
 const expectPause = ref(false);
-const bounds = ref(props.listElement.getBoundingClientRect());
-let unpauseListenerAttached = false;
 
-function onMessageRendered() {
-	if (props.listElement.nextElementSibling && !unpauseListenerAttached) {
+function detachUnpauseListener(): void {
+	if (unpauseListenerTarget) {
+		unpauseListenerTarget.removeEventListener("click", onUnpauseClick);
+	}
+
+	unpauseListenerTarget = null;
+	unpauseListenerAttached = false;
+}
+
+function onMessageRendered(listElement: HTMLDivElement) {
+	if (!listElement.isConnected) {
+		detachUnpauseListener();
+		return;
+	}
+
+	if (listElement.nextElementSibling && !unpauseListenerAttached) {
+		detachUnpauseListener();
 		unpauseListenerAttached = true;
-		props.listElement.addEventListener("click", onUnpauseClick);
+		unpauseListenerTarget = listElement;
+		listElement.addEventListener("click", onUnpauseClick);
 	}
 	if (expectPause.value) return;
 
 	nextTick(() => {
-		props.listElement.scrollTo({ top: props.listElement.scrollHeight });
+		if (!listElement.isConnected) return;
+		listElement.scrollTo({ top: listElement.scrollHeight });
 	});
 }
 
 function onUnpauseClick(): void {
-	props.listElement.removeEventListener("click", onUnpauseClick);
+	detachUnpauseListener();
 	expectPause.value = false;
-	unpauseListenerAttached = false;
 }
 
-onMounted(() => {
-	const el = props.listElement;
-	if (!el) return;
-
-	el.addEventListener("wheel", () => {
-		const top = Math.floor(el.scrollTop);
-		const h = Math.floor(el.scrollHeight - bounds.value.height);
-
-		if (top >= h - 1) {
-			expectPause.value = false;
-			return;
-		}
-
-		expectPause.value = true;
-	});
-});
-
 onUnmounted(() => {
-	props.listElement.removeEventListener("click", onUnpauseClick);
+	detachUnpauseListener();
 });
 
-watchEffect(() => {
-	patch();
-
-	bounds.value = props.listElement.getBoundingClientRect();
-
-	props.listElement.classList.toggle("seventv-chat-observer", true);
-});
-
-let stop = () => {
-	void 0;
-};
 watch(
 	() => props.listElement,
-	() => {
-		stop();
-		stop = useMutationObserver(
-			props.listElement,
+	(listElement, _, onCleanup) => {
+		messages.value.length = 0;
+		messageBuffer.value.length = 0;
+		messageDeleteBuffer.value.length = 0;
+		messageMap = new WeakMap();
+		userCard.value.length = 0;
+		expectPause.value = false;
+		detachUnpauseListener();
+
+		if (!listElement?.isConnected) return;
+
+		patch(listElement);
+		bounds.value = listElement.getBoundingClientRect();
+		listElement.classList.toggle("seventv-chat-observer", true);
+
+		const onWheel = () => {
+			if (!listElement.isConnected) return;
+
+			const top = Math.floor(listElement.scrollTop);
+			const h = Math.floor(listElement.scrollHeight - bounds.value.height);
+
+			if (top >= h - 1) {
+				expectPause.value = false;
+				return;
+			}
+
+			expectPause.value = true;
+		};
+		listElement.addEventListener("wheel", onWheel);
+
+		const stopListObserver = useMutationObserver(
+			listElement,
 			(records) => {
+				if (!listElement.isConnected) return;
+
 				for (const rec of records) {
 					rec.addedNodes.forEach((n) => {
 						if (!(n instanceof HTMLDivElement)) return;
@@ -197,17 +328,48 @@ watch(
 						messageMap.delete(n);
 					});
 
-					flush();
+					flush(listElement);
 				}
 			},
 			{ childList: true },
 		).stop;
-		flush();
+
+		const stopParentObserver = listElement.parentElement
+			? useMutationObserver(
+					listElement.parentElement,
+					() => {
+						if (!listElement.isConnected) {
+							expectPause.value = false;
+							detachUnpauseListener();
+							return;
+						}
+						if (listElement.nextElementSibling) return;
+
+						expectPause.value = false;
+						detachUnpauseListener();
+					},
+					{ childList: true },
+			  ).stop
+			: () => {
+					void 0;
+			  };
+
+		flush(listElement);
+
+		onCleanup(() => {
+			stopListObserver();
+			stopParentObserver();
+			detachUnpauseListener();
+			listElement.removeEventListener("wheel", onWheel);
+			listElement.classList.toggle("seventv-chat-observer", false);
+		});
 	},
 	{ immediate: true },
 );
 
-function flush(): void {
+function flush(listElement: HTMLDivElement): void {
+	if (!listElement.isConnected) return;
+
 	if (messageBuffer.value.length) {
 		const unbuf = messageBuffer.value.splice(0, messageBuffer.value.length);
 
@@ -224,24 +386,8 @@ function flush(): void {
 
 		messageDeleteBuffer.value.length = 0;
 	}
-	onMessageRendered();
+	onMessageRendered(listElement);
 }
-
-// ftk789: I have no clue what the F is above, And why does it have setTimeouts, with it being present it lags the chat and makes it go crazy.so I just commented settimeouts.
-
-useMutationObserver(
-	props.listElement.parentElement!,
-	() => {
-		if (props.listElement.nextElementSibling) return;
-
-		expectPause.value = false;
-	},
-	{ childList: true },
-);
-
-onUnmounted(() => {
-	props.listElement.classList.toggle("seventv-chat-observer", false);
-});
 </script>
 
 <style scoped lang="scss">
