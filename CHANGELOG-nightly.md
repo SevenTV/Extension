@@ -1,3 +1,7 @@
+### 3.1.16.3000
+
+-   Fixed Kick emote rendering after chat DOM changes
+
 ### 3.1.16.2000
 
 -   Updated Firefox extension URL in onboarding
