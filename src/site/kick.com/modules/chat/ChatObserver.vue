@@ -144,7 +144,7 @@ function resolveMessageHosts(el: HTMLDivElement, props: Kick.Message.DefaultProp
 	const messageContent = props.message.content ?? "";
 	const originalContentEls = resolveContentEls(el, messageContent);
 	let userCardTriggerEl = resolveUsernameTriggerEl(el, props.sender.username);
-	let missingHosts: string[] = [];
+	const missingHosts: string[] = [];
 
 	if (originalContentEls.length === 0) {
 		missingHosts.push("content hosts");
