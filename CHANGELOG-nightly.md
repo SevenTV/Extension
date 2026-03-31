@@ -1,3 +1,7 @@
+### 3.1.18
+
+-   Fixed 7TV emotes not showing in Kick chat due to a Kick UI change affecting the username element selector
+
 ### 3.1.17
 
 -   Fixed "Hide Bits Buttons" setting not working due to Twitch UI changes
