@@ -1,6 +1,7 @@
 <template>
 	<template v-for="inst of player.instances" :key="inst.identifier">
 		<PlayerController :inst="inst" :media-player="mediaPlayer" />
+		<PlayerForceHD v-if="shouldForceHDVideo" ref="forceHD" :inst="inst" />
 	</template>
 
 	<template v-if="playerAdvancedOptionsComponent.instances.length > 0">
@@ -19,6 +20,7 @@ import { declareModule } from "@/composable/useModule";
 import { declareConfig, useConfig } from "@/composable/useSettings";
 import PlayerController from "./PlayerController.vue";
 import { ref } from "vue";
+import PlayerForceHD from "./PlayerForceHD.vue";
 import PlayerStreamInfo from "./PlayerStreamInfo.vue";
 
 declareModule<"TWITCH">("player", {
@@ -29,7 +31,9 @@ declareModule<"TWITCH">("player", {
 const mediaPlayer = ref<Twitch.MediaPlayerInstance>();
 
 const shouldShowVideoStats = useConfig<boolean>("player.video_stats");
+const shouldForceHDVideo = useConfig<boolean>("player.force_hd_video");
 const info = ref<typeof PlayerStreamInfo | null>(null);
+const forceHD = ref<(typeof PlayerForceHD)[] | null>(null);
 
 const player = useComponentHook<Twitch.VideoPlayerComponent>(
 	{
@@ -41,6 +45,7 @@ const player = useComponentHook<Twitch.VideoPlayerComponent>(
 			render(inst, cur) {
 				mediaPlayer.value = inst.component.props.mediaPlayerInstance;
 				info.value?.remount?.();
+				forceHD.value?.forEach((f) => f.sync?.());
 
 				return cur;
 			},
@@ -78,6 +83,12 @@ export const config = [
 			["Mute/Unmute", 2],
 		],
 		defaultValue: 0,
+	}),
+	declareConfig("player.force_hd_video", "TOGGLE", {
+		path: ["Player", ""],
+		label: "Force HD Video",
+		hint: "Automatically select the highest available video quality",
+		defaultValue: false,
 	}),
 ];
 </script>

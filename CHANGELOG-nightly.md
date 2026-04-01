@@ -1,5 +1,6 @@
 ### 3.1.20.1000
 
+-   Added option to force HD video on Twitch
 -   Fixed some lint issues
 -   Bump version to 3.1.20
 
