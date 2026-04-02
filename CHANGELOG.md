@@ -1,6 +1,7 @@
 ### 3.1.20
 
 -   Fixed some lint issues
+-   Bump version to 3.1.20
 
 ### 3.1.19
 
