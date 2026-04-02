@@ -1,3 +1,7 @@
+### 3.1.18.1000
+
+-   Fixed a conflict issue with 7TV extension and FFZ running at the same time
+
 ### 3.1.17.1000
 
 -   April fools effects joke 2026

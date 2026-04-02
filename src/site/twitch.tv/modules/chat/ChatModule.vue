@@ -61,21 +61,12 @@ const chatController = useComponentHook<Twitch.ChatControllerComponent>(
 		predicate: (n) => n.pushMessage && n.props?.messageHandlerAPI,
 	},
 	{
-		// <--- Start of the Options Object
 		hooks: {
-			// <--- Start of Hooks
 			update(inst) {
-				// <--- This is the 'update' method
-				// Logic for mounting
 				shouldMount.set(inst, !!inst.component.props.channelID);
-
-				// Safe logging logic
-				if (inst && inst.component.props) {
-					log.warn("[ChatModule] Found:", JSON.stringify(inst.component.props));
-				}
 			},
-		}, // <--- End of Hooks
-	}, // <--- End of Options Object
+		},
+	},
 );
 
 const chatBuffer = useComponentHook<Twitch.MessageBufferComponent>({
