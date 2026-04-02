@@ -19,7 +19,6 @@ import { refDebounced } from "@vueuse/shared";
 import { HookedInstance, getTrackedNode, useComponentHook } from "@/common/ReactHooks";
 import { declareModule } from "@/composable/useModule";
 import ChatController from "./ChatController.vue";
-import { log } from "@/common/Logger";
 
 const { dependenciesMet, markAsReady } = declareModule("chat", {
 	name: "Chat",

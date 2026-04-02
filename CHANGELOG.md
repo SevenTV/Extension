@@ -1,3 +1,7 @@
+### 3.1.20
+
+-   Fixed some lint issues
+
 ### 3.1.19
 
 -   Fixed some lint issues and some selectors not working
