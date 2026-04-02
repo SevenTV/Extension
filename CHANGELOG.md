@@ -1,3 +1,11 @@
+### 3.1.20
+
+-   Fixed some lint issues
+
+### 3.1.19
+
+-   Fixed some lint issues and some selectors not working
+
 ### 3.1.18
 
 -   Fixed a conflict issue with 7TV extension and FFZ extension running at the same time

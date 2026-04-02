@@ -60,7 +60,6 @@ const chatController = useComponentHook<Twitch.ChatControllerComponent>(
 		predicate: (n) => n.pushMessage && n.props?.messageHandlerAPI,
 	},
 	{
-		// new hook method
 		hooks: {
 			update(inst) {
 				shouldMount.set(inst, !!inst.component.props.channelID);

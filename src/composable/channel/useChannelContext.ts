@@ -6,7 +6,7 @@ export const CHANNEL_CTX = Symbol("seventv-channel-context");
 
 const { sendMessage, target } = useWorker();
 
-export type ChannelRole = "BROADCASTER" | "EDITOR" | "MODERATOR" | "VIP" | "SUBSCRIBER" | "FOLLOWER";
+export type ChannelRole = "BROADCASTER" | "EDITOR" | "LEAD_MODERATOR" | "MODERATOR" | "VIP" | "SUBSCRIBER" | "FOLLOWER";
 
 export class ChannelContext implements CurrentChannel {
 	platform: Platform = "UNKNOWN";

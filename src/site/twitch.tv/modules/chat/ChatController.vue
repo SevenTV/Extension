@@ -113,12 +113,12 @@ const currentChannel = ref<CurrentChannel | null>(null);
 const sharedChannels = new Map<string, ChannelContext>();
 
 // get the config chat.font-april-fools
-const fontAprilFools = useConfig("chat.font-april-fools", false);
+const fontAprilFools = useConfig("chat.font-april-fools-2026", false);
 
 watch(
 	fontAprilFools,
 	(value) => {
-		properties.fontAprilFools = value === false ? "Comic Sans MS, Comic Sans, cursive" : "inherit";
+		properties.fontAprilFools = value === false ? "Pixelify Sans, cursive" : "inherit";
 	},
 	{ immediate: true },
 );
@@ -231,6 +231,7 @@ definePropertyHook(controller.value.component, "props", {
 			["VIP", v.isCurrentUserVIP],
 			["EDITOR", v.isCurrentUserEditor],
 			["MODERATOR", v.isCurrentUserModerator || v.channelID === v.userID],
+			["LEAD_MODERATOR", v.isCurrentUserLeadModerator],
 			["BROADCASTER", v.channelID === v.userID],
 		] as [ChannelRole, boolean][]) {
 			if (!ok) continue;

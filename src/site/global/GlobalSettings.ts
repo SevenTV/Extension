@@ -50,9 +50,25 @@ export const globalSettings = [
 			return new Date() > new Date("2025-04-02");
 		},
 	}),
-
 	declareConfig("chat.font-april-fools-dismissed", "NONE", {
 		label: "Disable Comic Sans",
+		defaultValue: false,
+		serialize: false,
+	}),
+	declareConfig("chat.font-april-fools-2026", "TOGGLE", {
+		label: "Disable April Fools effects 2026",
+		hint: "Disable April fools effects 2026 (pixel font, ghost mentions, :tf: emote)",
+		path: ["Chat", ""],
+		transform(v: unknown) {
+			if (new Date() > new Date("2026-04-02")) return true;
+			return v as boolean;
+		},
+		get defaultValue() {
+			return new Date() > new Date("2026-04-02");
+		},
+	}),
+	declareConfig("chat.font-april-fools-2026-dismissed", "NONE", {
+		label: "Disable April fools effects 2026 (pixel font, ghost mentions, :tf: emote)",
 		defaultValue: false,
 		serialize: false,
 	}),
