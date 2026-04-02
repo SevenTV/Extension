@@ -242,6 +242,7 @@ export const config = [
 	}
 }
 
+/* stylelint-disable */
 .seventv-hide-community-challenge-contributions {
 	div[msg-id*="community-challenge-contribution"] {
 		display: none !important;
@@ -293,22 +294,6 @@ export const config = [
 	}
 }
 
-.seventv-hide-live-channels {
-	div[class$="side-nav--collapsed"] div > div:nth-child(1) > div:nth-child(4),
-	div[class$="side-nav--expanded"] div > div:nth-child(1) > div:nth-child(4),
-	#side-nav > div > div:nth-child(1) > div:nth-child(4) {
-		display: none !important;
-	}
-}
-
-.seventv-hide-viewers-also-watch {
-	div[class$="side-nav--collapsed"] div > div:nth-child(1) > div:nth-child(5),
-	div[class$="side-nav--expanded"] div > div:nth-child(1) > div:nth-child(5),
-	#side-nav > div > div:nth-child(1) > div:nth-child(5) {
-		display: none !important;
-	}
-}
-
 .seventv-hide-prime-offers {
 	div[class$="top-nav__prime"] {
 		display: none !important;
@@ -321,9 +306,30 @@ export const config = [
 	}
 }
 
+.seventv-hide-viewers-also-watch div[class*="side-nav--"] div > div:nth-child(1) > div:nth-child(5),
+.seventv-hide-viewers-also-watch #side-nav > div > div:nth-child(1) > div:nth-child(5) {
+	display: none !important;
+}
+
+.seventv-hide-live-channels {
+	div[class$="side-nav--collapsed"] div > div:nth-child(1) > div:nth-child(4),
+	div[class$="side-nav--expanded"] div > div:nth-child(1) > div:nth-child(4),
+	#side-nav > div > div:nth-child(1) > div:nth-child(4) {
+		display: none !important;
+	}
+}
+
+.seventv-hide-combos-buttons
+	#live-channel-stream-information
+	> div
+	> div
+	> div:nth-child(2)
+	> div:nth-child(3)
+	> div:nth-child(1) {
+	display: none !important;
+}
+
 .seventv-hide-live-notification-button {
-	// FIX: Added space after // for scss/double-slash-comment-whitespace-inside
-	// OLD
 	button[data-a-target="notifications-toggle"] {
 		display: none !important;
 	}
@@ -345,19 +351,6 @@ export const config = [
 	}
 }
 
-.seventv-hide-combos-buttons {
-	#live-channel-stream-information > div > div > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) {
-		display: none !important;
-	}
-}
-
-.seventv-hide-subscribe-button {
-	button[data-a-target="subscribed-button"],
-	button[data-a-target="subscribe-button"] {
-		display: none !important;
-	}
-}
-
 .seventv-hide-chat-input-box {
 	div[class$="chat-input__textarea"] {
 		display: none !important;
@@ -370,7 +363,6 @@ export const config = [
 	}
 }
 
-/* stylelint-disable */
 .seventv-hide-player-ext {
 	.video-player .extension-taskbar,
 	.video-player .extension-container,

@@ -1,3 +1,11 @@
+### 3.1.19
+
+-   Fixed some lint issues and some selectors not working
+
+### 3.1.18
+
+-   Fixed a conflict issue with 7TV extension and FFZ extension running at the same time
+
 ### 3.1.17
 
 -   April fools effects joke 2026
