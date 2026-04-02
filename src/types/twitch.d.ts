@@ -918,6 +918,11 @@ declare module Twitch {
 		setMuted: (e) => void;
 		setVolume: (e) => void;
 		setPlaybackRate: (e) => void;
+		setQuality: (quality: string | VideoQuality) => void;
+		getQuality: () => string | VideoQuality;
+		getQualities: () => VideoQuality[];
+		setAutoQualityMode: (enabled: boolean) => void;
+		isAutoQualityMode: () => boolean;
 	}
 
 	export type VideoPlayerContentRestriction = ReactExtended.WritableComponent<{
@@ -986,5 +991,6 @@ declare module Twitch {
 		isDefault: boolean;
 		name: string;
 		width: number;
+		variantSource: string;
 	}
 }
