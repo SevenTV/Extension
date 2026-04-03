@@ -324,12 +324,12 @@ db.ready().then(async () => {
 						break;
 				}
 
-				log.debug("<Cosmetics>", "Assigned", ents.length.toString(), "stored entitlements");
-
 				if (assigned) {
 					data.staticallyAssigned[ent.user_id] = {};
 				}
 			}
+
+			log.debug("<Cosmetics>", "Assigned", ents.length.toString(), "stored entitlements");
 		})
 		.then(flush);
 });

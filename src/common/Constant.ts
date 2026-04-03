@@ -21,6 +21,7 @@ export const UNICODE_TAG_0 = "\u{34f}";
 export const UNICODE_TAG_0_REGEX = new RegExp(UNICODE_TAG_0, "g");
 
 export const TWITCH_PROFILE_IMAGE_REGEX = /(\d+x\d+)(?=\.\w{3,4}$)/;
+export const TWITCH_TIMEOUT_REGEX = new RegExp("^[0-9]+[dhms]$", "i");
 
 export const HOSTNAME_SUPPORTED_REGEXP = /([a-z0-9]+[.])*(youtube|kick)[.]com/;
 export const SEVENTV_EMOTE_LINK = new RegExp(

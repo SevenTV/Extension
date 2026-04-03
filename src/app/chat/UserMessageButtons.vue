@@ -14,11 +14,11 @@
 			ref="pinButtonRef"
 			v-tooltip="'Pin'"
 			class="seventv-button"
-			@click="pinPrompt = true"
+			@click="onPinPrompt"
 		>
 			<PinIcon />
 		</div>
-		<div v-tooltip="'Reply'" class="seventv-button" @click="openReplyTray">
+		<div v-if="!msg.moderation.deleted" v-tooltip="'Reply'" class="seventv-button" @click="openReplyTray">
 			<component :is="msg.parent ? TwChatReply : ReplyIcon" />
 		</div>
 	</div>
@@ -95,7 +95,9 @@ const tray = useTray("Reply", () => ({
 		: {}),
 }));
 
+const showPinPrompt = useConfig<boolean>("chat.pin_prompt_toggle");
 const showCopyIcon = useConfig<boolean>("chat.copy_icon_toggle");
+
 const copyToastOpen = ref(false);
 const copyButtonRef = ref<HTMLElement>();
 const copyToastContainer = useFloatScreen(copyButtonRef, {
@@ -123,6 +125,14 @@ const pinPromptContainer = useFloatScreen(pinButtonRef, {
 
 function openReplyTray(): void {
 	tray.open();
+}
+
+function onPinPrompt(): void {
+	if (showPinPrompt.value) {
+		pinPrompt.value = true;
+	} else {
+		emit("pin");
+	}
 }
 
 function onPinAnswer(answer: string): void {

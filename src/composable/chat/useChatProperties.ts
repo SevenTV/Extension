@@ -14,6 +14,7 @@ interface ChatProperties {
 	imageFormat: SevenTV.ImageFormat;
 	twitchBadgeSets: Twitch.BadgeSets | null;
 	blockedUsers: Set<string>;
+	chatRules: string[];
 }
 
 type ChatPauseReason = "MOUSEOVER" | "SCROLL" | "ALTKEY";
@@ -36,6 +37,7 @@ export function useChatProperties(ctx: ChannelContext) {
 			twitchBadgeSets: {} as Twitch.BadgeSets | null,
 			blockedUsers: new Set<string>(),
 			fontAprilFools: "unset",
+			chatRules: [],
 		});
 
 		m.set(ctx, data);
