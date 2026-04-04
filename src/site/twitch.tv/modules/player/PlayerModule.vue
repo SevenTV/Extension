@@ -39,7 +39,7 @@ const player = useComponentHook<Twitch.VideoPlayerComponent>(
 	{
 		hooks: {
 			render(inst, cur) {
-				mediaPlayer.value = inst.component.props.mediaPlayerInstance;
+				mediaPlayer.value = inst.component.props.mediaPlayerInstance.playerInstance;
 				info.value?.remount?.();
 
 				return cur;
