@@ -5,6 +5,25 @@
 ### 3.1.17
 
 -   Fixed "Hide Bits Buttons" setting not working due to Twitch UI changes
+### 3.1.20
+
+-   Fixed some lint issues
+-   Bump version to 3.1.20
+
+### 3.1.19
+
+-   Fixed some lint issues and some selectors not working
+
+### 3.1.18
+
+-   Fixed a conflict issue with 7TV extension and FFZ extension running at the same time
+
+### 3.1.17
+
+-   April fools effects joke 2026
+-   Fixed steam latency information not being displayed correctly
+-   Added initial Lead Moderator functionallity
+-   Fixed other small bugs
 
 ### 3.1.16
 

@@ -13,7 +13,7 @@
 			</UiSuperHint>
 		</Teleport>
 	</template>
-	<!-- Dialog to enable April Fools font -->
+	<!-- Dialog to enable April Fools effects -->
 	<template v-if="aprilfoolsContainer">
 		<Teleport :to="aprilfoolsContainer">
 			<UiSuperHint title="April Fools">
@@ -22,7 +22,7 @@
 					@answer="handleAprilFoolsAnswer($event)"
 					@close="handleAprilFoolsAnswer('')"
 				>
-					<p>We do a little bit of trolling, Would you like to disable the comic sans font?</p>
+					<p>We do a little bit of trolling, Would you like to disable the april fools effects?</p>
 				</UiConfirmPrompt>
 			</UiSuperHint>
 		</Teleport>
@@ -52,8 +52,8 @@ const emit = defineEmits<{
 
 const chatModule = getModuleRef<"TWITCH", "chat">("chat");
 const rootEl = toRef(props.instance.domNodes, "root");
-const aprilFoolsDisabled = useConfig<boolean>("chat.font-april-fools", false);
-const aprilFoolsDismissed = useConfig<boolean>("chat.font-april-fools-dismissed", false);
+const aprilFoolsDisabled = useConfig<boolean>("chat.font-april-fools-2026", false);
+const aprilFoolsDismissed = useConfig<boolean>("chat.font-april-fools-2026-dismissed", false);
 
 const suggestContainer = useFloatScreen(rootEl, {
 	enabled: () => props.suggest,

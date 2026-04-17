@@ -21,7 +21,7 @@ const showPreviews = useConfig<boolean>("ui.sidebar_previews");
 
 const sidebarCard = useComponentHook<Twitch.SidebarCardComponent>({
 	parentSelector: ".side-nav-section",
-	predicate: (n) => n.props && n.props.title && n.props.isWatchParty !== null && n.props.linkTo,
+	predicate: (n) => n.props && n.props.title && n.props.linkTo,
 });
 
 const sidebar = useComponentHook<Twitch.SideBarComponent>(

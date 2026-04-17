@@ -1,14 +1,22 @@
-### 3.1.19
+### 3.1.20.1000
 
--   Fixed sidebar thumbnail tooltip expanding to full width when stream title contains no whitespace
+-   Fixed some lint issues
+-   Bump version to 3.1.20
 
-### 3.1.18
+### 3.1.19.1000
 
--   Fixed 7TV emotes not showing in Kick chat due to a Kick UI change affecting the username element selector
+-   Fixed some lint issues and some selectors not working
 
-### 3.1.17
+### 3.1.18.1000
 
--   Fixed "Hide Bits Buttons" setting not working due to Twitch UI changes
+-   Fixed a conflict issue with 7TV extension and FFZ running at the same time
+
+### 3.1.17.1000
+
+-   April fools effects joke 2026
+-   Fixed steam latency information not being displayed correctly
+-   Added initial Lead Moderator functionallity
+-   Fixed other small bugs
 
 ### 3.1.16.2000
 

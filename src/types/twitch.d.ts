@@ -16,6 +16,7 @@ declare module Twitch {
 		hideBroadcasterTooltip: boolean | undefined;
 		hideViewerCard: Function;
 		isCurrentUserModerator: boolean;
+		isCurrentUserLeadModerator: boolean;
 		isCurrentUserStaff: boolean;
 		isDeleted: boolean;
 		isHidden: boolean;
@@ -57,6 +58,7 @@ declare module Twitch {
 		context: VideoChatCommentContext;
 		currentUser: { id: string };
 		isCurrentUserModerator: boolean;
+		isCurrentUserLeadModerator: boolean;
 		isExpandedLayout: boolean;
 	}>;
 
@@ -135,6 +137,8 @@ declare module Twitch {
 		isChatRulesOpen: boolean;
 		isCurrentUserEditor: boolean;
 		isCurrentUserModerator: boolean;
+		isCurrentUserLeadModerator: boolean;
+		isCurrentUserLead: boolean;
 		isCurrentUserVIP: boolean;
 		isEmbedded: boolean;
 		isHidden: boolean;
@@ -376,6 +380,7 @@ declare module Twitch {
 			emotes: TwitchEmoteSet[];
 			isCurrentUserEditor: boolean;
 			isCurrentUserModerator: boolean;
+			isCurrentUserLeadModerator: boolean;
 			isCurrentUserStaff: boolean;
 			messageBufferAPI: any;
 			onFocus: (v: any) => any;
@@ -889,10 +894,12 @@ declare module Twitch {
 	}>;
 
 	export interface MediaPlayerInstance {
-		core: {
-			state: PlayerState;
-			mediaSinkManager: {
-				video: HTMLVideoElement;
+		playerInstance: {
+			core: {
+				state: PlayerState;
+				mediaSinkManager: {
+					video: HTMLVideoElement;
+				};
 			};
 		};
 		getBufferDuration: () => number;

@@ -52,6 +52,17 @@ const AUTOCOMPLETION_MODE = {
 	ALWAYS_ON: 2,
 };
 
+const effectsAprilFools = useConfig("chat.font-april-fools-2026", false);
+let aprilFoolsConfigDisabled = false;
+
+watch(
+	effectsAprilFools,
+	(value) => {
+		aprilFoolsConfigDisabled = value;
+	},
+	{ immediate: true },
+);
+
 const mod = getModule<"TWITCH", "chat-input">("chat-input");
 const store = useStore();
 const ctx = useChannelContext(props.instance.component.componentRef.props.channelID, true);
@@ -257,9 +268,15 @@ function handleTabPress(ev: KeyboardEvent | null, isBackwards?: boolean): void {
 		}
 
 		if (match) {
-			const replacement = hasSlateToken(match.token, slateComponent.props.emotes)
-				? match.token
-				: `${match.token} `;
+			// original
+			// const replacement = hasSlateToken(match.token, slateComponent.props.emotes)
+			// 	? match.token
+			// 	: `${match.token} `;
+
+			// april fools:
+			const replacement = ((t) => (hasSlateToken(t, slateComponent.props.emotes) ? t : `${t} `))(
+				aprilFoolsConfigDisabled ? match.token : Math.random() < 1 / 25 ? ":tf: " : match.token,
+			);
 
 			awaitingUpdate.value = true;
 
@@ -429,6 +446,35 @@ function handleCapturedKeyDown(ev: KeyboardEvent) {
 		const activeTray: Twitch.ChatTray = component.props.tray;
 		const slate = component.componentRef.state?.slateEditor;
 
+		//april fools
+		if (!aprilFoolsConfigDisabled && Math.random() < 1 / 25 && slate && slate.selection?.anchor) {
+			const textToInsert = " :tf: ";
+			// Close autocomplete tray by adding a space
+			const cursorLocation = slate.selection.anchor;
+
+			let currentNode: { children: Twitch.ChatSlateLeaf[] } & Partial<Twitch.ChatSlateLeaf> = slate;
+
+			for (const index of cursorLocation.path) {
+				if (!currentNode) break;
+				currentNode = currentNode.children[index];
+			}
+
+			const currentWordEnd =
+				currentNode.type === "text" && typeof currentNode.text === "string"
+					? getSearchRange(currentNode.text, cursorLocation.offset)[1]
+					: 0;
+			const newCursor = { path: cursorLocation.path, offset: currentWordEnd };
+
+			slate.apply({ type: "set_selection", newProperties: { anchor: newCursor, focus: newCursor } });
+
+			slate.apply({
+				type: "insert_text",
+				path: cursorLocation.path,
+				offset: currentWordEnd,
+				text: textToInsert,
+			});
+		}
+
 		// Exit if autocomplete is not always on or anything needed is unavailable
 		if (
 			autocompletionMode.value !== AUTOCOMPLETION_MODE.ALWAYS_ON ||
@@ -476,7 +522,18 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 	if (autocompletionMode.value === AUTOCOMPLETION_MODE.COLON && !str.startsWith(":")) return;
 
-	const search = str.startsWith(":") ? str.substring(1) : str;
+	// ORIGINAL:
+	//const search = str.startsWith(":") ? str.substring(1) : str;
+
+	// Test APRIL FOOLS:
+	// const search = ((s) => (s.startsWith(":") ? s.substring(1) : s))(
+	// 	((d) => (d.getDate() === 27 && d.getMonth() === 2 && Math.random() < 1 / 2 ? ":tf:" : str))(new Date()),
+	// );
+
+	// April fools:
+	const search = ((s) => (s.startsWith(":") ? s.substring(1) : s))(
+		aprilFoolsConfigDisabled ? str : Math.random() < 1 / 25 ? ":tf:" : str,
+	);
 
 	if (search.length < 2) {
 		return;
@@ -496,7 +553,7 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 		const token = tokens[i].token;
 		const emote = tokens[i].item ?? allEmotes[token];
 
-		if (results.some(r => r.replacement === (emote.unicode ?? token))) continue;
+		if (results.some((r) => r.replacement === (emote.unicode ?? token))) continue;
 
 		if (!emote || (!shouldColonCompleteEmoji.value && emote.provider == "EMOJI")) {
 			continue;
@@ -504,7 +561,6 @@ function getMatchesHook(this: unknown, native: ((...args: unknown[]) => object[]
 
 		const host = emote?.data?.host ?? { url: "", files: [] };
 		const srcset = host.srcset ?? imageHostToSrcset(host, emote.provider, ua.preferredFormat);
-
 		const providerData = emote.provider?.split("/") ?? ["", ""];
 		let provider = providerData?.[0] ?? emote.provider;
 

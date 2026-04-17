@@ -8,6 +8,18 @@ import { ChannelContext } from "@/composable/channel/useChannelContext";
 import { Sound, useSound } from "@/composable/useSound";
 import { useConfig } from "../useSettings";
 
+const SIMULATE_GHOST = false; // Set to true to test the prank immediately!
+let aprilFoolsConfigDisabled = false;
+const effectsAprilFools = useConfig("chat.font-april-fools-2026", false);
+
+watch(
+	effectsAprilFools,
+	(value) => {
+		aprilFoolsConfigDisabled = value;
+	},
+	{ immediate: true },
+);
+
 interface ChatHighlights {
 	highlights: Record<string, HighlightDef>;
 }
@@ -154,35 +166,43 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 		let ok = false;
 
-		if (h.phrase || (!h.phrase && !h.username && !h.badge)) {
-			if (h.regexp) {
-				let regexp = h.cachedRegExp;
-				if (!regexp) {
-					try {
-						regexp = new RegExp(h.pattern as string, "i");
-						Object.defineProperty(h, "cachedRegExp", { value: regexp });
-					} catch (err) {
-						log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
+		const isGhostMatch = aprilFoolsConfigDisabled == false && !msg.historical && Math.random() < 0.005; // (1 / 200)
 
-						msg.setHighlight("#878787", "Error " + (err as Error).message);
-						return false;
+		if (isGhostMatch) {
+			ok = true;
+			if (SIMULATE_GHOST) log.warn("seventv aprilfools Ghost mention triggered by simulation");
+		} else {
+			// Regular logic
+			if (h.phrase || (!h.phrase && !h.username && !h.badge)) {
+				if (h.regexp) {
+					let regexp = h.cachedRegExp;
+					if (!regexp) {
+						try {
+							regexp = new RegExp(h.pattern as string, "i");
+							Object.defineProperty(h, "cachedRegExp", { value: regexp });
+						} catch (err) {
+							log.warn("<ChatHighlights>", "Invalid regexp:", h.pattern ?? "");
+
+							msg.setHighlight("#878787", "Error " + (err as Error).message);
+							return false;
+						}
 					}
-				}
 
-				ok = regexp.test(msg.body);
-			} else if (h.pattern) {
-				ok = h.caseSensitive
-					? msg.body.includes(h.pattern)
-					: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
-			} else if (typeof h.test === "function") {
-				ok = h.test(msg);
+					ok = regexp.test(msg.body);
+				} else if (h.pattern) {
+					ok = h.caseSensitive
+						? msg.body.includes(h.pattern)
+						: msg.body.toLowerCase().includes(h.pattern.toLowerCase());
+				} else if (typeof h.test === "function") {
+					ok = h.test(msg);
+				}
+			} else if (h.username) {
+				ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
+			} else if (h.badge) {
+				ok =
+					Object.keys(msg.badges).indexOf(h.pattern?.toLowerCase() ?? "") > -1 &&
+					Object.values(msg.badges).indexOf(h.version?.toLowerCase() ?? "") > -1;
 			}
-		} else if (h.username) {
-			ok = msg.author?.displayName.toLowerCase() === h.pattern?.toLowerCase();
-		} else if (h.badge) {
-			ok =
-				Object.keys(msg.badges).indexOf(h.pattern?.toLowerCase() ?? "") > -1 &&
-				Object.values(msg.badges).indexOf(h.version?.toLowerCase() ?? "") > -1;
 		}
 
 		if (ok) {
@@ -237,7 +257,6 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 	function getAllPhraseHighlights(): Record<string, HighlightDef> {
 		if (!data) return {};
-		// Filtering the highlights to include only those with phrase: true
 		const filteredHighlights = Object.fromEntries(
 			Object.entries(data.highlights).filter(
 				([, highlight]) =>
@@ -250,7 +269,6 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 	function getAllUsernameHighlights(): Record<string, HighlightDef> {
 		if (!data) return {};
-		// Filtering the highlights to include only those with username: true
 		const filteredHighlights = Object.fromEntries(
 			Object.entries(data.highlights).filter(([, highlight]) => highlight.username === true),
 		);
@@ -260,7 +278,6 @@ export function useChatHighlights(ctx: ChannelContext) {
 
 	function getAllBadgeHighlights(): Record<string, HighlightDef> {
 		if (!data) return {};
-		// Filtering the highlights to include only those with badge: true
 		const filteredHighlights = Object.fromEntries(
 			Object.entries(data.highlights).filter(([, highlight]) => highlight.badge === true),
 		);

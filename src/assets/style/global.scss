@@ -82,6 +82,14 @@ body[theme="light"] {
 	background-color: currentcolor;
 }
 
+@font-face {
+	font-family: "Pixelify Sans";
+	font-style: normal;
+	font-weight: 400 700; /* variable range */
+	src: url("https://fonts.gstatic.com/s/pixelifysans/v3/CHylV-3HFUT7aC4iv1TxGDR9JnkEi1lR.woff2") format("woff2");
+	font-display: swap;
+}
+
 .seventv-painted-content[data-seventv-painted-text="true"] {
 	-webkit-text-fill-color: transparent;
 	background-clip: text !important;
