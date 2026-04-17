@@ -1,3 +1,7 @@
+### 3.1.21.1000
+
+-   Fixed sidebar tooltip overflowing when stream title has no whitespace
+
 ### 3.1.20.1000
 
 -   Fixed some lint issues

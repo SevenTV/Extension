@@ -176,5 +176,6 @@ onUnmounted(() => {
 	background-color: var(--color-background-placeholder);
 	background-size: contain;
 	background-position: center;
+	word-break: break-word;
 }
 </style>

@@ -208,6 +208,7 @@ export const config = [
 }
 
 .seventv-hide-bits-buttons {
+	button[aria-label="Bits and Points Balances"],
 	button[data-a-target="bits-button"],
 	button[data-a-target="top-nav-get-bits-button"] {
 		display: none !important;
