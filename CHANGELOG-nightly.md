@@ -1,3 +1,7 @@
+### 3.1.19
+
+-   Fixed sidebar thumbnail tooltip expanding to full width when stream title contains no whitespace
+
 ### 3.1.18
 
 -   Fixed 7TV emotes not showing in Kick chat due to a Kick UI change affecting the username element selector

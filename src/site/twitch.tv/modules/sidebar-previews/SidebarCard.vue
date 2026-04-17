@@ -60,7 +60,7 @@ function patchTooltip(tooltip: ReactExtended.ReactRuntimeElement, vnode: ReactEx
 
 	if (!body || !body.props?.children) return vnode;
 
-	body.props.style = { width: "20rem" };
+	body.props.style = { width: "20rem", wordBreak: "break-word" };
 
 	body.props.children.splice(2, 0, {
 		[REACT_TYPEOF_TOKEN]: Symbol.for("react.element"),
