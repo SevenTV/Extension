@@ -1,3 +1,7 @@
+### 3.1.20.2000
+
+-   Fixed an issue causing emote cards to not display all info
+
 ### 3.1.20.1000
 
 -   Fixed some lint issues
