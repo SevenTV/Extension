@@ -1,13 +1,13 @@
-import { twitchSubProductFragment, twitchSubProductsFragments } from "./tw.fragment.gql";
+import { twitchSubProductOfferFragment, twitchSubProductsFragments } from "./tw.fragment.gql";
 import { TwTypeEmote } from "./tw.gql";
 import { gql } from "graphql-tag";
 
 export const emoteCardQuery = gql`
-	query EmoteCard($emoteID: ID!, $octaneEnabled: Boolean!, $artistEnabled: Boolean!) {
+	query EmoteCard($emoteID: ID!, $artistEnabled: Boolean!) {
 		emote(id: $emoteID) {
 			id
 			type
-			subscriptionTier @include(if: $octaneEnabled)
+			subscriptionTier
 			token
 			setID
 			artist @include(if: $artistEnabled) {
@@ -50,21 +50,16 @@ export const emoteCardQuery = gql`
 					tier
 					name
 					url
+					offers {
+						...subProductOfferFragment
+					}
 					emotes {
 						id
 						token
 					}
-					priceInfo {
-						id
-						currency
-						price
-					}
 				}
 			}
-			subscriptionProduct @skip(if: $octaneEnabled) {
-				...subProduct
-			}
-			subscriptionSummaries @include(if: $octaneEnabled) {
+			subscriptionSummaries {
 				...subSummary
 			}
 			bitsBadgeTierSummary {
@@ -78,7 +73,7 @@ export const emoteCardQuery = gql`
 		}
 	}
 
-	${twitchSubProductFragment}
+	${twitchSubProductOfferFragment}
 	${twitchSubProductsFragments}
 `;
 
@@ -89,7 +84,6 @@ export namespace emoteCardQuery {
 
 	export interface Variables {
 		emoteID: string;
-		octaneEnabled: boolean;
 		artistEnabled: boolean;
 	}
 }
