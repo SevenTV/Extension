@@ -32,5 +32,9 @@
 	},
 	"[typescript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	}
+	},
+	"i18n-ally.localesPaths": [
+		"locale",
+		"src/i18n"
+	]
 }
