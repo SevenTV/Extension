@@ -3,6 +3,10 @@
 -   Added new extension notice
 -   Added checks to see if new extension is running
 
+### 3.1.20.2000
+
+-   Fixed an issue causing emote cards to not display all info
+
 ### 3.1.20.1000
 
 -   Fixed some lint issues
