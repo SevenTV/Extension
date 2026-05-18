@@ -4,7 +4,7 @@
 			<UiScrollable>
 				<div v-if="!ctx.newExtensionNoticeDismissed" class="seventv-settings-new-extension-notice">
 					<div class="seventv-settings-new-extension-copy">
-						<strog>Try the new 7TV extension</strog>
+						<strong>Try the new 7TV extension</strong>
 						<span>Give the new 7TV extension a try and see what we've been working on.</span>
 					</div>
 					<div class="seventv-settings-new-extension-actions">
