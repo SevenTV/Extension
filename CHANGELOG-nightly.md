@@ -1,6 +1,7 @@
 ### 3.1.21.1000
 
 -   Added new extension notice
+-   Added checks to see if new extension is running
 
 ### 3.1.20.1000
 
