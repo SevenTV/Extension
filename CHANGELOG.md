@@ -1,3 +1,8 @@
+### 3.1.21
+
+-   Added new extension notice
+-   Added checks to see if new extension is running
+
 ### 3.1.20
 
 -   Fixed some lint issues

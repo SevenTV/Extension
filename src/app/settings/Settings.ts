@@ -12,6 +12,8 @@ const Store = defineAsyncComponent(() => import("@/app/store/Store.vue"));
 class SettingsMenuContext {
 	open = false;
 	view: AnyInstanceType | null = null;
+	newExtensionNoticeDismissed = false;
+	newExtensionNoticeSeen = false;
 
 	category = "";
 	scrollpoint = "";
@@ -31,6 +33,10 @@ class SettingsMenuContext {
 				this.seen.push(key);
 			}
 		}
+
+		this.newExtensionNoticeDismissed =
+			localStorage.getItem(LOCAL_STORAGE_KEYS.NEW_EXTENSION_NOTICE_DISMISSED) === "true";
+		this.newExtensionNoticeSeen = localStorage.getItem(LOCAL_STORAGE_KEYS.NEW_EXTENSION_NOTICE_SEEN) === "true";
 	}
 
 	toggle(): void {
@@ -48,6 +54,18 @@ class SettingsMenuContext {
 		}
 
 		localStorage.setItem(LOCAL_STORAGE_KEYS.SEEN_SETTINGS, this.seen.join(","));
+	}
+
+	dismissNewExtensionNotice(): void {
+		this.newExtensionNoticeDismissed = true;
+		localStorage.setItem(LOCAL_STORAGE_KEYS.NEW_EXTENSION_NOTICE_DISMISSED, "true");
+	}
+
+	markNewExtensionNoticeSeen(): void {
+		if (this.newExtensionNoticeSeen) return;
+
+		this.newExtensionNoticeSeen = true;
+		localStorage.setItem(LOCAL_STORAGE_KEYS.NEW_EXTENSION_NOTICE_SEEN, "true");
 	}
 }
 

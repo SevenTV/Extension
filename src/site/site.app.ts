@@ -8,9 +8,22 @@ import { TooltipDirective } from "@/directive/TooltipDirective";
 import { setupI18n } from "@/i18n";
 import { ApolloClients } from "@vue/apollo-composable";
 
+const SEVENTV_EXTENSION_EVENT = "seventv:extension-presence";
+const SEVENTV_EXTENSION_LEGACY = "legacy";
+const SEVENTV_EXTENSION_NEXT = "next";
+
 if (!("seventv" in window)) {
 	(window as Window & { seventv?: SeventvGlobalScope }).seventv = { host_manifest: null };
 }
+
+const scr = document.querySelector("script#seventv-extension");
+
+if (document.documentElement.dataset.seventvExtension === SEVENTV_EXTENSION_NEXT) {
+	throw new Error("7TV Next running not startinng up");
+}
+
+document.documentElement.dataset.seventvExtension = SEVENTV_EXTENSION_LEGACY;
+window.dispatchEvent(new Event(SEVENTV_EXTENSION_EVENT));
 
 const appID = Date.now().toString();
 
@@ -47,8 +60,6 @@ root.id = "seventv-root";
 root.setAttribute("data-app-id", appID);
 
 document.body.append(root);
-
-const scr = document.querySelector("script#seventv-extension");
 
 const app = createApp({
 	setup() {

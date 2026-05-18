@@ -3,7 +3,8 @@
 		<div class="seventv-tw-button seventv-settings-menu-button">
 			<button @click="emit('toggle')">
 				<Logo7TV />
-				<div v-if="!updater.isUpToDate" class="seventv-settings-menu-button-update-flair" />
+				<div v-if="!ctx.newExtensionNoticeSeen" class="seventv-settings-menu-button-notice-flair" />
+				<div v-else-if="!updater.isUpToDate" class="seventv-settings-menu-button-update-flair" />
 			</button>
 			<span :class="`tooltip-${tooltip}`"> 7TV Settings </span>
 		</div>
@@ -14,12 +15,14 @@
 import { ref } from "vue";
 import useUpdater from "@/composable/useUpdater";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
+import { useSettingsMenu } from "@/app/settings/Settings";
 
 const emit = defineEmits<{
 	(event: "toggle"): void;
 }>();
 
 const updater = useUpdater();
+const ctx = useSettingsMenu();
 
 const el = document.createElement("div");
 el.id = "seventv-settings-button";
@@ -76,14 +79,21 @@ if (menuButtons) {
 			height: 100%;
 		}
 
-		> .seventv-settings-menu-button-update-flair {
+		> .seventv-settings-menu-button-update-flair,
+		> .seventv-settings-menu-button-notice-flair {
 			position: absolute;
 			top: 0;
 			right: 0;
 			width: 1rem;
 			height: 1rem;
+		}
 
+		> .seventv-settings-menu-button-update-flair {
 			@include flair-pulsating(#3eed58);
+		}
+
+		> .seventv-settings-menu-button-notice-flair {
+			@include flair-pulsating(var(--seventv-primary));
 		}
 	}
 }

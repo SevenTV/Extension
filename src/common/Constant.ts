@@ -6,6 +6,8 @@ export const LOCAL_STORAGE_KEYS = {
 	WORKER_ADDR: "seventv_worker_addr",
 	SEEN_SETTINGS: "seventv_seen_settings",
 	APP_TOKEN: "seventv_app_token",
+	NEW_EXTENSION_NOTICE_DISMISSED: "seventv_new_extension_notice_dismissed",
+	NEW_EXTENSION_NOTICE_SEEN: "seventv_new_extension_notice_seen",
 };
 
 export const REACT_TYPEOF_TOKEN = "$$typeof";
