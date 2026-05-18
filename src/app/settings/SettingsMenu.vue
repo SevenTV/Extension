@@ -246,7 +246,10 @@ function updateSidebarExpansionIndicator() {
 	shouldShowSidebarExpansion.value = container.scrollTop < 3 && container.scrollHeight > container.clientHeight;
 }
 
-onMounted(() => updateSidebarExpansionIndicator());
+onMounted(() => {
+	ctx.markNewExtensionNoticeSeen();
+	updateSidebarExpansionIndicator();
+});
 
 function scrollSidebarToNextPage() {
 	const container = sidebarScroller.value?.container;
