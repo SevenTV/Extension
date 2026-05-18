@@ -1,6 +1,19 @@
 import { APP_BROADCAST_CHANNEL } from "@/common/Constant";
 import { insertEmojiVectors } from "./emoji";
 
+const SEVENTV_EXTENSION_EVENT = "seventv:extension-presence";
+const SEVENTV_EXTENSION_LEGACY = "legacy";
+const SEVENTV_EXTENSION_NEXT = "next";
+
+function hasNextExtension(): boolean {
+	return document.documentElement.dataset.seventvExtension === SEVENTV_EXTENSION_NEXT;
+}
+
+function markLegacyRunning(): void {
+	document.documentElement.dataset.seventvExtension = SEVENTV_EXTENSION_LEGACY;
+	window.dispatchEvent(new Event(SEVENTV_EXTENSION_EVENT));
+}
+
 // Inject extension into site
 const inject = () => {
 	// Script
@@ -33,9 +46,13 @@ const inject = () => {
 	}, 1e3);
 };
 
-const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 (() => {
+	if (hasNextExtension()) return;
+
+	markLegacyRunning();
 	inject();
+
+	const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 
 	// Listen for requests to set up an extension permission
 	bc.addEventListener("message", (ev) => {
@@ -82,30 +99,22 @@ const bc = new BroadcastChannel(APP_BROADCAST_CHANNEL);
 	chrome.runtime.onMessage.addListener((msg) => {
 		switch (msg.type) {
 			case "update-ready": {
-				onUpdateDownloaded(msg.data.version ?? "");
+				bc.postMessage({
+					type: "seventv-update-ready",
+					data: { version: msg.data.version ?? "" },
+				});
 				break;
 			}
 			case "settings-sync": {
-				onSettingsUpdated(msg.data.settings ?? []);
+				bc.postMessage({
+					type: "seventv-settings-sync",
+					data: { nodes: msg.data.settings ?? [] },
+				});
 				break;
 			}
 		}
 	});
 })();
-
-function onUpdateDownloaded(version: string): void {
-	bc.postMessage({
-		type: "seventv-update-ready",
-		data: { version },
-	});
-}
-
-function onSettingsUpdated(settings: SevenTV.Setting<SevenTV.SettingNode>[]): void {
-	bc.postMessage({
-		type: "seventv-settings-sync",
-		data: { nodes: settings },
-	});
-}
 
 interface PermissionRequestEvent {
 	selector: string;
