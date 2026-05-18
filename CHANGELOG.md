@@ -1,3 +1,7 @@
+### 3.1.21
+
+-   Added new extension notice
+
 ### 3.1.20
 
 -   Fixed some lint issues
