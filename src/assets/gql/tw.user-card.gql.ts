@@ -1,4 +1,4 @@
-import { twitchBadgeFragment, twitchModCommentFragment, twitchSubProductFragment } from "./tw.fragment.gql";
+import { twitchBadgeFragment, twitchModCommentFragment, twitchSubscriptionProductFragment } from "./tw.fragment.gql";
 import { TwTypeBadge, TwTypeChatBanStatus, TwTypeMessage, TwTypeModComment, TwTypeUser } from "./tw.gql";
 import gql from "graphql-tag";
 
@@ -7,13 +7,13 @@ export const twitchUserCardQuery = gql`
 		$channelID: ID!
 		$channelIDStr: String!
 		$channelLogin: String!
-		$targetLogin: String!
-		$isViewerBadgeCollectionEnabled: Boolean!
+		$giftRecipientLogin: String!
+		$withStandardGifting: Boolean!
 	) {
-		activeTargetUser: user(login: $targetLogin) {
+		activeTargetUser: user(login: $giftRecipientLogin) {
 			id
 		}
-		targetUser: user(login: $targetLogin, lookupType: ALL) {
+		targetUser: user(login: $giftRecipientLogin, lookupType: ALL) {
 			id
 			login
 			bannerImageURL
@@ -55,7 +55,7 @@ export const twitchUserCardQuery = gql`
 			login
 			displayName
 			subscriptionProducts {
-				...subProduct
+				...subscriptionProduct
 			}
 			self {
 				banStatus {
@@ -68,9 +68,9 @@ export const twitchUserCardQuery = gql`
 			login
 			id
 		}
-		channelViewer(userLogin: $targetLogin, channelLogin: $channelLogin) {
+		channelViewer(userLogin: $giftRecipientLogin, channelLogin: $channelLogin) {
 			id
-			earnedBadges @include(if: $isViewerBadgeCollectionEnabled) {
+			earnedBadges {
 				...badge
 				description
 			}
@@ -83,7 +83,7 @@ export const twitchUserCardQuery = gql`
 		}
 	}
 
-	${twitchSubProductFragment}
+	${twitchSubscriptionProductFragment}
 	${twitchBadgeFragment}
 `;
 
@@ -92,8 +92,7 @@ export namespace twitchUserCardQuery {
 		channelID: string;
 		channelIDStr: string;
 		channelLogin: string;
-		targetLogin: string;
-		isViewerBadgeCollectionEnabled: boolean;
+		giftRecipientLogin: string;
 		withStandardGifting: boolean;
 	}
 
@@ -107,15 +106,24 @@ export namespace twitchUserCardQuery {
 				tier: string;
 				name: string;
 				url: string;
+				offers: {
+					id: string;
+					listing: {
+						chargeModel: {
+							internal: {
+								previewPrice: {
+									id: string;
+									currency: string;
+									price: number;
+								};
+							};
+						};
+					};
+				}[];
 				emotes: {
 					id: string;
 					token: string;
 				}[];
-				priceInfo: {
-					id: string;
-					currency: string;
-					price: number;
-				};
 			}[];
 			self: {
 				banStatus: {

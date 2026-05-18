@@ -459,9 +459,8 @@ watchEffect(async () => {
 				channelID: ctx.id,
 				channelIDStr: ctx.id,
 				channelLogin: ctx.username,
-				targetLogin: props.target.username,
+				giftRecipientLogin: props.target.username,
 				withStandardGifting: false,
-				isViewerBadgeCollectionEnabled: true,
 			},
 		})
 		.then(async (resp) => {

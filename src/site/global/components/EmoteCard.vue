@@ -93,7 +93,6 @@ watchEffect(async () => {
 				variables: {
 					emoteID: props.emote.id,
 					artistEnabled: true,
-					octaneEnabled: true,
 				},
 			})
 			.catch((err) => log.error("failed to fetch emote card", err));

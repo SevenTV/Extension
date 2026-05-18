@@ -104,13 +104,6 @@ export const twitchSubProductsFragments = gql`
 	fragment subSummary on SubscriptionSummary {
 		id
 		name
-		offers {
-			id
-			currency
-			exponent
-			price
-			promoDescription
-		}
 		emotes {
 			id
 			token
@@ -130,138 +123,204 @@ export const twitchSubProductsFragments = gql`
 	}
 `;
 
-export const twitchSubSummaryFragment = gql`
-	fragment subSummary on SubscriptionSummary {
+export const twitchSubProductOfferFragment = gql`
+	fragment subProductOfferFragment on Offer {
 		id
-		name
-		offers {
-			id
-			currency
-			exponent
-			price
-			promoDescription
+		tplr
+		platform
+		eligibility {
+			benefitsStartAt
+			isEligible
 		}
-		emotes {
-			id
-			token
-			subscriptionTier
+		tagBindings {
+			key
+			value
 		}
-		url
-		tier
-		modifiers {
-			code
-			name
-			subscriptionTier
-		}
-		self {
-			subscribedTier
-			cumulativeTenure
-		}
-	}
-`;
-
-export const twitchSubProductFragment = gql`
-	fragment subProduct on SubscriptionProduct {
-		id
-		url
-		price
-		name
-		tier
-		interval {
-			unit
-		}
-		state
-		emotes {
-			id
-			setID
-			token
-		}
-		offers {
-			id
-			tplr
-			platform
-			eligibility {
-				benefitsStartAt
-				isEligible
-			}
-			giftType
-			listing {
-				chargeModel {
-					internal {
-						previewPrice {
-							id
-							currency
-							exponent
+		giftType
+		listing {
+			chargeModel {
+				internal {
+					previewPrice {
+						id
+						currency
+						exponent
+						price
+						total
+						discount {
 							price
 							total
-							discount {
-								price
-								total
-							}
 						}
-						plan {
-							interval {
-								duration
-								unit
-							}
+					}
+					plan {
+						interval {
+							duration
+							unit
 						}
+						renewalPolicy
 					}
 				}
 			}
-			promotion {
-				id
-				name
-				promoDisplay {
-					discountPercent
-					discountType
-				}
-				priority
+		}
+		promotion {
+			id
+			name
+			promoDisplay {
+				discountPercent
+				discountType
 			}
+			eligibilityFilters {
+				value
+			}
+			priority
+			promoType
+			endAt
+		}
+		quantity {
+			min
+			max
+		}
+	}
+`;
+
+export const twitchSubProductOfferWithPromotionsFragment = gql`
+	fragment subProductOfferWithPromotions on Offer {
+		id
+		tplr
+		platform
+		eligibility {
+			benefitsStartAt
+			isEligible
+		}
+		tagBindings {
+			key
+			value
+		}
+		giftType
+		listing {
+			chargeModel {
+				internal {
+					previewPrice {
+						id
+						currency
+						exponent
+						price
+						total
+						discount {
+							price
+							total
+						}
+					}
+					plan {
+						interval {
+							duration
+							unit
+						}
+						renewalPolicy
+					}
+				}
+			}
+		}
+		promotion {
+			id
+			name
+			promoDisplay {
+				discountPercent
+				discountType
+			}
+			eligibilityFilters {
+				value
+			}
+			priority
+			promoType
+			endAt
+		}
+		promotions {
+			id
+			name
+			promoDisplay {
+				discountPercent
+				discountType
+			}
+			eligibilityFilters {
+				value
+			}
+			priority
+			promoType
+			endAt
 			quantity {
 				min
 				max
 			}
 		}
+		quantity {
+			min
+			max
+		}
+	}
+`;
+
+export const twitchSubscriptionProductFragment = gql`
+	fragment subscriptionProduct on SubscriptionProduct {
+		id
+		price
+		url
+		emoteSetID
+		displayName
+		name
+		tier
+		type
+		hasAdFree
+		emotes {
+			...subscriptionProductEmote
+		}
 		emoteModifiers {
 			...subscriptionProductEmoteModifier
 		}
+		interval {
+			unit
+		}
 		self {
-			cumulativeTenure: subscriptionTenure(tenureMethod: CUMULATIVE) {
-				months
-			}
-			benefit {
-				id
-				tier
-			}
+			canGiftInChannel
 		}
-		owner {
-			id
-			displayName
-			login
-			subscriptionProducts {
-				id
-				tier
-				url
-				price
-				emotes {
-					id
-					token
-				}
-				emoteModifiers {
-					...subscriptionProductEmoteModifier
-				}
-			}
-			stream {
-				id
-				type
-			}
+		offers {
+			...subProductOfferFragment
 		}
+		gifting {
+			...subStandardGiftingFragment
+			...subCommunityGiftingFragment
+		}
+	}
+
+	fragment subscriptionProductEmote on Emote {
+		id
+		setID
+		token
+		assetType
 	}
 
 	fragment subscriptionProductEmoteModifier on EmoteModifier {
 		code
 		name
 	}
+
+	fragment subStandardGiftingFragment on SubscriptionGifting {
+		standard(recipientLogin: $giftRecipientLogin) @include(if: $withStandardGifting) {
+			offer {
+				...subProductOfferFragment
+			}
+		}
+	}
+
+	fragment subCommunityGiftingFragment on SubscriptionGifting {
+		community {
+			offer {
+				...subProductOfferWithPromotions
+			}
+		}
+	}
+
+	${twitchSubProductOfferFragment}
+	${twitchSubProductOfferWithPromotionsFragment}
 `;
 
 export const twitchModCommentFragment = gql`
