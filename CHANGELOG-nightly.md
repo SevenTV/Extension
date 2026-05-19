@@ -2,6 +2,7 @@
 
 -   Added new extension notice
 -   Added checks to see if new extension is running
+-   Updated extension description
 
 ### 3.1.20.2000
 

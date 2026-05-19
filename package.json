@@ -1,7 +1,7 @@
 {
 	"name": "seventv",
 	"displayName": "7TV",
-	"description": "Improve your viewing experience on Twitch & YouTube with new features, emotes, vanity and performance.",
+	"description": "Improve your viewing experience on Twitch & Kick with new features, emotes, vanity and performance.",
 	"private": true,
 	"version": "3.1.21",
 	"dev_version": "1.0",
