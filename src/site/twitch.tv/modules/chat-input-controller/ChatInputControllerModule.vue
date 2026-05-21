@@ -33,16 +33,20 @@ useComponentHook<Twitch.ChatInputControllerComponent>(
 				if (!inst.component.container.parentElement.classList.contains("chat-input")) return cur;
 
 				const props = (cur as ReactExtended.ReactRuntimeElement).props ?? {};
-				const child = (props.children as ReactExtended.ReactRuntimeElement[]).find(
+				const child = normalizeReactChildren(props.children).find(
 					(c) => c.props.className === "chat-input__buttons-container",
 				);
 				if (!child) return cur;
 
-				const buttons = child.props.children.at(-1);
+				const buttons = normalizeReactChildren(child.props.children).at(-1);
 				if (!buttons) return cur;
 
+				const buttonChildren = normalizeReactChildren(buttons.props.children).filter(
+					(c) => c.type !== "seventv-chat-input-button-container",
+				);
+
 				for (const btn of tButtons.values()) {
-					buttons.props.children.splice(buttons.props.children.length - btn.offset, 0, {
+					buttonChildren.splice(Math.max(0, buttonChildren.length - btn.offset), 0, {
 						[REACT_TYPEOF_TOKEN]: REACT_ELEMENT_SYMBOL,
 						key: null,
 						ref: btn.parent,
@@ -50,6 +54,8 @@ useComponentHook<Twitch.ChatInputControllerComponent>(
 						props: {},
 					});
 				}
+
+				buttons.props.children = buttonChildren;
 
 				return cur;
 			},
@@ -82,6 +88,15 @@ function addButton<T extends ComponentFactory>(
 		});
 
 	return track;
+}
+
+function normalizeReactChildren(children: React.ReactNode): ReactExtended.ReactRuntimeElement[] {
+	if (!children) return [];
+
+	return (Array.isArray(children) ? children : [children]).filter(
+		(child): child is ReactExtended.ReactRuntimeElement =>
+			typeof child === "object" && child !== null && "props" in child,
+	);
 }
 
 interface InsertedButton<T extends ComponentFactory> {
