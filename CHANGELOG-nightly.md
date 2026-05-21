@@ -1,3 +1,7 @@
+### 3.1.22.1000
+
+-   Fixed an issue that caused chat input to break after a Twitch update
+
 ### 3.1.21.1000
 
 -   Added new extension notice
