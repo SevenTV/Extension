@@ -365,7 +365,7 @@ export const config = [
 		label: "Play Sound on Mention",
 		hint: "Play a sound when you are mentioned in chat",
 		disabledIf: () => !useConfig("highlights.basic.mention").value,
-		defaultValue: false,
+		defaultValue: true,
 	}),
 	declareConfig<boolean>("highlights.basic.mention_title_flash", "TOGGLE", {
 		path: ["Highlights", "Built-In"],
