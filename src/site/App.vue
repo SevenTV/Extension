@@ -86,11 +86,6 @@ bc.addEventListener("message", (ev) => {
 		(n) => !settings.nodes[n.key] || n.timestamp > (settings.nodes[n.key].timestamp ?? 0),
 	);
 
-	const newNodes = nodes.filter((n) => {
-		const localNode = settings.nodes[n.key];
-		return !localNode || n.timestamp > (localNode.timestamp ?? 0);
-	});
-
 	for (const node of newNodes) {
 		const n = useConfig(node.key);
 		if (!n || !n.value) continue;
