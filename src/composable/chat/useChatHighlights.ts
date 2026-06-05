@@ -261,7 +261,7 @@ export function useChatHighlights(ctx: ChannelContext) {
 			Object.entries(data.highlights).filter(
 				([, highlight]) =>
 					highlight.persist === true &&
-					(highlight.phrase === true || (!highlight.phrase && !highlight.username && !highlight.badge))
+					(highlight.phrase === true || (!highlight.phrase && !highlight.username && !highlight.badge)),
 			),
 		);
 
