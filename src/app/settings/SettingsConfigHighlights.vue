@@ -423,6 +423,7 @@ function onUseDefaultSound(h: HighlightDef): void {
 	delete h.soundDef;
 	h.soundPath = "#ping";
 
+	highlights.updateSoundData(h);
 	highlights.save();
 }
 
