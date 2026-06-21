@@ -9,8 +9,11 @@ import { defineFunctionHook } from "@/common/Reflection";
 import { AnyToken, ChatMessage, EmoteToken } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useConfig } from "@/composable/useSettings";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatData from "./ChatData.vue";
+import { useChatMessages } from "@/composable/chat/useChatMessages.js";
+import { tokenize } from "@/common/Tokenize.js";
 
 const props = defineProps<{
 	w: Window;
@@ -20,6 +23,17 @@ const props = defineProps<{
 
 const ctx = useChannelContext(props.channelId, true);
 const emotes = useChatEmotes(ctx);
+const blacklistEnabled = useConfig<boolean>("chat.emote_blacklist_per_channel.enabled");
+const blacklistMap = useConfig<Map<string, string[]>>("chat.emote_blacklist_per_channel");
+
+const channelKey = computed(() => ctx.id ?? "");
+
+const hiddenEmotes = computed<Set<string> | undefined>(() => {
+	if (!blacklistEnabled.value) return undefined;
+	const list = blacklistMap.value?.get(channelKey.value);
+	if (!list || list.length === 0) return undefined;
+	return new Set(list);
+});
 
 const seenEmojis = {} as Record<string, SevenTV.ActiveEmote>;
 
@@ -74,12 +88,27 @@ watchEffect(() => {
 			nativeTokens.length = 0;
 
 			// Set up our tokenizer instance
-			const tokenizer = msg.getTokenizer();
-			const tokens =
-				tokenizer?.tokenize({
-					emoteMap: { ...emotes.active, ...seenEmojis },
-					chatterMap: {},
-				}) ?? [];
+			const tokens = tokenize({
+				body: msg.body,
+				chatterMap: ctx.actorMap,
+				emoteMap: emotes.active,
+				localEmoteMap: msg.localEmoteMap,
+				filteredWords: filter.value,
+				hiddenEmotes: hiddenEmotes.value,
+			});
+
+			watch([hiddenEmotes, channelKey], () => {
+				for (const m of useChatMessages) {
+					m.tokens = tokenize({
+						body: m.body,
+						chatterMap: ctx.actorMap,
+						emoteMap: emotes.active,
+						localEmoteMap: m.localEmoteMap,
+						filteredWords: filter.value,
+						hiddenEmotes: hiddenEmotes.value,
+					});
+				}
+			}, { deep: true });
 
 			// Build the message tokens
 			const result: MessageTokenOrText[] = [];
