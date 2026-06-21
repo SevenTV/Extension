@@ -25,6 +25,11 @@ export const dataSettings = [
 		defaultValue: new Set(),
 		serialize: false,
 	}),
+	declareConfig("chat.emote_blacklist_per_channel", "NONE", {
+		label: "Per-channel hidden 7TV emotes", // Map<channelLogin, string[] (emote names)>
+		defaultValue: {} as Record<string, string[]>,
+		serialize: true,
+	}),
 ];
 
 export const globalSettings = [
