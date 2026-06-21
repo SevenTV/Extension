@@ -30,6 +30,12 @@ export const dataSettings = [
 		defaultValue: {} as Record<string, string[]>,
 		serialize: true,
 	}),
+	declareConfig("chat.emote_blacklist_per_channel.enabled", "TOGGLE", {
+		label: "Per-channel emote blacklist",
+		hint: "Replace blacklisted 7TV emotes with plain text in the channel they were hidden in",
+		path: ["Chat", "Emotes"],
+		defaultValue: true,
+	}),
 ];
 
 export const globalSettings = [

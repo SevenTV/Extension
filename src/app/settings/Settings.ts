@@ -5,6 +5,7 @@ import SettingsViewCompatVue from "./SettingsViewCompat.vue";
 import SettingsViewConfigVue from "./SettingsViewConfig.vue";
 import SettingsViewHomeVue from "./SettingsViewHome.vue";
 import SettingsViewProfileVue from "./SettingsViewProfile.vue";
+import SettingsViewEmoteBlacklistVue from "./SettingsViewEmoteBlacklist.vue";
 
 const PaintTool = defineAsyncComponent(() => import("@/app/paint-tool/PaintTool.vue"));
 const Store = defineAsyncComponent(() => import("@/app/store/Store.vue"));
@@ -75,6 +76,7 @@ const views = {
 	profile: SettingsViewProfileVue,
 	compat: SettingsViewCompatVue,
 	backup: SettingsViewBackupVue,
+	emoteBlacklist: SettingsViewEmoteBlacklistVue,
 	store: Store,
 	paint: PaintTool,
 };
