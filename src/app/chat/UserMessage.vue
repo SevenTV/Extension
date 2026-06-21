@@ -145,9 +145,7 @@ const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? 
 
 const emoteScale = useConfig<number>("chat.emote_scale");
 const blacklistMap = useConfig<Record<string, string[]>>("chat.emote_blacklist_per_channel");
-const hiddenEmotes = computed(
-	() => new Set(blacklistMap.value?.[ctx.username?.toLowerCase()] ?? []),
-);
+const hiddenEmotes = computed(() => new Set(blacklistMap.value?.[ctx.username?.toLowerCase()] ?? []));
 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");

@@ -51,15 +51,14 @@ import { reactive, ref, watch, watchEffect } from "vue";
 import { imageHostToSrcsetWithsize } from "@/common/Image";
 import { log } from "@/common/Logger";
 import { convertTwitchEmote } from "@/common/Transform";
+import { useEmoteBlacklist } from "@/composable/chat/useEmoteBlacklist";
 import { useApollo } from "@/composable/useApollo";
 import { userQuery } from "@/assets/gql/seventv.user.gql";
 import { emoteCardQuery } from "@/assets/gql/tw.emote-card.gql";
 import OpenLinkIcon from "@/assets/svg/icons/OpenLinkIcon.vue";
 import { useQuery } from "@vue/apollo-composable";
-import { useEmoteBlacklist } from "@/composable/chat/useEmoteBlacklist";
 
 const { isHidden, toggle } = useEmoteBlacklist();
-defineProps<{ emote: SevenTV.ActiveEmote }>();
 
 const props = defineProps<{
 	emote: SevenTV.ActiveEmote;
@@ -192,9 +191,9 @@ watch(
 </script>
 
 <template>
-    <button @click="toggle(emote.name)">
-        {{ isHidden(emote.name) ? "Show in this channel" : "Hide in this channel" }}
-    </button>
+	<button @click="toggle(emote.name)">
+		{{ isHidden(emote.name) ? "Show in this channel" : "Hide in this channel" }}
+	</button>
 </template>
 
 <style scoped lang="scss">

@@ -6,14 +6,14 @@
 <script setup lang="ts">
 import { watchEffect } from "vue";
 import { defineFunctionHook } from "@/common/Reflection";
+import { tokenize } from "@/common/Tokenize.js";
 import { AnyToken, ChatMessage, EmoteToken } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatMessages } from "@/composable/chat/useChatMessages.js";
 import { useConfig } from "@/composable/useSettings";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatData from "./ChatData.vue";
-import { useChatMessages } from "@/composable/chat/useChatMessages.js";
-import { tokenize } from "@/common/Tokenize.js";
 
 const props = defineProps<{
 	w: Window;
@@ -97,18 +97,22 @@ watchEffect(() => {
 				hiddenEmotes: hiddenEmotes.value,
 			});
 
-			watch([hiddenEmotes, channelKey], () => {
-				for (const m of useChatMessages) {
-					m.tokens = tokenize({
-						body: m.body,
-						chatterMap: ctx.actorMap,
-						emoteMap: emotes.active,
-						localEmoteMap: m.localEmoteMap,
-						filteredWords: filter.value,
-						hiddenEmotes: hiddenEmotes.value,
-					});
-				}
-			}, { deep: true });
+			watch(
+				[hiddenEmotes, channelKey],
+				() => {
+					for (const m of useChatMessages) {
+						m.tokens = tokenize({
+							body: m.body,
+							chatterMap: ctx.actorMap,
+							emoteMap: emotes.active,
+							localEmoteMap: m.localEmoteMap,
+							filteredWords: filter.value,
+							hiddenEmotes: hiddenEmotes.value,
+						});
+					}
+				},
+				{ deep: true },
+			);
 
 			// Build the message tokens
 			const result: MessageTokenOrText[] = [];

@@ -2,8 +2,8 @@
 	<main class="seventv-settings-emote-blacklist">
 		<h3>Per-Channel Emote Blacklist</h3>
 		<p>
-			Hide individual 7TV emotes in specific channels. The message stays readable — only the emote
-			image is replaced by its plain text.
+			Hide individual 7TV emotes in specific channels. The message stays readable — only the emote image is
+			replaced by its plain text.
 		</p>
 
 		<div v-if="entries.length === 0" class="seventv-settings-emote-blacklist-empty">
@@ -42,8 +42,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useConfig } from "@/composable/useSettings";
-import UiButton from "@/ui/UiButton.vue";
 import TwClose from "@/assets/svg/twitch/TwClose.vue";
+import UiButton from "@/ui/UiButton.vue";
 
 type BlacklistMap = Record<string, string[]>;
 
@@ -60,12 +60,12 @@ const entries = computed(() =>
 );
 
 function writeMap(next: BlacklistMap) {
-    blacklist.value = next; // reassign to trigger reactivity in settings store
+	blacklist.value = next; // reassign to trigger reactivity in settings store
 }
 
 function removeEmote(channel: string, name: string) {
-    const current = { ...(blacklist.value ?? {}) };
-    const list = (current[channel] ?? []).filter((n) => n !== name);
+	const current = { ...(blacklist.value ?? {}) };
+	const list = (current[channel] ?? []).filter((n) => n !== name);
 	if (list.length > 0) current[channel] = list;
 	else delete current[channel];
 	writeMap(current);
