@@ -94,15 +94,15 @@ function clearAll() {
 
 	&-empty {
 		padding: 1rem;
-		border: 1px dashed hsla(0, 0%, 100%, 0.15);
+		border: 1px dashed hsla(0deg, 0%, 100%, 15%);
 		border-radius: 0.4rem;
 	}
 
 	&-channel {
-		border: 1px solid hsla(0, 0%, 100%, 0.08);
+		border: 1px solid hsla(0deg, 0%, 100%, 8%);
 		border-radius: 0.5rem;
 		padding: 0.75rem 1rem;
-		background: hsla(0, 0%, 100%, 0.02);
+		background: hsla(0deg, 0%, 100%, 2%);
 
 		header {
 			display: flex;
@@ -131,7 +131,7 @@ function clearAll() {
 			align-items: center;
 			gap: 0.35rem;
 			padding: 0.2rem 0.4rem 0.2rem 0.55rem;
-			background: hsla(0, 0%, 100%, 0.06);
+			background: hsla(0deg, 0%, 100%, 6%);
 			border-radius: 999px;
 			font-size: 0.85rem;
 
@@ -150,7 +150,7 @@ function clearAll() {
 
 				&:hover {
 					opacity: 1;
-					background: hsla(0, 100%, 60%, 0.25);
+					background: hsla(0deg, 100%, 60%, 25%);
 				}
 			}
 		}
