@@ -5,6 +5,9 @@
 				<img :srcset="srcset" :style="{}" />
 			</div>
 			<div class="seventv-emote-card-display">
+				<button type="button" class="seventv-emote-card-hide-btn" @click="toggle(emote.name)">
+					{{ isHidden(emote.name) ? "Show in this channel" : "Hide in this channel" }}
+				</button>
 				<div>
 					<h3 class="seventv-emote-card-title">
 						<span>
@@ -189,12 +192,6 @@ watch(
 	{ immediate: true },
 );
 </script>
-
-<template>
-	<button @click="toggle(emote.name)">
-		{{ isHidden(emote.name) ? "Show in this channel" : "Hide in this channel" }}
-	</button>
-</template>
 
 <style scoped lang="scss">
 main.seventv-emote-card-container {
