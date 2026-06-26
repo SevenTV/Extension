@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch, watchEffect } from "vue";
+import { computed, ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";

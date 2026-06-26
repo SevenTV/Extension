@@ -71,6 +71,12 @@ function removeEmote(channel: string, name: string) {
 	writeMap(current);
 }
 
+function clearChannel(channel: string) {
+	const current = { ...(blacklist.value ?? {}) };
+	delete current[channel];
+	writeMap(current);
+}
+
 function clearAll() {
 	writeMap({});
 }
