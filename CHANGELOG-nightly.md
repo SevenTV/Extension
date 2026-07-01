@@ -1,3 +1,8 @@
+### 3.1.23.1000
+
+-   Fixed an issue that caused the Mod View + Shield Mode buttons to not show
+-   Fixed an issue where Chat Settings tooltip would display when hovering Mod Logs button
+
 ### 3.1.22.1000
 
 -   Fixed an issue that caused chat input to break after a Twitch update
