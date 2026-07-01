@@ -21,6 +21,7 @@ const hideCombosButton = useConfig<boolean>("layout.hide_combos_button");
 const hideLiveNotificationButton = useConfig<boolean>("layout.hide_live_notification_button");
 const hideSubscribeButton = useConfig<boolean>("layout.hide_subscribe_button");
 const hideChatInputBox = useConfig<boolean>("layout.hide_chat_input_box");
+const hideChatInputSendButton = useConfig<boolean>("layout.hide_chat_input_send_button");
 const hidePlayerExtensions = useConfig<boolean>("player.hide_player_extensions");
 const hideChannelPointBalanceButton = useConfig<boolean>("layout.hide_channel_point_balance_button");
 const hideOnscreenCelebrations = useConfig<boolean>("player.hide_onscreen_celebrations");
@@ -47,6 +48,7 @@ export const hiddenElementSettings: Array<{ class: string; isHidden: Ref<boolean
 	{ class: "seventv-hide-combos-buttons", isHidden: hideCombosButton },
 	{ class: "seventv-hide-subscribe-button", isHidden: hideSubscribeButton },
 	{ class: "seventv-hide-chat-input-box", isHidden: hideChatInputBox },
+	{ class: "seventv-hide-chat-input-send-button", isHidden: hideChatInputSendButton },
 	{ class: "seventv-hide-player-ext", isHidden: hidePlayerExtensions },
 	{ class: "seventv-hide-channel-point-balance-button", isHidden: hideChannelPointBalanceButton },
 	{ class: "seventv-hide-onscreen-celebrations", isHidden: hideOnscreenCelebrations },
