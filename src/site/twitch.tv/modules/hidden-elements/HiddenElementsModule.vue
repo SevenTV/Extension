@@ -38,6 +38,12 @@ export const config = [
 		hint: "If checked, the 'Send a message' chatbox will be hidden (WARNING! the 7tv icon will disappear but can be accessed again at the top right of Twitch)",
 		defaultValue: false,
 	}),
+	declareConfig("layout.hide_chat_input_send_button", "TOGGLE", {
+		path: ["Site Layout", "Chat"],
+		label: "Hide Chat Button",
+		hint: "If checked, the Chat send button in the chat input area will be hidden",
+		defaultValue: false,
+	}),
 	declareConfig("layout.hide_buttons_below_chatbox", "TOGGLE", {
 		path: ["Site Layout", "Chat"],
 		label: "Hide Buttons Below Chatbox",
@@ -190,6 +196,12 @@ export const config = [
 <style lang="scss">
 .seventv-hide-buttons-below-chatbox {
 	div[data-test-selector="chat-input-buttons-container"] {
+		display: none !important;
+	}
+}
+
+.seventv-hide-chat-input-send-button {
+	button[data-a-target="chat-send-button"] {
 		display: none !important;
 	}
 }
