@@ -145,9 +145,5 @@ div[data-test-selector="chat-input-buttons-container"] seventv-chat-input-button
 
 div[data-test-selector="chat-input-buttons-container"] > div:has(button[data-a-target="chat-settings"]) {
 	display: contents !important;
-
-	> :not(:has(button[data-a-target="chat-settings"])) {
-		display: none !important;
-	}
 }
 </style>
