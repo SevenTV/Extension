@@ -1,5 +1,6 @@
 ### 3.1.23
 
+-   Added setting to hide Twitch "Chat" send button under the chat input box
 -   Fixed an issue that caused the Mod View + Shield Mode buttons to not show
 -   Fixed an issue where Chat Settings tooltip would display when hovering Mod Logs button
 
