@@ -345,6 +345,10 @@ export const config = [
 	margin-right: 8px;
 }
 
+// Without this, the title bar can run out of room and wrap our handle onto
+// its own full-width line - which then swallows clicks meant for empty
+// space in the bar (blocking Twitch's own collapse/minimize toggle).
+/* stylelint-disable-next-line selector-class-pattern */
 .thread-header__title-bar-container:has(> .seventv-whisper-resize-handle-inline) {
 	flex-wrap: nowrap !important;
 }
