@@ -179,6 +179,14 @@ declare namespace Twitch {
 			};
 		}
 
+		export interface GifPart extends Part {
+			content: {
+				id: string;
+				title: string;
+				url: string;
+			};
+		}
+
 		export interface AppPart {
 			type: "text" | "emote" | "twitch-emote" | "link" | "mention";
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
