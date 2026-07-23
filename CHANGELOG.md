@@ -1,3 +1,7 @@
+### 3.1.24
+
+-   Added full support for Twitch GIF messages
+
 ### 3.1.23
 
 -   Added setting to hide Twitch "Chat" send button under the chat input box
