@@ -339,7 +339,17 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 
 					msg.nativeGif = {
 						kind: "GIF",
-						content: gif,
+						content: {
+							...gif,
+							report: () => {
+								const nativeMessage = list.value.domNodes[msg.id];
+								const reportButton = nativeMessage?.querySelector<HTMLButtonElement>(
+									"[data-a-target=chat-line-message-body] button",
+								);
+
+								reportButton?.click();
+							},
+						},
 						range: [start, start + gif.title.length - 1],
 					};
 					break;
@@ -477,7 +487,14 @@ watch(
 
 			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
 				const ok = onMessage(msg);
-				if (ok) return ""; // message was rendered by the extension
+				if (ok) {
+					const parts = IsDisplayableMessage(msg) ? msg.messageParts ?? msg.message?.messageParts ?? [] : [];
+					if (parts.some((part) => part.type === MessagePartType.GIF)) {
+						return old?.call(this, msg);
+					}
+
+					return ""; // message was rendered by the extension
+				}
 
 				// message was not rendered by the extension
 				unhandled.set(msg.id, msg);
