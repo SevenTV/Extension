@@ -330,6 +330,20 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					msg.body = msg.body.replace(e.originalText, "*".repeat(e.originalText.length));
 					break;
 				}
+				case MessagePartType.GIF: {
+					const gif = part.content as Twitch.ChatMessage.GifPart["content"];
+					if (!gif.url) continue;
+
+					const start = gif.title ? msg.body.indexOf(gif.title) : msg.body.length;
+					if (start < 0) continue;
+
+					msg.nativeGif = {
+						kind: "GIF",
+						content: gif,
+						range: [start, start + gif.title.length - 1],
+					};
+					break;
+				}
 			}
 		}
 	}
