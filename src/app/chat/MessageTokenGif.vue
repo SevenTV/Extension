@@ -1,5 +1,5 @@
 <template>
-	<span class="seventv-chat-gif-container">
+	<span class="seventv-chat-gif-container" @mouseenter="checkReport" @focusin="checkReport">
 		<img
 			class="seventv-chat-gif"
 			:src="token.content.url"
@@ -8,11 +8,11 @@
 			draggable="false"
 		/>
 		<button
-			v-if="token.content.report"
+			v-if="showReport"
 			class="seventv-chat-gif-report"
 			type="button"
 			aria-label="Report GIF"
-			@click.stop="token.content.report"
+			@click.stop="openReport"
 		>
 			<ReportIcon aria-hidden="true" />
 		</button>
@@ -20,12 +20,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type { GifToken } from "@/common/chat/ChatMessage";
 import ReportIcon from "@/assets/svg/icons/ReportIcon.vue";
 
-defineProps<{
+const props = defineProps<{
 	token: GifToken;
 }>();
+
+const showReport = ref(!!props.token.content.report);
+
+function checkReport() {
+	showReport.value = props.token.content.canReport?.() ?? false;
+}
+
+function openReport() {
+	showReport.value = props.token.content.report?.() ?? false;
+}
 </script>
 
 <style scoped lang="scss">

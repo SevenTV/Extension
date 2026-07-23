@@ -196,7 +196,8 @@ export type GifToken = ChatMessageToken<
 		id: string;
 		title: string;
 		url: string;
-		report?: () => void;
+		report?: () => boolean;
+		canReport?: () => boolean;
 	}
 >;
 

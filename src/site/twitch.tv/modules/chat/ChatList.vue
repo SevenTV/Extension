@@ -41,6 +41,7 @@ import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
+import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { useConfig } from "@/composable/useSettings";
 import { MessagePartType, MessageType, ModerationType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
@@ -63,6 +64,7 @@ const displayedMessages = toRef(messages, "displayed");
 const scroller = useChatScroller(ctx);
 const properties = useChatProperties(ctx);
 const chatHighlights = useChatHighlights(ctx);
+const ffz = useFrankerFaceZ();
 const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
 const pausedByVisibility = ref(false);
@@ -337,17 +339,33 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					const start = gif.title ? msg.body.indexOf(gif.title) : msg.body.length;
 					if (start < 0) continue;
 
+					const getNativeReportButton = () =>
+						list.value.domNodes[msg.id]?.querySelector<HTMLButtonElement>(
+							"[data-a-target=chat-line-message-body] button",
+						);
+
 					msg.nativeGif = {
 						kind: "GIF",
 						content: {
 							...gif,
+							canReport: () => !!getNativeReportButton() || ffz.canOpenTwitchReport(),
 							report: () => {
-								const nativeMessage = list.value.domNodes[msg.id];
-								const reportButton = nativeMessage?.querySelector<HTMLButtonElement>(
-									"[data-a-target=chat-line-message-body] button",
-								);
+								const reportButton = getNativeReportButton();
 
-								reportButton?.click();
+								if (reportButton) {
+									reportButton.click();
+									return true;
+								}
+
+								return ffz.openTwitchReport({
+									contentType: "GIF_MESSAGE_REPORT",
+									contentID: msg.id,
+									targetUserID: msg.author!.id,
+									contentMetadata: {
+										channelID: msg.channelID,
+									},
+									trackingContext: "channel_page",
+								});
 							},
 						},
 						range: [start, start + gif.title.length - 1],
