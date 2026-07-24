@@ -21,7 +21,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { HookedInstance } from "@/common/ReactHooks";
-import { definePropertyHook, unsetPropertyHook } from "@/common/Reflection";
 import { useTooltip } from "@/composable/useTooltip";
 import ForwardIcon from "@/assets/svg/icons/ForwardIcon.vue";
 import GaugeIcon from "@/assets/svg/icons/GaugeIcon.vue";
@@ -30,9 +29,9 @@ import PlayerStatsTooltip from "./PlayerStatsTooltip.vue";
 const props = defineProps<{
 	advancedControls: HookedInstance<Twitch.MediaPlayerAdvancedControls>;
 	mediaPlayer?: Twitch.MediaPlayerInstance;
+	latency: string;
 }>();
 
-const latency = ref<string>("-.--");
 const videoStats = reactive({
 	droppedFrames: 0,
 	playbackRate: 0,
@@ -65,7 +64,7 @@ function remount() {
 defineExpose({ remount });
 
 watch(
-	latency,
+	() => props.latency,
 	() => {
 		if (!props.mediaPlayer) return;
 
@@ -76,23 +75,6 @@ watch(
 		videoStats.width = props.mediaPlayer.getVideoWidth();
 		videoStats.height = props.mediaPlayer.getVideoHeight();
 		videoStats.bufferSize = props.mediaPlayer.getBufferDuration();
-	},
-	{ immediate: true },
-);
-
-watch(
-	() => props.mediaPlayer,
-	(mediaPlayer, old) => {
-		if (old && mediaPlayer !== old) {
-			unsetPropertyHook(old.playerInstance.core.state, "liveLatency");
-		} else {
-			if (!mediaPlayer) return;
-			definePropertyHook(mediaPlayer.playerInstance.core.state, "liveLatency", {
-				value: (v: number) => {
-					latency.value = v?.toFixed(2) ?? "-.--";
-				},
-			});
-		}
 	},
 	{ immediate: true },
 );
