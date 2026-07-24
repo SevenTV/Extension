@@ -108,6 +108,7 @@ export const enum MessagePartType {
 	EMOTE,
 	CLIPLINK,
 	VIDEOLINK,
+	GIF,
 	SEVENTVEMOTE = 700,
 	SEVENTVLINK,
 }
