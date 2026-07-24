@@ -260,7 +260,8 @@ export function useChatHighlights(ctx: ChannelContext) {
 		const filteredHighlights = Object.fromEntries(
 			Object.entries(data.highlights).filter(
 				([, highlight]) =>
-					highlight.phrase === true || (!highlight.phrase && !highlight.username && !highlight.badge),
+					highlight.persist === true &&
+					(highlight.phrase === true || (!highlight.phrase && !highlight.username && !highlight.badge)),
 			),
 		);
 
@@ -270,7 +271,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 	function getAllUsernameHighlights(): Record<string, HighlightDef> {
 		if (!data) return {};
 		const filteredHighlights = Object.fromEntries(
-			Object.entries(data.highlights).filter(([, highlight]) => highlight.username === true),
+			Object.entries(data.highlights).filter(
+				([, highlight]) => highlight.persist === true && highlight.username === true,
+			),
 		);
 
 		return toReactive(filteredHighlights);
@@ -279,7 +282,9 @@ export function useChatHighlights(ctx: ChannelContext) {
 	function getAllBadgeHighlights(): Record<string, HighlightDef> {
 		if (!data) return {};
 		const filteredHighlights = Object.fromEntries(
-			Object.entries(data.highlights).filter(([, highlight]) => highlight.badge === true),
+			Object.entries(data.highlights).filter(
+				([, highlight]) => highlight.persist === true && highlight.badge === true,
+			),
 		);
 
 		return toReactive(filteredHighlights);
