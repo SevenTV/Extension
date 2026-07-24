@@ -41,6 +41,7 @@ import { useChatHighlights } from "@/composable/chat/useChatHighlights";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatScroller } from "@/composable/chat/useChatScroller";
+import { useFrankerFaceZ } from "@/composable/useFrankerFaceZ";
 import { useConfig } from "@/composable/useSettings";
 import { MessagePartType, MessageType, ModerationType } from "@/site/twitch.tv/";
 import ChatMessageUnhandled from "./ChatMessageUnhandled.vue";
@@ -63,6 +64,7 @@ const displayedMessages = toRef(messages, "displayed");
 const scroller = useChatScroller(ctx);
 const properties = useChatProperties(ctx);
 const chatHighlights = useChatHighlights(ctx);
+const ffz = useFrankerFaceZ();
 const pageVisibility = useDocumentVisibility();
 const isHovering = toRef(properties, "hovering");
 const pausedByVisibility = ref(false);
@@ -330,6 +332,46 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					msg.body = msg.body.replace(e.originalText, "*".repeat(e.originalText.length));
 					break;
 				}
+				case MessagePartType.GIF: {
+					const gif = part.content as Twitch.ChatMessage.GifPart["content"];
+					if (!gif.url) continue;
+
+					const start = gif.title ? msg.body.indexOf(gif.title) : msg.body.length;
+					if (start < 0) continue;
+
+					const getNativeReportButton = () =>
+						list.value.domNodes[msg.id]?.querySelector<HTMLButtonElement>(
+							"[data-a-target=chat-line-message-body] button",
+						);
+
+					msg.nativeGif = {
+						kind: "GIF",
+						content: {
+							...gif,
+							canReport: () => !!getNativeReportButton() || ffz.canOpenTwitchReport(),
+							report: () => {
+								const reportButton = getNativeReportButton();
+
+								if (reportButton) {
+									reportButton.click();
+									return true;
+								}
+
+								return ffz.openTwitchReport({
+									contentType: "GIF_MESSAGE_REPORT",
+									contentID: msg.id,
+									targetUserID: msg.author!.id,
+									contentMetadata: {
+										channelID: msg.channelID,
+									},
+									trackingContext: "channel_page",
+								});
+							},
+						},
+						range: [start, start + gif.title.length - 1],
+					};
+					break;
+				}
 			}
 		}
 	}
@@ -463,7 +505,14 @@ watch(
 
 			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
 				const ok = onMessage(msg);
-				if (ok) return ""; // message was rendered by the extension
+				if (ok) {
+					const parts = IsDisplayableMessage(msg) ? msg.messageParts ?? msg.message?.messageParts ?? [] : [];
+					if (parts.some((part) => part.type === MessagePartType.GIF)) {
+						return old?.call(this, msg);
+					}
+
+					return ""; // message was rendered by the extension
+				}
 
 				// message was not rendered by the extension
 				unhandled.set(msg.id, msg);

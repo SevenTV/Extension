@@ -1,3 +1,13 @@
+### 3.1.24
+
+-   Added full support for Twitch GIF messages
+
+### 3.1.23
+
+-   Added setting to hide Twitch "Chat" send button under the chat input box
+-   Fixed an issue that caused the Mod View + Shield Mode buttons to not show
+-   Fixed an issue where Chat Settings tooltip would display when hovering Mod Logs button
+
 ### 3.1.22
 
 -   Fixed an issue that caused chat input to break after a Twitch update

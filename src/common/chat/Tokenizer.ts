@@ -126,6 +126,18 @@ export class Tokenizer {
 			if (!maybeEmote && !!part) lastEmoteToken = undefined;
 		}
 
+		const gif = this.msg.nativeGif;
+		if (gif) {
+			for (let i = tokens.length - 1; i >= 0; i--) {
+				const token = tokens[i];
+				if (token.range[0] <= gif.range[1] && token.range[1] >= gif.range[0]) {
+					tokens.splice(i, 1);
+				}
+			}
+
+			tokens.push(gif);
+		}
+
 		tokens.sort((a, b) => a.range[0] - b.range[0]);
 
 		return (this.msg.tokens = tokens);

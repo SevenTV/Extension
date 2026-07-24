@@ -1,4 +1,4 @@
-import { AnyToken, EmoteToken, LinkToken, MentionToken, TextToken } from "../chat/ChatMessage";
+import { AnyToken, EmoteToken, GifToken, LinkToken, MentionToken, TextToken } from "../chat/ChatMessage";
 
 export function IsTextToken(part: AnyToken): part is TextToken {
 	return part.kind === "TEXT";
@@ -10,6 +10,10 @@ export function IsLinkToken(part: AnyToken): part is LinkToken {
 
 export function IsEmoteToken(part: AnyToken): part is EmoteToken {
 	return part.kind === "EMOTE";
+}
+
+export function IsGifToken(part: AnyToken): part is GifToken {
+	return part.kind === "GIF";
 }
 
 export function IsMentionToken(part: AnyToken): part is MentionToken {

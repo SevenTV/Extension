@@ -137,6 +137,40 @@ function setConfig<T>(profileName: keyof typeof data.profile, key: string, value
 	profile.set(key, value);
 }
 
+function resolveTwitchReport(): ResolvedTwitchReport | null {
+	if (!data.ffz) return null;
+
+	try {
+		const site = data.ffz.resolve<FFZSite>("site");
+		const reportModal = data.ffz
+			.resolve<FFZWebMunch>("site.web_munch")
+			.getModule<React.ComponentType>("user-report");
+
+		if (!site.store?.dispatch || !reportModal) return null;
+
+		return { store: site.store, reportModal };
+	} catch {
+		return null;
+	}
+}
+
+function canOpenTwitchReport(): boolean {
+	return !!resolveTwitchReport();
+}
+
+function openTwitchReport(reportContext: TwitchReportContext): boolean {
+	const resolved = resolveTwitchReport();
+	if (!resolved) return false;
+
+	resolved.store.dispatch({
+		type: "core.modal.MODAL_SHOWN",
+		modalComponent: resolved.reportModal,
+		modalProps: { reportContext },
+	});
+
+	return true;
+}
+
 function createDummyAddon() {
 	if (!("FrankerFaceZ" in window)) return;
 
@@ -166,6 +200,8 @@ export function useFrankerFaceZ() {
 		getConfigChanges,
 		setConfig,
 		disableChatProcessing,
+		canOpenTwitchReport,
+		openTwitchReport,
 	});
 }
 
@@ -239,6 +275,31 @@ export interface FFZAddonsManager extends FFZModule {
 	disableAddon: (id: string) => void;
 	enableAddon: (id: string) => void;
 	enabled_addons: string[];
+}
+
+interface FFZSite {
+	store?: {
+		dispatch: (action: unknown) => unknown;
+	};
+}
+
+interface FFZWebMunch {
+	getModule<T>(key: string): T | null;
+}
+
+interface ResolvedTwitchReport {
+	store: NonNullable<FFZSite["store"]>;
+	reportModal: React.ComponentType;
+}
+
+interface TwitchReportContext {
+	contentType: "GIF_MESSAGE_REPORT";
+	contentID: string;
+	targetUserID: string;
+	contentMetadata: {
+		channelID: string;
+	};
+	trackingContext: "channel_page";
 }
 
 declare const FrankerFaceZ: any;

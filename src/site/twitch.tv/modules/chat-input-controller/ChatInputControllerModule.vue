@@ -94,11 +94,12 @@ function remountButtons() {
 		row.querySelector<HTMLElement>("button[data-a-target='chat-settings']") ??
 		row.querySelector<HTMLElement>("button[data-a-target='chat-send-button']");
 	const wrapper = anchor?.parentElement;
-	const container = wrapper?.parentElement ?? row;
+	const buttonSlot = wrapper?.parentElement?.parentElement;
+	const container = buttonSlot?.parentElement ?? wrapper?.parentElement ?? row;
 
 	const buttons = [...tButtons.values()].sort((a, b) => b.offset - a.offset);
 
-	let reference: Element | null = wrapper ?? anchor;
+	let reference: Element | null = buttonSlot ?? wrapper ?? anchor;
 	for (let i = buttons.length - 1; i >= 0; i--) {
 		const btn = buttons[i];
 		const el = btn.parent.current;
@@ -145,9 +146,5 @@ div[data-test-selector="chat-input-buttons-container"] seventv-chat-input-button
 
 div[data-test-selector="chat-input-buttons-container"] > div:has(button[data-a-target="chat-settings"]) {
 	display: contents !important;
-
-	> :not(:has(button[data-a-target="chat-settings"])) {
-		display: none !important;
-	}
 }
 </style>
