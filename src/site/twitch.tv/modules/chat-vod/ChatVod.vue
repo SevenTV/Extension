@@ -254,6 +254,19 @@ function createMessageComponentRef(data: CommentData) {
 				msg.body += e.alt;
 				break;
 			}
+			case MessagePartType.GIF: {
+				const gif = tok.content as Twitch.ChatMessage.GifPart["content"];
+				if (!gif.url) continue;
+
+				const start = msg.body.length;
+				msg.body += gif.title;
+				msg.nativeGif = {
+					kind: "GIF",
+					content: gif,
+					range: [start, start + gif.title.length - 1],
+				};
+				break;
+			}
 			case MessagePartType.MENTION:
 				msg.body += `@${tok.content.recipient}`;
 				break;
