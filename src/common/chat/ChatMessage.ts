@@ -55,6 +55,7 @@ export class ChatMessage<C extends ComponentFactory = ComponentFactory> {
 	public parent: ChatMessageParent | null = null;
 	public wrappedNode: Element | null = null;
 	public nativeEmotes = {} as Record<string, SevenTV.ActiveEmote>;
+	public nativeGif: GifToken | null = null;
 
 	public tokens = new Array<AnyToken>();
 	private tokenizer?: Tokenizer;
@@ -189,10 +190,20 @@ export type EmoteToken = ChatMessageToken<
 		cheerColor?: string;
 	}
 >;
+export type GifToken = ChatMessageToken<
+	"GIF",
+	{
+		id: string;
+		title: string;
+		url: string;
+		report?: () => boolean;
+		canReport?: () => boolean;
+	}
+>;
 
 export type VoidToken = ChatMessageToken<"VOID", void>;
 
-export type MessageTokenKind = "TEXT" | "LINK" | "FLAGGED_SEGMENT" | "MENTION" | "EMOTE" | "VOID";
+export type MessageTokenKind = "TEXT" | "LINK" | "FLAGGED_SEGMENT" | "MENTION" | "EMOTE" | "GIF" | "VOID";
 
 export type MessageDeliveryState = "IDLE" | "IN_FLIGHT" | "SENT" | "BOUNCED";
 
