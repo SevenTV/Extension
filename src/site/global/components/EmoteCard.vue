@@ -5,6 +5,9 @@
 				<img :srcset="srcset" :style="{}" />
 			</div>
 			<div class="seventv-emote-card-display">
+				<button type="button" class="seventv-emote-card-hide-btn" @click="toggle(emote.name)">
+					{{ isHidden(emote.name) ? "Show in this channel" : "Hide in this channel" }}
+				</button>
 				<div>
 					<h3 class="seventv-emote-card-title">
 						<span>
@@ -51,11 +54,14 @@ import { reactive, ref, watch, watchEffect } from "vue";
 import { imageHostToSrcsetWithsize } from "@/common/Image";
 import { log } from "@/common/Logger";
 import { convertTwitchEmote } from "@/common/Transform";
+import { useEmoteBlacklist } from "@/composable/chat/useEmoteBlacklist";
 import { useApollo } from "@/composable/useApollo";
 import { userQuery } from "@/assets/gql/seventv.user.gql";
 import { emoteCardQuery } from "@/assets/gql/tw.emote-card.gql";
 import OpenLinkIcon from "@/assets/svg/icons/OpenLinkIcon.vue";
 import { useQuery } from "@vue/apollo-composable";
+
+const { isHidden, toggle } = useEmoteBlacklist();
 
 const props = defineProps<{
 	emote: SevenTV.ActiveEmote;

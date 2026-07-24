@@ -4,11 +4,14 @@
 </template>
 
 <script setup lang="ts">
-import { watchEffect } from "vue";
+import { computed, watch, watchEffect } from "vue";
 import { defineFunctionHook } from "@/common/Reflection";
+import { tokenize } from "@/common/Tokenize.js";
 import { AnyToken, ChatMessage, EmoteToken } from "@/common/chat/ChatMessage";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useChatMessages } from "@/composable/chat/useChatMessages.js";
+import { useConfig } from "@/composable/useSettings";
 import ChatAutocomplete from "./ChatAutocomplete.vue";
 import ChatData from "./ChatData.vue";
 
@@ -21,7 +24,46 @@ const props = defineProps<{
 const ctx = useChannelContext(props.channelId, true);
 const emotes = useChatEmotes(ctx);
 
+const chatMessages = useChatMessages(ctx);
+const blacklistEnabled = useConfig<boolean>("chat.emote_blacklist_per_channel.enabled");
+const blacklistMap = useConfig<Map<string, string[]>>("chat.emote_blacklist_per_channel");
+
+const filter = useConfig<string[]>("chat.filtered_words");
+
+const channelKey = computed(() => ctx.id ?? "");
+
+const hiddenEmotes = computed<Set<string> | undefined>(() => {
+	if (!blacklistEnabled.value) return undefined;
+	const list = blacklistMap.value?.get(channelKey.value);
+	if (!list || list.length === 0) return undefined;
+	return new Set(list);
+});
+
 const seenEmojis = {} as Record<string, SevenTV.ActiveEmote>;
+
+function withoutHidden(
+	map: Record<string, SevenTV.ActiveEmote>,
+	hidden: Set<string> | undefined,
+): Record<string, SevenTV.ActiveEmote> {
+	if (!hidden || hidden.size === 0) return map;
+	return Object.fromEntries(Object.entries(map).filter(([name]) => !hidden.has(name)));
+}
+
+watch(
+	[hiddenEmotes, channelKey],
+	() => {
+		for (const m of chatMessages.displayed) {
+			m.tokens = tokenize({
+				body: m.body,
+				chatterMap: {},
+				emoteMap: withoutHidden(emotes.active, hiddenEmotes.value),
+				localEmoteMap: withoutHidden({ ...seenEmojis, ...(m.nativeEmotes ?? {}) }, hiddenEmotes.value),
+				filteredWords: filter.value,
+			});
+		}
+	},
+	{ deep: true },
+);
 
 watchEffect(() => {
 	ctx.setCurrentChannel({
@@ -74,12 +116,13 @@ watchEffect(() => {
 			nativeTokens.length = 0;
 
 			// Set up our tokenizer instance
-			const tokenizer = msg.getTokenizer();
-			const tokens =
-				tokenizer?.tokenize({
-					emoteMap: { ...emotes.active, ...seenEmojis },
-					chatterMap: {},
-				}) ?? [];
+			const tokens = tokenize({
+				body: msg.body,
+				chatterMap: {},
+				emoteMap: withoutHidden(emotes.active, hiddenEmotes.value),
+				localEmoteMap: withoutHidden({ ...seenEmojis, ...(msg.nativeEmotes ?? {}) }, hiddenEmotes.value),
+				filteredWords: filter.value,
+			});
 
 			// Build the message tokens
 			const result: MessageTokenOrText[] = [];

@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef, watch, watchEffect } from "vue";
+import { computed, ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
@@ -146,6 +146,8 @@ const { openViewerCard } = useChatTools(ctx);
 const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? "");
 
 const emoteScale = useConfig<number>("chat.emote_scale");
+const blacklistMap = useConfig<Record<string, string[]>>("chat.emote_blacklist_per_channel");
+const hiddenEmotes = computed(() => new Set(blacklistMap.value?.[ctx.username?.toLowerCase()] ?? []));
 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");
@@ -176,6 +178,7 @@ function doTokenize() {
 		emoteMap: props.emotes ?? {},
 		localEmoteMap: { ...cosmetics.emotes, ...props.msg.nativeEmotes },
 		showModifiers: showModifiers.value,
+		hiddenEmotes: hiddenEmotes.value,
 	});
 
 	const result: MessageTokenOrText[] = [];
@@ -203,6 +206,8 @@ function doTokenize() {
 
 	tokens.value = result;
 }
+
+watch(hiddenEmotes, () => doTokenize());
 
 function doPinMessage(): void {
 	pinChatMessage(msg.value.id, 1200)?.catch((err) => log.error("failed to pin chat message", err));

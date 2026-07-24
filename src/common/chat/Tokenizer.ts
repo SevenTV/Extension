@@ -24,10 +24,11 @@ export class Tokenizer {
 
 		const textParts = this.msg.body.split(" ");
 		const getEmote = (name: string) => {
+			if (!name) return;
+			if (opt.hiddenEmotes?.has(name)) return; // treat as plaint text
 			if (opt.localEmoteMap?.[name] && Object.hasOwn(opt.localEmoteMap, name)) {
 				return opt.localEmoteMap[name];
 			}
-
 			if (opt.emoteMap[name] && Object.hasOwn(opt.emoteMap, name)) {
 				return opt.emoteMap[name];
 			}
@@ -170,4 +171,5 @@ export interface TokenizeOptions {
 	filteredWords?: string[];
 	actorUsername?: string;
 	showModifiers?: boolean;
+	hiddenEmotes?: Set<string>; // emote names to render as plain text
 }
