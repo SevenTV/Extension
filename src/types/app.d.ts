@@ -214,6 +214,12 @@ declare namespace SevenTV {
 		user?: User;
 	}
 
+	interface UserLookupResponse extends Omit<UserConnection, "emote_set" | "emote_set_id" | "user"> {
+		emote_set: null;
+		emote_set_id: ObjectID | null;
+		user: User;
+	}
+
 	interface Cosmetic<K extends CosmeticKind = unknown> {
 		id: ObjectID;
 		kind: K;

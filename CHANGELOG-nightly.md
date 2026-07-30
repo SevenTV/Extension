@@ -1,3 +1,7 @@
+## 3.1.25.1000
+
+-   Updated 7TV API logic
+
 ### 3.1.24.1000
 
 -   Added full support for Twitch GIF messages
