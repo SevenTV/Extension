@@ -29,7 +29,7 @@ const props = defineProps<{
 
 const emoteMenu = useEmoteMenuContext();
 
-const emoteMenuAnchor = ref<HTMLDivElement | null>(null);
+const emoteMenuAnchor = ref<HTMLElement | null>(null);
 
 const emoteMenuButtonContainer = document.createElement("seventv-container");
 
@@ -42,9 +42,8 @@ function close(ev: MouseEvent): void {
 
 watch(
 	() => props.container,
-	async (container) => {
-		emoteMenuAnchor.value =
-			document.querySelector<HTMLDivElement>("#channel-chatroom > div > div:has(#chat-input-wrapper)") ?? null;
+	(container) => {
+		emoteMenuAnchor.value = container;
 
 		if (!container && emoteMenu.open) {
 			emoteMenu.open = false;
