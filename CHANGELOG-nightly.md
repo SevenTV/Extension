@@ -1,5 +1,6 @@
 ## 3.1.25.1000
 
+-   Fixed Kick Emote Menu position
 -   Updated 7TV API logic
 
 ### 3.1.24.1000
