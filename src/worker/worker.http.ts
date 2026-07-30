@@ -25,6 +25,10 @@ enum ProviderPriority {
 	TWITCH,
 }
 
+const USER_LOOKUP_HEADERS = {
+	"X-7tv-Missing-EmoteSet-Aware": "1",
+};
+
 export class WorkerHttp {
 	private lastPresenceAt: Map<string, number> = new Map();
 	static imageFormat: SevenTV.ImageFormat = "WEBP";
@@ -116,9 +120,12 @@ export class WorkerHttp {
 
 		// setup fetching promises
 		const userPromise = seventv.loadUserConnection(port.platform ?? "TWITCH", channel.id).catch(() => void 0);
+		const emoteSetPromise = userPromise
+			.then((user) => (user?.emote_set_id ? seventv.loadEmoteSet(user.emote_set_id) : null))
+			.catch(() => void 0);
 
 		const promises = [
-			["7TV", () => userPromise.then((es) => (es ? es.emote_set : null)).catch(() => void 0)],
+			["7TV", () => emoteSetPromise],
 			["FFZ", () => frankerfacez.loadUserEmoteSet(channel.id).catch(() => void 0)],
 			["BTTV", () => betterttv.loadUserEmoteSet(channel.id).catch(() => void 0)],
 		] as [SevenTV.Provider, () => Promise<SevenTV.EmoteSet>][];
@@ -248,33 +255,19 @@ export class WorkerHttp {
 }
 
 export const seventv = {
-	async loadUserConnection(platform: Platform, id: string): Promise<SevenTV.UserConnection> {
-		const resp = await doRequest(API_BASE.SEVENTV, `users/${platform.toLowerCase()}/${id}`).catch((err) =>
-			Promise.reject(err),
-		);
+	async loadUserConnection(platform: Platform, id: string): Promise<SevenTV.UserLookupResponse> {
+		const resp = await doRequest(
+			API_BASE.SEVENTV,
+			`users/${platform.toLowerCase()}/${id}`,
+			"GET",
+			undefined,
+			USER_LOOKUP_HEADERS,
+		).catch((err) => Promise.reject(err));
 		if (!resp || resp.status !== 200) {
 			return Promise.reject(resp);
 		}
 
-		const data = (await resp.json()) as SevenTV.UserConnection;
-
-		const set = structuredClone(data.emote_set) as SevenTV.EmoteSet;
-
-		set.provider = "7TV";
-		set.scope = "CHANNEL";
-		set.priority = ProviderPriority.SEVENTV;
-
-		set.emotes.map((ae) => {
-			ae.provider = set.provider;
-			ae.scope = "CHANNEL";
-
-			if (ae.data) ae.data.host.srcset = imageHostToSrcset(ae.data.host, "7TV", WorkerHttp.imageFormat, 2);
-			return ae;
-		});
-
-		data.emote_set = set;
-
-		return Promise.resolve(data);
+		return Promise.resolve((await resp.json()) as SevenTV.UserLookupResponse);
 	},
 
 	async loadEmoteSet(id: string): Promise<SevenTV.EmoteSet> {
@@ -289,7 +282,7 @@ export const seventv = {
 		if (id === "global") set.scope = "GLOBAL";
 		else if (BitField(EmoteSetFlags, set.flags ?? 0).has("Personal")) set.scope = "PERSONAL";
 		else set.scope = "CHANNEL";
-		set.priority = ProviderPriority.SEVENTV_GLOBAL;
+		set.priority = set.scope === "GLOBAL" ? ProviderPriority.SEVENTV_GLOBAL : ProviderPriority.SEVENTV;
 
 		set.emotes.map((ae) => {
 			ae.provider = set.provider;
@@ -304,14 +297,18 @@ export const seventv = {
 	},
 
 	async loadUserData(platform: Platform, id: string): Promise<SevenTV.User> {
-		const resp = await doRequest(API_BASE.SEVENTV, `users/${platform.toLowerCase()}/${id}`).catch((err) =>
-			Promise.reject(err),
-		);
+		const resp = await doRequest(
+			API_BASE.SEVENTV,
+			`users/${platform.toLowerCase()}/${id}`,
+			"GET",
+			undefined,
+			USER_LOOKUP_HEADERS,
+		).catch((err) => Promise.reject(err));
 		if (!resp || resp.status !== 200) {
 			return Promise.reject(resp);
 		}
 
-		const userConn = (await resp.json()) as SevenTV.UserConnection;
+		const userConn = (await resp.json()) as SevenTV.UserLookupResponse;
 		if (!userConn.user) return Promise.reject(new Error("No user was returned!"));
 
 		return Promise.resolve(userConn.user);
@@ -444,15 +441,20 @@ export const betterttv = {
 	},
 };
 
-async function doRequest<T = object>(base: string, path: string, method?: string, body?: T): Promise<Response> {
+async function doRequest<T = object>(
+	base: string,
+	path: string,
+	method?: string,
+	body?: T,
+	headers?: Record<string, string>,
+): Promise<Response> {
 	return fetch(`${base}/${path}`, {
 		method,
 		body: body ? JSON.stringify(body) : undefined,
-		headers: body
-			? {
-					"Content-Type": "application/json",
-			  }
-			: undefined,
+		headers: {
+			...(body ? { "Content-Type": "application/json" } : {}),
+			...headers,
+		},
 		referrer: location.origin,
 		referrerPolicy: "origin",
 	}).then(async (resp) => {
