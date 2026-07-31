@@ -15,6 +15,8 @@ type WorkerAddrMap = Record<string, string>;
 async function init(originURL: string): Promise<SharedWorker> {
 	let sw: SharedWorker;
 
+	log.info("Worker init starting", `origin=${originURL}`, `url=${location.href}`);
+
 	// Check for existing url
 	// If it exists, we'll connect to it
 	const appVersion = import.meta.env.VITE_APP_VERSION;
@@ -67,6 +69,8 @@ async function init(originURL: string): Promise<SharedWorker> {
 	// Connect to worker
 	return new Promise<SharedWorker>((resolve, reject) => {
 		if (!workerURL) return reject("No address to worker");
+
+		log.info("Worker connected", `addr=${workerURL}`);
 
 		// Spawn or connect to worker
 		sw = worker = new SharedWorker(workerURL, {
@@ -127,6 +131,7 @@ function useHandlers(mp: MessagePort) {
 
 		switch (type) {
 			case "INIT": {
+				log.info("Worker ready (INIT received)");
 				events.emit("ready", {});
 				break;
 			}
@@ -231,11 +236,14 @@ class WorkletTarget extends EventTarget {
 	 **/
 	async listenUntil<T extends WorkletEventName>(name: T, cb: (ev: WorkletEvent<T>) => boolean) {
 		await new Promise<void>((resolve) => {
-			this.addEventListener(name, (ev) => {
+			const handler = (ev: WorkletEvent<T>) => {
 				if (!cb(ev)) return;
-				this.removeEventListener(name, cb);
+
+				this.removeEventListener(name, handler);
 				resolve();
-			});
+			};
+
+			this.addEventListener(name, handler);
 		});
 	}
 }
