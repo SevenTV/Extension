@@ -1,5 +1,6 @@
 ## 3.1.25.1000
 
+-   Fixed an issue where the database cleanup triggered when opening a new channel could delete cached emote sets older than an hour (including global emotes), causing emotes to disappear from all open tabs until the browser was restarted
 -   Fixed Kick Emote Menu position
 -   Updated 7TV API logic
 

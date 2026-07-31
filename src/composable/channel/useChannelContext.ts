@@ -1,5 +1,6 @@
 import { inject, onMounted, onUnmounted, provide, reactive, toRaw, watch } from "vue";
 import { useStore } from "@/store/main";
+import { log } from "@/common/Logger";
 import { useWorker } from "../useWorker";
 
 export const CHANNEL_CTX = Symbol("seventv-channel-context");
@@ -49,6 +50,8 @@ export class ChannelContext implements CurrentChannel {
 		this.displayName = channel.displayName;
 		this.active = channel.active;
 
+		log.info("Channel set", `id=${channel.id}`, `username=${channel.username}`, `old=${oldID}`);
+
 		m.set(channel.id, this);
 		m.delete(oldID);
 
@@ -57,6 +60,8 @@ export class ChannelContext implements CurrentChannel {
 	}
 
 	leave(): void {
+		log.info("Channel left", `id=${this.id}`, `username=${this.username}`);
+
 		this.active = false;
 
 		sendMessage("STATE", {
