@@ -890,8 +890,13 @@ declare module Twitch {
 
 	export type VideoPlayerComponent = ReactExtended.WritableComponent<{
 		containerRef: HTMLDivElement;
-		mediaPlayerInstance: MediaPlayerInstance;
+		mediaPlayerInstance: MediaPlayerInstanceContainer;
 	}>;
+
+	export interface MediaPlayerInstanceContainer {
+		videoElement: unknown;
+		playerInstance: MediaPlayerInstance;
+	}
 
 	export interface MediaPlayerInstance {
 		playerInstance: {
