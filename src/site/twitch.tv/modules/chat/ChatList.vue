@@ -253,7 +253,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 					? {
 							username: msgData.reply.parentUserLogin,
 							displayName: msgData.reply.parentDisplayName,
-						}
+					  }
 					: null;
 			const parentMsgThread =
 				msgData.reply && msgData.reply.threadParentMsgId && msgData.reply.threadParentUserLogin
@@ -261,7 +261,7 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 							deleted: msgData.reply.threadParentDeleted,
 							id: msgData.reply.threadParentMsgId,
 							login: msgData.reply.threadParentUserLogin,
-						}
+					  }
 					: null;
 
 			msg.parent = {
@@ -308,11 +308,11 @@ function onChatMessage(msg: ChatMessage, msgData: Twitch.AnyMessage, shouldRende
 									cheerAmount: e.cheerAmount,
 									cheerColor: e.cheerColor,
 									images: e.images,
-								})
+							  })
 							: convertTwitchEmote({
 									id: e.emoteID,
 									token: e.alt,
-								} as Partial<Twitch.TwitchEmote>),
+							  } as Partial<Twitch.TwitchEmote>),
 					};
 					const emoteName = e.alt + (e.cheerAmount ?? "");
 
@@ -426,16 +426,11 @@ function onModerationMessage(msgData: Twitch.ModerationMessage) {
 
 		const msgList = messages.messagesByUser(msgData.userLogin);
 
-		let actor: ChatUser | null = null;
-		for (const m of msgList) {
-			actor = actor ?? m.moderation.actor;
-		}
-
 		const action = {
 			actionType: msgData.duration > 0 ? "TIMEOUT" : "BAN",
 			banDuration: msgData.duration,
 			banReason: msgData.reason,
-			actor,
+			actor: null,
 			banned: true,
 			deleted: false,
 			timestamp: Date.now(),
@@ -511,9 +506,7 @@ watch(
 			defineFunctionHook(handler, "handleMessage", function (old, msg: Twitch.AnyMessage) {
 				const ok = onMessage(msg);
 				if (ok) {
-					const parts = IsDisplayableMessage(msg)
-						? (msg.messageParts ?? msg.message?.messageParts ?? [])
-						: [];
+					const parts = IsDisplayableMessage(msg) ? msg.messageParts ?? msg.message?.messageParts ?? [] : [];
 					if (parts.some((part) => part.type === MessagePartType.GIF)) {
 						return old?.call(this, msg);
 					}
