@@ -54,6 +54,17 @@ button {
 		}
 	}
 
+	&.danger {
+		background: unset;
+		outline-color: var(--seventv-warning);
+		color: var(--seventv-warning);
+
+		&:hover {
+			background: var(--seventv-warning);
+			color: var(--seventv-background-shade-1);
+		}
+	}
+
 	.ui-button-icon {
 		display: inline-grid;
 

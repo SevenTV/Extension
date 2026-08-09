@@ -1,4 +1,6 @@
 <template>
+	<div id="seventv-message-container" style="display: contents"></div>
+
 	<template v-if="shallowList">
 		<ChatObserver :list-element="shallowList" />
 	</template>

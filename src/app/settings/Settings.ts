@@ -3,7 +3,6 @@ import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import SettingsViewBackupVue from "./SettingsViewBackup.vue";
 import SettingsViewCompatVue from "./SettingsViewCompat.vue";
 import SettingsViewConfigVue from "./SettingsViewConfig.vue";
-import SettingsViewEmoteBlacklistVue from "./SettingsViewEmoteBlacklist.vue";
 import SettingsViewHomeVue from "./SettingsViewHome.vue";
 import SettingsViewProfileVue from "./SettingsViewProfile.vue";
 
@@ -76,7 +75,6 @@ const views = {
 	profile: SettingsViewProfileVue,
 	compat: SettingsViewCompatVue,
 	backup: SettingsViewBackupVue,
-	emoteBlacklist: SettingsViewEmoteBlacklistVue,
 	store: Store,
 	paint: PaintTool,
 };

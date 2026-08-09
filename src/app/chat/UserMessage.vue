@@ -60,6 +60,7 @@
 						:format="properties.imageFormat"
 						:overlaid="token.content.overlaid"
 						:clickable="true"
+						:hidden="token.content.hidden"
 						:scale="Number(emoteScale)"
 					/>
 					<span v-if="token.content" :style="{ color: token.content.cheerColor }">
@@ -92,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch, watchEffect } from "vue";
+import { ref, toRef, watch, watchEffect } from "vue";
 import { useTimeoutFn } from "@vueuse/shared";
 import { SetHexAlpha } from "@/common/Color";
 import { log } from "@/common/Logger";
@@ -102,6 +103,7 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatModeration } from "@/composable/chat/useChatModeration";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useChatTools } from "@/composable/chat/useChatTools";
+import { useEmoteBlacklist } from "@/composable/chat/useEmoteBlacklist";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import type { TimestampFormatKey } from "@/site/twitch.tv/modules/chat/ChatModule.vue";
@@ -146,8 +148,7 @@ const { openViewerCard } = useChatTools(ctx);
 const { pinChatMessage } = useChatModeration(ctx, msg.value.author?.username ?? "");
 
 const emoteScale = useConfig<number>("chat.emote_scale");
-const blacklistMap = useConfig<Record<string, string[]>>("chat.emote_blacklist_per_channel");
-const hiddenEmotes = computed(() => new Set(blacklistMap.value?.[ctx.username?.toLowerCase()] ?? []));
+const { hiddenEmotes } = useEmoteBlacklist();
 
 // TODO: css variables
 const meStyle = useConfig<number>("chat.slash_me_style");

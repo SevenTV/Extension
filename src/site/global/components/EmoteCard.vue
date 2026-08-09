@@ -5,7 +5,12 @@
 				<img :srcset="srcset" :style="{}" />
 			</div>
 			<div class="seventv-emote-card-display">
-				<button type="button" class="seventv-emote-card-hide-btn" @click="toggle(emote.name)">
+				<button
+					type="button"
+					class="seventv-emote-card-hide-btn"
+					:class="{ 'seventv-emote-card-hide-btn-active': isHidden(emote.name) }"
+					@click="toggle(emote.name)"
+				>
 					{{ isHidden(emote.name) ? "Show in this channel" : "Hide in this channel" }}
 				</button>
 				<div>
@@ -226,6 +231,39 @@ main.seventv-emote-card-container {
 				font-size: 2rem;
 				font-weight: 600;
 				color: var(--seventv-text-primary);
+			}
+		}
+
+		.seventv-emote-card-hide-btn {
+			all: unset;
+			justify-self: end;
+			cursor: pointer;
+			margin-bottom: 0.5rem;
+			padding: 0.35rem 0.8rem;
+			border-radius: 999px;
+			font-size: 0.88rem;
+			font-weight: 800;
+			letter-spacing: 0.02em;
+			text-transform: uppercase;
+			color: var(--seventv-text-color-normal);
+			background: var(--seventv-input-background);
+			outline: 0.12em solid var(--seventv-input-border);
+			transition:
+				color 120ms ease-in-out,
+				outline-color 120ms ease-in-out,
+				background 120ms ease-in-out;
+
+			&:hover {
+				outline-color: var(--seventv-warning);
+			}
+
+			&.seventv-emote-card-hide-btn-active {
+				color: var(--seventv-warning);
+				outline-color: var(--seventv-warning);
+				&:hover {
+					color: var(--seventv-background-shade-1);
+					background: var(--seventv-warning);
+				}
 			}
 		}
 

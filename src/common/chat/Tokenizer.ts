@@ -25,7 +25,6 @@ export class Tokenizer {
 		const textParts = this.msg.body.split(" ");
 		const getEmote = (name: string) => {
 			if (!name) return;
-			if (opt.hiddenEmotes?.has(name)) return; // treat as plaint text
 			if (opt.localEmoteMap?.[name] && Object.hasOwn(opt.localEmoteMap, name)) {
 				return opt.localEmoteMap[name];
 			}
@@ -33,6 +32,7 @@ export class Tokenizer {
 				return opt.emoteMap[name];
 			}
 		};
+		const isHidden = (name: string | undefined) => !!name && !!opt.hiddenEmotes?.has(name);
 		const showModifiers = opt.showModifiers;
 
 		let cursor = -1;
@@ -58,9 +58,12 @@ export class Tokenizer {
 				opt.chatterMap[part.toLowerCase()] && Object.hasOwn(opt.chatterMap, part.toLowerCase());
 
 			if (maybeEmote) {
+				const hidden = isHidden(maybeEmote.name);
 				// handle zero width overlaying
 				if ((maybeEmote.data?.flags ?? 0) & 256 && lastEmoteToken) {
-					lastEmoteToken.content.overlaid[maybeEmote.name] = maybeEmote;
+					if (!hidden) {
+						lastEmoteToken.content.overlaid[maybeEmote.name] = maybeEmote;
+					}
 
 					// the "void" token is used to hide the text of the zero-width. any text in the void range won't be rendered
 					tokens.push(toVoid(cursor + 1, next - 1));
@@ -73,6 +76,7 @@ export class Tokenizer {
 							content: {
 								emote: maybeEmote,
 								overlaid: {},
+								hidden,
 								...(maybeEmote.isTwitchCheer
 									? {
 											cheerAmount: maybeEmote.isTwitchCheer.amount,

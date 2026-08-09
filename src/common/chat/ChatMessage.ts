@@ -188,6 +188,7 @@ export type EmoteToken = ChatMessageToken<
 		overlaid: Record<string, SevenTV.ActiveEmote>;
 		cheerAmount?: number;
 		cheerColor?: string;
+		hidden?: boolean;
 	}
 >;
 export type GifToken = ChatMessageToken<

@@ -80,12 +80,6 @@
 									:sub-categories="[]"
 									@open-category="() => ctx.switchView('backup')"
 								/>
-								<CategoryDropdown
-									v-if="'emote blacklist hide channel per-channel'.includes(filter.toLowerCase())"
-									category="Emote Blacklist"
-									:sub-categories="[]"
-									@open-category="() => ctx.switchView('emoteBlacklist')"
-								/>
 								<div class="seventv-settings-expansion-indicator" :hidden="!shouldShowSidebarExpansion">
 									<div class="color-overlay">
 										<div class="shade-1"></div>

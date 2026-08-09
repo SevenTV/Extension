@@ -15,6 +15,8 @@
 						class="seventv-emote-token"
 						:emote="token.content.emote"
 						:overlaid="token.content.overlaid"
+						:clickable="true"
+						:hidden="token.content.hidden"
 						format="WEBP"
 					/>
 				</span>
@@ -46,6 +48,7 @@ import { AnyToken } from "@/common/chat/ChatMessage";
 import { IsEmoteToken, IsLinkToken, IsTextToken } from "@/common/type-predicates/MessageTokens";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useEmoteBlacklist } from "@/composable/chat/useEmoteBlacklist";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
 import Badge from "@/app/chat/Badge.vue";
@@ -72,6 +75,7 @@ const emit = defineEmits<{
 
 const ctx = useChannelContext();
 const emotes = useChatEmotes(ctx);
+const { hiddenEmotes } = useEmoteBlacklist();
 const cosmetics = useCosmetics(props.bind.authorID);
 const badgeContainer = document.createElement("seventv-container");
 
@@ -104,6 +108,7 @@ function process(): void {
 			emoteMap: emotes.active,
 			localEmoteMap: { ...cosmetics.emotes },
 			isKick: true,
+			hiddenEmotes: hiddenEmotes.value,
 		});
 
 		const tokenEl = document.createElement("seventv-container");
@@ -119,6 +124,7 @@ function process(): void {
 }
 
 watch(() => props.bind.texts, process, { immediate: true });
+watch(hiddenEmotes, process);
 watch(
 	() => props.bind.usernameEl,
 	(el) => {

@@ -2,40 +2,46 @@
 	<div
 		ref="boxRef"
 		class="seventv-emote-box"
-		:class="{ 'with-border': withBorder }"
+		:class="{ 'with-border': withBorder, 'seventv-emote-hidden': hidden }"
 		:ratio="determineRatio(emote)"
 		@mouseenter="onShowTooltip"
 		@mouseleave="hide()"
 		@click="(ev: MouseEvent) => [onShowEmoteCard(ev), emit('emote-click', ev, emote)]"
 	>
-		<img
-			v-if="!emote.unicode && emote.data && emote.data.host"
-			class="seventv-chat-emote"
-			:srcset="unload ? '' : processSrcSet(emote)"
-			:alt="emote.name"
-			:class="{ blur: hideUnlisted && emote.data?.listed === false }"
-			loading="lazy"
-			decoding="async"
-			@load="onImageLoad"
-		/>
-		<SingleEmoji
-			v-else-if="!unload && emote.id"
-			:id="emote.id"
-			:alt="emote.name"
-			class="seventv-chat-emote seventv-emoji"
-			:style="{ width: `${scale * 2}rem`, height: `${scale * 2}rem` }"
-			@mouseenter="onShowTooltip"
-			@mouseleave="hide()"
-		/>
-
-		<template v-for="e of overlaid" :key="e.id">
+		<!-- Blacklisted for this channel: render as plain text instead of the image,
+		     but keep this box's click/hover behavior so it still opens the emote card
+		     with the option to show it again. -->
+		<span v-if="hidden" class="seventv-emote-hidden-text">{{ emote.name }}</span>
+		<template v-else>
 			<img
-				v-if="e.data && e.data.host"
-				class="seventv-chat-emote zero-width-emote"
-				:class="{ blur: hideUnlisted && e.data?.listed === false }"
-				:srcset="processSrcSet(e)"
-				:alt="' ' + e.name"
+				v-if="!emote.unicode && emote.data && emote.data.host"
+				class="seventv-chat-emote"
+				:srcset="unload ? '' : processSrcSet(emote)"
+				:alt="emote.name"
+				:class="{ blur: hideUnlisted && emote.data?.listed === false }"
+				loading="lazy"
+				decoding="async"
+				@load="onImageLoad"
 			/>
+			<SingleEmoji
+				v-else-if="!unload && emote.id"
+				:id="emote.id"
+				:alt="emote.name"
+				class="seventv-chat-emote seventv-emoji"
+				:style="{ width: `${scale * 2}rem`, height: `${scale * 2}rem` }"
+				@mouseenter="onShowTooltip"
+				@mouseleave="hide()"
+			/>
+
+			<template v-for="e of overlaid" :key="e.id">
+				<img
+					v-if="e.data && e.data.host"
+					class="seventv-chat-emote zero-width-emote"
+					:class="{ blur: hideUnlisted && e.data?.listed === false }"
+					:srcset="processSrcSet(e)"
+					:alt="' ' + e.name"
+				/>
+			</template>
 		</template>
 
 		<template v-if="showEmoteCard">
@@ -77,6 +83,7 @@ const props = withDefaults(
 		unload?: boolean;
 		scale?: number;
 		withBorder?: boolean;
+		hidden?: boolean;
 	}>(),
 	{ unload: false, scale: 1, withBorder: false },
 );
@@ -95,8 +102,9 @@ const imgEl = ref<HTMLImageElement>();
 
 const src = ref("");
 
-const baseWidth = ref(0);
-const baseHeight = ref(0);
+const initialSize = props.emote.data?.host?.files?.at(-1);
+const baseWidth = ref(initialSize?.width ? Math.round(initialSize.width / props.scale) : 0);
+const baseHeight = ref(initialSize?.height ? Math.round(initialSize.height / props.scale) : 0);
 
 const onImageLoad = (event: Event) => {
 	if (!(event.target instanceof HTMLImageElement)) return;
@@ -149,6 +157,11 @@ onBeforeUnmount(hide);
 .seventv-emote-box {
 	display: grid;
 	overflow: clip;
+}
+
+.seventv-emote-hidden-text {
+	cursor: pointer;
+	color: inherit;
 }
 
 .with-border {

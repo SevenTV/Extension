@@ -26,6 +26,8 @@ export function tokenize(opt: TokenizeOptions) {
 				} as SevenTV.ActiveEmote;
 			}
 		}
+		if (!name) return;
+
 		if (opt.localEmoteMap?.[name] && Object.hasOwn(opt.localEmoteMap, name)) {
 			return opt.localEmoteMap[name];
 		}
@@ -34,6 +36,7 @@ export function tokenize(opt: TokenizeOptions) {
 			return opt.emoteMap[name];
 		}
 	};
+	const isHidden = (name: string | undefined) => !!name && !!opt.hiddenEmotes?.has(name);
 	const showModifiers = opt.showModifiers;
 
 	let cursor = -1;
@@ -56,9 +59,13 @@ export function tokenize(opt: TokenizeOptions) {
 		const prevEmote = getEmote(textParts[textParts.indexOf(part) - 1]);
 
 		if (maybeEmote) {
+			const hidden = isHidden(maybeEmote.name);
+
 			// handle zero width overlaying
 			if ((maybeEmote.data?.flags ?? 0) & 256 && lastEmoteToken) {
-				lastEmoteToken.content.overlaid[maybeEmote.name] = maybeEmote;
+				if (!hidden) {
+					lastEmoteToken.content.overlaid[maybeEmote.name] = maybeEmote;
+				}
 
 				// the "void" token is used to hide the text of the zero-width. any text in the void range won't be rendered
 				tokens.push(toVoid(cursor + 1, next - 1));
@@ -71,6 +78,7 @@ export function tokenize(opt: TokenizeOptions) {
 						content: {
 							emote: maybeEmote,
 							overlaid: {},
+							hidden,
 							...(maybeEmote.isTwitchCheer
 								? {
 										cheerAmount: maybeEmote.isTwitchCheer.amount,
@@ -141,4 +149,5 @@ export interface TokenizeOptions {
 	actorUsername?: string;
 	showModifiers?: boolean;
 	isKick?: boolean;
+	hiddenEmotes?: Set<string>; // emote names to render as plain text
 }

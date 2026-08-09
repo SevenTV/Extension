@@ -1,21 +1,21 @@
 <template>
-	<main class="seventv-settings-emote-blacklist">
-		<h3>Per-Channel Emote Blacklist</h3>
-		<p>
-			Hide individual 7TV emotes in specific channels. The message stays readable — only the emote image is
-			replaced by its plain text.
+	<div class="seventv-settings-emote-blacklist">
+		<p class="seventv-settings-emote-blacklist-intro">
+			Hidden 7TV emotes, per channel. Click an emote's hover card in chat and choose
+			<em>"Hide in this channel"</em> to add one here — the message stays visible, only the emote is swapped for
+			plain text.
 		</p>
 
 		<div v-if="entries.length === 0" class="seventv-settings-emote-blacklist-empty">
-			<p>
-				No emotes hidden yet. Open an emote's hover card in chat and click
-				<em>"Hide in this channel"</em> to add it here.
-			</p>
+			<p>Nothing hidden yet.</p>
 		</div>
 
 		<section v-for="entry in entries" :key="entry.channel" class="seventv-settings-emote-blacklist-channel">
 			<header>
-				<h4>#{{ entry.channel }}</h4>
+				<h4>
+					#{{ entry.channel }}
+					<span class="seventv-settings-emote-blacklist-count">{{ entry.emotes.length }}</span>
+				</h4>
 				<UiButton class="danger" @click="clearChannel(entry.channel)">Clear all</UiButton>
 			</header>
 
@@ -28,6 +28,7 @@
 						@click="removeEmote(entry.channel, name)"
 					>
 						<TwClose />
+						<span>Show again</span>
 					</button>
 				</li>
 			</ul>
@@ -36,7 +37,7 @@
 		<div v-if="entries.length > 0" class="seventv-settings-emote-blacklist-footer">
 			<UiButton class="danger" @click="clearAll">Reset everything</UiButton>
 		</div>
-	</main>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -84,44 +85,74 @@ function clearAll() {
 
 <style scoped lang="scss">
 .seventv-settings-emote-blacklist {
-	padding: 1rem 1.5rem;
 	display: flex;
 	flex-direction: column;
-	gap: 1.25rem;
+	gap: 1rem;
+	margin: 0.5rem 1rem 1rem;
+	color: var(--seventv-text-color-normal);
 
-	h3 {
+	&-intro {
+		color: var(--seventv-text-color-secondary);
+		line-height: 1.5;
 		margin: 0;
-	}
 
-	p {
-		opacity: 0.8;
-		margin: 0;
+		em {
+			color: var(--seventv-text-color-normal);
+			font-style: normal;
+			font-weight: 400;
+		}
 	}
 
 	&-empty {
-		padding: 1rem;
-		border: 1px dashed hsla(0deg, 0%, 100%, 15%);
+		padding: 1rem 1.25rem;
+		background: var(--seventv-background-transparent-1);
+		border: 0.1em dashed var(--seventv-border-transparent-1);
 		border-radius: 0.4rem;
+
+		p {
+			margin: 0;
+			color: var(--seventv-text-color-secondary);
+			font-weight: 600;
+		}
 	}
 
 	&-channel {
-		border: 1px solid hsla(0deg, 0%, 100%, 8%);
+		background: var(--seventv-background-transparent-1);
+		outline: 0.1em solid var(--seventv-border-transparent-1);
 		border-radius: 0.5rem;
 		padding: 0.75rem 1rem;
-		background: hsla(0deg, 0%, 100%, 2%);
 
 		header {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
 			gap: 1rem;
-			margin-bottom: 0.5rem;
+			margin-bottom: 0.65rem;
 
 			h4 {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
 				margin: 0;
-				font-size: 1rem;
+				font-size: 1.05rem;
+				font-weight: 700;
 			}
 		}
+	}
+
+	&-count {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.35rem;
+		height: 1.35rem;
+		padding: 0 0.4rem;
+		border-radius: 999px;
+		background: var(--seventv-input-background);
+		outline: 0.08em solid var(--seventv-input-border);
+		color: var(--seventv-text-color-secondary);
+		font-size: 0.75rem;
+		font-weight: 700;
 	}
 
 	&-list {
@@ -129,34 +160,57 @@ function clearAll() {
 		margin: 0;
 		padding: 0;
 		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
+		flex-direction: column;
+		gap: 0.35rem;
 
 		li {
-			display: inline-flex;
+			display: flex;
 			align-items: center;
-			gap: 0.35rem;
-			padding: 0.2rem 0.4rem 0.2rem 0.55rem;
-			background: hsla(0deg, 0%, 100%, 6%);
-			border-radius: 999px;
-			font-size: 0.85rem;
+			justify-content: space-between;
+			gap: 0.75rem;
+			padding: 0.65rem 0.65rem 0.65rem 1rem;
+			background: var(--seventv-input-background);
+			outline: 0.08em solid var(--seventv-input-border);
+			border-radius: 0.35rem;
+			transition: outline-color 120ms ease-in-out;
+
+			&:hover {
+				outline-color: var(--seventv-warning);
+			}
 
 			.emote-name {
 				font-family: var(--seventv-font-monospace, monospace);
+				font-size: 1.2rem;
+				font-weight: 700;
+				color: var(--seventv-text-color-normal);
+				word-break: break-all;
 			}
 
 			.remove {
 				all: unset;
+				flex-shrink: 0;
 				cursor: pointer;
 				display: inline-flex;
-				width: 1rem;
-				height: 1rem;
-				border-radius: 50%;
-				opacity: 0.6;
+				align-items: center;
+				gap: 0.35rem;
+				padding: 0.3rem 0.6rem;
+				border-radius: 999px;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				color: var(--seventv-text-color-secondary);
+				transition:
+					color 120ms ease-in-out,
+					background 120ms ease-in-out;
+
+				svg {
+					width: 0.7rem;
+					height: 0.7rem;
+				}
 
 				&:hover {
-					opacity: 1;
-					background: hsla(0deg, 100%, 60%, 25%);
+					color: var(--seventv-background-shade-1);
+					background: var(--seventv-warning);
 				}
 			}
 		}

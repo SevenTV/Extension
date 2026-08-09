@@ -6,6 +6,11 @@
 		<template v-for="n of nodes" :key="n.key">
 			<SettingsNode :node="n" :unseen="unseen.has(n.key)" @seen="onMarkAsSeen(n.key)" />
 		</template>
+
+		<!-- The per-channel emote blacklist manages a dynamic list, not a single config
+		     node, so it can't be expressed as a SettingsNode. It's folded into the existing
+		     Chat > Emotes subcategory instead of a separate sidebar entry. -->
+		<SettingsViewEmoteBlacklist v-if="ctx.category === 'Chat' && name === 'Emotes'" />
 	</div>
 </template>
 
@@ -14,6 +19,7 @@ import { ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
 import { useSettingsMenu } from "./Settings";
 import SettingsNode from "./SettingsNode.vue";
+import SettingsViewEmoteBlacklist from "./SettingsViewEmoteBlacklist.vue";
 
 const props = defineProps<{
 	name: string;
