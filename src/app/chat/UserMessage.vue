@@ -82,6 +82,9 @@
 		<template v-if="!hideModeration && (msg.moderation.banned || msg.moderation.deleted)">
 			<span v-if="msg.moderation.banned" class="seventv-chat-message-moderated">
 				{{ msg.moderation.banDuration ? `Timed out (${msg.moderation.banDuration}s)` : "Permanently Banned" }}
+				<template v-if="msg.moderation.actor">
+					by {{ msg.moderation.actor.displayName || msg.moderation.actor.username }}
+				</template>
 			</span>
 			<span v-else class="seventv-chat-message-moderated">Deleted</span>
 		</template>
@@ -155,7 +158,8 @@ const displaySecondsInTimestamp = useConfig<boolean>("chat.timestamp_with_second
 const showModifiers = useConfig<boolean>("chat.show_emote_modifiers");
 const timestampFormat = useConfig<TimestampFormatKey>("chat.timestamp_format");
 // Get the locale to format the timestamp
-const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language ?? "en";
+const locale =
+	navigator.languages && navigator.languages.length ? navigator.languages[0] : (navigator.language ?? "en");
 
 // Personal Emotes
 const cosmetics = props.msg.author ? useCosmetics(props.msg.author.id) : { emotes: {} };
