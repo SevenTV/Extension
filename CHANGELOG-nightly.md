@@ -1,5 +1,6 @@
 ## 3.1.25.1000
 
+-   Reduced emoji data file size by removing unused fields
 -   Fixed Kick Emote Menu position
 -   Updated 7TV API logic
 
