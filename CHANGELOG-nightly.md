@@ -1,5 +1,6 @@
 ## 3.1.25.1000
 
+-   Removed unused image and font assets from the extension package
 -   Fixed Kick Emote Menu position
 -   Updated 7TV API logic
 
