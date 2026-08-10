@@ -44,6 +44,7 @@ const inputEl = ref<HTMLInputElement | null>(null);
 
 defineExpose({
 	focus: () => inputEl.value?.focus(),
+	value: () => inputEl.value?.value,
 });
 
 onMounted(() => {

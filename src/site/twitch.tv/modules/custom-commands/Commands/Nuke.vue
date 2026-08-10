@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { onUnmounted, watch } from "vue";
 import { useIntervalFn } from "@vueuse/core";
+import { TWITCH_TIMEOUT_REGEX } from "@/common/Constant";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatMessages } from "@/composable/chat/useChatMessages";
 import { declareConfig, useConfig, useSettings } from "@/composable/useSettings";
@@ -309,7 +310,7 @@ const re = {
 		"^(?<pattern>(\\/.+\\/|.+?))(((\\s(?<action>(delete|ban|[0-9]+[dhms])))( (?<before>[0-9]+[dhms]))?(:(?<after>([0-9]+[dhms])))?)( (?<reason>.+?))?)?\\s?$",
 		"i",
 	),
-	duration: new RegExp("^[0-9]+[dhms]$", "i"),
+	duration: TWITCH_TIMEOUT_REGEX,
 };
 
 interface NukeArgs {
