@@ -1,3 +1,7 @@
+## 3.1.26.1000
+
+-   Added setting to resize GIFs in chat (Site Layout -> Chat)
+
 ## 3.1.25.1000
 
 -   Fixed Kick Emote Menu position

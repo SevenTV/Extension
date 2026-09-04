@@ -4,6 +4,7 @@
 			class="seventv-chat-gif"
 			:src="token.content.url"
 			:alt="token.content.title || 'GIF'"
+			:style="{ maxHeight: `${24 * (gifScale ?? 1)}rem` }"
 			decoding="async"
 			draggable="false"
 		/>
@@ -22,12 +23,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { GifToken } from "@/common/chat/ChatMessage";
+import { useConfig } from "@/composable/useSettings";
 import ReportIcon from "@/assets/svg/icons/ReportIcon.vue";
 
 const props = defineProps<{
 	token: GifToken;
 }>();
 
+const gifScale = useConfig<number>("chat.gif_scale");
 const showReport = ref(!!props.token.content.report);
 
 function checkReport() {
@@ -90,7 +93,7 @@ function openReport() {
 .seventv-chat-gif {
 	display: block;
 	max-width: 100%;
-	max-height: 24rem;
+	max-height: calc(24rem * var(--seventv-gif-scale, 1));
 	border-radius: 0.4rem;
 }
 </style>
