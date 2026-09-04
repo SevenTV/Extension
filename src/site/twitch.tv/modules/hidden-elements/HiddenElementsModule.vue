@@ -74,6 +74,21 @@ export const config = [
 		hint: "If checked, the list of recent hype chats will be hidden",
 		defaultValue: false,
 	}),
+	declareConfig<number>("chat.gif_scale", "SLIDER", {
+		path: ["Site Layout", "Chat"],
+		label: "GIF Scale",
+		hint: "Change how large GIFs should be displayed in chat messages",
+		options: {
+			min: 0.1,
+			max: 1,
+			step: 0.05,
+			unit: "x",
+		},
+		defaultValue: 1,
+		effect(v) {
+			document.documentElement.style.setProperty("--seventv-gif-scale", `${v}`);
+		},
+	}),
 	declareConfig("chat.hide_timestamps_vods", "TOGGLE", {
 		label: "Hide VOD Timestamps",
 		path: ["Chat", "VODs"],

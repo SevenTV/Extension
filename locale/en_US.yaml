@@ -171,3 +171,7 @@ settings:
     chat_alternating_background:
         label: Alternating Background
         hint: Display chat lines with alternating background colors
+    chat_gif_scale:
+        label: GIF Scale
+        hint: Change how large GIFs are displayed in chat messages
+
