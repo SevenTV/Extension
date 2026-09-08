@@ -8,6 +8,7 @@ import { log } from "@/common/Logger";
 import { convertKickEmoteSet } from "@/common/Transform";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
+import { useCookies } from "@/composable/useCookies";
 import { declareModule, getModuleRef } from "@/composable/useModule";
 import EmoteMenu from "./EmoteMenu.vue";
 
@@ -34,7 +35,15 @@ watch(
 	async (id, oldID) => {
 		if (id === oldID) return;
 
-		const resp = await fetch(`https://kick.com/emotes/${ctx.username}`).catch((err) => {
+		const cookies = useCookies();
+		const sessionToken = cookies.get("session_token");
+		const auth = cookies.get("XSRF-TOKEN");
+		const headers: Record<string, string> = {};
+
+		if (sessionToken) headers.Authorization = `Bearer ${sessionToken}`;
+		if (auth) headers["X-XSRF-TOKEN"] = auth;
+
+		const resp = await fetch(`https://kick.com/emotes/${ctx.username}`, { headers }).catch((err) => {
 			log.error("failed to fetch channel emote data", err);
 		});
 		if (!resp) throw new Error("failed to fetch channel emote data");

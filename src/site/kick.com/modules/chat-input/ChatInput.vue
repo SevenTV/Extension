@@ -93,6 +93,22 @@ const TextNode = props.editor._nodes.get("text")?.klass as typeof Kick.Lexical.T
 
 const listeners = new Set<() => void>();
 
+const KICK_COLLECTIBLE_PREFIX = "collectibles";
+
+function getEmoteSearchName(emote: SevenTV.ActiveEmote, query: string): string {
+	const name = emote.name.toLowerCase();
+
+	if (
+		emote.provider === "PLATFORM" &&
+		name.startsWith(KICK_COLLECTIBLE_PREFIX) &&
+		!query.startsWith(KICK_COLLECTIBLE_PREFIX)
+	) {
+		return name.slice(KICK_COLLECTIBLE_PREFIX.length);
+	}
+
+	return name;
+}
+
 function onSendMessage() {
 	sendWorkerMessage("CHANNEL_ACTIVE_CHATTER", {
 		channel: toRaw(ctx),
@@ -220,6 +236,7 @@ function handleInputChange(): void {
 
 	if (colon.active) {
 		const textAfterColon = currentWord.substring(currentWord.lastIndexOf(":") + 1) ?? "";
+		const query = textAfterColon.toLowerCase();
 		colon.cursor = textAfterColon;
 
 		colon.matches = [
@@ -230,8 +247,14 @@ function handleInputChange(): void {
 				[],
 			),
 		]
-			.filter((e) => e.name.toLowerCase().includes(textAfterColon.toLowerCase()))
-			.sort((a, b) => a.name.length - b.name.length)
+			.filter((e) => getEmoteSearchName(e, query).includes(query))
+			.sort((a, b) => {
+				const aName = getEmoteSearchName(a, query);
+				const bName = getEmoteSearchName(b, query);
+				const prefixDifference = Number(!aName.startsWith(query)) - Number(!bName.startsWith(query));
+
+				return prefixDifference || aName.length - bName.length || a.name.localeCompare(b.name);
+			})
 			.slice(0, 25)
 			.map((e) => ({
 				token: e.unicode || e.name,
@@ -292,6 +315,7 @@ function handleTab(node: Kick.Lexical.LexicalNode, selection: Kick.Lexical.Range
 
 	if (!state || state.expectedOffset !== anchorOffset || state.expectedWord !== currentWord) {
 		const searchWord = currentWord.endsWith(" ") ? currentWord.slice(0, -1) : currentWord;
+		const query = searchWord.toLowerCase();
 		matches = [
 			...Object.values(emotes.active),
 			...Object.values(cosmetics.emotes),
@@ -300,7 +324,7 @@ function handleTab(node: Kick.Lexical.LexicalNode, selection: Kick.Lexical.Range
 				[],
 			),
 		]
-			.filter((ae) => ae.name.toLowerCase().startsWith(searchWord.toLowerCase()) && ae.provider !== "EMOJI")
+			.filter((ae) => getEmoteSearchName(ae, query).startsWith(query) && ae.provider !== "EMOJI")
 			.map((e) => ({
 				token: e.unicode || e.name,
 				priority: e.name.length,
