@@ -35,15 +35,16 @@ watch(
 	async (id, oldID) => {
 		if (!id || id === oldID) return;
 
-		const cookies = useCookies();
-		const sessionToken = cookies.get("session_token");
-		const auth = cookies.get("XSRF-TOKEN");
+		const xsrfToken = useCookies().get("XSRF-TOKEN");
 		const headers: Record<string, string> = {};
 
-		if (sessionToken) headers.Authorization = `Bearer ${sessionToken}`;
-		if (auth) headers["X-XSRF-TOKEN"] = auth;
+		if (xsrfToken) {
+			headers.Authorization = `Bearer ${xsrfToken}`;
+			headers["X-XSRF-TOKEN"] = xsrfToken;
+		}
 
 		const resp = await fetch(`https://kick.com/emotes/${ctx.username}`, {
+			credentials: "include",
 			headers,
 		}).catch((err) => {
 			log.error("failed to fetch channel emote data", err);
