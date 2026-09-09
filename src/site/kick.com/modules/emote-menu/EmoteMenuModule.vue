@@ -33,7 +33,7 @@ function onPickEmote(emote: SevenTV.ActiveEmote) {
 watch(
 	() => ctx.id,
 	async (id, oldID) => {
-		if (id === oldID) return;
+		if (!id || id === oldID) return;
 
 		const cookies = useCookies();
 		const sessionToken = cookies.get("session_token");
@@ -43,7 +43,9 @@ watch(
 		if (sessionToken) headers.Authorization = `Bearer ${sessionToken}`;
 		if (auth) headers["X-XSRF-TOKEN"] = auth;
 
-		const resp = await fetch(`https://kick.com/emotes/${ctx.username}`, { headers }).catch((err) => {
+		const resp = await fetch(`https://kick.com/emotes/${ctx.username}`, {
+			headers,
+		}).catch((err) => {
 			log.error("failed to fetch channel emote data", err);
 		});
 		if (!resp) throw new Error("failed to fetch channel emote data");
@@ -52,11 +54,10 @@ watch(
 
 		for (const emoteSet of emoteSets) {
 			emotes.providers.PLATFORM ??= {};
-
-			if ("user" in emoteSet && emoteSet.user_id.toString() == ctx.id) continue;
 			emotes.providers.PLATFORM[emoteSet.id] = convertKickEmoteSet(emoteSet);
 		}
 	},
+	{ immediate: true },
 );
 
 markAsReady();

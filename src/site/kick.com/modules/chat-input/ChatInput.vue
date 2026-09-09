@@ -40,6 +40,7 @@ import { onUnmounted, reactive, ref, toRaw, toRef, watch } from "vue";
 import { useKeyModifier } from "@vueuse/core";
 import { useStore } from "@/store/main";
 import { TabToken, getSearchRange } from "@/common/Input";
+import { convertKickEmote } from "@/common/Transform";
 import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatEmotes } from "@/composable/chat/useChatEmotes";
 import { useCosmetics } from "@/composable/useCosmetics";
@@ -88,6 +89,7 @@ const history = reactive({
 });
 
 const awaitingUpdate = ref(false);
+const nativeEmotes = ref<SevenTV.ActiveEmote[]>([]);
 
 const TextNode = props.editor._nodes.get("text")?.klass as typeof Kick.Lexical.TextNode;
 
@@ -108,6 +110,81 @@ function getEmoteSearchName(emote: SevenTV.ActiveEmote, query: string): string {
 
 	return name;
 }
+
+function getColonEmotes(): SevenTV.ActiveEmote[] {
+	const allEmotes = [
+		...Object.values(emotes.active),
+		...Object.values(cosmetics.emotes),
+		...Object.values(emotes.byProvider("PLATFORM")).reduce<SevenTV.ActiveEmote[]>(
+			(accum, set) => [...accum, ...set.emotes],
+			[],
+		),
+		...nativeEmotes.value,
+	];
+
+	return Array.from(new Map(allEmotes.map((emote) => [`${emote.provider}:${emote.id}`, emote])).values());
+}
+
+function updateColonMatches(query: string): void {
+	colon.matches = getColonEmotes()
+		.filter((emote) => getEmoteSearchName(emote, query).includes(query))
+		.sort((a, b) => {
+			const aName = getEmoteSearchName(a, query);
+			const bName = getEmoteSearchName(b, query);
+			const prefixDifference = Number(!aName.startsWith(query)) - Number(!bName.startsWith(query));
+
+			return prefixDifference || aName.length - bName.length || a.name.localeCompare(b.name);
+		})
+		.slice(0, 25)
+		.map((emote) => ({
+			token: emote.unicode || emote.name,
+			priority: emote.name.length,
+			item: emote,
+		}));
+
+	if (colon.matches.length > 0) awaitingUpdate.value = true;
+
+	if (colon.select > colon.matches.length - 1) {
+		colon.select = Math.max(0, colon.matches.length - 1);
+	}
+}
+
+function syncNativeEmotes(): void {
+	const panel = document.getElementById("chat-emote-suggestion-panel");
+	if (!panel) return;
+
+	const matches = Array.from(panel.querySelectorAll<HTMLImageElement>("img[alt]"))
+		.map((image) => {
+			const id = image.src.match(/\/emotes\/(\d+)\/fullsize/)?.[1];
+			const name = image.alt;
+			if (!id || !name) return null;
+
+			return {
+				id,
+				name,
+				flags: 0,
+				provider: "PLATFORM" as const,
+				scope: name.toLowerCase().startsWith(KICK_COLLECTIBLE_PREFIX) ? ("PERSONAL" as const) : undefined,
+				data: convertKickEmote({
+					id: Number(id),
+					channel_id: null,
+					name,
+					sbuscribers_only: false,
+				}),
+			};
+		})
+		.filter((emote): emote is NonNullable<typeof emote> => emote !== null);
+
+	nativeEmotes.value = matches;
+	if (colon.active) updateColonMatches(colon.cursor.toLowerCase());
+}
+
+const nativeSuggestionObserver = new MutationObserver(syncNativeEmotes);
+const nativeSuggestionRoot = props.anchorEl.closest("#chatroom-footer") ?? document.body;
+nativeSuggestionObserver.observe(nativeSuggestionRoot, {
+	childList: true,
+	subtree: true,
+});
 
 function onSendMessage() {
 	sendWorkerMessage("CHANNEL_ACTIVE_CHATTER", {
@@ -239,34 +316,7 @@ function handleInputChange(): void {
 		const query = textAfterColon.toLowerCase();
 		colon.cursor = textAfterColon;
 
-		colon.matches = [
-			...Object.values(emotes.active),
-			...Object.values(cosmetics.emotes),
-			...Object.values(emotes.byProvider("PLATFORM")).reduce<SevenTV.ActiveEmote[]>(
-				(accum, set) => [...accum, ...set.emotes],
-				[],
-			),
-		]
-			.filter((e) => getEmoteSearchName(e, query).includes(query))
-			.sort((a, b) => {
-				const aName = getEmoteSearchName(a, query);
-				const bName = getEmoteSearchName(b, query);
-				const prefixDifference = Number(!aName.startsWith(query)) - Number(!bName.startsWith(query));
-
-				return prefixDifference || aName.length - bName.length || a.name.localeCompare(b.name);
-			})
-			.slice(0, 25)
-			.map((e) => ({
-				token: e.unicode || e.name,
-				priority: e.name.length,
-				item: e,
-			}));
-
-		if (colon.matches.length > 0) awaitingUpdate.value = true;
-
-		if (colon.select > colon.matches.length - 1) {
-			colon.select = Math.max(0, colon.matches.length - 1);
-		}
+		updateColonMatches(query);
 	}
 }
 
@@ -416,21 +466,13 @@ watch(
 			rootEl?.addEventListener("keydown", onKeyDown, { capture: true });
 		});
 		listeners.add(removeRootListener);
-
-		// Delete the emote suggestion transformer to avoid native emote suggestions
-		const textTransforms = editor._nodes.get("text")?.transforms ?? new Set();
-		const emoteSuggestionTransformer = [...textTransforms].find((transformer) =>
-			["chat_emote_suggestion_list"].every((text) => transformer.toString().includes(text)),
-		);
-
-		if (emoteSuggestionTransformer) {
-			textTransforms.delete(emoteSuggestionTransformer);
-		}
 	},
 	{ immediate: true },
 );
 
 onUnmounted(() => {
+	nativeSuggestionObserver.disconnect();
+
 	for (const listener of listeners) {
 		listener();
 	}
@@ -440,6 +482,10 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+:global(#chat-emote-suggestion-panel) {
+	display: none !important;
+}
+
 .seventv-autocomplete-list {
 	display: grid;
 	background-color: rgb(23, 28, 30);

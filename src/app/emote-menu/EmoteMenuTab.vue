@@ -67,6 +67,38 @@
 								<SingleEmoji :id="emojiGroupIcons[emojiCategories.indexOf(es.name)]" :alt="es.name" />
 							</div>
 							<img v-else-if="es.owner && es.owner.avatar_url" :src="es.owner.avatar_url" />
+							<svg
+								v-else-if="es.name === 'Global'"
+								class="kick-native-set-icon"
+								viewBox="0 0 20 20"
+								fill="currentColor"
+								width="100%"
+								height="100%"
+								aria-label="Global"
+							>
+								<path
+									d="M10 1.67q-.45 0-.86.04c-.65.67-1.26 2.02-1.64 3.9a14 14 0 0 0 5 0c-.38-1.88-1-3.23-1.64-3.9zm0 5q-1.4-.01-2.65-.23-.21 1.4-.26 3.07a52 52 0 0 0 5.82 0q-.04-1.66-.26-3.07-1.25.23-2.65.23m3.46 7.06q1.86.45 3.16 1.3A8.3 8.3 0 0 0 18.34 10l-.02-.48c-1.13.42-2.88.66-4.57.77-.02 1.16-.1 2.34-.28 3.44m-.57-3.39a57 57 0 0 1-5.8 0q.01 1.76.25 3.22a15 15 0 0 1 5.3 0q.23-1.46.26-3.22M6.7 5.43a11 11 0 0 1 1.2-3.49A8.3 8.3 0 0 0 3.94 4.3c.75.48 1.7.87 2.76 1.13m3.3 8.74q-1.3 0-2.5.22c.38 1.88 1 3.23 1.64 3.9a10 10 0 0 0 1.72 0c.65-.66 1.26-2.02 1.64-3.9q-1.2-.22-2.5-.22m8.22-5.47a8 8 0 0 0-1.6-3.73 10 10 0 0 1-3.16 1.3q.25 1.55.27 3.18c2.21-.17 3.74-.47 4.49-.77zM12.1 1.94c.53.9.93 2.12 1.2 3.5a10 10 0 0 0 2.77-1.14 8.3 8.3 0 0 0-3.98-2.36M6.54 13.73q-.26-1.68-.28-3.45-1.46-.1-2.63-.29-1.2-.2-1.94-.46l-.02.47c0 1.9.64 3.64 1.7 5.04a10 10 0 0 1 3.17-1.3zm-.28-4.28c.02-1.07.11-2.16.27-3.17q-1.86-.46-3.16-1.31a8 8 0 0 0-1.6 3.72c.75.3 2.27.6 4.49.77zm7.04 5.12a11 11 0 0 1-1.2 3.49 8.3 8.3 0 0 0 3.97-2.36 10 10 0 0 0-2.75-1.13zm-5.4 3.49c-.53-.9-.93-2.12-1.2-3.5q-1.62.41-2.76 1.14a8.3 8.3 0 0 0 3.98 2.36z"
+								/>
+							</svg>
+							<svg
+								v-else-if="es.name === 'Collectibles'"
+								class="kick-native-set-icon"
+								viewBox="0 0 20 20"
+								fill="currentColor"
+								width="100%"
+								height="100%"
+								aria-label="Collectibles"
+							>
+								<path
+									d="M1.67 5.83v8.34c0 .91.75 1.66 1.66 1.66V4.17c-.91 0-1.66.75-1.66 1.66m15-1.66v11.66c.91 0 1.66-.75 1.66-1.66V5.83c0-.91-.75-1.66-1.66-1.66m-2.5-2.5H5.83c-.91 0-1.66.75-1.66 1.66v13.34c0 .91.75 1.66 1.66 1.66h8.34c.91 0 1.66-.75 1.66-1.66V3.33c0-.91-.75-1.66-1.66-1.66m-.84 9.66-3.33 2-3.33-2v-3h.83V7.5l2.5-.83 2.5.83v.83h.83z"
+								/>
+							</svg>
+							<img
+								v-else-if="es.name === 'Emojis' || es.name === 'Emotes'"
+								class="kick-native-set-icon"
+								src="https://files.kick.com/emotes/1730831/fullsize"
+								alt="Emotes"
+							/>
 							<Logo v-else class="logo" :provider="es.provider" />
 						</div>
 					</div>
@@ -83,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { nextTick, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useStore } from "@/store/main";
 import { debounceFn } from "@/common/Async";
@@ -178,12 +210,14 @@ function hasFavoriteEmotes() {
 }
 
 // Select an Emote Set to jump-scroll to
-function select(setID: string, coms: InstanceType<typeof EmoteMenuSet>[] | null | undefined) {
+async function select(setID: string, coms: InstanceType<typeof EmoteMenuSet>[] | null | undefined) {
 	if (!coms || !coms.length) return;
 	const com = coms[0];
 	if (!com.containerEl) return;
 
 	selectedSet.value = setID;
+	com.expand();
+	await nextTick();
 	com.containerEl.scrollIntoView({ behavior: "auto" });
 }
 
@@ -359,6 +393,12 @@ watch(() => [ctx.filter, sets, cosmetics.emoteSets], filterSets, {
 	overflow: clip;
 	margin: auto;
 	cursor: pointer;
+
+	> img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
 }
 
 .logo {
