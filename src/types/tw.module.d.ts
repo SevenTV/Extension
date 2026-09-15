@@ -4,6 +4,7 @@ import type ChatInputControllerComponent from "@/site/twitch.tv/modules/chat-inp
 import type ChatInputModuleVue from "@/site/twitch.tv/modules/chat-input/ChatInputModule.vue";
 import type ChatVodModuleVue from "@/site/twitch.tv/modules/chat-vod/ChatVodModule.vue";
 import type ChatModuleVue from "@/site/twitch.tv/modules/chat/ChatModule.vue";
+import type EloWardModuleVue from "@/site/twitch.tv/modules/eloward/EloWardModule.vue";
 import type EmoteMenuModuleVue from "@/site/twitch.tv/modules/emote-menu/EmoteMenuModule.vue";
 import type HiddenElementsModuleVue from "@/site/twitch.tv/modules/hidden-elements/HiddenElementsModule.vue";
 import type ModLogsModule from "@/site/twitch.tv/modules/mod-logs/ModLogsModule.vue";
@@ -24,6 +25,7 @@ declare type TwModuleComponentMap = {
 	autoclaim: typeof AutoclaimModuleVue;
 	avatars: typeof AvatarsModuleVue;
 	chat: typeof ChatModuleVue;
+	eloward: typeof EloWardModuleVue;
 	player: PlayerModule;
 	settings: typeof SettingsModuleVue;
 };

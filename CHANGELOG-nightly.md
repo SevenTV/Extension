@@ -1,3 +1,7 @@
+### 3.1.26.1000
+
+-   Added EloWard League of Legends rank badges module
+
 ## 3.1.25.1000
 
 -   Fixed Kick Emote Menu position

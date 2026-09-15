@@ -8,7 +8,8 @@
 		<!--Badge List -->
 		<span
 			v-if="
-				!hideBadges && ((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size || sourceData)
+				!hideBadges &&
+				((twitchBadges.length && twitchBadgeSets?.count) || cosmetics.badges.size || sourceData || elowardBadge)
 			"
 			class="seventv-chat-user-badge-list"
 		>
@@ -36,6 +37,9 @@
 					type="app"
 				/>
 			</template>
+
+			<!-- EloWard Rank Badge - Rightmost position (closest to username) -->
+			<EloWardBadge v-if="elowardBadge" :badge="elowardBadge" :username="user.username" />
 		</span>
 
 		<!-- Message Author -->
@@ -74,6 +78,10 @@ import { useChannelContext } from "@/composable/channel/useChannelContext";
 import { useChatProperties } from "@/composable/chat/useChatProperties";
 import { useCosmetics } from "@/composable/useCosmetics";
 import { useConfig } from "@/composable/useSettings";
+import EloWardBadge from "@/site/twitch.tv/modules/eloward/components/EloWardBadge.vue";
+import { useEloWardRanks } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
+import type { EloWardBadge as EloWardBadgeType } from "@/site/twitch.tv/modules/eloward/composables/useEloWardRanks";
+import { useGameDetection } from "@/site/twitch.tv/modules/eloward/composables/useGameDetection";
 import Badge, { TwitchChatBadgeWithData } from "./Badge.vue";
 import UserCard from "./UserCard.vue";
 import UiDraggable from "@/ui/UiDraggable.vue";
@@ -115,6 +123,11 @@ const betterUserCardEnabled = useConfig<boolean>("chat.user_card");
 const twitchBadges = ref<TwitchChatBadgeWithData[]>([]);
 const twitchBadgeSets = toRef(properties, "twitchBadgeSets");
 const mentionStyle = useConfig<MentionStyle>("chat.colored_mentions");
+
+// EloWard integration
+const elowardRanks = useEloWardRanks();
+const gameDetection = useGameDetection();
+const elowardEnabled = useConfig<boolean>("eloward.enabled");
 
 const tagRef = ref<HTMLDivElement>();
 const showUserCard = ref(false);
@@ -184,6 +197,63 @@ const stop = watch(
 	},
 	{ immediate: true },
 );
+
+// EloWard badge integration
+const elowardBadge = ref<EloWardBadgeType | null>(null);
+
+// Detect official EloWard Chrome extension
+function detectOfficialExtension(): boolean {
+	const bodyAttr = document.body?.getAttribute("data-eloward-chrome-ext");
+	const htmlAttr = document.documentElement?.getAttribute("data-eloward-chrome-ext");
+
+	return bodyAttr === "active" || htmlAttr === "active";
+}
+
+const initializeEloWardBadge = () => {
+	// Skip if official EloWard Chrome extension is detected
+	if (detectOfficialExtension()) {
+		elowardBadge.value = null;
+		return;
+	}
+
+	// Badges are never shown for mentions or the user card header, so don't look them up
+	if (props.hideBadges || !elowardEnabled.value || !gameDetection.isLeagueStream.value) {
+		elowardBadge.value = null;
+		return;
+	}
+
+	const username = props.user.username;
+	if (!username) {
+		elowardBadge.value = null;
+		return;
+	}
+
+	const cachedData = elowardRanks.getCachedRankData(username);
+
+	if (cachedData !== undefined) {
+		elowardBadge.value = cachedData ? elowardRanks.getRankBadge(cachedData) : null;
+		return;
+	}
+
+	elowardRanks
+		.fetchRankData(username)
+		.then((rankData) => {
+			// The stream's category or the setting can change while the request is in flight
+			if (username !== props.user.username || !elowardEnabled.value || !gameDetection.isLeagueStream.value)
+				return;
+
+			elowardBadge.value = rankData ? elowardRanks.getRankBadge(rankData) : null;
+		})
+		.catch(() => {
+			elowardBadge.value = null;
+		});
+};
+
+initializeEloWardBadge();
+
+watch(() => props.user.username, initializeEloWardBadge);
+watch(elowardEnabled, initializeEloWardBadge);
+watch(() => gameDetection.isLeagueStream.value, initializeEloWardBadge);
 </script>
 
 <style scoped lang="scss">
