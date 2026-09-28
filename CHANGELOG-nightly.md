@@ -1,3 +1,7 @@
+## Next
+
+-   Added a native Safari Web Extension build for Twitch, Kick and YouTube
+
 ## 3.1.25.1000
 
 -   Fixed Kick Emote Menu position

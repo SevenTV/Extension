@@ -11,11 +11,15 @@ node_modules
 dist
 dist-ssr
 dist-hosted
+safari-build
+test-results
+safari-project/**/7TV for Safari Extension/Resources/
 *.local
 
 # Editor directories and files
 .idea
 .DS_Store
+**/xcuserdata/
 *.suo
 *.ntvs*
 *.njsproj
@@ -28,4 +32,3 @@ msg_types.json
 
 crx/*
 script/*.json
-

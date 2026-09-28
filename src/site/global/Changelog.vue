@@ -18,6 +18,7 @@
 import { inject, nextTick, ref, watchEffect } from "vue";
 import { SITE_ASSETS_URL } from "@/common/Constant";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import DOMPurify from "dompurify";
 import { marked } from "marked";
 
 defineProps<{
@@ -32,7 +33,7 @@ const assetsBase = inject(SITE_ASSETS_URL, "");
 
 const contentRef = ref<HTMLElement>();
 watchEffect(() => {
-	content.value = marked.parse(changelogRaw.value, {
+	const rendered = marked.parse(changelogRaw.value, {
 		walkTokens: (tok) => {
 			if (tok.type === "image" && tok.href.charAt(0) === "~" && assetsBase) {
 				tok.href = updateMediaHref(tok.href);
@@ -40,6 +41,10 @@ watchEffect(() => {
 		},
 		gfm: true,
 		breaks: true,
+	});
+	content.value = DOMPurify.sanitize(rendered as string, {
+		USE_PROFILES: { html: true },
+		FORBID_TAGS: ["form", "iframe", "object", "embed"],
 	});
 
 	nextTick(() => {

@@ -31,6 +31,11 @@ const ctx = useOnboarding("platforms");
 
 onActivated(() => {
 	ctx.setLock(true, () => {
+		if (import.meta.env.VITE_APP_SAFARI === "true") {
+			ctx.setLock(false);
+			return true;
+		}
+
 		const selection = platforms.value.filter((p) => p.selected);
 		if (selection.length === 0) return false;
 

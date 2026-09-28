@@ -63,9 +63,12 @@ chrome.tabs.onUpdated.addListener((_, i, t) => {
 	newTabs.delete(t.id);
 });
 
-// Register content scripts
+// Register optional-platform content scripts. Safari declares all supported
+// sites statically in its manifest and does not request the scripting
+// permission, avoiding duplicate dynamic registrations after service-worker
+// restarts.
 const activeTabs = new Set<number>();
-if (!chrome.scripting) {
+if (import.meta.env.VITE_APP_SAFARI !== "true" && !chrome.scripting) {
 	chrome.tabs.onUpdated.addListener((tabId, i, t) => {
 		if (!i.status || !t.url) {
 			return undefined;
@@ -81,7 +84,7 @@ if (!chrome.scripting) {
 			});
 		}
 	});
-} else {
+} else if (import.meta.env.VITE_APP_SAFARI !== "true") {
 	chrome.scripting.registerContentScripts([
 		{
 			id: "seventv-youtube",

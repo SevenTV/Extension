@@ -89,6 +89,8 @@ fetch(`${import.meta.env.VITE_APP_API}/config/${configName}`)
 	.then((r) => (config.value = r));
 
 function requestManagement(): void {
+	if (import.meta.env.VITE_APP_SAFARI === "true") return;
+
 	chrome.permissions.request(
 		{
 			permissions: ["management"],
@@ -131,7 +133,7 @@ function getColorBorder(compat: SevenTV.ConfigCompat): string {
 }
 
 // check current status of management permission
-if (isExtensionContext && chrome && chrome.permissions) {
+if (import.meta.env.VITE_APP_SAFARI !== "true" && isExtensionContext && chrome && chrome.permissions) {
 	chrome.permissions.contains(
 		{
 			permissions: ["management"],

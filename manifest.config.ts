@@ -10,11 +10,15 @@ interface ManifestOptions {
 	mv2?: boolean;
 	branch?: BranchName;
 	dev?: boolean;
+	safari?: boolean;
 	mozillaID?: string;
 	version: string;
 }
 
 export type BranchName = "nightly" | "dev";
+
+const DEFAULT_HOSTS = ["*://*.twitch.tv/*"];
+const SAFARI_HOSTS = ["*://*.twitch.tv/*", "*://*.kick.com/*", "*://*.youtube.com/*"];
 
 export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExtensionManifest> {
 	const iconName = "".concat(opt.branch ? opt.branch + "-" : "", "icon-%s.png").replace(/\s+/g, "");
@@ -26,6 +30,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		)
 		.trim();
 	const versionName = (opt.version + (opt.branch ? ` ${opt.branch}` : "")).trim();
+	const requiredHosts = opt.safari ? SAFARI_HOSTS : DEFAULT_HOSTS;
 
 	const manifest = {
 		manifest_version: 3,
@@ -36,7 +41,7 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		action: {
 			default_icon: `./icon/${iconName.replace("%s", "128")}`,
 			default_popup: "index.html#/popup?noheader=1",
-			default_area: "navbar",
+			...(opt.safari ? {} : { default_area: "navbar" }),
 		},
 
 		...(opt.mozillaID
@@ -60,13 +65,16 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		},
 		content_scripts: [
 			{
-				matches: ["*://*.twitch.tv/*"],
+				matches: requiredHosts,
 				js: ["content.js"],
 			},
 		],
 		options_ui: {
 			page: "index.html",
-			open_in_tab: true,
+			...(opt.safari ? {} : { open_in_tab: true }),
+		},
+		content_security_policy: {
+			extension_pages: "script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
 		},
 
 		icons: {
@@ -76,17 +84,28 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		},
 
 		// By default the extension is enabled only on Twitch
-		host_permissions: ["*://*.twitch.tv/*"],
-		permissions: ["scripting", "storage", "activeTab"],
-		optional_permissions: ["management"],
+		host_permissions: requiredHosts,
+		permissions: opt.safari ? ["storage"] : ["scripting", "storage", "activeTab"],
+		...(opt.safari ? {} : { optional_permissions: ["management"] }),
 
 		// Declare YouTube as an optional host permission
-		optional_host_permissions: ["*://*.youtube.com/*", "*://*.kick.com/*", "*://*.7tv.app/*", "*://*.7tv.io/*"],
+		...(opt.safari
+			? {}
+			: {
+					optional_host_permissions: [
+						"*://*.youtube.com/*",
+						"*://*.kick.com/*",
+						"*://*.7tv.app/*",
+						"*://*.7tv.io/*",
+					],
+			  }),
 
 		web_accessible_resources: [
 			{
-				resources: ["site.js", "site.js.map", "content.js.map", "worker.js", "index.html", "assets/*"],
-				matches: ["*://*.twitch.tv/*", "*://*.youtube.com/*", "*://*.kick.com/*"],
+				resources: opt.safari
+					? ["site.js", "worker.js", "index.html", "assets/*"]
+					: ["site.js", "site.js.map", "content.js.map", "worker.js", "index.html", "assets/*"],
+				matches: opt.safari ? SAFARI_HOSTS : ["*://*.twitch.tv/*", "*://*.youtube.com/*", "*://*.kick.com/*"],
 			},
 		],
 	} as Manifest.WebExtensionManifest & MV3HostPermissions;

@@ -15,6 +15,7 @@ export default defineConfig(() => {
 		VITE_APP_NAME: appName,
 		VITE_APP_VERSION: fullVersion,
 		VITE_APP_VERSION_BRANCH: process.env.BRANCH || "",
+		VITE_APP_SAFARI: process.env.SAFARI === "1" ? "true" : "false",
 		VITE_APP_STYLESHEET_NAME: `seventv.style.${fullVersion}.css`,
 	};
 

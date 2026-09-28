@@ -56,8 +56,11 @@ const inject = () => {
 
 	// Listen for requests to set up an extension permission
 	bc.addEventListener("message", (ev) => {
+		if (!ev.data || typeof ev.data !== "object" || typeof ev.data.type !== "string") return;
+
 		switch (ev.data.type) {
 			case "seventv-create-permission-listener": {
+				if (import.meta.env.VITE_APP_SAFARI === "true" || !isPermissionRequestEvent(ev.data.data)) return;
 				const { selector, id, origins, permissions } = ev.data.data as PermissionRequestEvent;
 
 				const btn = document.querySelector<HTMLElement>(selector);
@@ -70,7 +73,7 @@ const inject = () => {
 							data: { id, origins, permissions },
 						},
 						{},
-						(response: { id: string; granted: boolean }) => {
+						(response?: { id: string; granted: boolean }) => {
 							if (!response) return;
 
 							bc.postMessage({
@@ -85,7 +88,8 @@ const inject = () => {
 			case "seventv-update-check": {
 				chrome.runtime.sendMessage(
 					{ type: "update-check" },
-					(response: { status: string; version: string }) => {
+					(response?: { status: string; version: string | null }) => {
+						if (!response) return;
 						bc.postMessage({
 							type: "seventv-update-check-result",
 							data: { status: response.status, version: response.version },
@@ -119,6 +123,22 @@ const inject = () => {
 interface PermissionRequestEvent {
 	selector: string;
 	id: string;
-	origins: [];
-	permissions: [];
+	origins: string[];
+	permissions: string[];
+}
+
+function isPermissionRequestEvent(value: unknown): value is PermissionRequestEvent {
+	if (!value || typeof value !== "object") return false;
+
+	const request = value as Partial<PermissionRequestEvent>;
+	return (
+		typeof request.selector === "string" &&
+		/^\[data-seventv-permission-selector="[0-9a-f-]{36}"\]$/i.test(request.selector) &&
+		typeof request.id === "string" &&
+		/^[0-9a-f-]{36}$/i.test(request.id) &&
+		Array.isArray(request.origins) &&
+		request.origins.every((origin) => typeof origin === "string") &&
+		Array.isArray(request.permissions) &&
+		request.permissions.every((permission) => typeof permission === "string")
+	);
 }

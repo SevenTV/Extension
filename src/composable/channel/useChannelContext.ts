@@ -65,6 +65,10 @@ export class ChannelContext implements CurrentChannel {
 	}
 
 	async fetch(refetch = false) {
+		if (import.meta.env.VITE_APP_SAFARI === "true" && typeof performance?.mark === "function") {
+			performance.mark(`seventv:channel-${this.id}-fetch-start`);
+		}
+
 		sendMessage("STATE", {
 			channel: toRaw(this.base),
 			refetch: refetch,

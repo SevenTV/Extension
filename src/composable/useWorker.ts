@@ -1,4 +1,3 @@
-import { LOCAL_STORAGE_KEYS } from "@/common/Constant";
 import { TypedEventListenerOrEventListenerObject } from "@/common/EventTarget";
 import { Logger, log } from "@/common/Logger";
 import { TypedWorkerMessage, WorkerMessage, WorkerMessageType } from "@/worker";
@@ -10,59 +9,30 @@ workerLog.setContextName("Worker/Pipe");
 
 let worker: SharedWorker | null = null;
 
-type WorkerAddrMap = Record<string, string>;
-
 async function init(originURL: string): Promise<SharedWorker> {
 	let sw: SharedWorker;
+	markSafariPerformance("worker-init-start");
 
-	// Check for existing url
-	// If it exists, we'll connect to it
-	const appVersion = import.meta.env.VITE_APP_VERSION;
-	const workerAddrData: string | null = localStorage.getItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
-	let workerAddr: WorkerAddrMap | null = null;
-
-	try {
-		workerAddr = workerAddrData ? JSON.parse(workerAddrData) : null;
-	} catch (err) {
-		log.error("Unable to parse worker address data", String(err));
-		localStorage.removeItem(LOCAL_STORAGE_KEYS.WORKER_ADDR);
+	// The worker must always come from the packaged extension. Previously this
+	// accepted a URL cached in Twitch localStorage, which is controlled by the
+	// host page and could make 7TV execute an attacker-selected worker.
+	if (import.meta.env.VITE_APP_SAFARI === "true" && !isPackagedWorkerURL(originURL)) {
+		return Promise.reject("Refusing to load a worker outside the extension package");
 	}
 
-	workerURL = typeof workerAddr === "object" && workerAddr !== null ? workerAddr[appVersion] : null;
+	const data = await fetch(originURL)
+		.then((r) => {
+			if (!r.ok) throw new Error(`HTTP ${r.status}`);
+			return r.blob();
+		})
+		.catch((err) => {
+			log.error("Unable to fetch packaged worker data", err);
+		});
+	if (!data) return Promise.reject("There was an error fetching packaged worker data");
 
-	const ok =
-		workerURL &&
-		(await fetch(workerURL)
-			.then((res) => res.ok)
-			.catch(() => false));
-
-	// Fetch worker data
-	if (!ok) {
-		// Get the offline URL passed by the loader
-		workerURL = originURL;
-		if (!workerURL) {
-			log.error("Unable to find address to worker");
-		}
-
-		// Fetch worker data
-		const data = await fetch(workerURL || "")
-			.then((r) => r.blob())
-			.catch((err) => {
-				log.error("Unable to fetch worker data", err);
-			});
-		if (!data) return Promise.reject("There was an error fetching worker data");
-
-		log.info("Received worker data", `(${data.size} bytes)`);
-
-		// Create BLOB URL for worker & set it into local storage
-		workerURL = URL.createObjectURL(data);
-		localStorage.setItem(
-			LOCAL_STORAGE_KEYS.WORKER_ADDR,
-			JSON.stringify({ ...(workerAddr ?? {}), [appVersion]: workerURL }),
-		);
-	} else {
-		log.info("Connecting to existing worker", `addr=${workerURL}`);
-	}
+	log.info("Received packaged worker data", `(${data.size} bytes)`);
+	markSafariPerformance("worker-script-ready");
+	workerURL = URL.createObjectURL(data);
 
 	// Connect to worker
 	return new Promise<SharedWorker>((resolve, reject) => {
@@ -85,6 +55,20 @@ async function init(originURL: string): Promise<SharedWorker> {
 
 		resolve(sw);
 	});
+}
+
+function isPackagedWorkerURL(value: string): boolean {
+	try {
+		const url = new URL(value);
+		return (
+			(url.protocol === "safari-web-extension:" || url.protocol === "chrome-extension:") &&
+			url.pathname === "/worker.js" &&
+			url.search === "" &&
+			url.hash === ""
+		);
+	} catch {
+		return false;
+	}
 }
 
 function sendMessage<T extends WorkerMessageType>(type: T, data: TypedWorkerMessage<T>): void {
@@ -127,6 +111,7 @@ function useHandlers(mp: MessagePort) {
 
 		switch (type) {
 			case "INIT": {
+				markSafariPerformance("worker-ready");
 				events.emit("ready", {});
 				break;
 			}
@@ -143,12 +128,19 @@ function useHandlers(mp: MessagePort) {
 			}
 			case "CHANNEL_FETCHED": {
 				const { channel } = data as TypedWorkerMessage<"CHANNEL_FETCHED">;
+				markSafariPerformance(`channel-${channel.id}-metadata-ready`);
 
 				events.emit("channel_fetched", channel);
 				break;
 			}
+			case "PROVIDER_SET_FETCHED": {
+				const result = data as TypedWorkerMessage<"PROVIDER_SET_FETCHED">;
+				markSafariPerformance(`channel-${result.channel.id}-${result.provider.toLowerCase()}-set-ready`);
+				break;
+			}
 			case "CHANNEL_SETS_FETCHED": {
 				const { channel } = data as TypedWorkerMessage<"CHANNEL_SETS_FETCHED">;
+				markSafariPerformance(`channel-${channel.id}-all-sets-settled`);
 
 				events.emit("channel_sets_fetched", channel);
 				break;
@@ -192,6 +184,12 @@ function useHandlers(mp: MessagePort) {
 				break;
 		}
 	});
+}
+
+function markSafariPerformance(name: string): void {
+	if (import.meta.env.VITE_APP_SAFARI !== "true" || typeof performance?.mark !== "function") return;
+
+	performance.mark(`seventv:${name}`);
 }
 
 class WorkletTarget extends EventTarget {

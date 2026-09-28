@@ -2,6 +2,10 @@
 // eslint-disable-next-line prettier/prettier
 import type { DefineComponent } from "vue";
 
+interface ImportMetaEnv {
+	readonly VITE_APP_SAFARI?: "true" | "false";
+}
+
 declare module "*.vue" {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const component: DefineComponent<Record<string, never>, Record<string, never>, any>;

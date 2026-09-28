@@ -41,6 +41,7 @@ export default defineConfig(() => {
 		VITE_APP_NAME: appName,
 		VITE_APP_VERSION: fullVersion,
 		VITE_APP_VERSION_BRANCH: (process.env.BRANCH as BranchName) || "",
+		VITE_APP_SAFARI: process.env.SAFARI === "1" ? "true" : "false",
 		VITE_APP_CHANGELOG: fs.readFileSync(
 			r(
 				{
@@ -139,6 +140,7 @@ export default defineConfig(() => {
 					const man = await getManifest({
 						version: getFullVersion(isNightly),
 						dev: isDev,
+						safari: !!process.env.SAFARI,
 						branch: process.env.BRANCH as BranchName,
 						mv2: isDev || !!process.env.MV2,
 						mozillaID: process.env.MOZILLA_ID,

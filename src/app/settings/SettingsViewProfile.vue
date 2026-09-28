@@ -25,6 +25,7 @@ import { useConfig } from "@/composable/useSettings";
 
 const site = import.meta.env.VITE_APP_SITE;
 const src = site + "/extension/auth";
+const authOrigin = new URL(site).origin;
 
 const actor = useActor();
 const token = useConfig<string>("app.7tv.token");
@@ -34,7 +35,7 @@ let w: Window | null = null;
 let s: Pausable | null = null;
 
 const listener = (ev: MessageEvent) => {
-	if (!ev.data) return;
+	if (!ev.data || ev.origin !== authOrigin || ev.source !== w) return;
 
 	switch (ev.data.type) {
 		case "7tv-token":
@@ -62,7 +63,7 @@ function login() {
 	if (!w) return;
 	window.addEventListener("message", listener);
 	s = useIntervalFn(() => {
-		w?.postMessage("7tv-token-request", "*");
+		w?.postMessage("7tv-token-request", authOrigin);
 	}, 100);
 }
 

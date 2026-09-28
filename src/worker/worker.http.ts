@@ -154,6 +154,12 @@ export class WorkerHttp {
 					channel.id,
 				);
 			}
+
+			port.postMessage("PROVIDER_SET_FETCHED", {
+				channel,
+				provider: set.provider ?? "7TV",
+				set_id: set.id,
+			});
 		};
 
 		// iterate results and store sets to DB

@@ -15,17 +15,24 @@
 		"build-hosted:section:site": "vite build --config vite.config.hosted.mts",
 		"build:dev": "cross-env NODE_ENV=dev run-s build:section:*",
 		"build:prod": "cross-env NODE_ENV=production vue-tsc --noEmit && run-s build:section:*",
+		"build:safari": "vue-tsc --noEmit && cross-env NODE_ENV=production SAFARI=1 run-s build:section:*",
 		"build-hosted:dev": "cross-env NODE_ENV=dev run-s build-hosted:section:*",
 		"build-hosted:prod": "cross-env NODE_ENV=production vue-tsc --noEmit && run-s build-hosted:section:*",
+		"test:safari": "node --test tests/safari/*.test.mjs",
+		"test:safari:live:check": "node tests/safari/live-safari-smoke.mjs --check",
+		"test:safari:live": "node tests/safari/live-safari-smoke.mjs",
+		"test:safari:stress": "node tests/safari/live-safari-smoke.mjs --reloads 20 --timeout 60",
+		"benchmark:safari": "node tests/safari/performance/safari-resource-benchmark.mjs",
+		"verify:safari": "yarn build:safari && yarn test:safari && yarn audit --groups dependencies",
 		"watch:section:background": "vite build --config vite.config.background.mts --watch",
 		"watch:section:content": "vite build --config vite.config.content.mts --watch",
 		"watch:section:worker": "vite build --config vite.config.worker.mts --watch",
 		"watch": "cross-env NODE_ENV=dev run-p watch:section:*",
 		"format": "prettier -w .",
-		"lint:style": "stylelint **/*.{vue,scss,css} --ignore-path .gitignore",
-		"lint:js": "eslint --ext .js,.vue,.ts --ignore-path .gitignore .",
-		"lint:style:fix": "stylelint --fix **/*.{vue,scss,css} --ignore-path .gitignore",
-		"lint:js:fix": "eslint --fix --ext .js,.vue,.ts --ignore-path .gitignore .",
+		"lint:style": "stylelint **/*.{vue,scss,css} --ignore-path .gitignore --ignore-pattern 'safari-project/**'",
+		"lint:js": "eslint --ext .js,.vue,.ts --ignore-path .gitignore --ignore-pattern 'safari-project/**' .",
+		"lint:style:fix": "stylelint --fix **/*.{vue,scss,css} --ignore-path .gitignore --ignore-pattern 'safari-project/**'",
+		"lint:js:fix": "eslint --fix --ext .js,.vue,.ts --ignore-path .gitignore --ignore-pattern 'safari-project/**' .",
 		"lint": "yarn lint:js && yarn lint:style",
 		"lint:fix": "yarn lint:js:fix && yarn lint:style:fix",
 		"preview": "vite preview",
@@ -33,6 +40,9 @@
 	},
 	"dependencies": {
 		"vue": "^3.3.4"
+	},
+	"resolutions": {
+		"postcss": "8.5.23"
 	},
 	"devDependencies": {
 		"@apollo/client": "^3.9.1",

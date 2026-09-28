@@ -26,10 +26,14 @@ chrome.tabs.onUpdated.addListener((id, i) => {
 	setTimeout(() => {
 		if (typeof id !== "number") return;
 
-		chrome.tabs.sendMessage(id, {
-			type: "settings-sync",
-			data: { settings },
-		});
+		chrome.tabs.sendMessage(
+			id,
+			{
+				type: "settings-sync",
+				data: { settings },
+			},
+			() => void chrome.runtime.lastError,
+		);
 	}, 5000);
 });
 

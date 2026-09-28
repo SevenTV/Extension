@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 /**
  * Inserts the emoji vectors into the DOM.
  */
@@ -18,7 +20,13 @@ export async function insertEmojiVectors(): Promise<void> {
 
 		const element = document.createElement("div");
 		element.id = "emojis" + i;
-		element.innerHTML = await data;
+		// These SVG sprites are packaged with the extension. Sanitize them anyway
+		// so a compromised or accidentally modified asset cannot inject active
+		// content into Twitch through this HTML sink.
+		element.innerHTML = DOMPurify.sanitize(await data, {
+			USE_PROFILES: { svg: true, svgFilters: true },
+			FORBID_TAGS: ["script", "foreignObject"],
+		});
 
 		container.appendChild(element);
 	}

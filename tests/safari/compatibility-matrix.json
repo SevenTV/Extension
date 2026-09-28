@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"required": [
+		{
+			"name": "current-stable-clean-profile",
+			"browser": "Safari stable",
+			"macOS": "current",
+			"profile": "clean",
+			"tests": ["release-package", "live-smoke", "20-reload-stress", "two-hour-session", "sleep-wake"]
+		},
+		{
+			"name": "technology-preview-clean-profile",
+			"browser": "Safari Technology Preview",
+			"macOS": "current",
+			"profile": "clean",
+			"tests": ["live-smoke", "20-reload-stress"]
+		},
+		{
+			"name": "previous-supported-macos",
+			"browser": "Safari stable",
+			"macOS": "previous supported release",
+			"profile": "clean",
+			"tests": ["release-package", "live-smoke", "upgrade-preserves-settings"]
+		}
+	],
+	"optional": [
+		{
+			"name": "extension-conflict-profile",
+			"browser": "Safari stable",
+			"macOS": "current",
+			"profile": "popular content blocker enabled",
+			"tests": ["live-smoke", "20-reload-stress"]
+		}
+	]
+}

@@ -48,6 +48,22 @@
 
 ## Development
 
+### Safari
+
+The native Safari Web Extension wrapper uses the same Twitch, Kick and YouTube
+implementations as the other browser builds. On macOS with Xcode installed:
+
+```sh
+yarn build:safari
+yarn test:safari
+./script/build-safari-local.sh
+```
+
+See [SAFARI.md](SAFARI.md) for signing and installation instructions,
+[SAFARI-TESTING.md](SAFARI-TESTING.md) for the validation matrix, and
+[SECURITY-SAFARI.md](SECURITY-SAFARI.md) for the security model. A locally
+signed development build is not a notarized public binary.
+
 ### Building
 
 -   make deps

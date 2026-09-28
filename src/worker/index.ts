@@ -12,6 +12,7 @@ export enum workerMessageType {
 	CHANNEL_ACTIVE_CHATTER,
 	IDENTITY_FETCHED,
 	CHANNEL_FETCHED,
+	PROVIDER_SET_FETCHED,
 	CHANNEL_SETS_FETCHED,
 	CONFIG,
 	CLOSE,
@@ -39,6 +40,11 @@ export type TypedWorkerMessage<T extends WorkerMessageType> = {
 	};
 	CHANNEL_FETCHED: {
 		channel: CurrentChannel;
+	};
+	PROVIDER_SET_FETCHED: {
+		channel: CurrentChannel;
+		provider: SevenTV.Provider;
+		set_id: string;
 	};
 	CHANNEL_SETS_FETCHED: {
 		channel: CurrentChannel;

@@ -81,6 +81,9 @@ jobs:
       - name: Run Linter
         run: yarn lint
 
+      - name: Test Safari compatibility
+        run: yarn build:safari && yarn test:safari
+
       - name: Build App
         env:
           BRANCH: ${{ (inputs.branch != 'stable' && 'nightly') || '' }}
