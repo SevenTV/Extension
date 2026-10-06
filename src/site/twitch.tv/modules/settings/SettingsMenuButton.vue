@@ -3,7 +3,10 @@
 		<div class="seventv-tw-button seventv-settings-menu-button">
 			<button @click="emit('toggle')">
 				<Logo7TV />
-				<div v-if="!ctx.newExtensionNoticeSeen" class="seventv-settings-menu-button-notice-flair" />
+				<div
+					v-if="!ctx.newExtensionNoticeSeen || migrationNotice.dot"
+					class="seventv-settings-menu-button-notice-flair"
+				/>
 				<div v-else-if="!updater.isUpToDate" class="seventv-settings-menu-button-update-flair" />
 			</button>
 			<span :class="`tooltip-${tooltip}`"> 7TV Settings </span>
@@ -16,6 +19,7 @@ import { ref } from "vue";
 import useUpdater from "@/composable/useUpdater";
 import Logo7TV from "@/assets/svg/logos/Logo7TV.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
+import { subscriptionMigrationNotice as migrationNotice } from "@/app/settings/subscriptionMigrationNotice";
 
 const emit = defineEmits<{
 	(event: "toggle"): void;

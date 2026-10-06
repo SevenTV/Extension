@@ -2,6 +2,7 @@
 	<div class="seventv-settings-home">
 		<div class="seventv-settings-home-body">
 			<UiScrollable>
+				<SubscriptionMigrationNotice />
 				<div v-if="!ctx.newExtensionNoticeDismissed" class="seventv-settings-new-extension-notice">
 					<div class="seventv-settings-new-extension-copy">
 						<strong>Try the new 7TV extension</strong>
@@ -48,6 +49,7 @@ import Changelog from "@/site/global/Changelog.vue";
 import CloseIcon from "@/assets/svg/icons/CloseIcon.vue";
 import CloudIcon from "@/assets/svg/icons/CloudIcon.vue";
 import { useSettingsMenu } from "./Settings";
+import SubscriptionMigrationNotice from "./SubscriptionMigrationNotice.vue";
 import UiButton from "@/ui/UiButton.vue";
 import UiScrollable from "@/ui/UiScrollable.vue";
 
