@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import { nextTick, watch } from "vue";
+import { useActor } from "@/composable/useActor";
 import { useConfig, useSettings } from "@/composable/useSettings";
 import useUpdater from "@/composable/useUpdater";
 import { useWorker } from "@/composable/useWorker";
@@ -16,8 +17,21 @@ import { dataSettings, globalSettings } from "./GlobalSettings";
 import Tooltip from "./Tooltip.vue";
 import { useSettingsMenu } from "@/app/settings/Settings";
 import SettingsMenu from "@/app/settings/SettingsMenu.vue";
+import { subscriptionMigrationNotice } from "@/app/settings/subscriptionMigrationNotice";
 
 const settingsMenuCtx = useSettingsMenu();
+const actor = useActor();
+
+watch(
+	() => [actor.platform, actor.platformUserID] as const,
+	([platform, id]) => subscriptionMigrationNotice.load(platform, id),
+	{ immediate: true },
+);
+watch(
+	() => settingsMenuCtx.open,
+	(open) => open && subscriptionMigrationNotice.markSettingsOpened(),
+	{ immediate: true },
+);
 
 const { register } = useSettings();
 
