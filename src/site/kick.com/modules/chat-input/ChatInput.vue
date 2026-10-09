@@ -5,6 +5,7 @@
 				:anchor="anchorEl"
 				:middleware="[shift({ crossAxis: true, mainAxis: true }), offset({ crossAxis: 0 })]"
 				placement="top-start"
+				strategy="fixed"
 			>
 				<div ref="colonList" class="seventv-autocomplete-list">
 					<div
