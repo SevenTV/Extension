@@ -1,37 +1,39 @@
 <template>
 	<template v-if="colon.active && colon.matches.length">
-		<UiFloating
-			:anchor="anchorEl"
-			:middleware="[shift({ crossAxis: true, mainAxis: true }), offset({ crossAxis: 0 })]"
-			placement="top-start"
-		>
-			<div ref="colonList" class="seventv-autocomplete-list">
-				<div
-					v-for="(match, i) in colon.matches"
-					:key="(match.item?.provider ?? 'EMOJI') + (match.item?.id ?? match.token)"
-					class="seventv-autocomplete-item"
-					:selected="i === colon.select"
-					@click="insertAtAnchor(match.token)"
-				>
-					<template v-if="match.item">
-						<Emote :emote="match.item" />
-						<span class="seventv-autocomplete-item-name">{{ match.item.name }}</span>
-						<span
-							v-if="
-								match.item.provider &&
-								match.item.provider !== 'EMOJI' &&
-								match.item.provider !== 'PLATFORM'
-							"
-							class="seventv-autocomplete-item-provider"
-							>({{ match.item.provider }})</span
-						>
-					</template>
-					<template v-else>
-						<span class="seventv-autocomplete-item-name">{{ match.token }}</span>
-					</template>
+		<Teleport to="body">
+			<UiFloating
+				:anchor="anchorEl"
+				:middleware="[shift({ crossAxis: true, mainAxis: true }), offset({ crossAxis: 0 })]"
+				placement="top-start"
+			>
+				<div ref="colonList" class="seventv-autocomplete-list">
+					<div
+						v-for="(match, i) in colon.matches"
+						:key="(match.item?.provider ?? 'EMOJI') + (match.item?.id ?? match.token)"
+						class="seventv-autocomplete-item"
+						:selected="i === colon.select"
+						@click="insertAtAnchor(match.token)"
+					>
+						<template v-if="match.item">
+							<Emote :emote="match.item" />
+							<span class="seventv-autocomplete-item-name">{{ match.item.name }}</span>
+							<span
+								v-if="
+									match.item.provider &&
+									match.item.provider !== 'EMOJI' &&
+									match.item.provider !== 'PLATFORM'
+								"
+								class="seventv-autocomplete-item-provider"
+								>({{ match.item.provider }})</span
+							>
+						</template>
+						<template v-else>
+							<span class="seventv-autocomplete-item-name">{{ match.token }}</span>
+						</template>
+					</div>
 				</div>
-			</div>
-		</UiFloating>
+			</UiFloating>
+		</Teleport>
 	</template>
 </template>
 
@@ -484,6 +486,11 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 :global(#chat-emote-suggestion-panel) {
 	display: none !important;
+}
+
+:deep(.floating-container) {
+	position: fixed;
+	z-index: 10000;
 }
 
 .seventv-autocomplete-list {
