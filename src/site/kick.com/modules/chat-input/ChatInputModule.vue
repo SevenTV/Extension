@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, ref, toRaw } from "vue";
+import { onUnmounted, ref, shallowRef, toRaw } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { declareModule } from "@/composable/useModule";
 import ChatInput from "@/site/kick.com/modules/chat-input/ChatInput.vue";
@@ -15,7 +15,7 @@ const { markAsReady } = declareModule<"KICK">("chat-input", {
 	depends_on: [],
 });
 
-const editorRef = ref<Kick.Lexical.LexicalEditor | null>(null);
+const editorRef = shallowRef<Kick.Lexical.LexicalEditor | null>(null);
 const inputContainer = ref<HTMLDivElement | null>(null);
 const inputVersion = ref(0);
 
@@ -24,7 +24,7 @@ function refreshInput(): void {
 	const input = wrapper?.querySelector<HTMLDivElement>(".editor-input");
 	const editor = input && "__lexicalEditor" in input ? (input.__lexicalEditor as Kick.Lexical.LexicalEditor) : null;
 
-	if (inputContainer.value !== wrapper || editorRef.value !== editor) inputVersion.value += 1;
+	if (inputContainer.value !== wrapper || toRaw(editorRef.value) !== editor) inputVersion.value += 1;
 	inputContainer.value = wrapper ?? null;
 	editorRef.value = editor;
 }
