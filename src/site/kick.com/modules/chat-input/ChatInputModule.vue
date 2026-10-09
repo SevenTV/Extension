@@ -1,12 +1,11 @@
 <template>
 	<template v-if="inputContainer && editorRef">
-		<ChatInput :anchor-el="inputContainer" :editor="editorRef" />
+		<ChatInput :key="inputVersion" :anchor-el="inputContainer" :editor="editorRef" />
 	</template>
 </template>
 
 <script setup lang="ts">
-import { ref, toRaw, watch } from "vue";
-import { useMutationObserver } from "@vueuse/core";
+import { onUnmounted, ref, shallowRef, toRaw } from "vue";
 import { declareModule } from "@/composable/useModule";
 import ChatInput from "@/site/kick.com/modules/chat-input/ChatInput.vue";
 
@@ -15,42 +14,35 @@ const { markAsReady } = declareModule<"KICK">("chat-input", {
 	depends_on: [],
 });
 
-const editorRef = ref<Kick.Lexical.LexicalEditor | null>(null);
-
-const mainContainer = document.querySelector<HTMLDivElement>("div[data-chat] > div:has(div > main)");
-
-const chatContainer = ref<HTMLDivElement | null>(document.querySelector<HTMLDivElement>("#channel-chatroom") ?? null);
+const editorRef = shallowRef<Kick.Lexical.LexicalEditor | null>(null);
 const inputContainer = ref<HTMLDivElement | null>(null);
+const inputVersion = ref(0);
 
-useMutationObserver(
-	mainContainer,
-	() => {
-		chatContainer.value = document.querySelector<HTMLDivElement>("#channel-chatroom") ?? null;
-	},
-	{ childList: true },
-);
+function refreshInput(): void {
+	const wrapper = document.querySelector<HTMLDivElement>("#channel-chatroom #chat-input-wrapper");
+	const input = wrapper?.querySelector<HTMLDivElement>(".editor-input");
+	const editor = input && "__lexicalEditor" in input ? (input.__lexicalEditor as Kick.Lexical.LexicalEditor) : null;
 
-watch(
-	chatContainer,
-	(container) => {
-		const wrapper = container?.querySelector<HTMLDivElement>("#chat-input-wrapper") ?? null;
-		inputContainer.value = wrapper;
+	if (inputContainer.value !== wrapper || toRaw(editorRef.value) !== editor) inputVersion.value += 1;
+	inputContainer.value = wrapper ?? null;
+	editorRef.value = editor;
+}
 
-		if (!wrapper) {
-			editorRef.value = null;
-		}
+let resizeTimeout = 0;
+function refreshAfterResize(): void {
+	window.clearTimeout(resizeTimeout);
 
-		if (!container) return;
+	// Kick swaps the editor after applying its responsive chat layout.
+	resizeTimeout = window.setTimeout(refreshInput, 150);
+}
 
-		const input = wrapper?.querySelector<HTMLDivElement>(".editor-input");
-		if (!input) return;
+window.addEventListener("resize", refreshAfterResize);
+refreshInput();
 
-		if (!("__lexicalEditor" in input)) return;
-
-		editorRef.value = input.__lexicalEditor as Kick.Lexical.LexicalEditor;
-	},
-	{ immediate: true },
-);
+onUnmounted(() => {
+	window.removeEventListener("resize", refreshAfterResize);
+	window.clearTimeout(resizeTimeout);
+});
 
 function appendText(text: string) {
 	const editor = toRaw(editorRef.value);

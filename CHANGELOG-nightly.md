@@ -4,6 +4,7 @@
 
 ## 3.1.25.1000
 
+-   Fixed Kick collectible emotes missing from autocomplete and the emote menu
 -   Fixed Kick Emote Menu position
 -   Updated 7TV API logic
 
