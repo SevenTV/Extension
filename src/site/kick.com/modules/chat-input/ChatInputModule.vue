@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import { onUnmounted, ref, shallowRef, toRaw } from "vue";
-import { useMutationObserver } from "@vueuse/core";
 import { declareModule } from "@/composable/useModule";
 import ChatInput from "@/site/kick.com/modules/chat-input/ChatInput.vue";
 
@@ -29,23 +28,20 @@ function refreshInput(): void {
 	editorRef.value = editor;
 }
 
-let refreshFrame = 0;
-function scheduleInputRefresh(): void {
-	if (refreshFrame) return;
+let resizeTimeout = 0;
+function refreshAfterResize(): void {
+	window.clearTimeout(resizeTimeout);
 
-	refreshFrame = requestAnimationFrame(() => {
-		refreshFrame = 0;
-		refreshInput();
-	});
+	// Kick swaps the editor after applying its responsive chat layout.
+	resizeTimeout = window.setTimeout(refreshInput, 150);
 }
 
-// Kick replaces the chat editor when its responsive layout changes. Observe the
-// document rather than only the original chat container so the new editor is found.
-useMutationObserver(document.body, scheduleInputRefresh, { childList: true, subtree: true });
+window.addEventListener("resize", refreshAfterResize);
 refreshInput();
 
 onUnmounted(() => {
-	if (refreshFrame) cancelAnimationFrame(refreshFrame);
+	window.removeEventListener("resize", refreshAfterResize);
+	window.clearTimeout(resizeTimeout);
 });
 
 function appendText(text: string) {
