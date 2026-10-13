@@ -200,6 +200,15 @@ export class EventAPI {
 			channels: new Set([channelID]),
 		});
 
+		log.debug(
+			"<EventAPI>",
+			"Subscribe",
+			`type=${type}`,
+			`channel=${channelID}`,
+			`portSeq=${port.seq}`,
+			`condition=${JSON.stringify(condition)}`,
+		);
+
 		if (this.socket === null) {
 			this.connect(this.transport);
 		}
@@ -327,6 +336,8 @@ export class EventAPI {
 	reconnect(): number {
 		const jitter = Math.min((this.backoff += getRandomInt(1000, 5000)), 120000);
 
+		log.debug("<EventAPI>", "Reconnect scheduled", `in=${jitter}ms`, `resume=${this.shouldResume}`);
+
 		setTimeout(() => {
 			if (this.socket || !this.transport) return;
 
@@ -337,6 +348,14 @@ export class EventAPI {
 
 	disconnect(shouldReconnect = true, timer = 0, reason = ""): void {
 		this.disconnectReason = reason;
+
+		log.debug(
+			"<EventAPI>",
+			"Disconnect scheduled",
+			`in=${timer}ms`,
+			`reason=${reason || "manual"}`,
+			`reconnect=${shouldReconnect}`,
+		);
 
 		const f = () => {
 			if (!this.socket) return;

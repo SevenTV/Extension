@@ -1,4 +1,5 @@
 import { APP_BROADCAST_CHANNEL } from "@/common/Constant";
+import { log } from "@/common/Logger";
 import { insertEmojiVectors } from "./emoji";
 
 const SEVENTV_EXTENSION_EVENT = "seventv:extension-presence";
@@ -16,6 +17,7 @@ function markLegacyRunning(): void {
 
 // Inject extension into site
 const inject = () => {
+	log.info("Content script injecting site script", `url=${location.href}`, `origin=${location.origin}`);
 	// Script
 	const script = document.createElement("script");
 	script.src = import.meta.env.DEV ? import.meta.env.BASE_URL + "src/site/site.ts" : chrome.runtime.getURL("site.js");

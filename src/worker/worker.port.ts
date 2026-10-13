@@ -53,15 +53,15 @@ export class WorkerPort {
 				if (channel && channel.active && !this.channels.has(channel.id)) {
 					this.channels.set(channel.id, channel);
 
-					this.driver.log.debugWithObjects(["Channel added"], [channel]);
+					this.driver.log.debugWithObjects(["Channel added", `portSeq=${this.seq}`], [channel]);
 					this.driver.emit("join_channel", channel, this);
 				} else if (channel && channel.active && refetch) {
-					this.driver.log.debugWithObjects(["Channel refetched"], [channel]);
+					this.driver.log.debugWithObjects(["Channel refetched", `portSeq=${this.seq}`], [channel]);
 					this.driver.emit("join_channel", channel, this);
 				} else if (channel && !channel.active && this.channels.has(channel.id)) {
 					this.channels.delete(channel.id);
 
-					this.driver.log.debugWithObjects(["Channel removed"], [channel]);
+					this.driver.log.debugWithObjects(["Channel removed", `portSeq=${this.seq}`], [channel]);
 					this.driver.emit("part_channel", channel, this);
 				}
 
