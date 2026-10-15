@@ -74,7 +74,8 @@ function broadcastMessage(type: string, data: unknown): void {
 		tabs.forEach((tab) => {
 			if (!tab.id) return;
 
-			chrome.tabs.sendMessage(tab.id, { type, data });
+			// Tabs without a content script, or that have since closed, are expected failures
+			chrome.tabs.sendMessage(tab.id, { type, data }, () => void chrome.runtime.lastError);
 		});
 	});
 }
