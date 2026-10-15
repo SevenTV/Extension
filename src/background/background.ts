@@ -81,14 +81,20 @@ if (!chrome.scripting) {
 			});
 		}
 	});
+} else if (typeof chrome.scripting.registerContentScripts === "function") {
+	chrome.scripting
+		.registerContentScripts([
+			{
+				id: "seventv-youtube",
+				js: ["content.js"],
+				matches: ["*://*.youtube.com/*", "*://*.kick.com/*"],
+			},
+		])
+		.catch((err) => log.warn("Failed to register dynamic content scripts", String(err)));
 } else {
-	chrome.scripting.registerContentScripts([
-		{
-			id: "seventv-youtube",
-			js: ["content.js"],
-			matches: ["*://*.youtube.com/*", "*://*.kick.com/*"],
-		},
-	]);
+	// `scripting` exists but dynamic registration is unavailable (e.g. Safari < 16.4).
+	// Twitch is still covered by the declarative content_scripts entry in the manifest.
+	log.warn("Dynamic content script registration is not supported in this browser");
 }
 
 // DEBUG: reload background runner

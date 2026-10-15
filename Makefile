@@ -3,6 +3,10 @@ prod: production
 production:
 	yarn build:prod
 
+safari:
+	yarn build:safari
+	yarn convert:safari
+
 dev:
 	yarn build:dev
 

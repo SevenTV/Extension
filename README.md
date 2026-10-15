@@ -57,6 +57,96 @@ For a development/nightly (non-stable) build, set `BRANCH=nightly` in your envir
 
 Build output located in `dist/`.
 
+### Safari
+
+Safari can run this extension as a [Safari Web Extension](https://developer.apple.com/documentation/safariservices/safari_web_extensions).
+Safari extensions ship inside a native host app, so one extra step wraps the built web
+extension into an Xcode project.
+
+Requirements: macOS with Xcode installed (provides `safari-web-extension-converter`).
+
+-   Build the Safari bundle and generate the Xcode project: `make safari`
+    (equivalently `yarn build:safari` then `yarn convert:safari`).
+    The web extension is built into `dist/safari/`, and the Xcode project is created in `safari/`.
+-   Open `safari/SevenTV/SevenTV.xcodeproj` in Xcode, select the **My Mac** destination and the
+    **SevenTV** scheme, then **Run** it (⌘R). This builds, signs and registers the host app with
+    Safari; you can quit the app once it has run.
+    -   Use **Run**, not **Product → Archive**. Archiving registers the extension from a temporary
+        build location that Xcode later cleans up, which leaves Safari pointing at a bundle that no
+        longer exists.
+    -   If Xcode won't run the app, open **Signing & Capabilities** for both targets and pick a
+        **Team** (recommended), or enable **Safari → Develop → Allow Unsigned Extensions** to run it
+        unsigned. That setting is cleared every time Safari quits.
+-   Enable the extension under **Safari → Settings → Extensions → 7TV** and grant it website access.
+
+While developing, enable **Develop → Allow Unsigned Extensions** in Safari to load the
+locally built (unsigned) extension. This setting is cleared every time Safari restarts. For a
+persisted build, select your signing team in Xcode's _Signing & Capabilities_ tab first.
+
+The generated app can be customised through environment variables, for example:
+
+```sh
+SAFARI_APP_NAME="SevenTV Dev" SAFARI_BUNDLE_ID="app.7tv.SevenTV.dev" yarn convert:safari
+```
+
+The app name must be valid in a bundle identifier (so it cannot begin with a digit, hence
+`SevenTV` rather than `7TV`), and the last component of the bundle id must match it.
+
+A few features are unavailable on Safari because the underlying extension APIs are not
+implemented there:
+
+-   The compatibility checker (which inspects other installed extensions) is disabled, as
+    Safari does not implement the `management` API.
+-   In-extension update checks are skipped, as Safari does not implement
+    `runtime.requestUpdateCheck` / `runtime.onUpdateAvailable`.
+
+#### Signing and installing
+
+A build produced by Xcode's **Run** action is signed ad-hoc ("Sign to Run Locally"). Safari only
+loads such a build while **Develop → Allow Unsigned Extensions** is enabled, and Safari clears that
+setting every time it quits — which is why an ad-hoc build has to be relaunched after each restart.
+
+To make the extension permanent, sign it with your Apple Developer team and install the host app
+somewhere stable:
+
+1.  Sign it with your team. Either regenerate the project with the team baked in:
+
+    ```sh
+    SAFARI_DEVELOPMENT_TEAM=XXXXXXXXXX yarn convert:safari
+    ```
+
+    (find your team id with `security find-identity -v -p codesigning`, or in your Apple Developer
+    account) — or set the **Team** for both targets in Xcode's _Signing & Capabilities_.
+
+2.  Build and install the host app outside of Xcode's DerivedData (Xcode can clean that directory,
+    and cleaning it breaks the extension):
+
+    ```sh
+    xcodebuild -project safari/SevenTV/SevenTV.xcodeproj -scheme SevenTV -configuration Release \
+        -derivedDataPath build/safari CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates build
+
+    cp -R build/safari/Build/Products/Release/SevenTV.app /Applications/
+    open /Applications/SevenTV.app   # run once so macOS registers the extension
+    ```
+
+3.  Enable **7TV** in **Safari → Settings → Extensions**. Signed with a real certificate, it now
+    stays enabled across Safari restarts and no longer needs _Allow Unsigned Extensions_.
+
+#### Troubleshooting
+
+-   **“Unable to find `icon/…` in the extension’s resources. It is an invalid path.”**
+    Safari loaded an extension bundle that does not contain the referenced icon files. Rebuild
+    (`yarn build:safari && yarn convert:safari`), then in Xcode run **Product → Clean Build
+    Folder** (⇧⌘K) and Run again.
+-   **The error keeps coming back after rebuilding.** macOS is usually still pointing at an old or
+    deleted build of the extension (most often the temporary one left behind by **Product →
+    Archive**). List what is registered with
+    `pluginkit -m -v -D -p com.apple.Safari.web-extension`, remove stale entries with
+    `pluginkit -r "<path>"`, then **Run** the app again from Xcode (rather than archiving it).
+-   **Do not use _Product → Archive_ for local testing.** It registers the extension from a
+    temporary location that gets cleaned up, leaving Safari pointing at a build that no longer
+    exists. Use **Run** (⌘R) instead.
+
 ### Contributing
 
 This extension is configured to work with HMR (Hot Module Replacement), which makes development significantly faster and more enjoyable than the traditional methods for making web extensions. This allows the developer to see changes reflect in real-time, even while on a remote website.

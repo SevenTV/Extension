@@ -11,7 +11,11 @@ node_modules
 dist
 dist-ssr
 dist-hosted
+build
 *.local
+
+# Generated Safari Web Extension Xcode project (see `make safari`)
+safari
 
 # Editor directories and files
 .idea

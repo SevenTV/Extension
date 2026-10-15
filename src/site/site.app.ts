@@ -93,7 +93,8 @@ if (seventv.hosted) {
 	const sheets = document.querySelectorAll<HTMLLinkElement>("#seventv-stylesheet");
 	for (let i = 0; i < sheets.length; i++) {
 		const sheet = sheets.item(i);
-		if (!sheet || !sheet.href?.startsWith("chrome-extension")) continue;
+		// Safari serves packaged resources from the safari-web-extension:// scheme
+		if (!sheet || !/^(chrome|safari-web)-extension:/.test(sheet.href ?? "")) continue;
 
 		sheet.remove();
 	}
