@@ -1,3 +1,7 @@
+## 3.1.26.1000
+
+-   Added support for Safari (Safari Web Extension)
+
 ## 3.1.26.100
 
 - Added subscription migration check
