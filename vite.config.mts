@@ -142,6 +142,7 @@ export default defineConfig(() => {
 						branch: process.env.BRANCH as BranchName,
 						mv2: isDev || !!process.env.MV2,
 						mozillaID: process.env.MOZILLA_ID,
+						safari: !!process.env.SAFARI,
 					});
 
 					setTimeout(() => {

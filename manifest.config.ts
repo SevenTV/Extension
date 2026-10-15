@@ -11,6 +11,8 @@ interface ManifestOptions {
 	branch?: BranchName;
 	dev?: boolean;
 	mozillaID?: string;
+	/** Build a manifest compatible with Safari Web Extensions */
+	safari?: boolean;
 	version: string;
 }
 
@@ -36,7 +38,8 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		action: {
 			default_icon: `./icon/${iconName.replace("%s", "128")}`,
 			default_popup: "index.html#/popup?noheader=1",
-			default_area: "navbar",
+			// "default_area" is a Chrome-only property and is rejected by Safari
+			...(opt.safari ? {} : { default_area: "navbar" }),
 		},
 
 		...(opt.mozillaID
@@ -66,7 +69,8 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		],
 		options_ui: {
 			page: "index.html",
-			open_in_tab: true,
+			// Safari does not support opening the options page in a tab
+			...(opt.safari ? {} : { open_in_tab: true }),
 		},
 
 		icons: {
@@ -78,7 +82,8 @@ export async function getManifest(opt: ManifestOptions): Promise<Manifest.WebExt
 		// By default the extension is enabled only on Twitch
 		host_permissions: ["*://*.twitch.tv/*"],
 		permissions: ["scripting", "storage", "activeTab"],
-		optional_permissions: ["management"],
+		// Safari does not implement the management API, so don't advertise it
+		...(opt.safari ? {} : { optional_permissions: ["management"] }),
 
 		// Declare YouTube as an optional host permission
 		optional_host_permissions: ["*://*.youtube.com/*", "*://*.kick.com/*", "*://*.7tv.app/*", "*://*.7tv.io/*"],

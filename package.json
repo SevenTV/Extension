@@ -15,6 +15,8 @@
 		"build-hosted:section:site": "vite build --config vite.config.hosted.mts",
 		"build:dev": "cross-env NODE_ENV=dev run-s build:section:*",
 		"build:prod": "cross-env NODE_ENV=production vue-tsc --noEmit && run-s build:section:*",
+		"build:safari": "cross-env NODE_ENV=production SAFARI=true OUT_DIR=safari vue-tsc --noEmit && cross-env SAFARI=true OUT_DIR=safari run-s build:section:*",
+		"convert:safari": "bash script/convert-safari.sh",
 		"build-hosted:dev": "cross-env NODE_ENV=dev run-s build-hosted:section:*",
 		"build-hosted:prod": "cross-env NODE_ENV=production vue-tsc --noEmit && run-s build-hosted:section:*",
 		"watch:section:background": "vite build --config vite.config.background.mts --watch",

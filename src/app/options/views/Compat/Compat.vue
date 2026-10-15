@@ -44,10 +44,18 @@
 			<!-- Ask for Permission -->
 			<template v-else>
 				<div class="seventv-compat-permission-request">
-					<UiButton class="ui-button-important" @click="requestManagement">
-						<span>Check Compatibility</span>
-					</UiButton>
-					<UiButton v-if="internal" class="ui-button-hollow" @click="emit('skip')"> No thanks </UiButton>
+					<template v-if="managementAvailable">
+						<UiButton class="ui-button-important" @click="requestManagement">
+							<span>Check Compatibility</span>
+						</UiButton>
+						<UiButton v-if="internal" class="ui-button-hollow" @click="emit('skip')"> No thanks </UiButton>
+					</template>
+
+					<!-- Safari does not implement the management API -->
+					<template v-else>
+						<p>Compatibility checking isn't supported in this browser.</p>
+						<UiButton v-if="internal" class="ui-button-hollow" @click="emit('skip')"> Continue </UiButton>
+					</template>
 				</div>
 			</template>
 		</div>
@@ -74,6 +82,8 @@ const compatList = reactive(new Map<ExtensionInfo, SevenTV.ConfigCompat>());
 
 const hasManagementPermission = ref(false);
 const isExtensionContext = inject(OPTIONS_CONTEXT_KEY, false);
+// Safari does not implement the management API
+const managementAvailable = typeof chrome !== "undefined" && !!chrome.management && !!chrome.permissions;
 const severityMap: Record<SevenTV.ConfigCompatIssueSeverity, string> = {
 	WARNING: "#ff5722",
 	CLASHING: "#f44336",
@@ -89,6 +99,8 @@ fetch(`${import.meta.env.VITE_APP_API}/config/${configName}`)
 	.then((r) => (config.value = r));
 
 function requestManagement(): void {
+	if (!managementAvailable) return;
+
 	chrome.permissions.request(
 		{
 			permissions: ["management"],
@@ -100,6 +112,8 @@ function requestManagement(): void {
 }
 
 function checkExtensions(): void {
+	if (!managementAvailable) return;
+
 	chrome.management.getAll((result) => {
 		extensions.value.length = 0;
 		compatList.clear();
@@ -121,6 +135,8 @@ function checkExtensions(): void {
 }
 
 function disableExtension(ext: ExtensionInfo): void {
+	if (!managementAvailable) return;
+
 	chrome.management.setEnabled(ext.id, false, () => {
 		ext.enabled = false;
 	});
@@ -131,7 +147,7 @@ function getColorBorder(compat: SevenTV.ConfigCompat): string {
 }
 
 // check current status of management permission
-if (isExtensionContext && chrome && chrome.permissions) {
+if (isExtensionContext && managementAvailable) {
 	chrome.permissions.contains(
 		{
 			permissions: ["management"],

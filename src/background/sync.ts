@@ -26,10 +26,15 @@ chrome.tabs.onUpdated.addListener((id, i) => {
 	setTimeout(() => {
 		if (typeof id !== "number") return;
 
-		chrome.tabs.sendMessage(id, {
-			type: "settings-sync",
-			data: { settings },
-		});
+		chrome.tabs.sendMessage(
+			id,
+			{
+				type: "settings-sync",
+				data: { settings },
+			},
+			// The tab may have been closed, or may not run a content script (both expected)
+			() => void chrome.runtime.lastError,
+		);
 	}, 5000);
 });
 

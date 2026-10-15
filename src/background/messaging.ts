@@ -56,22 +56,26 @@ chrome.runtime.onMessage.addListener((msg, _, reply) => {
 	return true;
 });
 
-chrome.runtime.onUpdateAvailable.addListener((details) => {
-	if (!shouldReloadOnUpdate) return;
+// `onUpdateAvailable` is not implemented in Safari, so only register when present
+if (chrome.runtime.onUpdateAvailable) {
+	chrome.runtime.onUpdateAvailable.addListener((details) => {
+		if (!shouldReloadOnUpdate) return;
 
-	// Notify page script to reload trigger a reload immediately
-	broadcastMessage("update-ready", { version: details.version });
+		// Notify page script to reload trigger a reload immediately
+		broadcastMessage("update-ready", { version: details.version });
 
-	// Reload extension after a tiny delay to allow the downstream message to be sent
-	setTimeout(() => chrome.runtime.reload(), 50);
-});
+		// Reload extension after a tiny delay to allow the downstream message to be sent
+		setTimeout(() => chrome.runtime.reload(), 50);
+	});
+}
 
 function broadcastMessage(type: string, data: unknown): void {
 	chrome.tabs.query({}, (tabs) => {
 		tabs.forEach((tab) => {
 			if (!tab.id) return;
 
-			chrome.tabs.sendMessage(tab.id, { type, data });
+			// Tabs without a content script, or that have since closed, are expected failures
+			chrome.tabs.sendMessage(tab.id, { type, data }, () => void chrome.runtime.lastError);
 		});
 	});
 }
