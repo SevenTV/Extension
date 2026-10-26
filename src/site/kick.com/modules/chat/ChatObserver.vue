@@ -51,8 +51,15 @@ function getMessageReactProps(el: HTMLDivElement): Kick.Message.DefaultProps | u
 	const props = getReactProps<Kick.Message.MessageListProps>(messageElements);
 	if (!props || !Array.isArray(props.children)) return;
 
-	const child = props.children.find((child) => child?.props?.sender);
-	return child?.props;
+	const child = props.children.find((child) => child?.props?.sender || child?.props?.message?.sender);
+	if (!child?.props) return;
+
+	// Kick no longer passes sender and messageId as top-level props, they are only available on the message
+	if (!child.props.sender) {
+		return { ...child.props, sender: child.props.message.sender, messageId: child.props.message.id };
+	}
+
+	return child.props;
 }
 
 function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuffer?: boolean): void {
