@@ -4,7 +4,13 @@
 			<div class="seventv-chat-settings-button" @click="btn.action()">
 				<div :style="{ color: btn.color }">
 					<Logo :provider="'7TV'" />
-					<span>{{ btn.label }}</span>
+					<span>
+						{{ btn.label }}
+						<span
+							v-if="btn.label === '7TV Settings' && migrationNotice.dot"
+							class="seventv-chat-settings-dot"
+						/>
+					</span>
 				</div>
 				<component :is="btn.icon" v-if="btn.icon" />
 			</div>
@@ -19,6 +25,7 @@ import { useActor } from "@/composable/useActor";
 import GearsIcon from "@/assets/svg/icons/GearsIcon.vue";
 import OpenLinkIcon from "@/assets/svg/icons/OpenLinkIcon.vue";
 import Logo from "@/assets/svg/logos/Logo.vue";
+import { subscriptionMigrationNotice as migrationNotice } from "@/app/settings/subscriptionMigrationNotice";
 
 interface ChatSettingsButton {
 	label: string;
@@ -87,6 +94,8 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+@import "@/assets/style/flair";
+
 .seventv-chat-settings-button {
 	display: flex;
 	justify-content: space-between;
@@ -109,6 +118,17 @@ onUnmounted(() => {
 		> svg {
 			font-size: 1rem;
 		}
+	}
+
+	.seventv-chat-settings-dot {
+		position: relative;
+		display: inline-block;
+		width: 0.5rem;
+		height: 0.5rem;
+		margin-left: 0.5rem;
+		vertical-align: middle;
+
+		@include flair-pulsating(var(--seventv-primary));
 	}
 }
 </style>

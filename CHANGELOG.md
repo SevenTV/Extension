@@ -1,3 +1,7 @@
+## 3.1.26
+
+- Added subscription migration check
+
 ## 3.1.25
 
 -   Fixed Kick Emote Menu position
