@@ -1,3 +1,5 @@
+-   Fixed 7TV emotes not rendering in Kick chat after a Kick update
+
 ## 3.1.26.100
 
 - Added subscription migration check
