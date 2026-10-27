@@ -250,6 +250,14 @@ function toggleCollapsed(): void {
 	collapsedSets.value = new Set(collapsedSets.value);
 }
 
+function expand(): void {
+	if (!isCollapsed() || !collapsedSets.value) return;
+
+	collapsedSets.value.delete(props.es.id);
+	collapsed.value = false;
+	collapsedSets.value = new Set(collapsedSets.value);
+}
+
 onMounted(() => {
 	setupObserver();
 });
@@ -260,6 +268,7 @@ onBeforeUnmount(() => {
 
 defineExpose({
 	containerEl,
+	expand,
 });
 </script>
 

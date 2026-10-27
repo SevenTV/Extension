@@ -70,7 +70,7 @@ db.ready().then(async () => {
 
 // Spawn SharedWorker
 const { init, target } = useWorker();
-init(inject(SITE_WORKER_URL, ""));
+init(inject(SITE_WORKER_URL, "")).catch((err) => log.error("Failed to start worker", String(err)));
 
 target.addEventListener("ready", () => {
 	log.info("Worker ready");
