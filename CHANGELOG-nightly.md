@@ -2,6 +2,7 @@
 
 - Added subscription migration check
 - Fall back to a dedicated worker when shared workers cannot start
+- Fixed Kick autocomplete when the chat editor is added after startup
 
 ## 3.1.25.1000
 
