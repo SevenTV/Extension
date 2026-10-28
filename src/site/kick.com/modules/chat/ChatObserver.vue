@@ -15,7 +15,7 @@ kj
 import { nextTick, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { ObserverPromise } from "@/common/Async";
-import { getReactProps } from "@/common/ReactHooks";
+import { getVNodeFromDOM } from "@/common/ReactHooks";
 import ChatMessageVue, { ChatMessageBinding } from "./ChatMessage.vue";
 import ChatUserCard from "./ChatUserCard.vue";
 
@@ -34,38 +34,30 @@ const messageDeleteBuffer = ref<ChatMessageBinding[]>([]);
 const messageMap = reactive<WeakMap<HTMLDivElement, ChatMessageBinding>>(new WeakMap());
 const userCard = ref<ActiveUserCard[]>([]);
 
-function isDefaultReactMessageProps(props: unknown): props is Kick.Message.DefaultProps {
-	return (
-		props != null &&
-		typeof props === "object" &&
-		"sender" in props &&
-		typeof props.sender === "object" &&
-		"message" in props &&
-		typeof props.message === "object"
-	);
-}
+type KickMessageData = Kick.Message.DefaultProps["message"];
 
-function getMessageReactProps(el: HTMLDivElement): Kick.Message.DefaultProps | undefined {
-	const messageElements = el.querySelector("div > div[style*='chatroom-font-size']");
-	if (!messageElements) return;
-	const props = getReactProps<Kick.Message.MessageListProps>(messageElements);
-	if (!props || !Array.isArray(props.children)) return;
+function getMessageData(el: HTMLDivElement): KickMessageData | undefined {
+	const text = el.querySelector("span.font-normal");
+	if (!text) return;
 
-	const child = props.children.find((child) => child?.props?.sender);
-	return child?.props;
+	let node: ReactExtended.ReactVNode | null | undefined = getVNodeFromDOM(text);
+	for (let depth = 0; node && depth < 5; depth++, node = node.return) {
+		const message = (node.memoizedProps as Partial<Kick.Message.DefaultProps> | null)?.message;
+		if (message?.id && message.sender?.id != null) return message;
+	}
 }
 
 function patchMessageElement(el: HTMLDivElement & { __seventv?: boolean }, noBuffer?: boolean): void {
 	if (el.__seventv) return; // already patched
 	if (!el.hasAttribute("data-index")) return; // not a message
-	const props = getMessageReactProps(el);
-	if (!props) return;
+	const message = getMessageData(el);
+	if (!message) return;
 
 	el.__seventv = true;
 
-	const entryID = isDefaultReactMessageProps(props) ? props.messageId : props;
-	const userID = props.sender.id.toString();
-	const username = props.sender.username;
+	const entryID = message.id;
+	const userID = message.sender.id.toString();
+	const username = message.sender.username;
 	const usernameEl = el.querySelector<HTMLSpanElement>("div.inline-flex > button[data-prevent-expand='true']")!;
 	const textElements = el.querySelectorAll<HTMLSpanElement>("span.font-normal");
 
