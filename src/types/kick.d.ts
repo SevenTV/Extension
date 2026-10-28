@@ -21,9 +21,6 @@ declare module Kick {
 			};
 			messageId: string;
 		}
-		type MessageListProps = {
-			children: ReactExtended.WritableComponent<DefaultProps>[];
-		};
 	}
 
 	namespace Lexical {
