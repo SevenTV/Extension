@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watchEffect } from "vue";
 import { onClickOutside } from "@vueuse/core";
-import { Middleware, Placement, VirtualElement, autoUpdate, computePosition } from "@floating-ui/dom";
+import { Middleware, Placement, Strategy, VirtualElement, autoUpdate, computePosition } from "@floating-ui/dom";
 
 const props = defineProps<{
 	anchor?: Element;
@@ -15,6 +15,7 @@ const props = defineProps<{
 	emitClickout?: boolean;
 	middleware?: Middleware[];
 	placement?: Placement;
+	strategy?: Strategy;
 	once?: boolean;
 }>();
 
@@ -35,6 +36,7 @@ watchEffect(() => {
 	const currentContainer = el.value;
 	const currentMiddleware = props.middleware ?? [];
 	const currentPlacement = props.placement;
+	const currentStrategy = props.strategy;
 	if (!currentContainer) return;
 
 	const virtual = {
@@ -50,6 +52,7 @@ watchEffect(() => {
 		computePosition(currentAnchor ?? virtual, currentContainer, {
 			middleware: currentMiddleware,
 			placement: currentPlacement,
+			strategy: currentStrategy,
 		}).then(({ x, y }) => {
 			currentContainer.style.top = `${y}px`;
 			currentContainer.style.left = `${x}px`;

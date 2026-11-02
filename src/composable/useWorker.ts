@@ -8,13 +8,52 @@ let workerURL: string | null;
 const workerLog = new Logger();
 workerLog.setContextName("Worker/Pipe");
 
-let worker: SharedWorker | null = null;
+interface WorkerConnection {
+	port: MessagePort;
+	close: () => void;
+}
+
+let worker: WorkerConnection | null = null;
 
 type WorkerAddrMap = Record<string, string>;
 
-async function init(originURL: string): Promise<SharedWorker> {
-	let sw: SharedWorker;
+function connectWorker(url: string, shared: boolean): Promise<WorkerConnection> {
+	return new Promise((resolve, reject) => {
+		const instance = shared
+			? new SharedWorker(url, { name: "seventv-extension" })
+			: new Worker(url, { name: "seventv-extension" });
+		const channel = instance instanceof Worker ? new MessageChannel() : null;
+		const port = shared ? (instance as SharedWorker).port : channel!.port1;
+		const close = () => {
+			port.close();
+			if (instance instanceof Worker) instance.terminate();
+		};
+		const cleanup = () => {
+			clearTimeout(timeout);
+			instance.removeEventListener("error", onError);
+			port.removeEventListener("message", onMessage);
+		};
+		const onError = () => {
+			cleanup();
+			close();
+			reject(new Error(`${shared ? "Shared" : "Dedicated"} worker failed to start`));
+		};
+		const onMessage = (event: MessageEvent<WorkerMessage<WorkerMessageType>>) => {
+			if (event.data.type !== "INIT") return;
+			cleanup();
+			resolve({ port, close });
+		};
+		const timeout = setTimeout(onError, 5000);
+		instance.addEventListener("error", onError);
+		port.addEventListener("message", onMessage);
+		port.start();
+		if (instance instanceof Worker && channel) {
+			instance.postMessage({ type: "CONNECT" }, [channel.port2]);
+		}
+	});
+}
 
+async function init(originURL: string): Promise<WorkerConnection> {
 	// Check for existing url
 	// If it exists, we'll connect to it
 	const appVersion = import.meta.env.VITE_APP_VERSION;
@@ -64,27 +103,33 @@ async function init(originURL: string): Promise<SharedWorker> {
 		log.info("Connecting to existing worker", `addr=${workerURL}`);
 	}
 
-	// Connect to worker
-	return new Promise<SharedWorker>((resolve, reject) => {
-		if (!workerURL) return reject("No address to worker");
+	if (!workerURL) throw new Error("No address to worker");
 
-		// Spawn or connect to worker
-		sw = worker = new SharedWorker(workerURL, {
-			name: "seventv-extension",
-		});
-		sw.port.start();
+	try {
+		worker = await connectWorker(workerURL, true);
+	} catch (err) {
+		log.warn("Shared worker unavailable, starting a dedicated worker", String(err));
+		// A cached shared worker may belong to an older build of the same version.
+		const response = await fetch(originURL);
+		if (!response.ok) throw new Error("Unable to fetch dedicated worker data");
+		const fallbackURL = URL.createObjectURL(await response.blob());
+		try {
+			worker = await connectWorker(fallbackURL, false);
+		} finally {
+			URL.revokeObjectURL(fallbackURL);
+		}
+	}
 
-		// Define message handlers
-		useGlobalHandlers(sw.port);
-		useHandlers(sw.port);
+	useGlobalHandlers(worker.port);
+	useHandlers(worker.port);
+	events.emit("ready", {});
 
-		// Emit close on page exit
-		addEventListener("beforeunload", () => {
-			sendMessage("CLOSE", {});
-		});
-
-		resolve(sw);
+	addEventListener("beforeunload", () => {
+		sendMessage("CLOSE", {});
+		worker?.close();
 	});
+
+	return worker;
 }
 
 function sendMessage<T extends WorkerMessageType>(type: T, data: TypedWorkerMessage<T>): void {
