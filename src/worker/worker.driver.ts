@@ -12,6 +12,8 @@ export class WorkerDriver extends EventTarget {
 	db: Dexie7;
 	log: Logger;
 
+	startupID = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
 	ports = new Map<symbol, WorkerPort>();
 	portSeq = 0;
 
@@ -81,16 +83,20 @@ export class WorkerDriver extends EventTarget {
 				this.ports.set(p.id, p);
 
 				// Do DB cleanup for unused data
-				setTimeout(
-					() => {
-						const exemptions = Array.from(this.ports.values())
-							.filter((p) => p.channels.size)
-							.flatMap((p) => p.channelIds);
+				const expirationDelay = getRandomInt(2500, 15000);
+				setTimeout(() => {
+					const exemptions = Array.from(this.ports.values())
+						.filter((p) => p.channels.size)
+						.flatMap((p) => p.channelIds);
 
-						db.expireDocuments(exemptions);
-					},
-					getRandomInt(2500, 15000),
-				);
+					this.log.debug(
+						"Expiring documents",
+						`portSeq=${p.seq}`,
+						`delay=${expirationDelay}ms`,
+						`exemptions=${exemptions.join(",") || "none"}`,
+					);
+					db.expireDocuments(exemptions);
+				}, expirationDelay);
 
 				// Fetch config anew
 				this.http
@@ -106,7 +112,7 @@ export class WorkerDriver extends EventTarget {
 
 		w.caches.open("SEVENTV#CACHE").then((c) => (this.cache = c));
 
-		this.log.info("Worker has spawned. Logs will be piped to the UI thread");
+		this.log.info("Worker has spawned", `startup=${this.startupID}`, "Logs will be piped to the UI thread");
 	}
 
 	addEventListener<T extends WorkerEventName>(

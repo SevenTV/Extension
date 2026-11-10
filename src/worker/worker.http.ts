@@ -171,6 +171,11 @@ export class WorkerHttp {
 						),
 				),
 		).then(() => {
+			this.driver.log.debug(
+				`<Net/Http> channel data fetched for #${channel.username}`,
+				`id=${channel.id}`,
+				`portSeq=${port.seq}`,
+			);
 			port?.postMessage("CHANNEL_SETS_FETCHED", {
 				channel,
 			});

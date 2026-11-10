@@ -75,6 +75,7 @@ export class Dexie7 extends Dexie {
 
 			this.open()
 				.then(() => {
+					this._ready = true;
 					resolve(true);
 				})
 				.catch(onError);
@@ -112,12 +113,19 @@ export class Dexie7 extends Dexie {
 				.and((c) => !exemptChannels?.includes(c.id))
 				.toArray();
 
-			// Expire emote sets
+			const activeSetIDs = new Set<string>(
+				(await this.channels.where("id").anyOf(exemptChannels).toArray()).flatMap((c) => c.set_ids ?? []),
+			);
+
+			const expiredSetIDs = channels.map((c) => c.set_ids).reduce((a, b) => a.concat(b), []);
+
 			this.emoteSets
-				.where("id")
-				.anyOf(channels.map((c) => c.set_ids).reduce((a, b) => a.concat(b), []))
-				.or("timestamp")
-				.below(now - oneHour)
+				.filter((es) => {
+					if (es.scope === "GLOBAL") return false;
+					if (activeSetIDs.has(es.id)) return false;
+
+					return (es.timestamp ?? 0) < now - oneHour || expiredSetIDs.includes(es.id);
+				})
 				.delete();
 
 			// Clean up entitlements
