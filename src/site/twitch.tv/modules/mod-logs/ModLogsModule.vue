@@ -1,5 +1,5 @@
 <template>
-	<template v-if="open && buttonRef.current">
+	<Teleport v-if="open && buttonRef.current" :to="fullscreenEl ?? '#seventv-root, body'">
 		<UiDraggable
 			v-for="con of chatController.instance?.chatController.instances ?? []"
 			:key="con.component.props.channelID"
@@ -9,11 +9,12 @@
 		>
 			<ModLogs ref="com" :channel-id="con.component.props.channelID" @close="open = false" />
 		</UiDraggable>
-	</template>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useEventListener } from "@vueuse/core";
 import { until } from "@vueuse/shared";
 import { declareModule, getModule } from "@/composable/useModule";
 import ModLogs from "./ModLogs.vue";
@@ -29,6 +30,11 @@ const { dependenciesMet, markAsReady } = declareModule("mod-logs", {
 
 const open = ref(false);
 const com = ref<InstanceType<typeof ModLogs> | undefined>();
+const fullscreenEl = ref<Element | null>(document.fullscreenElement);
+
+useEventListener(document, "fullscreenchange", () => {
+	fullscreenEl.value = document.fullscreenElement;
+});
 
 await until(dependenciesMet).toBe(true);
 

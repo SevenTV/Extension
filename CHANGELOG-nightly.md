@@ -1,5 +1,6 @@
 ## 3.1.27.100
 
+-   Fixed emote menu, settings menu, tooltips and floating panels not appearing in Twitch fullscreen mode
 -   Fixed Kick chat rendering, replies and links<br><i>Moving to our new extension is recommended: <a href="https://chromewebstore.google.com/detail/7tv/lppmekppnliemjclknbagdhoocikieoi" target="_blank">Chrome</a> / <a href="https://addons.mozilla.org/en-GB/firefox/addon/7tv-new/" target="_blank">Firefox</a></i>
 
 ## 3.1.26.100

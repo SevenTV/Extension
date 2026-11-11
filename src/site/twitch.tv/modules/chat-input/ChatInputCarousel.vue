@@ -1,32 +1,34 @@
 <template>
-	<UiFloating v-if="anchor && currentMatch.item" :anchor="anchor" placement="top">
-		<div class="seventv-autocomplete-floater">
-			<!-- Backwards Matches -->
-			<div v-if="back.size" class="seventv-autocomplete-floater-list" direction="backwards">
-				<CaretIcon />
+	<Teleport :to="fullscreenEl ?? '#seventv-root, body'">
+		<UiFloating v-if="anchor && currentMatch.item" :anchor="anchor" placement="top">
+			<div class="seventv-autocomplete-floater">
+				<!-- Backwards Matches -->
+				<div v-if="back.size" class="seventv-autocomplete-floater-list" direction="backwards">
+					<CaretIcon />
 
-				<template v-for="tok of back" :key="tok.token">
-					<Emote v-if="tok.item" :emote="tok.item" />
-				</template>
+					<template v-for="tok of back" :key="tok.token">
+						<Emote v-if="tok.item" :emote="tok.item" />
+					</template>
+				</div>
+
+				<!-- Current Match -->
+				<div class="seventv-autocomplete-floater-list" direction="current">
+					<template v-for="tok of cur" :key="tok.token">
+						<Emote v-if="tok.item" :emote="tok.item" />
+					</template>
+				</div>
+
+				<!-- Forwards Match -->
+				<div v-if="forward.size" class="seventv-autocomplete-floater-list" direction="forwards">
+					<template v-for="tok of forward" :key="tok.token">
+						<Emote v-if="tok.item" :emote="tok.item" />
+					</template>
+
+					<CaretIcon />
+				</div>
 			</div>
-
-			<!-- Current Match -->
-			<div class="seventv-autocomplete-floater-list" direction="current">
-				<template v-for="tok of cur" :key="tok.token">
-					<Emote v-if="tok.item" :emote="tok.item" />
-				</template>
-			</div>
-
-			<!-- Forwards Match -->
-			<div v-if="forward.size" class="seventv-autocomplete-floater-list" direction="forwards">
-				<template v-for="tok of forward" :key="tok.token">
-					<Emote v-if="tok.item" :emote="tok.item" />
-				</template>
-
-				<CaretIcon />
-			</div>
-		</div>
-	</UiFloating>
+		</UiFloating>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
@@ -53,6 +55,11 @@ const emit = defineEmits<{
 
 const shouldListenToArrowPresses = useConfig("chat_input.autocomplete.carousel_arrow_keys");
 const anchor = ref<Element | null>(null);
+const fullscreenEl = ref<Element | null>(document.fullscreenElement);
+
+useEventListener(document, "fullscreenchange", () => {
+	fullscreenEl.value = document.fullscreenElement;
+});
 
 const back = ref(new Set<TabToken>());
 const forward = ref(new Set<TabToken>());

@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watchEffect } from "vue";
-import { onClickOutside } from "@vueuse/core";
+import { nextTick, onBeforeUnmount, ref, watchEffect } from "vue";
+import { onClickOutside, useEventListener } from "@vueuse/core";
 import { Middleware, Placement, VirtualElement, autoUpdate, computePosition } from "@floating-ui/dom";
 
 const props = defineProps<{
@@ -23,6 +23,13 @@ const emit = defineEmits<{
 }>();
 
 const el = ref<HTMLElement>();
+const fullscreenEl = ref<Element | null>(document.fullscreenElement);
+
+useEventListener(document, "fullscreenchange", () => {
+	nextTick(() => {
+		fullscreenEl.value = document.fullscreenElement;
+	});
+});
 
 let stopUpdating: (() => void) | undefined;
 
@@ -35,6 +42,7 @@ watchEffect(() => {
 	const currentContainer = el.value;
 	const currentMiddleware = props.middleware ?? [];
 	const currentPlacement = props.placement;
+	void fullscreenEl.value;
 	if (!currentContainer) return;
 
 	const virtual = {
@@ -83,6 +91,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .floating-container {
 	position: absolute;
-	z-index: 1000;
+	z-index: 9999;
 }
 </style>

@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
-import { onClickOutside, useDraggable } from "@vueuse/core";
+import { computed, nextTick, onBeforeUnmount, ref, watch, watchEffect } from "vue";
+import { onClickOutside, useDraggable, useEventListener } from "@vueuse/core";
 import { Middleware, Placement, ReferenceElement, autoUpdate, computePosition, shift } from "@floating-ui/dom";
 
 const props = defineProps<{
@@ -94,6 +94,14 @@ useDraggable(el, {
 	preventDefault: true,
 });
 
+useEventListener(document, "fullscreenchange", () => {
+	nextTick(() => {
+		if (el.value) {
+			updatePosition(x.value, y.value);
+		}
+	});
+});
+
 let stopUpdating: (() => void) | undefined;
 
 watch(
@@ -164,6 +172,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .draggable-container {
 	position: fixed;
-	z-index: 9999;
+	z-index: 10000;
 }
 </style>
