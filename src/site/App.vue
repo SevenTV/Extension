@@ -7,7 +7,7 @@
 	</template>
 
 	<!-- Render tooltip -->
-	<Teleport to="#root, #app, body">
+	<Teleport :to="fullscreenEl ?? '#root, #app, body'">
 		<Global v-if="!wg" />
 	</Teleport>
 </template>
@@ -17,6 +17,7 @@ import type { Component } from "vue";
 import { defineAsyncComponent } from "vue";
 import { inject } from "vue";
 import { markRaw, onMounted, ref } from "vue";
+import { useEventListener } from "@vueuse/core";
 import { APP_BROADCAST_CHANNEL, SITE_WORKER_URL } from "@/common/Constant";
 import { log } from "@/common/Logger";
 import { db } from "@/db/idb";
@@ -44,7 +45,12 @@ if (import.meta.hot) {
 }
 
 const wg = ref(3);
+const fullscreenEl = ref<Element | null>(document.fullscreenElement);
 const appID = inject<string>("app-id") ?? null;
+
+useEventListener(document, "fullscreenchange", () => {
+	fullscreenEl.value = document.fullscreenElement;
+});
 const settings = useSettings();
 log.info(`7TV (inst: ${appID}) is loading`);
 

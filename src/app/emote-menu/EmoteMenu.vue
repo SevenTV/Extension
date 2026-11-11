@@ -1,61 +1,66 @@
 <template>
-	<UiFloating
-		:anchor="anchorEl"
-		placement="top-end"
-		:middleware="[shift({ padding: 4, mainAxis: true, crossAxis: true }), offset({ mainAxis: 4, crossAxis: -4 })]"
-	>
-		<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu">
-			<div class="seventv-emote-menu-header" :class="{ 'disabled-search-input': isSearchInputEnabled }">
-				<!-- Emote Menu Header -->
-				<div class="seventv-emote-menu-providers">
-					<template v-for="(b, key) in visibleProviders">
-						<div
-							v-if="b || key === activeProvider"
-							:key="key"
-							class="seventv-emote-menu-provider-icon"
-							:selected="key === activeProvider"
-							@click="activeProvider = key"
-						>
-							<Logo v-if="key !== 'FAVORITE'" :provider="key" />
-							<StarIcon v-else />
-							<span v-show="key === activeProvider">
-								<template v-if="key === 'PLATFORM'">{{ platform }}</template>
-								<template v-else>{{ key }}</template>
-							</span>
+	<Teleport :to="fullscreenEl ?? '#seventv-root, body'">
+		<UiFloating
+			:anchor="anchorEl"
+			placement="top-end"
+			:middleware="[
+				shift({ padding: 4, mainAxis: true, crossAxis: true }),
+				offset({ mainAxis: 4, crossAxis: -4 }),
+			]"
+		>
+			<div v-if="ctx.open && ctx.channelID" ref="containerRef" class="seventv-emote-menu">
+				<div class="seventv-emote-menu-header" :class="{ 'disabled-search-input': isSearchInputEnabled }">
+					<!-- Emote Menu Header -->
+					<div class="seventv-emote-menu-providers">
+						<template v-for="(b, key) in visibleProviders">
+							<div
+								v-if="b || key === activeProvider"
+								:key="key"
+								class="seventv-emote-menu-provider-icon"
+								:selected="key === activeProvider"
+								@click="activeProvider = key"
+							>
+								<Logo v-if="key !== 'FAVORITE'" :provider="key" />
+								<StarIcon v-else />
+								<span v-show="key === activeProvider">
+									<template v-if="key === 'PLATFORM'">{{ platform }}</template>
+									<template v-else>{{ key }}</template>
+								</span>
+							</div>
+						</template>
+					</div>
+					<div v-if="!isSearchInputEnabled" class="seventv-emote-menu-search">
+						<input
+							ref="searchInputRef"
+							v-model="ctx.filter"
+							class="seventv-emote-menu-search-input"
+							autofocus
+						/>
+						<div class="search-icon">
+							<SearchIcon />
 						</div>
-					</template>
-				</div>
-				<div v-if="!isSearchInputEnabled" class="seventv-emote-menu-search">
-					<input
-						ref="searchInputRef"
-						v-model="ctx.filter"
-						class="seventv-emote-menu-search-input"
-						autofocus
-					/>
-					<div class="search-icon">
-						<SearchIcon />
 					</div>
 				</div>
-			</div>
 
-			<!-- Emote menu body -->
-			<div
-				v-for="(_, key) in visibleProviders"
-				v-show="key === activeProvider"
-				:key="key"
-				class="seventv-emote-menu-body"
-			>
-				<EmoteMenuTab
-					:provider="key"
-					:selected="key === activeProvider"
-					@emote-clicked="emit('emote-click', $event)"
-					@provider-visible="onProviderVisibilityChange(key, $event)"
-					@toggle-settings="settingsContext.toggle()"
-					@toggle-native-menu="[toggle(), emit('toggle-native-menu')]"
-				/>
+				<!-- Emote menu body -->
+				<div
+					v-for="(_, key) in visibleProviders"
+					v-show="key === activeProvider"
+					:key="key"
+					class="seventv-emote-menu-body"
+				>
+					<EmoteMenuTab
+						:provider="key"
+						:selected="key === activeProvider"
+						@emote-clicked="emit('emote-click', $event)"
+						@provider-visible="onProviderVisibilityChange(key, $event)"
+						@toggle-settings="settingsContext.toggle()"
+						@toggle-native-menu="[toggle(), emit('toggle-native-menu')]"
+					/>
+				</div>
 			</div>
-		</div>
-	</UiFloating>
+		</UiFloating>
+	</Teleport>
 </template>
 
 <script setup lang="ts">
@@ -88,6 +93,11 @@ const emit = defineEmits<{
 }>();
 
 const containerRef = ref<HTMLElement | undefined>();
+const fullscreenEl = ref<Element | null>(document.fullscreenElement);
+
+useEventListener(document, "fullscreenchange", () => {
+	fullscreenEl.value = document.fullscreenElement;
+});
 
 const channelCtx = useChannelContext();
 const ctx = useEmoteMenuContext();

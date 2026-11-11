@@ -32,6 +32,12 @@ const chatInputController = useComponentHook<Twitch.ChatInputController>(
 		trackRoot: true,
 		containerClass: "seventv-chat-input-container",
 		hooks: {
+			mount(instance) {
+				doButtonUpdate(Object.values(instance.domNodes));
+			},
+			update(instance) {
+				doButtonUpdate(Object.values(instance.domNodes));
+			},
 			render(instance, cur) {
 				shouldMount.set(instance, !!instance.component.props.channelID);
 

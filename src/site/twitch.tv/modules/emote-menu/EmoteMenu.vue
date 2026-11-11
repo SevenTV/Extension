@@ -5,7 +5,6 @@
 			:anchor-el="anchorEl"
 			width="32.5rem"
 			scale="1rem"
-			:instance="props.instance"
 			@emote-click="onEmoteClick($event)"
 			@toggle-native-menu="toggle(true)"
 			@close="onClose"
@@ -175,7 +174,7 @@ function onClose(e: MouseEvent) {
 
 // Capture anchor / input elements
 watchEffect(() => {
-	if (!anchorEl.value && props.instance.domNodes.root) {
+	if ((!anchorEl.value || !anchorEl.value.isConnected) && props.instance.domNodes.root) {
 		const n = props.instance.domNodes.root.querySelector(".chat-input");
 		if (!n) return;
 
